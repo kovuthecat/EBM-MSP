@@ -13,20 +13,21 @@ statut : ` ` à faire · `~` en cours · `x` fait · modèles/efforts : `WORKFLO
 
 ## Étape en cours (hors backlog code)
 
-- [ ] **Maquette Claude Design** — envoyer `ARCHITECTURE.md` tel quel, dessiner les écrans
-  (D1, D2, D3, V1, V2, V3, V4, V5, S1), exporter dans `design/maquettes/`, mettre à jour
-  `ARCHITECTURE.md §Maquette`. *(étape humaine — préalable au câblage)*
+- [x] **Maquette Claude Design** — 9 écrans reçus (handoff dans `design/maquettes/prototype-ebm-msp-neuf-crans/`),
+  `ARCHITECTURE.md §Maquette` mis à jour. *(fait 2026-07-22)*
+- [ ] **Exécuter le plan P1** (câblage MVP module Décision) — cf. [plans/P1/index.md](plans/P1/index.md).
+  Lancer S1 → S2 → S3 → S4 (une session Sonnet à la fois, `/clear` entre), puis consolidation.
 
-## Backlog (Phase 1 — MVP module Décision, cadré en plan après la maquette)
+## Backlog (Phase 1 — MVP module Décision) — cadré dans `plans/P1/`
 
-- [ ] T-001 — Scaffold Vite + React + TS + Vitest (structure feature-first, config) · modèle: Sonnet, effort: medium · plan: —
-- [ ] T-002 — JSON Schema du nœud de décision + validation · modèle: Sonnet, effort: high · plan: —
-- [ ] T-003 — Moteur de règles déterministe (filtrage options par conditions, TS pur) + tests Vitest · modèle: Sonnet, effort: high · plan: —
-- [ ] T-004 — Loader de contenu YAML→JSON (build-time) · modèle: Sonnet, effort: medium · plan: —
-- [ ] T-005 — UI module Décision : formulaire critères → options (badges preuve, effet absolu) · modèle: Sonnet, effort: high · plan: —
-- [ ] T-006 — UI argumentaire dépliable (reco officielle vs position critique, divergence, sources) · modèle: Sonnet, effort: medium · plan: —
-- [ ] T-007 — Contenu nœud A « Cible glycémique » (YAML sourcé, cf. gabarit BRIEF_DECISION §11) · modèle: Sonnet, effort: high · plan: —
-- [ ] T-008 — Layout/navigation + accueil (D1) + disclaimer permanent · modèle: Haiku, effort: low · plan: —
+- [ ] T-001 — Scaffold Vite + React + TS + Vitest + tokens + shell · modèle: Sonnet, effort: medium · plan: → plans/P1/S1.md
+- [ ] T-008 — Accueil (D1) + Méthode (S1) + disclaimer permanent · modèle: Sonnet, effort: medium · plan: → plans/P1/S1.md
+- [ ] T-002 — JSON Schema du nœud de décision + types TS · modèle: Sonnet, effort: high · plan: → plans/P1/S2.md
+- [ ] T-004 — Import YAML (plugin Vite) + validation Ajv en test · modèle: Sonnet, effort: high · plan: → plans/P1/S2.md
+- [ ] T-007 — Contenu nœud A « Cible glycémique » (YAML sourcé, brief §11) · modèle: Sonnet, effort: high · plan: → plans/P1/S2.md
+- [ ] T-003 — Moteur de règles déterministe (évaluateur de conditions, TS pur) + tests Vitest · modèle: Sonnet, effort: high · plan: → plans/P1/S3.md
+- [ ] T-005 — UI Décision D2 (domaines + liste nœuds) · modèle: Sonnet, effort: high · plan: → plans/P1/S4.md
+- [ ] T-006 — UI Décision D3 (form → options → argumentaire, câblé moteur) · modèle: Sonnet, effort: high · plan: → plans/P1/S4.md
 
 ## Backlog (Phases 2–3 — non cadré)
 
