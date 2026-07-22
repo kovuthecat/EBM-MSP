@@ -1,0 +1,205 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ebm-msp.local/schema/noeud.schema.json",
+  "title": "Noeud de decision clinique",
+  "description": "Schema d'un noeud de decision (docs/decision/BRIEF_DECISION.md §5.1, gabarit complet §11). `domaine` est obligatoire : le moteur et l'UI sont generiques multi-domaine, DT2 est le premier domaine livre (DECISIONS.md D8).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "domaine",
+    "titre",
+    "population_cible",
+    "criteres_entree",
+    "options",
+    "argumentaire",
+    "sources",
+    "incertitudes",
+    "veille_liee",
+    "meta"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identifiant stable du noeud (ex. cible-glycemique)."
+    },
+    "domaine": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Domaine clinique du noeud (ex. diabete-type-2). Champ obligatoire (DECISIONS.md D8)."
+    },
+    "titre": { "type": "string", "minLength": 1 },
+    "population_cible": { "type": "string", "minLength": 1 },
+    "criteres_entree": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/critereEntree" }
+    },
+    "options": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/option" }
+    },
+    "argumentaire": { "type": "string", "minLength": 1 },
+    "sources": { "$ref": "#/definitions/sources" },
+    "incertitudes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "veille_liee": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Ids d'entrees de veille ayant modifie ce noeud (pont bidirectionnel avec noeuds_impactes cote veille)."
+    },
+    "meta": { "$ref": "#/definitions/meta" }
+  },
+  "definitions": {
+    "critereEntree": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["nom", "type"],
+      "properties": {
+        "nom": { "type": "string", "minLength": 1 },
+        "type": { "type": "string", "enum": ["nombre", "bool", "enum"] },
+        "valeurs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Valeurs possibles, uniquement pertinent quand type = enum."
+        }
+      }
+    },
+    "option": {
+      "type": "object",
+      "additionalProperties": false,
+      "$comment": "Choix de forme (T-002 'Si bloque' : ambiguite mineure entre §5.1 et §11, tranchee en suivant le gabarit concret §11) : `contre_indications` est optionnel. Dans le gabarit §11, seule l'option la plus stricte ('Cible ~6,5 %') porte ce champ ; les 3 autres options l'omettent completement (pas de tableau vide). Rendre le champ requis aurait invalide le contenu sourci du brief.",
+      "required": [
+        "intitule",
+        "avantages",
+        "inconvenients",
+        "effet_attendu",
+        "niveau_preuve",
+        "conditions"
+      ],
+      "properties": {
+        "intitule": { "type": "string", "minLength": 1 },
+        "avantages": { "type": "array", "items": { "type": "string" } },
+        "inconvenients": { "type": "array", "items": { "type": "string" } },
+        "effet_attendu": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Effet absolu / NNT / NNH ; sinon la chaine 'non chiffrable'."
+        },
+        "niveau_preuve": { "$ref": "#/definitions/niveauPreuve" },
+        "conditions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Regles d'affichage : expressions booleennes sur les criteres_entree (ex. 'age < 60'), ou ['default'] pour l'option par defaut du noeud."
+        },
+        "contre_indications": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "niveauPreuve": {
+      "type": "string",
+      "enum": ["eleve", "modere", "faible", "tres_faible"],
+      "description": "Echelle GRADE simplifiee (brief §4). NB forme : cette enum utilise l'underscore 'tres_faible', identique au commentaire du brief §5.1. Le type partage `src/features/shared/types.ts` (`NiveauPreuve`, cree en S1 pour l'affichage transverse) utilise lui 'tres-faible' (trait d'union). Ecart de forme signale, non resolu ici (hors perimetre S2 : shared ne doit pas etre modifie sans decision) ; a trancher avant le cablage des ecrans (S4)."
+    },
+    "typeCritere": {
+      "type": "string",
+      "enum": ["dur", "mixte", "substitution"],
+      "description": "Nature du critere evalue par la reference (brief §4 : distinguer toujours critere dur vs substitution ; 'mixte' pour un essai combinant les deux, ex. ADVANCE)."
+    },
+    "referencePrimaire": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["titre", "annee", "lien", "type_critere"],
+      "properties": {
+        "titre": { "type": "string", "minLength": 1 },
+        "annee": { "type": "integer" },
+        "lien": {
+          "type": "string",
+          "description": "URL/DOI si disponible ; chaine vide acceptee en attendant sourcage complet."
+        },
+        "type_critere": { "$ref": "#/definitions/typeCritere" }
+      }
+    },
+    "sources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "references_primaires",
+        "medicalement_geek",
+        "prescrire",
+        "reco_officielle"
+      ],
+      "properties": {
+        "references_primaires": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/referencePrimaire" }
+        },
+        "medicalement_geek": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["synthese", "lien"],
+          "properties": {
+            "synthese": { "type": "string" },
+            "lien": { "type": "string" }
+          }
+        },
+        "prescrire": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["synthese"],
+          "properties": {
+            "synthese": { "type": "string" }
+          }
+        },
+        "reco_officielle": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source", "position", "divergence", "explication"],
+          "properties": {
+            "source": { "type": "string" },
+            "position": { "type": "string" },
+            "divergence": {
+              "type": "boolean",
+              "description": "true si la position raisonnee de l'outil diverge de la reco officielle citee."
+            },
+            "explication": { "type": "string" }
+          }
+        }
+      }
+    },
+    "changelogEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["date", "auteur", "resume"],
+      "properties": {
+        "date": { "type": "string" },
+        "auteur": { "type": "string" },
+        "resume": { "type": "string" },
+        "veille_source": {
+          "type": "string",
+          "description": "Id de l'entree de veille a l'origine de la modification, si applicable (DECISIONS.md D5)."
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["date_revue", "auteur", "statut", "version", "changelog"],
+      "properties": {
+        "date_revue": { "type": "string" },
+        "auteur": { "type": "string" },
+        "statut": { "type": "string", "enum": ["brouillon", "valide"] },
+        "version": { "type": "string" },
+        "changelog": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/changelogEntry" }
+        }
+      }
+    }
+  }
+}
