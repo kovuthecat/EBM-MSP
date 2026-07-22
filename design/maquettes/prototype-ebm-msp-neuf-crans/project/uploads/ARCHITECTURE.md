@@ -177,31 +177,6 @@ recopié ici ; ne pas renvoyer vers d'autres fichiers.
 
 ## Maquette UI
 
-- Statut : [ ] à dessiner · [x] **dessinée** · [ ] câblée
-- Exports : `design/maquettes/prototype-ebm-msp-neuf-crans/` — handoff Claude Design, prototype
-  **HTML/CSS/JS unique** `project/MSP Menilmontant.dc.html` (les 9 écrans en un fichier), avec
-  `support.js` et le logo. **Référence visuelle et d'interaction** (à recréer, pas à copier structurellement).
-- Les 9 écrans couvrent 1:1 l'architecture : `home` (D1), `decisionDomains` (D2), `decisionNode` (D3),
-  `veilleList` (V1), `veilleDetail` (V2), `profile` (V3), `memory` (V4), `auth` (V5), `methode` (S1).
-
-### Système visuel (extrait du prototype — valeurs exactes dans le `.dc.html`)
-
-- Couleurs **OKLCH**. Fond page `oklch(98% 0.006 240)` ; carte `oklch(99.5% 0.002 240)` ; bordure
-  `oklch(89% 0.012 240)` ; texte `oklch(24% 0.02 245)`, atténué `oklch(50% 0.018 245)`.
-- **Accent Décision = indigo `oklch(46% 0.09 254)`** ; **accent Veille = teal `oklch(58% 0.075 178)`**.
-- Bandeau disclaimer permanent `oklch(95% 0.02 230)`. Header sticky avec pills Décision/Veille + menu
-  compte. Rayons 8–16px, police système.
-- **Badge niveau de preuve** : élevé = indigo plein · modéré = `oklch(75% 0.06 254)` · faible =
-  `oklch(90% 0.03 254)`. **Badge impact** : pratique = teal plein · informatif = gris.
-
-### Écarts maquette ↔ architecture (à répercuter au câblage)
-
-- **Contenus cliniques = illustratifs** (décision de Thibault) : les NNT, essais et chiffres du
-  prototype sont des exemples. Le contenu réel des nœuds vient de `docs/decision/` (sourcé), **jamais**
-  copié du prototype.
-- Le prototype liste **7 nœuds** DT2 (cible, 1re intention, intensification, insuline, statine,
-  aspirine, RHD) ; le brief en prévoit **8** (A→H, dont « sulfamides/gliptines »). Le contenu
-  autoritaire reste le brief §10 — arbitrer le regroupement au câblage du contenu.
-- Moteur du nœud « cible » esquissé en dur (`decideTier`, 4 bandes) → à généraliser en évaluateur de
-  `conditions` (moteur générique, cf. `DECISIONS.md` D3/D8).
-- Multi-domaine **présent** dans le prototype (chips DT2 actif + CV/BPCO/Gériatrie « à venir »).
+- Statut : [x] à dessiner · [ ] dessinée · [ ] câblée
+- Exports : `design/maquettes/` (un fichier par écran, HTML ou PNG)
+- Écarts maquette ↔ architecture : *(à remplir au retour de Claude Design)*

@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  body{margin:0;box-sizing:border-box;}
+  *{box-sizing:border-box;}
+  input,select{font-family:inherit;}
+</style>
+</helmet>
+<div style="min-height:100vh;background:oklch(98% 0.006 240);color:oklch(24% 0.02 245);font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Helvetica,Arial,sans-serif;">
+
+  <sc-if value="{{ showChrome }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding:14px 24px;background:oklch(99.5% 0.002 240);border-bottom:1px solid oklch(89% 0.012 240);position:sticky;top:0;z-index:20;">
+      <div style="display:flex;align-items:center;gap:10px;cursor:pointer;" onClick="{{ goHome }}">
+        <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg, oklch(58% 0.075 178), oklch(46% 0.09 254));flex-shrink:0;"></div>
+        <div style="font-weight:700;font-size:15px;letter-spacing:0.02em;">MSP Ménilmontant</div>
+      </div>
+      <div style="display:flex;gap:6px;background:oklch(96% 0.008 240);padding:4px;border-radius:10px;">
+        <button onClick="{{ goDecision }}" style="border:none;padding:8px 16px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;background:{{ decisionPillBg }};color:{{ decisionPillColor }};">Décision</button>
+        <button onClick="{{ goVeille }}" style="border:none;padding:8px 16px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;background:{{ veillePillBg }};color:{{ veillePillColor }};">Veille</button>
+      </div>
+      <button onClick="{{ goMethode }}" style="border:none;background:transparent;color:oklch(50% 0.018 245);font-size:14px;font-weight:500;cursor:pointer;">Méthode</button>
+      <div style="flex:1;"></div>
+      <div style="position:relative;">
+        <button onClick="{{ toggleAccountMenu }}" style="display:flex;align-items:center;gap:8px;border:1px solid oklch(89% 0.012 240);background:oklch(99.5% 0.002 240);border-radius:20px;padding:6px 14px 6px 6px;cursor:pointer;font-size:13px;font-weight:600;color:oklch(24% 0.02 245);">
+          <div style="width:24px;height:24px;border-radius:50%;background:oklch(46% 0.09 254);color:white;display:flex;align-items:center;justify-content:center;font-size:11px;">{{ accountInitial }}</div>
+          {{ accountLabel }}
+        </button>
+        <sc-if value="{{ accountMenuOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;right:0;top:calc(100% + 6px);background:oklch(99.5% 0.002 240);border:1px solid oklch(89% 0.012 240);border-radius:10px;box-shadow:0 8px 24px oklch(20% 0.02 245 / 0.12);min-width:190px;overflow:hidden;">
+            <button onClick="{{ goProfile }}" style="display:block;width:100%;text-align:left;border:none;background:transparent;padding:10px 14px;font-size:13px;cursor:pointer;color:oklch(24% 0.02 245);">Profil</button>
+            <button onClick="{{ goMemory }}" style="display:block;width:100%;text-align:left;border:none;background:transparent;padding:10px 14px;font-size:13px;cursor:pointer;color:oklch(24% 0.02 245);">Pour mémoire</button>
+            <sc-if value="{{ loggedIn }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ logout }}" style="display:block;width:100%;text-align:left;border:none;background:transparent;padding:10px 14px;font-size:13px;cursor:pointer;color:oklch(50% 0.14 25);border-top:1px solid oklch(89% 0.012 240);">Déconnexion</button>
+            </sc-if>
+            <sc-if value="{{ notLoggedIn }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ goAuth }}" style="display:block;width:100%;text-align:left;border:none;background:transparent;padding:10px 14px;font-size:13px;cursor:pointer;color:oklch(46% 0.09 254);border-top:1px solid oklch(89% 0.012 240);">Se connecter</button>
+            </sc-if>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+    <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 24px;background:oklch(95% 0.02 230);border-bottom:1px solid oklch(87% 0.03 230);">
+      <div style="width:18px;height:18px;border-radius:50%;background:oklch(46% 0.09 254);color:white;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;">i</div>
+      <div style="font-size:13px;color:oklch(38% 0.03 245);line-height:1.5;">Aide à la réflexion clinique — le praticien reste responsable de la décision médicale.</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+    <div style="max-width:1040px;margin:0 auto;padding:64px 24px 80px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:56px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg, oklch(58% 0.075 178), oklch(46% 0.09 254));"></div>
+          <div style="font-weight:700;font-size:17px;">MSP Ménilmontant</div>
+        </div>
+        <div style="display:flex;gap:16px;align-items:center;">
+          <button onClick="{{ goMethode }}" style="border:none;background:transparent;color:oklch(50% 0.018 245);font-size:14px;font-weight:500;cursor:pointer;">Méthode</button>
+          <button onClick="{{ goAuth }}" style="border:1px solid oklch(89% 0.012 240);background:oklch(99.5% 0.002 240);padding:8px 18px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">Se connecter</button>
+        </div>
+      </div>
+      <div style="text-align:center;margin-bottom:48px;">
+        <h1 style="font-size:38px;font-weight:700;margin:0 0 14px;letter-spacing:-0.01em;">Aide clinique &amp; veille scientifique</h1>
+        <p style="font-size:17px;color:oklch(50% 0.018 245);max-width:640px;margin:0 auto;line-height:1.6;">Deux outils pensés pour la consultation : une aide à la décision fondée sur les preuves, et une veille hebdomadaire triée par thème et profession.</p>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px;padding:14px 18px;background:oklch(95% 0.02 230);border:1px solid oklch(87% 0.03 230);border-radius:10px;margin-bottom:48px;">
+        <div style="width:20px;height:20px;border-radius:50%;background:oklch(46% 0.09 254);color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;">i</div>
+        <div style="font-size:14px;color:oklch(38% 0.03 245);line-height:1.6;">Cet outil est une aide à la réflexion. Il ne remplace ni le jugement clinique, ni la relation avec le patient : le praticien reste seul responsable de la décision médicale.</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px,1fr));gap:24px;">
+        <div onClick="{{ goDecision }}" style="cursor:pointer;background:oklch(99.5% 0.002 240);border:1px solid oklch(89% 0.012 240);border-radius:16px;padding:32px;">
+          <div style="width:44px;height:44px;border-radius:12px;background:oklch(93% 0.025 254);color:oklch(46% 0.09 254);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;margin-bottom:20px;">D</div>
+          <h2 style="font-size:21px;margin:0 0 10px;">Aide à la décision</h2>
+          <p style="font-size:14px;color:oklch(50% 0.018 245);line-height:1.6;margin:0 0 20px;">Saisissez les critères d'une situation clinique ; l'outil affiche les options avec preuve, effet attendu, et l'écart entre reco officielle et position critique.</p>
+          <div style="font-size:14px;font-weight:600;color:oklch(46% 0.09 254);">Diabète de type 2 — 7 algorithmes disponibles →</div>
+        </div>
+        <div onClick="{{ goVeille }}" style="cursor:pointer;background:oklch(99.5% 0.002 240);border:1px solid oklch(89% 0.012 240);border-radius:16px;padding:32px;">
+          <div style="width:44px;height:44px;border-radius:12px;background:oklch(92% 0.03 178);color:oklch(58% 0.075 178);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;margin-bottom:20px;">V</div>
+          <h2 style="font-size:21px;margin:0 0 10px;">Veille hebdomadaire</h2>
+          <p style="font-size:14px;color:oklch(50% 0.018 245);line-height:1.6;margin:0 0 20px;">Une sélection critique classée par thème et profession, avec un badge d'impact pratique pour trier votre temps de lecture.</p>
+          <div style="font-size:14px;font-weight:600;color:oklch(58% 0.075 178);">Voir la semaine en cours →</div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isAuth }}" hint-placeholder-val="{{ false }}">
+    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;">
+      <div style="width:100%;max-width:400px;background:oklch(99.5% 0.002 240);border:1px solid oklch(89% 0.012 240);border-radius:16px;padding:36px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:28px;cursor:pointer;" onClick="{{ goHome }}">
+          <div style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg, oklch(58% 0.075 178), oklch(46% 0.09 254));"></div>
+          <div style="font-weight:700;font-size:14px;">MSP Ménilmontant</div>
+        </div>
+        <div style="display:flex;gap:6px;background:oklch(96% 0.008 240);padding:4px;border-radius:10px;margin-bottom:24px;">
+          <button onClick="{{ setAuthLogin }}" style="flex:1;border:none;padding:9px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:{{ loginTabBg }};color:{{ loginTabColor }};">Connexion</button>
+          <button onClick="{{ setAuthSignup }}" style="flex:1;border:none;padding:9px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:{{ signupTabBg }};color:{{ signupTabColor }};">Inscription</button>
+        </div>
+        <div style="font-size:12px;font-weight:600;color:oklch(50% 0.018 245);margin-bottom:6px;">E-mail professionnel</div>
+        <input type="email" placeholder="prenom.nom@msp-menilmontant.fr" style="width:100%;padding:10px 12px;border:1px solid oklch(89% 0.012 240);border-radius:8px;font-size:14px;margin-bottom:16px;"/>
+        <sc-if value="{{ isSignup }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:12px;font-weight:600;color:oklch(50% 0.018 245);margin-bottom:8px;">Votre profession</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+            <sc-for list="{{ professionOptions }}" as="p" hint-placeholder-count="5">
+              <button onClick="{{ p.select }}" style="text-align:left;border:1px solid {{ p.borderColor }};background:{{ p.bg }};color:{{ p.color }};padding:9px 12px;border-radius:8px;font-size:13px;cursor:pointer;">{{ p.label }}</button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <button onClick="{{ submitAuth }}" style="width:100%;border:none;background:oklch(46% 0.09 254);color:white;padding:11px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:14px;">{{ authSubmitLabel }}</button>
+        <div style="font-size:12px;color:oklch(62% 0.015 245);text-align:center;line-height:1.6;">En continuant vous acceptez la <a href="#" style="color:oklch(46% 0.09 254);">politique de confidentialité</a> et les <a href="#" style="color:oklch(46% 0.09 254);">CGU</a>.</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isDecisionDomains }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:900px;margin:0 auto;padding:40px 24px 80px;">
+      <h1 style="font-size:26px;margin:0 0 6px;">Aide à la décision</h1>
+      <p style="font-size:14px;color:oklch(50% 0.018 245);margin:0 0 24px;">Choisissez un domaine, puis un algorithme.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:32px;">
+        <div style="padding:10px 18px;border-radius:10px;background:oklch(93% 0.025 254);color:oklch(46% 0.09 254);font-size:14px;font-weight:600;border:1px solid oklch(85% 0.04 254);">Diabète de type 2</div>
+        <div style="padding:10px 18px;border-radius:10px;background:oklch(96% 0.008 240);color:oklch(70% 0.015 245);font-size:14px;border:1px dashed oklch(89% 0.012 240);">Cardiovasculaire · à venir</div>
+        <div style="padding:10px 18px;border-radius:10px;background:oklch(96% 0.008 240);color:oklch(70% 0.015 245);font-size:14px;border:1px dashed oklch(89% 0.012 240);">BPCO · à venir</div>
+        <div style="padding:10px 18px;border-radius:10px;background:oklch(96% 0.008 240);color:oklch(70% 0.015 245);font-size:14px;border:1px dashed oklch(89% 0.012 240);">Gériatrie · à venir</div>
+      </div>
+      <sc-for list="{{ groupedNodes }}" as="grp" hint-placeholder-count="7">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:oklch(62% 0.015 245);margin:24px 0 10px;">{{ grp.theme }}</div>
+        <sc-for list="{{ grp.nodes }}" as="node" hint-placeholder-count="1">
+          <div onClick="{{ node.open }}" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:16px;background:oklch(99.5% 0.002 240);border:1px solid oklch(89% 0.012 240);border-radius:12px;padding:16px 20px;margin-bottom:10px;">
+            <div>
+              <div style="font-size:15px;font-weight:600;margin-bottom:4px;">{{ node.title }}</div>
+              <div style="font-size:13px;color:oklch(50% 0.018 245);">{{ node.population }} · révisé {{ node.dateRevue }}</div>
+            </div>
+            <sc-if value="{{ node.majVeille }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:11px;font-weight:600;background:oklch(92% 0.03 178);color:oklch(46% 0.08 178);padding:4px 10px;border-radius:20px;white-space:nowrap;">Mis à jour par la veille</div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isDecisionNode }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:900px;margin:0 auto;padding:32px 24px 80px;">
+      <button onClick="{{ goDecision }}" style="border:none;background:transparent;color:oklch(50% 0.018 245);font-size:13px;cursor:pointer;margin-bottom:16px;">← Domaine : Diabète de type 2</button>
+      <h1 style="font-size:24px;margin:0 0 6px;">{{ currentNode.title }}</h1>
+      <p style="font-size:14px;color:oklch(50% 0.018 245);margin:0 0 28px;">{{ currentNode.population }}</p>
+
+      <sc-if value="{{ isCibleNode }}" hint-placeholder-val="{{ true }}">
+        <div style="background:oklch(99.5% 0.002 240);border:1px solid oklch(89% 0.012 240);border-radius:14px;padding:24px;margin-bottom:24px;">
+          <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:oklch(62% 0.015 245);margin-bottom:16px;">Critères du patient</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px,1fr));gap:16px;">
+            <div>
+              <div style="font-size:12px;font-weight:600;color:oklch(50% 0.018 245);margin-bottom:6px;">Âge</div>
+              <input type="number" value="{{ criteria.age }}" onChange="{{ onAgeChange }}" style="width:100%;padding:9px 12px;border:1px solid oklch(89% 0.012 240);border-radius:8px;font-size:15px;"/>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:600;color:oklch(50% 0.018 245);margin-bottom:6px;">Ancienneté du diabète (ans)</div>
+              <input type="number" value="{{ criteria.anciennete }}" onChange="{{ onAncienneteChange }}" style="width:100%;padding:9px 12px;border:1px solid oklch(89% 0.012 240);border-radius:8px;font-size:15px;"/>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:600;color:oklch(50% 0.018 245);margin-bottom:6px;">Espérance de vie</div>
+              <select value="{{ criteria.esperance }}" onChange="{{ onEsperanceChange }}" style="width:100%;padding:9px 12px;border:1px solid oklch(89% 0.012 240);border-radius:8px;font-size:15px;">
+                <option value="longue">Longue</option>
+                <option value="intermediaire">Intermédiaire</option>
+                <option value="limitee">Limitée</option>
+              </select>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:600;color:oklch(50% 0.018 245);margin-bottom:6px;">Risque hypoglycémique du schéma</div>
+              <select value="{{ criteria.risqueHypo }}" onChange="{{ onRisqueChange }}" style="width:100%;padding:9px 12px;border:1px solid oklch(89% 0.012 240);border-radius:8px;font-size:15px;">
+                <option value="faible">Faible</option>
+                <option value="eleve">Élevé</option>
+              </select>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding-top:24px;">
+              <input type="checkbox" checked="{{ criteria.fragile }}" onChange="{{ onFragileChange }}" style="width:18px;height:18px;"/>
+              <div style="font-size:14px;font-weight:500;">Patient fragile</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:oklch(62% 0.015 245);margin-bottom:12px;">Options applicables</div>
+        <sc-for list="{{ cibleOptions }}" as="opt" hint-placeholder-count="2">
+          <div style="background:oklch(99.5% 0.002 240);border:1px solid {{ opt.borderColor }};border-radius:14px;padding:22px;margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:6px;flex-wrap:wrap;">
+              <div style="font-size:17px;font-weight:700;">{{ opt.label }}</div>
+              <div style="display:flex;gap:8px;align-items:center;">
+                <sc-if value="{{ opt.primary }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-size:11px;font-weight:700;background:oklch(46% 0.09 254);color:white;padding:4px 10px;border-radius:20px;">Recommandée</div>
+                </sc-if>
+                <div style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:{{ opt.evidenceBg }};color:{{ opt.evidenceColor }};">Preuve {{ opt.preuve }}</div>
+              </div>
+            </div>
+            <div style="font-size:13px;color:oklch(46% 0.08 178);font-weight:600;margin-bottom:14px;">{{ opt.effet }}</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px,1fr));gap:16px;margin-bottom:14px;">
+              <div>
+                <div style="font-size:12px;font-weight:700;color:oklch(50% 0.018 245);margin-bottom:6px;">Avantages</div>
+                <sc-for list="{{ opt.avantages }}" as="a" hint-placeholder-count="1"><div style="font-size:13px;line-height:1.6;">• {{ a }}</div></sc-for>
+              </div>
+              <div>
+                <div style="font-size:12px;font-weight:700;color:oklch(50% 0.018 245);margin-bottom:6px;">Inconvénients</div>
+                <sc-for list="{{ opt.inconvenients }}" as="i" hint-placeholder-count="1"><div style="font-size:13px;line-height:1.6;">• {{ i }}</div></sc-for>
+              </div>
+            </div>
+            <div style="font-size:13px;color:oklch(50% 0.018 245);font-style:italic;border-top:1px solid oklch(92% 0.008 240);padding-top:12px;">Pourquoi cette option : {{ opt.pourquoi }}</div>
+          </div>
+        </sc-for>
+
+        <button onClick="{{ toggleArgument }}" style="border:1px solid oklch(89% 0.012 240);background:oklch(99.5% 0.002 240);padding:11px 18px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin:8px 0 20px;">{{ argToggleLabel }}</button>
+
+        <sc-if value="{{ argOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="background:oklch(99.5% 0.002 240);border:1px solid oklch(89% 0.012 240);border-radius:14px;padding:24px;margin-bottom:20px;">
+            <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:oklch(62% 0.015 245);margin-bottom:16px;">Reco officielle vs position critique</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(240px,1fr));gap:16px;margin-bottom:16px;">
+              <div style="border:1px solid oklch(89% 0.012 240);border-radius:10px;padding:16px;">
+                <div style="font-size:12px;font-weight:700;color:oklch(46% 0.09 254);margin-bottom:8px;">Reco officielle — {{ primaryOption.recoSource }}</div>
+                <div style="font-size:13px;line-height:1.6;">{{ primaryOption.recoPosition }}</div>
+              </div>
+              <div style="border:1px solid oklch(89% 0.012 240);border-radius:10px;padding:16px;">
+                <div style="font-size:12px;font-weight:700;color:oklch(46% 0.08 178);margin-bottom:8px;">Position critique</div>
+                <div style="font-size:13px;line-height:1.6;">{{ primaryOption.critiquePosition }}</div>
+              </div>
+            </div>
+            <sc-if value="{{ primaryOption.divergence }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:8px;background:oklch(93% 0.03 254);color:oklch(38% 0.07 254);padding:10px 14px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:20px;">
+                <div style="width:18px;height:18px;border-radius:50%;background:oklch(46% 0.09 254);color:white;display:flex;align-items:center;justify-content:center;font-size:12px;">!</div>
+                Divergence entre reco officielle et position critique
+              </div>
+            </sc-if>
+            <div style="font-size:12px;font-weight:700;color:oklch(62% 0.015 245);margin-bottom:8px;">Incertitudes</div>
+            <sc-for list="{{ currentNode.incertitudes }}" as="u" hint-placeholder-count="2"><div style="font-size:13px;line-height:1.7;">• {{ u }}</div></sc-for>
+            <div style="font-size:12px;font-weight:700;color:oklch(62% 0.015 245);margin:16px 0 8px;">Sources</div>
+            <sc-for list="{{ currentNode.sources }}" as="s" hint-placeholder-count="3">
+              <div style="display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:8px 0;border-bottom:1px solid oklch(94% 0.006 240);">
+                <div>{{ s.titre }}</div>
+                <div style="font-size:11px;font-weight:600;color:oklch(50% 0.018 245);white-space:nowrap;">{{ s.type }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ currentNode.majVeille }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ goLinkedArticle }}" style="border:none;background:oklch(92% 0.03 178);color:oklch(46% 0.08 178);padding:10px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:20px;">Voir la veille liée à ce nœud →</button>
+        </sc-if>
+      </sc-if>
+
+      <sc-if value="{{ isPlaceholderNode }}" hint-placeholder-val="{{ false }}">
+        <div style="background:oklch(99.5% 0.002 240);border:1px dashed oklch(89% 0.012 240);border-radius:14px;padding:28px;margin-bottom:20px;">
+          <div style="font-size:13px;font-weight:700;color:oklch(58% 0.075 178);margin-bottom:12px;">Contenu détaillé à venir</div>
+          <p style="font-size:14px;color:oklch(50% 0.018 245);line-height:1.6;margin:0 0 20px;">Ce nœud suivra la même structure que « Cible glycémique » : formulaire de critères, options avec preuve et effet attendu, argumentaire déplié avec reco officielle vs position critique.</p>
+          <div style="border:1px solid oklch(89% 0.012 240);border-radius:12px;padding:18px;opacity:0.6;">
+            <div style="font-size:15px;font-weight:700;margin-bottom:8px;">Exemple d'option (aperçu)</div>
+            <div style="font-size:13px;color:oklch(50% 0.018 245);">Avantages · Inconvénients · Effet attendu · Preuve modérée</div>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="font-size:12px;color:oklch(62% 0.015 245);border-top:1px solid oklch(92% 0.008 240);padding-top:16px;">Révisé le {{ currentNode.dateRevue }} · Aide à la réflexion, le praticien reste responsable.</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isVeilleList }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:1040px;margin:0 auto;padding:32px 24px 80px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+        <div>
+          <h1 style="font-size:24px;margin:0 0 6px;">Veille hebdomadaire</h1>
+          <p style="font-size:14px;color:oklch(50% 0.018 245);margin:0;">{{ filteredArticles.length }} entrées</p>
+        </div>
+        <div style="font-size:13px;font-weight:600;background:oklch(92% 0.03 178);color:oklch(46% 0.08 178);padding:8px 14px;border-radius:20px;">Profil : {{ profileLabel }}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(160px,1fr));gap:10px;background:oklch(99.5% 0.002 240);border:1px solid oklch(89% 0.012 240);border-radius:12px;padding:16px;margin-bottom:24px;">
+        <select value="{{ filters.theme }}" onChange="{{ onThemeFilter }}" style="padding:8px 10px;border:1px solid oklch(89% 0.012 240);border-radius:8px;font-size:13px;">
+          <option value="">Tous thèmes</option>
+          <sc-for list="{{ themeOptions }}" as="t" hint-placeholder-count="4"><option value="{{ t }}">{{ t }}</option></sc-for>
+        </select>
+        <select value="{{ filters.profession }}" onChange="{{ onProfessionFilter }}" style="padding:8px 10px;border:1px solid oklch(89% 0.012 240);border-radius:8px;font-size:13px;">
+          <option value="">Toutes professions</option>
+          <sc-for list="{{ professionList }}" as="p" hint-placeholder-count="5"><option value="{{ p }}">{{ p }}</option></sc-for>
+        </select>
+        <select value="{{ filters.impact }}" onChange="{{ onImpactFilter }}" style="padding:8px 10px;border:1px solid oklch(89% 0.012 240);border-radius:8px;font-size:13px;">
+          <option value="">Tout impact</option>
+          <option value="pratique">Pratique</option>
+          <option value="informatif">Informatif</option>
+        </select>
+        <select value="{{ filters.preuve }}" onChange="{{ onPreuveFilter }}" style="padding:8px 10px;border:1px solid oklch(89% 0.012 240);border-radius:8px;font-size:13px;">
+          <option value="">Tout niveau de preuve</option>
+          <option value="élevé">Élevé</option>
+          <option value="modéré">Modéré</option>
+          <option value="faible">Faible</option>
+        </select>
+        <select value="{{ filters.semaine }}" onChange="{{ onSemaineFilter }}" style="padding:8px 10px;border:1px solid oklch(89% 0.012 240);border-radius:8px;font-size:13px;">
+          <option value="">Toutes semaines</option>
+          <sc-for list="{{ weekOptions }}" as="w" hint-placeholder-count="4"><option value="{{ w }}">{{ w }}</option></sc-for>
+        </select>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(300px,1fr));gap:16px;">
+        <sc-for list="{{ filteredArticles }}" as="art" hint-placeholder-count="6">
+          <div style="background:oklch(99.5% 0.002 240);border:1px solid oklch(89% 0.012 240);border-radius:14px;padding:18px;">
+            <div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:10px;">
+              <div style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:{{ art.impactBg }};color:{{ art.impactColor }};">{{ art.impactLabel }}</div>
+              <button onClick="{{ art.toggleSaved }}" style="border:none;background:transparent;font-size:16px;cursor:pointer;color:{{ art.savedColor }};">{{ art.savedIcon }}</button>
+            </div>
+            <div onClick="{{ art.open }}" style="cursor:pointer;">
+              <div style="font-size:15px;font-weight:700;line-height:1.4;margin-bottom:6px;">{{ art.title }}</div>
+              <div style="font-size:12px;color:oklch(50% 0.018 245);margin-bottom:10px;">{{ art.source }} · {{ art.week }} · {{ art.tempsLecture }} min</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+                <sc-for list="{{ art.themes }}" as="th" hint-placeholder-count="1"><div style="font-size:11px;background:oklch(96% 0.008 240);color:oklch(50% 0.018 245);padding:3px 8px;border-radius:12px;">{{ th }}</div></sc-for>
+              </div>
+              <div style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:{{ art.evidenceBg }};color:{{ art.evidenceColor }};display:inline-block;">Preuve {{ art.preuve }}</div>
+            </div>
+            <sc-if value="{{ art.nodeId }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ art.goToNode }}" style="width:100%;text-align:left;border:none;background:transparent;color:oklch(46% 0.09 254);font-size:12px;font-weight:600;cursor:pointer;margin-top:10px;padding:0;">Impacte un algorithme →</button>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isVeilleDetail }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:760px;margin:0 auto;padding:32px 24px 80px;">
+      <button onClick="{{ goVeille }}" style="border:none;background:transparent;color:oklch(50% 0.018 245);font-size:13px;cursor:pointer;margin-bottom:16px;">← Veille</button>
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+        <div style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:{{ currentArticle.impactBg }};color:{{ currentArticle.impactColor }};">{{ currentArticle.impactLabel }}</div>
+        <div style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:{{ currentArticle.evidenceBg }};color:{{ currentArticle.evidenceColor }};">Preuve {{ currentArticle.preuve }}</div>
+      </div>
+      <h1 style="font-size:23px;margin:0 0 8px;line-height:1.35;">{{ currentArticle.title }}</h1>
+      <div style="font-size:13px;color:oklch(50% 0.018 245);margin-bottom:24px;">{{ currentArticle.source }} · DOI {{ currentArticle.doi }} · {{ currentArticle.week }} · {{ currentArticle.pubType }} · {{ currentArticle.population }}</div>
+
+      <div style="background:oklch(99.5% 0.002 240);border:1px solid oklch(89% 0.012 240);border-radius:14px;padding:22px;margin-bottom:20px;">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:oklch(62% 0.015 245);margin-bottom:10px;">Résumé du résultat</div>
+        <p style="font-size:14px;line-height:1.7;margin:0;">{{ currentArticle.resume }}</p>
+      </div>
+
+      <div style="background:oklch(99.5% 0.002 240);border:1px solid oklch(89% 0.012 240);border-radius:14px;padding:22px;margin-bottom:20px;">
+        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:oklch(62% 0.015 245);margin-bottom:14px;">Appréciation critique</div>
+        <div style="font-size:13px;line-height:1.7;margin-bottom:10px;"><b>Biais :</b> {{ currentArticle.critique.biais }}</div>
+        <div style="font-size:13px;line-height:1.7;margin-bottom:10px;"><b>Critère dur / substitution :</b> {{ currentArticle.critique.critereDurSub }}</div>
+        <div style="font-size:13px;line-height:1.7;margin-bottom:10px;"><b>Effet absolu / NNT :</b> {{ currentArticle.critique.effetAbsolu }}</div>
+        <div style="font-size:13px;line-height:1.7;margin-bottom:10px;"><b>Cohérence avec les preuves antérieures :</b> {{ currentArticle.critique.coherence }}</div>
+        <div style="font-size:13px;line-height:1.7;"><b>Conflits d'intérêt :</b> {{ currentArticle.critique.conflits }}</div>
+      </div>
+
+      <sc-if value="{{ currentArticle.nodeId }}" hint-placeholder-val="{{ false }}">
+        <div style="background:oklch(92% 0.03 178);border-radius:14px;padding:20px;margin-bottom:20px;">
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:oklch(46% 0.08 178);margin-bottom:8px;">Impact algorithme</div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:4px;">{{ currentArticle.nodeTitle }}</div>
+          <div style="font-size:13px;color:oklch(38% 0.05 178);margin-bottom:14px;">Statut : {{ currentArticle.statutMaj }}</div>
+          <button onClick="{{ goToArticleNode }}" style="border:none;background:oklch(46% 0.08 178);color:white;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Voir le nœud →</button>
+        </div>
+      </sc-if>
+
+      <div style="display:flex;gap:12px;">
+        <button onClick="{{ currentArticle.toggleSaved }}" style="border:1px solid oklch(89% 0.012 240);background:oklch(99.5% 0.002 240);padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">{{ currentArticle.savedLabel }}</button>
+        <button style="border:none;background:oklch(46% 0.09 254);color:white;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Ouvrir la source primaire</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isProfile }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:560px;margin:0 auto;padding:32px 24px 80px;">
+      <h1 style="font-size:22px;margin:0 0 20px;">Profil</h1>
+      <div style="font-size:13px;font-weight:600;color:oklch(50% 0.018 245);margin-bottom:10px;">Votre profession</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:24px;">
+        <sc-for list="{{ professionOptions }}" as="p" hint-placeholder-count="5">
+          <button onClick="{{ p.select }}" style="text-align:left;border:1px solid {{ p.borderColor }};background:{{ p.bg }};color:{{ p.color }};padding:11px 14px;border-radius:8px;font-size:14px;cursor:pointer;">{{ p.label }}</button>
+        </sc-for>
+      </div>
+      <div style="font-size:12px;color:oklch(62% 0.015 245);border-top:1px solid oklch(92% 0.008 240);padding-top:16px;">Aucune donnée de santé ni donnée patient n'est associée à ce compte. Vous pouvez <a href="#" style="color:oklch(46% 0.09 254);">supprimer votre compte</a> à tout moment.</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isMemory }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:1040px;margin:0 auto;padding:32px 24px 80px;">
+      <h1 style="font-size:22px;margin:0 0 20px;">Pour mémoire</h1>
+      <sc-if value="{{ hasNoSaved }}" hint-placeholder-val="{{ true }}">
+        <p style="font-size:14px;color:oklch(50% 0.018 245);">Aucun article sauvegardé pour l'instant.</p>
+      </sc-if>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(300px,1fr));gap:16px;">
+        <sc-for list="{{ savedArticleObjs }}" as="art" hint-placeholder-count="0">
+          <div style="background:oklch(99.5% 0.002 240);border:1px solid oklch(89% 0.012 240);border-radius:14px;padding:18px;">
+            <div onClick="{{ art.open }}" style="cursor:pointer;">
+              <div style="font-size:15px;font-weight:700;margin-bottom:6px;">{{ art.title }}</div>
+              <div style="font-size:12px;color:oklch(50% 0.018 245);">{{ art.source }} · {{ art.week }}</div>
+            </div>
+            <button onClick="{{ art.toggleSaved }}" style="border:none;background:transparent;color:oklch(50% 0.14 25);font-size:12px;font-weight:600;cursor:pointer;padding:0;margin-top:10px;">Retirer</button>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isMethode }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:760px;margin:0 auto;padding:32px 24px 80px;">
+      <h1 style="font-size:24px;margin:0 0 6px;">Méthode</h1>
+      <p style="font-size:13px;color:oklch(62% 0.015 245);margin:0 0 28px;">SOP de veille — version 1.3 · publiée le 01/07/2026</p>
+
+      <div style="margin-bottom:24px;">
+        <div style="font-size:14px;font-weight:700;margin-bottom:10px;">Hiérarchie des sources (modèle 6S)</div>
+        <p style="font-size:14px;color:oklch(38% 0.03 245);line-height:1.7;margin:0;">Systèmes (guides intégrés au dossier) → Sommaires (synthèses type Prescrire, Médicalement Geek) → Synthèses (revues systématiques, méta-analyses) → Synopsis d'études → Syntheses de recommandations → Études isolées. La veille privilégie les niveaux hauts et redescend vers l'étude isolée seulement si aucune synthèse récente n'existe.</p>
+      </div>
+      <div style="margin-bottom:24px;">
+        <div style="font-size:14px;font-weight:700;margin-bottom:10px;">Cycle hebdomadaire</div>
+        <p style="font-size:14px;color:oklch(38% 0.03 245);line-height:1.7;margin:0;">Collecte lundi–mercredi sur les sources retenues → tri et exclusion des publications hors périmètre → appréciation critique et double lecture → publication le vendredi → proposition de mise à jour d'algorithme si pertinent, soumise à validation humaine avant intégration.</p>
+      </div>
+      <div style="margin-bottom:24px;">
+        <div style="font-size:14px;font-weight:700;margin-bottom:10px;">Critères d'inclusion</div>
+        <p style="font-size:14px;color:oklch(38% 0.03 245);line-height:1.7;margin:0;">Pertinence pour les professions de la MSP, critère de jugement clinique (dur de préférence), méthodologie explicite, absence de conflit d'intérêt majeur non déclaré, actualité (moins de 24 mois sauf référence historique).</p>
+      </div>
+      <div style="margin-bottom:24px;">
+        <div style="font-size:14px;font-weight:700;margin-bottom:10px;">Grille d'appréciation</div>
+        <p style="font-size:14px;color:oklch(38% 0.03 245);line-height:1.7;margin:0;">Biais de sélection/mesure, critère dur vs substitution, effet absolu et NNT/NNH plutôt que risque relatif seul, cohérence avec le corpus existant, conflits d'intérêt déclarés.</p>
+      </div>
+      <div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:10px;">Garde-fous</div>
+        <p style="font-size:14px;color:oklch(38% 0.03 245);line-height:1.7;margin:0;">Aucune proposition de mise à jour n'est intégrée automatiquement à un algorithme : elle est signalée, puis validée par un professionnel de la MSP. Aucune donnée patient n'est collectée par le module de veille.</p>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const NODES = [
+  {id:'cible', theme:'Cible glycémique', title:'Cible glycémique individualisée', population:'Adultes diabétiques de type 2', dateRevue:'12/05/2026', majVeille:true, detailed:true,
+    incertitudes:["Peu de données randomisées au-delà de 10 ans de suivi (effet legacy de l'UKPDS).","Extrapolation limitée chez les plus de 80 ans ou en polypathologie sévère."],
+    sources:[
+      {titre:"UKPDS 33/80 — effet legacy du contrôle glycémique précoce", type:"critère dur"},
+      {titre:"Consensus ADA/EASD 2024 — individualisation des objectifs", type:"reco officielle"},
+      {titre:"Synthèse Médicalement Geek — cibles glycémiques, que dit la preuve ?", type:"critère dur"},
+      {titre:"Prescrire — objectifs glycémiques dans le DT2", type:"critère dur"}
+    ]},
+  {id:'premiere-intention', theme:'1ʳᵉ intention', title:'Choix du traitement de 1ʳᵉ intention', population:'DT2 nouvellement diagnostiqué', dateRevue:'03/02/2026', majVeille:false, detailed:false},
+  {id:'intensification', theme:'Intensification', title:'Intensification après metformine', population:'DT2 non contrôlé sous metformine', dateRevue:'18/03/2026', majVeille:true, detailed:false},
+  {id:'insuline', theme:'Insuline', title:"Initiation de l'insulinothérapie", population:'DT2 en échec des ADO', dateRevue:'05/01/2026', majVeille:false, detailed:false},
+  {id:'statine', theme:'Statine', title:'Statine et prévention cardiovasculaire', population:'DT2 selon risque CV', dateRevue:'22/04/2026', majVeille:false, detailed:false},
+  {id:'aspirine', theme:'Aspirine', title:'Aspirine en prévention primaire', population:'DT2 sans antécédent CV', dateRevue:'29/06/2026', majVeille:true, detailed:false},
+  {id:'rhd', theme:'RHD & ETP', title:'Règles hygiéno-diététiques et ETP', population:'Tout patient DT2', dateRevue:'10/02/2026', majVeille:false, detailed:false}
+];
+
+const ARTICLES = [
+  {id:'a1', week:'2026-W28', title:"Effet cardiovasculaire des agonistes GLP-1 en prévention secondaire", source:"Cardiology Reports", doi:"10.1234/cr.2026.028", pubType:"Méta-analyse", population:"DT2 à haut risque CV", resume:"Réduction des événements cardiovasculaires majeurs chez les patients à haut risque déjà sous statine et metformine.", critique:{biais:"Hétérogénéité des molécules regroupées.", critereDurSub:"Critère dur (MACE).", effetAbsolu:"NNT ≈ 45 sur 3 ans.", coherence:"Cohérent avec les essais pivots antérieurs.", conflits:"Financement partiel industriel, déclaré."}, preuve:"élevé", pertinence:"haute", tempsLecture:4, impact:"pratique", themes:["diabète-métabolisme","cardiovasculaire"], professions:["MG","IPA maladies chroniques"], nodeId:"intensification", nodeTitle:"Intensification après metformine", statutMaj:"Proposition en attente de validation"},
+  {id:'a2', week:'2026-W27', title:"Déprescription des benzodiazépines chez le sujet âgé — actualisation Prescrire", source:"Prescrire", doi:"10.5678/pr.2026.027", pubType:"Synthèse", population:"Sujet âgé polymédiqué", resume:"Rappel des stratégies de déprescription progressive et des alternatives non pharmacologiques.", critique:{biais:"Faible, synthèse méthodique.", critereDurSub:"Mixte.", effetAbsolu:"Non chiffrable dans cette synthèse.", coherence:"Cohérent avec les recommandations gériatriques existantes.", conflits:"Aucun déclaré."}, preuve:"modéré", pertinence:"moyenne", tempsLecture:6, impact:"informatif", themes:["gériatrie-déprescription"], professions:["MG","IDEL"], nodeId:null, nodeTitle:null, statutMaj:null},
+  {id:'a3', week:'2026-W29', title:"Aspirine en prévention primaire chez le diabétique — nouvelle méta-analyse", source:"BMJ", doi:"10.1136/bmj.2026.029", pubType:"Méta-analyse", population:"DT2 sans antécédent CV", resume:"Absence de bénéfice net en prévention primaire, risque hémorragique dépassant le bénéfice ischémique dans la majorité des sous-groupes.", critique:{biais:"Faible.", critereDurSub:"Critère dur (AVC, IDM, hémorragie).", effetAbsolu:"NNH ≈ 200 pour 1 hémorragie majeure évitée en s'abstenant.", coherence:"Confirme les données ASCEND/ASPREE.", conflits:"Aucun déclaré."}, preuve:"élevé", pertinence:"haute", tempsLecture:3, impact:"pratique", themes:["diabète-métabolisme"], professions:["MG"], nodeId:"aspirine", nodeTitle:"Aspirine en prévention primaire", statutMaj:"Intégrée au nœud"},
+  {id:'a4', week:'2026-W26', title:"Dépistage de la rétinopathie diabétique assisté par IA", source:"Diabetes Care", doi:"10.2337/dc.2026.026", pubType:"Étude prospective", population:"DT2 suivi ophtalmologique", resume:"Sensibilité comparable au dépistage humain sur une cohorte monocentrique.", critique:{biais:"Monocentrique, à confirmer en population générale.", critereDurSub:"Critère de substitution (concordance diagnostique).", effetAbsolu:"Non chiffrable.", coherence:"Premiers résultats, peu de recul.", conflits:"Financement par l'éditeur du logiciel testé."}, preuve:"faible", pertinence:"moyenne", tempsLecture:5, impact:"informatif", themes:["diabète-métabolisme","prévention-dépistage"], professions:["MG"], nodeId:null, nodeTitle:null, statutMaj:null},
+  {id:'a5', week:'2026-W30', title:"Prise en charge orthophonique post-AVC — actualisation", source:"Revue de Neurologie", doi:"10.9999/rn.2026.030", pubType:"Revue", population:"Post-AVC avec troubles du langage", resume:"Confirmation du bénéfice d'une rééducation précoce et intensive sur la récupération fonctionnelle.", critique:{biais:"Faible.", critereDurSub:"Critère dur (autonomie communicationnelle).", effetAbsolu:"Non chiffrable, données qualitatives majoritaires.", coherence:"Cohérent avec le corpus existant.", conflits:"Aucun déclaré."}, preuve:"modéré", pertinence:"moyenne", tempsLecture:7, impact:"informatif", themes:["orthophonie"], professions:["orthophoniste"], nodeId:null, nodeTitle:null, statutMaj:null},
+  {id:'a6', week:'2026-W30', title:"Cible glycémique chez le sujet fragile — essai randomisé", source:"The Lancet Diabetes", doi:"10.1016/ld.2026.030", pubType:"Essai randomisé", population:"DT2 fragile > 75 ans", resume:"Un contrôle glycémique souple (HbA1c 8-8,5%) réduit les hypoglycémies sévères sans excès de complications à court terme.", critique:{biais:"Faible, essai multicentrique.", critereDurSub:"Critère dur (hypoglycémies sévères, chutes).", effetAbsolu:"NNT ≈ 12 pour éviter 1 hypoglycémie sévère sur 2 ans.", coherence:"Renforce les recommandations gériatriques existantes.", conflits:"Aucun déclaré."}, preuve:"élevé", pertinence:"haute", tempsLecture:4, impact:"pratique", themes:["diabète-métabolisme","gériatrie-déprescription"], professions:["MG","IPA maladies chroniques"], nodeId:"cible", nodeTitle:"Cible glycémique individualisée", statutMaj:"Intégrée au nœud"},
+  {id:'a7', week:'2026-W25', title:"Vaccination grippe et BPCO — couverture en baisse", source:"Santé Publique France", doi:"10.3333/spf.2026.025", pubType:"Rapport épidémiologique", population:"BPCO ambulatoire", resume:"Baisse de 8 points de la couverture vaccinale antigrippale chez les patients BPCO en 2025-2026.", critique:{biais:"Données déclaratives.", critereDurSub:"Critère de substitution (couverture, non morbidité observée).", effetAbsolu:"Non applicable (rapport descriptif).", coherence:"Tendance déjà observée les années précédentes.", conflits:"Aucun, source institutionnelle."}, preuve:"modéré", pertinence:"moyenne", tempsLecture:3, impact:"informatif", themes:["bpco-pneumo","prévention-dépistage"], professions:["IDEL","MG"], nodeId:null, nodeTitle:null, statutMaj:null}
+];
+
+const PROFESSIONS = ["MG","IPA maladies chroniques","sage-femme","orthophoniste","IDEL"];
+
+function evidenceStyle(level){
+  if(level==='élevé') return {bg:'oklch(46% 0.09 254)', color:'white'};
+  if(level==='modéré') return {bg:'oklch(75% 0.06 254)', color:'oklch(20% 0.02 254)'};
+  if(level==='faible') return {bg:'oklch(90% 0.03 254)', color:'oklch(30% 0.02 254)'};
+  return {bg:'oklch(96% 0.008 240)', color:'oklch(50% 0.018 245)'};
+}
+function impactStyle(level){
+  if(level==='pratique') return {bg:'oklch(58% 0.075 178)', color:'white', label:'Pratique'};
+  return {bg:'oklch(96% 0.008 240)', color:'oklch(50% 0.018 245)', label:'Informatif'};
+}
+
+class Component extends DCLogic {
+  state = {
+    screen: 'home',
+    selectedNodeId: null,
+    selectedArticleId: null,
+    argOpen: false,
+    accountMenuOpen: false,
+    loggedIn: false,
+    profile: null,
+    authMode: 'login',
+    criteria: { age: 68, anciennete: 8, esperance: 'intermediaire', fragile: false, risqueHypo: 'faible' },
+    filters: { theme: '', profession: '', impact: '', preuve: '', semaine: '' },
+    savedIds: []
+  };
+
+  goHome = () => this.setState({ screen: 'home', accountMenuOpen: false });
+  goDecision = () => this.setState({ screen: 'decisionDomains', accountMenuOpen: false });
+  goVeille = () => this.setState({ screen: 'veilleList', accountMenuOpen: false });
+  goMethode = () => this.setState({ screen: 'methode', accountMenuOpen: false });
+  goProfile = () => this.setState({ screen: 'profile', accountMenuOpen: false });
+  goMemory = () => this.setState({ screen: 'memory', accountMenuOpen: false });
+  goAuth = () => this.setState({ screen: 'auth', accountMenuOpen: false });
+  toggleAccountMenu = () => this.setState(s => ({ accountMenuOpen: !s.accountMenuOpen }));
+  logout = () => this.setState({ loggedIn: false, profile: null, screen: 'home', accountMenuOpen: false });
+  setAuthLogin = () => this.setState({ authMode: 'login' });
+  setAuthSignup = () => this.setState({ authMode: 'signup' });
+  submitAuth = () => this.setState(s => ({ loggedIn: true, profile: s.profile || 'MG', screen: 'home' }));
+  toggleArgument = () => this.setState(s => ({ argOpen: !s.argOpen }));
+
+  selectNode = (id) => this.setState({ screen: 'decisionNode', selectedNodeId: id, argOpen: false });
+  selectArticle = (id) => this.setState({ screen: 'veilleDetail', selectedArticleId: id });
+  goToNodeFromArticle = (nodeId) => this.setState({ screen: 'decisionNode', selectedNodeId: nodeId, argOpen: false });
+
+  onAgeChange = (e) => this.setState(s => ({ criteria: { ...s.criteria, age: Number(e.target.value) } }));
+  onAncienneteChange = (e) => this.setState(s => ({ criteria: { ...s.criteria, anciennete: Number(e.target.value) } }));
+  onEsperanceChange = (e) => this.setState(s => ({ criteria: { ...s.criteria, esperance: e.target.value } }));
+  onRisqueChange = (e) => this.setState(s => ({ criteria: { ...s.criteria, risqueHypo: e.target.value } }));
+  onFragileChange = (e) => this.setState(s => ({ criteria: { ...s.criteria, fragile: e.target.checked } }));
+
+  onThemeFilter = (e) => this.setState(s => ({ filters: { ...s.filters, theme: e.target.value } }));
+  onProfessionFilter = (e) => this.setState(s => ({ filters: { ...s.filters, profession: e.target.value } }));
+  onImpactFilter = (e) => this.setState(s => ({ filters: { ...s.filters, impact: e.target.value } }));
+  onPreuveFilter = (e) => this.setState(s => ({ filters: { ...s.filters, preuve: e.target.value } }));
+  onSemaineFilter = (e) => this.setState(s => ({ filters: { ...s.filters, semaine: e.target.value } }));
+
+  toggleSaved = (id) => this.setState(s => ({
+    savedIds: s.savedIds.includes(id) ? s.savedIds.filter(x => x !== id) : [...s.savedIds, id]
+  }));
+
+  selectProfile = (p) => this.setState({ profile: p });
+
+  decideTier(c) {
+    if (c.fragile || c.esperance === 'limitee') return 3;
+    if (c.risqueHypo === 'eleve' || c.esperance === 'intermediaire') return 2;
+    if (c.esperance === 'longue' && c.anciennete < 10) return 0;
+    return 1;
+  }
+
+  buildOptionDefs() {
+    return [
+      { id:'strict', label:'Cible ~6,5–7 %',
+        avantages:["Réduction démontrée des complications microvasculaires à long terme (rétinopathie, néphropathie)."],
+        inconvenients:["Charge thérapeutique et surveillance accrues.","Risque d'hypoglycémie si le schéma n'est pas adapté."],
+        effet:"NNT ≈ 20 sur 10 ans pour éviter 1 événement microvasculaire majeur (effet legacy UKPDS).", preuve:'élevé',
+        pourquoi:"Espérance de vie longue, diabète récent, absence de fragilité : le bénéfice attendu justifie un contrôle plus strict.",
+        recoSource:"HAS 2024", recoPosition:"Cible < 7 % recommandée en 1re intention si diabète récent et absence de comorbidité limitante.",
+        critiquePosition:"Rejoint la HAS mais recommande une déprescription progressive en cas d'hypoglycémies ou de lassitude thérapeutique.", divergence:false },
+      { id:'intermediaire', label:'Cible ~7–7,5 %',
+        avantages:["Compromis entre bénéfice microvasculaire et risque d'hypoglycémie.","Applicable à la majorité des situations courantes."],
+        inconvenients:["Moins de recul spécifique que la cible stricte dans les essais historiques."],
+        effet:"Effet absolu proche de la cible stricte, avec moins d'épisodes d'hypoglycémie rapportés.", preuve:'modéré',
+        pourquoi:"Profil intermédiaire ne justifiant ni intensification maximale ni relâchement de la cible.",
+        recoSource:"HAS 2024", recoPosition:"Cible par défaut en l'absence de facteur orientant vers plus strict ou plus souple.",
+        critiquePosition:"Position alignée ; insiste sur la réévaluation régulière du schéma.", divergence:false },
+      { id:'souple', label:'Cible ~7,5–8 %',
+        avantages:["Réduit le risque d'hypoglycémie sévère.","Allège la charge thérapeutique."],
+        inconvenients:["Moindre prévention des complications microvasculaires à très long terme."],
+        effet:"Non chiffrable en effet absolu isolé ; bénéfice principal = réduction du risque hypoglycémique.", preuve:'modéré',
+        pourquoi:"Espérance de vie intermédiaire ou schéma à risque hypoglycémique élevé : la prudence prime sur le contrôle strict.",
+        recoSource:"ADA/EASD 2024", recoPosition:"Cible assouplie recommandée si risque d'hypoglycémie ou comorbidités significatives.",
+        critiquePosition:"Rejoint la position officielle sans réserve notable.", divergence:false },
+      { id:'peu_contraignante', label:'Cible <8–8,5 %',
+        avantages:["Minimise le risque d'hypoglycémie sévère et de chutes.","Adaptée à la qualité de vie du patient fragile."],
+        inconvenients:["Aucune prévention attendue des complications microvasculaires à l'échelle du reste de vie."],
+        effet:"NNT ≈ 12 sur 2 ans pour éviter 1 hypoglycémie sévère (essai randomisé sujet fragile, 2026).", preuve:'élevé',
+        pourquoi:"Fragilité ou espérance de vie limitée : le bénéfice d'un contrôle strict ne se matérialiserait pas à temps.",
+        recoSource:"HAS 2024 — sujet âgé fragile", recoPosition:"Cible assouplie recommandée pour limiter le risque iatrogène.",
+        critiquePosition:"Position identique ; souligne l'importance de la déprescription des molécules hypoglycémiantes à risque.", divergence:false }
+    ];
+  }
+
+  renderVals() {
+    const s = this.state;
+    const showChrome = s.screen !== 'home' && s.screen !== 'auth';
+    const currentNode = NODES.find(n => n.id === s.selectedNodeId) || NODES[0];
+    const isCibleNode = s.screen === 'decisionNode' && currentNode.detailed;
+    const isPlaceholderNode = s.screen === 'decisionNode' && !currentNode.detailed;
+
+    const groupedNodes = NODES.map(n => ({ theme: n.theme, nodes: [{ ...n, open: () => this.selectNode(n.id) }] }));
+
+    const optDefs = this.buildOptionDefs();
+    const tier = this.decideTier(s.criteria);
+    const primaryIdx = tier;
+    const altIdx = tier === 3 ? 2 : (tier === 0 ? 1 : (tier < 2 ? tier + 1 : tier - 1));
+    const cibleOptions = [optDefs[primaryIdx], optDefs[altIdx]].map((o, i) => {
+      const ev = evidenceStyle(o.preuve);
+      return { ...o, primary: i === 0, evidenceBg: ev.bg, evidenceColor: ev.color,
+        borderColor: i === 0 ? 'oklch(80% 0.05 254)' : 'oklch(89% 0.012 240)' };
+    });
+    const primaryOption = cibleOptions[0];
+
+    const professionOptions = PROFESSIONS.map(p => ({
+      label: p, select: () => this.selectProfile(p),
+      bg: s.profile === p ? 'oklch(93% 0.025 254)' : 'oklch(99.5% 0.002 240)',
+      color: s.profile === p ? 'oklch(46% 0.09 254)' : 'oklch(24% 0.02 245)',
+      borderColor: s.profile === p ? 'oklch(70% 0.06 254)' : 'oklch(89% 0.012 240)'
+    }));
+
+    const filteredArticles = ARTICLES.filter(a =>
+      (!s.filters.theme || a.themes.includes(s.filters.theme)) &&
+      (!s.filters.profession || a.professions.includes(s.filters.profession)) &&
+      (!s.filters.impact || a.impact === s.filters.impact) &&
+      (!s.filters.preuve || a.preuve === s.filters.preuve) &&
+      (!s.filters.semaine || a.week === s.filters.semaine)
+    ).map(a => {
+      const ev = evidenceStyle(a.preuve);
+      const im = impactStyle(a.impact);
+      const saved = s.savedIds.includes(a.id);
+      return { ...a, evidenceBg: ev.bg, evidenceColor: ev.color, impactBg: im.bg, impactColor: im.color, impactLabel: im.label,
+        savedIcon: saved ? '★' : '☆', savedColor: saved ? 'oklch(58% 0.075 178)' : 'oklch(70% 0.015 245)',
+        open: () => this.selectArticle(a.id), toggleSaved: () => this.toggleSaved(a.id),
+        goToNode: () => this.goToNodeFromArticle(a.nodeId) };
+    });
+
+    const themeOptions = [...new Set(ARTICLES.flatMap(a => a.themes))];
+    const weekOptions = [...new Set(ARTICLES.map(a => a.week))].sort();
+
+    const rawArticle = ARTICLES.find(a => a.id === s.selectedArticleId) || ARTICLES[0];
+    const evA = evidenceStyle(rawArticle.preuve);
+    const imA = impactStyle(rawArticle.impact);
+    const savedA = s.savedIds.includes(rawArticle.id);
+    const currentArticle = { ...rawArticle, evidenceBg: evA.bg, evidenceColor: evA.color, impactBg: imA.bg, impactColor: imA.color, impactLabel: imA.label,
+      savedLabel: savedA ? '★ Retirer de pour mémoire' : '☆ Ajouter à pour mémoire', toggleSaved: () => this.toggleSaved(rawArticle.id) };
+
+    const savedArticleObjs = ARTICLES.filter(a => s.savedIds.includes(a.id)).map(a => ({
+      ...a, open: () => this.selectArticle(a.id), toggleSaved: () => this.toggleSaved(a.id)
+    }));
+
+    const currentNodeLinkedArticle = ARTICLES.find(a => a.nodeId === currentNode.id);
+
+    return {
+      showChrome,
+      isHome: s.screen === 'home', isAuth: s.screen === 'auth',
+      isDecisionDomains: s.screen === 'decisionDomains', isDecisionNode: s.screen === 'decisionNode',
+      isVeilleList: s.screen === 'veilleList', isVeilleDetail: s.screen === 'veilleDetail',
+      isProfile: s.screen === 'profile', isMemory: s.screen === 'memory', isMethode: s.screen === 'methode',
+      isCibleNode, isPlaceholderNode,
+      goHome: this.goHome, goDecision: this.goDecision, goVeille: this.goVeille, goMethode: this.goMethode,
+      goProfile: this.goProfile, goMemory: this.goMemory, goAuth: this.goAuth, logout: this.logout,
+      toggleAccountMenu: this.toggleAccountMenu, accountMenuOpen: s.accountMenuOpen,
+      loggedIn: s.loggedIn, notLoggedIn: !s.loggedIn,
+      accountInitial: s.loggedIn ? (s.profile ? s.profile[0] : 'U') : '?',
+      accountLabel: s.loggedIn ? (s.profile || 'Compte') : 'Invité',
+      decisionPillBg: (s.screen === 'decisionDomains' || s.screen === 'decisionNode') ? 'oklch(46% 0.09 254)' : 'transparent',
+      decisionPillColor: (s.screen === 'decisionDomains' || s.screen === 'decisionNode') ? 'white' : 'oklch(50% 0.018 245)',
+      veillePillBg: (s.screen === 'veilleList' || s.screen === 'veilleDetail') ? 'oklch(58% 0.075 178)' : 'transparent',
+      veillePillColor: (s.screen === 'veilleList' || s.screen === 'veilleDetail') ? 'white' : 'oklch(50% 0.018 245)',
+      loginTabBg: s.authMode === 'login' ? 'white' : 'transparent', loginTabColor: s.authMode === 'login' ? 'oklch(46% 0.09 254)' : 'oklch(50% 0.018 245)',
+      signupTabBg: s.authMode === 'signup' ? 'white' : 'transparent', signupTabColor: s.authMode === 'signup' ? 'oklch(46% 0.09 254)' : 'oklch(50% 0.018 245)',
+      isSignup: s.authMode === 'signup', authSubmitLabel: s.authMode === 'signup' ? "S'inscrire" : 'Se connecter',
+      setAuthLogin: this.setAuthLogin, setAuthSignup: this.setAuthSignup, submitAuth: this.submitAuth,
+      professionOptions,
+      groupedNodes, currentNode,
+      criteria: s.criteria, onAgeChange: this.onAgeChange, onAncienneteChange: this.onAncienneteChange,
+      onEsperanceChange: this.onEsperanceChange, onRisqueChange: this.onRisqueChange, onFragileChange: this.onFragileChange,
+      cibleOptions, primaryOption,
+      argOpen: s.argOpen, toggleArgument: this.toggleArgument, argToggleLabel: s.argOpen ? "Replier l'argumentaire" : "Déplier l'argumentaire",
+      goLinkedArticle: () => currentNodeLinkedArticle && this.selectArticle(currentNodeLinkedArticle.id),
+      filters: s.filters, onThemeFilter: this.onThemeFilter, onProfessionFilter: this.onProfessionFilter,
+      onImpactFilter: this.onImpactFilter, onPreuveFilter: this.onPreuveFilter, onSemaineFilter: this.onSemaineFilter,
+      themeOptions, weekOptions, professionList: PROFESSIONS,
+      filteredArticles, profileLabel: s.profile || 'non renseigné',
+      currentArticle, goToArticleNode: () => this.goToNodeFromArticle(currentArticle.nodeId),
+      hasNoSaved: s.savedIds.length === 0, savedArticleObjs
+    };
+  }
+}
+
+</script>
+</body>
+</html>
