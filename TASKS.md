@@ -15,19 +15,24 @@ statut : ` ` à faire · `~` en cours · `x` fait · modèles/efforts : `WORKFLO
 
 - [x] **Maquette Claude Design** — 9 écrans reçus (handoff dans `design/maquettes/prototype-ebm-msp-neuf-crans/`),
   `ARCHITECTURE.md §Maquette` mis à jour. *(fait 2026-07-22)*
-- [ ] **Exécuter le plan P1** (câblage MVP module Décision) — cf. [plans/P1/index.md](plans/P1/index.md).
-  Lancer S1 → S2 → S3 → S4 (une session Sonnet à la fois, `/clear` entre), puis consolidation.
+- [x] **Exécuter le plan P1** (câblage MVP module Décision) — cf. [plans/P1/index.md](plans/P1/index.md).
+  S1 → S2 → S3 → S4 exécutées et consolidées *(fait 2026-07-22)*. Contenu nœud A **gelé/périmé** (cf.
+  `plans/P1/index.md` §Clôture) — voir T-007bis ci-dessous.
+- [ ] **T-007bis — Ré-encoder le nœud A « Cible glycémique »** depuis `docs/decision/noeuds/
+  A-cible-glycemique.md` (dossier réconcilié + vérification 2 passes), une fois les décisions référent
+  actées et la sémantique moteur (ordered-first-match vs multi-options) tranchée. Bloque le passage à
+  `meta.statut: valide`.
 
 ## Backlog (Phase 1 — MVP module Décision) — cadré dans `plans/P1/`
 
-- [ ] T-001 — Scaffold Vite + React + TS + Vitest + tokens + shell · modèle: Sonnet, effort: medium · plan: → plans/P1/S1.md
-- [ ] T-008 — Accueil (D1) + Méthode (S1) + disclaimer permanent · modèle: Sonnet, effort: medium · plan: → plans/P1/S1.md
-- [ ] T-002 — JSON Schema du nœud de décision + types TS · modèle: Sonnet, effort: high · plan: → plans/P1/S2.md
-- [ ] T-004 — Import YAML (plugin Vite) + validation Ajv en test · modèle: Sonnet, effort: high · plan: → plans/P1/S2.md
-- [ ] T-007 — Contenu nœud A « Cible glycémique » (YAML sourcé, brief §11) · modèle: Sonnet, effort: high · plan: → plans/P1/S2.md
-- [ ] T-003 — Moteur de règles déterministe (évaluateur de conditions, TS pur) + tests Vitest · modèle: Sonnet, effort: high · plan: → plans/P1/S3.md
-- [ ] T-005 — UI Décision D2 (domaines + liste nœuds) · modèle: Sonnet, effort: high · plan: → plans/P1/S4.md
-- [ ] T-006 — UI Décision D3 (form → options → argumentaire, câblé moteur) · modèle: Sonnet, effort: high · plan: → plans/P1/S4.md
+- [x] T-001 — Scaffold Vite + React + TS + Vitest + tokens + shell · modèle: Sonnet, effort: medium · plan: → plans/P1/S1.md
+- [x] T-008 — Accueil (D1) + Méthode (S1) + disclaimer permanent · modèle: Sonnet, effort: medium · plan: → plans/P1/S1.md
+- [x] T-002 — JSON Schema du nœud de décision + types TS · modèle: Sonnet, effort: high · plan: → plans/P1/S2.md
+- [x] T-004 — Import YAML (plugin Vite) + validation Ajv en test · modèle: Sonnet, effort: high · plan: → plans/P1/S2.md
+- [x] T-007 — Contenu nœud A « Cible glycémique » (YAML sourcé, brief §11) · modèle: Sonnet, effort: high · plan: → plans/P1/S2.md *(périmé, cf. T-007bis)*
+- [x] T-003 — Moteur de règles déterministe (évaluateur de conditions, TS pur) + tests Vitest · modèle: Sonnet, effort: high · plan: → plans/P1/S3.md
+- [x] T-005 — UI Décision D2 (domaines + liste nœuds) · modèle: Sonnet, effort: high · plan: → plans/P1/S4.md
+- [x] T-006 — UI Décision D3 (form → options → argumentaire, câblé moteur) · modèle: Sonnet, effort: high · plan: → plans/P1/S4.md
 
 ## Backlog (Phases 2–3 — non cadré)
 

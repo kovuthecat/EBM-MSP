@@ -25,10 +25,10 @@ Choix techniques verrouillés : `DECISIONS.md` **D9** ; caractère générique m
 
 | Session | Tâches | Titre | Modèle | Effort | Dépend de | Zone modifiée | Statut |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| [S1](S1.md) | T-001, T-008 | Scaffold + tokens + shell + Accueil (D1) + Méthode (S1) | Sonnet | medium | — | racine (config), `src/main`, `src/App`, `src/features/shared/`, `src/styles/`, `public/` | [ ] |
-| [S2](S2.md) | T-002, T-004, T-007 | JSON Schema nœud + import YAML + contenu nœud A (sourcé) | Sonnet | high | S1 | `schema/`, `content/`, `src/features/decision/content/`, `vite.config.ts` | [ ] |
-| [S3](S3.md) | T-003 | Moteur de règles (évaluateur de `conditions`) + tests Vitest | Sonnet | high | S2 | `src/features/decision/engine/` | [ ] |
-| [S4](S4.md) | T-005, T-006 | UI Décision : D2 (domaines + nœuds) + D3 (form → options → argumentaire) | Sonnet | high | S1, S2, S3 | `src/features/decision/screens/`, `src/features/decision/components/` | [ ] |
+| [S1](S1.md) | T-001, T-008 | Scaffold + tokens + shell + Accueil (D1) + Méthode (S1) | Sonnet | medium | — | racine (config), `src/main`, `src/App`, `src/features/shared/`, `src/styles/`, `public/` | [x] |
+| [S2](S2.md) | T-002, T-004, T-007 | JSON Schema nœud + import YAML + contenu nœud A (sourcé) | Sonnet | high | S1 | `schema/`, `content/`, `src/features/decision/content/`, `vite.config.ts` | [x] |
+| [S3](S3.md) | T-003 | Moteur de règles (évaluateur de `conditions`) + tests Vitest | Sonnet | high | S2 | `src/features/decision/engine/` | [x] |
+| [S4](S4.md) | T-005, T-006 | UI Décision : D2 (domaines + nœuds) + D3 (form → options → argumentaire) | Sonnet | high | S1, S2, S3 | `src/features/decision/screens/`, `src/features/decision/components/` | [x] |
 
 ## Ordonnancement
 
@@ -42,6 +42,24 @@ Choix techniques verrouillés : `DECISIONS.md` **D9** ; caractère générique m
 > P1 est volontairement **linéaire** (greenfield : chaque maillon dépend du précédent). Lancement solo,
 > une session à la fois, `/clear` entre chacune. Aucune session ne comm`it`/pushe pendant l'exécution
 > (cf. `WORKFLOW.md` §4d) — tout est consolidé en vague 5.
+
+## Clôture P1 (2026-07-22)
+
+Squelette logiciel livré et validé (`npm run build` + `npm run typecheck` + `npm test` → 23/23 verts) :
+scaffold, JSON Schema + import YAML + validation Ajv, moteur de règles générique + tests, écrans D2/D3
+câblés. Commits atomiques par tâche (cf. `TASKS.md`).
+
+⚠️ **Contenu du nœud A gelé, pas ré-encodé.** Pendant l'exécution de S2→S4, un chantier parallèle
+(dossier de preuve `docs/decision/noeuds/A-cible-glycemique.md` + vérification indépendante 2 passes
+`.verification-p2.md`) a conclu **« NON prêt à encoder »** sur la version brief §11 utilisée par T-007,
+avec des corrections bloquantes (variable `age` jamais utilisée, CV établi mal routé, conditions non
+disjointes — cf. `.verification-p2.md` §2/§5b) et un nouveau critère `antecedent_cv`. Décision prise avec
+l'utilisateur : consolider le squelette tel quel, `content/noeuds/diabete-type-2/cible-glycemique.yaml`
+reste `statut: brouillon` **explicitement périmé** — ne pas le considérer validé. Suite : **T-007bis**
+(ré-encoder depuis le dossier une fois les décisions référent actées) avant tout passage à `valide`.
+La question ouverte de sémantique moteur (S3 = « plusieurs options applicables, 1re gagne » ; le dossier
+propose pour ce nœud un mode **« ordered-first-match » à sortie unique**, distinct des nœuds B/C
+multi-options) reste à trancher au moment du ré-encodage — impact potentiel sur `evaluateNode`/schéma.
 
 ## Hors P1 (plans suivants)
 
