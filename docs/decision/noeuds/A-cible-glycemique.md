@@ -17,12 +17,12 @@ dérivés et éléments `[À VÉRIFIER]` ne passent pas au YAML avant confirmati
 - **PICO** : adulte DT2 (hors DT1/grossesse) ; quelle cible d'HbA1c individualiser ; comparateurs =
   bandes de cible ; outcomes durs (mortalité, IDM, AVC, rénal dur) vs substitution (microangiopathie),
   hypoglycémie sévère.
-- **Critères d'entrée** (brief §11) : `age` (nombre), `anciennete_diabete_annees` (nombre),
-  `esperance_vie` (longue/intermediaire/limitee), `fragilite` (bool), `risque_hypoglycemie_schema`
-  (faible/eleve).
-- ⚠️ **Manque signalé (Agent A, à escalader)** : aucune de ces variables ne capture la **maladie CV
-  établie** — or c'est ce qui sépare le plus nettement UKPDS (prévention 1re) d'ACCORD/ADVANCE/VADT
-  (prévention 2de majoritaire). → envisager d'ajouter **`antecedent_cv` (bool)** au nœud A. **Arbitrage référent.**
+- **Critères d'entrée** : `age` (nombre), `anciennete_diabete_annees` (nombre), `esperance_vie`
+  (longue ≙ EV > 15 ans / intermediaire / limitee ≙ < 5 ans, *mapping HAS*), `fragilite` (bool),
+  `risque_hypoglycemie_schema` (faible/eleve), **`antecedent_cv` (bool) — AJOUTÉ (décidé #2)**.
+- ✅ **`antecedent_cv` = critère OFFICIEL** : la table HAS 2024/2013 (Annexe 3) réserve la cible ≤ 6,5 %
+  au patient « **sans antécédent cardiovasculaire** » → ce n'est plus une déduction mais la reco elle-même.
+  *(Granularité HAS restant à trancher : CV non évolué ≤7 % vs évolué ≤8 % — cf. §5/§6.)*
 
 ## 2. Rapport de réconciliation
 
@@ -112,9 +112,26 @@ critère **officiel** → renforce l'escalade §2b-3 (ce n'est plus seulement un
   macrovasculaire dur** chez le diabète établi (ACCORD/ADVANCE/VADT). Le **bénéfice dur** (IDM,
   mortalité) n'apparaît que dans le **profil UKPDS** (jeune, récent) et **à long horizon** (legacy).
   → **individualiser** ; éviter le serrage agressif chez l'âgé/fragile/CV établi.
-- **Reco officielle** : HAS 2013 (+ maj), ADA *Standards of Care*, ACP 2018 (7–8 %) — toutes sur
-  **l'individualisation**. **Divergence : faible** — l'outil est aligné, MAIS **corrige** le brief §11
-  sur le plancher ~6,5 % (cf. 2b-1).
+- **Reco officielle = HAS 2024** (« Stratégie thérapeutique du patient vivant avec un DT2 », validée
+  30/05/2024). Les **cibles d'HbA1c ne sont PAS redéfinies** : maintenues depuis **2013**, rappelées en
+  **Annexe 3** (table ci-dessous). Corroboré ADA/EASD 2022, ACP 2018.
+
+**Table officielle des cibles (HAS 2024, Annexe 3)** :
+
+| Profil (cas général) | Cible HbA1c |
+|---|---|
+| La plupart des patients DT2 | **≤ 7 %** |
+| Nouvellement diagnostiqué · EV > 15 ans · **sans antécédent CV** · sans hypo | **≤ 6,5 %** |
+| Comorbidité grave / EV limitée (< 5 ans) · complications macrovasculaires évoluées · durée > 10 ans où viser 7 % provoque des hypos sévères | **≤ 8 %** |
+
+- *Sous-profils HAS* : **âgé** vigoureuse ≤ 7 % · fragile ≤ 8 % · « malade »/dépendante ≤ 9 %. **Antécédent
+  CV** non évolué ≤ 7 % · évolué (IDM+IC, coronaropathie sévère, polyartériel, AOMI sympto, AVC < 6 mois)
+  ≤ 8 %. **IRC** modérée (3A/3B) ≤ 7 % · sévère/terminale (4/5) ≤ 8 %.
+- **Convergence reco ↔ position critique (divergence FAIBLE)** : la **HAS elle-même** écrit qu'« aucune
+  corrélation n'a démontré le lien entre la baisse de l'HbA1c et l'amélioration de la morbi-mortalité »
+  (HbA1c = **critère intermédiaire**) et recommande d'envisager **arrêt/désescalade**. L'outil et la reco
+  disent la **même chose**. Le brief §11 (« plancher ~6,5 % via courbe en J ») est **corrigé** : le ≤ 6,5 %
+  est une cible officielle **réservée au profil récent sans MCV**, pas un plancher de mortalité.
 
 ## 5. Incertitudes
 
@@ -125,36 +142,41 @@ critère **officiel** → renforce l'escalade §2b-3 (ce n'est plus seulement un
   pour l'**ancienne** approche sulfamides/insuline.
 - Place d'`antecedent_cv` dans le nœud.
 
-## 6. → YAML (brouillon PROVISOIRE — ne pas encoder avant validation)
+## 6. → YAML (brouillon — aligné sur la table officielle HAS 2024 ; reste Prescrire pour valider)
 
-Logique proposée par Agent A (évaluation séquentielle, 1re condition vraie l'emporte) — **à arbitrer** :
+Bandes = **cibles officielles HAS** (seuils **≤ 6,5 / ≤ 7 / ≤ 8 / ≤ 9 %**) ; `antecedent_cv` **ajouté**
+(critère officiel). Évaluation « 1re condition vraie l'emporte », du plus prudent au plus strict :
 
 ```yaml
 # id: cible-glycemique · domaine: diabete-type-2
+# criteres_entree: age, anciennete_diabete_annees,
+#   esperance_vie(longue≙EV>15 / intermediaire / limitee≙<5 ans),
+#   fragilite(bool), risque_hypoglycemie_schema(faible/eleve), antecedent_cv(bool)
 options:
-  - intitule: "Cible ~8–8,5 %"           # Bande D
-    conditions: ["fragilite == true OR esperance_vie == limitee"]
-    effet_attendu: "Évite hyperglycémie symptomatique ; pas de bénéfice dur à cet horizon. [À VÉRIFIER NNH]"
-    niveau_preuve: faible
-  - intitule: "Cible ~7,5–8 %"           # Bande C  (profil ACCORD/VADT)
-    conditions: ["risque_hypoglycemie_schema == eleve AND (age >= 65 OR anciennete_diabete_annees >= 15 OR esperance_vie == intermediaire)"]
-    effet_attendu: "Pas de bénéfice dur démontré à 3,5–5,6 ans ; réduit l'hypo (RR ~2,4 évité). [À VÉRIFIER]"
+  - intitule: "Cible ≤ 9 %"      # personne âgée « malade »/dépendante (HAS, accord d'experts)
+    conditions: ["fragilite == true AND esperance_vie == limitee"]
+    niveau_preuve: tres_faible
+  - intitule: "Cible ≤ 8 %"      # comorbidité grave / EV limitée / longue durée avec hypos / âgé fragile
+    conditions: ["fragilite == true OR esperance_vie == limitee OR (anciennete_diabete_annees > 10 AND risque_hypoglycemie_schema == eleve)"]
     niveau_preuve: modere
-  - intitule: "Cible ~6,5–7 %"           # Bande A  (profil UKPDS)
-    conditions: ["age < 60 AND anciennete_diabete_annees < 10 AND esperance_vie == longue AND fragilite == false AND risque_hypoglycemie_schema == faible"]
-    effet_attendu: "Micro-bénéfice + legacy (IDM/mortalité à 10 ans, UKPDS 80). NNT≈20–36/10 ans [À VÉRIFIER, calculé]"
-    niveau_preuve: modere
-  - intitule: "Cible ~7–7,5 %"           # Bande B  (défaut, profil ADVANCE)
+  - intitule: "Cible ≤ 6,5 %"    # nouvellement dx, EV>15 ans, SANS antécédent CV, sans hypo (HAS)
+    conditions: ["anciennete_diabete_annees < 5 AND esperance_vie == longue AND antecedent_cv == false AND risque_hypoglycemie_schema == faible AND fragilite == false"]
+    niveau_preuve: faible        # bénéfice = micro + legacy (§3-4) ; pas de bénéfice dur prouvé
+  - intitule: "Cible ≤ 7 %"      # la plupart des patients — DÉFAUT (dont CV non évolué, IRC modérée, âgé vigoureux)
     conditions: ["default"]
-    effet_attendu: "Bénéfice micro (néphropathie, NNT≈53/5 ans [À VÉRIFIER]) sans bénéfice dur ; limite l'hypo."
     niveau_preuve: modere
-# sources: UKPDS33/80, Stratton, ACCORD, ADVANCE(+ON), VADT(+F), Turnbull, Boussageon, Cochrane (DOIs §3)
-# reco_officielle: {source: "HAS/ADA/ACP", position: "individualisée 7–8 %", divergence: false}
-# argumentaire: RÉVISER le plancher ~6,5 % (courbe en J faible) → ancrer sur ACCORD ; intégrer dissociation ACCORD/ADVANCE.
+# reco_officielle: {source: "HAS 2024, Annexe 3 (cibles 2013 maintenues)", divergence: false,
+#   explication: "HAS reconnaît HbA1c = critère intermédiaire sans lien démontré à la morbi-mortalité,
+#   et recommande d'envisager arrêt/désescalade → converge avec la position critique."}
+# sources: HAS 2024, UKPDS33/80, Stratton, ACCORD, ADVANCE(+ON), VADT(+F), Turnbull, Boussageon, Cochrane (DOIs §3)
+# argumentaire: pas de plancher-mortalité ; ≤6,5 % = cible officielle du profil SANS MCV récemment dx ;
+#   danger = serrage AGRESSIF (ACCORD) pas le chiffre (ADVANCE 6,5 % sans surmortalité) ;
+#   garde-fou : baisse rapide de l'HbA1c → aggravation de la rétinopathie.
 ```
 
-> ⚠️ L'ordre des `conditions` diffère du brief §11 (Agent A place la bande la plus prudente en premier,
-> avec des seuils `age>=65`/`anciennete>=15` absents du brief). **À trancher avec le référent** avant d'encoder.
+> **Granularité HAS non encore encodée** (à trancher, cf. §5) : CV **non évolué (≤7) vs évolué (≤8)** ;
+> personne âgée **vigoureuse/fragile/malade (≤7/≤8/≤9)** ; IRC **modérée/sévère (≤7/≤8)**. Pour l'encoder →
+> passer `antecedent_cv` et l'état de la personne âgée en **enum**, et rattacher DFG/stade IRC.
 
 ## 7. Demandes au référent (liste de courses) — MAJ 2026-07-22
 
@@ -173,5 +195,7 @@ options:
 **`[À VÉRIFIER]` restants** (Prescrire ou source primaire) : chiffres **absolus** UKPDS 80 post-essai ·
 taux **exact** d'hypo sévère VADT · **Cochrane pub4 (2015)**.
 
-**Arbitrages en attente** (§2b) : (1) réviser l'argumentaire plancher ~6,5 % ; (2) **ajouter `antecedent_cv`**
-(renforcé par HAS 2013) ; (3) valider seuils/ordre des bandes.
+**Arbitrages — RÉSOLUS par la HAS 2024** : (1) argumentaire plancher **révisé** (≤6,5 % = cible de profil
+sans MCV, pas un plancher courbe-en-J ; reco et position critique **convergent**) ✓ · (2) `antecedent_cv`
+**ajouté**, critère **officiel** HAS ✓ · (3) bandes = **table officielle HAS** (≤6,5/≤7/≤8/≤9) ✓.
+**Reste à trancher (fin)** : granularité HAS (CV non évolué/évolué ; âgé vigoureux/fragile/malade ; IRC → enum) — §6.

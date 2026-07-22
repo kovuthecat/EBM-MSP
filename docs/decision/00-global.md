@@ -32,6 +32,22 @@ d'un travail de preuve tracé ; ce fichier fixe la méthode, la racine `docs/dec
   outil, seul résumé + lien (droit d'auteur). Les demandes de textes sont listées en fin de dossier.
 - En cas de doute clinique **non tranché par une source** : **signaler**, ne pas trancher seul.
 
+## Socle de sources à interroger systématiquement (chaque nœud)
+
+Checklist reproductible — pour chaque nœud, interroger **au minimum** :
+
+- **Prescrire** — analyse indépendante ; ancre la **« position critique »**.
+- **HAS** — recommandations officielles françaises ; ancre la **« reco officielle »** (ex. RBP « Stratégie
+  thérapeutique du patient vivant avec un DT2 », 2024 ; cibles d'HbA1c en Annexe 3).
+- **Collège de la Médecine Générale (CMG)** — position des généralistes / soins premiers.
+- **Cochrane** — revues systématiques.
+- **Médicalement Geek / DragiWebdo** — EBM francophone, anti-sur-traitement.
+- **Essais primaires** pivots — source primaire, vérification.
+- *OpenEvidence / web = débroussaillage complémentaire, **jamais** source primaire.*
+
+La **reco officielle** (HAS, CMG) est affichée **à côté** de la position critique (Prescrire/EBM),
+divergence signalée (brief §2).
+
 ## Échelle GRADE simplifiée
 
 `eleve` (ECR de qualité, critères durs, cohérent) · `modere` (ECR avec limites, ou substitution solide) ·
@@ -41,7 +57,7 @@ d'un travail de preuve tracé ; ce fichier fixe la méthode, la racine `docs/dec
 
 | Id | Nœud | Dossier | Statut preuve | Nœud YAML |
 | --- | --- | --- | --- | --- |
-| A | Cible glycémique | `noeuds/A-cible-glycemique.md` | **OE + MG intégrés — reste Prescrire (3 articles) + 3 arbitrages référent** | P1/S2 |
+| A | Cible glycémique | `noeuds/A-cible-glycemique.md` | **OE + MG + HAS 2024 intégrés · 3 arbitrages résolus · reste Prescrire + granularité HAS** | P1/S2 |
 | B | 1re intention (par comorbidités) | `noeuds/B-premiere-intention.md` | à faire | P2 |
 | C | Intensification | `noeuds/C-intensification.md` | à faire | P2 |
 | D | Sulfamides / gliptines | `noeuds/D-sulfamides-gliptines.md` | à faire | P2 |

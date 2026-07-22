@@ -37,7 +37,7 @@ Cycle **hebdomadaire** fixe (jour à définir). Revue de fond de la SOP et des s
 Priorité aux sources **pré-évaluées** (haut rendement / temps maîtrisé). On ne descend aux études brutes que pour un signal à fort impact.
 
 - **Tier 1 — EBM secondaire pré-appréciée :** Minerva, Prescrire, Cochrane, NNT.com, McMaster EvidenceAlerts, BMJ EBM, Médicalement Geek/DragiWebdo, Exercer.
-- **Tier 2 — Recommandations & agences :** HAS, sociétés savantes par thème, ANSM.
+- **Tier 2 — Recommandations & agences :** HAS, **Collège de la Médecine Générale (CMG)**, sociétés savantes par thème, ANSM.
 - **Tier 3 — Sommaires de grandes revues (alertes TOC) :** NEJM, Lancet, JAMA, BMJ, Annals + revues spécialisées par profil.
 - **Tier 4 — Études primaires :** en **vérification/approfondissement** d'un signal déjà repéré uniquement.
 
