@@ -1,0 +1,87 @@
+.option-card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  margin-bottom: 16px;
+}
+
+.option-card--primary {
+  border-color: var(--c-accent-decision);
+}
+
+.option-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.option-card__title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+.option-card__badges {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.option-card__recommended-badge {
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--c-accent-decision);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.option-card__effet {
+  font-size: 13px;
+  color: var(--c-accent-veille);
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.option-card__lists {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.option-card__list-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--c-text-muted);
+  margin-bottom: 6px;
+}
+
+.option-card__list-item {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--c-text);
+}
+
+.option-card__ci {
+  font-size: 13px;
+  color: var(--c-text-secondary);
+  margin-bottom: 12px;
+}
+
+.option-card__ci-label {
+  font-weight: 700;
+}
+
+.option-card__pourquoi {
+  font-size: 13px;
+  color: var(--c-text-muted);
+  font-style: italic;
+  border-top: 1px solid var(--c-pill-track);
+  padding-top: 12px;
+}

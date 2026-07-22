@@ -1,0 +1,26 @@
+.evidence-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.evidence-badge--eleve {
+  background: var(--c-badge-preuve-eleve-bg);
+  color: var(--c-badge-preuve-eleve-text);
+}
+
+.evidence-badge--modere {
+  background: var(--c-badge-preuve-modere-bg);
+  color: var(--c-badge-preuve-modere-text);
+}
+
+.evidence-badge--faible,
+.evidence-badge--tres-faible {
+  /* "tres-faible" : pas de token dédié (cf. commentaire EvidenceBadge.tsx) — retombe sur "faible". */
+  background: var(--c-badge-preuve-faible-bg);
+  color: var(--c-badge-preuve-faible-text);
+}

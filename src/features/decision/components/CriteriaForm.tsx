@@ -1,0 +1,87 @@
+import type { CritereEntree } from '../content/node.types'
+import type { Criteria, CriteriaValue } from '../engine/conditions'
+import { labelForCritere, labelForEnumValue } from '../lib/labels'
+import './CriteriaForm.css'
+
+interface CriteriaFormProps {
+  criteresEntree: CritereEntree[]
+  criteria: Criteria
+  onChange: (nom: string, value: CriteriaValue) => void
+}
+
+/**
+ * Construit l'état initial des critères depuis `criteres_entree` : une valeur de départ générique
+ * par type (T-006 étape 1 : « état local des critères, valeurs de départ raisonnables »). Générique
+ * et sans connaissance clinique du critère (CLAUDE.md invariant 5) : `nombre` → 0, `bool` → false,
+ * `enum` → la première valeur déclarée dans `valeurs` (donc pilotée par le contenu, pas par une
+ * hypothèse clinique). Garantit que chaque critère du nœud est présent dans l'objet renvoyé, pour
+ * que `evaluateNode`/`evaluateCondition` ne lève jamais une "variable de critère inconnue"
+ * (`ConditionError`, `engine/conditions.ts`) sur un critère simplement pas encore modifié à l'écran.
+ */
+export function buildDefaultCriteria(criteresEntree: CritereEntree[]): Criteria {
+  const criteria: Criteria = {}
+  for (const critere of criteresEntree) {
+    if (critere.type === 'nombre') {
+      criteria[critere.nom] = 0
+    } else if (critere.type === 'bool') {
+      criteria[critere.nom] = false
+    } else {
+      criteria[critere.nom] = critere.valeurs?.[0] ?? ''
+    }
+  }
+  return criteria
+}
+
+/**
+ * Formulaire de critères (T-006 étape 1) : un champ par entrée de `criteres_entree`, dont le type
+ * d'input dérive du `type` de contenu (`nombre` → input number, `enum` → select, `bool` →
+ * checkbox). Générique : ne connaît aucun nom de critère par avance, fonctionne pour n'importe quel
+ * nœud futur sans modification (DECISIONS.md D8).
+ */
+export function CriteriaForm({ criteresEntree, criteria, onChange }: CriteriaFormProps) {
+  return (
+    <div className="criteria-form">
+      <div className="criteria-form__label">Critères du patient</div>
+      <div className="criteria-form__grid">
+        {criteresEntree.map((critere) => (
+          <div key={critere.nom} className="criteria-form__field">
+            {critere.type === 'bool' ? (
+              <label className="criteria-form__checkbox-row">
+                <input
+                  type="checkbox"
+                  checked={Boolean(criteria[critere.nom])}
+                  onChange={(event) => onChange(critere.nom, event.target.checked)}
+                />
+                <span className="criteria-form__checkbox-label">{labelForCritere(critere.nom)}</span>
+              </label>
+            ) : (
+              <>
+                <div className="criteria-form__field-label">{labelForCritere(critere.nom)}</div>
+                {critere.type === 'nombre' ? (
+                  <input
+                    type="number"
+                    className="criteria-form__input"
+                    value={Number(criteria[critere.nom] ?? 0)}
+                    onChange={(event) => onChange(critere.nom, Number(event.target.value))}
+                  />
+                ) : (
+                  <select
+                    className="criteria-form__input"
+                    value={String(criteria[critere.nom] ?? '')}
+                    onChange={(event) => onChange(critere.nom, event.target.value)}
+                  >
+                    {(critere.valeurs ?? []).map((valeur) => (
+                      <option key={valeur} value={valeur}>
+                        {labelForEnumValue(valeur)}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}

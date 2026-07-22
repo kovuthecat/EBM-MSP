@@ -1,0 +1,130 @@
+.argument-panel {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.argument-panel__title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--c-text-faible);
+  margin-bottom: 16px;
+}
+
+.argument-panel__columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.argument-panel__column {
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+}
+
+.argument-panel__column-title {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.argument-panel__column-title--reco {
+  color: var(--c-accent-decision);
+}
+
+.argument-panel__column-title--critique {
+  color: var(--c-accent-veille);
+}
+
+.argument-panel__column-text {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--c-text);
+  margin: 0 0 10px;
+}
+
+.argument-panel__column-text:last-child {
+  margin-bottom: 0;
+}
+
+.argument-panel__source-label {
+  font-weight: 700;
+}
+
+.argument-panel__column-note {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--c-text-muted);
+  font-style: italic;
+  margin: 0;
+}
+
+.argument-panel__divergence {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--c-accent-decision-soft);
+  color: var(--c-accent-decision);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.argument-panel__divergence-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--c-accent-decision);
+  color: white;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.argument-panel__section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--c-text-faible);
+  margin: 16px 0 8px;
+}
+
+.argument-panel__section-title:first-of-type {
+  margin-top: 0;
+}
+
+.argument-panel__list-item {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--c-text);
+}
+
+.argument-panel__source-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--c-pill-track);
+  color: var(--c-text);
+}
+
+.argument-panel__source-row a {
+  color: var(--c-text);
+}
+
+.argument-panel__source-type {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-text-muted);
+  white-space: nowrap;
+}
