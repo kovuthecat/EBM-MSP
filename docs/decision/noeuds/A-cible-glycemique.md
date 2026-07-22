@@ -1,6 +1,8 @@
 # Nœud A — Cible glycémique individualisée   (dossier de preuve)
 
-- **statut** : débroussaillé + réconcilié (1re passe) — **À VALIDER** (Prescrire/MG + référent)
+- **statut** : **corrigé selon la 2ᵉ passe** (age<70 · CV/IRC sévère→≤8 via `comorbidite_grave` · conditions
+  exclusives + sortie unique · `divergence:true` · notation ~6,5 % · Coca/Ruospo dissociés · retrait Cochrane
+  2015 · NNH hypo 15–52) — **À VALIDER : sign-off clinique du référent AVANT encodage** (rapport : `.verification-p2.md`)
 - **version** : 0.1 · **date** : 2026-07-22 · **auteur** : Opus (réconciliation bi-agents), référent à valider
 - **id YAML cible** : `cible-glycemique` · domaine `diabete-type-2`
 
@@ -77,10 +79,12 @@ dérivés et éléments `[À VÉRIFIER]` ne passent pas au YAML avant confirmati
 - **ACCORD NNH mortalité ≈ 100 sur 3,5 ans** (5 % vs 4 %) — le NNH≈370 calculé par Agent A **sous-estimait
   le risque** ; on retient **≈100**. *(résout un `[À VÉRIFIER]`)*
 - **IDM non fatal : NNT ≈ 125 sur ~5 ans** (réduction absolue ~8/1000). *(résout)*
-- **Hypoglycémie sévère : NNH ≈ 9–15** sur la durée des essais (RR 2,39). *(résout)*
+- **Hypoglycémie sévère : RR ~2,4** (Hemmingsen RR 2,39). **NNH ≈ 15–52** (Boussageon, même corpus) — la
+  fourchette « 9–15 » (bornée à 9) n'est pas sourcée, **corrigée** en « 15–52 ». *(2ᵉ passe)*
 - **Rénal dur** : bénéfice IRT **seulement dans ADVANCE** (HR 0,35 en essai → 0,54 à 10 ans ; NNT≈860/5 ans),
-  **non confirmé en méta-analyse** (Coca 2012 ; Ruospo/Cochrane 2017 : IRT RR 0,62 NS, doublement créat RR 0,84 NS).
-  *(nouveau — à intégrer à l'argumentaire)*
+  **non confirmé en méta-analyse** — chiffres **dissociés par étude (correction 2ᵉ passe)** : **Coca 2012**
+  IRT RR 0,69 (0,46–1,05) · doublement créat RR 1,06 (0,92–1,22) ; **Ruospo/Cochrane 2017** IRT RR 0,62
+  (0,34–1,12) · doublement créat RR 0,84 (0,64–1,11) — tous NS.
 
 **Médicalement Geek** (cadre pratique FR, anti-sur-traitement) :
 - Bandes : <7 % classique · **6,5 % jeune sans complication** · **7–7,5 % >65 ans** · **7,5–8 % fragile
@@ -98,7 +102,7 @@ critère **officiel** → renforce l'escalade §2b-3 (ce n'est plus seulement un
 | **UKPDS 33** *(Lancet 1998, 10.1016/S0140-6736(98)07019-6)* | ECR ouvert ; DT2 **nouveau dx**, âge ~53 | 7,0 vs 7,9 % | IDM RR 0,84 (NS, p=0,052) ; microvasc. RR 0,75 | ↑ (composite) | Micro **modéré** / dur **faible** |
 | **UKPDS 80** *(NEJM 2008, 10.1056/NEJMoa0806470)* | Suivi post-essai 10 ans | (convergence H1) | **Legacy** : mortalité −13 %, IDM −15 % ; metformine −27 %/−33 % | — | **faible–modéré** (quasi-observ.) |
 | **UKPDS 35 / Stratton** *(BMJ 2000, 10.1136/bmj.321.7258.405)* | **Observationnel** (association) | continue | −21 %/point HbA1c (tout évt) ; micro −37 % | n/a | **très faible–faible** (association ≠ causalité) |
-| **ACCORD** *(NEJM 2008, 10.1056/NEJMoa0802743)* | ECR ; âge ~62, ancienneté ~10 ans, **36 % prév. 2de** | 6,4 vs 7,5 % | **Mortalité HR 1,22 (1,01–1,46)** ; composite CV HR 0,90 NS ; IDM non fatal 0,76 | ~3× | **modéré** (surmortalité ; arrêt précoce) |
+| **ACCORD** *(NEJM 2008, 10.1056/NEJMoa0802743)* | ECR ; âge ~62, ancienneté ~10 ans, **35 % prév. 2de** | 6,4 vs 7,5 % | **Mortalité HR 1,22 (1,01–1,46)** ; composite CV HR 0,90 NS ; IDM non fatal 0,76 | ~3× | **modéré** (surmortalité ; arrêt précoce) |
 | **ADVANCE** *(NEJM 2008, 10.1056/NEJMoa0802987)* | ECR ; âge ~66, ancienneté 8 ans | 6,5 vs 7,3 % | Composite HR 0,90 (porté par néphropathie) ; **macro/mortalité NS** | HR 1,86 | **modéré** micro / **faible** dur |
 | **VADT** *(NEJM 2009, 10.1056/NEJMoa0808431 ; +2015/2019)* | ECR ; âge 60, ancienneté 11,5 ans, 97 % H | 6,9 vs 8,4 % | Principal NS (0,88) ; à 10 ans HR 0,83 CV ; **pas de legacy/mortalité à 15 ans** | ~3× | **faible** |
 | **Turnbull / CONTROL** *(Diabetologia 2009, 10.1007/s00125-009-1470-0)* | Méta IPD 4 ECR, n=27 049 | — | Mortalité HR 1,04 NS ; MACE 0,91 ; IDM 0,85 | **HR 2,48** | **modéré** |
@@ -153,46 +157,59 @@ critère **officiel** → renforce l'escalade §2b-3 (ce n'est plus seulement un
   pour l'**ancienne** approche sulfamides/insuline.
 - Place d'`antecedent_cv` dans le nœud.
 
-## 6. → YAML (brouillon — aligné sur la table officielle HAS 2024 ; reste Prescrire pour valider)
+## 6. → YAML (brouillon CORRIGÉ selon la 2ᵉ passe — à valider par le référent avant encodage)
 
-Bandes = **cibles officielles HAS** (seuils **≤ 6,5 / ≤ 7 / ≤ 8 / ≤ 9 %**) ; `antecedent_cv` **ajouté**
-(critère officiel). Évaluation « 1re condition vraie l'emporte », du plus prudent au plus strict :
+**Nœud à SORTIE UNIQUE** (une seule cible) → sémantique explicite **`selection: ordered-first-match`** (à
+porter dans le schéma, distincte du moteur « multi-options » des nœuds B/C). Corrections 2ᵉ passe intégrées :
+**A1** `age < 70` (garde-fou du strict — legacy = sujet jeune) ; **A2/C1** CV grave & IRC sévère routés vers
+≤8 via `comorbidite_grave` (redéfini) ; **A3** conditions rendues exclusives ; **B1** `divergence: true` ;
+**B2** notation « ~6,5 % » ; **B3** niveau de preuve du seuil aligné (aucune bande testée en ECR).
 
 ```yaml
-# id: cible-glycemique · domaine: diabete-type-2
+# id: cible-glycemique · domaine: diabete-type-2 · selection: ordered-first-match
 # criteres_entree: age, anciennete_diabete_annees,
 #   esperance_vie(longue≙EV>15 / intermediaire / limitee≙<5 ans),
 #   fragilite(bool), risque_hypoglycemie_schema(faible/eleve), antecedent_cv(bool), comorbidite_grave(bool)
+# comorbidite_grave ≙ affection grave associée, OU complication macrovasculaire ÉVOLUÉE (coronaropathie
+#   sévère / AOMI symptomatique / AVC récent / insuffisance cardiaque), OU IRC sévère-terminale (stade 4/5)
 options:
-  - intitule: "Cible ≤ 9 %"      # personne âgée dépendante / affection grave + EV limitée
+  - intitule: "Cible < 9 %"      # âgé dépendant « malade » / affection grave + EV limitée (HAS, accord d'experts)
     conditions: ["esperance_vie == limitee AND (fragilite == true OR comorbidite_grave == true)"]
     niveau_preuve: tres_faible
-  - intitule: "Cible ≤ 8 %"      # fragile / comorbidité grave / EV limitée / longue durée avec hypos
+  - intitule: "Cible ≤ 8 %"      # fragile / comorbidité grave (CV grave, IRC sévère) / EV limitée / longue durée + hypos
     conditions: ["fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR (anciennete_diabete_annees > 10 AND risque_hypoglycemie_schema == eleve)"]
-    niveau_preuve: modere
-  - intitule: "Cible ≤ 6,5 %"    # nouvellement dx, EV>15 ans, SANS antécédent CV, sans hypo (HAS)
-    conditions: ["anciennete_diabete_annees < 5 AND esperance_vie == longue AND antecedent_cv == false AND risque_hypoglycemie_schema == faible AND fragilite == false"]
-    niveau_preuve: faible        # bénéfice = micro + legacy (§3-4) ; pas de bénéfice dur prouvé
-  - intitule: "Cible ≤ 7 %"      # la plupart des patients — DÉFAUT
+    niveau_preuve: faible        # seuil non testé en ECR (aucune bande étroite comparée)
+  - intitule: "Cible ~6,5 % (6,5–7 %)"   # jeune, nouvellement dx, EV>15 ans, SANS CV/comorbidité, faible hypo
+    conditions: ["age < 70 AND anciennete_diabete_annees < 5 AND esperance_vie == longue AND antecedent_cv == false AND comorbidite_grave == false AND risque_hypoglycemie_schema == faible AND fragilite == false"]
+    niveau_preuve: faible        # bénéfice = micro + legacy (sujet jeune, UKPDS) ; pas de bénéfice dur prouvé
+  - intitule: "Cible ≤ 7 %"      # la plupart des patients — DÉFAUT (dont CV non évolué, IRC modérée, âgé vigoureux)
     conditions: ["default"]
-    niveau_preuve: modere
-# reco_officielle: {source: "HAS 2024, Annexe 3 (cibles 2013 maintenues)", divergence: false,
-#   explication: "HAS reconnaît HbA1c = critère intermédiaire sans lien démontré à la morbi-mortalité → converge avec la position critique."}
+    niveau_preuve: faible        # seuil non testé en ECR
+# reco_officielle: {source: "HAS 2024, Annexe 3 (cibles 2013 maintenues)", divergence: true,
+#   explication: "Convergence FORTE sur les principes (HbA1c = critère intermédiaire, anti-sur-traitement),
+#   mais DIVERGENCE sur ~6,5 % : HAS le recommande (jeune/EV>15/sans CV) ; Prescrire vise ≈7 % et Médicalement
+#   Geek propose de déprescrire si <6,5 %. À signaler (idéalement une divergence PAR option)."}
 # sources.medicalement_geek: "cibles <7 classique ; individualiser ; déprescrire si <6,5 %"
 # sources.prescrire (RÉSUMÉ, jamais le texte intégral — réf. Premiers Choix févr 2026 + Stratégies août 2023):
-#   "objectif = éviter/retarder les complications (surtout CV), pas la baisse d'HbA1c ; ≈7% les premières
-#    années puis ≈7,5% ; 7,5–8,5% (voire 8–9%) si âgé/fragile, complication vasculaire majeure, affection
-#    grave ou EV<5 ans ; EV courte → moins strict sans médicament"
-# sources.references_primaires: UKPDS33/80, Stratton, ACCORD, ADVANCE(+ON), VADT(+F), Turnbull, Boussageon, Cochrane (DOIs §3)
-# argumentaire: pas de plancher-mortalité ; ≤6,5% = cible officielle du profil SANS MCV récemment dx ;
-#   danger = serrage AGRESSIF (ACCORD) pas le chiffre (ADVANCE 6,5% sans surmortalité) ;
-#   garde-fou : baisse rapide de l'HbA1c → aggravation de la rétinopathie.
+#   "objectif = éviter/retarder les complications (surtout CV), pas la baisse d'HbA1c ; ≈7% puis ≈7,5% ;
+#    7,5–8,5% (voire 8–9%) si âgé/fragile, complication vasculaire majeure, affection grave ou EV<5 ans"
+# sources.references_primaires: UKPDS33/80, Stratton, ACCORD, ADVANCE(+ON), VADT(+F), Turnbull, Boussageon,
+#   Cochrane 2013 (⚠ RETIRÉ 2015, PMID 26222248, COI non déclaré — résultats non invalidés) (DOIs §3)
+# niveau_preuve — NOTE (B3) : preuve « intensif vs standard » modérée, mais le SEUIL exact n'a été testé par
+#   AUCUN ECR → niveau_preuve du seuil = faible (tres_faible pour < 9 %).
+# argumentaire (B4) : pas de plancher-mortalité ; ~6,5 % = cible officielle du profil jeune SANS MCV récemment
+#   dx ; le danger tient probablement au serrage AGRESSIF (ACCORD) — l'inférence « pas le chiffre » (ADVANCE
+#   6,5 % sans surmortalité) est PLAUSIBLE mais indirecte (mécanisme ACCORD inconnu ; Currie nadir ~7,5 %).
+# contre_indications (C3, à restaurer par option à l'encodage) : garde-fou « baisse rapide de l'HbA1c →
+#   aggravation d'une rétinopathie préexistante » ; gate de périmètre (exclut DT1, grossesse, décompensation aiguë).
 ```
 
-> **Granularité — décidé (« si appuyée sur EBM », référent)** : on **n'encode PAS** les gradations fines
-> d'accord d'experts (HAS : CV non évolué/évolué ; IRC par stade ; âgé vigoureux/fragile/malade) — non
-> étayées par ECR ni retenues par Prescrire. Elles restent **affichées** comme reco officielle. Les drivers
-> de l'algorithme sont les **critères EBM-étayés** ci-dessus.
+> **Restant pour l'encodage** (schéma S2) : porter `selection: ordered-first-match` et `argumentaire_exhaustif` ;
+> restaurer la structure complète des options (`avantages`/`inconvenients`/`effet_attendu`/`contre_indications`) ;
+> idéalement une `divergence` **par option** ; **ne pas afficher de NNT/NNH bruts** dans l'UI tant que non
+> confirmés (C5) ; **tests unitaires** couvrant tous les chevauchements de bandes. La granularité fine HAS
+> (CV non évolué/évolué, IRC par stade, âgé vigoureux/fragile/malade) reste **affichée** en reco officielle,
+> non encodée comme driver.
 
 ## 7. Demandes au référent (liste de courses) — MAJ 2026-07-22
 
@@ -217,4 +234,6 @@ taux **exact** d'hypo sévère VADT · **Cochrane pub4 (2015)**.
 **Arbitrages — RÉSOLUS par la HAS 2024** : (1) argumentaire plancher **révisé** (≤6,5 % = cible de profil
 sans MCV, pas un plancher courbe-en-J ; reco et position critique **convergent**) ✓ · (2) `antecedent_cv`
 **ajouté**, critère **officiel** HAS ✓ · (3) bandes = **table officielle HAS** (≤6,5/≤7/≤8/≤9) ✓.
-**Reste à trancher (fin)** : granularité HAS (CV non évolué/évolué ; âgé vigoureux/fragile/malade ; IRC → enum) — §6.
+**2ᵉ passe** : défauts d'algorithme **corrigés** (age<70 ; CV grave/IRC sévère→≤8 via `comorbidite_grave` ;
+conditions exclusives ; `divergence:true` ; ~6,5 % ; Coca/Ruospo ; retrait Cochrane 2015 ; NNH 15–52) — voir
+`A-cible-glycemique.verification-p2.md`. **Reste = sign-off clinique du référent** avant encodage.

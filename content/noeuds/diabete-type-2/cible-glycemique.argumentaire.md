@@ -16,7 +16,7 @@ l'**infarctus non fatal**. Un bénéfice « dur » différé (*effet legacy*) n'
 de la cible, et la prudence face au **sur-traitement**.
 
 **Cibles (seuils officiels HAS) :** ≤ 6,5 % (profil récent sans maladie CV) · **≤ 7 % (défaut)** ·
-≤ 8 % (fragile / comorbidité grave / EV limitée / longue durée avec hypoglycémies) · ≤ 9 % (âgé dépendant).
+≤ 8 % (fragile / comorbidité grave / EV limitée / longue durée avec hypoglycémies) · < 9 % (âgé dépendant).
 
 ## La question
 
@@ -81,19 +81,22 @@ NEJM 2019;380:2215-2224, DOI 10.1056/NEJMoa1806802.)* Taux exact d'hypoglycémie
 - **Hemmingsen (2011)** — 14 essais, avec **analyse séquentielle (TSA)** : preuve **suffisante pour écarter**
   une réduction de mortalité ≥ 10 % ; hypoglycémie sévère **RR 2,39**. *(BMJ 2011;343:d6898.)*
 - **Cochrane (2013)** — 28 essais, 34 912 patients : mortalité **RR 1,00 (0,92–1,08)** ; micro composite
-  **RR 0,88** ; hypoglycémie sévère **RR 2,18** ; balance jugée **incertaine**. *(DOI 10.1002/14651858.CD008143.pub3
-  ; version pub4 2015 `[À VÉRIFIER]`.)*
+  **RR 0,88** ; hypoglycémie sévère **RR 2,18** ; balance jugée **incertaine**. *(CD008143.pub3, DOI
+  10.1002/14651858.CD008143.pub3.)* **⚠ Revue formellement RETIRÉE par Cochrane en 2015** (pub4, PMID 26222248)
+  pour **conflit d'intérêt non déclaré** (2 auteurs liés à l'industrie) : retrait déontologique, **les
+  résultats ne sont pas scientifiquement invalidés**, mais à signaler.
 - **Rénal dur** — bénéfice sur l'IRT démontré **uniquement dans ADVANCE** (HR 0,35 en essai → 0,54 à 10 ans ;
-  NNT ≈ 860/5 ans), **non confirmé en méta-analyse** : IRT RR 0,62 (NS), doublement de la créatinine RR 0,84
-  (NS). *(Coca, Arch Intern Med 2012;172:761-769, DOI 10.1001/archinternmed.2011.2230 ; Ruospo/Cochrane 2017,
-  DOI 10.1002/14651858.CD010137.pub2.)*
+  NNT ≈ 860/5 ans), **non confirmé en méta-analyse** (chiffres propres à chaque étude) : **Coca 2012** IRT
+  RR 0,69 (0,46–1,05) · doublement de la créatinine RR 1,06 (0,92–1,22) ; **Ruospo/Cochrane 2017** IRT RR 0,62
+  (0,34–1,12) · doublement de la créatinine RR 0,84 (0,64–1,11) — tous NS. *(Coca, Arch Intern Med 2012;172:761-769,
+  DOI 10.1001/archinternmed.2011.2230 ; Ruospo/Cochrane 2017, DOI 10.1002/14651858.CD010137.pub2.)*
 
 ## Synthèse critique (position raisonnée)
 
 1. **Pas de bénéfice dur** (mortalité, macrovasculaire) du contrôle intensif chez le **diabète établi** ;
    seul l'**IDM non fatal** baisse, modestement (**NNT ≈ 125/5 ans**).
 2. **Bénéfice microvasculaire réel mais surtout de substitution** (albuminurie, rétinopathie infraclinique).
-3. **Coût constant : hypoglycémie sévère ×2–2,5** (**NNH ≈ 9–15**).
+3. **Coût constant : hypoglycémie sévère ×2–2,5** (**NNH ≈ 15–52**, Boussageon).
 4. **Effet legacy** limité au **profil UKPDS** (jeune, récent) ; **non répliqué** (VADT-15 ans, ADVANCE-ON).
 5. **Surmortalité ACCORD inexpliquée** (pas l'hypoglycémie) ; **ADVANCE (6,5 %) sans surmortalité** →
    le danger tient à la **stratégie agressive/rapide**, pas au niveau atteint.
@@ -114,7 +117,7 @@ inchangées depuis 2013 (Annexe 3) :
 | La plupart des patients DT2 | ≤ 7 % |
 | Nouvellement diagnostiqué · EV > 15 ans · sans antécédent CV · sans hypoglycémie | ≤ 6,5 % |
 | Comorbidité grave / EV < 5 ans · complications macrovasculaires évoluées · durée > 10 ans avec hypos | ≤ 8 % |
-| Personne âgée : vigoureuse ≤ 7 % · fragile ≤ 8 % · dépendante « malade » | ≤ 9 % |
+| Personne âgée : vigoureuse ≤ 7 % · fragile ≤ 8 % · dépendante « malade » | < 9 % |
 | Antécédent CV non évolué ≤ 7 % · évolué | ≤ 8 % |
 | IRC modérée (3A/3B) ≤ 7 % · sévère/terminale (4/5) | ≤ 8 % |
 
