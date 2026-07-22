@@ -91,4 +91,8 @@ export interface Noeud {
   /** Ids d'entrées de veille ayant modifié ce nœud (pont bidirectionnel avec la veille). */
   veille_liee: string[]
   meta: Meta
+  /** Mode de sélection des options (D11). Absent = `'multi-options'`. */
+  selection?: 'ordered-first-match' | 'multi-options'
+  /** Chemin du Markdown d'argumentaire exhaustif — niveau 3 de lecture (D11). */
+  argumentaire_exhaustif?: string
 }

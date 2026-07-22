@@ -61,6 +61,12 @@ La question ouverte de sémantique moteur (S3 = « plusieurs options applicables
 propose pour ce nœud un mode **« ordered-first-match » à sortie unique**, distinct des nœuds B/C
 multi-options) reste à trancher au moment du ré-encodage — impact potentiel sur `evaluateNode`/schéma.
 
+**Mise à jour — T-007bis fait (2026-07-22).** Nœud A ré-encodé depuis le dossier après validation des 3
+arbitrages par le référent : bandes HAS < 9 / ≤ 8 / ~6,5 / ≤ 7, critères `antecedent_cv` + `comorbidite_grave`,
+borne `age < 70` sur le strict, `divergence:true`. **Sémantique moteur tranchée** : `selection:
+ordered-first-match` (sortie unique) ajouté au schéma + `evaluateNode` (les nœuds B/C restent en
+`multi-options`). `content/…/cible-glycemique.yaml` **v2.0 `statut: valide`** · build + **27/27 tests verts**.
+
 ## Hors P1 (plans suivants)
 
 - **P2** — Module Veille : V1 (liste filtrable), V2 (détail), + Supabase (auth V5, profil V3, pour

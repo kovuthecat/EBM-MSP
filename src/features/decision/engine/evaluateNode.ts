@@ -48,6 +48,11 @@ function isDefaultOption(option: Option): boolean {
  * formée dans le contenu doit être visible, jamais avalée en silence (brief §7).
  */
 export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResult {
+  // Nœud à sortie unique (D11) : la 1re option applicable dans l'ordre du nœud l'emporte.
+  if (node.selection === 'ordered-first-match') {
+    return evaluateOrderedFirstMatch(node, criteria)
+  }
+
   const applicable: Option[] = []
   const reasons = new Map<Option, string[]>()
   const defaults: Option[] = []
@@ -74,4 +79,25 @@ export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResul
   }
 
   return { applicable, reasons }
+}
+
+/**
+ * Sélection « ordered-first-match » (sortie UNIQUE, DECISIONS.md D11) : renvoie la PREMIÈRE option
+ * non-default, dans l'ordre du nœud, dont toutes les conditions sont vraies ; à défaut, l'option de
+ * repli (`["default"]`, placée en dernier). Pour les nœuds à cible unique (ex. cible glycémique) :
+ * l'ordre EST la sémantique explicite, ce qui lève l'ambiguïté des conditions qui se chevauchent.
+ * Propage `ConditionError` comme `evaluateNode` (jamais de faux silencieux, brief §7).
+ */
+function evaluateOrderedFirstMatch(node: Noeud, criteria: Criteria): EvaluateNodeResult {
+  for (const option of node.options) {
+    if (isDefaultOption(option)) continue
+    if (option.conditions.every((condition) => evaluateCondition(condition, criteria))) {
+      return { applicable: [option], reasons: new Map([[option, [...option.conditions]]]) }
+    }
+  }
+  const fallback = node.options.find(isDefaultOption)
+  if (fallback) {
+    return { applicable: [fallback], reasons: new Map([[fallback, [...fallback.conditions]]]) }
+  }
+  return { applicable: [], reasons: new Map() }
 }

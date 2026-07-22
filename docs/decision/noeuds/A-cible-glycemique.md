@@ -1,8 +1,8 @@
 # Nœud A — Cible glycémique individualisée   (dossier de preuve)
 
-- **statut** : **corrigé selon la 2ᵉ passe** (age<70 · CV/IRC sévère→≤8 via `comorbidite_grave` · conditions
-  exclusives + sortie unique · `divergence:true` · notation ~6,5 % · Coca/Ruospo dissociés · retrait Cochrane
-  2015 · NNH hypo 15–52) — **À VALIDER : sign-off clinique du référent AVANT encodage** (rapport : `.verification-p2.md`)
+- **statut** : **VALIDÉ + ENCODÉ (T-007bis, 2026-07-22)** — référent OK sur les 3 arbitrages ; contenu
+  ré-encodé dans `content/noeuds/diabete-type-2/cible-glycemique.yaml` **v2.0 `meta.statut: valide`**
+  (`selection: ordered-first-match`, build + 27/27 tests verts). Rapport de 2ᵉ passe : `.verification-p2.md`.
 - **version** : 0.1 · **date** : 2026-07-22 · **auteur** : Opus (réconciliation bi-agents), référent à valider
 - **id YAML cible** : `cible-glycemique` · domaine `diabete-type-2`
 

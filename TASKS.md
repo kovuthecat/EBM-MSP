@@ -16,12 +16,11 @@ statut : ` ` à faire · `~` en cours · `x` fait · modèles/efforts : `WORKFLO
 - [x] **Maquette Claude Design** — 9 écrans reçus (handoff dans `design/maquettes/prototype-ebm-msp-neuf-crans/`),
   `ARCHITECTURE.md §Maquette` mis à jour. *(fait 2026-07-22)*
 - [x] **Exécuter le plan P1** (câblage MVP module Décision) — cf. [plans/P1/index.md](plans/P1/index.md).
-  S1 → S2 → S3 → S4 exécutées et consolidées *(fait 2026-07-22)*. Contenu nœud A **gelé/périmé** (cf.
-  `plans/P1/index.md` §Clôture) — voir T-007bis ci-dessous.
-- [ ] **T-007bis — Ré-encoder le nœud A « Cible glycémique »** depuis `docs/decision/noeuds/
-  A-cible-glycemique.md` (dossier réconcilié + vérification 2 passes), une fois les décisions référent
-  actées et la sémantique moteur (ordered-first-match vs multi-options) tranchée. Bloque le passage à
-  `meta.statut: valide`.
+  S1 → S2 → S3 → S4 exécutées et consolidées *(fait 2026-07-22)*.
+- [x] **T-007bis — Ré-encoder le nœud A « Cible glycémique »** depuis le dossier réconcilié + 2ᵉ passe,
+  décisions référent actées, sémantique moteur **`ordered-first-match` (sortie unique)** ajoutée au
+  schéma + `evaluateNode`. `content/…/cible-glycemique.yaml` **v2.0 `meta.statut: valide`** · build +
+  **27/27 tests verts** *(fait 2026-07-22 · Opus)*.
 
 ## Backlog (Phase 1 — MVP module Décision) — cadré dans `plans/P1/`
 

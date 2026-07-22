@@ -1,8 +1,9 @@
 /**
  * Tests du sélecteur d'options (`evaluateNode.ts`) sur le nœud **réel**
- * `content/noeuds/diabete-type-2/cible-glycemique.yaml` (S3, étape 3 — brief §11). Le module testé
- * ne connaît pas ce nœud par son nom : c'est ce fichier de test qui l'y ancre volontairement, pour
- * vérifier le comportement sur du contenu sourcé plutôt que sur un fixture inventé.
+ * `content/noeuds/diabete-type-2/cible-glycemique.yaml`, dans sa version **validée** (T-007bis) :
+ * nœud à **sortie unique** (`selection: ordered-first-match`), bandes HAS < 9 / ≤ 8 / ~6,5 / ≤ 7.
+ * Couvre notamment les corrections de la 2ᵉ passe (`docs/decision/noeuds/A-cible-glycemique.verification-p2.md`) :
+ * borne d'âge sur le strict (A1), CV grave routé vers ≤ 8 % (A2), exclusivité (A3).
  */
 import { describe, expect, it } from 'vitest'
 import { getNoeudById } from '../content/loadNodes.ts'
@@ -13,150 +14,100 @@ import { evaluateNode } from './evaluateNode.ts'
 const node = getNoeudById('cible-glycemique')
 if (node === undefined) {
   throw new Error(
-    'Nœud "cible-glycemique" introuvable sous content/noeuds/diabete-type-2 — prérequis de ces tests (S2).',
+    'Nœud "cible-glycemique" introuvable sous content/noeuds/diabete-type-2 — prérequis de ces tests (S2/T-007bis).',
   )
 }
 
-const INTITULE_STRICTE = 'Cible ~6,5 %'
-const INTITULE_DEFAUT = 'Cible ~7 %'
-const INTITULE_SOUPLE = 'Cible 7,5–8 %'
-const INTITULE_MOINS_CONTRAIGNANTE = 'Cible 8–8,5 %'
+const MOINS_CONTRAIGNANTE = 'Cible < 9 %'
+const SOUPLE = 'Cible ≤ 8 %'
+const STRICTE = 'Cible ~6,5 % (6,5–7 %)'
+const DEFAUT = 'Cible ≤ 7 %'
 
-function intitules(options: { intitule: string }[]): string[] {
-  return options.map((o) => o.intitule)
+/** Critères complets à partir d'un profil « défaut » (le moteur lève sur toute variable manquante). */
+function criteria(overrides: Partial<Criteria> = {}): Criteria {
+  return {
+    age: 60,
+    anciennete_diabete_annees: 8,
+    esperance_vie: 'intermediaire',
+    fragilite: false,
+    risque_hypoglycemie_schema: 'faible',
+    antecedent_cv: false,
+    comorbidite_grave: false,
+    ...overrides,
+  }
 }
 
-describe('evaluateNode — nœud "cible-glycemique" (brief §11)', () => {
-  it('jeune, diabète récent, risque hypo faible, espérance longue, non fragile → cible stricte', () => {
-    const criteria: Criteria = {
-      age: 45,
-      anciennete_diabete_annees: 5,
-      esperance_vie: 'longue',
-      fragilite: false,
-      risque_hypoglycemie_schema: 'faible',
-    }
-    const result = evaluateNode(node, criteria)
-    expect(intitules(result.applicable)).toEqual([INTITULE_STRICTE])
+function cible(c: Criteria): string[] {
+  return evaluateNode(node!, c).applicable.map((o) => o.intitule)
+}
 
-    const stricteOption = result.applicable[0]
-    expect(result.reasons.get(stricteOption)).toEqual([
-      'age < 60',
-      'anciennete_diabete_annees < 10',
-      'risque_hypoglycemie_schema == faible',
-      'esperance_vie == longue',
-      'fragilite == false',
-    ])
+describe('evaluateNode — "cible-glycemique" (T-007bis · ordered-first-match, sortie unique)', () => {
+  it('renvoie toujours UNE seule cible (nœud à sortie unique)', () => {
+    expect(evaluateNode(node!, criteria()).applicable).toHaveLength(1)
+    expect(
+      evaluateNode(node!, criteria({ fragilite: true, esperance_vie: 'limitee' })).applicable,
+    ).toHaveLength(1)
   })
 
-  it('profil intermédiaire (aucune borne franchie) → repli sur le default (~7 %)', () => {
-    const criteria: Criteria = {
-      age: 68,
-      anciennete_diabete_annees: 8,
-      esperance_vie: 'intermediaire',
-      fragilite: false,
-      risque_hypoglycemie_schema: 'faible',
-    }
-    const result = evaluateNode(node, criteria)
-    expect(intitules(result.applicable)).toEqual([INTITULE_DEFAUT])
-    expect(result.reasons.get(result.applicable[0])).toEqual(['default'])
+  it('jeune, récent, sans MCV, non fragile, hypo faible, EV longue → ~6,5 %', () => {
+    expect(cible(criteria({ age: 52, anciennete_diabete_annees: 3, esperance_vie: 'longue' }))).toEqual([STRICTE])
   })
 
-  describe('≥ 75 ans OU fragile OU risque hypo élevé OU espérance limitée → cible souple', () => {
-    it('déclenché par l\'âge (≥ 75), sans franchir la borne "fragile ET espérance limitée"', () => {
-      const criteria: Criteria = {
-        age: 80,
-        anciennete_diabete_annees: 5,
-        esperance_vie: 'longue',
-        fragilite: false,
-        risque_hypoglycemie_schema: 'faible',
-      }
-      expect(intitules(evaluateNode(node, criteria).applicable)).toEqual([INTITULE_SOUPLE])
-    })
-
-    it('déclenché par la fragilité seule (espérance non limitée)', () => {
-      const criteria: Criteria = {
-        age: 50,
-        anciennete_diabete_annees: 5,
-        esperance_vie: 'longue',
-        fragilite: true,
-        risque_hypoglycemie_schema: 'faible',
-      }
-      expect(intitules(evaluateNode(node, criteria).applicable)).toEqual([INTITULE_SOUPLE])
-    })
-
-    it('déclenché par le risque hypoglycémique élevé', () => {
-      const criteria: Criteria = {
-        age: 50,
-        anciennete_diabete_annees: 5,
-        esperance_vie: 'longue',
-        fragilite: false,
-        risque_hypoglycemie_schema: 'eleve',
-      }
-      expect(intitules(evaluateNode(node, criteria).applicable)).toEqual([INTITULE_SOUPLE])
-    })
-
-    it('déclenché par l\'espérance de vie limitée seule (non fragile)', () => {
-      const criteria: Criteria = {
-        age: 50,
-        anciennete_diabete_annees: 5,
-        esperance_vie: 'limitee',
-        fragilite: false,
-        risque_hypoglycemie_schema: 'faible',
-      }
-      expect(intitules(evaluateNode(node, criteria).applicable)).toEqual([INTITULE_SOUPLE])
-    })
+  it('A1 — sujet âgé (78) robuste, récent, sans MCV → ≤ 7 % (le ~6,5 % est verrouillé par age < 70)', () => {
+    expect(cible(criteria({ age: 78, anciennete_diabete_annees: 3, esperance_vie: 'longue' }))).toEqual([DEFAUT])
   })
 
-  it('fragile ET espérance limitée → la cible la moins contraignante est bien retenue', () => {
-    const criteria: Criteria = {
-      age: 80,
-      anciennete_diabete_annees: 20,
-      esperance_vie: 'limitee',
-      fragilite: true,
-      risque_hypoglycemie_schema: 'eleve',
-    }
-    const result = evaluateNode(node, criteria)
-    // Note de contenu (pas un bug moteur) : la condition OR de "Cible 7,5–8 %" inclut déjà
-    // `fragilite == true` et `esperance_vie == limitee` comme disjoints ; toute combinaison qui
-    // satisfait la condition AND de "Cible 8–8,5 %" satisfait donc aussi celle de "Cible 7,5–8 %".
-    // Les deux options sont applicables simultanément (aucun score caché, brief §7) ; l'ordre du
-    // nœud place la borne la moins contraignante en dernier, cohérent avec "l'auteur ordonne du
-    // plus spécifique au plus général" (Décision clé de S3) une fois qu'on lit "spécifique" comme
-    // repérant l'option la plus étroite pour l'écran (S4), pas comme garantissant l'exclusivité.
-    expect(intitules(result.applicable)).toEqual([INTITULE_SOUPLE, INTITULE_MOINS_CONTRAIGNANTE])
-    expect(intitules(result.applicable)).toContain(INTITULE_MOINS_CONTRAIGNANTE)
+  it('profil intermédiaire → défaut ≤ 7 %', () => {
+    expect(cible(criteria({ age: 68, anciennete_diabete_annees: 8, esperance_vie: 'intermediaire' }))).toEqual([DEFAUT])
   })
 
-  it('le default n\'est pas retenu dès qu\'une autre option s\'applique', () => {
-    const stricteCriteria: Criteria = {
-      age: 45,
-      anciennete_diabete_annees: 5,
-      esperance_vie: 'longue',
-      fragilite: false,
-      risque_hypoglycemie_schema: 'faible',
-    }
-    expect(intitules(evaluateNode(node, stricteCriteria).applicable)).not.toContain(INTITULE_DEFAUT)
-
-    const souplecriteria: Criteria = {
-      age: 80,
-      anciennete_diabete_annees: 5,
-      esperance_vie: 'longue',
-      fragilite: false,
-      risque_hypoglycemie_schema: 'faible',
-    }
-    expect(intitules(evaluateNode(node, souplecriteria).applicable)).not.toContain(INTITULE_DEFAUT)
+  it('A2 — CV établi grave (comorbidite_grave), non fragile, EV longue → ≤ 8 % (pas ≤ 7)', () => {
+    expect(
+      cible(criteria({ age: 64, antecedent_cv: true, comorbidite_grave: true, esperance_vie: 'longue' })),
+    ).toEqual([SOUPLE])
   })
 
-  it('variable de critère inconnue → erreur explicite (pas un faux silencieux)', () => {
-    // `esperance_vie` manque volontairement : la condition "esperance_vie == longue" de l'option
-    // stricte doit lever, pas être évaluée à `false`.
-    const incompleteCriteria = {
-      age: 45,
-      anciennete_diabete_annees: 5,
+  it('fragile (EV non limitée) → ≤ 8 %', () => {
+    expect(cible(criteria({ fragilite: true }))).toEqual([SOUPLE])
+  })
+
+  it('ancienneté > 10 ans ET risque hypo élevé → ≤ 8 %', () => {
+    expect(cible(criteria({ anciennete_diabete_annees: 15, risque_hypoglycemie_schema: 'eleve' }))).toEqual([SOUPLE])
+  })
+
+  it('risque hypo élevé seul (ancienneté < 10) → défaut ≤ 7 % (pas ≤ 8, pas ~6,5)', () => {
+    expect(cible(criteria({ anciennete_diabete_annees: 5, risque_hypoglycemie_schema: 'eleve' }))).toEqual([DEFAUT])
+  })
+
+  it('fragile ET EV limitée → < 9 % (bande la plus relâchée, évaluée en premier)', () => {
+    expect(cible(criteria({ age: 82, fragilite: true, esperance_vie: 'limitee' }))).toEqual([MOINS_CONTRAIGNANTE])
+  })
+
+  it('comorbidité grave ET EV limitée → < 9 %', () => {
+    expect(cible(criteria({ comorbidite_grave: true, esperance_vie: 'limitee' }))).toEqual([MOINS_CONTRAIGNANTE])
+  })
+
+  it('EV limitée SANS fragilité ni comorbidité grave → ≤ 8 % (pas < 9)', () => {
+    expect(cible(criteria({ esperance_vie: 'limitee' }))).toEqual([SOUPLE])
+  })
+
+  it('reason = les conditions satisfaites de la cible retenue', () => {
+    const c = criteria({ age: 52, anciennete_diabete_annees: 3, esperance_vie: 'longue' })
+    const result = evaluateNode(node!, c)
+    expect(result.reasons.get(result.applicable[0])).toContain('age < 70')
+  })
+
+  it('variable de critère inconnue → ConditionError (jamais un faux silencieux)', () => {
+    // `esperance_vie` manque : la 1re option évaluée ("< 9 %" : "esperance_vie == limitee") doit lever.
+    const incomplete = {
+      age: 52,
+      anciennete_diabete_annees: 3,
       fragilite: false,
       risque_hypoglycemie_schema: 'faible',
+      antecedent_cv: false,
+      comorbidite_grave: false,
     } as Criteria
-    expect(() => evaluateNode(node, incompleteCriteria)).toThrow(ConditionError)
-    expect(() => evaluateNode(node, incompleteCriteria)).toThrow(/esperance_vie/)
+    expect(() => evaluateNode(node!, incomplete)).toThrow(ConditionError)
+    expect(() => evaluateNode(node!, incomplete)).toThrow(/esperance_vie/)
   })
 })

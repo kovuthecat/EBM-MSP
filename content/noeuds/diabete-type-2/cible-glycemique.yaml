@@ -1,10 +1,13 @@
-# Nœud A « Cible glycémique » — contenu sourcé, autorité unique : docs/decision/BRIEF_DECISION.md §11.
-# Recopié fidèlement du gabarit §11 (T-007) : ne pas modifier les valeurs cliniques sans passer par
-# le workflow veille → algorithme (DECISIONS.md D5) ou une revue de fond du comité éditorial.
+# Nœud A « Cible glycémique » — contenu VALIDÉ (T-007bis, ré-encodage post-2ᵉ passe).
+# Autorité : docs/decision/noeuds/A-cible-glycemique.md (dossier de preuve) + .verification-p2.md
+# (double vérification indépendante) + .argumentaire.md (niveau 3). Ne pas modifier les valeurs
+# cliniques hors workflow veille → algorithme (DECISIONS.md D5) ou revue de fond du comité.
 id: cible-glycemique
 domaine: diabete-type-2
 titre: "Fixer la cible d'HbA1c"
-population_cible: "Adulte DT2, hors grossesse, hors DT1."
+population_cible: "Adulte DT2, hors grossesse, hors DT1, hors décompensation aiguë."
+selection: ordered-first-match
+argumentaire_exhaustif: "cible-glycemique.argumentaire.md"
 criteres_entree:
   - nom: age
     type: nombre
@@ -18,103 +21,140 @@ criteres_entree:
   - nom: risque_hypoglycemie_schema
     type: enum
     valeurs: [faible, eleve]
+  - nom: antecedent_cv
+    type: bool
+  - nom: comorbidite_grave
+    type: bool
 options:
-  - intitule: "Cible ~6,5 %"
+  - intitule: "Cible < 9 %"
     conditions:
-      - "age < 60"
-      - "anciennete_diabete_annees < 10"
-      - "risque_hypoglycemie_schema == faible"
+      - "esperance_vie == limitee"
+      - "fragilite == true OR comorbidite_grave == true"
+    avantages:
+      - "Évite l'hyperglycémie symptomatique et le sur-traitement en fin de vie ; priorité à la qualité de vie."
+    inconvenients:
+      - "Vise le confort, pas la prévention des complications (bénéfice non attendu à cet horizon)."
+    effet_attendu: "non chiffrable"
+    niveau_preuve: tres_faible
+  - intitule: "Cible ≤ 8 %"
+    conditions:
+      - "fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR anciennete_diabete_annees > 10 AND risque_hypoglycemie_schema == eleve"
+    avantages:
+      - "Réduit le risque d'hypoglycémie sévère ; adapté au sujet fragile, à comorbidité grave (maladie cardiovasculaire évoluée, IRC sévère) ou à l'ancienneté avec hypoglycémies."
+    inconvenients:
+      - "Moindre bénéfice microvasculaire à très long terme."
+    effet_attendu: "Pas de bénéfice dur démontré à cet horizon ; bénéfice principal = réduction du risque hypoglycémique."
+    niveau_preuve: faible
+  - intitule: "Cible ~6,5 % (6,5–7 %)"
+    conditions:
+      - "age < 70"
+      - "anciennete_diabete_annees < 5"
       - "esperance_vie == longue"
+      - "antecedent_cv == false"
+      - "comorbidite_grave == false"
+      - "risque_hypoglycemie_schema == faible"
       - "fragilite == false"
     avantages:
-      - "Bénéfice microvasculaire à long terme (legacy) si atteint sans hypoglycémie."
+      - "Bénéfice microvasculaire et effet legacy (IDM/mortalité différés, profil UKPDS du sujet jeune) si atteint sans hypoglycémie."
     inconvenients:
-      - "Aucun bénéfice de mortalité ; risque si atteint par sulfamide/insuline."
-    effet_attendu: "Gain surtout sur critères de substitution (albuminurie, rétinopathie infraclinique)."
-    niveau_preuve: modere
+      - "Aucun bénéfice de mortalité prouvé à court terme ; risque si atteint par sulfamide/insuline."
+    effet_attendu: "Gain surtout microvasculaire (substitution) ; bénéfice dur différé (legacy) chez le sujet jeune récemment diagnostiqué."
+    niveau_preuve: faible
     contre_indications:
+      - "Antécédent cardiovasculaire établi"
       - "Schéma à risque d'hypoglycémie"
-  - intitule: "Cible ~7 %"
+      - "Rétinopathie préexistante : éviter une baisse rapide de l'HbA1c (risque d'aggravation)"
+  - intitule: "Cible ≤ 7 %"
     conditions:
       - "default"
     avantages:
-      - "Compromis pour la majorité."
+      - "Compromis pour la majorité des patients."
     inconvenients:
-      - "Bénéfice macrovasculaire/mortalité non démontré par le seul serrage."
-    effet_attendu: "Réduction de l'IDM non fatal (méta-analyses), pas de la mortalité."
-    niveau_preuve: modere
-  - intitule: "Cible 7,5–8 %"
-    conditions:
-      - "age >= 75 OR fragilite == true OR risque_hypoglycemie_schema == eleve OR esperance_vie == limitee"
-    avantages:
-      - "Réduit le risque d'hypoglycémie ; priorité chez l'âgé/fragile."
-    inconvenients:
-      - "Moindre contrôle des symptômes d'hyperglycémie."
-    effet_attendu: "Pas de perte démontrée sur critères durs à cet horizon."
-    niveau_preuve: modere
-  - intitule: "Cible 8–8,5 %"
-    conditions:
-      - "fragilite == true AND esperance_vie == limitee"
-    avantages:
-      - "Évite hypoglycémie et sur-traitement en fin de vie."
-    inconvenients:
-      - "Vise le confort, pas la prévention des complications."
-    effet_attendu: "non chiffrable"
+      - "Bénéfice macrovasculaire/mortalité non démontré par le seul serrage glycémique."
+    effet_attendu: "Réduction de l'IDM non fatal (méta-analyses), pas de la mortalité ; bénéfice absolu modeste."
     niveau_preuve: faible
 argumentaire: >
-  Aucun ECR n'a comparé des bandes étroites (ex. 7–7,5 vs 7,5–8 %). Les grands
-  essais ont contrasté intensif (<7 %) vs standard : ACCORD (6,4 vs 7,5 %) a
-  montré une SURMORTALITÉ du bras intensif ; ADVANCE et VADT sont neutres sur la
-  macroangiopathie et la mortalité, gain néphrologique limité à la
-  microalbuminurie. Méta-analyses (Turnbull/CONTROL, Boussageon 2011, Cochrane) :
-  réduction de l'IDM non fatal, PAS de la mortalité, doublement des
-  hypoglycémies sévères. L'effet legacy (UKPDS 80, DCCT/EDIC) justifie un
-  serrage chez le sujet jeune à diabète récent, absent chez le DT2 installé.
-  Courbe en J et ACCORD plaident pour un plancher (~6,5 %).
+  Aucun ECR n'a comparé des bandes de cible étroites : les seuils sont extrapolés. Chez le diabète
+  établi (ACCORD, ADVANCE, VADT), le contrôle intensif n'apporte pas de bénéfice de mortalité ni
+  macrovasculaire dur ; seul l'IDM non fatal est modestement réduit, au prix d'un risque
+  d'hypoglycémie sévère multiplié par ~2 à 2,5. ACCORD (6,4 vs 7,5 %) a montré une surmortalité
+  (HR 1,22) dont le mécanisme reste inexpliqué ; ADVANCE a atteint 6,5 % sans surmortalité, ce qui
+  suggère — sans le démontrer, comparaison indirecte — que le danger tient à une stratégie de serrage
+  agressive plutôt qu'au niveau atteint. Le bénéfice microvasculaire est robuste mais surtout de
+  substitution ; l'effet legacy (mortalité/IDM différés) n'est établi que dans le profil UKPDS (sujet
+  jeune, diabète récent), non répliqué chez le diabète installé (VADT à 15 ans, ADVANCE-ON). D'où une
+  cible individualisée : ~6,5 % réservée au sujet jeune récemment diagnostiqué, sans maladie
+  cardiovasculaire et sans risque hypoglycémique ; ≤7 % par défaut ; relâchement (≤8 %, voire <9 %)
+  chez le fragile, la comorbidité grave ou l'espérance de vie limitée. Garde-fou : une baisse rapide
+  de l'HbA1c peut aggraver une rétinopathie préexistante.
 sources:
   references_primaires:
     - titre: "ACCORD"
       annee: 2008
       type_critere: dur
-      lien: ""
-    - titre: "ADVANCE"
+      lien: "https://doi.org/10.1056/NEJMoa0802743"
+    - titre: "ADVANCE (+ ADVANCE-ON 2014)"
       annee: 2008
       type_critere: mixte
-      lien: ""
-    - titre: "VADT / VADT-F"
+      lien: "https://doi.org/10.1056/NEJMoa0802987"
+    - titre: "VADT (+ suivi 15 ans, 2019)"
       annee: 2009
       type_critere: dur
-      lien: ""
-    - titre: "UKPDS 33 / 80"
+      lien: "https://doi.org/10.1056/NEJMoa0808431"
+    - titre: "UKPDS 80 (effet legacy)"
       annee: 2008
       type_critere: mixte
-      lien: ""
-    - titre: "Boussageon, méta-analyse BMJ"
-      annee: 2011
-      type_critere: dur
-      lien: ""
-    - titre: "UKPDS 35 (Stratton, épidémiologique)"
+      lien: "https://doi.org/10.1056/NEJMoa0806470"
+    - titre: "UKPDS 35 — Stratton (épidémiologique)"
       annee: 2000
       type_critere: substitution
-      lien: ""
+      lien: "https://doi.org/10.1136/bmj.321.7258.405"
+    - titre: "Turnbull / CONTROL (méta-analyse sur données individuelles)"
+      annee: 2009
+      type_critere: dur
+      lien: "https://doi.org/10.1007/s00125-009-1470-0"
+    - titre: "Boussageon (méta-analyse BMJ)"
+      annee: 2011
+      type_critere: dur
+      lien: "https://doi.org/10.1136/bmj.d4169"
+    - titre: "Cochrane (Hemmingsen) — RETIRÉE 2015 (COI non déclaré) ; résultats non invalidés"
+      annee: 2013
+      type_critere: dur
+      lien: "https://doi.org/10.1002/14651858.CD008143.pub3"
   medicalement_geek:
-    synthese: "Anti sur-traitement, cible 7–8 %, molécules à effet propre."
-    lien: ""
+    synthese: "Individualiser ; cibles ~7–8 % ; déprescrire si HbA1c < 6,5 % ; éviter le sur-traitement."
+    lien: "https://www.medicalement-geek.com/p/diabetologie.html"
   prescrire:
-    synthese: "Prudence, éviter le sur-traitement, individualiser."
+    synthese: >-
+      Objectif = éviter/retarder les complications (surtout CV), pas la baisse d'HbA1c en soi ; ~7 %
+      les premières années puis ~7,5 % ; 7,5–8,5 % (voire 8–9 %) chez l'âgé/fragile, complication
+      vasculaire majeure, affection grave ou espérance de vie < 5 ans ; espérance courte → moins
+      strict, sans médicament. (Résumé ; réf. Premiers Choix févr 2026 ; Rev Prescrire 2023;43(478):595-605.)
   reco_officielle:
-    source: "ADA/EASD ; ACP 2018"
-    position: "≤7 % individualisé ; ACP 7–8 %"
-    divergence: false
-    explication: "Position alignée sur l'individualisation."
+    source: "HAS 2024 (Stratégie thérapeutique du DT2, Annexe 3 — cibles 2013 maintenues) ; ADA Standards of Care ; ACP 2018"
+    position: "Individualisée : ≤7 % (la plupart) ; ≤6,5 % si récent, EV>15 ans, sans MCV ; ≤8 % comorbidité grave / EV limitée / macro évoluée ; <9 % âgé dépendant"
+    divergence: true
+    explication: >-
+      Convergence forte sur les principes (HbA1c = critère intermédiaire, individualisation,
+      anti-sur-traitement — la HAS reconnaît l'absence de lien démontré entre baisse de l'HbA1c et
+      morbi-mortalité). Divergence sur le seuil ~6,5 % : recommandé par la HAS pour le profil jeune
+      sans MCV, mais Prescrire vise ≈7 % et Médicalement Geek propose de déprescrire si < 6,5 %.
 incertitudes:
-  - "Cible optimale exacte (7 vs 7–8 %)."
-  - "Mécanisme de la surmortalité d'ACCORD."
-  - "Valeur du time-in-range sur critères durs."
+  - "Cible optimale exacte (aucune bande étroite testée en ECR)."
+  - "Mécanisme de la surmortalité d'ACCORD (inexpliqué)."
+  - "Transposabilité à l'ère des GLP-1 RA / iSGLT2 (essais pré-2015)."
 veille_liee: []
 meta:
   date_revue: "2026-07-22"
   auteur: "référent DT2"
-  statut: brouillon
-  version: "1.0"
-  changelog: []
+  statut: valide
+  version: "2.0"
+  changelog:
+    - date: "2026-07-22"
+      auteur: "référent DT2 + Opus"
+      resume: >-
+        Ré-encodage (T-007bis) depuis le dossier de preuve, après phase exploratoire (HAS 2024,
+        Prescrire, Médicalement Geek, OpenEvidence) et double vérification indépendante (2ᵉ passe) :
+        bandes HAS <9 / ≤8 / ~6,5 / ≤7, ajout des critères antecedent_cv et comorbidite_grave, borne
+        d'âge sur le strict (age < 70), divergence=true, sémantique ordered-first-match. Remplace la
+        v1.0 (brief §11, périmée).

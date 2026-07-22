@@ -63,7 +63,7 @@ divergence signalée (brief §2).
 
 | Id | Nœud | Dossier | Statut preuve | Nœud YAML |
 | --- | --- | --- | --- | --- |
-| A | Cible glycémique | `noeuds/A-cible-glycemique.md` | **Corrections 2ᵉ passe appliquées** (age<70, CV/IRC→≤8, exclusivité, divergence, Coca/Cochrane/NNH) → **attend sign-off clinique du référent avant encodage** | P1/S2 |
+| A | Cible glycémique | `noeuds/A-cible-glycemique.md` | **VALIDÉ + ENCODÉ (T-007bis)** : `content/…/cible-glycemique.yaml` v2.0 `statut: valide` · sortie unique · 27/27 tests verts | P1/S2 |
 | B | 1re intention (par comorbidités) | `noeuds/B-premiere-intention.md` | à faire | P2 |
 | C | Intensification | `noeuds/C-intensification.md` | à faire | P2 |
 | D | Sulfamides / gliptines | `noeuds/D-sulfamides-gliptines.md` | à faire | P2 |

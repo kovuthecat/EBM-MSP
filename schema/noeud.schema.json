@@ -51,7 +51,16 @@
       "items": { "type": "string" },
       "description": "Ids d'entrees de veille ayant modifie ce noeud (pont bidirectionnel avec noeuds_impactes cote veille)."
     },
-    "meta": { "$ref": "#/definitions/meta" }
+    "meta": { "$ref": "#/definitions/meta" },
+    "selection": {
+      "type": "string",
+      "enum": ["ordered-first-match", "multi-options"],
+      "description": "Mode de selection des options (DECISIONS.md D11). 'ordered-first-match' = sortie UNIQUE : la 1re option (ordre du noeud) dont les conditions sont vraies l'emporte, le default en dernier sert de repli — pour un noeud a cible unique (ex. cible glycemique). Absent ou 'multi-options' = plusieurs options applicables affichees (noeuds B/C)."
+    },
+    "argumentaire_exhaustif": {
+      "type": "string",
+      "description": "Chemin (relatif au dossier du noeud) du Markdown d'argumentaire exhaustif — niveau 3 de lecture (DECISIONS.md D11)."
+    }
   },
   "definitions": {
     "critereEntree": {
