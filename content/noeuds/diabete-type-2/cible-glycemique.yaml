@@ -1,0 +1,120 @@
+# Nœud A « Cible glycémique » — contenu sourcé, autorité unique : docs/decision/BRIEF_DECISION.md §11.
+# Recopié fidèlement du gabarit §11 (T-007) : ne pas modifier les valeurs cliniques sans passer par
+# le workflow veille → algorithme (DECISIONS.md D5) ou une revue de fond du comité éditorial.
+id: cible-glycemique
+domaine: diabete-type-2
+titre: "Fixer la cible d'HbA1c"
+population_cible: "Adulte DT2, hors grossesse, hors DT1."
+criteres_entree:
+  - nom: age
+    type: nombre
+  - nom: anciennete_diabete_annees
+    type: nombre
+  - nom: esperance_vie
+    type: enum
+    valeurs: [longue, intermediaire, limitee]
+  - nom: fragilite
+    type: bool
+  - nom: risque_hypoglycemie_schema
+    type: enum
+    valeurs: [faible, eleve]
+options:
+  - intitule: "Cible ~6,5 %"
+    conditions:
+      - "age < 60"
+      - "anciennete_diabete_annees < 10"
+      - "risque_hypoglycemie_schema == faible"
+      - "esperance_vie == longue"
+      - "fragilite == false"
+    avantages:
+      - "Bénéfice microvasculaire à long terme (legacy) si atteint sans hypoglycémie."
+    inconvenients:
+      - "Aucun bénéfice de mortalité ; risque si atteint par sulfamide/insuline."
+    effet_attendu: "Gain surtout sur critères de substitution (albuminurie, rétinopathie infraclinique)."
+    niveau_preuve: modere
+    contre_indications:
+      - "Schéma à risque d'hypoglycémie"
+  - intitule: "Cible ~7 %"
+    conditions:
+      - "default"
+    avantages:
+      - "Compromis pour la majorité."
+    inconvenients:
+      - "Bénéfice macrovasculaire/mortalité non démontré par le seul serrage."
+    effet_attendu: "Réduction de l'IDM non fatal (méta-analyses), pas de la mortalité."
+    niveau_preuve: modere
+  - intitule: "Cible 7,5–8 %"
+    conditions:
+      - "age >= 75 OR fragilite == true OR risque_hypoglycemie_schema == eleve OR esperance_vie == limitee"
+    avantages:
+      - "Réduit le risque d'hypoglycémie ; priorité chez l'âgé/fragile."
+    inconvenients:
+      - "Moindre contrôle des symptômes d'hyperglycémie."
+    effet_attendu: "Pas de perte démontrée sur critères durs à cet horizon."
+    niveau_preuve: modere
+  - intitule: "Cible 8–8,5 %"
+    conditions:
+      - "fragilite == true AND esperance_vie == limitee"
+    avantages:
+      - "Évite hypoglycémie et sur-traitement en fin de vie."
+    inconvenients:
+      - "Vise le confort, pas la prévention des complications."
+    effet_attendu: "non chiffrable"
+    niveau_preuve: faible
+argumentaire: >
+  Aucun ECR n'a comparé des bandes étroites (ex. 7–7,5 vs 7,5–8 %). Les grands
+  essais ont contrasté intensif (<7 %) vs standard : ACCORD (6,4 vs 7,5 %) a
+  montré une SURMORTALITÉ du bras intensif ; ADVANCE et VADT sont neutres sur la
+  macroangiopathie et la mortalité, gain néphrologique limité à la
+  microalbuminurie. Méta-analyses (Turnbull/CONTROL, Boussageon 2011, Cochrane) :
+  réduction de l'IDM non fatal, PAS de la mortalité, doublement des
+  hypoglycémies sévères. L'effet legacy (UKPDS 80, DCCT/EDIC) justifie un
+  serrage chez le sujet jeune à diabète récent, absent chez le DT2 installé.
+  Courbe en J et ACCORD plaident pour un plancher (~6,5 %).
+sources:
+  references_primaires:
+    - titre: "ACCORD"
+      annee: 2008
+      type_critere: dur
+      lien: ""
+    - titre: "ADVANCE"
+      annee: 2008
+      type_critere: mixte
+      lien: ""
+    - titre: "VADT / VADT-F"
+      annee: 2009
+      type_critere: dur
+      lien: ""
+    - titre: "UKPDS 33 / 80"
+      annee: 2008
+      type_critere: mixte
+      lien: ""
+    - titre: "Boussageon, méta-analyse BMJ"
+      annee: 2011
+      type_critere: dur
+      lien: ""
+    - titre: "UKPDS 35 (Stratton, épidémiologique)"
+      annee: 2000
+      type_critere: substitution
+      lien: ""
+  medicalement_geek:
+    synthese: "Anti sur-traitement, cible 7–8 %, molécules à effet propre."
+    lien: ""
+  prescrire:
+    synthese: "Prudence, éviter le sur-traitement, individualiser."
+  reco_officielle:
+    source: "ADA/EASD ; ACP 2018"
+    position: "≤7 % individualisé ; ACP 7–8 %"
+    divergence: false
+    explication: "Position alignée sur l'individualisation."
+incertitudes:
+  - "Cible optimale exacte (7 vs 7–8 %)."
+  - "Mécanisme de la surmortalité d'ACCORD."
+  - "Valeur du time-in-range sur critères durs."
+veille_liee: []
+meta:
+  date_revue: "2026-07-22"
+  auteur: "référent DT2"
+  statut: brouillon
+  version: "1.0"
+  changelog: []
