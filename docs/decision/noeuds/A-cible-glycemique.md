@@ -1,0 +1,143 @@
+# Nœud A — Cible glycémique individualisée   (dossier de preuve)
+
+- **statut** : débroussaillé + réconcilié (1re passe) — **À VALIDER** (Prescrire/MG + référent)
+- **version** : 0.1 · **date** : 2026-07-22 · **auteur** : Opus (réconciliation bi-agents), référent à valider
+- **id YAML cible** : `cible-glycemique` · domaine `diabete-type-2`
+
+## 0. Nature de ce dossier (garde-fou méthodo)
+
+1re passe : **Agent A** (extraction, Sonnet) + **Agent B** (red-team, Opus), recherche web, puis
+**réconciliation Opus**. Les sources primaires sont citées (DOIs vérifiés en ligne par les agents),
+mais **non encore croisées avec Prescrire / Médicalement Geek ni validées cliniquement**. Per la SOP,
+web/OpenEvidence = **débroussaillage, jamais source primaire** : tout ici est **provisoire**, les NNT
+dérivés et éléments `[À VÉRIFIER]` ne passent pas au YAML avant confirmation.
+
+## 1. Question & critères d'entrée
+
+- **PICO** : adulte DT2 (hors DT1/grossesse) ; quelle cible d'HbA1c individualiser ; comparateurs =
+  bandes de cible ; outcomes durs (mortalité, IDM, AVC, rénal dur) vs substitution (microangiopathie),
+  hypoglycémie sévère.
+- **Critères d'entrée** (brief §11) : `age` (nombre), `anciennete_diabete_annees` (nombre),
+  `esperance_vie` (longue/intermediaire/limitee), `fragilite` (bool), `risque_hypoglycemie_schema`
+  (faible/eleve).
+- ⚠️ **Manque signalé (Agent A, à escalader)** : aucune de ces variables ne capture la **maladie CV
+  établie** — or c'est ce qui sépare le plus nettement UKPDS (prévention 1re) d'ACCORD/ADVANCE/VADT
+  (prévention 2de majoritaire). → envisager d'ajouter **`antecedent_cv` (bool)** au nœud A. **Arbitrage référent.**
+
+## 2. Rapport de réconciliation
+
+### 2a. Consensus vérifié (haute confiance — les deux agents concordent + sources primaires)
+
+- **ACCORD** (intensif 6,4 % vs 7,5 %, arrêté à ~3,5 ans) : **surmortalité** toutes causes **HR 1,22
+  (1,01–1,46)**, mortalité CV ↑ ; **critère principal composite CV NON significatif (HR 0,90)** ;
+  **IDM non fatal réduit (HR 0,76)**. **La cause de la surmortalité reste inexpliquée — les post-hoc
+  ont écarté l'hypoglycémie.** *(NEJM 2008, 10.1056/NEJMoa0802743)*
+- **Méta-analyses concordantes** (Turnbull/CONTROL 2009 ; Boussageon 2011 ; Hemmingsen 2011 ;
+  Cochrane 2013) : **pas de réduction de mortalité** (toutes causes ~RR/HR 1,00–1,04 ; CV ~1,06–1,11,
+  NS) ; bénéfice macrovasculaire **modeste, porté par l'IDM non fatal** (HR ~0,85), **pas sur l'AVC**.
+- **Bénéfice microvasculaire robuste** (rétinopathie, néphropathie/albuminurie) — **critère de
+  substitution** — dans tous les essais.
+- **Hypoglycémie sévère ~2,2–2,5×** sous contrôle intensif (Turnbull HR 2,48 ; Boussageon RR 2,33 ;
+  Cochrane RR 2,18 ; Hemmingsen RR 2,39). « Doublement » = estimation **prudente**.
+- **Effet « legacy »** réel **uniquement dans le profil UKPDS** (jeune, diabète récent) : à 10 ans
+  post-essai, mortalité −13 % / IDM −15 % (bras sulfamide-insuline), metformine −27 % / −33 %.
+  **NON répliqué** dans VADT à 15 ans (Reaven 2019) ni ADVANCE-ON (2014). *(UKPDS 80, 10.1056/NEJMoa0806470)*
+- **Aucun ECR** n'a comparé des **bandes étroites adjacentes** (7–7,5 vs 7,5–8 %) : les cibles fines
+  des recos sont **extrapolées**, pas testées tête-à-tête.
+
+### 2b. Divergences / corrections à ESCALADER (référent)
+
+1. **Argument « courbe en J → plancher ~6,5 % » du brief §11 = faible** (Agent B). La courbe en U
+   n'existe qu'en **observationnel** (Currie 2010, *Lancet*), avec **nadir ~7,5 % (pas 6,5 %)**,
+   **causalité inverse probable** (fragilité/comorbidités tirent l'HbA1c basse ET la mortalité) et
+   **financement Eli Lilly**. → Le plancher se justifie mieux par **ACCORD** (danger du serrage
+   agressif) que par la courbe en J. **Réviser l'argumentaire du brief §11.**
+2. **Dissociation ACCORD vs ADVANCE** à intégrer : **ADVANCE a atteint 6,5 % SANS surmortalité** → ce
+   n'est **pas le niveau bas** qui tue, mais probablement la **stratégie agressive/rapide/polymédicamentée**
+   d'ACCORD (rosiglitazone 91 % vs 57 %, prise de poids). Le nœud ne doit pas conclure « cible basse = décès ».
+3. **Ajouter `antecedent_cv` ?** (cf. §1) — variable la plus discriminante de la littérature.
+4. **Seuils des conditions** (âge, ancienneté) proposés ci-dessous par Agent A : diffèrent légèrement
+   du brief §11 — **à arbitrer**.
+
+### 2c. Non-vérifiable en ligne → confirmer sur source primaire / Prescrire  `[À VÉRIFIER]`
+
+- Chiffres **absolus** exacts du suivi post-essai UKPDS 80 (seules les réductions **relatives** confirmées).
+- **NNT explicites** pour Turnbull/Boussageon/Cochrane (ces publications raisonnent en RR/HR ; les NNT
+  d'Agent A sont **calculés/approximatifs** : ACCORD NNH≈370/3,5 ans ; ADVANCE NNT≈53/5 ans ; UKPDS NNT≈20–36/10 ans).
+- Taux **exact** d'hypoglycémie sévère dans VADT (formulations divergentes selon sources secondaires).
+- Version **Cochrane pub4 (2015)** non consultée (chiffres 2013 utilisés).
+
+## 3. Base de preuves (fiches condensées)
+
+| Étude (source) | Design / population | HbA1c (int. vs std) | Résultat dur clé | Hypo sévère | GRADE |
+|---|---|---|---|---|---|
+| **UKPDS 33** *(Lancet 1998, 10.1016/S0140-6736(98)07019-6)* | ECR ouvert ; DT2 **nouveau dx**, âge ~53 | 7,0 vs 7,9 % | IDM RR 0,84 (NS, p=0,052) ; microvasc. RR 0,75 | ↑ (composite) | Micro **modéré** / dur **faible** |
+| **UKPDS 80** *(NEJM 2008, 10.1056/NEJMoa0806470)* | Suivi post-essai 10 ans | (convergence H1) | **Legacy** : mortalité −13 %, IDM −15 % ; metformine −27 %/−33 % | — | **faible–modéré** (quasi-observ.) |
+| **UKPDS 35 / Stratton** *(BMJ 2000, 10.1136/bmj.321.7258.405)* | **Observationnel** (association) | continue | −21 %/point HbA1c (tout évt) ; micro −37 % | n/a | **très faible–faible** (association ≠ causalité) |
+| **ACCORD** *(NEJM 2008, 10.1056/NEJMoa0802743)* | ECR ; âge ~62, ancienneté ~10 ans, **36 % prév. 2de** | 6,4 vs 7,5 % | **Mortalité HR 1,22 (1,01–1,46)** ; composite CV HR 0,90 NS ; IDM non fatal 0,76 | ~3× | **modéré** (surmortalité ; arrêt précoce) |
+| **ADVANCE** *(NEJM 2008, 10.1056/NEJMoa0802987)* | ECR ; âge ~66, ancienneté 8 ans | 6,5 vs 7,3 % | Composite HR 0,90 (porté par néphropathie) ; **macro/mortalité NS** | HR 1,86 | **modéré** micro / **faible** dur |
+| **VADT** *(NEJM 2009, 10.1056/NEJMoa0808431 ; +2015/2019)* | ECR ; âge 60, ancienneté 11,5 ans, 97 % H | 6,9 vs 8,4 % | Principal NS (0,88) ; à 10 ans HR 0,83 CV ; **pas de legacy/mortalité à 15 ans** | ~3× | **faible** |
+| **Turnbull / CONTROL** *(Diabetologia 2009, 10.1007/s00125-009-1470-0)* | Méta IPD 4 ECR, n=27 049 | — | Mortalité HR 1,04 NS ; MACE 0,91 ; IDM 0,85 | **HR 2,48** | **modéré** |
+| **Boussageon** *(BMJ 2011, 10.1136/bmj.d4169)* | Méta 13 ECR, n=34 533 | — | Mortalité RR 1,04 ; IDM 0,85 ; microalb. 0,90 | RR 2,33 | **modéré** |
+| **Cochrane** *(2013, 10.1002/14651858.CD008143.pub3)* | RS 28 ECR, n=34 912 | — | Mortalité RR 1,00 ; micro composite 0,88 | RR 2,18 | mortalité **modéré–élevé** |
+
+## 4. Synthèse critique (reco officielle vs position raisonnée)
+
+- **Position raisonnée** : le **seul bénéfice constant** d'une cible basse est **microvasculaire
+  (substitution)**, au **prix d'un ~2,4× d'hypoglycémie sévère** ; **pas de bénéfice de mortalité ni
+  macrovasculaire dur** chez le diabète établi (ACCORD/ADVANCE/VADT). Le **bénéfice dur** (IDM,
+  mortalité) n'apparaît que dans le **profil UKPDS** (jeune, récent) et **à long horizon** (legacy).
+  → **individualiser** ; éviter le serrage agressif chez l'âgé/fragile/CV établi.
+- **Reco officielle** : HAS 2013 (+ maj), ADA *Standards of Care*, ACP 2018 (7–8 %) — toutes sur
+  **l'individualisation**. **Divergence : faible** — l'outil est aligné, MAIS **corrige** le brief §11
+  sur le plancher ~6,5 % (cf. 2b-1).
+
+## 5. Incertitudes
+
+- Cible optimale exacte (jamais testée en bandes étroites).
+- **Mécanisme de la surmortalité ACCORD (inexpliqué).**
+- Transposabilité à l'ère **GLP-1 RA / SGLT2i** (essais pré-2015 ; ces classes réduisent mortalité
+  CV/rénale **indépendamment de l'HbA1c**) → « la baisse glycémique ne réduit pas la mortalité » vaut
+  pour l'**ancienne** approche sulfamides/insuline.
+- Place d'`antecedent_cv` dans le nœud.
+
+## 6. → YAML (brouillon PROVISOIRE — ne pas encoder avant validation)
+
+Logique proposée par Agent A (évaluation séquentielle, 1re condition vraie l'emporte) — **à arbitrer** :
+
+```yaml
+# id: cible-glycemique · domaine: diabete-type-2
+options:
+  - intitule: "Cible ~8–8,5 %"           # Bande D
+    conditions: ["fragilite == true OR esperance_vie == limitee"]
+    effet_attendu: "Évite hyperglycémie symptomatique ; pas de bénéfice dur à cet horizon. [À VÉRIFIER NNH]"
+    niveau_preuve: faible
+  - intitule: "Cible ~7,5–8 %"           # Bande C  (profil ACCORD/VADT)
+    conditions: ["risque_hypoglycemie_schema == eleve AND (age >= 65 OR anciennete_diabete_annees >= 15 OR esperance_vie == intermediaire)"]
+    effet_attendu: "Pas de bénéfice dur démontré à 3,5–5,6 ans ; réduit l'hypo (RR ~2,4 évité). [À VÉRIFIER]"
+    niveau_preuve: modere
+  - intitule: "Cible ~6,5–7 %"           # Bande A  (profil UKPDS)
+    conditions: ["age < 60 AND anciennete_diabete_annees < 10 AND esperance_vie == longue AND fragilite == false AND risque_hypoglycemie_schema == faible"]
+    effet_attendu: "Micro-bénéfice + legacy (IDM/mortalité à 10 ans, UKPDS 80). NNT≈20–36/10 ans [À VÉRIFIER, calculé]"
+    niveau_preuve: modere
+  - intitule: "Cible ~7–7,5 %"           # Bande B  (défaut, profil ADVANCE)
+    conditions: ["default"]
+    effet_attendu: "Bénéfice micro (néphropathie, NNT≈53/5 ans [À VÉRIFIER]) sans bénéfice dur ; limite l'hypo."
+    niveau_preuve: modere
+# sources: UKPDS33/80, Stratton, ACCORD, ADVANCE(+ON), VADT(+F), Turnbull, Boussageon, Cochrane (DOIs §3)
+# reco_officielle: {source: "HAS/ADA/ACP", position: "individualisée 7–8 %", divergence: false}
+# argumentaire: RÉVISER le plancher ~6,5 % (courbe en J faible) → ancrer sur ACCORD ; intégrer dissociation ACCORD/ADVANCE.
+```
+
+> ⚠️ L'ordre des `conditions` diffère du brief §11 (Agent A place la bande la plus prudente en premier,
+> avec des seuils `age>=65`/`anciennete>=15` absents du brief). **À trancher avec le référent** avant d'encoder.
+
+## 7. Demandes au référent (liste de courses)
+
+- **Prescrire** (texte intégral) : l'analyse Prescrire sur les **objectifs glycémiques du DT2** (celle
+  citée au brief §11) + toute mise à jour récente.
+- **Médicalement Geek / DragiWebdo** : la synthèse « cibles glycémiques / que dit la preuve ».
+- **OpenEvidence** : lancer le prompt PICO déjà fourni (dernier message) et me coller la sortie.
+- **Confirmer les `[À VÉRIFIER]`** (§2c) : NNT, chiffres absolus UKPDS 80, hypo VADT, Cochrane pub4.
+- **Arbitrages cliniques** : (a) réviser l'argumentaire plancher ~6,5 % ? (b) ajouter `antecedent_cv`
+  au nœud A ? (c) valider les seuils/ordre des bandes.

@@ -41,7 +41,7 @@ d'un travail de preuve tracé ; ce fichier fixe la méthode, la racine `docs/dec
 
 | Id | Nœud | Dossier | Statut preuve | Nœud YAML |
 | --- | --- | --- | --- | --- |
-| A | Cible glycémique | `noeuds/A-cible-glycemique.md` | **exploratoire (bi-agents en cours)** | P1/S2 |
+| A | Cible glycémique | `noeuds/A-cible-glycemique.md` | **dossier débroussaillé + réconcilié — à valider (Prescrire/MG + référent)** | P1/S2 |
 | B | 1re intention (par comorbidités) | `noeuds/B-premiere-intention.md` | à faire | P2 |
 | C | Intensification | `noeuds/C-intensification.md` | à faire | P2 |
 | D | Sulfamides / gliptines | `noeuds/D-sulfamides-gliptines.md` | à faire | P2 |
