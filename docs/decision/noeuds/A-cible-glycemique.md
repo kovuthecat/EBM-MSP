@@ -67,6 +67,30 @@ dérivés et éléments `[À VÉRIFIER]` ne passent pas au YAML avant confirmati
 - Taux **exact** d'hypoglycémie sévère dans VADT (formulations divergentes selon sources secondaires).
 - Version **Cochrane pub4 (2015)** non consultée (chiffres 2013 utilisés).
 
+### 2d. Intégration des sources curées (OpenEvidence + Médicalement Geek) — 2026-07-22
+
+**Confirment** le consensus (pas de bénéfice mortalité/macro dur ; micro surtout substitution ; hypo
+×2–3 ; legacy observationnel ; pas d'ECR sur bandes étroites).
+
+**Corrigent / précisent** (OpenEvidence — refs ADA 2026, JAMA 2025, Ray 2009, Hemmingsen 2011, Coca
+2012, Ruospo/Cochrane 2017) :
+- **ACCORD NNH mortalité ≈ 100 sur 3,5 ans** (5 % vs 4 %) — le NNH≈370 calculé par Agent A **sous-estimait
+  le risque** ; on retient **≈100**. *(résout un `[À VÉRIFIER]`)*
+- **IDM non fatal : NNT ≈ 125 sur ~5 ans** (réduction absolue ~8/1000). *(résout)*
+- **Hypoglycémie sévère : NNH ≈ 9–15** sur la durée des essais (RR 2,39). *(résout)*
+- **Rénal dur** : bénéfice IRT **seulement dans ADVANCE** (HR 0,35 en essai → 0,54 à 10 ans ; NNT≈860/5 ans),
+  **non confirmé en méta-analyse** (Coca 2012 ; Ruospo/Cochrane 2017 : IRT RR 0,62 NS, doublement créat RR 0,84 NS).
+  *(nouveau — à intégrer à l'argumentaire)*
+
+**Médicalement Geek** (cadre pratique FR, anti-sur-traitement) :
+- Bandes : <7 % classique · **6,5 % jeune sans complication** · **7–7,5 % >65 ans** · **7,5–8 % fragile
+  comorbide** · **8–9 % espérance limitée**. **Déprescrire si HbA1c < 6,5 %.**
+- Garde-fou (déjà au brief §11) : **baisse rapide de l'HbA1c → aggravation de la rétinopathie** préexistante.
+
+**Corrobore l'ajout de `antecedent_cv`** : la **HAS 2013** conditionne la cible ≤6,5 % à « diabète récent,
+espérance de vie >15 ans, **PAS de MCV avérée**, sans hypoglycémie ». L'absence de MCV établie est donc un
+critère **officiel** → renforce l'escalade §2b-3 (ce n'est plus seulement une déduction d'Agent A).
+
 ## 3. Base de preuves (fiches condensées)
 
 | Étude (source) | Design / population | HbA1c (int. vs std) | Résultat dur clé | Hypo sévère | GRADE |
@@ -132,12 +156,22 @@ options:
 > ⚠️ L'ordre des `conditions` diffère du brief §11 (Agent A place la bande la plus prudente en premier,
 > avec des seuils `age>=65`/`anciennete>=15` absents du brief). **À trancher avec le référent** avant d'encoder.
 
-## 7. Demandes au référent (liste de courses)
+## 7. Demandes au référent (liste de courses) — MAJ 2026-07-22
 
-- **Prescrire** (texte intégral) : l'analyse Prescrire sur les **objectifs glycémiques du DT2** (celle
-  citée au brief §11) + toute mise à jour récente.
-- **Médicalement Geek / DragiWebdo** : la synthèse « cibles glycémiques / que dit la preuve ».
-- **OpenEvidence** : lancer le prompt PICO déjà fourni (dernier message) et me coller la sortie.
-- **Confirmer les `[À VÉRIFIER]`** (§2c) : NNT, chiffres absolus UKPDS 80, hypo VADT, Cochrane pub4.
-- **Arbitrages cliniques** : (a) réviser l'argumentaire plancher ~6,5 % ? (b) ajouter `antecedent_cv`
-  au nœud A ? (c) valider les seuils/ordre des bandes.
+**Intégrés** : OpenEvidence ✓ · Médicalement Geek ✓ (2 pages).
+
+**Prescrire — articles demandés** (payant : non tirables du web ouvert ; le référent a l'accès). Par priorité :
+
+1. **[TOP] Objectif glycémique / cible d'HbA1c dans le DT2** — la synthèse/position Prescrire sur
+   l'individualisation et l'évitement du sur-traitement (idées-forces / « quel objectif ? »). → devient
+   la **source de la colonne « position critique »** de l'outil (champ `sources.prescrire.synthese`).
+2. **[HAUT] Lecture critique des essais de contrôle intensif** (ACCORD / ADVANCE / VADT, ~2008–2010,
+   *Rev Prescrire*) — balance bénéfices-risques, surmortalité ACCORD, hypoglycémies. → argumentaire critique + source.
+3. **[MOYEN] Diabète du sujet âgé / hypoglycémies iatrogènes / déprescription** — pour la bande fragile/âgé
+   et le versant risque.
+
+**`[À VÉRIFIER]` restants** (Prescrire ou source primaire) : chiffres **absolus** UKPDS 80 post-essai ·
+taux **exact** d'hypo sévère VADT · **Cochrane pub4 (2015)**.
+
+**Arbitrages en attente** (§2b) : (1) réviser l'argumentaire plancher ~6,5 % ; (2) **ajouter `antecedent_cv`**
+(renforcé par HAS 2013) ; (3) valider seuils/ordre des bandes.
