@@ -22,11 +22,11 @@ schéma (S2) et le moteur (S3) ne se figent. 1re passe (Opus) à partir du brief
 | `HbA1c_cible` | nombre | % (issue du nœud A) | C, E |
 | `DFG` | nombre | mL/min/1,73m² | B, C, D, E |
 | `albuminurie` | enum | normo · micro · macro | B, C |
-| `ASCVD_etablie` | bool | (mal. CV athéromateuse avérée) | B, C, F, G |
+| `ASCVD_etablie` | bool | (mal. CV athéromateuse avérée) | B, C, F |
 | `insuffisance_cardiaque` | bool | — | B, C |
 | `IRC` | bool | (dérivable de DFG/albuminurie) | B, C |
 | `IMC` | nombre | kg/m² | B, C, H |
-| `prevention` | enum | primaire · secondaire | F, G |
+| `prevention` | enum | primaire · secondaire | F |
 | `autres_FDRCV` | nombre | compte de FDR (HTA, tabac, dyslip., hérédité…) | F |
 | `SCORE2` (option.) | nombre | % risque à 10 ans | F |
 | `preference_injection` | enum | accepte · refuse · indifferent | B, C, E |
@@ -136,15 +136,11 @@ schéma (S2) et le moteur (S3) ne se figent. 1re passe (Opus) à partir du brief
 
 ---
 
-## G. Aspirine
+## ~~G. Aspirine~~ — RETIRÉ
 
-- **Question** : aspirine en prévention ?
-- **Critères** : `prevention`, `ASCVD_etablie`, (risque hémorragique — bool à ajouter ?).
-- **Options / conditions** :
-  - **Oui** — `prevention==secondaire OR ASCVD_etablie==true`.
-  - **Non** — `prevention==primaire` (pas de bénéfice net ; risque hémorragique) — `default`.
-- **Ancrage** : ASCEND (DT2, prévention primaire), ASPREE, ARRIVE.
-- **À trancher** : intégrer un `risque_hemorragique` (bool/enum) pour nuancer la prévention secondaire ?
+Pas de nœud d'algorithme : pas d'aspirine en prévention primaire (ASCEND) ; en prévention secondaire,
+l'indication est systématique (pas une décision à outiller). L'info pourra être une **note statique**
+du contexte prévention CV, pas un nœud interrogeable. Référent : Thibault, 2026-07-22.
 
 ---
 
@@ -182,8 +178,8 @@ schéma (S2) et le moteur (S3) ne se figent. 1re passe (Opus) à partir du brief
    `HbA1c_cible` (sortie du nœud A → entrée de C/E). → Garder des **primitives** et documenter les
    dérivations ; éviter deux sources de vérité. Le **chaînage inter-nœuds** (cible A → intensification C)
    est un patron à noter (hors MVP, mais le schéma ne doit pas l'interdire).
-5. **Variables candidates à ajouter** (à confirmer avec toi) : `symptomes_glucotoxicite` (E),
-   `risque_hemorragique` (G), `contexte_aigu` (D), `motivation`/`capacite_activite` (H).
+5. **Variables candidates à ajouter** (validées par le référent, à intégrer en P2) :
+   `symptomes_glucotoxicite` (E), `contexte_aigu` (D), `motivation`/`capacite_activite` (H).
 6. **DSL de conditions (S3)** confirmé nécessaire : comparaisons numériques (`< <= > >=`), égalité sur
    enums/bools (`== !=`), `AND`/`OR`, `default`, **+ `contient` pour le multivalué** (cf. point 1).
 
@@ -194,4 +190,6 @@ schéma (S2) et le moteur (S3) ne se figent. 1re passe (Opus) à partir du brief
 - Tu valides/ajustes ce cadrage (surtout §0 dictionnaire, §Observations, variables à ajouter).
 - On répercute les décisions 1-3 dans `DECISIONS.md` + les sessions S2/S3 (avant qu'elles tournent).
 - Puis **dossiers de preuve par nœud** (`_TEMPLATE.md`) avec collecte + grille + **bi-agents** + Prescrire,
-  dans l'ordre de priorité clinique que tu choisis (proposition : B → C → F → H → E → G → D, A étant déjà gabarité).
+  dans l'ordre **A → B → C → F → H → E → D** (G retiré ; **A repasse par la phase exploratoire** — en cours).
+- **Décisions actées** (validées par le référent) : type `liste` + `contient` (multivalué), `priorite`
+  optionnelle sur les options, `contre_indications` = exclusions dures évaluées par le moteur → `DECISIONS.md` D10.

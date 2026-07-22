@@ -37,19 +37,20 @@ d'un travail de preuve tracé ; ce fichier fixe la méthode, la racine `docs/dec
 `eleve` (ECR de qualité, critères durs, cohérent) · `modere` (ECR avec limites, ou substitution solide) ·
 `faible` (essais fragiles, sous-groupes, observationnel bien conduit) · `tres_faible` (avis, extrapolation).
 
-## Nœuds du domaine DT2 (A→H) — état
+## Nœuds du domaine DT2 (7 nœuds : A–F, H) — état
 
 | Id | Nœud | Dossier | Statut preuve | Nœud YAML |
 | --- | --- | --- | --- | --- |
-| A | Cible glycémique | `noeuds/A-cible-glycemique.md` | brouillon (gabarit brief §11) | P1/S2 |
+| A | Cible glycémique | `noeuds/A-cible-glycemique.md` | **exploratoire (bi-agents en cours)** | P1/S2 |
 | B | 1re intention (par comorbidités) | `noeuds/B-premiere-intention.md` | à faire | P2 |
 | C | Intensification | `noeuds/C-intensification.md` | à faire | P2 |
 | D | Sulfamides / gliptines | `noeuds/D-sulfamides-gliptines.md` | à faire | P2 |
 | E | Insuline | `noeuds/E-insuline.md` | à faire | P2 |
 | F | Statine chez le diabétique | `noeuds/F-statine.md` | à faire | P2 |
-| G | Aspirine | `noeuds/G-aspirine.md` | à faire | P2 |
 | H | RHD / perte de poids / rémission | `noeuds/H-rhd.md` | à faire | P2 |
 
-> Note : le prototype regroupe 7 nœuds (sans D isolé). Arbitrage du regroupement au moment d'encoder.
+> **Nœud G (aspirine) retiré** : pas d'algorithme à construire (pas de prévention primaire — ASCEND ;
+> secondaire = systématique). Reste **7 nœuds**. L'info aspirine pourra vivre comme note statique dans
+> le contexte prévention CV, pas comme nœud interrogeable.
 
 Gabarit de dossier : `noeuds/_TEMPLATE.md`.
