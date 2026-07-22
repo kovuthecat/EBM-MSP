@@ -59,9 +59,12 @@ recopié ici ; ne pas renvoyer vers d'autres fichiers.
     **effet attendu** (absolu / NNT / NNH, ou « non chiffrable »), **badge niveau de preuve** (élevé /
     modéré / faible / très faible), contre-indications, et une ligne « pourquoi cette option » (règles
     satisfaites, sans score caché).
-  - **Argumentaire dépliable** (à la demande) : texte sourcé + un bloc **reco officielle vs position
-    critique côte à côte** avec **drapeau de divergence** ; liste des incertitudes ; sources
-    (références primaires avec type de critère dur/substitution, Médicalement Geek, Prescrire).
+  - **Trois niveaux de lecture** (cf. `DECISIONS.md` D11) : **(1) recommandation** = les options ci-dessus
+    (avantages/inconvénients, preuve, effet) ; **(2) argumentaire détaillé** (dépliable à la demande) :
+    texte sourcé + bloc **reco officielle vs position critique côte à côte** avec **drapeau de divergence** ;
+    incertitudes ; sources principales (références primaires avec type de critère dur/substitution,
+    Médicalement Geek, Prescrire) ; **(3) argumentaire exhaustif** : lien « Lire l'argumentaire exhaustif »
+    ouvrant `content/noeuds/<domaine>/<id>.argumentaire.md` — toutes les preuves détaillées et **toutes les sources**.
   - Pied : **date de revue** du nœud + **disclaimer**.
 - Actions : saisir/modifier des critères (filtrage en direct) ; déplier/replier l'argumentaire ;
   ouvrir une source ; suivre le lien vers les entrées de veille liées.

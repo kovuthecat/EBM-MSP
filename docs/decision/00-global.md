@@ -17,8 +17,10 @@ d'un travail de preuve tracé ; ce fichier fixe la méthode, la racine `docs/dec
 4. **Vérifier (bi-agents)** — Agent A extrait/chiffre, Agent B (red-team) traque le *spin* et **vérifie
    chaque DOI et chaque chiffre contre la source primaire** ; Opus réconcilie (consensus vérifié /
    divergences escaladées / non-vérifiable). Cf. §7ter du brief veille.
-5. **Distiller** — options + `conditions` + `effet_attendu` + `niveau_preuve` + argumentaire
-   (reco officielle vs position critique, divergence) + sources + incertitudes → section « → YAML ».
+5. **Distiller** — (a) options + `conditions` + `effet_attendu` + `niveau_preuve` + `sources` → **YAML**
+   du nœud ; (b) **argumentaire exhaustif** *reader-facing* (niveau 3) →
+   `content/noeuds/<domaine>/<id>.argumentaire.md` (toutes les preuves détaillées + **toutes les sources**).
+   Les 3 niveaux de lecture : recommandation / argumentaire détaillé / argumentaire exhaustif (cf. `DECISIONS.md` D11).
 6. **Valider (référent)** — relecture clinique humaine ; passe le `statut` du dossier à `validé-référent`.
 7. **Encoder** — le YAML du nœud est écrit/mis à jour (tâche de P2), `meta.statut: valide`.
 
