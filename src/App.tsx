@@ -1,6 +1,8 @@
 import type { Navigation, NavigationParams, Screen } from './features/shared/navigation'
 import { useNavigation } from './features/shared/navigation'
 import { AppShell } from './features/shared/layout/AppShell'
+import { HomeScreen } from './features/shared/screens/HomeScreen'
+import { MethodeScreen } from './features/shared/screens/MethodeScreen'
 
 function App() {
   const nav = useNavigation()
@@ -9,11 +11,19 @@ function App() {
 }
 
 /**
- * Aucun écran livré pour l'instant (shell seul) : Home/Méthode arrivent en T-008,
- * Décision D2/D3 en S4. Tout écran → placeholder neutre.
+ * Écrans livrés : Home (D1), Méthode (S1). Le reste (Décision D2/D3, V1-V5 Veille,
+ * Profil, Pour mémoire, Auth) est hors périmètre de cette session : placeholder
+ * neutre, pas de page à styliser (cf. plans/P1/S1.md — Hors périmètre).
  */
-function renderScreen(_screen: Screen, _params: NavigationParams, go: Navigation['go']) {
-  return <PlaceholderScreen go={go} />
+function renderScreen(screen: Screen, params: NavigationParams, go: Navigation['go']) {
+  switch (screen) {
+    case 'home':
+      return <HomeScreen go={go} />
+    case 'methode':
+      return <MethodeScreen />
+    default:
+      return <PlaceholderScreen go={go} />
+  }
 }
 
 function PlaceholderScreen({ go }: { go: (screen: Screen) => void }) {

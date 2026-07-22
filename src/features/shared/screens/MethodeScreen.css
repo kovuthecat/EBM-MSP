@@ -1,0 +1,39 @@
+.methode {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+}
+
+.methode__title {
+  font-size: 24px;
+  margin: 0 0 6px;
+  color: var(--c-text);
+}
+
+.methode__version {
+  font-size: 13px;
+  color: var(--c-text-faible);
+  margin: 0 0 28px;
+}
+
+.methode__section {
+  margin-bottom: 24px;
+}
+
+.methode__section:last-child {
+  margin-bottom: 0;
+}
+
+.methode__section-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--c-text);
+}
+
+.methode__section-body {
+  font-size: 14px;
+  color: var(--c-text-secondary);
+  line-height: 1.7;
+  margin: 0;
+}
