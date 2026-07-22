@@ -1,0 +1,115 @@
+.decision-domains {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+.decision-domains__title {
+  font-size: 26px;
+  margin: 0 0 6px;
+  color: var(--c-text);
+}
+
+.decision-domains__subtitle {
+  font-size: 14px;
+  color: var(--c-text-muted);
+  margin: 0 0 24px;
+}
+
+.decision-domains__chips {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.decision-domains__chip {
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  border: 1px solid var(--c-border);
+  background: var(--c-pill-track);
+  color: var(--c-text-faible);
+  cursor: pointer;
+  font: inherit;
+}
+
+.decision-domains__chip--active {
+  background: var(--c-accent-decision-soft);
+  color: var(--c-accent-decision);
+  font-weight: 600;
+  border-color: var(--c-accent-decision-soft);
+}
+
+.decision-domains__chip--upcoming {
+  border-style: dashed;
+  cursor: default;
+}
+
+.decision-domains__empty {
+  font-size: 14px;
+  color: var(--c-text-muted);
+}
+
+.decision-domains__group {
+  margin-top: 24px;
+}
+
+.decision-domains__group-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--c-text-faible);
+  margin: 0 0 10px;
+}
+
+.decision-domains__node {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+
+.decision-domains__node-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.decision-domains__node-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+.decision-domains__node-meta {
+  font-size: 13px;
+  color: var(--c-text-muted);
+}
+
+.decision-domains__node-badge {
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--c-accent-veille-soft);
+  color: var(--c-accent-veille);
+  padding: 4px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .decision-domains__node {
+    flex-wrap: wrap;
+  }
+}
