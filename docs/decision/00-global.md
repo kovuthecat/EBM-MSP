@@ -31,6 +31,10 @@ d'un travail de preuve tracé ; ce fichier fixe la méthode, la racine `docs/dec
 - **Prescrire** : le référent peut fournir le **texte intégral** pour l'analyse (usage interne) ; côté
   outil, seul résumé + lien (droit d'auteur). Les demandes de textes sont listées en fin de dossier.
 - En cas de doute clinique **non tranché par une source** : **signaler**, ne pas trancher seul.
+- **Granularité « si appuyée sur EBM »** (directive référent, 2026-07-22) : n'encoder une distinction de
+  critère dans l'algorithme que si des **données EBM** (ECR/méta) la soutiennent. Les gradations d'**accord
+  d'experts** (ex. HAS : sous-stades CV non évolué/évolué, IRC par stade, âgé vigoureux/fragile/malade)
+  sont **affichées** comme reco officielle, mais ne **pilotent pas** le moteur.
 
 ## Socle de sources à interroger systématiquement (chaque nœud)
 
@@ -57,7 +61,7 @@ divergence signalée (brief §2).
 
 | Id | Nœud | Dossier | Statut preuve | Nœud YAML |
 | --- | --- | --- | --- | --- |
-| A | Cible glycémique | `noeuds/A-cible-glycemique.md` | **OE + MG + HAS 2024 intégrés · 3 arbitrages résolus · reste Prescrire + granularité HAS** | P1/S2 |
+| A | Cible glycémique | `noeuds/A-cible-glycemique.md` | **Socle complet (OE+MG+HAS 2024+Prescrire) · granularité tranchée (EBM only) · PRÊT à valider/encoder** | P1/S2 |
 | B | 1re intention (par comorbidités) | `noeuds/B-premiere-intention.md` | à faire | P2 |
 | C | Intensification | `noeuds/C-intensification.md` | à faire | P2 |
 | D | Sulfamides / gliptines | `noeuds/D-sulfamides-gliptines.md` | à faire | P2 |

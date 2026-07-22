@@ -132,6 +132,17 @@ critère **officiel** → renforce l'escalade §2b-3 (ce n'est plus seulement un
   (HbA1c = **critère intermédiaire**) et recommande d'envisager **arrêt/désescalade**. L'outil et la reco
   disent la **même chose**. Le brief §11 (« plancher ~6,5 % via courbe en J ») est **corrigé** : le ≤ 6,5 %
   est une cible officielle **réservée au profil récent sans MCV**, pas un plancher de mortalité.
+- **Position critique = Prescrire** (résumé, droit d'auteur : jamais le texte intégral) — « Diabète de
+  type 2 chez un adulte » (Premiers Choix, févr 2026) + « Quand la metformine ne suffit pas » (Stratégies,
+  août 2023) : objectif = **éviter/retarder les complications** (surtout CV), pas la baisse d'HbA1c en soi ;
+  viser **≈ 7 %** les premières années puis **≈ 7,5 %** ; **7,5–8,5 %** chez l'âgé/fragile, voire **8–9 %**
+  si complication vasculaire majeure / affection grave / EV < 5 ans ; EV courte → contrôle moins strict
+  **sans médicament**. → **converge** avec HAS et MG, position **un peu plus prudente** (≈7 puis ≈7,5 vs ≤7 officiel).
+- **Granularité (ta règle « si appuyée sur EBM »)** : Prescrire (source la plus EBM-critique) emploie des
+  bandes **grossières** → on **n'encode pas** les gradations fines d'accord d'experts (HAS : CV non
+  évolué/évolué, IRC par stade, âgé vigoureux/fragile/malade). Elles restent **affichées** comme reco
+  officielle. Drivers encodés = EBM-étayés : `age`, `anciennete`, `esperance_vie`, `fragilite`,
+  `risque_hypo`, **`antecedent_cv`**, **`comorbidite_grave`**.
 
 ## 5. Incertitudes
 
@@ -151,36 +162,44 @@ Bandes = **cibles officielles HAS** (seuils **≤ 6,5 / ≤ 7 / ≤ 8 / ≤ 9 %*
 # id: cible-glycemique · domaine: diabete-type-2
 # criteres_entree: age, anciennete_diabete_annees,
 #   esperance_vie(longue≙EV>15 / intermediaire / limitee≙<5 ans),
-#   fragilite(bool), risque_hypoglycemie_schema(faible/eleve), antecedent_cv(bool)
+#   fragilite(bool), risque_hypoglycemie_schema(faible/eleve), antecedent_cv(bool), comorbidite_grave(bool)
 options:
-  - intitule: "Cible ≤ 9 %"      # personne âgée « malade »/dépendante (HAS, accord d'experts)
-    conditions: ["fragilite == true AND esperance_vie == limitee"]
+  - intitule: "Cible ≤ 9 %"      # personne âgée dépendante / affection grave + EV limitée
+    conditions: ["esperance_vie == limitee AND (fragilite == true OR comorbidite_grave == true)"]
     niveau_preuve: tres_faible
-  - intitule: "Cible ≤ 8 %"      # comorbidité grave / EV limitée / longue durée avec hypos / âgé fragile
-    conditions: ["fragilite == true OR esperance_vie == limitee OR (anciennete_diabete_annees > 10 AND risque_hypoglycemie_schema == eleve)"]
+  - intitule: "Cible ≤ 8 %"      # fragile / comorbidité grave / EV limitée / longue durée avec hypos
+    conditions: ["fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR (anciennete_diabete_annees > 10 AND risque_hypoglycemie_schema == eleve)"]
     niveau_preuve: modere
   - intitule: "Cible ≤ 6,5 %"    # nouvellement dx, EV>15 ans, SANS antécédent CV, sans hypo (HAS)
     conditions: ["anciennete_diabete_annees < 5 AND esperance_vie == longue AND antecedent_cv == false AND risque_hypoglycemie_schema == faible AND fragilite == false"]
     niveau_preuve: faible        # bénéfice = micro + legacy (§3-4) ; pas de bénéfice dur prouvé
-  - intitule: "Cible ≤ 7 %"      # la plupart des patients — DÉFAUT (dont CV non évolué, IRC modérée, âgé vigoureux)
+  - intitule: "Cible ≤ 7 %"      # la plupart des patients — DÉFAUT
     conditions: ["default"]
     niveau_preuve: modere
 # reco_officielle: {source: "HAS 2024, Annexe 3 (cibles 2013 maintenues)", divergence: false,
-#   explication: "HAS reconnaît HbA1c = critère intermédiaire sans lien démontré à la morbi-mortalité,
-#   et recommande d'envisager arrêt/désescalade → converge avec la position critique."}
-# sources: HAS 2024, UKPDS33/80, Stratton, ACCORD, ADVANCE(+ON), VADT(+F), Turnbull, Boussageon, Cochrane (DOIs §3)
-# argumentaire: pas de plancher-mortalité ; ≤6,5 % = cible officielle du profil SANS MCV récemment dx ;
-#   danger = serrage AGRESSIF (ACCORD) pas le chiffre (ADVANCE 6,5 % sans surmortalité) ;
+#   explication: "HAS reconnaît HbA1c = critère intermédiaire sans lien démontré à la morbi-mortalité → converge avec la position critique."}
+# sources.medicalement_geek: "cibles <7 classique ; individualiser ; déprescrire si <6,5 %"
+# sources.prescrire (RÉSUMÉ, jamais le texte intégral — réf. Premiers Choix févr 2026 + Stratégies août 2023):
+#   "objectif = éviter/retarder les complications (surtout CV), pas la baisse d'HbA1c ; ≈7% les premières
+#    années puis ≈7,5% ; 7,5–8,5% (voire 8–9%) si âgé/fragile, complication vasculaire majeure, affection
+#    grave ou EV<5 ans ; EV courte → moins strict sans médicament"
+# sources.references_primaires: UKPDS33/80, Stratton, ACCORD, ADVANCE(+ON), VADT(+F), Turnbull, Boussageon, Cochrane (DOIs §3)
+# argumentaire: pas de plancher-mortalité ; ≤6,5% = cible officielle du profil SANS MCV récemment dx ;
+#   danger = serrage AGRESSIF (ACCORD) pas le chiffre (ADVANCE 6,5% sans surmortalité) ;
 #   garde-fou : baisse rapide de l'HbA1c → aggravation de la rétinopathie.
 ```
 
-> **Granularité HAS non encore encodée** (à trancher, cf. §5) : CV **non évolué (≤7) vs évolué (≤8)** ;
-> personne âgée **vigoureuse/fragile/malade (≤7/≤8/≤9)** ; IRC **modérée/sévère (≤7/≤8)**. Pour l'encoder →
-> passer `antecedent_cv` et l'état de la personne âgée en **enum**, et rattacher DFG/stade IRC.
+> **Granularité — décidé (« si appuyée sur EBM », référent)** : on **n'encode PAS** les gradations fines
+> d'accord d'experts (HAS : CV non évolué/évolué ; IRC par stade ; âgé vigoureux/fragile/malade) — non
+> étayées par ECR ni retenues par Prescrire. Elles restent **affichées** comme reco officielle. Les drivers
+> de l'algorithme sont les **critères EBM-étayés** ci-dessus.
 
 ## 7. Demandes au référent (liste de courses) — MAJ 2026-07-22
 
-**Intégrés** : OpenEvidence ✓ · Médicalement Geek ✓ (2 pages).
+**Intégrés** : OpenEvidence ✓ · Médicalement Geek ✓ · **HAS 2024 ✓** · **Prescrire ✓** (« Diabète de type
+2 chez un adulte », Premiers Choix févr 2026 ; « Quand la metformine ne suffit pas », août 2023 ;
+« Prévenir/retarder le DT2 », 2006 → réservé nœud H). → **Socle de sources COMPLET pour le nœud A** ;
+reste = validation clinique du référent + confirmation des `[À VÉRIFIER]` (NNT, UKPDS 80, VADT, Cochrane pub4).
 
 **Prescrire — articles demandés** (payant : non tirables du web ouvert ; le référent a l'accès). Par priorité :
 
