@@ -1,0 +1,60 @@
+.account-menu {
+  position: relative;
+}
+
+.account-menu__trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  border-radius: 20px;
+  padding: 6px 14px 6px 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+.account-menu__avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--c-accent-decision);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+}
+
+.account-menu__dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px oklch(20% 0.02 245 / 0.12);
+  min-width: 190px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.account-menu__dropdown button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 10px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--c-text);
+}
+
+.account-menu__login {
+  color: var(--c-accent-decision);
+  border-top: 1px solid var(--c-border);
+}

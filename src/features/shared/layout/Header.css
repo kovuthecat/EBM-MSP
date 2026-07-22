@@ -1,0 +1,79 @@
+.header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding: 14px 24px;
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--c-border);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.header__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.header__logo-mark {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--c-accent-veille), var(--c-accent-decision));
+  flex-shrink: 0;
+}
+
+.header__brand-label {
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  color: var(--c-text);
+}
+
+.header__pills {
+  display: flex;
+  gap: 6px;
+  background: var(--c-pill-track);
+  padding: 4px;
+  border-radius: var(--radius-md);
+}
+
+.header__pill {
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: var(--c-text-muted);
+}
+
+.header__pill--decision-active {
+  background: var(--c-accent-decision);
+  color: white;
+}
+
+.header__pill--veille-active {
+  background: var(--c-accent-veille);
+  color: white;
+}
+
+.header__methode {
+  border: none;
+  background: transparent;
+  color: var(--c-text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.header__spacer {
+  flex: 1;
+}

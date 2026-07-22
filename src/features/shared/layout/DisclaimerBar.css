@@ -1,0 +1,30 @@
+.disclaimer-bar {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 24px;
+  background: var(--c-disclaimer-bg);
+  border-bottom: 1px solid var(--c-disclaimer-border);
+}
+
+.disclaimer-bar__icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--c-accent-decision);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.disclaimer-bar__text {
+  margin: 0;
+  font-size: 13px;
+  color: var(--c-text-secondary);
+  line-height: 1.5;
+}

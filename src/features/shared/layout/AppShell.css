@@ -1,0 +1,9 @@
+.app-shell {
+  min-height: 100vh;
+  background: var(--c-bg);
+  color: var(--c-text);
+}
+
+.app-shell__content {
+  min-height: 100vh;
+}

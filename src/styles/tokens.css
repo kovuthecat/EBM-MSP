@@ -1,0 +1,52 @@
+/* Design tokens — valeurs exactes reprises du prototype
+   design/maquettes/prototype-ebm-msp-neuf-crans/project/MSP Menilmontant.dc.html
+   (blocs showChrome / isHome / isMethode). Ne pas modifier sans repasser par le prototype. */
+
+:root {
+  /* Fond & surfaces */
+  --c-bg: oklch(98% 0.006 240);
+  --c-surface: oklch(99.5% 0.002 240);
+  --c-border: oklch(89% 0.012 240);
+  --c-pill-track: oklch(96% 0.008 240);
+
+  /* Texte */
+  --c-text: oklch(24% 0.02 245);
+  --c-text-muted: oklch(50% 0.018 245);
+  --c-text-faible: oklch(62% 0.015 245);
+  --c-text-secondary: oklch(38% 0.03 245);
+
+  /* Accents modules */
+  --c-accent-decision: oklch(46% 0.09 254);
+  --c-accent-decision-soft: oklch(93% 0.025 254);
+  --c-accent-veille: oklch(58% 0.075 178);
+  --c-accent-veille-soft: oklch(92% 0.03 178);
+
+  /* Bandeau disclaimer */
+  --c-disclaimer-bg: oklch(95% 0.02 230);
+  --c-disclaimer-border: oklch(87% 0.03 230);
+
+  /* Badges — niveau de preuve (GRADE simplifié) */
+  --c-badge-preuve-eleve-bg: oklch(46% 0.09 254);
+  --c-badge-preuve-eleve-text: white;
+  --c-badge-preuve-modere-bg: oklch(75% 0.06 254);
+  --c-badge-preuve-modere-text: oklch(24% 0.02 245);
+  --c-badge-preuve-faible-bg: oklch(90% 0.03 254);
+  --c-badge-preuve-faible-text: oklch(24% 0.02 245);
+  /* niveau "très faible" : valeur non présente dans le bloc du prototype lu en S1 ;
+     à fixer lors de la session Veille (V1/V2) sur lecture du script complet. */
+
+  /* Badges — niveau d'impact (veille) */
+  --c-badge-impact-pratique-bg: oklch(58% 0.075 178);
+  --c-badge-impact-pratique-text: white;
+  --c-badge-impact-informatif-bg: var(--c-border);
+  --c-badge-impact-informatif-text: var(--c-text-muted);
+
+  /* Rayons */
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  /* Police */
+  --font-system:
+    -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}

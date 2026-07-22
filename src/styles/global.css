@@ -1,0 +1,58 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-family: var(--font-system);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+/* Écrans pas encore livrés (D2/D3/V1/V2/V3/V4/V5) : placeholder neutre,
+   volontairement non designé (cf. plans/P1/S1.md — Hors périmètre). */
+.placeholder-screen {
+  max-width: 480px;
+  margin: 96px auto;
+  padding: 0 24px;
+  text-align: center;
+}
+
+.placeholder-screen__text {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: var(--c-text-muted);
+}
+
+.placeholder-screen__button {
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  color: var(--c-text);
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
