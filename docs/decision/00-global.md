@@ -68,7 +68,7 @@ divergence signalée (brief §2).
 | Id | Nœud | Dossier | Statut preuve | Nœud YAML |
 | --- | --- | --- | --- | --- |
 | A | Cible glycémique | `noeuds/A-cible-glycemique.md` | **VALIDÉ + ENCODÉ (T-007bis)** : `content/…/cible-glycemique.yaml` v2.0 `statut: valide` · sortie unique · 27/27 tests verts | P1/S2 |
-| B | 1re intention (par comorbidités) | `noeuds/B-premiere-intention.md` | **DOSSIER VALIDÉ — BON À ENCODER (2026-07-23)** : base de preuve complète et vérifiée (bi-agents + 5 OpenEvidence + 2 passes de vérif./triangulation + HAS/Méd. Geek/SFD 2025 + Prescrire `sources/prescrire-dt2.md`). **Tous arbitrages validés référent** : 3 classes + gate insuline + arg. négative SU/gliptines + priorité ; `[À VÉRIFIER]` levés (restes mineurs non décisionnels). → encodage YAML | P2 |
+| B | 1re intention (par comorbidités) | `noeuds/B-premiere-intention.md` | **VALIDÉ + ENCODÉ (2026-07-23)** : `content/…/premiere-intention.yaml` (multi-options) + argumentaire niveau 3 ; base de preuve complète et vérifiée (bi-agents + 5 OpenEvidence + 3 passes de vérif. dont YAML/triangulation + HAS/Méd. Geek/SFD 2025 + Prescrire). Tous arbitrages validés référent ; 38/38 tests + build OK. Restant P2 moteur : `priorite` conditionnel, CI dures, vars décompensation | **✔ encodé** |
 | C | Intensification | `noeuds/C-intensification.md` | à faire | P2 |
 | D | Sulfamides / gliptines | `noeuds/D-sulfamides-gliptines.md` | à faire | P2 |
 | E | Insuline | `noeuds/E-insuline.md` | à faire | P2 |

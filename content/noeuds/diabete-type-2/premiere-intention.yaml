@@ -1,0 +1,294 @@
+# Nœud B « Traitement de 1re intention piloté par les comorbidités » — contenu VALIDÉ (2026-07-23).
+# Autorité : docs/decision/noeuds/B-premiere-intention.md (dossier de preuve : bi-agents + OpenEvidence +
+# curation HAS / Médicalement Geek / SFD 2025 + Prescrire + passes de vérification) + .argumentaire.md
+# (niveau 3). Ne pas modifier les valeurs cliniques hors workflow veille → algorithme (DECISIONS.md D5).
+#
+# NŒUD MULTI-OPTIONS (D10/D11) : plusieurs options peuvent être recommandées simultanément. Le moteur
+# (evaluateNode) renvoie toutes les options applicables DANS L'ORDRE du nœud → l'ordre encode la priorité
+# (gate d'initiation → agents pilotés par comorbidité → association → metformine seule par défaut). Le
+# champ `priorite` explicite (D10) et l'évaluation des `contre_indications` comme exclusions dures restent
+# une extension moteur P2. L'ordre encode une priorité PAR DÉFAUT ; la préférence par critère dominant
+# (IC/rein → iSGLT2 ; athérome/obésité → AR GLP-1) est portée par les `avantages`/l'argumentaire, pas par un
+# rang (un `priorite` conditionnel = P2). Garde-fou de sécurité en attendant l'application P2 des CI : le gate
+# catabolique est encodé EN `conditions` (`symptomes_glucotoxicite == false` sur iSGLT2 et l'association) pour
+# SUPPRIMER ces options en hyperglycémie catabolique (risque d'acidocétose sous iSGLT2).
+id: premiere-intention
+domaine: diabete-type-2
+titre: "Choisir le traitement de 1re intention (sur socle metformine) selon les comorbidités"
+population_cible: >-
+  Adulte DT2 sous mesures d'hygiène de vie + metformine (socle), hors DT1 et grossesse. Hors périmètre :
+  décompensation aiguë (cétose / hyperosmolarité) → insuline + hospitalisation en urgence.
+selection: multi-options
+argumentaire_exhaustif: "premiere-intention.argumentaire.md"
+criteres_entree:
+  - nom: ASCVD_etablie
+    type: bool
+  - nom: insuffisance_cardiaque
+    type: bool
+  - nom: DFG
+    type: nombre
+  - nom: albuminurie
+    type: enum
+    valeurs: [normo, micro, macro]
+  - nom: IMC
+    type: nombre
+  - nom: age
+    type: nombre
+  - nom: HbA1c_actuelle
+    type: nombre
+  - nom: symptomes_glucotoxicite
+    type: bool
+  - nom: preference_injection
+    type: enum
+    valeurs: [accepte, refuse, indifferent]
+  - nom: contrainte_cout
+    type: bool
+options:
+  - intitule: "Insuline d'initiation (souvent transitoire)"
+    conditions:
+      - "HbA1c_actuelle >= 10 AND symptomes_glucotoxicite == true"
+    avantages:
+      - "Corrige rapidement la glucotoxicité en cas d'hyperglycémie sévère symptomatique / catabolique."
+      - "Le plus souvent transitoire : relais possible par les autres classes une fois la glucotoxicité levée."
+    inconvenients:
+      - "Sans catabolisme franc, un AR GLP-1 / tirzépatide (± insuline basale) est de plus en plus préféré (SIMPLE, ADA 2026)."
+      - "Contrainte (injections, auto-surveillance), hypoglycémie, prise de poids ; rémission non durable."
+    effet_attendu: >-
+      Lève la glucotoxicité ; la rémission éventuelle est un critère intermédiaire, non durable (~42 % à
+      2 ans, ~10 % à 5 ans) ; aucun bénéfice sur critère dur démontré (accord d'experts, Grade E). Voir
+      aussi la voie perte de poids (DiRECT), mieux validée pour le phénotype européen (nœud H).
+    niveau_preuve: tres_faible
+    contre_indications:
+      - "Suspecter un DT1 devant une cétose / un amaigrissement rapide chez un sujet non obèse."
+  - intitule: "Ajout d'un iSGLT2"
+    conditions:
+      - "insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo OR ASCVD_etablie == true"
+      - "symptomes_glucotoxicite == false"
+    avantages:
+      - "Réduit l'hospitalisation pour insuffisance cardiaque et la progression rénale (bénéfice le plus robuste, effet de classe) — à privilégier quand l'insuffisance cardiaque ou la maladie rénale prédomine."
+      - "Bénéfice IC/rénal indépendant du statut athérothrombotique et de l'HbA1c ; perte de poids modeste, pas d'hypoglycémie."
+    inconvenients:
+      - "Pas d'effet sur l'IDM ni l'AVC ; mortalité surtout démontrée pour l'empagliflozine en prévention secondaire."
+      - "En maladie athéromateuse SANS insuffisance cardiaque ni maladie rénale, préférer un AR GLP-1 (bénéfice iSGLT2 sur le MACE modeste, prévention secondaire) ; force de preuve rénale surtout en macro-albuminurie / DFG abaissé."
+      - "Bénéfice dur faible ou nul en prévention primaire à bas risque sans IC ni maladie rénale."
+    effet_attendu: >-
+      Hospitalisation pour IC HR ~0,61–0,73 (NNT ~19–31 sur 16–26 mois) ; progression rénale HR ~0,56–0,76
+      (NNT DAPA-CKD 19 [15-27] / 2,4 ans, CREDENCE 22 [15-38] / 2,5 ans). IDM et AVC non réduits.
+    niveau_preuve: eleve
+    contre_indications:
+      - "Ne pas initier en cas d'hyperglycémie sévère catabolique / HbA1c > 10 % avec cétose (risque d'acidocétose — AACE) : lever d'abord la glucotoxicité (insuline)."
+      - "Ne pas initier si DFG < 20 mL/min/1,73m² (poursuivre jusqu'à la dialyse si déjà en cours — KDIGO 2024)."
+      - "Risque ou antécédent d'acidocétose ; suspendre en cas de jeûne, chirurgie, sepsis, régime très pauvre en glucides."
+      - "Infections génito-urinaires récidivantes ; antécédent de gangrène de Fournier."
+      - "Artériopathie évoluée / antécédent d'amputation : prudence (signal canagliflozine)."
+  - intitule: "Ajout d'un AR GLP-1 (liraglutide, sémaglutide, dulaglutide)"
+    conditions:
+      - "ASCVD_etablie == true OR IMC >= 30"
+    avantages:
+      - "Réduit les événements athéromateux (surtout l'AVC ; mortalité CV pour le liraglutide) — à privilégier quand la maladie athéromateuse ou l'obésité prédomine ; forte efficacité sur l'HbA1c et perte de poids."
+      - "Néphroprotection sur critère dur démontrée pour le sémaglutide en maladie rénale (FLOW)."
+    inconvenients:
+      - "Bénéfice molécule-spécifique (exclure lixisénatide et exénatide LP, neutres) ; quasi nul sur l'insuffisance cardiaque."
+      - "Effets indésirables digestifs fréquents, lithiases biliaires, pancréatites ; signaux mal cernés (cancers thyroïde/pancréas, gestes suicidaires), NAION (sémaglutide)."
+    effet_attendu: >-
+      MACE HR ~0,87–0,88 (porté par l'AVC/la mort CV/l'IDM selon la molécule) ; NNT ~18 en maladie CV
+      établie, ~60–70 en prévention primaire. Rénal dur = sémaglutide (FLOW, critère principal HR 0,76).
+    niveau_preuve: modere
+    contre_indications:
+      - "Antécédent de pancréatite aiguë ou chronique."
+      - "Antécédent personnel ou familial de cancer médullaire de la thyroïde ou de NEM2."
+      - "Refus des injections : préférer le sémaglutide oral ou une autre classe (preference_injection == refuse)."
+      - "Rétinopathie proliférante non stabilisée : prudence si baisse rapide de l'HbA1c (sémaglutide)."
+  - intitule: "Ajout d'un AR GIP/GLP-1 (tirzépatide)"
+    conditions:
+      - "ASCVD_etablie == true OR IMC >= 30"
+    avantages:
+      - "Efficacité sur l'HbA1c et perte de poids supérieures aux AR GLP-1 ; remboursé en France (juillet 2026)."
+    inconvenients:
+      - "Bénéfice CV par NON-INFÉRIORITÉ au dulaglutide seulement (SURPASS-CVOT) — pas de supériorité (p=0,09) ni de CVOT contre placebo."
+      - "Mêmes effets indésirables digestifs / pancréatiques que les AR GLP-1 ; injectable hebdomadaire."
+    effet_attendu: >-
+      Non-infériorité au dulaglutide sur le MACE-3 (HR 0,92 [0,83–1,01]) ; mortalité toutes causes 0,84
+      (critère secondaire, hiérarchie de test compromise) ; composite rénal 0,77 [0,68–0,88].
+    niveau_preuve: modere
+    contre_indications:
+      - "Antécédent de pancréatite aiguë ou chronique."
+      - "Antécédent personnel ou familial de cancer médullaire de la thyroïde ou de NEM2."
+      - "Refus des injections (preference_injection == refuse)."
+  - intitule: "Association iSGLT2 + AR GLP-1"
+    conditions:
+      - "insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo"
+      - "ASCVD_etablie == true OR IMC >= 30"
+      - "symptomes_glucotoxicite == false"
+    avantages:
+      - "Couvre à la fois le versant insuffisance cardiaque / rénal (iSGLT2) et athéromateux / pondéral (AR GLP-1) quand les deux indications sont fortes."
+    inconvenients:
+      - "Bénéfice additif suggéré mais de preuve FAIBLE (observationnel + sous-groupes ; essai PRECIDENTD en cours)."
+      - "Coût et charge de traitement cumulés ; tolérance des deux classes à surveiller."
+    effet_attendu: "Bénéfice additif plausible (cohortes, absence d'interaction) ; non confirmé par un ECR dédié."
+    niveau_preuve: faible
+  - intitule: "Metformine seule (socle) — poursuivre"
+    conditions:
+      - "default"
+    avantages:
+      - "Suffit en l'absence d'indication d'un agent à bénéfice d'organe (pas de MCV établie, d'IC, de maladie rénale ni d'obésité) ; tolérance, absence d'hypoglycémie, coût, recul."
+    inconvenients:
+      - "Bénéfice propre sur critère dur de niveau de preuve faible / non concluant (ne pas afficher « bénéfice CV prouvé »)."
+      - "Nœud indépendant de l'HbA1c : si la cible glycémique (nœud A) n'est pas atteinte → intensifier (nœud C) ; un AR GLP-1 / tirzépatide est plus puissant sur l'HbA1c si l'objectif est éloigné (SFD)."
+      - "Sulfamides et gliptines = place résiduelle seulement (pas de bénéfice d'organe) → voir nœud D ; Prescrire écarte gliptines et pioglitazone."
+    effet_attendu: >-
+      Pas de bénéfice sur critère dur démontré vs placebo (métas Griffin 2017, Boussageon 2012 non
+      significatives ; signal UKPDS 34 sur un sous-groupe ouvert). Socle par tolérance/sécurité/coût/recul.
+    niveau_preuve: faible
+    contre_indications:
+      - "Metformine contre-indiquée si DFG < 30 mL/min/1,73m² ; à écarter aussi en insuffisance cardiaque décompensée, IDM récent, insuffisance hépatique, alcoolisme."
+      - "Intolérance digestive (~15 %) : titration progressive, prises au cours des repas."
+argumentaire: >
+  Sur un socle de metformine + mesures d'hygiène de vie, le choix des agents à ajouter est piloté par les
+  comorbidités, car le bénéfice cardio-rénal des iSGLT2 et des AR GLP-1 est démontré sur des critères durs
+  INDÉPENDAMMENT de l'HbA1c. Les iSGLT2 réduisent l'hospitalisation pour insuffisance cardiaque et la
+  progression rénale (effet de classe robuste), sans agir sur l'IDM ni l'AVC ; ils sont indiqués en cas
+  d'insuffisance cardiaque, de maladie rénale chronique ou de maladie CV établie, avec un bénéfice faible
+  ou nul en prévention primaire à bas risque. Les AR GLP-1 réduisent les événements athéromateux (surtout
+  l'AVC) et sont indiqués en cas de maladie CV établie ou d'obésité ; le bénéfice est molécule-spécifique
+  (lixisénatide et exénatide LP exclus) et quasi nul sur l'insuffisance cardiaque, la néphroprotection dure
+  n'étant démontrée que pour le sémaglutide (FLOW). Le tirzépatide n'a qu'une non-infériorité au dulaglutide
+  sur le plan CV mais une efficacité HbA1c/poids supérieure. La metformine reste le socle par défaut, mais
+  son bénéfice sur critère dur est de preuve faible. En cas d'hyperglycémie sévère catabolique, une insuline
+  d'initiation (souvent transitoire) s'impose. Priorité par critère dominant (affichage, pas hiérarchie
+  prouvée) : insuffisance cardiaque / rein → iSGLT2 ; athérome / obésité → AR GLP-1.
+sources:
+  references_primaires:
+    - titre: "EMPA-REG OUTCOME (empagliflozine)"
+      annee: 2015
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa1504720"
+    - titre: "CANVAS (canagliflozine) — signal amputation"
+      annee: 2017
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa1611925"
+    - titre: "DECLARE-TIMI 58 (dapagliflozine)"
+      annee: 2019
+      type_critere: mixte
+      lien: "https://doi.org/10.1056/NEJMoa1812389"
+    - titre: "CREDENCE (canagliflozine, néphropathie)"
+      annee: 2019
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa1811744"
+    - titre: "DAPA-CKD (dapagliflozine, MRC)"
+      annee: 2020
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa2024816"
+    - titre: "EMPA-KIDNEY (empagliflozine, MRC)"
+      annee: 2023
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa2204233"
+    - titre: "DAPA-HF (dapagliflozine, IC FE réduite)"
+      annee: 2019
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa1911303"
+    - titre: "EMPEROR-Reduced (empagliflozine, IC FE réduite) — NNT 19 [13-37]"
+      annee: 2020
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa2022190"
+    - titre: "EMPEROR-Preserved (empagliflozine, IC FE préservée)"
+      annee: 2021
+      type_critere: mixte
+      lien: "https://doi.org/10.1056/NEJMoa2107038"
+    - titre: "VERTIS CV (ertugliflozine) — neutre MACE/mortalité, HHF réduite (effet-classe IC)"
+      annee: 2020
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa2004967"
+    - titre: "LEADER (liraglutide)"
+      annee: 2016
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa1603827"
+    - titre: "REWIND (dulaglutide)"
+      annee: 2019
+      type_critere: dur
+      lien: "https://doi.org/10.1016/S0140-6736(19)31149-3"
+    - titre: "SUSTAIN-6 (sémaglutide SC)"
+      annee: 2016
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa1607141"
+    - titre: "FLOW (sémaglutide, maladie rénale) — 1er critère rénal dur positif pour un AR GLP-1"
+      annee: 2024
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa2403347"
+    - titre: "SURPASS-CVOT (tirzépatide vs dulaglutide, comparateur actif — non-infériorité ; PMID 41406444)"
+      annee: 2025
+      type_critere: dur
+      lien: "https://pubmed.ncbi.nlm.nih.gov/41406444/"
+    - titre: "UKPDS 34 (metformine, sous-groupe surpoids)"
+      annee: 1998
+      type_critere: dur
+      lien: "https://doi.org/10.1016/S0140-6736(98)07037-8"
+    - titre: "Griffin (méta metformine vs placebo — aucun critère dur significatif)"
+      annee: 2017
+      type_critere: dur
+      lien: "https://doi.org/10.1007/s00125-017-4337-9"
+    - titre: "SAVOR-TIMI 53 (saxagliptine — signal insuffisance cardiaque)"
+      annee: 2013
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa1307684"
+    - titre: "CAROLINA (glimépiride vs linagliptine — neutralité CV du glimépiride)"
+      annee: 2019
+      type_critere: dur
+      lien: "https://doi.org/10.1001/jama.2019.13772"
+    - titre: "Weng (insuline intensive initiale — rémission, critère intermédiaire)"
+      annee: 2008
+      type_critere: substitution
+      lien: "https://doi.org/10.1016/S0140-6736(08)60762-X"
+  medicalement_geek:
+    synthese: >-
+      Approuve iSGLT2/GLP-1 pilotés par les comorbidités ; critique la metformine en 1re intention
+      (grade C « malgré l'absence de bénéfice clinique » démontré) et rejette gliptines et sulfamides ;
+      réserve pratique sur le remboursement en monothérapie.
+    lien: "https://www.medicalement-geek.com/2023/01/les-traitements-du-diabete-formule-all.html"
+  prescrire:
+    synthese: >-
+      Quand la metformine ne suffit pas, ajouter un AR GLP-1 (sémaglutide/dulaglutide 1er choix) est le
+      plus souvent le premier choix, surtout si risque CV élevé ; dapagliflozine (voire empagliflozine)
+      si insuffisance cardiaque ou insuffisance rénale modérée avec protéinurie. Bénéfice des GLP-1 jugé
+      « peut-être » et fragile (LEADER), balance grevée d'effets indésirables ; tirzépatide non supérieur
+      au dulaglutide (SURPASS-CVOT) ; gliptines et pioglitazone « à écarter ». (Résumé — droit d'auteur ;
+      réf. Rev Prescrire 2023;43(478):595-605 ; Premiers Choix févr 2026 ; 2026;46(512):429 et 455 ;
+      2025;45(500):455. Synthèses : docs/decision/sources/prescrire-dt2.md.)
+  reco_officielle:
+    source: "SFD 2025 (Prise de position, Med Mal Metab 2025;19:630-662) ; HAS 2024 (Stratégie thérapeutique du DT2, grade A) ; ADA/EASD 2022 ; KDIGO 2022"
+    position: >-
+      Sur socle metformine + mode de vie : en cas de maladie CV établie, insuffisance cardiaque ou maladie
+      rénale chronique, prescrire d'emblée un iSGLT2 ou un AR GLP-1 (ou tirzépatide) à bénéfice prouvé, quel
+      que soit l'HbA1c ; en cas d'obésité (IMC ≥ 30) / MASLD-MASH, un AR GLP-1 ou tirzépatide.
+    divergence: true
+    explication: >-
+      Convergence forte sur le CIBLAGE par comorbidité (IC/MRC/MCV/obésité). Divergences : (1) Prescrire
+      est plus prudent — bénéfice des GLP-1 « peut-être »/fragile, effets indésirables mis en avant, et
+      écarte gliptines + pioglitazone (là où la SFD les garde en place résiduelle) ; (2) le « bénéfice
+      cardiovasculaire » des iSGLT2 recouvre surtout de l'insuffisance cardiaque et du rénal, PAS de
+      l'athérothrombose ; en prévention primaire à bas risque sans IC ni MRC, le bénéfice dur est faible/nul.
+incertitudes:
+  - "Priorité iSGLT2 vs AR GLP-1 quand les deux sont indiqués : pas d'ECR tête-à-tête (méta-analyses en réseau)."
+  - "Bénéfice de l'association iSGLT2 + AR GLP-1 : observationnel + sous-groupes (PRECIDENTD en cours)."
+  - "Effet-classe vs molécule : mortalité (iSGLT2, surtout empagliflozine) ; signal d'IC (gliptines, surtout saxagliptine)."
+  - "Tirzépatide : pas de CVOT contre placebo ; bénéfice CV par non-infériorité au dulaglutide seulement."
+  - "Insuline initiale « rémission » : critère intermédiaire, non durable, peu transposable au patient européen."
+  - "Composite cardio-rénal élargi de SURPASS-CVOT : libellé / IC à confirmer sur le texte intégral (NEJM)."
+  - "Priorité par ordre fixe (multi-options) : quand iSGLT2 et AR GLP-1 co-déclenchent, la préférence par critère dominant (IC/rein → iSGLT2 ; athérome/obésité → AR GLP-1) est portée par les avantages / l'argumentaire, pas par un rang — un champ priorite conditionnel est une extension P2 (D10)."
+  - "Décompensation aiguë (cétose / hyperosmolarité) exclue par population_cible ; variables dédiées decompensation / cetose + évaluation des contre_indications comme exclusions dures par le moteur = extension P2."
+veille_liee: []
+meta:
+  date_revue: "2026-07-23"
+  auteur: "référent DT2"
+  statut: valide
+  version: "1.0"
+  changelog:
+    - date: "2026-07-23"
+      auteur: "référent DT2 + Opus"
+      resume: >-
+        Encodage initial depuis le dossier de preuve (bi-agents + OpenEvidence + curation HAS / Médicalement
+        Geek / SFD 2025 + Prescrire, avec passes de vérification / triangulation). Nœud multi-options :
+        gate insuline (catabolisme), iSGLT2 (IC/rénal), AR GLP-1 (athérome/obésité), tirzépatide, association,
+        metformine seule par défaut. Priorité par ordre des options ; contre-indications affichées.
+        Tous les arbitrages validés par le référent (effet-classe par molécule = D12, gate insuline,
+        argumentation négative SU/gliptines, priorité par critère dominant).

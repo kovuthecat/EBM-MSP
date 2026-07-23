@@ -1,6 +1,7 @@
 # Nœud B — Traitement de 1re intention piloté par les comorbidités   (dossier de preuve)
 
-- **statut** : **DOSSIER DE PREUVE VALIDÉ — BON À ENCODER (2026-07-23)** : base de preuve complète et
+- **statut** : **DOSSIER VALIDÉ + ENCODÉ (2026-07-23)** — YAML `content/…/premiere-intention.yaml` +
+  argumentaire niveau 3, vérifiés bi-agent (38/38 tests, build OK) ; cf. §7. Base de preuve complète et
   vérifiée — 3 classes (iSGLT2 · AR GLP-1/tirzépatide · metformine) + **gate insuline** + **argumentation
   négative SU/gliptines** + **priorité**, via **bi-agents A/B (7 passes) + 5 rapports OpenEvidence + 2 passes
   de vérification (triangulation)** + curation HAS/Méd. Geek/SFD 2025 + Prescrire (`sources/prescrire-dt2.md`).
@@ -546,7 +547,19 @@ RÉSOLU** (même distinction « bénéfices » vs « sécurité » démontrés).
 - Effet-classe vs molécule du signal IC des gliptines non tranché (saxa clair, classe borderline).
 - Innocuité CV des SU modernes (gliclazide) : un seul CVOT dédié (CAROLINA, glimépiride) ; observationnel discordant.
 
-## 7. → YAML (contenu distillé) — À REMPLIR (après bi-agents + validation référent)
+## 7. → YAML (contenu distillé) — ENCODÉ + VÉRIFIÉ (2026-07-23)
+
+Encodé dans `content/noeuds/diabete-type-2/premiere-intention.yaml` (nœud **multi-options** : gate insuline
+→ iSGLT2 → AR GLP-1 → tirzépatide → association → metformine seule/défaut ; priorité par **ordre** des
+options) + argumentaire niveau 3 `premiere-intention.argumentaire.md`. **Validation** : 38/38 tests Vitest
+(Ajv schéma + moteur) + build/typecheck OK ; **vérification bi-agent du YAML vs ce dossier** (fidélité =
+conforme ; red-team). **Corrections red-team appliquées** : garde-fou de sécurité — **iSGLT2 et association
+supprimés en hyperglycémie catabolique** (`symptomes_glucotoxicite == false` en `conditions`, + CI HbA1c>10 ;
+finding A/acidocétose) ; l'**association** ne se déclenche plus sur ASCVD seul (retrait de l'ASCVD de sa
+branche iSGLT2 ; finding C) ; **préférence par critère dominant** portée par les `avantages` (finding B) ;
+renvoi nœud C ; refs CANVAS/EMPEROR-Reduced ajoutées ; SURPASS ancré sur **PMID 41406444**. Traçage moteur de
+6 profils patients validé (test temporaire). **Restant P2 (moteur)** : champ `priorite` conditionnel,
+évaluation des `contre_indications` comme exclusions dures, variables `decompensation`/`cetose`.
 
 ## 8. Demandes au référent
 
