@@ -8,8 +8,10 @@
 # dans le dossier de preuve a changé :
 #  - PRIORITÉ par critère dominant encodée en `priorite` CONDITIONNELLE (D14), et non plus par l'ordre du
 #    tableau : si IC/rein (insuffisance_cardiaque OU DFG < 60 OU albuminurie ≠ normo) → iSGLT2 rang 1,
-#    AR GLP-1 rang 2, tirzépatide rang 3 ; sinon (athérome/obésité) → AR GLP-1 rang 1, tirzépatide rang 2,
-#    iSGLT2 rang 3. Insuline d'initiation = rang 0 (en tête si glucotoxicité) ; association = rang 4 (après
+#    AR GLP-1 rang 2, tirzépatide rang 3. Sinon, en athérome/obésité, AR GLP-1 est toujours rang 1 ; l'iSGLT2
+#    (déclenché uniquement si ASCVD, jamais sur obésité seule) passe rang 2 DEVANT le tirzépatide en cas
+#    d'ASCVD (bénéfice CV dur prouvé, empagliflozine), tandis qu'en obésité seule le tirzépatide est rang 2
+#    (iSGLT2 absent). Insuline d'initiation = rang 0 (en tête si glucotoxicité) ; association = rang 4 (après
 #    les monothérapies) ; metformine socle = défaut (sans rang → en dernier).
 #  - SÉCURITÉ encodée en `exclusions` (D13, évaluées par le moteur et traçables dans `excluded`), en plus de
 #    la prose `contre_indications` : iSGLT2 et l'association sont RETIRÉS si hyperglycémie catabolique
@@ -73,7 +75,7 @@ options:
       - quand: "insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo"
         rang: 1
       - quand: "default"
-        rang: 3
+        rang: 2
     avantages:
       - "Réduit l'hospitalisation pour insuffisance cardiaque et la progression rénale (bénéfice le plus robuste, effet de classe) — à privilégier quand l'insuffisance cardiaque ou la maladie rénale prédomine."
       - "Bénéfice IC/rénal indépendant du statut athérothrombotique et de l'HbA1c ; perte de poids modeste, pas d'hypoglycémie."
@@ -118,7 +120,7 @@ options:
     conditions:
       - "ASCVD_etablie == true OR IMC >= 30"
     priorite:
-      - quand: "insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo"
+      - quand: "insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo OR ASCVD_etablie == true"
         rang: 3
       - quand: "default"
         rang: 2
@@ -305,8 +307,16 @@ meta:
   date_revue: "2026-07-23"
   auteur: "référent DT2"
   statut: valide
-  version: "1.1"
+  version: "1.2"
   changelog:
+    - date: "2026-07-23"
+      auteur: "référent DT2 + Opus"
+      resume: >-
+        Affinement (v1.2, arbitrage référent) du rang tirzépatide vs iSGLT2 en branche athérome/obésité :
+        distinction ASCVD vs obésité. L'iSGLT2 (déclenché seulement si ASCVD ou IC/rein) passe rang 2 DEVANT
+        le tirzépatide en cas d'ASCVD (bénéfice CV dur prouvé de l'empagliflozine, vs non-infériorité du
+        tirzépatide) ; en obésité seule l'iSGLT2 ne se déclenche pas et le tirzépatide reste rang 2. Rangs :
+        iSGLT2 REIN→1 sinon 2 ; tirzépatide (REIN ou ASCVD)→3 sinon 2. Aucune valeur clinique modifiée.
     - date: "2026-07-23"
       auteur: "référent DT2 + Opus"
       resume: >-

@@ -56,9 +56,19 @@ describe('evaluateNode — "premiere-intention" (migré P2 v1.1 · multi-options
     expect(exclues(c)).toHaveLength(0)
   })
 
-  it('athérome/obésité SANS IC ni rein → AR GLP-1 en tête, puis tirzépatide, iSGLT2 ; pas d’association', () => {
+  it('ASCVD sans IC ni rein → AR GLP-1, puis iSGLT2 (bénéfice CV dur prouvé), puis tirzépatide', () => {
+    const c = criteria({ ASCVD_etablie: true })
+    expect(applicables(c)).toEqual([GLP1, ISGLT2, TIRZEPATIDE])
+  })
+
+  it('obésité seule (IMC ≥ 30, sans ASCVD ni IC/rein) → AR GLP-1 puis tirzépatide ; iSGLT2 absent', () => {
+    const c = criteria({ IMC: 32 })
+    expect(applicables(c)).toEqual([GLP1, TIRZEPATIDE])
+  })
+
+  it('ASCVD + obésité (sans IC/rein) → l’ASCVD fait passer iSGLT2 devant le tirzépatide', () => {
     const c = criteria({ ASCVD_etablie: true, IMC: 32 })
-    expect(applicables(c)).toEqual([GLP1, TIRZEPATIDE, ISGLT2])
+    expect(applicables(c)).toEqual([GLP1, ISGLT2, TIRZEPATIDE])
   })
 
   it('aucune comorbidité → metformine socle seule (option par défaut)', () => {
