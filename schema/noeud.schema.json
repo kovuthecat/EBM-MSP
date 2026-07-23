@@ -126,7 +126,7 @@
           "type": "array",
           "minItems": 1,
           "items": { "type": "string", "minLength": 1 },
-          "description": "Regles d'affichage : expressions booleennes sur les criteres_entree (ex. 'age < 60'), ou ['default'] pour l'option par defaut du noeud. Au moins une expression non vide (une condition vide leverait ConditionError au runtime, D13)."
+          "description": "Regles d'affichage : expressions booleennes sur les criteres_entree (ex. 'age < 60'), ou ['default'] pour l'option de repli du noeud, ou ['toujours'] pour une option systematiquement applicable (D16, ex. socle metformine en multi-options), soumise a ses `exclusions`. Au moins une expression non vide (une condition vide leverait ConditionError au runtime, D13)."
         },
         "contre_indications": {
           "type": "array",

@@ -4,17 +4,24 @@
 # (niveau 3). Ne pas modifier les valeurs cliniques hors workflow veille → algorithme (DECISIONS.md D5).
 #
 # NŒUD MULTI-OPTIONS (D10/D11) : plusieurs options peuvent être recommandées simultanément. MIGRÉ vers le
-# moteur P2 (v1.3, 2026-07-23) — encodage moteur des règles cliniques déjà écrites dans le dossier de preuve :
-#  - PRIORITÉ par critère dominant encodée en `priorite` CONDITIONNELLE (D14), et non plus par l'ordre du
-#    tableau : si IC/rein (insuffisance_cardiaque OU DFG < 60 OU albuminurie ≠ normo) → iSGLT2 rang 1,
-#    AR GLP-1 rang 2, tirzépatide rang 3. Sinon, en athérome/obésité, AR GLP-1 est toujours rang 1 ; l'iSGLT2
-#    (déclenché uniquement si ASCVD, jamais sur obésité seule) passe rang 2 DEVANT le tirzépatide en cas
-#    d'ASCVD (bénéfice CV dur prouvé, empagliflozine), tandis qu'en obésité seule le tirzépatide est rang 2
-#    (iSGLT2 absent). Insuline d'initiation = rang 0 (en tête si glucotoxicité) ; association = rang 4 (après
-#    les monothérapies) ; metformine socle = défaut (sans rang → en dernier).
+# moteur P2 (v1.4, 2026-07-23) — encodage moteur des règles cliniques déjà écrites dans le dossier de preuve :
+#  - METFORMINE = SOCLE TOUJOURS AFFICHÉ (D16, `conditions: ["toujours"]`, rang 0) : reco officielle française
+#    maintenue en 1re intention, montrée EN PARALLÈLE de tout ajout justifié par les comorbidités — jamais
+#    masquée (corrige un bug de production : encodée en `["default"]` jusqu'en v1.3, elle disparaissait dès
+#    qu'une autre option matchait, en contradiction avec le cadrage référent « proposer en base en argumentant,
+#    et proposer d'autres 1res lignes en parallèle si justifié »). Rang 0 = même rang que l'insuline (gate) ;
+#    à égalité de rang le tri est STABLE → l'insuline (déclarée avant) s'affiche avant la metformine.
+#    Badge d'affichage DISTINCT (`DecisionNodeScreen.tsx`) : la metformine porte « Recommandation officielle
+#    (France) », jamais « Recommandée » (réservé à la 1re option EBM la plus indiquée, hors socle).
+#  - PRIORITÉ par critère dominant encodée en `priorite` CONDITIONNELLE (D14) pour les options d'ajout : si
+#    IC/rein (insuffisance_cardiaque OU DFG < 60 OU albuminurie ≠ normo) → iSGLT2 rang 1, AR GLP-1 rang 2,
+#    tirzépatide rang 3. Sinon, en athérome/obésité, AR GLP-1 est toujours rang 1 ; l'iSGLT2 (déclenché
+#    uniquement si ASCVD, jamais sur obésité seule) passe rang 2 DEVANT le tirzépatide en cas d'ASCVD
+#    (bénéfice CV dur prouvé, empagliflozine), tandis qu'en obésité seule le tirzépatide est rang 2 (iSGLT2
+#    absent). Insuline d'initiation = rang 0 ; association = rang 4 (après les monothérapies).
 #  - GATE INSULINE déclenché sur l'état catabolique INDÉPENDAMMENT de l'HbA1c : (HbA1c ≥ 10 ET
 #    symptomes_glucotoxicite) OU cétonémie positive (≥ 0,6 mmol/L) — l'HbA1c décroche en cas de hausse
-#    glycémique récente. Rang 0.
+#    glycémique récente.
 #  - SÉCURITÉ encodée en `exclusions` (D13, évaluées par le moteur et traçables dans `excluded`), en plus de
 #    la prose `contre_indications` : iSGLT2 et l'association RETIRÉS si hyperglycémie catabolique
 #    (symptomes_glucotoxicite) OU cétonémie OU DFG < 20 (KDIGO — risque d'acidocétose) ; metformine socle
@@ -162,13 +169,14 @@ options:
       - "Coût et charge de traitement cumulés ; tolérance des deux classes à surveiller."
     effet_attendu: "Bénéfice additif plausible (cohortes, absence d'interaction) ; non confirmé par un ECR dédié."
     niveau_preuve: faible
-  - intitule: "Metformine seule (socle) — poursuivre"
+  - intitule: "Metformine (socle) — poursuivre"
     conditions:
-      - "default"
+      - "toujours"
+    priorite: 0
     exclusions:
       - "DFG < 30"
     avantages:
-      - "Suffit en l'absence d'indication d'un agent à bénéfice d'organe (pas de MCV établie, d'IC, de maladie rénale ni d'obésité) ; tolérance, absence d'hypoglycémie, coût, recul."
+      - "Reco officielle française maintenue en 1re intention (coût, recul, tolérance, absence d'hypoglycémie) ; suffit SEULE en l'absence d'indication d'un agent à bénéfice d'organe (pas de MCV établie, d'IC, de maladie rénale ni d'obésité)."
     inconvenients:
       - "Bénéfice propre sur critère dur de niveau de preuve faible / non concluant (ne pas afficher « bénéfice CV prouvé »)."
       - "Nœud indépendant de l'HbA1c : si la cible glycémique (nœud A) n'est pas atteinte → intensifier (nœud C) ; un AR GLP-1 / tirzépatide est plus puissant sur l'HbA1c si l'objectif est éloigné (SFD)."
@@ -313,7 +321,7 @@ incertitudes:
   - "Composite cardio-rénal élargi de SURPASS-CVOT : libellé / IC à confirmer sur le texte intégral (NEJM)."
   - "Priorité iSGLT2 vs AR GLP-1 par critère dominant : encodée via `priorite` conditionnelle (D14) — IC/rein → iSGLT2 en tête, athérome/obésité → AR GLP-1 en tête. Affichage informé par l'EBM (métas en réseau, pas d'ECR tête-à-tête), non une hiérarchie prouvée."
   - "Décompensation catabolique : le gate insuline se déclenche sur la cétonémie (positive ≥ 0,6 mmol/L, source à confirmer contre le protocole local) INDÉPENDAMMENT de l'HbA1c, et iSGLT2/association sont exclus sur cétonémie ou glucotoxicité (acidocétose). Une cétonémie ≥ 3 mmol/L relève de l'urgence (insuline + hospitalisation), hors périmètre du nœud (population_cible)."
-  - "Metformine socle : CI DFG < 30 encodée en `exclusions` (RCP ANSM) + alerte d'arrêt. Entre DFG 20 et 30, l'iSGLT2 reste proposé (initiable ≥ 20, KDIGO) donc la sortie n'est PAS vide ; elle ne l'est qu'à DFG < 20 sans athérome/obésité (iSGLT2 alors aussi exclu), le nœud ne modélisant pas d'alternative de socle (DPP4i adapté, insuline — nœud E) dans ce cas."
+  - "Metformine socle : depuis v1.4 (D16), affichée SYSTÉMATIQUEMENT (`toujours`, rang 0, badge « Recommandation officielle » distinct du badge EBM « Recommandée »), en parallèle des ajouts justifiés par les comorbidités. CI DFG < 30 encodée en `exclusions` (RCP ANSM) + alerte d'arrêt. Entre DFG 20 et 30, l'iSGLT2 reste proposé (initiable ≥ 20, KDIGO) donc la sortie n'est PAS vide ; elle ne l'est qu'à DFG < 20 sans athérome/obésité (iSGLT2 alors aussi exclu), le nœud ne modélisant pas d'alternative de socle (DPP4i adapté, insuline — nœud E) dans ce cas."
   - "Déclencheur rénal des AR GLP-1 non encodé : le sémaglutide a une néphroprotection dure (FLOW), mais l'option AR GLP-1 se déclenche sur ASCVD/obésité, pas sur la maladie rénale seule. Un patient à maladie rénale isolée (sans athérome ni obésité) et iSGLT2 contre-indiqué (DFG < 20) ne se voit donc proposer aucune option in-scope — à revoir (extension du déclencheur GLP-1 rénal, ou renvoi nœud C/E)."
 alertes:
   - quand: "HbA1c_actuelle >= 10 OR symptomes_glucotoxicite == true"
@@ -341,8 +349,20 @@ meta:
   date_revue: "2026-07-23"
   auteur: "référent DT2"
   statut: valide
-  version: "1.3"
+  version: "1.4"
   changelog:
+    - date: "2026-07-23"
+      auteur: "référent DT2 + Opus"
+      resume: >-
+        Correctif de production (v1.4, signalé par un utilisateur : la metformine n'apparaissait plus dès
+        qu'un ajout était recommandé, alors que le dossier prescrit de la maintenir en base). Cause : encodée
+        en `conditions: ["default"]`, elle disparaissait dès qu'une autre option matchait (sémantique de
+        repli du moteur, jamais destinée à un socle systématique). Corrigé via un nouveau sentinel moteur
+        `["toujours"]` (D16, option systématiquement applicable, orthogonale au repli `default`, toujours
+        soumise à ses `exclusions`) : metformine `priorite: 0`, désormais affichée EN PARALLÈLE des ajouts.
+        Affichage : nouveau badge distinct « Recommandation officielle (France) » sur le socle, le badge EBM
+        « Recommandée » restant réservé à la 1re option d'ajout la plus indiquée (arbitrage référent).
+        Aucune valeur clinique modifiée (chiffres/HR/niveaux de preuve inchangés).
     - date: "2026-07-23"
       auteur: "référent DT2 + Opus"
       resume: >-

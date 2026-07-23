@@ -11,12 +11,21 @@
  *   jamais retirée en silence (invariant « aucun score caché ») — DECISIONS.md D13 ;
  * - l'option dont `conditions` vaut exactement `["default"]` est la **repli** : applicable
  *   seulement si aucune option non-default ne l'est (une option exclue ne compte pas comme applicable) ;
+ * - l'option dont `conditions` vaut exactement `["toujours"]` (DECISIONS.md D16) est **toujours**
+ *   applicable (subie aux mêmes règles d'exclusion que les autres). **En mode `multi-options`**, elle
+ *   est orthogonale au repli `default` : un `toujours` ne « compte » pas comme un non-default
+ *   satisfait, donc ne masque pas un éventuel repli — sert un « socle » toujours affiché (ex.
+ *   metformine, nœud B) que d'autres options viennent compléter. **En mode `ordered-first-match`**,
+ *   cette orthogonalité NE S'APPLIQUE PAS : l'ordre du nœud fait foi (D11), donc un `toujours` gagne
+ *   dès qu'il est atteint dans la boucle et masquerait un `default` (ou toute option) placé après lui
+ *   — à réserver au `multi-options` tant qu'aucun contenu réel n'a besoin d'un `toujours` en OFM ;
  * - en mode `multi-options`, les options applicables sont triées par `priorite` croissante (tri
  *   stable ; absente = rang le plus faible, ordre du contenu préservé) — DECISIONS.md D13. En mode
  *   `ordered-first-match`, l'**ordre** du nœud EST la priorité (sortie unique) ; `priorite` est ignoré.
  *
- * `priorite` et `exclusions` sont optionnels : un nœud sans ces champs (A, B actuels) garde
- * exactement le comportement antérieur (P2 réalisée, DECISIONS.md D13, sans régression).
+ * `priorite`, `exclusions` et le sentinel `toujours` sont optionnels/nouveaux : un nœud qui ne les
+ * utilise pas (A actuel) garde exactement le comportement antérieur (P2 réalisée, DECISIONS.md D13,
+ * sans régression).
  */
 import type { Alerte, Noeud, Option } from '../content/node.types.ts'
 import type { Criteria } from './conditions.ts'
@@ -54,6 +63,16 @@ export interface EvaluateNodeResult {
 /** Une option de repli porte exactement `conditions: ["default"]` (brief §11, ex. "Cible ~7 %"). */
 function isDefaultOption(option: Option): boolean {
   return option.conditions.length === 1 && option.conditions[0] === 'default'
+}
+
+/**
+ * Une option « toujours » porte exactement `conditions: ["toujours"]` (D16, ex. socle metformine).
+ * Exportée : l'UI (`DecisionNodeScreen.tsx`) s'en sert pour distinguer, à l'affichage, le socle
+ * (badge « reco officielle ») de l'option EBM la plus indiquée (badge « Recommandée »), sans dupliquer
+ * le sentinel `'toujours'` côté présentation.
+ */
+export function isToujoursOption(option: Option): boolean {
+  return option.conditions.length === 1 && option.conditions[0] === 'toujours'
 }
 
 /**
@@ -158,6 +177,18 @@ export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResul
       defaults.push(option)
       continue
     }
+    if (isToujoursOption(option)) {
+      // Toujours candidate (D16), sans compter comme un non-default « réel » : ne doit pas
+      // masquer un éventuel repli `default` par ailleurs. Reste soumise à ses `exclusions`.
+      const triggeredAlways = triggeredExclusions(option, criteria)
+      if (triggeredAlways.length > 0) {
+        excluded.set(option, triggeredAlways)
+        continue
+      }
+      applicable.push(option)
+      reasons.set(option, [...option.conditions])
+      continue
+    }
     requireConditions(option)
     const satisfied = option.conditions.every((condition) => evaluateCondition(condition, criteria))
     if (!satisfied) continue
@@ -219,7 +250,8 @@ function evaluateOrderedFirstMatch(
   for (const option of node.options) {
     if (isDefaultOption(option)) continue
     requireConditions(option)
-    if (!option.conditions.every((condition) => evaluateCondition(condition, criteria))) continue
+    const satisfied = isToujoursOption(option) || option.conditions.every((condition) => evaluateCondition(condition, criteria))
+    if (!satisfied) continue
     // 1re option satisfaite : une exclusion dure la saute (on continue vers la suivante).
     const triggered = triggeredExclusions(option, criteria)
     if (triggered.length > 0) {

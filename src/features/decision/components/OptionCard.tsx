@@ -6,24 +6,34 @@ import './OptionCard.css'
 
 interface OptionCardProps {
   option: Option
-  /** 1re option applicable (ordre du nœud, `evaluateNode`) : badge « Recommandée » (T-006 étape 2). */
-  isPrimary: boolean
+  /**
+   * Badge en tête de carte (T-006 étape 2 ; D16) :
+   * - `'recommandee'` — 1re option EBM la plus indiquée (hors socle « toujours ») ;
+   * - `'reco-officielle'` — option « toujours » (ex. socle metformine) : maintenue par la reco
+   *   officielle française, à distinguer du badge EBM ci-dessus (le socle n'est pas « la » sortie
+   *   la plus indiquée par les données, juste ce que la reco officielle maintient en 1re intention) ;
+   * - `null` — carte non mise en avant.
+   */
+  badge: 'recommandee' | 'reco-officielle' | null
   /** Conditions satisfaites pour cette option (`evaluateNode(...).reasons.get(option)`). */
   reasons: string[]
 }
 
 /**
- * Carte d'option applicable (T-006 étape 2) : intitulé, badge « Recommandée » sur la 1re, badge
- * preuve, effet attendu, avantages/inconvénients, contre-indications si renseignées, et la ligne
- * « Pourquoi cette option » dérivée des conditions satisfaites par le moteur (`lib/conditionText.ts`).
+ * Carte d'option applicable (T-006 étape 2) : intitulé, badge de mise en avant, badge preuve, effet
+ * attendu, avantages/inconvénients (qui portent déjà la position critique — D12), contre-indications
+ * si renseignées, et la ligne « Pourquoi cette option » dérivée des conditions satisfaites (`lib/conditionText.ts`).
  */
-export function OptionCard({ option, isPrimary, reasons }: OptionCardProps) {
+export function OptionCard({ option, badge, reasons }: OptionCardProps) {
   return (
-    <div className={isPrimary ? 'option-card option-card--primary' : 'option-card'}>
+    <div className={badge ? 'option-card option-card--primary' : 'option-card'}>
       <div className="option-card__header">
         <div className="option-card__title">{option.intitule}</div>
         <div className="option-card__badges">
-          {isPrimary && <span className="option-card__recommended-badge">Recommandée</span>}
+          {badge === 'recommandee' && <span className="option-card__recommended-badge">Recommandée</span>}
+          {badge === 'reco-officielle' && (
+            <span className="option-card__official-badge">Recommandation officielle (France)</span>
+          )}
           <EvidenceBadge niveau={toSharedNiveauPreuve(option.niveau_preuve)} />
         </div>
       </div>

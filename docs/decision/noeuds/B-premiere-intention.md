@@ -87,6 +87,16 @@ relais de l'insuline = **nœud E** (chaînage B→E).
   clinique les justifie**, pas « contre » la metformine. CI/écart : `DFG < 30` (+ IC décompensée,
   IDM récent, intolérance digestive ~15 %).
 
+  > **Correctif d'encodage (v1.4, 2026-07-23, signalé par un utilisateur)** : la décision référent #2
+  > ci-dessus (« proposée en base... les autres 1res lignes viennent en parallèle ») avait été encodée par
+  > erreur comme un **repli** (`conditions: ["default"]`) — la metformine **disparaissait entièrement** dès
+  > qu'un ajout (ex. iSGLT2) matchait, au lieu d'être montrée EN PARALLÈLE comme prescrit. Corrigé via le
+  > nouveau sentinel moteur **`["toujours"]`** (DECISIONS.md D16) : la metformine est désormais **toujours**
+  > affichée (rang 0), avec un badge distinct **« Recommandation officielle (France) »** — le badge EBM
+  > « Recommandée » reste réservé à la 1re option d'ajout la plus indiquée (iSGLT2 ou AR GLP-1 selon le
+  > profil), qui apparaît donc en 2e position. Arbitrage référent explicite sur ce point (position +
+  > sémantique des 2 badges).
+  >
   > **Adaptation rénale (v1.3, RCP ANSM — Base de données publique des médicaments, METFORMINE, MàJ
   > 14/04/2025)** : metformine **contre-indiquée si DFG < 30** (encodée en `exclusions`) ; **dose maximale
   > 2 g/j à DFG 45–59**, **1 g/j (initiation ≤ 500 mg) à DFG 30–44**, 3 g/j à DFG 60–89 (diminution possible

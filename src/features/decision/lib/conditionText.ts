@@ -53,12 +53,17 @@ function humanizeExpression(expression: string): string {
 /**
  * `reasons` = les chaînes de `Option.conditions` satisfaites par les critères courants (identiques,
  * par référence de contenu, à ce que `evaluateNode` a évalué). Les éléments du tableau sont en ET
- * logique (`evaluateNode` : `option.conditions.every(...)`). Cas spécial `['default']` (repli,
- * `evaluateNode.ts`) : message explicite plutôt que d'afficher littéralement "default".
+ * logique (`evaluateNode` : `option.conditions.every(...)`). Cas spéciaux `['default']` (repli) et
+ * `['toujours']` (socle systématiquement applicable, D16) : message explicite plutôt que d'afficher
+ * littéralement le sentinel moteur — sinon une carte affiche « Pourquoi cette option : toujours »,
+ * un jeton interne présenté au clinicien (trouvé par vérification red-team de D16).
  */
 export function describeReasons(reasons: string[]): string {
   if (reasons.length === 1 && reasons[0] === 'default') {
     return "Option par défaut : retenue en l'absence de toute autre option plus spécifique applicable."
+  }
+  if (reasons.length === 1 && reasons[0] === 'toujours') {
+    return 'Socle maintenu par la recommandation officielle, quelles que soient les comorbidités.'
   }
   return reasons.map((reason) => humanizeExpression(reason)).join(' et ')
 }

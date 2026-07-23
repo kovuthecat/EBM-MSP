@@ -7,6 +7,7 @@ import { getNoeudById } from '../content/loadNodes'
 import type { Criteria, CriteriaValue } from '../engine/conditions'
 import { evaluateNode } from '../engine/evaluateNode'
 import { ESPERANCE_VIE_DRIVERS, hasEsperanceVieCritere, suggestEsperanceVie } from '../lib/esperanceVieDefault'
+import { computeBadges } from '../lib/optionBadges'
 import { formatDateRevue, labelForCritere, labelForDomaine } from '../lib/labels'
 import './DecisionNodeScreen.css'
 
@@ -120,16 +121,19 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
               options applicables.
             </p>
           ) : result && result.applicable.length > 0 ? (
-            result.applicable.map((option, index) => (
-              <OptionCard
-                // `intitule` n'est pas garanti unique (cf. commentaire `EvaluateNodeResult` dans
-                // `engine/evaluateNode.ts`) : on compose avec l'index pour une clé React sûre.
-                key={`${index}-${option.intitule}`}
-                option={option}
-                isPrimary={index === 0}
-                reasons={result.reasons.get(option) ?? []}
-              />
-            ))
+            (() => {
+              const badges = computeBadges(result.applicable)
+              return result.applicable.map((option, index) => (
+                <OptionCard
+                  // `intitule` n'est pas garanti unique (cf. commentaire `EvaluateNodeResult` dans
+                  // `engine/evaluateNode.ts`) : on compose avec l'index pour une clé React sûre.
+                  key={`${index}-${option.intitule}`}
+                  option={option}
+                  badge={badges.get(option) ?? null}
+                  reasons={result.reasons.get(option) ?? []}
+                />
+              ))
+            })()
           ) : (
             <p className="decision-node__empty">Aucune option ne correspond à ces critères.</p>
           )}

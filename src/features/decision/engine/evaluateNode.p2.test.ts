@@ -355,6 +355,63 @@ describe('evaluateNode — rang conditionnel : garde-fous « aucun score caché 
   })
 })
 
+describe('evaluateNode — option « toujours » (D16, socle systématiquement affiché)', () => {
+  it('une option `["toujours"]` reste applicable même quand une option non-default matche aussi', () => {
+    const socle = opt('Socle', ['toujours'])
+    const ajout = opt('Ajout', ['a == true'])
+    const node = makeNode([socle, ajout])
+    expect(noms(evaluateNode(node, { a: true }).applicable)).toEqual(expect.arrayContaining(['Socle', 'Ajout']))
+    // et aussi quand rien d'autre ne matche.
+    expect(noms(evaluateNode(node, { a: false }).applicable)).toEqual(['Socle'])
+  })
+
+  it('« toujours » ne masque pas un repli `default` par ailleurs (orthogonal, D16)', () => {
+    const socle = opt('Socle', ['toujours'])
+    const ajout = opt('Ajout', ['a == true'])
+    const defaut = opt('Défaut', ['default'])
+    const node = makeNode([socle, ajout, defaut])
+    // a=false : Ajout ne matche pas -> le repli s'active EN PLUS du socle toujours présent.
+    expect(noms(evaluateNode(node, { a: false }).applicable)).toEqual(['Socle', 'Défaut'])
+    // a=true : Ajout matche -> pas de repli, mais le socle reste.
+    expect(noms(evaluateNode(node, { a: true }).applicable)).toEqual(['Socle', 'Ajout'])
+  })
+
+  it('une option « toujours » reste soumise à ses `exclusions` (tracée, jamais en silence)', () => {
+    const socle = opt('Socle', ['toujours'], { exclusions: ['danger == true'] })
+    const node = makeNode([socle, opt('Défaut', ['default'])])
+    const res = evaluateNode(node, { danger: true })
+    expect(noms(res.applicable)).toEqual(['Défaut'])
+    expect(res.excluded.has(socle)).toBe(true)
+  })
+
+  it('« toujours » participe au tri par priorite comme toute autre option', () => {
+    const socle = opt('Socle', ['toujours'], { priorite: 0 })
+    const ajout = opt('Ajout', ['a == true'], { priorite: 1 })
+    const node = makeNode([ajout, socle])
+    expect(noms(evaluateNode(node, { a: true }).applicable)).toEqual(['Socle', 'Ajout'])
+  })
+
+  it('en ordered-first-match, « toujours » est traitée comme systématiquement satisfaite', () => {
+    const premiere = opt('Première', ['a == true'])
+    const socle = opt('Socle', ['toujours'])
+    const node = makeNode([premiere, socle], 'ordered-first-match')
+    // a=false : la 1re option ne matche pas -> "Socle" (toujours vraie) l'emporte.
+    expect(noms(evaluateNode(node, { a: false }).applicable)).toEqual(['Socle'])
+    // a=true : la 1re option (dans l'ordre du nœud) l'emporte toujours en premier.
+    expect(noms(evaluateNode(node, { a: true }).applicable)).toEqual(['Première'])
+  })
+
+  it("en ordered-first-match, « toujours » N'EST PAS orthogonale au repli `default` (contrairement au multi-options) : un « toujours » placée avant masque le repli", () => {
+    // Comportement documenté (pas un bug) : en OFM l'ordre du nœud fait foi (D11), donc un `toujours`
+    // atteint avant le repli le masque — l'orthogonalité `toujours`/`default` n'est garantie qu'en
+    // `multi-options` (cf. docstring `evaluateNode`, précision apportée après vérification red-team D16).
+    const socle = opt('Socle', ['toujours'])
+    const def = opt('Défaut', ['default'])
+    const node = makeNode([socle, def], 'ordered-first-match')
+    expect(noms(evaluateNode(node, {}).applicable)).toEqual(['Socle'])
+  })
+})
+
 describe('evaluateNode — alertes cliniques conditionnelles (D15)', () => {
   it('déclenche une alerte quand son `quand` est vrai, pas sinon', () => {
     const node = makeNode([opt('A', ['a == true']), opt('Défaut', ['default'])])

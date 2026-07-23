@@ -42,7 +42,11 @@ export interface Option {
   /** Effet absolu / NNT / NNH, sinon la chaîne `"non chiffrable"`. */
   effet_attendu: string
   niveau_preuve: NiveauPreuve
-  /** Règles d'affichage : expressions booléennes sur les `criteres_entree`, ou `['default']`. */
+  /**
+   * Règles d'affichage : expressions booléennes sur les `criteres_entree`, ou `['default']` (repli,
+   * seulement si aucune autre option ne s'applique), ou `['toujours']` (systématiquement applicable,
+   * ex. socle metformine — D16), soumise à ses `exclusions`.
+   */
   conditions: string[]
   /** Optionnel : omis dans le gabarit §11 pour les options sans contre-indication propre. Prose
    * d'affichage destinée au lecteur — distincte de `exclusions`, qui est évaluée par le moteur (D13). */
