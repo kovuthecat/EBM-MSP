@@ -75,9 +75,44 @@ function triggeredExclusions(option: Option, criteria: Criteria): string[] {
   return option.exclusions.filter((expr) => evaluateCondition(expr, criteria))
 }
 
-/** Tri stable par `priorite` croissante ; une option sans `priorite` passe après (rang le plus faible). */
-function byPriorite(a: Option, b: Option): number {
-  return (a.priorite ?? Number.POSITIVE_INFINITY) - (b.priorite ?? Number.POSITIVE_INFINITY)
+/**
+ * Rang effectif d'une option pour ces critères. `priorite` peut être :
+ * - **absente** → rang le plus faible (`+Infinity`, placée en dernier) ;
+ * - un **entier** → rang FIXE (D13) ;
+ * - une **liste de règles** `{ quand, rang }` → rang CONDITIONNEL (D14) : la 1re règle dont `quand`
+ *   est vrai (ou vaut exactement `"default"`) donne le rang ; si aucune ne matche → `+Infinity`.
+ * Propage `ConditionError` si un `quand` est malformé (jamais de faux silencieux, brief §7).
+ */
+function resolvePriorite(option: Option, criteria: Criteria): number {
+  const p = option.priorite
+  if (p === undefined) return Number.POSITIVE_INFINITY
+  if (typeof p === 'number') {
+    if (!Number.isFinite(p)) {
+      throw new ConditionError(`Option "${option.intitule}" : priorité numérique invalide (${String(p)}).`)
+    }
+    return p
+  }
+  // Contenu non validé par Ajv au runtime (D9) : garder les mêmes garde-fous « loud » qu'ailleurs
+  // dans le moteur — une forme malformée lève `ConditionError` (nommant l'option), jamais un tri muet.
+  if (!Array.isArray(p)) {
+    throw new ConditionError(
+      `Option "${option.intitule}" : priorité invalide (attendu un entier ou une liste de règles { quand, rang }).`,
+    )
+  }
+  for (const regle of p) {
+    if (typeof regle?.quand !== 'string') {
+      throw new ConditionError(`Option "${option.intitule}" : règle de priorité sans "quand" (chaîne attendue).`)
+    }
+    if (regle.quand === 'default' || evaluateCondition(regle.quand, criteria)) {
+      if (!Number.isFinite(regle.rang)) {
+        throw new ConditionError(
+          `Option "${option.intitule}" : règle de priorité (${regle.quand}) sans "rang" fini (${String(regle.rang)}).`,
+        )
+      }
+      return regle.rang
+    }
+  }
+  return Number.POSITIVE_INFINITY
 }
 
 /**
@@ -131,8 +166,20 @@ export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResul
     }
   }
 
-  // Tri stable par priorité (rang fixe) ; sans `priorite`, l'ordre du contenu est préservé.
-  applicable.sort(byPriorite)
+  // Tri stable par priorité (fixe D13 ou conditionnelle D14). Rangs pré-calculés une seule fois :
+  // évite de ré-évaluer les conditions à chaque comparaison et fait remonter proprement une
+  // ConditionError (plutôt qu'en plein tri) ; sans `priorite`, l'ordre du contenu est préservé.
+  const rangs = new Map<Option, number>()
+  for (const option of applicable) rangs.set(option, resolvePriorite(option, criteria))
+  applicable.sort((a, b) => {
+    // `resolvePriorite` garantit un nombre fini ou `+Infinity` (jamais `undefined`/`NaN`) : comparaison
+    // explicite plutôt qu'une soustraction (qui donnerait `NaN` pour deux `+Infinity`) ; rangs égaux
+    // → 0, l'ordre du contenu est préservé (tri stable).
+    const ra = rangs.get(a) as number
+    const rb = rangs.get(b) as number
+    if (ra === rb) return 0
+    return ra < rb ? -1 : 1
+  })
 
   return { applicable, reasons, excluded }
 }

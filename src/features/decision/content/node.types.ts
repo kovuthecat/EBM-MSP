@@ -25,6 +25,16 @@ export interface CritereEntree {
   valeurs?: string[]
 }
 
+/**
+ * Règle de rang conditionnel (DECISIONS.md D14) : si `quand` (condition DSL, ou `"default"` pour le
+ * repli) est vraie pour le patient, l'option prend ce `rang`. Utilisée dans `Option.priorite` sous
+ * forme de liste évaluée en première-correspondance.
+ */
+export interface PrioriteConditionnelle {
+  quand: string
+  rang: number
+}
+
 export interface Option {
   intitule: string
   avantages: string[]
@@ -38,11 +48,12 @@ export interface Option {
    * d'affichage destinée au lecteur — distincte de `exclusions`, qui est évaluée par le moteur (D13). */
   contre_indications?: string[]
   /**
-   * Rang de priorité (entier) en mode `multi-options` : les options applicables sont triées par
-   * `priorite` croissante (tri stable ; absente = rang le plus faible). Rang FIXE — la priorité
-   * conditionnelle reste hors moteur (DECISIONS.md D13).
+   * Rang de priorité en mode `multi-options` : les options applicables sont triées par rang
+   * croissant (tri stable ; absente = rang le plus faible). Soit un **entier** (rang FIXE, D13),
+   * soit une **liste de règles** `{ quand, rang }` (rang CONDITIONNEL, D14 : 1re règle dont `quand`
+   * — condition DSL ou `"default"` — est vraie l'emporte). Ignoré en `ordered-first-match`.
    */
-  priorite?: number
+  priorite?: number | PrioriteConditionnelle[]
   /**
    * Exclusions dures : expressions DSL (même grammaire que `conditions`). Une option par ailleurs
    * applicable est RETIRÉE si l'une d'elles est vraie, et reportée dans `EvaluateNodeResult.excluded`

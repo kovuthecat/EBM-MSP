@@ -7,7 +7,7 @@
  * nœuds A/B réels restent couverts par `evaluateNode.test.ts` et `content.test.ts`.
  */
 import { describe, expect, it } from 'vitest'
-import type { Noeud, Option } from '../content/node.types.ts'
+import type { Noeud, Option, PrioriteConditionnelle } from '../content/node.types.ts'
 import type { Criteria } from './conditions.ts'
 import { ConditionError } from './conditions.ts'
 import { evaluateNode } from './evaluateNode.ts'
@@ -236,5 +236,121 @@ describe('evaluateNode — garde-fous « aucun score caché » (red-team P2, D13
     // L'option est applicable (flag=true) → l'exclusion est évaluée → l'expression vide doit lever,
     // plutôt que d'être silencieusement ignorée (ce qui laisserait passer une contre-indication).
     expect(() => evaluateNode(node, { flag: true })).toThrow(ConditionError)
+  })
+})
+
+describe('evaluateNode — multi-options : priorite conditionnelle (D14)', () => {
+  // Patron du nœud B : iSGLT2 prioritaire si indication IC/rénale ; sinon AR GLP-1 prioritaire
+  // (athérome/obésité). Chaque option porte ses propres règles de rang référençant la comorbidité.
+  const REIN = 'insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo'
+  function noeudBLike(): ReturnType<typeof makeNode> {
+    const isglt2 = opt(
+      'iSGLT2',
+      ['insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo OR ASCVD_etablie == true'],
+      { priorite: [{ quand: REIN, rang: 1 }, { quand: 'default', rang: 2 }] },
+    )
+    const glp1 = opt('AR GLP-1', ['ASCVD_etablie == true OR IMC >= 30'], {
+      priorite: [{ quand: REIN, rang: 2 }, { quand: 'default', rang: 1 }],
+    })
+    const metformine = opt('Metformine', ['default'])
+    return makeNode([isglt2, glp1, metformine])
+  }
+
+  it('indication IC/rénale présente → iSGLT2 passe avant AR GLP-1', () => {
+    const res = evaluateNode(noeudBLike(), {
+      insuffisance_cardiaque: true,
+      DFG: 80,
+      albuminurie: 'normo',
+      ASCVD_etablie: true,
+      IMC: 32,
+    })
+    expect(noms(res.applicable)).toEqual(['iSGLT2', 'AR GLP-1'])
+  })
+
+  it('athérome/obésité SANS IC/rénal → AR GLP-1 passe avant iSGLT2', () => {
+    const res = evaluateNode(noeudBLike(), {
+      insuffisance_cardiaque: false,
+      DFG: 90,
+      albuminurie: 'normo',
+      ASCVD_etablie: true,
+      IMC: 32,
+    })
+    expect(noms(res.applicable)).toEqual(['AR GLP-1', 'iSGLT2'])
+  })
+
+  it('la règle "default" sert de repli quand aucune condition ne matche', () => {
+    const x = opt('X', ['a == true'], { priorite: [{ quand: 'b == true', rang: 1 }, { quand: 'default', rang: 5 }] })
+    const y = opt('Y', ['a == true'], { priorite: 3 })
+    const node = makeNode([x, y])
+    // b=false → X prend le rang "default" 5 ; Y rang 3 → Y avant X
+    expect(noms(evaluateNode(node, { a: true, b: false }).applicable)).toEqual(['Y', 'X'])
+    // b=true → X prend rang 1 → X avant Y
+    expect(noms(evaluateNode(node, { a: true, b: true }).applicable)).toEqual(['X', 'Y'])
+  })
+
+  it('aucune règle ne matche et pas de "default" → rang le plus faible (option en dernier)', () => {
+    const sansMatch = opt('sans-match', ['a == true'], { priorite: [{ quand: 'b == true', rang: 1 }] })
+    const fixe = opt('fixe-2', ['a == true'], { priorite: 2 })
+    const node = makeNode([sansMatch, fixe])
+    expect(noms(evaluateNode(node, { a: true, b: false }).applicable)).toEqual(['fixe-2', 'sans-match'])
+  })
+
+  it('rangs conditionnel et fixe se mélangent correctement dans le tri', () => {
+    const cond = opt('cond-1', ['a == true'], { priorite: [{ quand: 'a == true', rang: 1 }] })
+    const fixe = opt('fixe-2', ['a == true'], { priorite: 2 })
+    const sans = opt('sans-rang', ['a == true'])
+    const node = makeNode([fixe, sans, cond])
+    expect(noms(evaluateNode(node, { a: true }).applicable)).toEqual(['cond-1', 'fixe-2', 'sans-rang'])
+  })
+
+  it('un `quand` malformé (variable inconnue) propage ConditionError, jamais un faux silencieux', () => {
+    const bad = opt('bad', ['a == true'], { priorite: [{ quand: 'variable_absente == true', rang: 1 }] })
+    const def = opt('def', ['default'])
+    const node = makeNode([bad, def])
+    expect(() => evaluateNode(node, { a: true })).toThrow(ConditionError)
+    expect(() => evaluateNode(node, { a: true })).toThrow(/variable_absente/)
+  })
+})
+
+describe('evaluateNode — rang conditionnel : garde-fous « aucun score caché » (red-team D14)', () => {
+  // Contenu non validé par Ajv au runtime (D9) : le moteur doit lever, jamais trier en silence.
+  it('règle qui matche mais SANS `rang` → ConditionError nommant l’option (pas de démotion muette)', () => {
+    const x = opt('X', ['a == true'], {
+      priorite: [{ quand: 'a == true' }] as unknown as PrioriteConditionnelle[],
+    })
+    const y = opt('Y', ['a == true'], { priorite: 5 })
+    const node = makeNode([x, y])
+    expect(() => evaluateNode(node, { a: true })).toThrow(ConditionError)
+    expect(() => evaluateNode(node, { a: true })).toThrow(/X/)
+  })
+
+  it('règle SANS `quand` → ConditionError (pas un TypeError brut)', () => {
+    const x = opt('X', ['a == true'], {
+      priorite: [{ rang: 5 }] as unknown as PrioriteConditionnelle[],
+    })
+    const def = opt('def', ['default'])
+    const node = makeNode([x, def])
+    expect(() => evaluateNode(node, { a: true })).toThrow(ConditionError)
+  })
+
+  it('`rang: NaN` sur une règle qui matche → ConditionError (comparateur jamais nourri de NaN)', () => {
+    const x = opt('X', ['a == true'], { priorite: [{ quand: 'default', rang: NaN }] })
+    const y = opt('Y', ['a == true'], { priorite: 1 })
+    const node = makeNode([x, y])
+    expect(() => evaluateNode(node, { a: true })).toThrow(ConditionError)
+  })
+
+  it('`priorite` d’une forme inattendue (ni entier ni tableau) → ConditionError', () => {
+    const x = opt('X', ['a == true'], { priorite: 'default' as unknown as number })
+    const def = opt('def', ['default'])
+    const node = makeNode([x, def])
+    expect(() => evaluateNode(node, { a: true })).toThrow(ConditionError)
+  })
+
+  it('`priorite` numérique non fini → ConditionError', () => {
+    const x = opt('X', ['a == true'], { priorite: Number.POSITIVE_INFINITY })
+    const y = opt('Y', ['a == true'], { priorite: 1 })
+    const node = makeNode([x, y])
+    expect(() => evaluateNode(node, { a: true })).toThrow(ConditionError)
   })
 })

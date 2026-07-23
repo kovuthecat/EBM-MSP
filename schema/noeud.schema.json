@@ -115,8 +115,23 @@
           "description": "Prose destinee au lecteur (affichage). Distincte de `exclusions`, evaluee par le moteur (DECISIONS.md D13)."
         },
         "priorite": {
-          "type": "integer",
-          "description": "Rang de priorite en mode multi-options : options applicables triees par priorite croissante (tri stable ; absente = rang le plus faible). Rang FIXE (DECISIONS.md D13). Ignore en ordered-first-match."
+          "description": "Rang en mode multi-options : options triees par rang croissant (tri stable ; absente = rang faible). Entier = rang FIXE (D13) ; liste de regles {quand, rang} = rang CONDITIONNEL (D14, 1re regle dont `quand` — condition DSL ou 'default' — est vraie ; placer 'default' EN DERNIER, sinon les regles suivantes sont mortes). Ignore en ordered-first-match.",
+          "oneOf": [
+            { "type": "integer" },
+            {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["quand", "rang"],
+                "properties": {
+                  "quand": { "type": "string", "minLength": 1, "description": "Condition DSL, ou 'default' pour le repli." },
+                  "rang": { "type": "integer" }
+                }
+              }
+            }
+          ]
         },
         "exclusions": {
           "type": "array",

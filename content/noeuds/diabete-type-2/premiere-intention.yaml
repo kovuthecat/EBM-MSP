@@ -10,7 +10,8 @@
 # réalisation P2 du moteur (DECISIONS.md D13), mais le nœud B n'y est PAS ENCORE MIGRÉ (sa validation clinique
 # resterait à refaire). Il conserve donc : (1) la priorité PAR ORDRE des options — la préférence par critère
 # dominant (IC/rein → iSGLT2 ; athérome/obésité → AR GLP-1) reste portée par les `avantages`/l'argumentaire,
-# pas par un rang (un `priorite` CONDITIONNEL reste hors moteur, D13) ; (2) son garde-fou de sécurité encodé
+# pas par un rang (le `priorite` CONDITIONNEL existe désormais dans le moteur — D14 — mais l'appliquer ici
+# rouvrirait la validation clinique : migration à décider) ; (2) son garde-fou de sécurité encodé
 # EN `conditions` (`symptomes_glucotoxicite == false` sur iSGLT2 et l'association) pour SUPPRIMER ces options
 # en hyperglycémie catabolique (risque d'acidocétose sous iSGLT2) — équivalent d'une exclusion dure, non
 # encore reporté vers le champ `exclusions`.
