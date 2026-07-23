@@ -46,6 +46,18 @@ actées, `meta.statut: valide`. Reste la **relecture visuelle** sur l'écran D3 
   (1 nœud/thème), à revisiter si plusieurs nœuds par thème (P3+).
 - [ ] Responsive mobile.
 
+## Critères du patient — ergonomie D3 (T-009, 2026-07-23)
+
+- [ ] Grille 2 colonnes pour Âge / Ancienneté / Espérance de vie / Risque hypoglycémique : pas de champ
+  seul décalé sur sa ligne, y compris en mobile (1 colonne < 480px).
+- [ ] Cases à cocher (Fragilité, Antécédent cardiovasculaire, Comorbidité grave) regroupées à part sous
+  un séparateur, libellés accentués correctement.
+- [ ] Champs Âge/Ancienneté vides (placeholder `—`) au chargement ; aucune option affichée tant qu'ils
+  ne sont pas saisis (message d'invite à la place).
+- [ ] Espérance de vie : suggestion auto visible (texte italique sous le champ) tant que non choisie à
+  la main ; se met à jour quand âge/fragilité/comorbidité grave/antécédent CV changent ; le texte
+  d'aide disparaît et la valeur reste figée dès que l'utilisateur sélectionne une valeur manuellement.
+
 ## Décision D3 (S4 · T-006)
 
 - [ ] Le filtrage réagit aux critères conformément au **contenu validé v2.0** (bandes HAS, sortie unique).

@@ -2,7 +2,7 @@
 
 Photo à l'instant T. Mis à jour en fin de session.
 
-> **Dernière mise à jour :** 2026-07-22
+> **Dernière mise à jour :** 2026-07-23
 
 ## Phase actuelle
 
@@ -10,6 +10,14 @@ Photo à l'instant T. Mis à jour en fin de session.
 à la fois), 8 commits atomiques tâche par tâche. Squelette logiciel du module Décision fonctionnel :
 scaffold, tokens, shell, Accueil/Méthode, JSON Schema + import YAML + validation Ajv, moteur de règles
 générique + tests, écrans D2/D3 câblés sur la maquette et le moteur.
+
+**T-009 — Ergonomie du formulaire de critères (D3, 2026-07-23)** : grille de champs fixée en 2 colonnes
+(plus de champ isolé/orphelin), cases à cocher regroupées à part visuellement, champs numériques vides
+par défaut (plus de `0` trompeur pris pour une vraie saisie) avec message d'invite tant qu'ils ne sont
+pas renseignés, libellés `antecedent_cv`/`comorbidite_grave` accentués. Ajout d'une **suggestion auto
+non sourcée** (modifiable, désactivée dès choix manuel) d'`esperance_vie` d'après âge/fragilité/
+comorbidité grave/antécédent CV (`lib/esperanceVieDefault.ts`) — signalé comme heuristique UI, pas un
+fait clinique sourcé (CLAUDE.md invariant 6). Build + **34/34 tests verts**.
 
 **Nœud A ré-encodé et validé (T-007bis, 2026-07-22)** : `content/noeuds/diabete-type-2/cible-glycemique.yaml`
 a été ré-écrit depuis le dossier de preuve, après phase exploratoire (HAS 2024 / Prescrire / Médicalement

@@ -6,7 +6,8 @@ import { OptionCard } from '../components/OptionCard'
 import { getNoeudById } from '../content/loadNodes'
 import type { Criteria, CriteriaValue } from '../engine/conditions'
 import { evaluateNode } from '../engine/evaluateNode'
-import { formatDateRevue, labelForDomaine } from '../lib/labels'
+import { ESPERANCE_VIE_DRIVERS, hasEsperanceVieCritere, suggestEsperanceVie } from '../lib/esperanceVieDefault'
+import { formatDateRevue, labelForCritere, labelForDomaine } from '../lib/labels'
 import './DecisionNodeScreen.css'
 
 interface DecisionNodeScreenProps {
@@ -29,12 +30,22 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   const [criteria, setCriteria] = useState<Criteria>(() =>
     node ? buildDefaultCriteria(node.criteres_entree) : {},
   )
+  // Critères déjà modifiés par l'utilisateur (T-009) : distingue une valeur par défaut (0, non
+  // fiable cliniquement) d'une valeur réellement saisie, pour ne pas afficher un résultat basé sur
+  // un âge/ancienneté resté à 0 sans que le praticien s'en rende compte.
+  const [touched, setTouched] = useState<Set<string>>(() => new Set())
   const [argOpen, setArgOpen] = useState(false)
 
+  const champsNumeriquesRequis = node
+    ? node.criteres_entree.filter((critere) => critere.type === 'nombre').map((critere) => critere.nom)
+    : []
+  const champsNumeriquesManquants = champsNumeriquesRequis.filter((nom) => !touched.has(nom))
+  const criteresPretsAEvaluer = champsNumeriquesManquants.length === 0
+
   const result = useMemo(() => {
-    if (!node) return undefined
+    if (!node || !criteresPretsAEvaluer) return undefined
     return evaluateNode(node, criteria)
-  }, [node, criteria])
+  }, [node, criteria, criteresPretsAEvaluer])
 
   if (!node) {
     return (
@@ -48,7 +59,19 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   }
 
   const handleCriteriaChange = (nom: string, value: CriteriaValue) => {
-    setCriteria((previous) => ({ ...previous, [nom]: value }))
+    setTouched((previous) => new Set(previous).add(nom))
+    setCriteria((previous) => {
+      const next = { ...previous, [nom]: value }
+      // Suggestion auto d'`esperance_vie` (non sourcée, cf. lib/esperanceVieDefault.ts) : ne
+      // s'applique que tant que le praticien n'a pas choisi cette valeur lui-même, et se recalcule
+      // seulement quand un critère dont elle dépend change (pas à chaque frappe non liée).
+      const espChoisieAMain = touched.has('esperance_vie') || nom === 'esperance_vie'
+      const dependClicheEsp = (ESPERANCE_VIE_DRIVERS as readonly string[]).includes(nom)
+      if (!espChoisieAMain && dependClicheEsp && node && hasEsperanceVieCritere(node.criteres_entree)) {
+        next.esperance_vie = suggestEsperanceVie(next)
+      }
+      return next
+    })
   }
 
   // Aucun nœud « à venir » n'existe réellement en contenu (P1 ne livre que cible-glycemique) : la
@@ -81,11 +104,22 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
           <CriteriaForm
             criteresEntree={node.criteres_entree}
             criteria={criteria}
+            touched={touched}
+            hints={
+              hasEsperanceVieCritere(node.criteres_entree) && !touched.has('esperance_vie')
+                ? { esperance_vie: 'Suggestion auto (âge, fragilité, comorbidité grave, antécédent CV) — à valider' }
+                : undefined
+            }
             onChange={handleCriteriaChange}
           />
 
           <div className="decision-node__section-title">Options applicables</div>
-          {result && result.applicable.length > 0 ? (
+          {!criteresPretsAEvaluer ? (
+            <p className="decision-node__empty">
+              Renseignez {champsNumeriquesManquants.map(labelForCritere).join(', ')} pour afficher les
+              options applicables.
+            </p>
+          ) : result && result.applicable.length > 0 ? (
             result.applicable.map((option, index) => (
               <OptionCard
                 // `intitule` n'est pas garanti unique (cf. commentaire `EvaluateNodeResult` dans

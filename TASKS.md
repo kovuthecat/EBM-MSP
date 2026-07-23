@@ -21,6 +21,14 @@ statut : ` ` à faire · `~` en cours · `x` fait · modèles/efforts : `WORKFLO
   décisions référent actées, sémantique moteur **`ordered-first-match` (sortie unique)** ajoutée au
   schéma + `evaluateNode`. `content/…/cible-glycemique.yaml` **v2.0 `meta.statut: valide`** · build +
   **27/27 tests verts** *(fait 2026-07-22 · Opus)*.
+- [x] **T-009 — Ergonomie du formulaire de critères (D3)** : grille fixe 2 colonnes (plus de champ
+  orphelin), cases à cocher regroupées visuellement à part, champs numériques vides (placeholder
+  `—`) au lieu d'un `0` trompeur pris pour une valeur saisie, message d'invite tant que les champs
+  numériques requis ne sont pas renseignés (plus de recommandation calculée sur des `0` par défaut),
+  libellés `antecedent_cv`/`comorbidite_grave` accentués. Ajout d'une **suggestion auto (non sourcée,
+  modifiable) d'`esperance_vie`** dérivée de l'âge/fragilité/comorbidité grave/antécédent CV
+  (`lib/esperanceVieDefault.ts`), désactivée dès que le champ est choisi manuellement · build +
+  **34/34 tests verts** *(fait 2026-07-23 · Sonnet)*.
 
 ## Backlog (Phase 1 — MVP module Décision) — cadré dans `plans/P1/`
 

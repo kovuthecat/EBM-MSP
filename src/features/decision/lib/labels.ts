@@ -64,6 +64,8 @@ const CRITERE_LABELS: Record<string, string> = {
   preference_injection: "Préférence vis-à-vis de l'injectable",
   contrainte_cout: 'Contrainte de coût',
   traitements_en_cours: 'Traitements en cours',
+  antecedent_cv: 'Antécédent cardiovasculaire',
+  comorbidite_grave: 'Comorbidité grave',
 }
 
 /** Libellé d'un critère (`criteres_entree[].nom`) ; repli générique si critère non catalogué (nœud futur). */

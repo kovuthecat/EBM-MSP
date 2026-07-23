@@ -17,8 +17,16 @@
 
 .criteria-form__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  /* Colonnes fixes (pas auto-fit) : un nombre de champs impair ne laisse jamais un champ seul,
+     décalé, sur sa ligne (cf. Risque hypoglycémique du schéma avant ce correctif). */
+  grid-template-columns: repeat(2, 1fr);
   gap: 16px;
+}
+
+@media (max-width: 480px) {
+  .criteria-form__grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .criteria-form__field-label {
@@ -38,21 +46,39 @@
   color: var(--c-text);
 }
 
+.criteria-form__hint {
+  font-size: 11px;
+  font-style: italic;
+  color: var(--c-text-faible);
+  margin-top: 6px;
+}
+
+.criteria-form__checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--c-border);
+}
+
 .criteria-form__checkbox-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding-top: 24px;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
   cursor: pointer;
 }
 
 .criteria-form__checkbox-row input {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
 }
 
 .criteria-form__checkbox-label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   color: var(--c-text);
 }
