@@ -8,9 +8,12 @@ export function DisclaimerBar() {
         i
       </span>
       <p className="disclaimer-bar__text">
-        Outil d'aide à la décision fondé exclusivement sur les données de la science (EBM). Le
-        praticien, par son jugement clinique, reste le lien avec le patient et sa situation
-        individuelle — et le seul responsable de la décision médicale.
+        <strong className="disclaimer-bar__lead">
+          Outil d'aide à la décision fondé exclusivement sur les données de la science (EBM).
+        </strong>
+        <br />
+        Le praticien, par son jugement clinique, reste <strong>le lien avec le patient</strong> et sa
+        situation individuelle — et <strong>le seul responsable</strong> de la décision médicale.
       </p>
     </div>
   )

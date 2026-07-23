@@ -38,6 +38,10 @@ statut : ` ` à faire · `~` en cours · `x` fait · modèles/efforts : `WORKFLO
   ajoutée, CLAUDE.md invariant 8) — 2 bugs de rendu trouvés et corrigés en validation (boucle infinie
   sur les titres, puces multi-lignes mal rattachées) · build + **37/37 tests verts**
   *(fait 2026-07-23 · Sonnet)*.
+- [x] **T-010bis — Lisibilité du disclaimer + hors périmètre Veille** : disclaimer (bandeau + accueil)
+  reformaté en 2 phrases (1re en gras sur sa propre ligne, expressions clés en gras dans la 2e).
+  Bandeau disclaimer masqué sur les écrans Veille (`isVeilleScreen`, `navigation.ts`) — ne concernait
+  que le module Décision · build + **37/37 tests verts** *(fait 2026-07-23 · Sonnet)*.
 
 ## Backlog (Phase 1 — MVP module Décision) — cadré dans `plans/P1/`
 

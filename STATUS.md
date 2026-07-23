@@ -31,6 +31,13 @@ visuelle : boucle infinie sur la branche titre (oubli d'incrémenter l'index —
 l'ouverture) et puces multi-lignes source mal rattachées (laissait fuir des `**`/`*` littéraux dans le
 texte). Régression couverte par `MiniMarkdown.test.tsx`. Build + **37/37 tests verts**.
 
+**T-010bis — Lisibilité du disclaimer + périmètre (2026-07-23)** : le disclaimer (bandeau + accueil)
+passe en deux phrases distinctes (première en gras, sur sa propre ligne) avec « le lien avec le
+patient » et « le seul responsable » mis en avant — plus scannable qu'un bloc de texte compact.
+Le bandeau disclaimer (propre au module Décision) **ne s'affiche plus sur les écrans Veille**
+(`isVeilleScreen`, `navigation.ts`), qu'il ne concernait pas ; header conservé partout. Build +
+**37/37 tests verts**.
+
 **Nœud A ré-encodé et validé (T-007bis, 2026-07-22)** : `content/noeuds/diabete-type-2/cible-glycemique.yaml`
 a été ré-écrit depuis le dossier de preuve, après phase exploratoire (HAS 2024 / Prescrire / Médicalement
 Geek / OpenEvidence) et **double vérification indépendante (2ᵉ passe)**, avec les corrections actées par le

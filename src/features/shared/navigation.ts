@@ -47,3 +47,11 @@ export function useNavigation(initial: Screen = 'home'): Navigation {
 export function isChromeless(screen: Screen): boolean {
   return screen === 'home' || screen === 'auth'
 }
+
+/**
+ * Écrans du module Veille : le bandeau disclaimer (« Outil d'aide à la décision... ») ne les
+ * concerne pas, ce module n'étant pas un outil de décision (directive de Thibault, 2026-07-23).
+ */
+export function isVeilleScreen(screen: Screen): boolean {
+  return screen === 'veilleList' || screen === 'veilleDetail'
+}

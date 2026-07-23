@@ -58,10 +58,14 @@ actées, `meta.statut: valide`. Reste la **relecture visuelle** sur l'écran D3 
   la main ; se met à jour quand âge/fragilité/comorbidité grave/antécédent CV changent ; le texte
   d'aide disparaît et la valeur reste figée dès que l'utilisateur sélectionne une valeur manuellement.
 
-## Disclaimer, Méthode, argumentaire exhaustif (T-010, 2026-07-23)
+## Disclaimer, Méthode, argumentaire exhaustif (T-010/T-010bis, 2026-07-23)
 
 - [ ] Ton du disclaimer (bandeau permanent, accueil, pied d'écran nœud) : cohérent, rassurant,
   garde la mention de responsabilité du praticien (question MDR encore ouverte, DECISIONS.md).
+- [ ] Lisibilité du disclaimer (bandeau + accueil) : 1re phrase en gras bien détachée sur sa propre
+  ligne, expressions clés (« le lien avec le patient », « le seul responsable ») repérables au survol.
+- [ ] Bandeau disclaimer **absent** des écrans Veille (liste + détail) ; header (logo, pills
+  Décision/Veille, Méthode, compte) toujours présent partout.
 - [ ] Écran Méthode : bloc « Algorithmes d'aide à la décision » lisible, cohérent avec le bloc
   « Veille scientifique » existant (même structure visuelle, séparateur entre les deux).
 - [ ] Nœud A → Déplier l'argumentaire → lien « Argumentaire exhaustif » : s'ouvre, contenu complet et

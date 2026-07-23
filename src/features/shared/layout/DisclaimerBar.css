@@ -22,6 +22,12 @@
   margin-top: 1px;
 }
 
+.disclaimer-bar__lead {
+  display: inline-block;
+  margin-bottom: 2px;
+  color: var(--c-text);
+}
+
 .disclaimer-bar__text {
   margin: 0;
   font-size: 13px;

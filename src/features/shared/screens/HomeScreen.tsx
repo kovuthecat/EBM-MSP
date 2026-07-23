@@ -44,10 +44,14 @@ export function HomeScreen({ go }: HomeScreenProps) {
           i
         </span>
         <p className="home__disclaimer-text">
-          Cet outil est une aide à la décision, fondée exclusivement sur les données de la science
-          (EBM). Il ne remplace ni le jugement clinique ni la relation de soin : le praticien reste
-          le lien avec le patient et sa situation individuelle — et le seul responsable de la
-          décision médicale.
+          <strong className="home__disclaimer-lead">
+            Cet outil est une aide à la décision, fondée exclusivement sur les données de la
+            science (EBM).
+          </strong>
+          <br />
+          Il ne remplace ni le jugement clinique ni la relation de soin : le praticien reste{' '}
+          <strong>le lien avec le patient</strong> et sa situation individuelle — et{' '}
+          <strong>le seul responsable</strong> de la décision médicale.
         </p>
       </div>
 

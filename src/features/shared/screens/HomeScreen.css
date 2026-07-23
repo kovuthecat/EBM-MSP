@@ -104,6 +104,12 @@
   flex-shrink: 0;
 }
 
+.home__disclaimer-lead {
+  display: inline-block;
+  margin-bottom: 4px;
+  color: var(--c-text);
+}
+
 .home__disclaimer-text {
   margin: 0;
   font-size: 14px;
