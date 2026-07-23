@@ -3,18 +3,17 @@
 # curation HAS / Médicalement Geek / SFD 2025 + Prescrire + passes de vérification) + .argumentaire.md
 # (niveau 3). Ne pas modifier les valeurs cliniques hors workflow veille → algorithme (DECISIONS.md D5).
 #
-# NŒUD MULTI-OPTIONS (D10/D11) : plusieurs options peuvent être recommandées simultanément. Le moteur
-# (evaluateNode) renvoie toutes les options applicables DANS L'ORDRE du nœud → l'ordre encode la priorité
-# (gate d'initiation → agents pilotés par comorbidité → association → metformine seule par défaut). Le
-# champ `priorite` (rang fixe) et le champ `exclusions` (CI dures évaluées par le moteur) EXISTENT depuis la
-# réalisation P2 du moteur (DECISIONS.md D13), mais le nœud B n'y est PAS ENCORE MIGRÉ (sa validation clinique
-# resterait à refaire). Il conserve donc : (1) la priorité PAR ORDRE des options — la préférence par critère
-# dominant (IC/rein → iSGLT2 ; athérome/obésité → AR GLP-1) reste portée par les `avantages`/l'argumentaire,
-# pas par un rang (le `priorite` CONDITIONNEL existe désormais dans le moteur — D14 — mais l'appliquer ici
-# rouvrirait la validation clinique : migration à décider) ; (2) son garde-fou de sécurité encodé
-# EN `conditions` (`symptomes_glucotoxicite == false` sur iSGLT2 et l'association) pour SUPPRIMER ces options
-# en hyperglycémie catabolique (risque d'acidocétose sous iSGLT2) — équivalent d'une exclusion dure, non
-# encore reporté vers le champ `exclusions`.
+# NŒUD MULTI-OPTIONS (D10/D11) : plusieurs options peuvent être recommandées simultanément. MIGRÉ vers le
+# moteur P2 (v1.1, 2026-07-23) — aucune valeur clinique modifiée, seul l'encodage des règles déjà écrites
+# dans le dossier de preuve a changé :
+#  - PRIORITÉ par critère dominant encodée en `priorite` CONDITIONNELLE (D14), et non plus par l'ordre du
+#    tableau : si IC/rein (insuffisance_cardiaque OU DFG < 60 OU albuminurie ≠ normo) → iSGLT2 rang 1,
+#    AR GLP-1 rang 2, tirzépatide rang 3 ; sinon (athérome/obésité) → AR GLP-1 rang 1, tirzépatide rang 2,
+#    iSGLT2 rang 3. Insuline d'initiation = rang 0 (en tête si glucotoxicité) ; association = rang 4 (après
+#    les monothérapies) ; metformine socle = défaut (sans rang → en dernier).
+#  - SÉCURITÉ encodée en `exclusions` (D13, évaluées par le moteur et traçables dans `excluded`), en plus de
+#    la prose `contre_indications` : iSGLT2 et l'association sont RETIRÉS si hyperglycémie catabolique
+#    (symptomes_glucotoxicite — risque d'acidocétose) ou si DFG < 20 (KDIGO).
 id: premiere-intention
 domaine: diabete-type-2
 titre: "Choisir le traitement de 1re intention (sur socle metformine) selon les comorbidités"
@@ -50,6 +49,7 @@ options:
   - intitule: "Insuline d'initiation (souvent transitoire)"
     conditions:
       - "HbA1c_actuelle >= 10 AND symptomes_glucotoxicite == true"
+    priorite: 0
     avantages:
       - "Corrige rapidement la glucotoxicité en cas d'hyperglycémie sévère symptomatique / catabolique."
       - "Le plus souvent transitoire : relais possible par les autres classes une fois la glucotoxicité levée."
@@ -66,7 +66,14 @@ options:
   - intitule: "Ajout d'un iSGLT2"
     conditions:
       - "insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo OR ASCVD_etablie == true"
-      - "symptomes_glucotoxicite == false"
+    exclusions:
+      - "symptomes_glucotoxicite == true"
+      - "DFG < 20"
+    priorite:
+      - quand: "insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo"
+        rang: 1
+      - quand: "default"
+        rang: 3
     avantages:
       - "Réduit l'hospitalisation pour insuffisance cardiaque et la progression rénale (bénéfice le plus robuste, effet de classe) — à privilégier quand l'insuffisance cardiaque ou la maladie rénale prédomine."
       - "Bénéfice IC/rénal indépendant du statut athérothrombotique et de l'HbA1c ; perte de poids modeste, pas d'hypoglycémie."
@@ -87,6 +94,11 @@ options:
   - intitule: "Ajout d'un AR GLP-1 (liraglutide, sémaglutide, dulaglutide)"
     conditions:
       - "ASCVD_etablie == true OR IMC >= 30"
+    priorite:
+      - quand: "insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo"
+        rang: 2
+      - quand: "default"
+        rang: 1
     avantages:
       - "Réduit les événements athéromateux (surtout l'AVC ; mortalité CV pour le liraglutide) — à privilégier quand la maladie athéromateuse ou l'obésité prédomine ; forte efficacité sur l'HbA1c et perte de poids."
       - "Néphroprotection sur critère dur démontrée pour le sémaglutide en maladie rénale (FLOW)."
@@ -105,6 +117,11 @@ options:
   - intitule: "Ajout d'un AR GIP/GLP-1 (tirzépatide)"
     conditions:
       - "ASCVD_etablie == true OR IMC >= 30"
+    priorite:
+      - quand: "insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo"
+        rang: 3
+      - quand: "default"
+        rang: 2
     avantages:
       - "Efficacité sur l'HbA1c et perte de poids supérieures aux AR GLP-1 ; remboursé en France (juillet 2026)."
     inconvenients:
@@ -122,7 +139,10 @@ options:
     conditions:
       - "insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo"
       - "ASCVD_etablie == true OR IMC >= 30"
-      - "symptomes_glucotoxicite == false"
+    exclusions:
+      - "symptomes_glucotoxicite == true"
+      - "DFG < 20"
+    priorite: 4
     avantages:
       - "Couvre à la fois le versant insuffisance cardiaque / rénal (iSGLT2) et athéromateux / pondéral (AR GLP-1) quand les deux indications sont fortes."
     inconvenients:
@@ -277,15 +297,26 @@ incertitudes:
   - "Tirzépatide : pas de CVOT contre placebo ; bénéfice CV par non-infériorité au dulaglutide seulement."
   - "Insuline initiale « rémission » : critère intermédiaire, non durable, peu transposable au patient européen."
   - "Composite cardio-rénal élargi de SURPASS-CVOT : libellé / IC à confirmer sur le texte intégral (NEJM)."
-  - "Priorité par ordre fixe (multi-options) : quand iSGLT2 et AR GLP-1 co-déclenchent, la préférence par critère dominant (IC/rein → iSGLT2 ; athérome/obésité → AR GLP-1) est portée par les avantages / l'argumentaire, pas par un rang — un champ priorite conditionnel est une extension P2 (D10)."
-  - "Décompensation aiguë (cétose / hyperosmolarité) exclue par population_cible ; variables dédiées decompensation / cetose + évaluation des contre_indications comme exclusions dures par le moteur = extension P2."
+  - "Priorité iSGLT2 vs AR GLP-1 par critère dominant : encodée via `priorite` conditionnelle (D14) — IC/rein → iSGLT2 en tête, athérome/obésité → AR GLP-1 en tête. Affichage informé par l'EBM (métas en réseau, pas d'ECR tête-à-tête), non une hiérarchie prouvée."
+  - "Décompensation aiguë (cétose / hyperosmolarité) exclue par population_cible ; variables dédiées decompensation / cetose = extension contenu P2. Les CI dures encodables (hyperglycémie catabolique, DFG < 20 pour iSGLT2 et association) sont désormais appliquées via `exclusions` (D13)."
+  - "Metformine socle (option par défaut) : sa CI DFG < 30 reste en prose (`contre_indications`), non encodée en `exclusions` — le nœud suppose la metformine tolérée (population_cible) et ne modélise pas l'absence de socle ; exclure le défaut laisserait une sortie vide."
 veille_liee: []
 meta:
   date_revue: "2026-07-23"
   auteur: "référent DT2"
   statut: valide
-  version: "1.0"
+  version: "1.1"
   changelog:
+    - date: "2026-07-23"
+      auteur: "référent DT2 + Opus"
+      resume: >-
+        Migration vers le moteur P2 (v1.1). AUCUNE valeur clinique (chiffres, niveaux de preuve, indications)
+        modifiée — seul l'encodage change : (1) garde-fou catabolique déplacé de `conditions` vers `exclusions`
+        (`symptomes_glucotoxicite == true`), et CI dure DFG < 20 (KDIGO) désormais APPLIQUÉE en `exclusions`
+        sur l'iSGLT2 et l'association (traçable dans `excluded`) ; (2) priorité par critère dominant encodée
+        en `priorite` CONDITIONNELLE (D14) — IC/rein → iSGLT2 rang 1 (sinon 3), AR GLP-1 rang 2 (sinon 1),
+        tirzépatide rang 3 (sinon 2), insuline d'initiation rang 0, association rang 4. Vérifié bi-agent
+        (fidélité au dossier + red-team, traçage de profils patients).
     - date: "2026-07-23"
       auteur: "référent DT2 + Opus"
       resume: >-
