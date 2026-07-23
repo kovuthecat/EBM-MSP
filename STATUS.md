@@ -2,7 +2,23 @@
 
 Photo à l'instant T. Mis à jour en fin de session.
 
-> **Dernière mise à jour :** 2026-07-23 (soir)
+> **Dernière mise à jour :** 2026-07-23 (nuit — nœud F « Statine » validé)
+
+## Nœud F « Statine chez le diabétique » — VALIDÉ + ENCODÉ (2026-07-23)
+
+Pipeline complète (`docs/decision/00-global.md`) déroulée sur le nœud F : cadrage → collecte (4 sous-dossiers
+d'agents + OpenEvidence OE-F1→F5) → **red-team des essais ET des recommandations** (chaque DOI/chiffre vérifié
+contre source primaire ; discordances OE tranchées) → distillation → **vérification d'encodage bi-agents
+(étape 8, 0 finding HAUTE)**. `content/noeuds/diabete-type-2/statine.yaml` **v1.0 `statut: valide`** +
+`statine.argumentaire.md` (niveau 3) + dossier de preuve `docs/decision/noeuds/F-statine.md`. Nœud
+**ordered-first-match**, 3 tiers **EBM-ancrés** (ASCVD → statine haute intensité ; diabète récent non compliqué
+sans FDR → décision partagée ; sinon → statine primaire modérée, **mortalité NON revendiquée**) + 3 alertes
+(> 75 ans, dialyse, risque absolu / pas de cible LDL + SCORE2 comme aide). Points saillants : stratification
+**« que dit l'EBM »** (pas de seuil SCORE2 — bénéfice proportionnel au risque, CTT) ; reco = **SFE/SFD/NSFA/SFC
+2026** (PMID 41651737) avec **note conflits d'intérêt** ; rosuvastatine haute intensité **10-20** (Table 4
+française) ; correction de sourçage (ni HAS 2024 ni SFD 2025 ne traitent la statine). 6 critères
+(age / anciennete_diabete_annees / autres_FDRCV / diabete_complique / dialyse / ASCVD_etablie). **122 tests +
+build OK.** Restant P3 : câbler le formulaire D3 sur les nouveaux critères.
 
 ## Phase actuelle
 

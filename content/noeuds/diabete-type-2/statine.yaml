@@ -1,0 +1,347 @@
+# Nœud F « Statine chez le diabétique » — contenu VALIDÉ (2026-07-23).
+# Autorité : docs/decision/noeuds/F-statine.md (dossier de preuve : agents A × red-team B (essais + reco) ×
+# OpenEvidence OE-F1→F5, PMID/DOI vérifiés contre source primaire) + .argumentaire.md (niveau 3). VALIDÉ
+# référent (Thibault) + vérifié bi-agents (pipeline étape 8, feu vert : 0 finding HAUTE). Les valeurs cliniques
+# ne se modifient pas hors workflow veille → algorithme (D5).
+#
+# NŒUD ORDERED-FIRST-MATCH (D11) : sortie UNIQUE, échelle de risque — le patient relève d'UN tier, la 1re
+# option satisfaite dans l'ordre l'emporte, le `default` en dernier. `priorite` ignoré dans ce mode.
+# ORTHOGONAL aux nœuds glycémiques (A/B/C/D/E) : la statine se décide INDÉPENDAMMENT de l'HbA1c et du
+# traitement antidiabétique. `prevention` n'est PAS une variable : prévention secondaire ⟺ ASCVD_etablie
+# (une seule source de vérité, cf. dossier §1). Pas de critère LDL : la statine est indiquée indépendamment
+# du LDL de base (HPS) et l'outil ne pilote pas par une cible chiffrée (position « pas de cible dogmatique »).
+# STRATIFICATION du risque en prévention primaire par des FACTEURS ANCRÉS SUR LES ECR (CARDS/HPS), alignés sur
+# la grille française 2026 (v0.3, « que dit l'EBM ») : diabète NON compliqué + RÉCENT (< 10 ans) + SANS autre
+# FDR = risque faible → décision partagée ; sinon (≥ 1 FDR OU diabète compliqué OU ancienneté ≥ 10 ans) →
+# traiter. Fondement EBM : le bénéfice relatif de la statine est ~constant quel que soit le risque (CTT), donc
+# il n'existe PAS de seuil-EBM ; la population PROUVÉE est celle des ECR (CARDS = 40-75 ans + ≥ 1 FDR ; ASPEN,
+# plus bas risque, est nul). SCORE2-Diabète = AIDE à l'estimation du risque absolu (alerte info, seuils FIXES
+# ESC 2023, validé 40-69 ans), PAS un gate (un seuil % serait un artefact de modèle, pas une donnée d'ECR ;
+# l'ancien encodage â­ge-bandé était une erreur méthodo — red-team). 3 ALERTES (D15) : > 75 ans en prévention
+# primaire = individualiser ; dialyse (bool) = ne pas INITIER ; rappel « risque absolu, pas de cible LDL ».
+# DÉFINITIONS (validées référent 2026-07-23) : `diabete_complique` (bool) = toute atteinte d'organe cible
+# (rétinopathie, néphropathie / albuminurie, neuropathie) OU maladie macrovasculaire non-ASCVD ; `autres_FDRCV`
+# = compte des facteurs de risque CV additionnels (HTA, tabac, dyslipidémie, hérédité CV précoce…). Libellés
+# d'intensité (Table 4 SFE/SFD/NSFA/SFC 2026) : haute = atorva 40-80 / rosuva 10-20 ; modérée = atorva 10-20 /
+# simva 20-40 / prava 40.
+# ⚠ MESSAGES À NE JAMAIS TENIR (dossier §5d) : la statine ne « réduit pas la mortalité toutes causes » en
+# prévention primaire du DT2 (non démontré — événements CV seulement) ; ne pas transformer une cible LDL de
+# guideline en objectif dur ; ne pas initier en dialyse ; le « diabète induit par statine » est SANS OBJET
+# chez un patient déjà diabétique.
+id: statine
+domaine: diabete-type-2
+titre: "Prescrire une statine (et à quelle intensité) chez le diabétique de type 2"
+population_cible: >-
+  Adulte DT2, hors DT1 et grossesse (statines contre-indiquées pendant la grossesse). Décision du volet
+  lipidique de la prévention cardiovasculaire, indépendante de l'HbA1c et du traitement antidiabétique.
+  Hors périmètre : hypercholestérolémie familiale (prise en charge spécifique) et intensification par
+  ézétimibe / anti-PCSK9 si la cible n'est pas atteinte sous statine maximale tolérée (au-delà de ce nœud).
+selection: ordered-first-match
+argumentaire_exhaustif: "statine.argumentaire.md"
+criteres_entree:
+  - nom: age
+    type: nombre
+  - nom: ASCVD_etablie
+    type: bool
+  - nom: anciennete_diabete_annees
+    type: nombre
+  - nom: autres_FDRCV
+    type: nombre
+  - nom: diabete_complique
+    type: bool
+  - nom: dialyse
+    type: bool
+options:
+  - intitule: "Statine de haute intensité — prévention secondaire (maladie athéromateuse établie)"
+    conditions:
+      - "ASCVD_etablie == true"
+    avantages:
+      - "Bénéfice sur critères DURS (mortalité, IDM, AVC, revascularisation), à NNT bas car le risque de base est élevé : événements vasculaires majeurs RR ~0,79 par 1 mmol/L de LDL abaissé chez le diabétique (méta CTT 2008, effet identique aux non-diabétiques) ; NNT ~12-20 sur 5-6 ans dans les sous-groupes de prévention secondaire (CARE, HPS, LIPID)."
+      - "Haute intensité justifiée : gain incrémental démontré sur les événements CV non fatals (CTT more-vs-less 2010 : −15 % ; TNT sous-groupe diabète HR 0,75, NNT ~24 sur 4,9 ans)."
+    inconvenients:
+      - "L'INTENSIFICATION (haute vs modérée) ne réduit PAS la mortalité toutes causes (TNT cohorte totale HR 1,01 ; IDEAL et SEARCH non significatifs sur leur critère principal) : le gain de la haute intensité porte sur les événements CV, pas sur la survie — le bénéfice de mortalité vient de « statine vs rien »."
+      - "Risque résiduel majeur (HPS : ~78 % des événements vasculaires majeurs non prévenus). Surcroît de myopathie à très haute dose (simvastatine 80 mg — à éviter, restriction FDA)."
+    effet_attendu: >-
+      Événements vasculaires majeurs RR ~0,79 par 1 mmol/L de LDL abaissé (CTT diabète) ; NNT ~12-20 sur
+      5-6 ans en prévention secondaire (CARE NNT ~12 ; HPS ~20 ; LIPID ~18/6 ans, critère 1aire du sous-groupe
+      NS). Intensification haute vs modérée : −15 % d'événements supplémentaires (CTT more-vs-less, NNT ~25 sur
+      5 ans). Mortalité : réduite par la statine elle-même, PAS par l'intensification seule (TNT HR 1,01).
+    niveau_preuve: eleve
+    contre_indications:
+      - "Molécules de haute intensité (baisse de LDL ≥ 50 %, SFE/SFD/NSFA/SFC 2026 Table 4) : atorvastatine 40-80 mg ou rosuvastatine 10-20 mg. Prudence d'interaction via le CYP3A4 avec l'atorvastatine (macrolides, azolés, amiodarone, vérapamil/diltiazem, inhibiteurs de protéase) ; préférer la rosuvastatine en cas de co-prescription à risque."
+      - "Ne pas INITIER de statine chez un patient déjà en dialyse (bénéfice non démontré — voir alerte) ; grossesse."
+  - intitule: "Discuter la statine (décision partagée) — diabète non compliqué à faible risque absolu"
+    conditions:
+      - "anciennete_diabete_annees < 10"
+      - "autres_FDRCV == 0"
+      - "diabete_complique == false"
+    avantages:
+      - "Diabète RÉCENT (< 10 ans), NON compliqué (pas d'atteinte d'organe rétinienne / rénale / neurologique ni de maladie macrovasculaire) et SANS autre facteur de risque cardiovasculaire : le risque absolu est faible, en-deçà des populations où le bénéfice a été démontré par ECR (CARDS a inclus des diabétiques 40-75 ans AVEC ≥ 1 facteur de risque ; ASPEN, à plus bas risque, est nul). Le bénéfice ABSOLU d'une statine y est faible → décision partagée plutôt qu'automatisme."
+    inconvenients:
+      - "Le bénéfice RELATIF des statines est ~constant quel que soit le risque (CTT : ~21 % par mmol/L, même à bas risque — CTT 2012) ; c'est le bénéfice ABSOLU, faible ici, qui justifie la décision partagée."
+      - "Réévaluer à chaque consultation : une ancienneté qui atteint 10 ans, l'apparition d'un facteur de risque ou d'une complication font basculer vers le traitement. SCORE2-Diabète (voir rappel) aide à estimer le risque absolu."
+    effet_attendu: >-
+      Bénéfice absolu faible à ce niveau de risque (peu d'événements évités pour 1000 patients traités) ;
+      aucune donnée de mortalité. La reco française 2026 classe ce profil « risque modéré » et fait de
+      l'initiation une décision partagée si le LDL reste au-dessus de la cible malgré les mesures d'hygiène.
+    niveau_preuve: faible
+  - intitule: "Statine (prévention primaire, intensité modérée — haute si risque très élevé)"
+    conditions:
+      - "default"
+    avantages:
+      - "Diabétique en prévention primaire à risque non négligeable — ≥ 1 facteur de risque CV additionnel, OU diabète compliqué (atteinte d'organe), OU diabète ancien (≥ 10 ans) : population où la statine réduit de façon ROBUSTE les événements CV majeurs (CARDS : composite HR 0,63, NNT ~27-32 sur ~4 ans ; sous-groupe prévention primaire du HPS RRR 33 %, NNT ~22 sur 5 ans ; méta CTT). La reco française 2026 les classe « risque élevé / très élevé »."
+      - "Intensité MODÉRÉE en 1re intention (atorvastatine 10-20 mg, ou simvastatine / pravastatine — dose fixe calée sur le risque), sans course à une cible LDL chiffrée (voir alerte)."
+    inconvenients:
+      - "La réduction de la MORTALITÉ TOTALE n'est PAS démontrée en prévention primaire chez le diabétique (CARDS : HR 0,73 p=0,059 NS ; méta des essais dédiés au diabète non significative ; ASPEN nul) : le bénéfice porte sur les événements CV, à présenter honnêtement."
+      - "Intensité HAUTE réservée au risque très élevé (multiples facteurs de risque, atteinte d'organe) ; sinon la dose modérée suffit (Prescrire ; LODESTAR : viser une cible ≡ dose fixe)."
+    effet_attendu: >-
+      Événements CV majeurs : NNT de l'ordre de ~22-37 sur 3-5 ans selon le risque de base (CARDS ~27-32 sur
+      3,9 ans ; sous-groupe prévention primaire du HPS ~22 sur 5 ans). Mortalité toutes causes : NON démontrée
+      en prévention primaire du DT2 (le signal de mortalité provient des méta-analyses mixtes prévention
+      primaire + secondaire, porté par le secondaire).
+    niveau_preuve: modere
+    contre_indications:
+      - "Molécule d'intensité modérée en 1re intention : atorvastatine 10-20 mg, ou simvastatine 20-40 mg / pravastatine 40 mg (mieux évaluées, moins d'interactions — position EBM). Escalade vers la haute intensité si le risque est très élevé."
+      - "Ne pas INITIER de statine chez un patient déjà en dialyse (voir alerte) ; grossesse."
+alertes:
+  - quand: "age > 75 AND ASCVD_etablie == false"
+    niveau: attention
+    message: >-
+      Prévention primaire après 75 ans : preuve plus faible et moins directe (méta CTT par âge 2019 ;
+      PROSPER : sous-groupe prévention primaire non significatif, pas de bénéfice de mortalité). Individualiser
+      selon l'espérance de vie, la fragilité et les préférences (délai avant bénéfice estimé ~2,5 ans). En
+      prévention secondaire (ASCVD établie), le bénéfice de la statine persiste à tout âge.
+  - quand: "dialyse == true"
+    niveau: attention
+    message: >-
+      Patient en dialyse : ne pas INITIER une statine — bénéfice non démontré sur les critères durs chez le
+      dialysé (4D chez le DT2 hémodialysé : critère principal RR 0,92 NS, avec un signal d'AVC fatal ;
+      AURORA : neutre malgré −43 % de LDL). Si une statine est déjà en place, sa poursuite est raisonnable.
+      En maladie rénale chronique NON dialysée, la statine reste indiquée (le patient relève des options ci-dessus).
+  - quand: "default"
+    niveau: info
+    message: >-
+      La décision (traiter / discuter) et l'intensité se gradent sur le RISQUE ABSOLU, pas sur une cible LDL
+      chiffrée : aucun ECR ne valide une valeur cible de LDL (LODESTAR : viser une cible ≡ dose fixe ; VA/DoD
+      2026 : preuve insuffisante pour le treat-to-target), et le bénéfice est indépendant du LDL de base (HPS).
+      Pour estimer le risque absolu chez le diabétique NON compliqué de 40-69 ans, l'outil SCORE2-Diabète est
+      utile (seuils fixes ESC 2023 : faible < 5 %, modéré 5-<10 %, haut 10-<20 %, très haut ≥ 20 %) ; il n'est
+      pas validé chez le diabétique compliqué (d'emblée à haut risque) ni au-delà de 69 ans (SCORE2-OP /
+      jugement clinique).
+argumentaire: >
+  La statine est le volet lipidique de la prévention cardiovasculaire du diabétique, à décider indépendamment
+  de l'HbA1c. En prévention SECONDAIRE (maladie athéromateuse établie), le bénéfice est fort, sur critères
+  durs, à NNT bas (méta CTT : −21 % d'événements vasculaires majeurs par mmol/L de LDL abaissé, effet
+  identique chez le diabétique et le non-diabétique ; NNT ~12-20 sur 5 ans), et la haute intensité apporte un
+  gain incrémental réel mais plus modeste (CTT more-vs-less −15 % ; TNT diabète HR 0,75) — sans réduction de
+  la mortalité par l'intensification seule (TNT cohorte totale HR 1,01). En prévention PRIMAIRE, le bénéfice
+  sur les événements CV majeurs est solide (CARDS, seul grand ECR dédié : composite HR 0,63, NNT ~27-32 ;
+  sous-groupe primaire du HPS RRR 33 %), mais modeste en absolu et — point de vigilance anti-sur-traitement —
+  la réduction de la MORTALITÉ TOTALE n'est PAS démontrée dans les essais conçus pour le diabète (CARDS
+  p=0,059 NS ; méta dédiée non significative ; ASPEN nul) : le signal de mortalité provient des méta-analyses
+  mixtes, portées par la prévention secondaire. D'où une décision graduée par le RISQUE ABSOLU : statine
+  quasi systématique en prévention secondaire (haute intensité) ; en prévention primaire, statine d'intensité
+  modérée pilotée par le risque (≥ 40 ans, ou plus jeune avec facteurs de risque / diabète ancien), et
+  décision partagée chez le sujet jeune à bas risque où le bénéfice absolu est faible. Position critique
+  assumée : l'intensité est calée sur le niveau de risque, PAS sur une cible LDL chiffrée — aucun ECR ne
+  valide une valeur cible (LODESTAR : viser une cible équivaut à une dose fixe), et CARDS/HPS ont démontré le
+  bénéfice à dose fixe, indépendamment du LDL de base. Cas particuliers : après 75 ans en prévention primaire,
+  individualiser (preuve faible) ; ne pas initier de statine chez un patient déjà en dialyse (4D, AURORA
+  neutres). Le « diabète induit par statine » est sans objet chez un patient déjà diabétique.
+sources:
+  references_primaires:
+    - titre: "CARDS (atorvastatine 10 mg, DT2 prévention primaire) — composite HR 0,63 ; mortalité NS (p=0,059)"
+      annee: 2004
+      type_critere: dur
+      lien: "https://doi.org/10.1016/S0140-6736(04)16895-5"
+    - titre: "HPS — sous-groupe diabète (simvastatine 40 mg) : −22 % ; sous-groupe prévention primaire −33 %"
+      annee: 2003
+      type_critere: dur
+      lien: "https://doi.org/10.1016/S0140-6736(03)13636-7"
+    - titre: "CTT — méta sur données individuelles, sous-groupe diabète (18 686 diabétiques) : RR 0,79 par mmol/L"
+      annee: 2008
+      type_critere: dur
+      lien: "https://doi.org/10.1016/S0140-6736(08)60104-X"
+    - titre: "CTT — more vs less intensive (méta) : −15 % d'événements vasculaires majeurs supplémentaires"
+      annee: 2010
+      type_critere: dur
+      lien: "https://doi.org/10.1016/S0140-6736(10)61350-5"
+    - titre: "CARE — sous-groupe diabète (pravastatine 40 mg, post-IDM) : −25 %, NNT ~12/5 ans"
+      annee: 1998
+      type_critere: dur
+      lien: "https://doi.org/10.1161/01.CIR.98.23.2513"
+    - titre: "LIPID — sous-groupe diabète (pravastatine 40 mg) : NNT 18/6 ans ; critère 1aire du sous-groupe NS (p=0,11)"
+      annee: 2003
+      type_critere: dur
+      lien: "https://pubmed.ncbi.nlm.nih.gov/14514569/"
+    - titre: "4S — sous-groupe diabète (simvastatine, n=202) : événements coronaires RR 0,45"
+      annee: 1997
+      type_critere: dur
+      lien: "https://doi.org/10.2337/diacare.20.4.614"
+    - titre: "TNT — sous-groupe diabète (atorvastatine 80 vs 10) : HR 0,75, NNT ~24/4,9 ans (intensité)"
+      annee: 2006
+      type_critere: dur
+      lien: "https://doi.org/10.2337/dc05-2465"
+    - titre: "PROVE-IT TIMI 22 — sous-groupe diabète (atorva 80 vs prava 40) : HR 0,75 (IC95 non publié)"
+      annee: 2006
+      type_critere: dur
+      lien: "https://doi.org/10.1093/eurheartj/ehl220"
+    - titre: "ASPEN (atorvastatine 10 mg, DT2) — composite HR 0,90 NS ; prévention primaire HR 0,97 (nul)"
+      annee: 2006
+      type_critere: mixte
+      lien: "https://doi.org/10.2337/dc05-2415"
+    - titre: "ASCOT-LLA — sous-groupe diabète : critère coronaire dur NS (HR 0,84) ; composite élargi HR 0,77 (spin)"
+      annee: 2005
+      type_critere: dur
+      lien: "https://doi.org/10.2337/diacare.28.5.1151"
+    - titre: "Chang — méta restreinte aux essais dédiés diabète : composite CV OR 0,817 NS (p=0,086)"
+      annee: 2013
+      type_critere: dur
+      lien: "https://pubmed.ncbi.nlm.nih.gov/24380090/"
+    - titre: "LODESTAR (treat-to-target vs dose fixe haute intensité) : NON-INFÉRIORITÉ — pas de supériorité d'une cible"
+      annee: 2023
+      type_critere: dur
+      lien: "https://doi.org/10.1001/jama.2023.2487"
+    - titre: "CTT — efficacité et sécurité chez le sujet âgé (méta par âge) : bénéfice atténué et incertain > 75 ans en primaire"
+      annee: 2019
+      type_critere: dur
+      lien: "https://pubmed.ncbi.nlm.nih.gov/30712900/"
+    - titre: "CTT — bénéfice même à bas risque cardiovasculaire (méta, 27 essais) : bénéfice absolu petit à bas risque"
+      annee: 2012
+      type_critere: dur
+      lien: "https://pubmed.ncbi.nlm.nih.gov/22607822/"
+    - titre: "PROSPER (pravastatine, 70-82 ans) — bénéfice porté par la prévention secondaire ; sous-groupe primaire NS"
+      annee: 2002
+      type_critere: dur
+      lien: "https://pubmed.ncbi.nlm.nih.gov/12457784/"
+    - titre: "4D (atorvastatine, DT2 en hémodialyse) : critère principal RR 0,92 NS ; signal AVC fatal RR 2,03"
+      annee: 2005
+      type_critere: dur
+      lien: "https://pubmed.ncbi.nlm.nih.gov/16034009/"
+    - titre: "AURORA (rosuvastatine, hémodialyse) : critère principal HR 0,96 NS malgré −43 % de LDL"
+      annee: 2009
+      type_critere: dur
+      lien: "https://pubmed.ncbi.nlm.nih.gov/19332456/"
+    - titre: "CTT — symptômes musculaires (méta sur données individuelles) : > 90 % non attribuables à la statine"
+      annee: 2022
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/36049498/"
+  medicalement_geek:
+    synthese: >-
+      Ligne EBM francophone (Prescrire, Minerva, RecoMédicales, Louvain Médical) : dose fixe de statine calée
+      sur le risque absolu, pas de cible LDL dogmatique ; en prévention primaire, décider sur le risque
+      cardiovasculaire global, pas sur les chiffres lipidiques ; réserver la haute intensité à la prévention
+      secondaire.
+    lien: "https://recomedicales.fr/recommandations/statines/"
+  prescrire:
+    synthese: >-
+      Prévention secondaire = bénéfice net clair. Prévention primaire = seulement selon le risque absolu
+      (âge > 40 ans + autres indicateurs de risque cardiovasculaire), pas systématique ; dose modérée fixe,
+      pas de cible LDL dogmatique, molécule préférée = simvastatine (la mieux évaluée). (Résumé — droit
+      d'auteur ; position éditoriale constante ; réf. Rev Prescrire, « Diabète de type 2 : une statine pour
+      certains patients », juillet 2005 — texte réservé aux abonnés.)
+  reco_officielle:
+    source: >-
+      Recommandation française à jour : SFE/SFD/NSFA/SFC 2026 « Management of dyslipidemia in adults »
+      (Diabetes & Metabolism 2026;52:101725 — consensus multi-sociétés, SFD incluse) ; ESC/EAS 2019 (Mach,
+      Eur Heart J 2020;41:111-188) + ESC 2023 diabète ; ADA Standards of Care 2026 (chap. 10) ; SCORE2-Diabetes
+      (Eur Heart J 2023;44:2544). NB (vérifié sur les PDF locaux) : ni la HAS 2024 « Stratégie thérapeutique du
+      DT2 » ni la prise de position SFD 2025 (hyperglycémie) ne traitent de la statine ; la reco HAS 2017
+      dyslipidémies est supplantée par la reco française 2026.
+    position: >-
+      Le diabétique est stratifié — jamais « bas risque » — en risque MODÉRÉ (DT2 < 10 ans non compliqué),
+      ÉLEVÉ ou TRÈS ÉLEVÉ selon une grille de facteurs cliniques (durée, complications micro/macrovasculaires,
+      ACR/DFG, LDL > 1,9 g/L, insuffisance cardiaque / fibrillation atriale, HVG, AOMI ≥ 50 %…), SCORE2-Diabète
+      servant aux 40-69 ans non compliqués. Statine en 1re intention ; intensité et cible LDL par catégorie :
+      modéré → statine d'intensité modérée, cible LDL < 1,0 g/L, l'initiation relevant d'une DÉCISION PARTAGÉE
+      si le LDL reste au-dessus de la cible malgré les mesures hygiéno-diététiques ; élevé → < 0,70 g/L ; très
+      élevé → < 0,55 g/L + escalade ézétimibe puis anti-PCSK9. Ancrage d'efficacité (CTT) : −21 % d'événements
+      CV majeurs et −10 % de mortalité toutes causes par mmol/L (0,39 g/L) de LDL abaissé (−21 % confirmé chez
+      le diabétique). Prévention primaire > 75 ans : cible non fondée sur le risque (espérance de vie /
+      fragilité ; statine utile ≥ 2,5 ans → ne pas initier si espérance de vie < 2,5 ans). Dialyse : bénéfice
+      non démontré (4D, AURORA).
+    divergence: true
+    explication: >-
+      La reco française 2026 est en réalité PROCHE de la position de l'outil sur plusieurs points : elle
+      reconnaît explicitement l'ABSENCE d'ECR définissant des cibles LDL (« despite the absence of randomized
+      controlled trials defining specific LDL-c targets »), encadre l'initiation au risque modéré par une
+      DÉCISION PARTAGÉE, et individualise le sujet > 75 ans (espérance de vie ≥ 2,5 ans). Divergence résiduelle
+      de l'outil : (1) il ne PILOTE pas la décision par une cible LDL chiffrée (dose fixe selon le risque —
+      LODESTAR : viser une cible ≡ dose fixe ; VA/DoD 2026 : preuve insuffisante pour le treat-to-target) ;
+      (2) en prévention PRIMAIRE, il affiche que le bénéfice porte sur les ÉVÉNEMENTS CV et NON sur une
+      réduction démontrée de la mortalité totale chez le diabétique (CARDS p=0,059 ; essais dédiés NS).
+      L'escalade ézétimibe / anti-PCSK9 (cible non atteinte) est hors périmètre de ce nœud « statine ».
+      ⚠ CONFLITS D'INTÉRÊT : la reco française 2026 (comme ses homologues ESC/ADA/ACC-AHA) est cosignée par des
+      experts aux liens industriels étendus avec les fabricants d'hypolipémiants / anti-PCSK9 (Amgen,
+      Sanofi-Regeneron, Novartis, Novo Nordisk, AstraZeneca, MSD…). Ce biais pèse surtout sur le versant
+      AGRESSIF (cibles LDL très basses, escalade PCSK9), non sur le socle « statine chez le diabétique à
+      risque » qui reste solidement EBM. Pour le GRAIN de la décision (dose fixe vs cible, honnêteté sur la
+      mortalité), l'outil s'aligne sur l'EBM (CTT, CARDS, LODESTAR, VA/DoD 2026) et les sources critiques
+      INDÉPENDANTES (Prescrire, Minerva).
+incertitudes:
+  - "Mortalité toutes causes en prévention primaire du DT2 : NON démontrée (essais dédiés au diabète non significatifs ; le signal vient des méta-analyses mixtes primaire + secondaire) — l'outil affiche le bénéfice sur les événements CV, pas sur la survie."
+  - "Frontière « discuter / traiter » = jugement de valeur, pas un seuil-EBM : le bénéfice relatif de la statine est ~constant (CTT), seul le bénéfice absolu décroît avec le risque. L'outil place la frontière à l'absence des facteurs d'enrichissement des ECR (CARDS/HPS : ≥ 1 FDR, complication, ancienneté ≥ 10 ans), alignée sur la grille française 2026 (« modéré = DT2 < 10 ans non compliqué »)."
+  - "`diabete_complique` (bool) = jugement clinique (atteinte d'organe rétinienne / rénale / neurologique, ou maladie macrovasculaire) ; la grille française 2026 détaille les critères (ACR/DFG, rétinopathie sévère…), non éclatés ici pour rester lisible et EBM."
+  - "SCORE2-Diabète = aide à l'estimation du risque absolu (seuils fixes ESC 2023, validé 40-69 ans), affichée en alerte info, NON encodée comme gate (un seuil % serait un artefact de modèle, pas une donnée d'ECR — l'ancien encodage âge-bandé était une erreur méthodo corrigée)."
+  - "Prévention primaire après 75 ans : preuve faible/incertaine (STAREE — qui exclut les diabétiques — et PREVENTABLE en cours) ; modélisée en alerte plutôt qu'en option distincte."
+  - "Exception dialyse modélisée par une alerte sur la variable `dialyse` (bool) — elle ne retire pas l'option (le clinicien juge la poursuite d'une statine déjà en place)."
+  - "Cible LDL en prévention secondaire / très haut risque : évolutive (ECR 2026 de ciblage intensif via ézétimibe / anti-PCSK9) — hors périmètre du nœud statine, à suivre en veille."
+  - "Conflits d'intérêt des recommandations officielles (reco française 2026 & homologues internationales cosignées avec les fabricants d'hypolipémiants / anti-PCSK9) : signalés dans reco_officielle ; l'outil pondère l'EBM et les sources critiques indépendantes (Prescrire, Minerva) pour le grain de la décision, surtout sur le versant agressif (cibles, escalade)."
+veille_liee: []
+meta:
+  date_revue: "2026-07-23"
+  auteur: "référent DT2 (Thibault) + Opus"
+  statut: valide
+  version: "1.0"
+  changelog:
+    - date: "2026-07-23"
+      auteur: "référent DT2 (Thibault) + Opus"
+      resume: >-
+        VALIDATION (v1.0). Dossier de preuve + YAML + argumentaire validés par le référent après la pipeline
+        complète (cadrage → collecte 4 sous-dossiers + OpenEvidence OE-F1→F5 → red-team des essais ET des
+        recommandations, chaque DOI/chiffre vérifié contre source primaire → distillation). Vérification
+        d'encodage bi-agents (étape 8) : Agent A (fidélité, 0 HAUTE, 2 MOYENNE + 4 BASSE toutes corrigées) ×
+        Agent B (red-team du moteur, ~35 profils tracés, 0 HAUTE, sécurité ASCVD étanche). 122 tests + build.
+        Arbitrages actés : stratification EBM-ancrée (PAS de seuil SCORE2 — CTT : bénéfice proportionnel au
+        risque, pas de seuil-EBM ; frontière = enrichissement CARDS/HPS, alignée sur la grille française 2026) ;
+        reco = SFE/SFD/NSFA/SFC 2026 (PMID 41651737) avec note conflits d'intérêt ; rosuvastatine haute
+        intensité 10-20 (Table 4 française) ; mortalité en prévention primaire NON revendiquée ; dialyse et
+        > 75 ans en alertes. Restant P3 : câbler le formulaire D3 sur les critères age / anciennete_diabete_
+        annees / autres_FDRCV / diabete_complique / dialyse.
+    - date: "2026-07-23"
+      auteur: "référent DT2 + Opus"
+      resume: >-
+        Refonte de la stratification « que dit l'EBM » (v0.3, BROUILLON). Le tier « discuter » n'est PLUS piloté
+        par un seuil SCORE2 (encodage âge-bandé retiré : erreur méthodo — SCORE2-Diabète va avec des seuils
+        FIXES ESC 2023, validé 40-69 ans seulement ; red-team) mais par les FACTEURS ANCRÉS SUR LES ECR
+        (CARDS/HPS) — diabète non compliqué + récent (< 10 ans) + sans autre FDR = risque faible → décision
+        partagée ; sinon → traiter. Fondement : le bénéfice relatif est constant (CTT), il n'existe pas de
+        seuil-EBM ; heureuse convergence avec la grille française 2026. Critères : `anciennete_diabete_annees`,
+        `autres_FDRCV`, `diabete_complique` (remplacent `SCORE2_diabete`) ; SCORE2-Diabète repassé en AIDE
+        (alerte info, seuils fixes corrects). Reco officielle réécrite sur la reco française à jour
+        SFE/SFD/NSFA/SFC 2026 (Diabetes & Metabolism 2026;52:101725, PMID 41651737) ; HAS 2017 supplantée ;
+        doses d'intensité corrigées (haute = rosuva 10-20). Ajout d'une note CONFLITS D'INTÉRÊT (reco cosignées
+        avec fabricants d'hypolipémiants/anti-PCSK9 → biais sur le versant agressif ; l'outil pondère
+        EBM + sources critiques indépendantes). Restant avant `valide` : vérification d'encodage bi-agents.
+    - date: "2026-07-23"
+      auteur: "référent DT2 + Opus"
+      resume: >-
+        Arbitrages référent appliqués (v0.2, toujours BROUILLON). (2+5) Le tier « bas risque à discuter » est
+        désormais piloté par SCORE2-Diabète (nouveau critère `SCORE2_diabete`, donnée à renseigner ; seuils ESC
+        âge-bandés < 2,5 / < 5 / < 7,5 % — à confirmer) ; les critères crus `autres_FDRCV` et
+        `anciennete_diabete_annees` retirés (subsumés par SCORE2). (3) Exception dialyse = alerte sur nouvelle
+        variable `dialyse` (bool) au lieu du proxy `DFG < 15` (retiré). (4) > 75 ans = alerte (confirmé).
+        CORRECTION de sourçage : SFD 2025 RETIRÉE de reco_officielle.source (lecture du PDF local : la prise de
+        position SFD 2025 ne traite QUE de l'hyperglycémie, pas de la statine — même cas que HAS 2024).
+        RESTE À FAIRE avant `valide` : red-team du volet recommandations (non encore vérifié bi-agent) +
+        triangulation OE-F5 + confirmation des seuils SCORE2 + vérification d'encodage bi-agents (étape 8).
+    - date: "2026-07-23"
+      auteur: "Opus"
+      resume: >-
+        Distillation initiale (BROUILLON v0.1) depuis le dossier de preuve F-statine.md (agents A × red-team B ×
+        OpenEvidence OE-F1→F4, PMID/DOI vérifiés contre source primaire). Nœud ordered-first-match, 3 tiers de
+        risque : prévention secondaire (ASCVD) → statine haute intensité (niveau élevé) ; bas risque →
+        décision partagée (faible) ; défaut → prévention primaire, intensité modérée (modéré, mortalité NON
+        revendiquée). Alertes : > 75 ans primaire = individualiser ; dialyse = ne pas initier ; rappel « pas de
+        cible LDL dogmatique » (LODESTAR). `prevention` dérivé de ASCVD_etablie ; pas de critère LDL ;
+        divergence = true (pas de cible dogmatique ; honnêteté mortalité en primaire).
