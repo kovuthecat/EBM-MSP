@@ -69,11 +69,15 @@
       "required": ["nom", "type"],
       "properties": {
         "nom": { "type": "string", "minLength": 1 },
-        "type": { "type": "string", "enum": ["nombre", "bool", "enum"] },
+        "type": {
+          "type": "string",
+          "enum": ["nombre", "bool", "enum", "liste"],
+          "description": "'liste' = critere multivalue (valeur = tableau de libelles), opere par contient/ne_contient_pas (DECISIONS.md D13)."
+        },
         "valeurs": {
           "type": "array",
           "items": { "type": "string" },
-          "description": "Valeurs possibles, uniquement pertinent quand type = enum."
+          "description": "Valeurs possibles, pertinent quand type = enum ou liste."
         }
       }
     },
@@ -101,12 +105,23 @@
         "niveau_preuve": { "$ref": "#/definitions/niveauPreuve" },
         "conditions": {
           "type": "array",
-          "items": { "type": "string" },
-          "description": "Regles d'affichage : expressions booleennes sur les criteres_entree (ex. 'age < 60'), ou ['default'] pour l'option par defaut du noeud."
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Regles d'affichage : expressions booleennes sur les criteres_entree (ex. 'age < 60'), ou ['default'] pour l'option par defaut du noeud. Au moins une expression non vide (une condition vide leverait ConditionError au runtime, D13)."
         },
         "contre_indications": {
           "type": "array",
-          "items": { "type": "string" }
+          "items": { "type": "string" },
+          "description": "Prose destinee au lecteur (affichage). Distincte de `exclusions`, evaluee par le moteur (DECISIONS.md D13)."
+        },
+        "priorite": {
+          "type": "integer",
+          "description": "Rang de priorite en mode multi-options : options applicables triees par priorite croissante (tri stable ; absente = rang le plus faible). Rang FIXE (DECISIONS.md D13). Ignore en ordered-first-match."
+        },
+        "exclusions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Exclusions dures : expressions DSL (meme grammaire que conditions). Une option applicable est retiree si l'une est vraie, et reportee dans EvaluateNodeResult.excluded (DECISIONS.md D13)."
         }
       }
     },

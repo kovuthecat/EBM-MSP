@@ -96,3 +96,69 @@ describe('evaluateCondition — composition AND / OR', () => {
     )
   })
 })
+
+describe('evaluateCondition — appartenance à une liste (contient / ne_contient_pas, D13)', () => {
+  it('contient : vrai si le libellé est présent dans la liste', () => {
+    const criteria = { traitements_en_cours: ['metformine', 'iSGLT2'] }
+    expect(evaluateCondition('traitements_en_cours contient metformine', criteria)).toBe(true)
+    expect(evaluateCondition('traitements_en_cours contient aGLP1', criteria)).toBe(false)
+  })
+
+  it('ne_contient_pas : négation exacte de contient', () => {
+    const criteria = { traitements_en_cours: ['metformine'] }
+    expect(evaluateCondition('traitements_en_cours ne_contient_pas aGLP1', criteria)).toBe(true)
+    expect(evaluateCondition('traitements_en_cours ne_contient_pas metformine', criteria)).toBe(false)
+  })
+
+  it('liste vide : contient toujours faux, ne_contient_pas toujours vrai', () => {
+    const criteria = { traitements_en_cours: [] as string[] }
+    expect(evaluateCondition('traitements_en_cours contient metformine', criteria)).toBe(false)
+    expect(evaluateCondition('traitements_en_cours ne_contient_pas metformine', criteria)).toBe(true)
+  })
+
+  it('se compose avec AND / OR comme les comparaisons scalaires', () => {
+    const criteria = { traitements_en_cours: ['metformine'], DFG: 45 }
+    expect(evaluateCondition('traitements_en_cours contient metformine AND DFG < 60', criteria)).toBe(true)
+    expect(evaluateCondition('traitements_en_cours ne_contient_pas aGLP1 AND DFG < 40', criteria)).toBe(false)
+    expect(evaluateCondition('traitements_en_cours contient aGLP1 OR DFG < 60', criteria)).toBe(true)
+  })
+
+  it('contient sur un critère non-liste → ConditionError (jamais un faux silencieux)', () => {
+    expect(() => evaluateCondition('age contient 5', { age: 60 })).toThrow(ConditionError)
+  })
+
+  it('opérateur scalaire sur un critère de type liste → ConditionError', () => {
+    expect(() =>
+      evaluateCondition('traitements_en_cours == metformine', { traitements_en_cours: ['metformine'] }),
+    ).toThrow(ConditionError)
+    expect(() =>
+      evaluateCondition('traitements_en_cours < 3', { traitements_en_cours: ['metformine'] }),
+    ).toThrow(ConditionError)
+  })
+
+  it('variable inconnue avec contient → ConditionError explicite (nom cité)', () => {
+    expect(() => evaluateCondition('traitements contient metformine', { age: 1 })).toThrow(/traitements/)
+  })
+})
+
+describe('evaluateCondition — expressions malformées : lever, jamais un faux silencieux (D13)', () => {
+  it('rejette une expression vide ou uniquement blanche', () => {
+    expect(() => evaluateCondition('', { age: 1 })).toThrow(ConditionError)
+    expect(() => evaluateCondition('   ', { age: 1 })).toThrow(ConditionError)
+  })
+
+  it('rejette un opérateur OR pendant (opérande manquante en tête ou en queue)', () => {
+    expect(() => evaluateCondition(' OR age > 0', { age: 1 })).toThrow(ConditionError)
+    expect(() => evaluateCondition('age > 0 OR ', { age: 1 })).toThrow(ConditionError)
+  })
+
+  it('rejette un opérateur AND pendant', () => {
+    expect(() => evaluateCondition('age > 0 AND ', { age: 1 })).toThrow(ConditionError)
+    expect(() => evaluateCondition(' AND age > 0', { age: 1 })).toThrow(ConditionError)
+  })
+
+  it('une expression bien formée n’est pas affectée par le garde', () => {
+    expect(evaluateCondition('age > 0 OR age < -5', { age: 3 })).toBe(true)
+    expect(evaluateCondition('age > 0 AND age < 10', { age: 3 })).toBe(true)
+  })
+})

@@ -19,8 +19,9 @@ export type TypeCritere = 'dur' | 'mixte' | 'substitution'
 
 export interface CritereEntree {
   nom: string
-  type: 'nombre' | 'bool' | 'enum'
-  /** Uniquement pertinent quand `type` vaut `'enum'`. */
+  /** `liste` = critère multivalué (valeur = tableau de libellés), opéré par `contient`/`ne_contient_pas` (D13). */
+  type: 'nombre' | 'bool' | 'enum' | 'liste'
+  /** Valeurs possibles ; pertinent quand `type` vaut `'enum'` ou `'liste'`. */
   valeurs?: string[]
 }
 
@@ -33,8 +34,21 @@ export interface Option {
   niveau_preuve: NiveauPreuve
   /** Règles d'affichage : expressions booléennes sur les `criteres_entree`, ou `['default']`. */
   conditions: string[]
-  /** Optionnel : omis dans le gabarit §11 pour les options sans contre-indication propre. */
+  /** Optionnel : omis dans le gabarit §11 pour les options sans contre-indication propre. Prose
+   * d'affichage destinée au lecteur — distincte de `exclusions`, qui est évaluée par le moteur (D13). */
   contre_indications?: string[]
+  /**
+   * Rang de priorité (entier) en mode `multi-options` : les options applicables sont triées par
+   * `priorite` croissante (tri stable ; absente = rang le plus faible). Rang FIXE — la priorité
+   * conditionnelle reste hors moteur (DECISIONS.md D13).
+   */
+  priorite?: number
+  /**
+   * Exclusions dures : expressions DSL (même grammaire que `conditions`). Une option par ailleurs
+   * applicable est RETIRÉE si l'une d'elles est vraie, et reportée dans `EvaluateNodeResult.excluded`
+   * (jamais en silence). Pendant machine-évaluable des `contre_indications` (prose) — DECISIONS.md D13.
+   */
+  exclusions?: string[]
 }
 
 export interface ReferencePrimaire {

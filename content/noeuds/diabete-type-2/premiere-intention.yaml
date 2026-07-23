@@ -6,12 +6,14 @@
 # NŒUD MULTI-OPTIONS (D10/D11) : plusieurs options peuvent être recommandées simultanément. Le moteur
 # (evaluateNode) renvoie toutes les options applicables DANS L'ORDRE du nœud → l'ordre encode la priorité
 # (gate d'initiation → agents pilotés par comorbidité → association → metformine seule par défaut). Le
-# champ `priorite` explicite (D10) et l'évaluation des `contre_indications` comme exclusions dures restent
-# une extension moteur P2. L'ordre encode une priorité PAR DÉFAUT ; la préférence par critère dominant
-# (IC/rein → iSGLT2 ; athérome/obésité → AR GLP-1) est portée par les `avantages`/l'argumentaire, pas par un
-# rang (un `priorite` conditionnel = P2). Garde-fou de sécurité en attendant l'application P2 des CI : le gate
-# catabolique est encodé EN `conditions` (`symptomes_glucotoxicite == false` sur iSGLT2 et l'association) pour
-# SUPPRIMER ces options en hyperglycémie catabolique (risque d'acidocétose sous iSGLT2).
+# champ `priorite` (rang fixe) et le champ `exclusions` (CI dures évaluées par le moteur) EXISTENT depuis la
+# réalisation P2 du moteur (DECISIONS.md D13), mais le nœud B n'y est PAS ENCORE MIGRÉ (sa validation clinique
+# resterait à refaire). Il conserve donc : (1) la priorité PAR ORDRE des options — la préférence par critère
+# dominant (IC/rein → iSGLT2 ; athérome/obésité → AR GLP-1) reste portée par les `avantages`/l'argumentaire,
+# pas par un rang (un `priorite` CONDITIONNEL reste hors moteur, D13) ; (2) son garde-fou de sécurité encodé
+# EN `conditions` (`symptomes_glucotoxicite == false` sur iSGLT2 et l'association) pour SUPPRIMER ces options
+# en hyperglycémie catabolique (risque d'acidocétose sous iSGLT2) — équivalent d'une exclusion dure, non
+# encore reporté vers le champ `exclusions`.
 id: premiere-intention
 domaine: diabete-type-2
 titre: "Choisir le traitement de 1re intention (sur socle metformine) selon les comorbidités"
