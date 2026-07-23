@@ -25,3 +25,6 @@ coverage/
 
 # Collecte automatisée (Phase 4) — moissons brutes, non versionnées
 collecte/*.json
+
+# Sources cliniques (PDF Prescrire/SFD/HAS) : droit d'auteur + binaire — hors repo, cf. docs/decision/sources/prescrire-dt2.md
+docs/decision/sources/*.pdf
