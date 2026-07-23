@@ -66,6 +66,8 @@ const CRITERE_LABELS: Record<string, string> = {
   traitements_en_cours: 'Traitements en cours',
   antecedent_cv: 'Antécédent cardiovasculaire',
   comorbidite_grave: 'Comorbidité grave',
+  diabete_complique: "Diabète compliqué (atteinte d'organe : rétinopathie, néphropathie, neuropathie, macrovasculaire)",
+  dialyse: 'Dialyse',
 }
 
 /** Libellé d'un critère (`criteres_entree[].nom`) ; repli générique si critère non catalogué (nœud futur). */

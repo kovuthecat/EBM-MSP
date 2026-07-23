@@ -72,6 +72,24 @@ actées, `meta.statut: valide`. Reste la **relecture visuelle** sur l'écran D3 
   fidèle au fichier source (titres, tableau HAS, listes, gras/italique/code), **aucun `**`/`*` brut**
   qui traîne dans le texte affiché.
 
+## Contenu DT2 — nœud F « Statine » (2026-07-23, VALIDÉ v1.0)
+
+Nœud chargé automatiquement (glob Vite, aucun code par nœud, DECISIONS.md D8) : apparaît dans D2/D3 sans
+câblage dédié. Seul ajout de code = 2 libellés (`diabete_complique`, `dialyse`, `lib/labels.ts`).
+
+- [ ] D2 : la carte « Prescrire une statine (et à quelle intensité) chez le diabétique de type 2 » apparaît
+  dans le domaine DT2, comme un thème distinct des nœuds A/B/C.
+- [ ] D3 : les 6 critères s'affichent lisiblement — `Âge`, `Ancienneté du diabète (ans)`, `Autres facteurs
+  de risque cardiovasculaire` en grille numérique ; `Maladie cardiovasculaire athéromateuse établie`,
+  `Diabète compliqué (…)`, `Dialyse` en cases à cocher regroupées.
+- [ ] Cas patient → **une seule** option (ordered-first-match) : ASCVD coché → « Statine de haute
+  intensité — prévention secondaire » ; ASCVD non coché + ancienneté < 10 + 0 FDR + non compliqué →
+  « Discuter la statine (décision partagée) » ; sinon → « Statine (prévention primaire… ) ».
+- [ ] Alertes visibles : > 75 ans sans ASCVD (individualiser) ; dialyse cochée (ne pas initier) ; rappel
+  permanent (pas de cible LDL, SCORE2-Diabète en aide).
+- [ ] Argumentaire déplié : reco française SFE/SFD/NSFA/SFC 2026 + **note conflits d'intérêt** visible ;
+  divergence affichée ; sources avec DOI/PMID.
+
 ## Décision D3 (S4 · T-006)
 
 - [ ] Le filtrage réagit aux critères conformément au **contenu validé v2.0** (bandes HAS, sortie unique).
