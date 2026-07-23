@@ -44,8 +44,10 @@ export function HomeScreen({ go }: HomeScreenProps) {
           i
         </span>
         <p className="home__disclaimer-text">
-          Cet outil est une aide à la réflexion. Il ne remplace ni le jugement clinique, ni la
-          relation avec le patient : le praticien reste seul responsable de la décision médicale.
+          Cet outil est une aide à la décision, fondée exclusivement sur les données de la science
+          (EBM). Il ne remplace ni le jugement clinique ni la relation de soin : le praticien reste
+          le lien avec le patient et sa situation individuelle — et le seul responsable de la
+          décision médicale.
         </p>
       </div>
 

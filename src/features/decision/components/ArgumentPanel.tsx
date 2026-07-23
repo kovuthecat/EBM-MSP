@@ -1,5 +1,8 @@
+import { useState } from 'react'
 import type { Noeud } from '../content/node.types'
+import { getArgumentaireExhaustif } from '../content/loadArgumentaires'
 import { labelForTypeCritere } from '../lib/labels'
+import { MiniMarkdown } from './MiniMarkdown'
 import './ArgumentPanel.css'
 
 interface ArgumentPanelProps {
@@ -16,9 +19,16 @@ interface ArgumentPanelProps {
  * `sources.prescrire`) — le schéma n'a pas de champ "position critique" séparé ; ce sont ces deux
  * sources indépendantes qui, d'après `docs/decision/00-global.md` (« Socle de sources à interroger
  * »), ancrent cette position, en regard de `sources.reco_officielle` (HAS/ADA-EASD).
+ *
+ * Expose aussi le **niveau de lecture 3** (DECISIONS.md D11) : un lien dépliant l'argumentaire
+ * exhaustif (`node.argumentaire_exhaustif`, Markdown brut chargé par `loadArgumentaires.ts`, rendu
+ * par `MiniMarkdown` sans dépendance ajoutée). N'apparaît que si le nœud référence un fichier
+ * existant — un nœud futur sans ce champ reste au niveau 2, pas d'erreur.
  */
 export function ArgumentPanel({ node }: ArgumentPanelProps) {
   const { reco_officielle, medicalement_geek, prescrire, references_primaires } = node.sources
+  const [exhaustifOpen, setExhaustifOpen] = useState(false)
+  const exhaustif = getArgumentaireExhaustif(node.argumentaire_exhaustif)
 
   return (
     <div className="argument-panel">
@@ -93,6 +103,25 @@ export function ArgumentPanel({ node }: ArgumentPanelProps) {
             </div>
           ))}
         </>
+      )}
+
+      {exhaustif && (
+        <div className="argument-panel__exhaustif">
+          <button
+            type="button"
+            className="argument-panel__exhaustif-toggle"
+            onClick={() => setExhaustifOpen((open) => !open)}
+          >
+            {exhaustifOpen
+              ? "Replier l'argumentaire exhaustif"
+              : "→ Argumentaire exhaustif (toutes les preuves et sources)"}
+          </button>
+          {exhaustifOpen && (
+            <div className="argument-panel__exhaustif-body">
+              <MiniMarkdown markdown={exhaustif} />
+            </div>
+          )}
+        </div>
       )}
     </div>
   )

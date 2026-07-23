@@ -8,7 +8,9 @@ export function DisclaimerBar() {
         i
       </span>
       <p className="disclaimer-bar__text">
-        Aide à la réflexion clinique — le praticien reste responsable de la décision médicale.
+        Outil d'aide à la décision fondé exclusivement sur les données de la science (EBM). Le
+        praticien, par son jugement clinique, reste le lien avec le patient et sa situation
+        individuelle — et le seul responsable de la décision médicale.
       </p>
     </div>
   )

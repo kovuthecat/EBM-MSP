@@ -128,3 +128,24 @@
   color: var(--c-text-muted);
   white-space: nowrap;
 }
+
+.argument-panel__exhaustif {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--c-pill-track);
+}
+
+.argument-panel__exhaustif-toggle {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-accent-decision);
+  cursor: pointer;
+}
+
+.argument-panel__exhaustif-body {
+  margin-top: 16px;
+}

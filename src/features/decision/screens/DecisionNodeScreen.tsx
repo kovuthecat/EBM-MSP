@@ -147,8 +147,8 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
       )}
 
       <div className="decision-node__footer">
-        Révisé le {formatDateRevue(node.meta.date_revue)} · Aide à la réflexion, le praticien reste
-        responsable.
+        Révisé le {formatDateRevue(node.meta.date_revue)} · Aide à la décision fondée sur l'EBM — le
+        praticien reste le lien avec le patient et le seul responsable de la décision.
       </div>
     </div>
   )

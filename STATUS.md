@@ -2,7 +2,7 @@
 
 Photo à l'instant T. Mis à jour en fin de session.
 
-> **Dernière mise à jour :** 2026-07-23
+> **Dernière mise à jour :** 2026-07-23 (soir)
 
 ## Phase actuelle
 
@@ -18,6 +18,18 @@ pas renseignés, libellés `antecedent_cv`/`comorbidite_grave` accentués. Ajout
 non sourcée** (modifiable, désactivée dès choix manuel) d'`esperance_vie` d'après âge/fragilité/
 comorbidité grave/antécédent CV (`lib/esperanceVieDefault.ts`) — signalé comme heuristique UI, pas un
 fait clinique sourcé (CLAUDE.md invariant 6). Build + **34/34 tests verts**.
+
+**T-010 — Disclaimer, méthode publiée, niveau 3 (2026-07-23)** : ton du disclaimer permanent réécrit
+(rassurant, « fondé exclusivement sur l'EBM », praticien = lien avec le patient **et** responsable de
+la décision — harmonisé sur bandeau/accueil/pied d'écran nœud). Écran Méthode : ajout d'un second
+bloc « Algorithmes d'aide à la décision » (résumé fidèle de `docs/decision/00-global.md`), en regard du
+bloc veille existant. **Niveau de lecture 3 (D11) enfin exposé** : `ArgumentPanel` charge l'argumentaire
+exhaustif (`argumentaire_exhaustif`, Markdown brut via `loadArgumentaires.ts`) et le rend avec un petit
+composant `MiniMarkdown` maison (headers/listes/tableau/gras-italique-code/liens, **zéro dépendance
+runtime ajoutée**, CLAUDE.md invariant 8). Deux bugs trouvés et corrigés pendant la validation
+visuelle : boucle infinie sur la branche titre (oubli d'incrémenter l'index — figeait l'onglet à
+l'ouverture) et puces multi-lignes source mal rattachées (laissait fuir des `**`/`*` littéraux dans le
+texte). Régression couverte par `MiniMarkdown.test.tsx`. Build + **37/37 tests verts**.
 
 **Nœud A ré-encodé et validé (T-007bis, 2026-07-22)** : `content/noeuds/diabete-type-2/cible-glycemique.yaml`
 a été ré-écrit depuis le dossier de preuve, après phase exploratoire (HAS 2024 / Prescrire / Médicalement

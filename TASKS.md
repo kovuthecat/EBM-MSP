@@ -29,6 +29,15 @@ statut : ` ` à faire · `~` en cours · `x` fait · modèles/efforts : `WORKFLO
   modifiable) d'`esperance_vie`** dérivée de l'âge/fragilité/comorbidité grave/antécédent CV
   (`lib/esperanceVieDefault.ts`), désactivée dès que le champ est choisi manuellement · build +
   **34/34 tests verts** *(fait 2026-07-23 · Sonnet)*.
+- [x] **T-010 — Ton du disclaimer, méthode des algorithmes publiée, niveau de lecture 3** : disclaimer
+  permanent (+ accueil + pied d'écran nœud) réécrit sur un ton rassurant (« fondé exclusivement sur
+  l'EBM », praticien = lien avec le patient et responsable de la décision). Écran Méthode : ajout du
+  bloc « Algorithmes d'aide à la décision » (résumé de `docs/decision/00-global.md`), à côté du bloc
+  veille déjà publié. Niveau 3 (D11, « argumentaire exhaustif ») enfin exposé dans `ArgumentPanel` via
+  un lien dépliant, rendu par un petit composant Markdown maison `MiniMarkdown` (zéro dépendance
+  ajoutée, CLAUDE.md invariant 8) — 2 bugs de rendu trouvés et corrigés en validation (boucle infinie
+  sur les titres, puces multi-lignes mal rattachées) · build + **37/37 tests verts**
+  *(fait 2026-07-23 · Sonnet)*.
 
 ## Backlog (Phase 1 — MVP module Décision) — cadré dans `plans/P1/`
 

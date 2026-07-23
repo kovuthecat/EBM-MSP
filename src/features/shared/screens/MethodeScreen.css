@@ -16,6 +16,27 @@
   margin: 0 0 28px;
 }
 
+.methode__group {
+  margin-bottom: 40px;
+  padding-top: 28px;
+  border-top: 1px solid var(--c-border);
+}
+
+.methode__group:first-of-type {
+  padding-top: 0;
+  border-top: none;
+}
+
+.methode__group:last-child {
+  margin-bottom: 0;
+}
+
+.methode__group-title {
+  font-size: 18px;
+  margin: 0 0 8px;
+  color: var(--c-text);
+}
+
 .methode__section {
   margin-bottom: 24px;
 }
