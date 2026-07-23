@@ -37,6 +37,10 @@ d'un travail de preuve tracé ; ce fichier fixe la méthode, la racine `docs/dec
   critère dans l'algorithme que si des **données EBM** (ECR/méta) la soutiennent. Les gradations d'**accord
   d'experts** (ex. HAS : sous-stades CV non évolué/évolué, IRC par stade, âgé vigoureux/fragile/malade)
   sont **affichées** comme reco officielle, mais ne **pilotent pas** le moteur.
+- **Granularité de la recommandation par molécule** (référent, 2026-07-23 — `DECISIONS.md` D12) : ne
+  recommander une **molécule précise** (plutôt que sa **classe**) que si l'**EBM** le justifie pour
+  l'indication ; sinon, recommander au niveau de la **classe** (reco officielle affichée). *Vaut pour tout
+  l'outil.*
 
 ## Socle de sources à interroger systématiquement (chaque nœud)
 
@@ -64,7 +68,7 @@ divergence signalée (brief §2).
 | Id | Nœud | Dossier | Statut preuve | Nœud YAML |
 | --- | --- | --- | --- | --- |
 | A | Cible glycémique | `noeuds/A-cible-glycemique.md` | **VALIDÉ + ENCODÉ (T-007bis)** : `content/…/cible-glycemique.yaml` v2.0 `statut: valide` · sortie unique · 27/27 tests verts | P1/S2 |
-| B | 1re intention (par comorbidités) | `noeuds/B-premiere-intention.md` | à faire | P2 |
+| B | 1re intention (par comorbidités) | `noeuds/B-premiere-intention.md` | **DOSSIER VALIDÉ — BON À ENCODER (2026-07-23)** : base de preuve complète et vérifiée (bi-agents + 5 OpenEvidence + 2 passes de vérif./triangulation + HAS/Méd. Geek/SFD 2025 + Prescrire `sources/prescrire-dt2.md`). **Tous arbitrages validés référent** : 3 classes + gate insuline + arg. négative SU/gliptines + priorité ; `[À VÉRIFIER]` levés (restes mineurs non décisionnels). → encodage YAML | P2 |
 | C | Intensification | `noeuds/C-intensification.md` | à faire | P2 |
 | D | Sulfamides / gliptines | `noeuds/D-sulfamides-gliptines.md` | à faire | P2 |
 | E | Insuline | `noeuds/E-insuline.md` | à faire | P2 |
