@@ -14,15 +14,62 @@ d'un travail de preuve tracé ; ce fichier fixe la méthode, la racine `docs/dec
    ADA/EASD…), puis essais pivots. OpenEvidence/web = débroussaillage, **jamais** source primaire.
 3. **Apprécier** — appliquer la grille à chaque étude clé : design/biais, **critère dur vs substitution**,
    **effet absolu / NNT-NNH**, validité externe, cohérence, conflits d'intérêt, GRADE.
-4. **Vérifier (bi-agents)** — Agent A extrait/chiffre, Agent B (red-team) traque le *spin* et **vérifie
-   chaque DOI et chaque chiffre contre la source primaire** ; Opus réconcilie (consensus vérifié /
-   divergences escaladées / non-vérifiable). Cf. §7ter du brief veille.
-5. **Distiller** — (a) options + `conditions` + `effet_attendu` + `niveau_preuve` + `sources` → **YAML**
-   du nœud ; (b) **argumentaire exhaustif** *reader-facing* (niveau 3) →
-   `content/noeuds/<domaine>/<id>.argumentaire.md` (toutes les preuves détaillées + **toutes les sources**).
-   Les 3 niveaux de lecture : recommandation / argumentaire détaillé / argumentaire exhaustif (cf. `DECISIONS.md` D11).
-6. **Valider (référent)** — relecture clinique humaine ; passe le `statut` du dossier à `validé-référent`.
-7. **Encoder** — le YAML du nœud est écrit/mis à jour (tâche de P2), `meta.statut: valide`.
+4. **Vérifier le dossier de preuve (bi-agents)** — Agent A extrait/chiffre, Agent B (red-team) traque le
+   *spin* et **vérifie chaque DOI et chaque chiffre contre la source primaire** ; débroussaillage
+   OpenEvidence intégré en 2ᵉ passe ; Opus réconcilie (consensus vérifié / divergences escaladées /
+   non-vérifiable). Répéter la boucle A/B/OE jusqu'à ce que les `[À VÉRIFIER]` décisionnels soient levés
+   (triangulation : ne jamais trancher sur une seule source, même OpenEvidence — cf. nœud B, 3 erreurs
+   corrigées par une 2ᵉ passe de lecture directe des primaires). Cf. §7ter du brief veille.
+5. **Distiller** — (a) options + `conditions` + `effet_attendu` + `niveau_preuve` + `sources` → **brouillon
+   YAML** du nœud ; (b) **argumentaire exhaustif** *reader-facing* (niveau 3) →
+   `content/noeuds/<domaine>/<id>.argumentaire.md` : document autonome rédigé à partir du dossier consolidé
+   et vérifié (étape 4), reprenant sa structure (matrices de preuve par option, gate(s) de sécurité,
+   argumentation **négative** — pourquoi une classe est *hors* 1re intention —, priorité entre options,
+   reco officielle vs position critique, incertitudes, **toutes les sources** avec DOI). Les 3 niveaux de
+   lecture : recommandation / argumentaire détaillé / argumentaire exhaustif (cf. `DECISIONS.md` D11).
+6. **Valider (référent)** — relecture clinique humaine du dossier de preuve (§2 options, §4 reco/critique,
+   arbitrages ouverts) ; passe le `statut` du dossier à `validé-référent`.
+7. **Encoder** — écrire `content/noeuds/<domaine>/<id>.yaml` (contenu = brouillon de l'étape 5a, mis à jour
+   si le dossier a évolué depuis) + le fichier `.argumentaire.md` de l'étape 5b.
+8. **Vérifier l'encodage (bi-agents, étape dédiée — distincte de l'étape 4)** — l'étape 4 vérifie le
+   *dossier de preuve* ; celle-ci vérifie que le **YAML écrit reflète fidèlement** ce dossier une fois
+   validé, et que son **comportement dans le moteur** est cliniquement sensé :
+   - **Agent A (fidélité)** — option par option : `conditions` conformes aux déclencheurs validés (§2),
+     `niveau_preuve` cohérent avec le GRADE du dossier, `effet_attendu` chiffré fidèle (§3/§5),
+     `contre_indications` complètes, `sources`/DOI corrects, `reco_officielle.divergence` justifiée.
+   - **Agent B (red-team)** — relit la **sémantique du DSL** (`conditions.ts` : `AND` prioritaire sur `OR`,
+     pas de parenthèses) et du moteur (`evaluateNode.ts` : `ordered-first-match` vs `multi-options`) puis
+     **trace plusieurs profils patients représentatifs** à travers cette sémantique (pas seulement une
+     lecture statique du YAML) pour détecter : spin réintroduit, contre-indications de sécurité manquantes
+     ou non appliquées, incohérences avec les décisions actées (`DECISIONS.md`), pièges de précédence
+     `AND`/`OR`, et — pour les nœuds `multi-options` — des options qui se déclenchent ensemble de façon non
+     voulue (ex. une association qui s'active sur un seul critère au lieu de l'intersection réelle voulue).
+   - **Corriger** les écarts trouvés dans le YAML (jamais dans le dossier de preuve, qui reste la source
+     d'autorité) ; en cas de correction touchant la logique, **reconfirmer par un nouveau traçage** contre
+     le moteur réel (test temporaire jetable acceptable, supprimé avant commit).
+   - **Validation technique** : `npx vitest run` (validation Ajv du YAML contre `schema/noeud.schema.json`,
+     et tests du moteur) ainsi que `npm run build` (typecheck + build) doivent passer avant tout commit.
+9. `meta.statut: valide` sur le YAML encodé, puis commit (dossier de preuve + argumentaire + YAML +
+   éventuelle mise à jour du tableau des nœuds ci-dessous, dans un même commit ou des commits successifs
+   clairement scindés preuve / encodage).
+
+### Garde-fous de vérification (récapitulatif — pourquoi autant de passes)
+
+Un nœud traverse **plusieurs couches de vérification indépendantes**, chacune couvrant un risque différent ;
+aucune n'est redondante avec les autres :
+
+| # | Couche | Vérifie quoi | Porte sur |
+| --- | --- | --- | --- |
+| 1 | Bi-agents A/B (étape 4) | Chaque chiffre/DOI/essai cité contre sa **source primaire** ; le *spin* d'un abstract survendu | Le **dossier de preuve** (Markdown) |
+| 2 | OpenEvidence (débroussaillage + 2ᵉ passe) | Complète/recoupe l'extraction humaine ou agent ; **jamais** une source primaire en soi | Le **dossier de preuve** |
+| 3 | Triangulation (relecture croisée OE × agents, au besoin) | Qu'aucune des sources précédentes ne se trompe seule (une 2ᵉ lecture directe du texte primaire a déjà corrigé des erreurs d'OpenEvidence sur le nœud B) | Le **dossier de preuve** |
+| 4 | Validation clinique référent (étape 6) | Les arbitrages cliniques ouverts (frontières entre nœuds, priorités, granularité EBM vs accord d'experts) | Le **dossier de preuve** |
+| 5 | Bi-agents A/B dédiés à l'encodage (étape 8) | Fidélité du **YAML** au dossier validé ; sécurité et cohérence du **comportement du moteur** (traçage de profils patients) | Le **YAML encodé** |
+| 6 | Validation technique (Ajv + Vitest + build) | Conformité du YAML au JSON Schema ; non-régression du moteur ; compilation TS propre | Le **YAML encodé** |
+
+**Règle** : un `[À VÉRIFIER]` ne quitte jamais le statut « non confirmé » sur la seule foi d'une source
+secondaire (OpenEvidence, une méta-analyse citant un chiffre de seconde main…) — il faut soit la source
+primaire, soit un accord explicite référent documentant pourquoi le point reste ouvert mais non bloquant.
 
 ## Règles de sourcing (non négociables)
 
