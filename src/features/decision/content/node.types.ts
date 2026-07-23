@@ -102,6 +102,18 @@ export interface Meta {
   changelog: ChangelogEntry[]
 }
 
+/**
+ * Alerte clinique conditionnelle (DECISIONS.md D15) : rappel/avertissement affiché quand `quand`
+ * (condition DSL, ou `"default"` pour toujours) est vrai pour le patient — indépendant de la
+ * sélection des options (ex. « contrôler la cétonémie », « adapter la dose de metformine au DFG »).
+ * `niveau` pilote la présentation (info neutre vs point de vigilance).
+ */
+export interface Alerte {
+  quand: string
+  message: string
+  niveau?: 'info' | 'attention'
+}
+
 /** Nœud de décision (brief §5.1). `domaine` obligatoire — module Décision multi-domaine (D8). */
 export interface Noeud {
   id: string
@@ -120,4 +132,6 @@ export interface Noeud {
   selection?: 'ordered-first-match' | 'multi-options'
   /** Chemin du Markdown d'argumentaire exhaustif — niveau 3 de lecture (D11). */
   argumentaire_exhaustif?: string
+  /** Alertes cliniques conditionnelles, évaluées indépendamment des options (D15). */
+  alertes?: Alerte[]
 }

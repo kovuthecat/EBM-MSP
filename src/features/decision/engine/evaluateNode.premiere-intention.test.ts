@@ -36,6 +36,7 @@ function criteria(overrides: Partial<Criteria> = {}): Criteria {
     age: 60,
     HbA1c_actuelle: 8,
     symptomes_glucotoxicite: false,
+    cetonemie: false,
     preference_injection: 'indifferent',
     contrainte_cout: false,
     ...overrides,
@@ -47,6 +48,9 @@ function applicables(c: Criteria): string[] {
 }
 function exclues(c: Criteria): string[] {
   return [...evaluateNode(node!, c).excluded.keys()].map((o) => o.intitule)
+}
+function messagesAlertes(c: Criteria): string[] {
+  return evaluateNode(node!, c).alertes.map((a) => a.message)
 }
 
 describe('evaluateNode — "premiere-intention" (migré P2 v1.1 · multi-options)', () => {
@@ -93,5 +97,52 @@ describe('evaluateNode — "premiere-intention" (migré P2 v1.1 · multi-options
     const isglt2 = [...result.excluded.keys()].find((o) => o.intitule === ISGLT2)
     expect(isglt2).toBeDefined()
     expect(result.excluded.get(isglt2!)).toContain('symptomes_glucotoxicite == true')
+  })
+
+  it('cétonémie positive avec HbA1c < 10 → insuline déclenchée ; iSGLT2 exclu (résout la « metformine orpheline »)', () => {
+    const c = criteria({ HbA1c_actuelle: 9, cetonemie: true, insuffisance_cardiaque: true })
+    expect(applicables(c)).toEqual([INSULINE])
+    expect(exclues(c)).toContain(ISGLT2)
+  })
+
+  it('DFG < 20 sans athérome ni obésité → metformine ET iSGLT2 exclus (sortie vide honnête, tracée)', () => {
+    const c = criteria({ DFG: 18, albuminurie: 'macro' })
+    expect(applicables(c)).toEqual([])
+    expect(exclues(c)).toEqual(expect.arrayContaining([METFORMINE, ISGLT2]))
+  })
+
+  it('DFG 20–29 (metformine CI mais iSGLT2 initiable ≥ 20, KDIGO) → iSGLT2 proposé, PAS de sortie vide', () => {
+    // Garde-fou anti-régression : ne PAS "corriger" le seuil à DFG < 30 — cela retirerait l'iSGLT2 en IRC 3b–4.
+    expect(applicables(criteria({ DFG: 25 }))).toEqual([ISGLT2])
+  })
+})
+
+describe('evaluateNode — "premiere-intention" : alertes cliniques (D15)', () => {
+  it('HbA1c élevée → alerte de contrôle de la cétonémie', () => {
+    expect(messagesAlertes(criteria({ HbA1c_actuelle: 11 })).some((m) => /cétonémie/i.test(m))).toBe(true)
+  })
+
+  it('signes de glucotoxicité → alerte de contrôle de la cétonémie', () => {
+    expect(messagesAlertes(criteria({ symptomes_glucotoxicite: true })).some((m) => /cétonémie/i.test(m))).toBe(
+      true,
+    )
+  })
+
+  it('DFG 45–59 → alerte dose max metformine 2 000 mg/j (pas 1 000)', () => {
+    const m = messagesAlertes(criteria({ DFG: 50 }))
+    expect(m.some((x) => /2\s*000\s*mg/.test(x))).toBe(true)
+    expect(m.some((x) => /1\s*000\s*mg/.test(x))).toBe(false)
+  })
+
+  it('DFG 30–44 → alerte dose max metformine 1 000 mg/j', () => {
+    expect(messagesAlertes(criteria({ DFG: 40 })).some((x) => /1\s*000\s*mg/.test(x))).toBe(true)
+  })
+
+  it('DFG < 30 → alerte d’arrêt de la metformine (CI, toujours visible même quand iSGLT2 est proposé)', () => {
+    expect(messagesAlertes(criteria({ DFG: 25 })).some((x) => /arrêter la metformine/i.test(x))).toBe(true)
+  })
+
+  it('DFG normal et HbA1c basse → aucune alerte', () => {
+    expect(messagesAlertes(criteria())).toEqual([])
   })
 })

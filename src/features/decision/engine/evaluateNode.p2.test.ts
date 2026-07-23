@@ -354,3 +354,37 @@ describe('evaluateNode — rang conditionnel : garde-fous « aucun score caché 
     expect(() => evaluateNode(node, { a: true })).toThrow(ConditionError)
   })
 })
+
+describe('evaluateNode — alertes cliniques conditionnelles (D15)', () => {
+  it('déclenche une alerte quand son `quand` est vrai, pas sinon', () => {
+    const node = makeNode([opt('A', ['a == true']), opt('Défaut', ['default'])])
+    node.alertes = [{ quand: 'x == true', message: 'Alerte X', niveau: 'attention' }]
+    expect(evaluateNode(node, { a: true, x: true }).alertes.map((al) => al.message)).toEqual(['Alerte X'])
+    expect(evaluateNode(node, { a: true, x: false }).alertes).toHaveLength(0)
+  })
+
+  it('une alerte `quand: "default"` est toujours affichée', () => {
+    const node = makeNode([opt('A', ['a == true']), opt('Défaut', ['default'])])
+    node.alertes = [{ quand: 'default', message: 'Toujours' }]
+    expect(evaluateNode(node, { a: true }).alertes.map((al) => al.message)).toEqual(['Toujours'])
+  })
+
+  it('les alertes sont indépendantes de la sélection des options (ordered-first-match aussi)', () => {
+    const node = makeNode([opt('X', ['a == true']), opt('Défaut', ['default'])], 'ordered-first-match')
+    node.alertes = [{ quand: 'y == true', message: 'Vigilance Y' }]
+    const res = evaluateNode(node, { a: false, y: true })
+    expect(res.applicable.map((o) => o.intitule)).toEqual(['Défaut'])
+    expect(res.alertes.map((al) => al.message)).toEqual(['Vigilance Y'])
+  })
+
+  it('une alerte à `quand` malformé propage ConditionError (jamais un faux silencieux)', () => {
+    const node = makeNode([opt('A', ['a == true']), opt('Défaut', ['default'])])
+    node.alertes = [{ quand: 'variable_absente == true', message: 'X' }]
+    expect(() => evaluateNode(node, { a: true })).toThrow(ConditionError)
+  })
+
+  it('un nœud sans alertes renvoie une liste vide (non-régression)', () => {
+    const node = makeNode([opt('A', ['a == true']), opt('Défaut', ['default'])])
+    expect(evaluateNode(node, { a: true }).alertes).toEqual([])
+  })
+})

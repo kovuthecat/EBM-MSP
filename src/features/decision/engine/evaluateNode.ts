@@ -18,7 +18,7 @@
  * `priorite` et `exclusions` sont optionnels : un nœud sans ces champs (A, B actuels) garde
  * exactement le comportement antérieur (P2 réalisée, DECISIONS.md D13, sans régression).
  */
-import type { Noeud, Option } from '../content/node.types.ts'
+import type { Alerte, Noeud, Option } from '../content/node.types.ts'
 import type { Criteria } from './conditions.ts'
 import { ConditionError, evaluateCondition } from './conditions.ts'
 
@@ -44,6 +44,11 @@ export interface EvaluateNodeResult {
    * les expressions `exclusions` déclenchées (le « pourquoi de l'exclusion »). Vide si aucune (D13).
    */
   excluded: Map<Option, string[]>
+  /**
+   * Alertes cliniques déclenchées pour ces critères (D15) : rappels/avertissements indépendants de
+   * la sélection des options (ex. contrôler la cétonémie, adapter la dose au DFG). Vide si aucune.
+   */
+  alertes: Alerte[]
 }
 
 /** Une option de repli porte exactement `conditions: ["default"]` (brief §11, ex. "Cible ~7 %"). */
@@ -73,6 +78,18 @@ function requireConditions(option: Option): void {
 function triggeredExclusions(option: Option, criteria: Criteria): string[] {
   if (!option.exclusions || option.exclusions.length === 0) return []
   return option.exclusions.filter((expr) => evaluateCondition(expr, criteria))
+}
+
+/**
+ * Alertes déclenchées d'un nœud pour ces critères (D15) : celles dont `quand` vaut `"default"`
+ * (toujours) ou dont l'expression DSL est vraie. Indépendant de la sélection des options. Propage
+ * `ConditionError` sur une expression malformée (jamais de faux silencieux, brief §7).
+ */
+function evaluateAlertes(node: Noeud, criteria: Criteria): Alerte[] {
+  if (!node.alertes || node.alertes.length === 0) return []
+  return node.alertes.filter(
+    (alerte) => alerte.quand === 'default' || evaluateCondition(alerte.quand, criteria),
+  )
 }
 
 /**
@@ -122,9 +139,12 @@ function resolvePriorite(option: Option, criteria: Criteria): number {
  * formée dans le contenu doit être visible, jamais avalée en silence (brief §7).
  */
 export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResult {
+  // Alertes cliniques (D15) : indépendantes de la sélection des options, calculées dans tous les cas.
+  const alertes = evaluateAlertes(node, criteria)
+
   // Nœud à sortie unique (D11) : la 1re option applicable dans l'ordre du nœud l'emporte.
   if (node.selection === 'ordered-first-match') {
-    return evaluateOrderedFirstMatch(node, criteria)
+    return { ...evaluateOrderedFirstMatch(node, criteria), alertes }
   }
 
   const applicable: Option[] = []
@@ -181,7 +201,7 @@ export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResul
     return ra < rb ? -1 : 1
   })
 
-  return { applicable, reasons, excluded }
+  return { applicable, reasons, excluded, alertes }
 }
 
 /**
@@ -191,7 +211,10 @@ export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResul
  * l'ordre EST la sémantique explicite, ce qui lève l'ambiguïté des conditions qui se chevauchent.
  * Propage `ConditionError` comme `evaluateNode` (jamais de faux silencieux, brief §7).
  */
-function evaluateOrderedFirstMatch(node: Noeud, criteria: Criteria): EvaluateNodeResult {
+function evaluateOrderedFirstMatch(
+  node: Noeud,
+  criteria: Criteria,
+): Omit<EvaluateNodeResult, 'alertes'> {
   const excluded = new Map<Option, string[]>()
   for (const option of node.options) {
     if (isDefaultOption(option)) continue

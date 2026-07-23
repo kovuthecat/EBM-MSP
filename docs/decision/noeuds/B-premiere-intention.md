@@ -70,6 +70,15 @@ perte de poids (nœud H) au moins à parité** pour le phénotype européen. Enc
 `symptomes_glucotoxicite` (bool ; déjà prévu pour le nœud E), `decompensation`/`cetose` (bool). Modalités et
 relais de l'insuline = **nœud E** (chaînage B→E).
 
+> **Affinement d'encodage (v1.3, référent 2026-07-23)** : l'HbA1c reflétant les ~3 derniers mois **décroche
+> en cas de hausse glycémique récente** ; un SPUPD avec **cétonémie positive** justifie l'insuline quel que
+> soit l'HbA1c. Gate encodé : `(HbA1c ≥ 10 ET symptomes_glucotoxicite) OU cetonemie`, avec une variable
+> **`cetonemie` (bool)**. **Seuil de positivité retenu : β-hydroxybutyrate capillaire ≥ 0,6 mmol/L** (seuil
+> d'action bas en contexte hyperglycémique ; ≥ 3 mmol/L → urgence/hospitalisation) — sources : ADA *Diabetes
+> Care* 2025 (capillary ketone) ; *Plasma β-OHB for DKA* (PMC7394730). **À confirmer contre le protocole
+> local.** iSGLT2/association sont exclus sur `cetonemie` en plus de `symptomes_glucotoxicite` (acidocétose).
+> Une **alerte** (D15) invite à contrôler la cétonémie si HbA1c ≥ 10 ou signes de glucotoxicité.
+
 - **Metformine — option `base`** *(décision référent #2, 2026-07-23)* : proposée en 1re intention pour
   **tous** (reco FR maintenue, coût, recul, tolérance, **absence d'hypoglycémie**), en **argumentant
   explicitement** que sa preuve de bénéfice clinique *dur* est **faible/non concluante** (UKPDS 34 =
@@ -77,6 +86,14 @@ relais de l'insuline = **nœud E** (chaînage B→E).
   prouvé »** (réservé iSGLT2/GLP-1). Les autres 1res lignes viennent **en parallèle si le contexte
   clinique les justifie**, pas « contre » la metformine. CI/écart : `DFG < 30` (+ IC décompensée,
   IDM récent, intolérance digestive ~15 %).
+
+  > **Adaptation rénale (v1.3, RCP ANSM — Base de données publique des médicaments, METFORMINE, MàJ
+  > 14/04/2025)** : metformine **contre-indiquée si DFG < 30** (encodée en `exclusions`) ; **dose maximale
+  > 2 g/j à DFG 45–59**, **1 g/j (initiation ≤ 500 mg) à DFG 30–44**, 3 g/j à DFG 60–89 (diminution possible
+  > selon dégradation). Doses encodées en **alertes** (D15) conditionnées au DFG, plus une alerte d'**arrêt**
+  > si DFG < 30. Attention au seuil : entre **DFG 20 et 30**, l'iSGLT2 reste **proposé** (initiable ≥ 20,
+  > KDIGO) — donc **pas** de sortie vide ; le nœud n'a d'option in-scope à épuiser (→ **sortie vide tracée**)
+  > qu'à **DFG < 20 sans athérome/obésité** (iSGLT2 alors aussi contre-indiqué ; metformine déjà exclue).
 
 - **iSGLT2** — `insuffisance_cardiaque == true OR IRC (DFG<60 OR albuminurie != normo) OR
   ASCVD_etablie == true`. Bénéfice **insuffisance cardiaque + néphroprotection** — **PAS athérome**

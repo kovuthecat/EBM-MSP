@@ -60,9 +60,28 @@
     "argumentaire_exhaustif": {
       "type": "string",
       "description": "Chemin (relatif au dossier du noeud) du Markdown d'argumentaire exhaustif — niveau 3 de lecture (DECISIONS.md D11)."
+    },
+    "alertes": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/alerte" },
+      "description": "Alertes cliniques conditionnelles (DECISIONS.md D15) : messages affiches quand `quand` est vrai, independamment des options selectionnees."
     }
   },
   "definitions": {
+    "alerte": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["quand", "message"],
+      "properties": {
+        "quand": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Expression DSL (meme grammaire que conditions), ou 'default' pour une alerte toujours affichee."
+        },
+        "message": { "type": "string", "minLength": 1 },
+        "niveau": { "type": "string", "enum": ["info", "attention"] }
+      }
+    },
     "critereEntree": {
       "type": "object",
       "additionalProperties": false,
