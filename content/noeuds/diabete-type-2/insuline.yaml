@@ -1,0 +1,497 @@
+# Nœud E « Insuline » — contenu BROUILLON (2026-07-24).
+# Autorité : docs/decision/noeuds/E-insuline.md (dossier de preuve : 5 agents A × OpenEvidence 2ᵉ passe ×
+# red-team B1/B2/B3, PMID/DOI vérifiés/corrigés contre source primaire — §5b) + .argumentaire.md (niveau 3).
+# EN ATTENTE DE VALIDATION RÉFÉRENT (arbitrages §8-1→8-7 tranchés). Les valeurs cliniques ne se modifient pas
+# hors workflow veille → algorithme (D5).
+#
+# NŒUD MULTI-OPTIONS ROUTÉ PAR `situation_insuline` (4 situations séquentielles mutuellement exclusives :
+# naif → basale_seule → basale_plus_bolus → basal_bolus). Chaque option porte le gate de sa situation ;
+# dans une situation, plusieurs recommandations s'empilent, triées par `priorite` (rang croissant).
+#
+# DIMENSION MCG (§8-4) : deux axes. Axe CONTRÔLE (TIR/TAR/GMI) = redondant avec l'HbA1c qui gate déjà →
+# interprétation + alertes (cibles = CONSENSUS Battelino 2019, PAS un critère dur). Axe SÉCURITÉ
+# (TBR/TBR_severe/CV/hypo nocturnes) = critère DUR (EBM DEVOTE) → gate les recommandations de sécurité.
+#
+# DÉRIVÉS FORMULAIRE (le DSL ne compare pas 2 variables ni ne calcule de seuil — précédent nœud C) :
+# `cible_atteinte` (HbA1c_actuelle <= HbA1c_cible), `gaj_a_cible` (GAJ dans la cible), `over_basalisation`
+# (dose_basale_actuelle / poids > 0,5 U/kg — repère [À VÉRIFIER]), `terrain_fragile` (fragilite OR
+# esperance_vie==limitee OR age>=75 OR risque_hypoglycemie_schema==eleve, aligné sur la relaxation du nœud A).
+#
+# DOSES (§8-7) : aide au CALCUL à partir de `poids` (initiation = poids × 0,1-0,2 U/kg ; repli fixe 10 U) et
+# des doses actuelles (majorations +2 U ou +10-20 % ; diminutions −2 à −4 U ou −10-20 % ; basal-plus ≈ 10 % de
+# la basale). Ratios dans l'argumentaire ; calcul câblé au formulaire (P3). Scope basal → basal-bolus (§8-5) ;
+# HORS périmètre : ratios glucides-insuline / facteur de sensibilité formels, pompe & boucle fermée.
+#
+# ⚠ MESSAGES À NE JAMAIS TENIR : « l'insuline réduit les événements CV / la mortalité » (ORIGIN neutre) ; les
+# cibles TIR ne sont PAS un critère dur (consensus) ; prandial/prémix systématique n'est pas fondé sur les
+# preuves ; la réduction d'hypo SÉVÈRE des analogues 1ʳᵉ gén vs NPH n'est PAS significative (Cochrane 2020) ;
+# Prescrire ne pose PAS la NPH en référence (invention écartée) ; il n'existe pas de position CMG dédiée.
+id: insuline
+domaine: diabete-type-2
+titre: "Insulinothérapie du DT2 : initier, optimiser une basale, ajouter un bolus, adapter un basal-bolus"
+population_cible: >-
+  Adulte DT2 (hors DT1, grossesse, diabètes secondaires) chez qui une insulinothérapie est justifiée. Aide à
+  la prescription en médecine générale : initiation et titration d'une basale, intensification par étapes
+  (GLP-1 / combo fixe avant le bolus, puis basal-plus), adaptation d'un basal-bolus. Hors périmètre : pompe à
+  insuline et boucle fermée (centres initiateurs) ; calcul formel des ratios glucides-insuline / facteur de
+  sensibilité (éducation spécialisée).
+selection: multi-options
+argumentaire_exhaustif: "insuline.argumentaire.md"
+criteres_entree:
+  - nom: situation_insuline
+    type: enum
+    valeurs: [naif, basale_seule, basale_plus_bolus, basal_bolus]
+  - nom: age
+    type: nombre
+  - nom: HbA1c_actuelle
+    type: nombre
+  - nom: HbA1c_cible
+    type: nombre
+  - nom: cible_atteinte
+    type: bool
+    derive: "HbA1c_actuelle <= HbA1c_cible"
+  - nom: DFG
+    type: nombre
+  - nom: IMC
+    type: nombre
+  - nom: fragilite
+    type: bool
+  - nom: esperance_vie
+    type: enum
+    valeurs: [longue, intermediaire, limitee]
+  - nom: risque_hypoglycemie_schema
+    type: enum
+    valeurs: [faible, eleve]
+  - nom: terrain_fragile
+    type: bool
+    derive: "fragilite OR esperance_vie == limitee OR age >= 75 OR risque_hypoglycemie_schema == eleve"
+  - nom: hypo_severe_recurrente
+    type: bool
+  - nom: symptomes_glucotoxicite
+    type: bool
+  - nom: traitements_en_cours
+    type: liste
+    valeurs: [metformine, iSGLT2, aGLP1, sulfamide, glinide, gliptine, insuline_basale, insuline_rapide]
+  - nom: preference_injection
+    type: enum
+    valeurs: [accepte, refuse, indifferent]
+  - nom: mcg_disponible
+    type: bool
+  - nom: TIR
+    type: nombre
+  - nom: TBR
+    type: nombre
+  - nom: TBR_severe
+    type: nombre
+  - nom: TAR
+    type: nombre
+  - nom: CV_glycemique
+    type: nombre
+  - nom: GMI
+    type: nombre
+  - nom: profil_glycemique
+    type: liste
+    valeurs: [hypo_nocturne, phenomene_aube, excursions_postprandiales, hypo_interprandiale, stable]
+  - nom: GAJ
+    type: nombre
+  - nom: gaj_a_cible
+    type: bool
+    derive: "GAJ >= 0.7 AND GAJ <= 1.2"
+  - nom: poids
+    type: nombre
+  - nom: dose_basale_actuelle
+    type: nombre
+  - nom: dose_rapide_actuelle
+    type: nombre
+  - nom: over_basalisation
+    type: bool
+    derive: "dose_basale_actuelle / poids > 0.5"
+options:
+  # ═══════════ SITUATION 1 — NAÏF D'INSULINE ═══════════
+  - intitule: "Envisager un GLP-1 (ou une association fixe basale + GLP-1) avant ou avec l'insuline"
+    conditions:
+      - "situation_insuline == naif"
+      - "traitements_en_cours ne_contient_pas aGLP1"
+    priorite: 1
+    avantages:
+      - "Le GLP-1 (AR GLP-1 ou co-agoniste GIP/GLP-1) est préféré à l'insuline comme premier injectable (ADA 2026 rec 9.21 ; SFD 2025 Avis 19) : moins d'hypoglycémie, perte de poids, et bénéfice cardiovasculaire propre (démontré au niveau de la classe — voir nœuds B/C) que l'insuline n'a pas (ORIGIN neutre)."
+      - "Les associations à ratio fixe (IDegLira, iGlarLixi) simplifient le schéma (1 injection) tout en apportant l'effet du GLP-1."
+    inconvenients:
+      - "Effets indésirables digestifs ; le GLP-1 ne remplace pas l'insuline en cas de glucotoxicité sévère, de cétose ou d'hyperglycémie très symptomatique."
+      - "Les associations fixes n'ont pas de CVOT dédié : leur bénéfice cardiovasculaire s'infère de leurs composants, il n'est pas démontré pour la combinaison elle-même."
+    effet_attendu: >-
+      Ajout d'un GLP-1 : baisse d'HbA1c avec perte de poids et peu d'hypoglycémie (chiffres et choix de la
+      molécule : voir nœuds B/C). Priorité EBM : épargner l'insuline tant qu'un GLP-1 est possible et suffisant.
+    niveau_preuve: modere
+  - intitule: "Initier une insuline basale (en maintenant les antidiabétiques en cours)"
+    conditions:
+      - "situation_insuline == naif"
+      - "cible_atteinte == false OR symptomes_glucotoxicite == true"
+    priorite: 2
+    avantages:
+      - "L'insuline basale du soir associée aux antidiabétiques (oraux et/ou GLP-1) est l'insulinothérapie de choix du DT2 (ebmfrance/Duodecim, niveau B) ; réalisable en soins primaires."
+      - "Meilleur profil hypoglycémie / poids que les schémas prandial ou prémélangé (4T : hypo 2,3 vs 12,0 événements/patient/an et poids +1,9 vs +5,7 kg vs prandial à 1 an)."
+    inconvenients:
+      - "Hypoglycémie (ORIGIN : hypo sévère 1,00 vs 0,31 pour 100 personnes-années) et prise de poids (~+1,6 kg) ; aucun bénéfice sur les événements cardiovasculaires (ORIGIN : MACE HR 1,02)."
+      - "Le bénéfice microvasculaire est extrapolé du contrôle glycémique (UKPDS), non démontré par un essai dédié à l'insuline sur critère dur."
+    effet_attendu: >-
+      Dose d'initiation = poids × 0,1-0,2 U/kg/j (repli fixe : 10 U le soir — ebmfrance). Titration par
+      auto-ajustement : +2 U si la glycémie à jeun est au-dessus de la cible 3 matins de suite (ou +10-20 % par
+      paliers si dose > 40 U), à adapter tous les 3 jours ; cible de glycémie à jeun ~0,70-1,20 g/L
+      (individualisée). Maintenir metformine ± iSGLT2 ± GLP-1 ; arrêter sulfamide/glinide (voir alerte).
+    niveau_preuve: modere
+    contre_indications:
+      - "Pas de contre-indication absolue à l'insuline. Arrêter le sulfamide / glinide à l'introduction (risque d'hypoglycémie cumulée)."
+    calculs:
+      - { libelle: "Dose initiale (0,1 U/kg)", expression: "poids * 0.1", unite: "U/j" }
+      - { libelle: "Dose initiale (0,2 U/kg)", expression: "poids * 0.2", unite: "U/j" }
+  - intitule: "Choisir un analogue basal de 2ᵉ génération (glargine U300 ou degludec) si risque hypoglycémique"
+    conditions:
+      - "situation_insuline == naif"
+      - "risque_hypoglycemie_schema == eleve OR fragilite == true OR esperance_vie == limitee"
+    priorite: 3
+    avantages:
+      - "Chez le patient à risque d'hypoglycémie (âgé, fragile, insuffisance rénale, hypoglycémies nocturnes), préférer glargine U300 ou degludec à glargine U100 / détémir, a fortiori à la NPH (ebmfrance niveau B ; SFD 2025 Avis 18 bis)."
+      - "Réduction démontrée de l'hypoglycémie nocturne / symptomatique (SWITCH 2 : RR 0,70 globale, 0,58 nocturne ; EDITION U300 : −31 % nocturne)."
+    inconvenients:
+      - "Le bénéfice sur l'hypoglycémie SÉVÈRE (critère dur) n'est démontré que pour degludec vs glargine U100 (DEVOTE : RR 0,60, NNT ~59 sur ~2 ans, en population à très haut risque) ; il n'y a PAS de supériorité démontrée d'un analogue de 2ᵉ génération sur l'autre (BRIGHT : équivalence ; CONCLUDE : critère primaire négatif)."
+      - "Pour la 1ʳᵉ génération vs NPH, la réduction de l'hypoglycémie sévère n'est PAS significative (Cochrane 2020 : RR 0,68, IC 0,46-1,01) ; surcoût à peser. Aucun bénéfice cardiovasculaire."
+    effet_attendu: >-
+      Recommandation au niveau de la CLASSE (« analogue basal de 2ᵉ génération : glargine U300 ou degludec »),
+      l'EBM ne départageant pas les deux molécules (D12). Bénéfice attendu = moins d'hypoglycémie nocturne
+      (substitut) ; hypoglycémie sévère : degludec vs glargine U100 seulement.
+    niveau_preuve: modere
+  # ═══════════ SITUATION 2 — BASALE SEULE À OPTIMISER ═══════════
+  - intitule: "Corriger l'hypoglycémie ou la variabilité (réduire la dose, passer en 2ᵉ génération, relâcher la cible)"
+    conditions:
+      - "situation_insuline == basale_seule"
+      - "TBR > 4 OR TBR_severe > 1 OR CV_glycemique > 36 OR profil_glycemique contient hypo_nocturne"
+    priorite: 1
+    avantages:
+      - "Sécurité prioritaire : l'hypoglycémie est le critère DUR qui pilote le schéma. Réduire la basale de −2 à −4 U (ou −10-20 % de la dose actuelle), envisager un analogue de 2ᵉ génération, relâcher la cible."
+    inconvenients:
+      - "Peut relâcher transitoirement le contrôle glycémique — objectif assumé chez le patient à risque d'hypoglycémie."
+    effet_attendu: >-
+      Déclenchée par l'axe SÉCURITÉ de la MCG (TBR > 4 %, TBR sévère > 1 %, CV > 36 %) ou un profil AGP d'hypo
+      nocturne. Sans MCG : hypoglycémies symptomatiques / glycémie à jeun basse répétée.
+    niveau_preuve: modere
+    calculs:
+      - { libelle: "Basale réduite (−20 %)", expression: "dose_basale_actuelle * 0.8", unite: "U/j" }
+  - intitule: "Ne pas sur-titrer la basale — intensifier autrement (GLP-1 puis bolus)"
+    conditions:
+      - "situation_insuline == basale_seule"
+      - "gaj_a_cible == true"
+      - "cible_atteinte == false"
+    priorite: 2
+    avantages:
+      - "Glycémie à jeun à la cible mais HbA1c encore au-dessus = écart POST-PRANDIAL (« over-basalisation », souvent au-delà de ~0,5 U/kg) : augmenter la basale n'aidera pas et majore l'hypoglycémie. Ajouter un GLP-1 (ou passer à une association fixe), sinon passer au bolus."
+      - "Le GLP-1 / l'association fixe donne le même contrôle que le basal-bolus avec moins d'hypoglycémie et de poids (DUAL VII : HbA1c non-inférieure, hypo rate ratio 0,11, −3,6 kg, 1 injection vs ≥ 4 ; méta Eng vs basal-bolus : hypo RR 0,67)."
+    inconvenients:
+      - "Nécessite d'ajouter une classe (GLP-1) ou une injection prandiale ; le seuil de 0,5 U/kg est un repère, non validé par un essai."
+    effet_attendu: >-
+      Réorienter vers la couverture post-prandiale plutôt que d'empiler une basale inefficace. Renvoi à la
+      situation « ajout d'un bolus » si le GLP-1 est déjà en place ou insuffisant.
+    niveau_preuve: modere
+    exclusions:
+      - "TBR > 4"
+      - "TBR_severe > 1"
+      - "CV_glycemique > 36"
+      - "profil_glycemique contient hypo_nocturne"
+  - intitule: "Titrer la basale (augmenter la dose)"
+    conditions:
+      - "situation_insuline == basale_seule"
+      - "cible_atteinte == false"
+      - "gaj_a_cible == false"
+    priorite: 3
+    avantages:
+      - "Glycémie à jeun au-dessus de la cible sans hypoglycémie : +2 U si la glycémie à jeun reste au-dessus de la cible 3 matins de suite (ou +10-20 % par paliers si dose > 40 U), à adapter tous les 3 jours. Algorithme validé (Treat-to-Target : ~60 % atteignent la cible)."
+    inconvenients:
+      - "Risque d'hypoglycémie si sur-titration — surveiller la glycémie à jeun basse / le temps sous la cible (TBR)."
+    effet_attendu: "Titration simple, réalisable en soins primaires, guidée par la glycémie à jeun (ou la MCG : glucose nocturne / TAR nocturne)."
+    niveau_preuve: modere
+    calculs:
+      - { libelle: "Basale après +2 U", expression: "dose_basale_actuelle + 2", unite: "U/j" }
+    exclusions:
+      - "TBR > 4"
+      - "TBR_severe > 1"
+      - "CV_glycemique > 36"
+      - "profil_glycemique contient hypo_nocturne"
+  # ═══════════ SITUATION 3 — AJOUT D'UN BOLUS / BASAL-PLUS ═══════════
+  - intitule: "Ajouter un GLP-1 / une association fixe d'abord (si non encore fait)"
+    conditions:
+      - "situation_insuline == basale_plus_bolus"
+      - "traitements_en_cours ne_contient_pas aGLP1"
+    priorite: 1
+    avantages:
+      - "Avant tout bolus prandial : ajouter un GLP-1 ou passer à une association fixe (IDegLira, iGlarLixi) — même HbA1c que le basal-bolus, avec moins d'hypoglycémie et de poids et une seule injection (DUAL VII ; métas Eng, Maiorino)."
+    inconvenients:
+      - "Effets digestifs ; pas de CVOT dédié aux associations fixes (bénéfice substitutif)."
+    effet_attendu: "Épargne d'insuline prandiale et bénéfice pondéral ; réserver le bolus aux cas où basale + GLP-1 restent insuffisants."
+    niveau_preuve: modere
+  - intitule: "Ajouter un bolus au repas principal (basal-plus, par étapes)"
+    conditions:
+      - "situation_insuline == basale_plus_bolus"
+    priorite: 2
+    avantages:
+      - "Commencer par UN bolus d'analogue rapide au repas le plus hyperglycémiant (guidé par le profil AGP : excursions post-prandiales), plutôt qu'un basal-bolus complet d'emblée : non-inférieur avec moins d'hypoglycémie (FullSTEP : rate ratio 0,58) et une meilleure satisfaction."
+    inconvenients:
+      - "Ajoute une injection et une autosurveillance (profils capillaires 6-7 points si pas de MCG). N'escalader vers 2 puis 3 bolus que si nécessaire."
+    effet_attendu: >-
+      Dose de bolus ≈ 10 % de la dose basale (ou 4 U), 10-15 min avant le repas ; ajuster sur la glycémie
+      post-prandiale (< 1,80 g/L à 2 h) ou le TAR post-prandial.
+    niveau_preuve: modere
+    calculs:
+      - { libelle: "Bolus initial (~10 % de la basale)", expression: "dose_basale_actuelle * 0.1", unite: "U" }
+  - intitule: "Insuline prémélangée — option dégradée, dernier recours"
+    conditions:
+      - "situation_insuline == basale_plus_bolus"
+      - "preference_injection == refuse"
+    priorite: 3
+    avantages:
+      - "Uniquement si le patient refuse les injections multiples et a des repas réguliers (ADA 2026) : 1-2 prémélangées/jour, plus simple qu'un basal-bolus."
+    inconvenients:
+      - "Non fondé sur les preuves en 1ʳᵉ intention (ebmfrance) : moins souple, plus d'hypoglycémie et de poids (Bertuol : biphasique −0,24 % d'HbA1c seulement ; 4T : le moins performant pour la cible). À ne JAMAIS proposer avant un GLP-1 / une association fixe ou un basal-plus."
+    effet_attendu: "Compromis de simplicité pour un patient réticent aux injections multiples, au prix d'un moins bon rapport bénéfice/risque que l'association fixe ou le basal-plus."
+    niveau_preuve: faible
+  # ═══════════ SITUATION 4 — BASAL-BOLUS COMPLET ═══════════
+  - intitule: "Désintensifier / alléger le schéma"
+    conditions:
+      - "situation_insuline == basal_bolus"
+      - "fragilite == true OR esperance_vie == limitee OR hypo_severe_recurrente == true"
+    priorite: 1
+    avantages:
+      - "Chez le sujet fragile, à espérance de vie limitée ou avec hypoglycémies sévères : relâcher la cible, simplifier le schéma, réduire les doses (à partir des doses actuelles), envisager un GLP-1 pour réduire les besoins en insuline. Éviter le surtraitement (HAS 2024 R.103 ; SFD 2025 Avis 21)."
+    inconvenients:
+      - "Contrôle glycémique volontairement moins strict — bénéfice = réduction du risque d'hypoglycémie."
+    effet_attendu: "Priorité à la sécurité et à la qualité de vie ; cibles glycémiques et de MCG relâchées (voir alerte)."
+    niveau_preuve: modere
+  - intitule: "Optimiser la répartition du basal-bolus (guidé par l'AGP et les doses actuelles)"
+    conditions:
+      - "situation_insuline == basal_bolus"
+    priorite: 2
+    avantages:
+      - "Prise en charge du basal-bolus par le médecin généraliste : équilibrer basal/bolus (~50/50) et ajuster à partir des doses actuelles, guidé par le profil AGP — hypo nocturne → réduire la basale ; phénomène de l'aube → augmenter la basale ; excursions post-prandiales → augmenter le bolus / avancer le timing ; hypo interprandiale → réduire le bolus."
+    inconvenients:
+      - "Le calcul formel des ratios glucides-insuline et du facteur de sensibilité n'est pas inclus (éducation spécialisée). Si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière → orienter vers le spécialiste (voir alerte)."
+    effet_attendu: "Ajustement lisible, piloté par la forme des courbes (AGP) et les doses en cours, dans le périmètre de la médecine générale."
+    niveau_preuve: faible
+alertes:
+  - quand: "hypo_severe_recurrente == true OR CV_glycemique > 36 OR TBR_severe > 1"
+    niveau: attention
+    message: >-
+      Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre
+      PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes /
+      non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de
+      grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG.
+  - quand: "traitements_en_cours contient sulfamide OR traitements_en_cours contient glinide"
+    niveau: attention
+    message: "À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée)."
+  - quand: "traitements_en_cours contient iSGLT2"
+    niveau: attention
+    message: >-
+      iSGLT2 + insuline : maintenir l'iSGLT2 pour le bénéfice cardio-rénal, mais informer du risque
+      d'acidocétose euglycémique — suspendre en cas de jeûne, de chirurgie ou de maladie aiguë intercurrente.
+  - quand: "DFG < 45"
+    niveau: attention
+    message: >-
+      Insuffisance rénale : besoins en insuline réduits et risque d'hypoglycémie majoré (adapter les doses,
+      renforcer la surveillance) ; sulfamides à proscrire ; adapter ou arrêter la metformine selon le DFG.
+  - quand: "over_basalisation == true"
+    niveau: info
+    message: >-
+      Dose basale élevée (> 0,5 U/kg — repère) : ne pas poursuivre la titration de la basale, préférer l'ajout
+      d'un GLP-1 ou d'un bolus prandial (l'excès de basale majore l'hypoglycémie sans corriger l'écart post-prandial).
+  - quand: "mcg_disponible == true AND terrain_fragile == false"
+    niveau: info
+    message: >-
+      Cibles de MCG standard (consensus international Battelino 2019 — repères d'interprétation, PAS un critère
+      dur validé sur les complications) : temps dans la cible (TIR) > 70 %, temps en hypoglycémie (TBR) < 4 %
+      et < 1 % (< 54 mg/dL), temps au-dessus (TAR) < 25 % et < 5 % (> 250 mg/dL), coefficient de variation ≤ 36 %.
+  - quand: "mcg_disponible == true AND terrain_fragile == true"
+    niveau: info
+    message: >-
+      Sujet âgé / fragile / à haut risque d'hypoglycémie : cibles de MCG ASSOUPLIES — TIR > 50 %, TBR < 1 %,
+      TAR plus permissif (cohérent avec la cible d'HbA1c relâchée issue du nœud A).
+  - quand: "mcg_disponible == false"
+    niveau: info
+    message: >-
+      Sans MCG : titrer la basale sur la glycémie à jeun (cible ~0,70-1,20 g/L) ; utiliser des profils
+      capillaires 6-7 points (avant/après les 3 repas + coucher) pour guider l'intensification prandiale.
+  - quand: "default"
+    niveau: info
+    message: >-
+      L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS
+      de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les
+      hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1).
+argumentaire: >
+  Quand une insuline devient nécessaire dans le DT2, le schéma de choix est une insuline BASALE ajoutée aux
+  antidiabétiques (oraux et/ou GLP-1), le GLP-1 étant préféré comme premier injectable (ADA 2026, SFD 2025) ;
+  les schémas prandial et prémélangé systématiques ne sont pas fondés sur les preuves (surcroît d'hypoglycémie
+  et de poids sans gain durable — 4T, Bertuol). L'intensification privilégie le GLP-1 ou l'association fixe
+  AVANT le bolus (même contrôle que le basal-bolus, moins d'hypoglycémie et de poids — DUAL VII, méta Eng),
+  puis le basal-plus par étapes avant le basal-bolus complet (FullSTEP). Le choix de molécule et de cible se
+  pilote sur le RISQUE hypoglycémique : analogues de 2ᵉ génération (glargine U300 ou degludec) si risque
+  élevé, fragilité ou hypoglycémies nocturnes — bénéfice démontré sur l'hypoglycémie nocturne (substitut), et
+  sur l'hypoglycémie sévère pour degludec vs glargine U100 seulement (DEVOTE, NNT ~59). L'insuline est
+  cardiovasculairement neutre (ORIGIN) : son bénéfice est glycémique et microvasculaire (extrapolé), jamais
+  une promesse de survie. Les métriques de MCG servent l'INTERPRÉTATION (lecture de l'AGP) et les ALERTES de
+  sécurité — leurs cibles sont un consensus d'experts, pas un critère dur (le lien TIR-complications est
+  observationnel, le bénéfice de la MCG en DT2 porte sur des substituts) ; seule la dimension hypoglycémie
+  (TBR, variabilité, hypo nocturnes) pilote des recommandations de sécurité. Les doses d'initiation et
+  d'ajustement se calculent à partir du poids et des doses en cours (ratios dans l'argumentaire exhaustif),
+  dans le périmètre de la médecine générale (basale → basal-bolus), l'orientation vers le spécialiste étant
+  réservée au déséquilibre persistant ou aux situations particulières.
+sources:
+  references_primaires:
+    - titre: "ORIGIN (glargine vs soins standard, n=12 537, 6,2 ans) — MACE HR 1,02 (0,94-1,11), mortalité HR 0,98, cancer HR 1,00 : CV-neutre"
+      annee: 2012
+      type_critere: dur
+      lien: "https://pubmed.ncbi.nlm.nih.gov/22686416/"
+    - titre: "ORIGINALE (extension post-essai) — neutralité CV / mortalité / cancer maintenue"
+      annee: 2016
+      type_critere: dur
+      lien: "https://pubmed.ncbi.nlm.nih.gov/26681720/"
+    - titre: "DEVOTE (degludec vs glargine U100, CVOT double aveugle, n=7 637) — MACE non-inf HR 0,91 ; hypo sévère RR 0,60, NNT ~59 / 2 ans"
+      annee: 2017
+      type_critere: dur
+      lien: "https://pubmed.ncbi.nlm.nih.gov/28605603/"
+    - titre: "SWITCH 2 (degludec vs glargine U100, cross-over) — hypo symptomatique RR 0,70, nocturne 0,58 ; hypo sévère NS"
+      annee: 2017
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/28672317/"
+    - titre: "BRIGHT (glargine U300 vs degludec, tête-à-tête) — équivalence HbA1c et hypoglycémie (moindre sous U300 en titration)"
+      annee: 2018
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/30104294/"
+    - titre: "CONCLUDE (degludec U200 vs glargine U300) — critère primaire (hypo symptomatique) NÉGATIF, RR 0,88 NS"
+      annee: 2020
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/31984443/"
+    - titre: "EDITION 1-2-3 poolée (glargine U300 vs U100) — hypo nocturne −31 % ; hypo sévère NS"
+      annee: 2015
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/25929311/"
+    - titre: "Cochrane Semlitsch (analogues lents vs NPH, DT2) — hypo globale/nocturne réduite ; hypo SÉVÈRE non significative (RR 0,68, 0,46-1,01) ; pas de bénéfice sur critères durs"
+      annee: 2020
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/33166419/"
+    - titre: "Treat-to-Target (Riddle, glargine vs NPH, titration sur la glycémie à jeun) — 33,2 % vs 26,7 % atteignent ≤ 7 % sans hypo nocturne"
+      annee: 2003
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/14578243/"
+    - titre: "Porcellati (méta poolée patient-level, 6 ECR treat-to-target glargine vs NPH) — hypo sévère 2,0 % vs 3,9 % (p=0,04), nocturne sévère 0,7 % vs 2,1 % (p=0,002) ; DISCORDANT de la Cochrane Semlitsch 2020 (hypo sévère non significative)"
+      annee: 2017
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/28151905/"
+    - titre: "4T (basal détémir vs prandial vs biphasique, ajout aux oraux) — 1 an PMID 17890232 (hypo 2,3 vs 12,0 évén./pt/an ; poids +1,9 vs +5,7 kg) ; 3 ans PMID 19850703 (basal = moins d'hypo/poids ; biphasique le moins performant)"
+      annee: 2009
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/19850703/"
+    - titre: "DUAL VII (IDegLira vs basal-bolus, comparateur non plafonné) — HbA1c non-inf ; hypo rate ratio 0,11 ; −3,6 kg ; 1 injection vs ≥ 4"
+      annee: 2018
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/29483185/"
+    - titre: "Eng (méta 15 ECR, GLP-1 + basale) — vs basal-bolus : HbA1c −0,1 %, hypo RR 0,67, poids −5,66 kg"
+      annee: 2014
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/25220191/"
+    - titre: "Maiorino (méta 26 ECR, GLP-1 + insuline) — vs basal-bolus : hypo RR 0,66, poids −4,7 kg, contrôle similaire"
+      annee: 2017
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/28325801/"
+    - titre: "FullSTEP (basal-plus par étapes vs basal-bolus d'emblée) — non-inf HbA1c ; hypo rate ratio 0,58"
+      annee: 2014
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/24622667/"
+    - titre: "Bertuol (network méta-analyse, 58 ECR, 19 122 pts, PMID 41436667) — vs basale : prandial −0,38 %, biphasique −0,24 % d'HbA1c, +~1 kg, hausse limite de l'hypo sévère"
+      annee: 2026
+      type_critere: substitution
+      lien: "https://doi.org/10.1007/s00125-025-06633-x"
+    - titre: "Battelino / ATTD (consensus international Time in Range) — cibles TIR/TBR/TAR/CV/GMI (CONSENSUS d'experts)"
+      annee: 2019
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/31177185/"
+    - titre: "Beck (validation du TIR, ré-analyse du DCCT, DT1) — rétinopathie HR 1,64, microalbuminurie 1,40 par −10 points de TIR (OBSERVATIONNEL)"
+      annee: 2019
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/30352896/"
+    - titre: "Lu (cohorte prospective T2D, n=6 225) — TIR ≤ 50 % : mortalité toutes causes HR 1,83, CV 1,85 (OBSERVATIONNEL)"
+      annee: 2021
+      type_critere: dur
+      lien: "https://pubmed.ncbi.nlm.nih.gov/33097560/"
+    - titre: "MOBILE (MCG en DT2 sous insuline basale seule) — HbA1c −0,4 %, TIR +15 points (substituts)"
+      annee: 2021
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/34077499/"
+    - titre: "FreeDM2 (MCG en DT2 sous basale + iSGLT2/GLP-1, PMID 42035781) — HbA1c −0,6 % / −0,5 % ; hypo sévère 0 vs 2 (substituts)"
+      annee: 2026
+      type_critere: substitution
+      lien: "https://doi.org/10.1016/S2213-8587(26)00076-8"
+    - titre: "Jancev (méta 12 ECR, MCG en DT2) — HbA1c −0,31 %, TIR +6,4 % ; hypo sévère RR 0,66 NS ; pas de donnée sur critères durs"
+      annee: 2024
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/38363342/"
+  medicalement_geek:
+    synthese: >-
+      Ligne EBM francophone (ebmfrance/Duodecim, Médicalement Geek/DragiWebdo) : basale + oraux/GLP-1 = schéma
+      de choix ; prandial et prémélangé hors 1ʳᵉ intention ; GLP-1 avant le bolus ; vigilance sur le
+      surtraitement du sujet âgé (aucune métrique — HbA1c ni MCG — ne prédit fiablement le risque d'hypoglycémie).
+    lien: "https://www.ebmfrance.net/Guidelines/Details/ebm00491"
+  prescrire:
+    synthese: >-
+      Insuline en AJOUT lorsque l'HbA1c est très élevée ou si éviter la prise de poids n'est pas prioritaire ;
+      le GLP-1 (sémaglutide, dulaglutide) est le plus souvent préféré AVANT l'insuline. Effets indésirables :
+      hypoglycémie, prise de poids, aggravation d'une rétinopathie en cas de baisse rapide de l'HbA1c. (Résumé
+      — droit d'auteur ; réf. prescrire-dt2.md P1/P3/P5/P8. NB : Prescrire ne traite pas la hiérarchie NPH /
+      analogues de 2ᵉ génération dans ces sources.)
+  reco_officielle:
+    source: >-
+      SFD 2025 (Darmon P et al., Médecine des maladies Métaboliques 2025;19(8):630-662) — reco française de
+      référence affichée ; HAS 2024 (« Stratégie thérapeutique du patient vivant avec un DT2 ») ; ADA Standards
+      of Care 2026 (chap. 7 Technologie & 9 Traitement pharmacologique) ; ADA/EASD 2022 (Davies, PMID 36148880) ;
+      AACE 2022/2026. Position d'experts MCG en médecine générale : Joubert M et al. 2025 (Méd. Mal. Métab. 19:331-347).
+    position: >-
+      Consensus : insuline basale ajoutée aux antidiabétiques ; GLP-1 préféré comme premier injectable et avant
+      le bolus (SFD 2025 Avis 19, ADA 2026 rec 9.21) ; analogues de 2ᵉ génération si risque d'hypoglycémie
+      (SFD 2025 Avis 18 bis) ; désintensification du sujet âgé (SFD 2025 Avis 21, HAS 2024 R.103) ; MCG
+      recommandée et remboursée chez le patient traité par insuline (SFD 2025 Avis 23, ADA 2026 rec 7.15 grade A),
+      avec les cibles de Time in Range de Battelino 2019.
+    divergence: true
+    explication: >-
+      Deux frictions officielles : (1) la HAS 2024 (R.88, grade accord d'experts) place l'insuline prémélangée
+      à parité avec le basal-bolus et reste muette sur la préférence 2ᵉ génération et sur « le GLP-1 avant le
+      bolus », là où ebmfrance et la SFD 2025 l'écartent ou l'énoncent explicitement ; (2) sur la MCG / le Time
+      in Range, un axe SFD 2025 / ADA 2026 technophile (MCG grade A, délivrance automatisée d'insuline désormais
+      proposée aussi en DT2, avec d'importants conflits d'intérêt avec les fabricants de dispositifs) s'oppose à
+      une HAS réservée (MCG « encouragée », sans cible de TIR) et à la position critique (Prescrire, Médicalement
+      Geek : les cibles de TIR sont un consensus / un substitut, aucune métrique ne prédit fiablement
+      l'hypoglycémie, d'où un risque de surtraitement guidé par la technologie). L'outil affiche la reco
+      française (SFD 2025, convergente avec l'EBM sur l'essentiel) et signale ces divergences ; il ne revendique
+      jamais de bénéfice cardiovasculaire pour l'insuline (ORIGIN neutre).
+incertitudes:
+  - "MCG : les cibles (TIR > 70 %, etc.) sont un consensus d'experts (Battelino 2019), pas un critère dur ; le lien TIR-complications est observationnel (Beck, ré-analyse du DCCT en DT1 ; Lu, cohorte T2D) ; le bénéfice de la MCG en DT2 porte sur des substituts (HbA1c, TIR), sans preuve sur les complications dures ni la mortalité (Jancev)."
+  - "Bénéfice microvasculaire de l'insuline = extrapolé du contrôle glycémique (UKPDS), non démontré par un essai dédié à l'insuline sur critère dur."
+  - "Seuil d'over-basalisation de 0,5 U/kg = repère (SFD / Médicalement Geek), non validé par un essai — à confirmer ; modélisé comme dérivé affiché, pas comme gate EBM dur."
+  - "2ᵉ génération : hypoglycémie SÉVÈRE démontrée pour degludec vs glargine U100 seulement (DEVOTE) ; pour la 1ʳᵉ génération vs NPH, elle n'est pas significative (Cochrane 2020) ; pas de supériorité d'un analogue de 2ᵉ génération sur l'autre (BRIGHT, CONCLUDE)."
+  - "Associations fixes (IDegLira, iGlarLixi) : bénéfice substitutif, aucun essai de morbi-mortalité cardiovasculaire dédié."
+  - "Câblage formulaire (P3) : dérivés cible_atteinte / gaj_a_cible / over_basalisation / terrain_fragile, calcul des doses (poids + doses actuelles), tooltips de lecture de l'AGP par profil, et la variable hypo_severe_recurrente restent à câbler."
+  - "Intégration inter-nœuds : HbA1c_cible provient du nœud A et terrain_fragile reprend ses déclencheurs de relaxation — cohérence à maintenir."
+veille_liee: []
+meta:
+  date_revue: "2026-07-24"
+  auteur: "référent DT2 (Thibault) + Opus"
+  statut: brouillon
+  version: "0.1"
+  changelog:
+    - date: "2026-07-24"
+      auteur: "Opus + référent"
+      resume: >-
+        Distillation initiale (BROUILLON v0.1) depuis le dossier de preuve E-insuline.md (5 agents A × OpenEvidence
+        2ᵉ passe × red-team B1/B2/B3, PMID/DOI vérifiés et corrigés contre source primaire — §5b). Nœud
+        multi-options routé par situation_insuline (4 situations, 11 options) : naïf (GLP-1 d'abord → initier
+        basale → 2ᵉ génération), basale seule (corriger l'hypo → ne pas sur-titrer → titrer), basal-plus (GLP-1
+        → bolus au repas principal → prémix dégradé), basal-bolus (désintensifier → optimiser). MCG en deux axes
+        (contrôle = interprétation/alertes ; sécurité = gate). Doses calculées (poids + doses actuelles).
+        Cibles de MCG relâchées sur terrain fragile (cohérence nœud A). Arbitrages référent §8-1→8-7 tranchés.
+        RESTE avant valide : validation clinique du référent option par option, puis vérification d'encodage
+        bi-agents (étape 8). Câblage formulaire = P3.

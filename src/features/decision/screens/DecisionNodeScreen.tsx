@@ -6,6 +6,7 @@ import { buildDefaultCriteria, CriteriaForm } from '../components/CriteriaForm'
 import { OptionCard } from '../components/OptionCard'
 import { getNoeudById } from '../content/loadNodes'
 import type { Criteria, CriteriaValue } from '../engine/conditions'
+import { calculerCriteresDerives, criteresReferences } from '../engine/deriveCritere'
 import { evaluateNode } from '../engine/evaluateNode'
 import { ESPERANCE_VIE_DRIVERS, hasEsperanceVieCritere, suggestEsperanceVie } from '../lib/esperanceVieDefault'
 import { computeBadges } from '../lib/optionBadges'
@@ -38,15 +39,39 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   const [touched, setTouched] = useState<Set<string>>(() => new Set())
   const [argOpen, setArgOpen] = useState(false)
 
+  // Toutes les règles du nœud (conditions, exclusions, priorités conditionnelles, `quand` des alertes) :
+  // ne requérir que les nombres RÉELLEMENT utilisés (directement ou via un `derive`). Un nombre non
+  // référencé ne peut pas changer la sortie du moteur — l'exiger n'apporte aucune sécurité (T-009) et
+  // alourdit inutilement la saisie (le nœud E déclare des nombres informatifs, ex. IMC/TIR/TAR/GMI).
+  const reglesDuNoeud = node
+    ? [
+        ...node.options.flatMap((option) => [
+          ...option.conditions,
+          ...(option.exclusions ?? []),
+          ...(Array.isArray(option.priorite) ? option.priorite.map((regle) => regle.quand) : []),
+        ]),
+        ...(node.alertes?.map((alerte) => alerte.quand) ?? []),
+      ]
+    : []
+  const criteresReferencees = node ? criteresReferences(node.criteres_entree, reglesDuNoeud) : new Set<string>()
+
   const champsNumeriquesRequis = node
-    ? node.criteres_entree.filter((critere) => critere.type === 'nombre').map((critere) => critere.nom)
+    ? node.criteres_entree
+        .filter(
+          (critere) =>
+            critere.type === 'nombre' && critere.derive == null && criteresReferencees.has(critere.nom),
+        )
+        .map((critere) => critere.nom)
     : []
   const champsNumeriquesManquants = champsNumeriquesRequis.filter((nom) => !touched.has(nom))
   const criteresPretsAEvaluer = champsNumeriquesManquants.length === 0
 
+  // Les critères dérivés (ex. cible_atteinte = HbA1c_actuelle <= HbA1c_cible ; over_basalisation =
+  // dose_basale_actuelle / poids > 0,5) sont recalculés depuis les primitives saisies AVANT l'évaluation
+  // du moteur — le DSL de `conditions.ts` ne compare qu'`variable OP littéral` (engine/deriveCritere.ts).
   const result = useMemo(() => {
     if (!node || !criteresPretsAEvaluer) return undefined
-    return evaluateNode(node, criteria)
+    return evaluateNode(node, calculerCriteresDerives(node.criteres_entree, criteria))
   }, [node, criteria, criteresPretsAEvaluer])
 
   if (!node) {
@@ -134,6 +159,7 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                   option={option}
                   badge={badges.get(option) ?? null}
                   reasons={result.reasons.get(option) ?? []}
+                  criteria={criteria}
                 />
               ))
             })()

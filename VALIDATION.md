@@ -100,6 +100,39 @@ câblage dédié. Seul ajout de code = 2 libellés (`diabete_complique`, `dialys
 - [ ] Libellés de critères/valeurs d'énumération non catalogués : repli `humanize()` sans accents
   (limitation assumée, sans impact clinique).
 
+## Contenu DT2 — nœud E « Insuline » + câblage générique (2026-07-24, BROUILLON v0.1)
+
+Nœud encodé + vérifié bi-agents (étape 8, feu vert). Câblage P3 réalisé : **critères dérivés calculés**
+(`engine/deriveCritere.ts` + champ `derive` du schéma) et **nombres optionnels** (ne requiert que les nombres
+référencés). Labels + **tooltips AGP** ajoutés (`labels.ts`). Ajv 7/7, 136 tests, build OK.
+
+- [ ] D2 : la carte « Insulinothérapie du DT2 : initier, optimiser une basale, ajouter un bolus, adapter un
+  basal-bolus » apparaît dans le domaine DT2, comme un thème distinct des nœuds A/B/C/F.
+- [ ] D3 : `Situation d'insulinothérapie` en menu ; `Profil glycémique (lecture AGP)` en multi-cases **avec
+  infobulle au survol** (lecture de la courbe par profil) ; métriques MCG (TIR/TBR/TBR sévère/TAR/CV/GMI),
+  poids, doses en champs numériques ; `Traitements en cours` en multi-cases.
+- [ ] **Critères dérivés MASQUÉS** : `HbA1c à la cible`, `Glycémie à jeun à la cible`, `Sur-basalisation`,
+  `Terrain fragile` **ne sont PAS des cases à cocher** (calculés depuis HbA1c/GAJ/dose+poids/âge+fragilité).
+- [ ] **Nombres optionnels** : le message d'invite ne réclame que les nombres pertinents (~10 : HbA1c
+  actuelle/cible, DFG, TBR/TBR sévère/CV, GAJ, poids, dose basale, âge) ; **TIR, TAR, GMI, IMC, dose rapide
+  ne bloquent pas** l'affichage des options (informatifs).
+- [ ] Routage par situation : sélectionner « Naïf » / « Basale seule » / « Basal-plus » / « Basal-bolus »
+  n'affiche QUE les options de la situation choisie (aucune fuite inter-situations).
+- [ ] Dérivés à l'œuvre : HbA1c 9 % / cible 7 % (naïf) → « Initier une insuline basale » ; GAJ 1,0 g/L + HbA1c
+  au-dessus (basale seule) → « Ne pas sur-titrer » ; dose basale 50 U + poids 80 kg → alerte « > 0,5 U/kg » ;
+  âge 80 + MCG → alerte cibles MCG **assouplies** (pas standard).
+- [ ] Sécurité : profil « hypoglycémie nocturne » (ou TBR > 4) en basale seule → « Corriger l'hypoglycémie »
+  s'affiche et « Titrer la basale » **ne s'affiche PAS** (correctif étape 8).
+- [ ] Prémix : « Insuline prémélangée — option dégradée » n'apparaît que si `Préférence… = Refuse`, toujours
+  en dernière position (jamais avant GLP-1 / basal-plus).
+- [ ] Alertes (AlertList) : orientation spécialiste, arrêt SU/glinide, iSGLT2/acidocétose, DFG bas, cibles
+  MCG (standard vs relâchées), sans-MCG → glycémie à jeun, rappel « pas de bénéfice CV » — lisibles.
+- [ ] Argumentaire exhaustif (`insuline.argumentaire.md`) : s'ouvre, complet, tableaux/sources avec PMID,
+  **aucun `**`/`*` brut**.
+- [ ] **RESTE (P3+, non fait)** : affichage du **nombre de dose calculé** (poids × 0,1-0,2 U/kg → « ≈ X U » ;
+  −10-20 % de la dose actuelle…) — les ratios sont en texte dans l'`effet_attendu`/argumentaire, mais le
+  nombre auto-calculé n'est pas encore affiché (nécessiterait un widget de calcul dédié).
+
 ## Contenu DT2 — nœud D « Sulfamides / gliptines » + câblage générique (2026-07-24, BROUILLON v0.1)
 
 Nœud encodé + vérifié bi-agents (étape 8 : 0 HAUTE / 0 MOYENNE). **Dernier nœud du domaine DT2.** Câblage

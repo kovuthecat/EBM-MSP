@@ -97,6 +97,11 @@
           "type": "array",
           "items": { "type": "string" },
           "description": "Valeurs possibles, pertinent quand type = enum ou liste."
+        },
+        "derive": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Critère DÉRIVÉ (câblage P3) : expression calculée par le formulaire depuis d'autres critères, non saisie à la main (grammaire de deriveCritere.ts : compare 2 variables, arithmétique + - * /, comparaisons, AND/OR — sur-ensemble du DSL de conditions). Ex. 'HbA1c_actuelle <= HbA1c_cible' pour cible_atteinte, 'dose_basale_actuelle / poids > 0.5' pour over_basalisation. Résout la limite du DSL (variable OP littéral seulement)."
         }
       }
     },
@@ -156,6 +161,20 @@
           "type": "array",
           "items": { "type": "string" },
           "description": "Exclusions dures : expressions DSL (meme grammaire que conditions). Une option applicable est retiree si l'une est vraie, et reportee dans EvaluateNodeResult.excluded (DECISIONS.md D13)."
+        },
+        "calculs": {
+          "type": "array",
+          "description": "Doses/valeurs CALCULEES affichees avec l'option (cablage P3). Chaque `expression` (grammaire arithmetique de engine/deriveCritere.ts, ex. 'poids * 0.15', 'dose_basale_actuelle + 2') est evaluee depuis les criteres du patient et rendue 'libelle : valeur unite'. Omise a l'affichage si non calculable (primitive non saisie). Generique (aucun nom de critere en dur).",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["libelle", "expression"],
+            "properties": {
+              "libelle": { "type": "string", "minLength": 1 },
+              "expression": { "type": "string", "minLength": 1 },
+              "unite": { "type": "string" }
+            }
+          }
         }
       }
     },

@@ -72,6 +72,26 @@ const CRITERE_LABELS: Record<string, string> = {
   capacite_activite: "Capacité à l'activité physique",
   alimentation_equilibree: 'Alimentation déjà équilibrée',
   activite_physique_reguliere: 'Activité physique déjà régulière',
+  // Nœud E « Insuline » (docs/decision/noeuds/E-insuline.md §1)
+  situation_insuline: "Situation d'insulinothérapie",
+  cible_atteinte: 'HbA1c à la cible',
+  terrain_fragile: 'Terrain fragile (âgé / fragile / EV limitée / risque hypo)',
+  hypo_severe_recurrente: 'Hypoglycémies sévères récurrentes / non-perception',
+  symptomes_glucotoxicite: 'Symptômes de glucotoxicité (polyuro-polydipsie, amaigrissement)',
+  mcg_disponible: 'MCG disponible',
+  TIR: 'TIR — temps dans la cible 70-180 mg/dL (%)',
+  TBR: 'TBR — temps sous 70 mg/dL (%)',
+  TBR_severe: 'TBR sévère — temps sous 54 mg/dL (%)',
+  TAR: 'TAR — temps au-dessus de 180 mg/dL (%)',
+  CV_glycemique: 'Coefficient de variation glycémique (%)',
+  GMI: 'GMI — indicateur de gestion du glucose (%)',
+  profil_glycemique: 'Profil glycémique (lecture AGP)',
+  GAJ: 'Glycémie à jeun (g/L)',
+  gaj_a_cible: 'Glycémie à jeun à la cible',
+  poids: 'Poids (kg)',
+  dose_basale_actuelle: 'Dose de basale actuelle (U/j)',
+  dose_rapide_actuelle: 'Dose de rapide actuelle (U/j)',
+  over_basalisation: 'Sur-basalisation (dose basale > 0,5 U/kg)',
   // Nœud D « Sulfamides / gliptines » (docs/decision/noeuds/D-sulfamides-gliptines.md §1)
   classes_a_benefice_indisponibles:
     'iSGLT2 et AR GLP-1 tous deux inutilisables (contre-indication, intolérance ou refus)',
@@ -97,11 +117,50 @@ const ENUM_VALUE_LABELS: Record<string, string> = {
   accepte: 'Accepte',
   refuse: 'Refuse',
   indifferent: 'Indifférent',
+  // Nœud E — situation_insuline
+  naif: "Naïf d'insuline",
+  basale_seule: 'Basale seule',
+  basale_plus_bolus: 'Basal-plus / bolus',
+  basal_bolus: 'Basal-bolus',
+  // Nœud E — profil_glycemique (AGP)
+  hypo_nocturne: 'Hypoglycémie nocturne',
+  phenomene_aube: "Phénomène de l'aube",
+  excursions_postprandiales: 'Excursions post-prandiales',
+  hypo_interprandiale: 'Hypoglycémie interprandiale',
+  stable: 'Stable',
+  // traitements_en_cours (liste, partagé B/C/E)
+  metformine: 'Metformine',
+  iSGLT2: 'iSGLT2 (gliflozine)',
+  aGLP1: 'AR GLP-1',
+  sulfamide: 'Sulfamide',
+  glinide: 'Glinide',
+  gliptine: 'Gliptine (iDPP4)',
+  insuline_basale: 'Insuline basale',
+  insuline_rapide: 'Insuline rapide',
 }
 
 /** Libellé d'une valeur d'énumération ; repli générique (couvre aussi les valeurs numériques telles quelles). */
 export function labelForEnumValue(valeur: string): string {
   return ENUM_VALUE_LABELS[valeur] ?? humanize(valeur)
+}
+
+/**
+ * Description (tooltip) optionnelle d'une valeur d'énumération/liste — générique (aucune connaissance
+ * d'un nom de critère). Utilisée par `CriteriaForm` comme infobulle native (`title`). Ex. lecture de
+ * l'AGP par profil glycémique du nœud E (arbitrage référent §8-3 : « un tooltip de lecture de la courbe
+ * pour chaque profil »). Renvoie `undefined` si aucune description n'est cataloguée.
+ */
+const ENUM_VALUE_DESCRIPTIONS: Record<string, string> = {
+  // Profils AGP (nœud E « Insuline ») — comment lire la courbe et ce qu'elle oriente.
+  hypo_nocturne: "Baisse glycémique en 2ᵉ partie de nuit sur l'AGP → réduire la basale, envisager un analogue de 2ᵉ génération, relâcher la cible.",
+  phenomene_aube: "Remontée glycémique de ~4 h au réveil (couverture basale insuffisante) → titrer la basale.",
+  excursions_postprandiales: "Pics après les repas alors que la glycémie à jeun est correcte → GLP-1 puis bolus au repas le plus hyperglycémiant.",
+  hypo_interprandiale: "Hypoglycémies entre les repas → réduire le bolus correspondant.",
+  stable: "Courbe régulière, faible variabilité — pas d'ajustement dicté par la forme.",
+}
+
+export function describeEnumValue(valeur: string): string | undefined {
+  return ENUM_VALUE_DESCRIPTIONS[valeur]
 }
 
 /** `TypeCritere` est une union fermée (3 valeurs, `node.types.ts`) : dictionnaire exhaustif sûr. */

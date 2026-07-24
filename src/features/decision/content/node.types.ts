@@ -23,6 +23,13 @@ export interface CritereEntree {
   type: 'nombre' | 'bool' | 'enum' | 'liste'
   /** Valeurs possibles ; pertinent quand `type` vaut `'enum'` ou `'liste'`. */
   valeurs?: string[]
+  /**
+   * Critère DÉRIVÉ (câblage P3) : expression calculée par le formulaire depuis d'autres critères
+   * (`engine/deriveCritere.ts`), non saisie à la main. Résout la limite du DSL `conditions.ts`
+   * (`variable OP littéral` seulement) — permet var-vs-var (`HbA1c_actuelle <= HbA1c_cible`) et
+   * arithmétique (`dose_basale_actuelle / poids > 0.5`). Un critère dérivé n'est pas rendu comme champ.
+   */
+  derive?: string
 }
 
 /**
@@ -33,6 +40,17 @@ export interface CritereEntree {
 export interface PrioriteConditionnelle {
   quand: string
   rang: number
+}
+
+/**
+ * Dose/valeur CALCULÉE affichée avec une option (câblage P3) : `expression` (grammaire arithmétique de
+ * `engine/deriveCritere.ts`, ex. `poids * 0.15`) évaluée depuis les critères du patient, rendue
+ * « libelle : valeur unite ». Omise à l'affichage si non calculable (primitive non saisie).
+ */
+export interface Calcul {
+  libelle: string
+  expression: string
+  unite?: string
 }
 
 export interface Option {
@@ -64,6 +82,8 @@ export interface Option {
    * (jamais en silence). Pendant machine-évaluable des `contre_indications` (prose) — DECISIONS.md D13.
    */
   exclusions?: string[]
+  /** Doses/valeurs calculées affichées avec l'option (câblage P3, ex. dose d'initiation = poids × 0,1-0,2 U/kg). */
+  calculs?: Calcul[]
 }
 
 export interface ReferencePrimaire {

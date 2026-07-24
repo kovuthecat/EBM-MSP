@@ -1,6 +1,6 @@
 import type { CritereEntree } from '../content/node.types'
 import type { Criteria, CriteriaValue } from '../engine/conditions'
-import { labelForCritere, labelForEnumValue } from '../lib/labels'
+import { describeEnumValue, labelForCritere, labelForEnumValue } from '../lib/labels'
 import './CriteriaForm.css'
 
 interface CriteriaFormProps {
@@ -48,9 +48,12 @@ export function buildDefaultCriteria(criteresEntree: CritereEntree[]): Criteria 
  * nœud futur sans modification (DECISIONS.md D8).
  */
 export function CriteriaForm({ criteresEntree, criteria, touched, hints, onChange }: CriteriaFormProps) {
-  const champs = criteresEntree.filter((critere) => critere.type === 'nombre' || critere.type === 'enum')
-  const facteurs = criteresEntree.filter((critere) => critere.type === 'bool')
-  const listes = criteresEntree.filter((critere) => critere.type === 'liste')
+  // Les critères DÉRIVÉS (champ `derive`) sont calculés depuis d'autres critères (engine/deriveCritere.ts) :
+  // ils ne sont pas saisis à la main, donc jamais rendus comme champ.
+  const saisis = criteresEntree.filter((critere) => critere.derive == null)
+  const champs = saisis.filter((critere) => critere.type === 'nombre' || critere.type === 'enum')
+  const facteurs = saisis.filter((critere) => critere.type === 'bool')
+  const listes = saisis.filter((critere) => critere.type === 'liste')
 
   /** Coche/décoche une valeur dans un critère `liste` (tableau de libellés, D13). */
   const toggleListeValeur = (nom: string, valeur: string, coche: boolean) => {
@@ -115,7 +118,12 @@ export function CriteriaForm({ criteresEntree, criteria, touched, hints, onChang
             <div className="criteria-form__field-label">{labelForCritere(critere.nom)}</div>
             <div className="criteria-form__checkboxes">
               {(critere.valeurs ?? []).map((valeur) => (
-                <label key={valeur} className="criteria-form__checkbox-row">
+                <label
+                  key={valeur}
+                  className="criteria-form__checkbox-row"
+                  // Infobulle native (ex. lecture de l'AGP par profil, §8-3) — générique, absente si non cataloguée.
+                  title={describeEnumValue(valeur)}
+                >
                   <input
                     type="checkbox"
                     checked={valeursCochees.includes(valeur)}
