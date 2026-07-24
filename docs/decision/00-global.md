@@ -105,6 +105,24 @@ Checklist reproductible — pour chaque nœud, interroger **au minimum** :
 La **reco officielle** (HAS, CMG) est affichée **à côté** de la position critique (Prescrire/EBM),
 divergence signalée (brief §2).
 
+## Sources locales déjà disponibles (`docs/decision/sources/`)
+
+> **Avant de chercher une source sur le web ou de la demander au référent, vérifier ce dossier.**
+> Il contient des PDF/notes déjà collectés (certains fournis par le référent, hors droit de
+> reproduction intégrale — cf. Règles de sourcing ci-dessus) : **inutile de les re-chercher en ligne**,
+> et souvent **impossible** de les retrouver par recherche web (PDF scannés, accès payant, ou email).
+
+| Fichier | Contenu |
+| --- | --- |
+| `prescrire-dt2.md` | Notes de synthèse **Prescrire** DT2 (usage interne, résumé critique + citations courtes + refs exactes) — réutilisable pour les nœuds B, C, D, E, F, H. Ne jamais reproduire intégralement côté outil. |
+| `strategie_therapeutique_du_patient_vivant_avec_un_diabete_de_type_2_-_recommandations.pdf` | RBP **HAS** « Stratégie thérapeutique du patient vivant avec un DT2 » (2024) — reco officielle de référence, cibles d'HbA1c en Annexe 3. |
+| `SFD 2025.pdf` | Recommandations **SFD 2025** (Société Francophone du Diabète) — volumineux (texte intégral). |
+| `rapport_gtg_glucides_sfd.pdf` | Rapport SFD sur les **glucides** (groupe de travail glucides). |
+| `Insulinothérapie dans le diabète de type 2 _ ebmfrance.pdf` | Fiche **ebmfrance** insulinothérapie DT2 — utile pour le nœud E (Insuline). |
+| `Lifestyle education in type 2 diabetes _ ebmfrance.pdf` | Fiche **ebmfrance** éducation/mode de vie DT2 — utile pour le nœud H (RHD). |
+| `Traitement global et suivi du diabète de type 2 _ ebmfrance.pdf` | Fiche **ebmfrance** traitement global et suivi DT2 — vue d'ensemble transverse. |
+| `guide HAS._parcours_surpoids-obesite_de_ladulte.pdf` | Guide de parcours **HAS** surpoids-obésité de l'adulte (2023, MàJ 2024) — classes d'obésité, seuils/prérequis chirurgie, approche non culpabilisante ; utile pour le nœud H (RHD). |
+
 ## Échelle GRADE simplifiée
 
 `eleve` (ECR de qualité, critères durs, cohérent) · `modere` (ECR avec limites, ou substitution solide) ·

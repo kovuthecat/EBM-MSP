@@ -136,3 +136,48 @@ rénale, sémaglutide 1 mg/sem vs placebo. **Mortalité toutes causes 12,8 vs 15
 p=0,01). Critère composite rénal **18,7 vs 23,2 %** (p=0,0003) ; morts CV **HR 0,71 (0,56-0,89)**. IEC/sartan
 = 1er choix ; ajout d'une gliflozine (dapagliflozine) « *semble réduire la mortalité à 2 ans mais expose à
 de nombreux effets indésirables* ». Pas de comparaison directe dapagliflozine vs sémaglutide (mi-2025).
+
+## P9 — « Pourquoi les aliments ultratransformés seraient-ils néfastes pour la santé ? » (Ouvertures, **août 2025**, 45(502):623)
+
+*Faisceau d'arguments (épidémiologie + toxicologie) reliant aliments ultratransformés, additifs et risque de DT2.* Nœuds : **H** (nutrition).
+
+- Titre au **conditionnel** = prudence assumée : associations épidémiologiques, causalité non établie. Les AUT remplacent des aliments peu transformés bénéfiques ; profil « en moyenne plus défavorable » (plus caloriques, sucres ajoutés, graisses saturées, sel ; moins de fibres/micronutriments).
+- **Signal DT2 direct** : cohorte **NutriNet-Santé** 2024 → « *une association entre des émulsifiants… et le risque de diabète de type 2* » (réf = **Salame C et coll., *Lancet Diabetes Endocrinol* 2024;12:339-49**). Émulsifiants (polysorbate 80, CMC) : perturbations métaboliques + microbiote chez la souris.
+- **Édulcorants « intenses »** (aspartame, acésulfame K) « *associés à un risque accru de… diabète de type 2 et à une mortalité accrue* » ; aspartame = cancérogène **possible** (CIRC). → cohérent avec « écarter les édulcorants intenses » (P1=P4, P10).
+- Dioxyde de titane interdit alimentaire (FR 2020 / UE 2022) ; substances néoformées + contaminants d'emballage suspectés.
+- **Portée pour l'outil** : niveau de preuve = **épidémiologique/observationnel** → argument de prudence nutritionnelle, pas un bénéfice démontré.
+
+## P10 — « Diabète de type 2 : adapter ses habitudes » (Infos-Patients Prescrire, **avril 2026** ; source Premiers Choix, actualisation **mars 2026**)
+
+*Fiche patient dérivée du Premiers Choix (version grand public de P1=P4, actualisation un cran plus récente).* Nœuds : **H** ; touche **A** (retarder le médicament).
+
+- RHD : alimentation + activité physique « *aident à maîtriser la glycémie et à limiter le risque de maladies graves* » ; « *permettent souvent de retarder la prise d'un médicament au début du diabète* ».
+- **Alimentation** : type méditerranéen qui « *semble diminuer le risque de maladies cardiovasculaires et améliorer la glycémie* » (verbe prudent) — céréales complètes, fruits, légumes/légumineuses, poisson/volaille, peu de viande rouge/charcuterie, huile d'olive/colza, eau.
+- **Édulcorants** : « *Éviter de consommer régulièrement des édulcorants "intenses" (aspartame, acésulfame K, saccharine)* » (cohérent P9).
+- **Activité physique** : quotidienne ; « *marcher à bonne allure une demi-heure chaque jour* ».
+- **Tabac** : arrêt (risque CV déjà majoré par le diabète).
+- **Poids** : surpoids/obèse, « *perdre 5 à 10 % de son poids améliore la maîtrise de la glycémie et diminue le risque de maladies cardiovasculaires* » ; « *à la fois modifier son alimentation et augmenter son activité physique est plus efficace… que chacune de ces mesures isolées* » (5-10 % concordant P1=P4).
+
+## P11 — « Diabète de type 2 — Diététique et activité physique en prévention » (Repères, **juin 2017**, 37(404):454)
+
+*Suivi à 15 ans (DPPOS) de l'essai DPP : le mode de vie retarde le DT2 mais sans bénéfice tangible sur les complications.* Nœud : **H** (prévention/RHD).
+
+- DPP : 3 234 non-diabétiques en surpoids, ~51 ans. Incidence annuelle du diabète à ~3 ans = **11 % placebo, 8 % metformine, 4,8 % mode de vie** (significatif).
+- **Suivi à 15 ans** (conseils de mode de vie proposés à tous après l'essai) : diabétiques **62 % témoin vs 55 % mode de vie** (p < 0,05) — écart réduit mais persistant.
+- **Point critique (critère dur)** : « *Environ 12 % des participants ont été atteints de complications micro-angiopathiques…, sans différence entre les groupes.* » → à 15 ans, **pas de bénéfice démontré** sur néphro/rétino/neuropathies, même avec le mode de vie. Nuance le « bénéfice vraisemblable » de P2/P13.
+- Metformine : « *n'a pas apporté d'avantage clinique aux personnes à risque de diabète* ».
+- Réf primaire = **DPP Research Group, *Lancet Diabetes Endocrinol* 2015;3(11):866-875** (DPPOS 15 ans).
+
+## P12 — [fichier `prescrire 12.pdf` VIDE — à re-fournir]
+
+*`Downloads/prescrire 12.pdf` = PDF vide (889 octets, page blanche), y compris relu explicitement. Aucun contenu exploitable → ré-exporter/re-scanner et relancer sur ce seul fichier pour compléter P12.*
+
+## P13 — « Prévenir ou retarder le diabète de type 2 : diététique et activité physique… » (Stratégies, **oct. 2006**, 26(276):676-684)
+
+*= MÊME article que **P2** (P2 en est le résumé). Ici les chiffres détaillés absents de P2.* Nœud : **H** (prévention).
+
+- **Mode de vie vs information** (essai le plus vaste, perte ≥ 7 % + ↑ activité) : « *a fait éviter 6 nouveaux cas de diabète chaque année pour 100 participants* » (~3 ans) ; méta-analyse **↓ ~30 % à 55 %** de l'incidence ; **pas de modification significative de la mortalité**.
+- **DPP (détail vs P2)** : incidence annuelle **11 % témoin / 7,8 % metformine / 4,8 % mode de vie** ; AE digestifs **77,8 % metformine vs 30,7 % témoin vs 12,9 % mode de vie** ; effet préventif metformine = **↓ ~25 % (IC95 8-38 %)** mais « *moins efficace que les modifications des habitudes de vie* » (IDPP : pas de gain à l'ajouter).
+- **Acarbose** (Stop-Niddm) : faible niveau de preuves ; AE fréquents ; **30 % d'arrêts** ; « *entièrement financé par… Bayer* ». **Orlistat** (Xendos) : effet « *très modeste* » ; AE digestifs 91 % ; « *entièrement financé par… Roche* ». **Glitazones** : troglitazone retirée (hépatotoxicité), pio/rosiglitazone non probants.
+- **Critère dur CV** : « *Aucun essai ne montre de manière probante un effet préventif sur les accidents cardiovasculaires.* »
+- **Conclusion 2006** : « *aucun médicament n'a une balance bénéfices-risques suffisamment favorable pour être recommandé en prévention* » ; priorité au mode de vie ; bénéfice sur mortalité/complications « *vraisemblable* » mais non démontré (< 6 ans de suivi). Synthèse « *sans aucun conflit d'intérêts* ».

@@ -1,0 +1,296 @@
+# Nœud H « RHD / perte de poids / rémission » — brouillon v0.1 (2026-07-24).
+# Autorité : docs/decision/noeuds/H-rhd.md (dossier de preuve : 5 agents A + red-team B1→B5 + OpenEvidence
+# OE-H1→H5 + red-team primaire des essais OE + lecture directe HAS 2024 / SFD 2025 / ebmfrance / Prescrire).
+# Ne pas modifier les valeurs cliniques hors workflow veille → algorithme (DECISIONS.md D5).
+#
+# RECADRAGE STRUCTURANT (référent 2026-07-24) : en MÉDECINE GÉNÉRALE, H est un OUTIL D'AIDE À LA RECOMMANDATION.
+# Le MG recommande / informe / oriente — il ne DÉLIVRE PAS de programme intensif (soins spécialisés/coordonnés).
+# Les options sont des RECOMMANDATIONS présentant les BÉNÉFICES ATTENDUS, pas des prestations.
+#
+# NŒUD MULTI-OPTIONS (D10/D11) : recommandations empilées, non concurrentes.
+#  - SOCLE MHD = recommandation TOUJOURS affichée (D16, `conditions: ["toujours"]`, priorite 0).
+#  - PERTE DE POIDS RENFORCÉE (visée rémission) = ajoutée si IMC >= 27 (priorite 1). §8-2 : PAS de gate sur
+#    l'ancienneté du diabète (Kanbour 2025 : après ajustement sur la perte de poids, l'ancienneté n'est plus
+#    un prédicteur indépendant) — l'ancienneté module le MESSAGE de probabilité de rémission via les `alertes`.
+#  - CHIRURGIE MÉTABOLIQUE = §8-1 : NOTE conditionnée par l'IMC (alerte D15 « y penser »), PAS une option.
+#  - Objectif de perte de poids (§8-3) = PAS un critère d'entrée : 2 paliers portés par l'`effet_attendu`
+#    (≥ 5-10 % socle / ≥ 10-15 % programme rémission).
+#  - MODULATEURS (§8-4, jamais de gating dur) via `alertes` : motivation, capacite_activite, et la « marge de
+#    manœuvre » (alimentation_equilibree, activite_physique_reguliere : déjà équilibré/actif → « maintenir »,
+#    bénéfice additionnel moindre).
+#  - VOIX (§8-6) : on garde l'option EBM (rémission par la DIÈTE, DiRECT/DIADEM-1) et on SIGNALE la divergence
+#    avec la SFD 2025 (qui confine la rémission à la chirurgie). Jamais de promesse de survie/CV (Look AHEAD).
+#  - `traitements_en_cours` (liste, D13) sert à l'alerte hypoglycémie (§8-5) sous insuline/sulfamide/glinide.
+id: rhd
+domaine: diabete-type-2
+titre: "Recommander les mesures hygiéno-diététiques, la perte de poids et la rémission (aide à la recommandation en soins premiers)"
+population_cible: >-
+  Adulte DT2 déjà déclaré, hors DT1 et grossesse. Hors périmètre : la prévention du DT2 chez le sujet à
+  risque / prédiabétique (mentionnée en argumentaire, ne pilote pas le nœud). Outil d'aide à la RECOMMANDATION :
+  le médecin généraliste recommande, informe et oriente — il ne délivre pas le programme intensif.
+selection: multi-options
+argumentaire_exhaustif: "rhd.argumentaire.md"
+criteres_entree:
+  - nom: IMC
+    type: nombre
+  - nom: anciennete_diabete_annees
+    type: nombre
+  - nom: motivation
+    type: bool
+  - nom: capacite_activite
+    type: bool
+  - nom: alimentation_equilibree
+    type: bool
+  - nom: activite_physique_reguliere
+    type: bool
+  - nom: traitements_en_cours
+    type: liste
+    valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, insuline, glinide, pioglitazone]
+options:
+  - intitule: "Mesures hygiéno-diététiques — socle recommandé à tous (alimentation type méditerranéen, activité physique adaptée, objectif de perte de poids ≥ 5-10 % si surpoids/obésité)"
+    conditions:
+      - "toujours"
+    priorite: 0
+    avantages:
+      - "Seul bénéfice sur critère CV DUR démontré parmi les MHD : le régime méditerranéen (2 ECR — PREDIMED en prévention primaire, CORDIOPREV en prévention secondaire, ~50 % de diabétiques dans les deux)."
+      - "Améliore le contrôle glycémique (activité physique structurée : HbA1c ~−0,6 %) et retarde la mise sous hypoglycémiant (régime méditerranéen, Esposito)."
+      - "L'alimentation et l'activité physique sont bénéfiques MÊME en l'absence de perte de poids (grade A, EBM Guidelines/ebmfrance) : à recommander à tous, comme fond permanent."
+    inconvenients:
+      - "Le bénéfice CV dur se limite au régime méditerranéen ; l'exercice et la restriction diététique n'ont démontré qu'un effet sur des substituts (HbA1c, poids, report du traitement)."
+      - "L'intervention intensive sur le mode de vie n'a PAS réduit les événements cardiovasculaires ni la mortalité (Look AHEAD : critère 1aire neutre HR 0,95, essai arrêté pour futilité) — ne pas promettre un gain de survie."
+    effet_attendu: >-
+      Régime méditerranéen : événements CV majeurs HR 0,69 (huile d'olive) / 0,72 (noix) — PREDIMED (~52 % de
+      diabétiques ; sous-groupe diabétique NON vérifiable en primaire, paywall) ; CORDIOPREV HR 0,72, NNT ~20 sur
+      7 ans. Activité physique structurée : HbA1c −0,5 à −0,7 % (métas Umpierre/Boulé). Report de la 1re médication
+      (Esposito HR 0,63 [0,51-0,86] ; 0,70 ajusté sur la perte de poids). Perte de poids 5-10 % : amélioration
+      glycémique et des facteurs de risque CV (SFD/HAS/Prescrire) — bénéfice sur critères DURS non démontré.
+    niveau_preuve: modere
+  - intitule: "Perte de poids importante visée rémission — informer, recommander, orienter (accompagnement structuré, hors médecine générale)"
+    conditions:
+      - "IMC >= 27"
+    priorite: 1
+    avantages:
+      - "Une perte de poids importante et maintenue peut induire une rémission du DT2 (HbA1c < 6,5 % sans hypoglycémiant ≥ 3 mois) chez une fraction substantielle des patients, d'autant plus que le diabète est récent."
+      - "En médecine générale : informer le patient de cette possibilité (grade A, ebmfrance) et l'orienter vers un accompagnement structuré (diététicien, programme type substituts de repas / DiRECT) ; bénéfices métaboliques et sur les comorbidités (apnée du sommeil, mobilité)."
+    inconvenients:
+      - "La rémission est un critère de SUBSTITUTION, ÉRODABLE (DiRECT : 46 % à 1 an → 13 % à 5 ans ; en vie réelle ~67 % de rechute) et dépendant du maintien pondéral ; ce n'est PAS une guérison (surveillance métabolique à vie)."
+      - "AUCUN essai ne démontre que la rémission (non chirurgicale) réduise les événements CV ou la mortalité (Look AHEAD neutre ; l'association rémission → événements de Gregg 2024 est OBSERVATIONNELLE, non causale)."
+      - "Recommandation appuyée sur l'EBM (DiRECT/DIADEM-1, ebmfrance grade A) et ADA/EASD, AU-DELÀ de la reco officielle française : la SFD 2025 confine la rémission à la chirurgie et n'endosse pas la voie diète/TDR — DIVERGENCE signalée."
+      - "Le médecin généraliste n'exécute pas le programme intensif : il recommande, informe et oriente."
+    effet_attendu: >-
+      Rémission ~46 % à 1 an, ~36 % à 2 ans, ~13 % à 5 ans (DiRECT) ; ~61 % à 1 an (DIADEM-1, DT2 ≤ 3 ans) ;
+      dose-dépendante du maintien pondéral (~64 % de rémission si ≥ 10 kg maintenus). Probabilité d'autant plus
+      élevée que le diabète est récent (< 6 ans) et la perte de poids importante (≥ 10-15 % / ≥ 10-15 kg ;
+      Kanbour : la perte de poids est le prédicteur dominant). Au-delà de la fenêtre : viser l'amélioration du
+      contrôle et l'allègement médicamenteux, pas la rémission.
+    niveau_preuve: modere
+argumentaire: >
+  En médecine générale, ce nœud aide à formuler des recommandations hygiéno-diététiques adaptées au patient et
+  à en présenter les bénéfices attendus — il ne prescrit pas une prestation. Les mesures hygiéno-diététiques
+  (alimentation de type méditerranéen, activité physique adaptée, objectif de perte de poids 5-10 % en cas de
+  surpoids) constituent le socle recommandé à tous et le 1er temps thérapeutique, quel que soit le traitement
+  médicamenteux, dans une approche personnalisée, réaliste et non culpabilisante (HAS parcours obésité :
+  objectif de poids individualisé, « la stabilisation du poids est déjà un succès », éviter les régimes
+  restrictifs rigides ; éducation thérapeutique dès le diagnostic). Le seul bénéfice sur critère CARDIOVASCULAIRE DUR démontré parmi ces mesures est celui du
+  régime méditerranéen (deux essais randomisés, PREDIMED en prévention primaire et CORDIOPREV en prévention
+  secondaire, avec environ la moitié de diabétiques) ; l'activité physique et la restriction diététique
+  n'améliorent que des critères de substitution (HbA1c ~−0,6 %, poids, report de la mise sous médicament), et
+  l'intervention intensive sur le mode de vie n'a pas réduit les événements cardiovasculaires ni la mortalité
+  dans le seul grand essai à critère dur (Look AHEAD, arrêté pour futilité) — aussi la perte de poids est-elle à
+  présenter comme un objectif de contrôle et de qualité de vie, sans promesse de survie. Chez le patient en
+  surpoids ou obèse (IMC ≥ 27), on informe en outre de la possibilité d'une rémission par une perte de poids
+  importante (~46-61 % à 1 an dans DiRECT/DIADEM-1, surtout si le diabète est récent), en orientant vers un
+  accompagnement structuré : la rémission reste un état de substitution, érodable (13 % à 5 ans), dépendant du
+  maintien pondéral et sans bénéfice démontré sur les critères durs. Cette recommandation de rémission par la
+  diète s'appuie sur l'EBM et sur ADA/EASD, au-delà de la position française (SFD 2025), qui confine la rémission
+  à la chirurgie ; l'outil affiche les deux, divergence signalée. La chirurgie métabolique est rappelée comme
+  option à discuter/orienter selon l'IMC (alerte), la décision relevant de soins spécialisés.
+sources:
+  references_primaires:
+    - titre: "DiRECT (Lean, perte de poids en soins primaires — rémission ; 1 an)"
+      annee: 2018
+      type_critere: substitution
+      lien: "https://doi.org/10.1016/S0140-6736(17)33102-1"
+    - titre: "DiRECT — 2 ans (rémission 36 % ; dose-réponse 64 % si ≥ 10 kg maintenus)"
+      annee: 2019
+      type_critere: substitution
+      lien: "https://doi.org/10.1016/S2213-8587(19)30068-3"
+    - titre: "DiRECT — extension 5 ans (érosion de la rémission)"
+      annee: 2024
+      type_critere: substitution
+      lien: "https://doi.org/10.1016/S2213-8587(23)00385-6"
+    - titre: "DIADEM-1 (Taheri — TDR, DT2 ≤ 3 ans, rémission 61 % vs 12 %)"
+      annee: 2020
+      type_critere: substitution
+      lien: "https://doi.org/10.1016/S2213-8587(20)30117-0"
+    - titre: "Look AHEAD (intervention intensive sur le mode de vie — critère CV DUR neutre, arrêt pour futilité)"
+      annee: 2013
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa1212914"
+    - titre: "Gregg 2012 (rémission dans Look AHEAD — critère intermédiaire)"
+      annee: 2012
+      type_critere: substitution
+      lien: "https://doi.org/10.1001/jama.2012.67929"
+    - titre: "Gregg 2024 (rémission → issues CV/rénales dans Look AHEAD — association OBSERVATIONNELLE, non causale ; PMID 38233592)"
+      annee: 2024
+      type_critere: dur
+      lien: "https://doi.org/10.1007/s00125-023-06048-6"
+    - titre: "Kanbour (méta-régression : la perte de poids est le prédicteur dominant de la rémission)"
+      annee: 2025
+      type_critere: substitution
+      lien: "https://doi.org/10.1016/S2213-8587(24)00346-2"
+    - titre: "PREDIMED (régime méditerranéen, événements CV — prévention primaire ; republication)"
+      annee: 2018
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa1800389"
+    - titre: "CORDIOPREV (régime méditerranéen, événements CV — prévention secondaire, ~50 % DT2)"
+      annee: 2022
+      type_critere: dur
+      lien: "https://doi.org/10.1016/S0140-6736(22)00122-2"
+    - titre: "Umpierre (méta-analyse : exercice structuré et HbA1c)"
+      annee: 2011
+      type_critere: substitution
+      lien: "https://doi.org/10.1001/jama.2011.576"
+    - titre: "Esposito (régime méditerranéen retarde la mise sous hypoglycémiant — DT2 récent)"
+      annee: 2009
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/19721018/"
+    - titre: "STAMPEDE (chirurgie métabolique vs traitement médical — contrôle glycémique, 5 ans)"
+      annee: 2017
+      type_critere: substitution
+      lien: "https://doi.org/10.1056/NEJMoa1600869"
+    - titre: "Mingrone (chirurgie métabolique vs médical — rémission stricte, 10 ans)"
+      annee: 2021
+      type_critere: substitution
+      lien: "https://doi.org/10.1016/S0140-6736(20)32649-0"
+    - titre: "ARMMS-T2D (Courcoulas — pool d'ECR, rémission 12,7 % vs 0 % à 12 ans ; PMID 38411644)"
+      annee: 2024
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/38411644/"
+    - titre: "SOS — Swedish Obese Subjects (chirurgie et mortalité — cohorte NON randomisée)"
+      annee: 2007
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa066254"
+    - titre: "Consensus définition de la rémission du DT2 (ADA/EASD/Diabetes UK/Endocrine Society)"
+      annee: 2021
+      type_critere: substitution
+      lien: "https://doi.org/10.2337/dci21-0034"
+  medicalement_geek:
+    synthese: >-
+      Couvre DiRECT (rémission ~46 % vs 4 % à 1 an) dans une ligne EBM anti-sur-traitement, cohérente avec
+      Prescrire/Minerva : la rémission est un résultat intermédiaire prometteur, dont le bénéfice sur les
+      complications cardiovasculaires reste à confirmer (rappel de la neutralité CV de Look AHEAD).
+    lien: "https://www.medicalement-geek.com/2017/12/dragi-webdo-n163.html"
+  prescrire:
+    synthese: >-
+      1er choix = mesures diététiques + activité physique, perte de 5-10 % du poids (Premiers Choix, actualisation
+      2026) ; alimentation de type méditerranéen ; écarter les édulcorants intenses. En prévention du DT2, le
+      mode de vie réduit l'incidence d'environ 30-55 %, mais sans bénéfice démontré sur la mortalité ni, à 15 ans
+      (DPPOS), sur les complications micro-angiopathiques. Objectif = éviter/retarder les complications, pas la
+      perte de poids ni l'HbA1c en soi. (Résumé — droit d'auteur ; réf. dans docs/decision/sources/prescrire-dt2.md,
+      P1/P2/P9-P13.)
+  reco_officielle:
+    source: "SFD 2025 (Darmon, Méd Mal Métab 2025;19(8):630-662) ; HAS 2024 (Stratégie thérapeutique du DT2) ; HAS parcours surpoids-obésité de l'adulte ; ADA/EASD 2022 (Davies, Diabetes Care 2022;45(11):2753) ; EBM Guidelines/ebmfrance (grade A) ; Prescrire (Premiers Choix 2026)"
+    position: >-
+      Les mesures hygiéno-diététiques (alimentation, activité physique, éducation thérapeutique dès le diagnostic
+      — ETP grade B USPSTF, HAS parcours obésité) sont la 1re ligne et le socle permanent, dans une approche
+      personnalisée, réaliste et NON culpabilisante (« la stabilisation du poids est déjà un succès », éviter les
+      régimes restrictifs rigides — HAS parcours obésité). Objectif de perte de poids : ≥ 5 % bénéfique (3-5 %
+      réduisent déjà le risque métabolique, 5-10 % améliorent PA/lipides/glycémie — HAS/RBP FFN 2022 ; ≥ 5 %
+      obésité — SFD), > 10 % pour le bénéfice hépatique (SFD, MASLD/MASH), 5-15 % « primary target » et rémission
+      comme objectif (ADA/EASD). Régime de type méditerranéen recommandé (SFD). Chirurgie métabolique : IMC ≥ 40,
+      ou ≥ 35 avec comorbidité sévère améliorable (le DT2 qualifie), après 6-12 mois de prise en charge médicale
+      sans bénéfice suffisant, préparation ≥ 6 mois, parcours pluridisciplinaire (centre spécialisé de l'obésité),
+      suivi à vie (HAS parcours obésité) ; la SFD 2025 ouvre en outre l'indication à IMC 30-34,9 au cas par cas.
+      Décision en soins spécialisés.
+    divergence: true
+    explication: >-
+      Consensus complet sur le socle hygiéno-diététique. Divergences : (1) AMPLEUR de la perte de poids (5 %
+      HAS/SFD vs 5-15 % ADA/EASD) ; (2) VOIE de la rémission — l'EBM (DiRECT/DIADEM-1, ebmfrance grade A) et
+      ADA/EASD soutiennent la rémission par la DIÈTE intensive, mais la SFD 2025 confine la rémission à la
+      CHIRURGIE et n'endosse pas le remplacement total de l'alimentation (TDR cité seulement en préopératoire) ;
+      (3) STATUT « objectif » de la rémission vs critère de substitution non validé sur critères durs
+      (Prescrire/Minerva ; Look AHEAD neutre sur le cardiovasculaire). L'outil affiche la voie diététique
+      (EBM) à côté de la reco officielle française (chirurgie), divergence signalée. La HAS 2024 (stratégie DT2)
+      aborde la rémission (R.123, pour la relativiser) et la chirurgie (R.122) sans en faire des objectifs. NB :
+      les recos SFD/ADA-EASD sont cosignées avec des liens d'intérêt industriels étendus (comme pour le nœud statine).
+incertitudes:
+  - "La rémission est un critère de SUBSTITUTION : aucun essai ne démontre qu'atteindre une rémission (non chirurgicale) réduise les événements CV ou la mortalité ; l'association rémission → événements (Gregg 2024, dans Look AHEAD) est observationnelle, confondue par indication."
+  - "Durabilité faible : la rémission s'érode fortement (DiRECT 46 % → 13 % à 5 ans ; ~67 % de rechute en vie réelle), dépendante du maintien pondéral."
+  - "Fenêtre de rémission : gate sur l'IMC seul (§8-2). L'ancienneté du diabète n'est PAS un prédicteur indépendant après ajustement sur la perte de poids (Kanbour, conclusion écologique), mais garde une plausibilité biologique (réserve β-cellulaire) — elle module donc le message, pas l'éligibilité."
+  - "Objectif de perte de poids : porté par l'effet_attendu (≥ 5-10 % socle / ≥ 10-15 % rémission), pas par une variable d'entrée (§8-3)."
+  - "Chirurgie (alerte) : le seuil 30-34,9 « au cas par cas après échec médical ≥ 12 mois » n'est PAS gaté par le moteur (le nœud H ne collecte pas d'indicateur de contrôle glycémique) ; l'alerte se déclenche sur IMC ≥ 35 et le message rappelle le cas 30-34,9."
+  - "PREDIMED-Plus (régime méditerranéen hypocalorique + activité) : critère CV dur non encore publié ; PREDIMED reste entaché par sa rétractation/republication (2018)."
+  - "Divergence de voie SFD (rémission = chirurgie) vs EBM/ADA-EASD (rémission par la diète) : arbitrage référent — l'outil affiche la voie EBM avec la divergence signalée (§8-6)."
+alertes:
+  - quand: "IMC >= 35"
+    niveau: attention
+    message: >-
+      Penser à discuter une évaluation de CHIRURGIE MÉTABOLIQUE en soins spécialisés : indication à considérer si
+      IMC ≥ 35 avec une comorbidité sévère améliorable (le DT2 qualifie) — HAS parcours obésité / SFD / DSS-II —
+      APRÈS 6-12 mois de prise en charge médicale sans bénéfice suffisant (préparation ≥ 6 mois, parcours
+      pluridisciplinaire / centre spécialisé de l'obésité, suivi à vie). La SFD 2025 ouvre aussi l'indication à
+      IMC 30-34,9 au cas par cas. Preuve de rémission par ECR (STAMPEDE, Mingrone, ARMMS-T2D) ; bénéfice sur
+      critères durs EXCLUSIVEMENT observationnel (SOS, Aminian, Fisher ; aucun ECR de mortalité/CV). La décision
+      relève des soins spécialisés (hors outil).
+  - quand: "IMC >= 27 AND anciennete_diabete_annees < 6"
+    niveau: info
+    message: >-
+      Fenêtre favorable à la rémission (diabète récent, < 6 ans) : rémission ~46-61 % à 1 an si perte de poids
+      importante et maintenue (DiRECT/DIADEM-1). La rémission n'est PAS une guérison (surveillance métabolique à
+      vie ; rechute fréquente si reprise de poids).
+  - quand: "IMC >= 27 AND anciennete_diabete_annees >= 6"
+    niveau: info
+    message: >-
+      Diabète plus ancien (≥ 6 ans) : rémission moins probable ; viser d'abord l'amélioration du contrôle
+      glycémique et l'allègement médicamenteux — le bénéfice de la perte de poids persiste indépendamment de la
+      rémission.
+  - quand: "alimentation_equilibree == true AND activite_physique_reguliere == true"
+    niveau: info
+    message: >-
+      Mode de vie déjà optimisé (alimentation équilibrée + activité physique régulière) : marge de manœuvre
+      hygiéno-diététique faible → renforcer / maintenir plutôt que « faire plus » ; le bénéfice additionnel des
+      MHD est limité. Si le contrôle reste insuffisant, envisager d'autres leviers (nœuds B/C).
+  - quand: "capacite_activite == false"
+    niveau: info
+    message: >-
+      Adapter l'activité physique aux capacités (fractionnée, en position assise, supervisée) : toute activité
+      compte, même sans perte de poids ; plusieurs séances courtes valent une longue.
+  - quand: "motivation == false"
+    niveau: info
+    message: >-
+      Adhésion à renforcer : négocier des objectifs modestes, concrets et mesurables (entretien motivationnel),
+      inscrits dans le dossier et réévalués — plutôt que d'imposer un objectif ambitieux non tenu.
+  - quand: "traitements_en_cours contient insuline OR traitements_en_cours contient sulfamide OR traitements_en_cours contient glinide"
+    niveau: attention
+    message: >-
+      Sous insuline, sulfamide ou glinide, une perte de poids (et la réduction des apports) majore le risque
+      d'HYPOGLYCÉMIE : anticiper l'allègement / la déprescription de ces agents (voir nœuds C / D / E).
+  - quand: "default"
+    niveau: info
+    message: >-
+      Sujet âgé, fragile ou dénutri : viser le maintien de la masse musculaire (apports protéiques, renforcement)
+      et NE PAS imposer de restriction calorique agressive (risque de sarcopénie) ; individualiser l'objectif.
+veille_liee: []
+meta:
+  date_revue: "2026-07-24"
+  auteur: "Opus + référent (Thibault)"
+  statut: brouillon
+  version: "0.1"
+  changelog:
+    - date: "2026-07-24"
+      auteur: "Opus + référent (Thibault)"
+      resume: >-
+        Encodage initial (brouillon v0.1) depuis le dossier de preuve H-rhd.md (5 agents A + red-team B1→B5 +
+        OpenEvidence OE-H1→H5 + red-team primaire des essais OE + lecture directe HAS/SFD/ebmfrance/Prescrire).
+        Nœud recadré « outil d'aide à la recommandation » (médecine générale) : 2 options (socle MHD toujours ;
+        perte de poids renforcée visée rémission si IMC ≥ 27) + 8 alertes (chirurgie « y penser » ; modulation
+        de la probabilité de rémission par l'ancienneté ; marge de manœuvre ; activité adaptée ; motivation ;
+        hypoglycémie sous insuline/SU/glinide ; sujet âgé/fragile). Décisions référent §8-1→8-7. Voie
+        diète-rémission (EBM) affichée avec divergence SFD signalée. Guide HAS parcours obésité intégré
+        (classes I/II/III, objectif personnalisé non culpabilisant, ETP dès le diagnostic, prérequis chirurgie
+        6-12 mois). Argumentaire niveau 3 écrit (rhd.argumentaire.md). Vérification d'encodage bi-agents (étape 8)
+        FAITE : Agent A fidélité (0 HAUTE ; M1 PREDIMED sous-groupe/HR par bras, M2 Esposito 0,63/0,70, M3
+        « exclusivement » observationnel, B2 références ajoutées, B3 nuance HAS 2024 — corrigés) + Agent B red-team
+        moteur (18 profils tracés, 0 HAUTE / 0 MOYENNE / 2 BASSE documentées). RESTE : validation clinique finale
+        du référent → passage `valide` + commit.
