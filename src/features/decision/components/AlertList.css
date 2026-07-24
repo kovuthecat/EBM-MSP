@@ -1,0 +1,26 @@
+.alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 4px 0 24px;
+}
+
+.alert-list__item {
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  white-space: pre-line;
+}
+
+.alert-list__item--info {
+  background: var(--c-accent-decision-soft);
+  color: var(--c-text);
+  border: 1px solid var(--c-accent-decision-soft);
+}
+
+.alert-list__item--attention {
+  background: var(--c-disclaimer-bg);
+  color: var(--c-text);
+  border: 1px solid var(--c-disclaimer-border);
+}

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { Navigation } from '../../shared/navigation'
+import { AlertList } from '../components/AlertList'
 import { ArgumentPanel } from '../components/ArgumentPanel'
 import { buildDefaultCriteria, CriteriaForm } from '../components/CriteriaForm'
 import { OptionCard } from '../components/OptionCard'
@@ -113,6 +114,8 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
             }
             onChange={handleCriteriaChange}
           />
+
+          {result && <AlertList alertes={result.alertes} />}
 
           <div className="decision-node__section-title">Options applicables</div>
           {!criteresPretsAEvaluer ? (

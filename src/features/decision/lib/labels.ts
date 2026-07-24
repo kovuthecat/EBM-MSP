@@ -68,6 +68,10 @@ const CRITERE_LABELS: Record<string, string> = {
   comorbidite_grave: 'Comorbidité grave',
   diabete_complique: "Diabète compliqué (atteinte d'organe : rétinopathie, néphropathie, neuropathie, macrovasculaire)",
   dialyse: 'Dialyse',
+  motivation: "Motivation du patient",
+  capacite_activite: "Capacité à l'activité physique",
+  alimentation_equilibree: 'Alimentation déjà équilibrée',
+  activite_physique_reguliere: 'Activité physique déjà régulière',
 }
 
 /** Libellé d'un critère (`criteres_entree[].nom`) ; repli générique si critère non catalogué (nœud futur). */
