@@ -72,6 +72,9 @@ const CRITERE_LABELS: Record<string, string> = {
   capacite_activite: "Capacité à l'activité physique",
   alimentation_equilibree: 'Alimentation déjà équilibrée',
   activite_physique_reguliere: 'Activité physique déjà régulière',
+  // Nœud D « Sulfamides / gliptines » (docs/decision/noeuds/D-sulfamides-gliptines.md §1)
+  classes_a_benefice_indisponibles:
+    'iSGLT2 et AR GLP-1 tous deux inutilisables (contre-indication, intolérance ou refus)',
 }
 
 /** Libellé d'un critère (`criteres_entree[].nom`) ; repli générique si critère non catalogué (nœud futur). */

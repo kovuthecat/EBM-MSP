@@ -1,0 +1,295 @@
+# Nœud D « Place résiduelle des sulfamides et des gliptines » — brouillon v0.1 (2026-07-24).
+# Autorité : docs/decision/noeuds/D-sulfamides-gliptines.md (dossier de preuve triangulé A × OpenEvidence ×
+# red-team B réconcilié, §5c) + .argumentaire.md (niveau 3). Ne pas modifier les valeurs cliniques hors
+# workflow veille → algo (D5).
+#
+# DERNIER NŒUD du domaine DT2 (ordre A→B→C→F→H→E→D). Nœud « à bénéfice dur nul des 2 classes » : ni les
+# sulfamides ni les gliptines n'ont de bénéfice démontré sur un critère dur (mortalité, événements CV,
+# complications) — la décision se joue sur SÉCURITÉ + TOLÉRANCE, jamais sur une efficacité clinique dure. Lu
+# en AVAL de B (1re intention) et C (intensification).
+#
+# NŒUD MULTI-OPTIONS (D10/D11). Structure = socle `["toujours"]` (rang 0, « préférer iSGLT2/aGLP1 ») + deux
+# options résiduelles déclenchées par le MÊME critère `classes_a_benefice_indisponibles`, triées par `priorite`
+# (D13) : GLIPTINE rang 1 (préférée — pas d'hypo, orale), SULFAMIDE rang 2 (derrière — hypo + poids). Ordre
+# conforme HAS/SFD (iDPP4 > SU) et au flowchart Duodecim/ebmfrance.
+#
+# DÉCISIONS RÉFÉRENT (2026-07-24) intégrées :
+#   Q1 — le COÛT n'est PAS un critère en France (SU et gliptines remboursés) : pas de `contrainte_cout`.
+#   Q2/Q3 — déclencheur = `classes_a_benefice_indisponibles` (iSGLT2 ET AR GLP-1 tous deux CI/non tolérés/
+#     refusés ; le refus des injectables est un motif possible pour le GLP-1, mais l'iSGLT2 oral doit AUSSI
+#     être écarté). Gliptine = niche « tolérance » ; place tolérance conservée (divergence assumée / Prescrire).
+#   Q4 — seuils rénaux figés d'après les RCP (base ANSM) ; SU CI si DFG < 30 = convention KDIGO/SFD (le RCP dit
+#     « IR sévère » sans seuil chiffré ; le « glibenclamide < 60 » n'est PAS dans le RCP Daonil).
+#   Q5 — pas de source CMG ; ancrage soins premiers = fiche ebmfrance « Traitement global et suivi du DT2 ».
+#
+# DISPONIBILITÉ FRANCE (décisive, vérifiée HAS/ANSM/Vidal) : seules 3 gliptines ont été commercialisées en
+# France (sitagliptine, vildagliptine, saxagliptine). LINAGLIPTINE (Trajenta) et ALOGLIPTINE (Vipidia) JAMAIS
+# commercialisées → exclues. SAXAGLIPTINE en retrait (Komboglyze arrêté 30/01/2026) + signal IC → écartée.
+#   → gliptine par défaut ET en IRC = SITAGLIPTINE à dose adaptée (100 → 50 [DFG 30-44] → 25 [DFG < 30, dialyse
+#     incluse]). Le garde-fou « pas de saxagliptine/alogliptine si IC » (AHA/ACC/HFSA Classe III) reste vrai
+#     mais est MOOT en pratique française (molécules hors marché) → géré en prose, pas en critère d'entrée.
+#
+# GARDE-FOU DUR encodé en `exclusions` (retrait tracé, jamais en silence — D13) : SULFAMIDE retiré si DFG < 30.
+# `traitements_en_cours` (type `liste`, D13) sert à ne pas re-proposer une classe déjà en place
+# (ne_contient_pas gliptine / sulfamide).
+id: sulfamides-gliptines
+domaine: diabete-type-2
+titre: "Place résiduelle des sulfamides et des gliptines (quand les classes à bénéfice cardio-rénal ne sont pas utilisables)"
+population_cible: >-
+  Adulte DT2 (hors DT1, grossesse) chez qui se pose la question d'un sulfamide ou d'une gliptine : metformine
+  insuffisante ET classes à bénéfice cardio-rénal (iSGLT2 et AR GLP-1) toutes deux contre-indiquées, non
+  tolérées ou refusées ; ou patient déjà sous sulfamide/gliptine à réévaluer. Ces deux classes n'ont AUCUN
+  bénéfice démontré sur un critère dur : ce nœud n'est pas un nœud « quel traitement pour son bénéfice » (rôle
+  de B/C), mais « à quelles conditions de sécurité ces classes sans bénéfice gardent une justification ».
+selection: multi-options
+argumentaire_exhaustif: "sulfamides-gliptines.argumentaire.md"
+criteres_entree:
+  - nom: classes_a_benefice_indisponibles
+    type: bool
+  - nom: traitements_en_cours
+    type: liste
+    valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, insuline, glinide, pioglitazone]
+  - nom: DFG
+    type: nombre
+  - nom: risque_hypoglycemie_schema
+    type: enum
+    valeurs: [faible, eleve]
+options:
+  - intitule: "Ne pas privilégier un sulfamide ni une gliptine — préférer metformine + iSGLT2 / AR GLP-1"
+    conditions:
+      - "toujours"
+    avantages:
+      - "Sulfamides et gliptines n'ont AUCUN bénéfice démontré sur un critère dur (mortalité, IDM, AVC, insuffisance cardiaque, rénal) : les 4 CVOT des gliptines (SAVOR, TECOS, EXAMINE, CARMELINA, ~43 500 patients) sont neutres ; aucun essai des sulfamides ne montre de bénéfice CV ou de mortalité."
+      - "Tant que le patient peut recevoir un iSGLT2 ou un AR GLP-1 (bénéfice cardio-rénal démontré), ces classes-là sont à privilégier — voir les nœuds B (1re intention) et C (intensification)."
+    inconvenients:
+      - "Ces deux classes n'agissent que sur l'HbA1c (critère de substitution) ; leur seule place est résiduelle, quand les classes à bénéfice ne sont pas utilisables."
+    effet_attendu: >-
+      Aucun bénéfice sur critère dur pour les sulfamides ni les gliptines (neutralité concordante des CVOT). Le
+      choix, quand il se pose, ne repose que sur la sécurité et la tolérance.
+    niveau_preuve: eleve
+    priorite: 0
+  - intitule: "Gliptine (sitagliptine) — place résiduelle « tolérance » (option préférée)"
+    conditions:
+      - "classes_a_benefice_indisponibles == true"
+      - "traitements_en_cours ne_contient_pas gliptine"
+    avantages:
+      - "Option ORALE, sans hypoglycémie, neutre sur le poids et bien tolérée sur le plan digestif (contrairement aux AR GLP-1) : la niche quand on veut éviter l'hypoglycémie et la prise de poids sans passer à l'injection."
+      - "Molécule : SITAGLIPTINE — seule gliptine orale à sécurité cardiovasculaire démontrée (TECOS : MACE HR 0,98, insuffisance cardiaque HR 1,00) ; disponible et remboursée en France (génériques) ; utilisable jusqu'en dialyse à dose réduite."
+      - "Préférée au sulfamide (ordre HAS/SFD iDPP4 > SU) : à efficacité glycémique équivalente en tête-à-tête (Zhou 2016 : écart 0,08 % d'HbA1c), la gliptine évite l'hypoglycémie et la prise de poids."
+    inconvenients:
+      - "AUCUN bénéfice sur critère dur (4 CVOT neutres) ; efficacité glycémique modeste (~0,5-0,8 % d'HbA1c)."
+      - "Profil d'effets indésirables chargé (fondement de la position Prescrire « à écarter ») : pemphigoïde bulleuse = effet de classe établi (Lee 2020 : HR 1,42 ; ≥ 65 ans 1,62) ; arthralgies sévères (avertissement FDA 2015, classe entière) ; pancréatite aiguë = signal faible mais statistiquement significatif en méta-analyse (Tkáč & Raz 2017 OR 1,79 ; Cochrane 2021 OR 1,63 ; risque absolu ~0,13 %)."
+      - "Signal d'insuffisance cardiaque LIMITÉ à la saxagliptine (SAVOR HR 1,27) et à l'alogliptine (EXAMINE, post-hoc HR 1,76 chez les sans-IC) — AHA/ACC/HFSA 2022 Classe III (Harm) : ces deux molécules ne sont DE TOUTE FAÇON pas commercialisées en France. Sitagliptine et vildagliptine, disponibles, sont neutres sur l'IC."
+      - "Ne JAMAIS associer une gliptine à un AR GLP-1 (même voie incrétine, aucun bénéfice additif)."
+    effet_attendu: >-
+      Baisse d'HbA1c ~0,5-0,8 % (substitution) ; AUCUN bénéfice sur critère dur (neutralité des 4 CVOT). Le seul
+      « gain » face au sulfamide est l'ABSENCE d'hypoglycémie et de prise de poids (CAROLINA : hypoglycémie
+      sévère 0,3 % vs 2,2 %, poids −1,54 kg vs le glimépiride).
+    niveau_preuve: modere
+    priorite: 1
+    contre_indications:
+      - "Molécule : SITAGLIPTINE (dose adaptée au DFG : 100 mg si DFG ≥ 45 ; 50 mg si 30-44 ; 25 mg si < 30, dialyse incluse — RCP). Alternative : vildagliptine 50 mg/j si DFG < 50 (prudence en dialyse)."
+      - "NE PAS utiliser saxagliptine (signal IC + retrait français, Komboglyze arrêté le 30/01/2026) ni linagliptine/alogliptine (jamais commercialisées en France) — la linagliptine, idéale sur le plan rénal, est inapplicable faute de disponibilité."
+      - "Antécédent de pancréatite : prudence. Éruption bulleuse sous gliptine → évoquer une pemphigoïde et arrêter. Ne pas associer à un AR GLP-1."
+  - intitule: "Sulfamide (gliclazide MR ou glimépiride) — place résiduelle « sécrétagogue oral »"
+    conditions:
+      - "classes_a_benefice_indisponibles == true"
+      - "traitements_en_cours ne_contient_pas sulfamide"
+    avantages:
+      - "Efficacité glycémique nette (~1-1,5 % d'HbA1c en monothérapie) — la plus forte des deux classes ; utile quand une baisse d'HbA1c marquée est recherchée et que la gliptine ne convient pas ou ne suffit pas."
+      - "Les sulfamides MODERNES (gliclazide, glimépiride) ne sont PAS plus délétères sur le plan cardiovasculaire que des comparateurs récents (CAROLINA : MACE neutre vs linagliptine ; TOSCA.IT : neutre vs pioglitazone ; GRADE : pas de sur-risque MACE propre au glimépiride) : la vieille controverse « surmortalité des sulfamides » relève des essais anciens, de l'observationnel et surtout du glibenclamide."
+    inconvenients:
+      - "AUCUN bénéfice sur critère dur (ADVANCE et UKPDS ne réduisent que le microvasculaire, au prix d'une stratégie intensive ; aucun bénéfice macrovasculaire ni de mortalité)."
+      - "Vrais inconvénients : HYPOGLYCÉMIE (sévère, surtout chez le sujet âgé, l'insuffisant rénal et avec le glibenclamide) et PRISE DE POIDS ; durabilité glycémique moindre en monothérapie (glibenclamide, ADOPT)."
+      - "MOLÉCULE : gliclazide MR ou glimépiride ; JAMAIS le glibenclamide (hypoglycémies sévères/prolongées, mortalité relative la plus élevée de la classe — Simpson 2015 : gliclazide RR 0,65 vs glibenclamide)."
+    effet_attendu: >-
+      Baisse d'HbA1c ~1-1,5 % (substitution) ; AUCUN bénéfice sur critère dur. On échange un gain glycémique
+      contre un risque réel d'hypoglycémie (jusqu'à 34-42 % de toute hypoglycémie sous sulfamide dans TOSCA.IT
+      et CAROLINA) et une prise de poids.
+    niveau_preuve: modere
+    priorite: 2
+    exclusions:
+      - "DFG < 30"
+    contre_indications:
+      - "Contre-indiqué en insuffisance rénale sévère (seuil d'arrêt encodé : DFG < 30 — convention KDIGO/SFD ; les RCP mentionnent « IR sévère » sans seuil chiffré). En insuffisance rénale légère à modérée : gliclazide à même dose sous surveillance rapprochée, glimépiride à débuter à 1 mg/j — jamais le glibenclamide (métabolites actifs à élimination rénale)."
+      - "Déconseillé chez le sujet à risque d'hypoglycémie élevé (âgé fragile, insuffisant rénal, alimentation irrégulière, mauvaise perception des hypoglycémies) : préférer alors la gliptine."
+      - "Prise de poids : défavorable chez le patient en surpoids/obèse."
+alertes:
+  - quand: "classes_a_benefice_indisponibles == true AND risque_hypoglycemie_schema == eleve"
+    niveau: attention
+    message: >-
+      Risque d'hypoglycémie élevé (sujet âgé fragile, insuffisance rénale, schéma à risque) : DÉCONSEILLER le
+      sulfamide et préférer la gliptine (sitagliptine), qui n'induit pas d'hypoglycémie. Si un sulfamide est
+      malgré tout retenu : gliclazide MR à dose basse, jamais le glibenclamide, avec éducation à l'hypoglycémie.
+  - quand: "classes_a_benefice_indisponibles == true AND DFG < 45"
+    niveau: attention
+    message: >-
+      Insuffisance rénale — adapter d'après les RCP : SITAGLIPTINE à dose réduite (50 mg/j si DFG 30-44 ; 25 mg/j
+      si DFG < 30, dialyse incluse). SULFAMIDE : gliclazide/glimépiride à dose réduite et surveillance, mais
+      CONTRE-INDIQUÉ si DFG < 30 (convention KDIGO/SFD) ; jamais de glibenclamide. La linagliptine (sans
+      adaptation rénale) serait idéale mais n'est pas commercialisée en France.
+  - quand: "classes_a_benefice_indisponibles == true"
+    niveau: info
+    message: >-
+      Choix de molécule : gliptine = SITAGLIPTINE (seule gliptine orale à sécurité CV démontrée — TECOS ; saxa/
+      alogliptine à signal IC non commercialisées en France). Sulfamide = gliclazide MR ou glimépiride, JAMAIS le
+      glibenclamide (Simpson 2015). Ne jamais associer une gliptine à un AR GLP-1 (redondance incrétine, aucun
+      bénéfice additif). Afficher honnêtement l'absence de bénéfice cardio-rénal des deux classes.
+  - quand: "classes_a_benefice_indisponibles == true"
+    niveau: info
+    message: >-
+      Situation aiguë (corticothérapie, chirurgie, sepsis, jeûne prolongé) : l'INSULINE est le pivot ; suspendre
+      les sulfamides/glinides (hypoglycémie) et les iSGLT2 (acidocétose). Cette gestion est hors périmètre de ce
+      nœud (l'usage transitoire d'un sulfamide court dans l'hyperglycémie cortico-induite ambulatoire n'est pas
+      étayé par une source vérifiée et n'est pas outillé ici).
+argumentaire: >
+  Ce nœud outille la place RÉSIDUELLE de deux classes anciennes — sulfamides et gliptines — qui partagent un
+  trait décisif : aucune n'a de bénéfice démontré sur un critère dur (mortalité, événements cardiovasculaires,
+  complications). Les gliptines n'ont que des essais de sécurité cardiovasculaire (SAVOR, TECOS, EXAMINE,
+  CARMELINA), tous neutres ; les sulfamides n'ont jamais démontré de bénéfice CV ni de mortalité (ADVANCE et
+  UKPDS ne réduisent que le microvasculaire, au prix d'une stratégie intensive). Leur place n'existe donc que
+  lorsque les classes à bénéfice cardio-rénal (iSGLT2, AR GLP-1) ne sont pas utilisables — contre-indication,
+  intolérance ou refus (variable `classes_a_benefice_indisponibles`) ; sinon, on renvoie aux nœuds B et C. Le
+  coût n'est PAS un critère en France (les deux classes sont remboursées) : l'argument « bon marché » du
+  sulfamide est propre à d'autres systèmes de santé. Quand la place résiduelle s'ouvre, la GLIPTINE (sitagliptine)
+  est préférée au sulfamide (ordre HAS/SFD) : à efficacité glycémique équivalente en tête-à-tête, elle évite
+  l'hypoglycémie et la prise de poids, au prix d'un profil d'effets indésirables chargé (pemphigoïde bulleuse,
+  arthralgies FDA, signal de pancréatite en méta-analyse). Le SULFAMIDE (gliclazide MR ou glimépiride, JAMAIS le
+  glibenclamide) reste un sécrétagogue oral efficace derrière la gliptine, en assumant le risque d'hypoglycémie
+  et de poids. Contraintes françaises structurantes : seules 3 gliptines ont été commercialisées en France
+  (sitagliptine, vildagliptine, saxagliptine) ; la linagliptine — idéale en insuffisance rénale car sans
+  adaptation de dose — n'a jamais été commercialisée ; la saxagliptine (signal IC) est en retrait. En pratique
+  française, la gliptine de choix, y compris en insuffisance rénale, est donc la SITAGLIPTINE à dose adaptée au
+  DFG. La position critique (Prescrire, ACP 2024) va plus loin en écartant les gliptines ; l'outil affiche cette
+  divergence tout en conservant une place résiduelle « tolérance » à la gliptine.
+sources:
+  references_primaires:
+    - titre: "SAVOR-TIMI 53 (saxagliptine vs placebo) — MACE neutre ; ↑ hospitalisation pour insuffisance cardiaque (HR 1,27, NNH ~143 / 2,1 ans)"
+      annee: 2013
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa1307684"
+    - titre: "TECOS (sitagliptine vs placebo) — MACE neutre ; insuffisance cardiaque neutre (HR 1,00)"
+      annee: 2015
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa1501352"
+    - titre: "EXAMINE (alogliptine vs placebo, post-SCA) — MACE neutre ; signal IC post-hoc chez les sans-IC (HR 1,76)"
+      annee: 2013
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa1305889"
+    - titre: "CARMELINA (linagliptine vs placebo) — MACE neutre ; critère rénal dur neutre (HR 1,04)"
+      annee: 2019
+      type_critere: dur
+      lien: "https://doi.org/10.1001/jama.2018.18269"
+    - titre: "CAROLINA (linagliptine vs glimépiride) — MACE neutre ; hypoglycémie sévère 0,3 % vs 2,2 %, poids −1,54 kg"
+      annee: 2019
+      type_critere: mixte
+      lien: "https://doi.org/10.1001/jama.2019.13772"
+    - titre: "ADVANCE (contrôle intensif à base de gliclazide MR) — néphropathie HR 0,79 ; macrovasculaire et mortalité non réduits ; hypoglycémie sévère HR 1,86"
+      annee: 2008
+      type_critere: mixte
+      lien: "https://doi.org/10.1056/NEJMoa0802987"
+    - titre: "TOSCA.IT (sulfamide vs pioglitazone) — MACE neutre (HR 0,96) ; hypoglycémie 34 % vs 10 %"
+      annee: 2017
+      type_critere: dur
+      lien: "https://doi.org/10.1016/S2213-8587(17)30317-0"
+    - titre: "GRADE (glimépiride vs sitagliptine vs liraglutide vs glargine) — durabilité, hypoglycémie sévère (glimépiride 2,2 %), sitagliptine la moins durable"
+      annee: 2022
+      type_critere: substitution
+      lien: "https://doi.org/10.1056/NEJMoa2200433"
+    - titre: "GRADE — résultats microvasculaires et cardiovasculaires (any CVD moindre sous liraglutide)"
+      annee: 2022
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa2200436"
+    - titre: "Simpson (méta-réseau) — hiérarchie de mortalité des sulfamides : gliclazide RR 0,65 vs glibenclamide"
+      annee: 2015
+      type_critere: dur
+      lien: "https://pubmed.ncbi.nlm.nih.gov/25466239/"
+    - titre: "Rados (méta d'ECR + trial sequential analysis) — sulfamides non associés à un excès de mortalité (OR 1,12, NS)"
+      annee: 2016
+      type_critere: dur
+      lien: "https://doi.org/10.1371/journal.pmed.1001992"
+    - titre: "ADOPT (glyburide vs metformine vs rosiglitazone) — durabilité : échec de monothérapie 34 % vs 21 % vs 15 % à 5 ans"
+      annee: 2006
+      type_critere: substitution
+      lien: "https://doi.org/10.1056/NEJMoa066224"
+    - titre: "Zhou (méta tête-à-tête DPP-4i vs sulfamide) — efficacité glycémique équivalente (écart 0,08 % d'HbA1c)"
+      annee: 2016
+      type_critere: substitution
+      lien: "https://doi.org/10.1111/ijcp.12761"
+    - titre: "Tkáč & Raz (méta CVOT gliptines) — pancréatite aiguë OR 1,79 ; Cochrane (Kanie 2021) OR 1,63 (risque absolu ~0,13 %)"
+      annee: 2017
+      type_critere: dur
+      lien: "https://doi.org/10.2337/dc15-1707"
+    - titre: "Lee (cohorte, gliptine vs sulfamide 2e gén) — pemphigoïde bulleuse HR 1,42 (effet de classe)"
+      annee: 2020
+      type_critere: dur
+      lien: "https://doi.org/10.1001/jamadermatol.2020.2158"
+  medicalement_geek:
+    synthese: >-
+      EBM francophone anti-sur-traitement (Médicalement Geek / DragiWebdo), proche de Prescrire : les gliptines
+      « n'ont jamais montré leur efficacité clinique » ; les sulfamides sont à éviter, réservés en théorie au seul
+      obstacle financier — argument jugé inopérant en France (remboursement). Priorité aux iSGLT2 / AR GLP-1 quand
+      un bénéfice cardio-rénal est requis. (Ancrage soins premiers complémentaire : fiche ebmfrance « Traitement
+      global et suivi du DT2 », flowchart Duodecim/ADA-EASD contextualisé France.)
+    lien: "https://www.medicalement-geek.com/p/diabetologie.html"
+  prescrire:
+    synthese: >-
+      Position asymétrique nette : GLIPTINES « médicaments plus dangereux qu'utiles, à écarter des soins, quelle
+      que soit la situation » (pas d'efficacité clinique sur les complications, profil d'effets indésirables
+      chargé). SULFAMIDES en dépannage seulement (metformine mal tolérée) : glibenclamide « effet modeste, pas
+      d'effet démontré sur la mortalité, très faible niveau de preuve » ; « gare aux hypoglycémies ». (Résumé —
+      droit d'auteur ; réf. Rev Prescrire 2023;43(478):595-605 [P3] et 597 [P7] ; Premiers Choix févr. 2026 [P1] ;
+      synthèses : docs/decision/sources/prescrire-dt2.md.)
+  reco_officielle:
+    source: "HAS 2024 (Stratégie thérapeutique du DT2, R.61/R.69/R.74/R.78/R.80) ; SFD 2025 (Med Mal Metab 2025;19:630-662, Avis 10/11/16-17) ; ADA/EASD 2022 (Diabetes Care 2022;45:2753-2786, PMID 36148880) ; ACP 2024 (Ann Intern Med 2024;177:658-666, PMID 38639546) ; ebmfrance/Duodecim « Traitement global et suivi du DT2 »"
+    position: >-
+      Les référentiels s'accordent : sulfamides et gliptines sont des options de 2e/3e ligne NON préférentielles,
+      systématiquement derrière iSGLT2 et AR GLP-1 (seules classes à bénéfice cardio-rénal), et la GLIPTINE est
+      rangée AVANT le sulfamide (pas d'hypoglycémie, tolérance). HAS 2024 : le sulfamide « n'est plus la stratégie
+      préférentielle » ; la gliptine est « l'option la plus simple pour la pratique clinique ». SFD 2025 : la
+      sitagliptine est le seul oral à sécurité CV démontrée (fallback athéromateux) ; éviter la saxagliptine (IC).
+      Ne jamais associer gliptine et AR GLP-1. L'ACP 2024 recommande fortement de NE PAS ajouter d'iDPP4 à la
+      metformine pour réduire morbidité/mortalité.
+    divergence: true
+    explication: >-
+      Divergence de DEGRÉ, pas de fond : aucune source — officielle comprise — ne revendique de bénéfice dur pour
+      ces classes (socle commun total). Les pôles se séparent sur l'action : les recommandations officielles
+      CONSERVENT sulfamides et gliptines comme options de repli (gliptine valorisée) ; la position critique
+      (Prescrire, ACP 2024, Médicalement Geek) ÉCARTE les gliptines et limite le sulfamide au dépannage. La
+      divergence porte spécifiquement sur les gliptines. Position raisonnée de l'outil : place résiduelle étroite,
+      jamais préférentielle ; gliptine (sitagliptine) préférée au sulfamide ; reco officielle affichée à côté de
+      la critique, divergence signalée. Contexte français structurant : coût non déterminant (remboursement) ;
+      linagliptine et alogliptine jamais commercialisées, saxagliptine en retrait → gliptine = sitagliptine.
+incertitudes:
+  - "Déclencheur `classes_a_benefice_indisponibles` : agrège en un booléen le jugement clinique « iSGLT2 ET AR GLP-1 tous deux inutilisables » (CI, intolérance, refus — dont refus des injectables pour le GLP-1). Le refus des injectables seul ne suffit PAS (l'iSGLT2 oral, à bénéfice, reste préférable)."
+  - "Positionnement du sulfamide : encodé sur le même déclencheur que la gliptine mais en priorité 2 (derrière) ; à confirmer référent si le sulfamide ne doit apparaître que lorsque la gliptine est elle-même inadaptée."
+  - "Seuil d'arrêt du sulfamide en insuffisance rénale : DFG < 30 = convention KDIGO/SFD, PAS un seuil chiffré des RCP (qui mentionnent « IR sévère » sans nombre) ; le « glibenclamide contre-indiqué si DFG < 60 » circule mais n'est pas dans le RCP Daonil."
+  - "Pancréatite des gliptines : signal statistiquement significatif en méta-analyse (OR 1,6-1,8) mais de très faible ampleur absolue (~0,13 %) et non significatif dans chaque essai isolé."
+  - "Usage transitoire en contexte aigu (corticothérapie ambulatoire) : l'énoncé ADA 2026 rapporté par OpenEvidence n'a pas été confirmé sur source primaire par le red-team → non outillé."
+  - "Disponibilité française des molécules : évolutive (saxagliptine en retrait, Komboglyze arrêté le 30/01/2026) — à re-vérifier au fil de la veille ; la linagliptine reste non commercialisée en France."
+  - "Modulateur `preference_injection` non encodé (bien que nommé au cadrage) : sa fonction — préférer l'oral en cas de refus des injectables — est déjà subsumée par le déclencheur `classes_a_benefice_indisponibles` (qui exige que l'iSGLT2 oral soit AUSSI écarté) et par la priorité fixe de la gliptine (rang 1, orale) ; retrait volontaire pour ne pas ajouter un critère sans effet de sélection."
+veille_liee: []
+meta:
+  date_revue: "2026-07-24"
+  auteur: "référent DT2 + Opus"
+  statut: brouillon
+  version: "0.1"
+  changelog:
+    - date: "2026-07-24"
+      auteur: "référent DT2 + Opus"
+      resume: >-
+        Encodage initial depuis le dossier de preuve triangulé (5 agents A × OpenEvidence 2e passe × red-team B
+        réconcilié ; PMID/chiffres vérifiés contre source primaire). Dernier nœud du domaine DT2. Multi-options :
+        socle « préférer iSGLT2/aGLP1 » (priorité 0, toujours) + gliptine (priorité 1) + sulfamide (priorité 2),
+        déclenchés par `classes_a_benefice_indisponibles`. Décisions référent 2026-07-24 : coût NON critère en
+        France (pas de contrainte_cout) ; déclencheur = classes à bénéfice indisponibles (iSGLT2 ET GLP-1) ;
+        place tolérance conservée à la gliptine (divergence assumée / Prescrire) ; seuils rénaux figés d'après
+        les RCP (ANSM) ; pas de source CMG → ancrage ebmfrance. Contrainte française décisive : linagliptine et
+        alogliptine jamais commercialisées en France, saxagliptine en retrait → gliptine = SITAGLIPTINE (dose
+        adaptée au DFG, jusqu'en dialyse) ; garde-fou IC saxa/alo moot en France. Garde-fou dur : sulfamide exclu
+        si DFG < 30 (convention KDIGO/SFD). VÉRIFICATION D'ENCODAGE BI-AGENTS (étape 8) FAITE : Agent A fidélité
+        (0 HAUTE, 0 MOYENNE ; PMID/chiffres réconciliés exacts, aucun faux PMID écarté n'a fui, anti-spin tenu) ×
+        Agent B red-team du moteur réel (10 profils tracés via evaluateNode : socle toujours présent, gliptine
+        avant sulfamide, exclusion SU DFG<30 appliquée et tracée, ne_contient_pas anti-re-proposition, alertes
+        conditionnelles correctes, aucun piège AND/OR — 0 HAUTE, 0 MOYENNE). Ajv + 137 tests Vitest + build OK.
+        Statut brouillon en attente de la validation clinique finale du référent.

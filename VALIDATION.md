@@ -99,3 +99,34 @@ câblage dédié. Seul ajout de code = 2 libellés (`diabete_complique`, `dialys
 - [ ] Divergence/sources/incertitudes affichées ; argumentaire déplié/replié ; mobile.
 - [ ] Libellés de critères/valeurs d'énumération non catalogués : repli `humanize()` sans accents
   (limitation assumée, sans impact clinique).
+
+## Contenu DT2 — nœud D « Sulfamides / gliptines » + câblage générique (2026-07-24, BROUILLON v0.1)
+
+Nœud encodé + vérifié bi-agents (étape 8 : 0 HAUTE / 0 MOYENNE). **Dernier nœud du domaine DT2.** Câblage
+minimal : nœud auto-chargé (glob Vite, aucun code par nœud) ; **seul ajout de code = 1 libellé**
+(`classes_a_benefice_indisponibles`, `lib/labels.ts`). Aucun critère dérivé, aucun nombre optionnel (4 critères
+simples). Ajv + 137 tests + build OK.
+
+- [ ] D2 : la carte « Place résiduelle des sulfamides et des gliptines (quand les classes à bénéfice
+  cardio-rénal ne sont pas utilisables) » apparaît dans le domaine DT2, comme un thème distinct.
+- [ ] D3 : 4 critères rendus — `iSGLT2 et AR GLP-1 tous deux inutilisables (contre-indication, intolérance ou
+  refus)` en **case à cocher** (bool) ; `Traitements en cours` en multi-cases ; `DFG` en champ numérique ;
+  `Risque hypoglycémique du schéma` en menu (Faible / Élevé).
+- [ ] Déclencheur : case `iSGLT2 et AR GLP-1… inutilisables` **décochée** → seule l'option de fond « Ne pas
+  privilégier un sulfamide ni une gliptine — préférer metformine + iSGLT2 / AR GLP-1 » s'affiche (gliptine et
+  sulfamide **absents**).
+- [ ] Case **cochée**, DFG 70, risque faible → 3 cartes dans l'ordre : socle, puis **Gliptine (sitagliptine)**,
+  puis **Sulfamide** (gliptine AVANT sulfamide).
+- [ ] **Garde-fou rénal** : case cochée + DFG 25 → la carte **Sulfamide disparaît des options** (exclue,
+  DFG < 30) ; la gliptine reste ; alerte rénale (attention) affichée (« sitagliptine 25 mg… ; sulfamide
+  contre-indiqué si DFG < 30 »).
+- [ ] Risque hypo **Élevé** → alerte (attention) « déconseiller le sulfamide, préférer la gliptine » ; le
+  sulfamide reste proposé (choix référent : alerte molle, pas d'exclusion).
+- [ ] Déjà sous gliptine (`Traitements en cours` = gliptine coché) → la carte Gliptine **ne se re-propose pas** ;
+  idem pour le sulfamide.
+- [ ] Alertes (AlertList) : molécules (sitagliptine ; gliclazide/glimépiride jamais glibenclamide ; jamais
+  gliptine + AR GLP-1), rénale, hypo, contexte aigu (insuline pivot) — lisibles.
+- [ ] Cartes d'options : **aucune revendication de bénéfice CV/mortalité** (les 3 options répètent « aucun
+  bénéfice sur critère dur ») ; sitagliptine mise en avant, saxa/lina/alo signalées non commercialisées en France.
+- [ ] Argumentaire exhaustif (`sulfamides-gliptines.argumentaire.md`) : s'ouvre, complet, tableaux/sources avec
+  PMID, **aucun `**`/`*` brut**.
