@@ -52,8 +52,6 @@ criteres_entree:
     derive: "HbA1c_actuelle <= HbA1c_cible"
   - nom: DFG
     type: nombre
-  - nom: IMC
-    type: nombre
   - nom: fragilite
     type: bool
   - nom: esperance_vie
@@ -77,17 +75,11 @@ criteres_entree:
     valeurs: [accepte, refuse, indifferent]
   - nom: mcg_disponible
     type: bool
-  - nom: TIR
-    type: nombre
   - nom: TBR
     type: nombre
   - nom: TBR_severe
     type: nombre
-  - nom: TAR
-    type: nombre
   - nom: CV_glycemique
-    type: nombre
-  - nom: GMI
     type: nombre
   - nom: profil_glycemique
     type: liste
@@ -274,6 +266,19 @@ options:
     inconvenients:
       - "Le calcul formel des ratios glucides-insuline et du facteur de sensibilité n'est pas inclus (éducation spécialisée). Si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière → orienter vers le spécialiste (voir alerte)."
     effet_attendu: "Ajustement lisible, piloté par la forme des courbes (AGP) et les doses en cours, dans le périmètre de la médecine générale."
+    niveau_preuve: faible
+    calculs:
+      - { libelle: "Dose totale quotidienne", expression: "dose_basale_actuelle + dose_rapide_actuelle", unite: "U/j" }
+  - intitule: "Poursuivre le schéma d'insuline en cours et réévaluer"
+    conditions:
+      - "default"
+    avantages:
+      - "Aucun ajustement n'est indiqué : objectif atteint, sans hypoglycémie ni variabilité justifiant une correction et sans levier d'intensification à mobiliser. Poursuivre le schéma et réévaluer à 3-6 mois."
+    inconvenients:
+      - "Réévaluer à chaque consultation la tolérance, les hypoglycémies et l'adhésion : l'apparition d'une hypoglycémie, d'une variabilité excessive ou d'un objectif manqué rouvre l'ajustement."
+    effet_attendu: >-
+      Pas de modification. Surveillance du contrôle, de la tolérance et de l'apparition d'un signal de
+      sécurité.
     niveau_preuve: faible
 alertes:
   - quand: "hypo_severe_recurrente == true OR CV_glycemique > 36 OR TBR_severe > 1"
@@ -480,11 +485,25 @@ incertitudes:
   - "Intégration inter-nœuds : HbA1c_cible provient du nœud A et terrain_fragile reprend ses déclencheurs de relaxation — cohérence à maintenir."
 veille_liee: []
 meta:
-  date_revue: "2026-07-24"
+  date_revue: "2026-07-25"
   auteur: "référent DT2 (Thibault) + Opus"
   statut: brouillon
-  version: "0.2"
+  version: "0.3"
   changelog:
+    - date: "2026-07-25"
+      auteur: "référent DT2 + Opus"
+      resume: >-
+        Arbitrages référent du 2026-07-25 (banc — critères morts et sortie vide, cf. GRAMMAIRE-NOEUD.md).
+        (1) Retrait de quatre critères `criteres_entree` morts : `TIR`, `TAR`, `GMI` (axe « contrôle » de la
+        MCG, déjà déclaré redondant avec l'HbA1c par le nœud, jamais utilisés — les alertes énoncent des
+        cibles génériques sans lire le chiffre saisi) et `IMC` (aucune règle, aucun calcul). `TBR` et
+        `TBR_severe` conservés (garde-fous de sécurité actifs). (2) `dose_rapide_actuelle`, jusqu'ici mort,
+        branché dans un `calculs` de l'option « Optimiser la répartition du basal-bolus » (dose totale
+        quotidienne = basale + rapide). (3) Ajout d'une option de repli en dernière position, « Poursuivre le
+        schéma d'insuline en cours et réévaluer » (`conditions: [default]`), qui bouche le trou « sortie
+        muette » en situation `basale_seule` à l'objectif et sans clause de sécurité déclenchée (le nœud
+        n'avait pas de repli, contrairement à `prescription`). Résorbe le test R5 (couverture) et l'invariant
+        2 (sortie jamais vide) du banc.
     - date: "2026-07-24"
       auteur: "Opus + référent"
       resume: >-

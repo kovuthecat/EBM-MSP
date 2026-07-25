@@ -283,12 +283,12 @@ describe('prescription — E · intolérance & F · garde-fous durs', () => {
     expect(has(t, 'Gliptine (sitagliptine)')).toBe(true) // place résiduelle (rang remonté par le flag)
   })
 
-  it('M2/A9 — SU sans indication iSGLT2 + AR GLP-1 contre-indiqué (IMC bas) : alerte « switch à vide » (red-team M2)', () => {
-    const o = { traitements_en_cours: ['metformine', 'sulfamide'], IMC: 21, DFG: 80, albuminurie: 'normo',
-      insuffisance_cardiaque: false, ASCVD_etablie: false, risque_hypoglycemie_schema: 'eleve',
-      intention: 'intensifier', position_vs_cible: 'au_dessus', HbA1c_actuelle: 8 } as Partial<Criteria>
-    expect(alertMsgs(o).some((m) => m.includes('aucun remplaçant protecteur') || m.includes('switch à vide'))).toBe(true)
-  })
+  // M2/A9 : test retiré le 2026-07-25 (arbitrage référent, tâche D). L'alerte « Sulfamide chez un patient
+  // SANS indication d'iSGLT2… aucun remplaçant protecteur pertinent » a été supprimée du nœud — fossile du
+  // modèle d'avant R3 : depuis que le remplacement (`remplacement_agent_sans_benefice`) est une voie
+  // d'accès à part entière aux classes protectrices, l'affirmation « aucun remplaçant pertinent » était
+  // fausse pour ce même profil (le switch vers un iSGLT2/AR GLP-1 « pur glycémique » reste possible), et
+  // R4 affiche désormais les options écartées avec leur motif, ce qui couvre le cas visé par l'alerte.
 })
 
 describe('prescription — correctifs vérification adversariale S8', () => {
@@ -314,8 +314,11 @@ describe('prescription — correctifs vérification adversariale S8', () => {
   })
 
   it('V-coherence — intention « optimiser » mais HbA1c 9 % : alerte de cohérence (intensification indiquée)', () => {
-    // Alerte de cohérence INCHANGÉE par ce recâblage (arbitrage clinique du référent, hors périmètre R1) :
-    // le scénario reste volontairement incohérent (optimiser ⇒ a_l_objectif par défaut, HbA1c 9 % quand même).
+    // Le `quand` de cette alerte a été reciblé le 2026-07-25 (arbitrage référent, tâche E) : il portait sur
+    // `intention == optimiser/deprescrire`, prémisse supprimée par R1 (« l'intention suppose l'objectif
+    // atteint ») ; il porte désormais sur `position_vs_cible == a_l_objectif/sous_objectif`. Le scénario
+    // ci-dessous reste volontairement incohérent (`position_vs_cible` non surchargé ⇒ `a_l_objectif`, le
+    // défaut de BASE, HbA1c 9 % quand même) : même déclenchement, par le nouveau chemin.
     const o = { traitements_en_cours: ['metformine'], intention: 'optimiser', HbA1c_actuelle: 9 } as Partial<Criteria>
     expect(alertMsgs(o).some((m) => m.includes('Cohérence') && m.includes('INTENSIFICATION'))).toBe(true)
   })

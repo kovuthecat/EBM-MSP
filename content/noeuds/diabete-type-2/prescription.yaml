@@ -595,6 +595,7 @@ options:
       - "traitements_en_cours ne_contient_pas gliptine"
       - "traitements_en_cours ne_contient_pas aGLP1"
       - "traitements_en_cours ne_contient_pas tirzepatide"
+      - "position_vs_cible != sous_objectif"
     exclusions:
       - "symptomes_glucotoxicite == true"
       - "cetonemie == true"
@@ -619,6 +620,7 @@ options:
       - "classes_a_benefice_indisponibles == true OR palette_glycemique_ouverte == true"
       - "traitements_en_cours ne_contient_pas sulfamide"
       - "traitements_en_cours ne_contient_pas insuline"
+      - "position_vs_cible != sous_objectif"
     exclusions:
       - "DFG < 30"
       - "symptomes_glucotoxicite == true"
@@ -718,19 +720,12 @@ alertes:
       injectables (AR GLP‑1 injectable, tirzépatide, association) sont reléguées en dernier. Si aucune
       alternative non injectable adaptée n'existe alors qu'un bénéfice cardio‑rénal prouvé est requis, un
       injectable reste à discuter avec le patient (le refus ne doit pas priver d'un traitement à bénéfice démontré).
-  - quand: "traitements_en_cours contient sulfamide AND insuffisance_cardiaque == false AND ASCVD_etablie == false AND DFG >= 60 AND albuminurie == normo AND IMC < 22 OR traitements_en_cours contient sulfamide AND insuffisance_cardiaque == false AND ASCVD_etablie == false AND DFG >= 60 AND albuminurie == normo AND denutrition == true"
+  - quand: "position_vs_cible == a_l_objectif AND HbA1c_actuelle >= 9 OR position_vs_cible == sous_objectif AND HbA1c_actuelle >= 9"
     niveau: attention
     message: >-
-      Sulfamide chez un patient SANS indication d'iSGLT2 (pas d'IC, DFG ≥ 60, normoalbuminurie, pas d'ASCVD)
-      et où l'AR GLP‑1 est contre‑indiqué par le terrain (IMC < 22 ou dénutrition) : aucun remplaçant
-      protecteur pertinent. Préférer SURVEILLER ou DÉPRESCRIRE le sulfamide plutôt qu'un switch à vide (repli
-      de l'option « remplacer le sulfamide »).
-  - quand: "intention == optimiser AND HbA1c_actuelle >= 9 OR intention == deprescrire AND HbA1c_actuelle >= 9"
-    niveau: attention
-    message: >-
-      Cohérence : HbA1c élevée (≥ 9 %) alors que l'intention saisie est « optimiser » / « déprescrire »
-      (qui supposent l'objectif atteint ou dépassé). Vérifier l'objectif du patient — une INTENSIFICATION
-      est probablement indiquée (rebasculer l'intention sur « intensifier »).
+      Cohérence : HbA1c ≥ 9 % alors que le patient est déclaré à l'objectif ou en dessous. Aucune cible
+      individualisée ne dépasse 9 % (la bande la plus large est « < 9 % », réservée au sujet âgé
+      dépendant) — vérifier l'objectif retenu : une INTENSIFICATION est probablement indiquée.
   - quand: "intention == intensifier AND hba1c_sous_cible == true"
     niveau: attention
     message: >-
@@ -898,8 +893,26 @@ meta:
   date_revue: "2026-07-25"
   auteur: "référent DT2 + Opus"
   statut: brouillon
-  version: "0.11"
+  version: "0.12"
   changelog:
+    - date: "2026-07-25"
+      auteur: "référent DT2 + Opus"
+      resume: >-
+        Six arbitrages référent du 2026-07-25. (D) Suppression de l'alerte M2/A9 (« Sulfamide chez un patient
+        SANS indication d'iSGLT2… aucun remplaçant protecteur pertinent ») : fossile du modèle d'avant R3 —
+        depuis que le remplacement est une voie d'accès à part entière (`remplacement_agent_sans_benefice`),
+        l'affirmation « aucun remplaçant pertinent » est fausse, et R4 affiche désormais les options écartées
+        avec leur motif. (E) Alerte de cohérence n°1 reciblée sur l'état déclaré plutôt que sur l'intention :
+        `intention == optimiser/deprescrire AND HbA1c_actuelle >= 9` → `position_vs_cible == a_l_objectif/
+        sous_objectif AND HbA1c_actuelle >= 9`, R1 ayant supprimé la prémisse « l'intention suppose l'objectif
+        atteint ». La seconde alerte de cohérence (`intention == intensifier AND hba1c_sous_cible`) reste
+        inchangée. (F) Garde `position_vs_cible != sous_objectif` ajoutée aux deux options de place résiduelle
+        purement glycémique (gliptine, sulfamide) : le déclencheur `classes_a_benefice_indisponibles` ne
+        recoupait rien avec la position vs objectif, un patient `sous_objectif` pouvait se voir proposer un
+        agent glycémique pur. Résorbe PARTIELLEMENT l'invariant 7 du banc (gliptine/sulfamide corrigés ;
+        « Insuline d'initiation », gate purement catabolique par conception indépendant de
+        `position_vs_cible`, hors périmètre de cet arbitrage — invariant 7 laissé `it.fails`, cf. rapport
+        de tâche).
     - date: "2026-07-24"
       auteur: "référent DT2 + Opus"
       resume: >-

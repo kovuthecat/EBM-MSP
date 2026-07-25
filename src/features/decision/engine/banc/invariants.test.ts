@@ -76,19 +76,15 @@ function intitules(node: Noeud, profil: Criteria): string[] {
 // ---------------------------------------------------------------------------------------------------
 
 /**
- * Nœuds pour lesquels l'invariant 2 (sortie jamais vide) est une DETTE DE CONTENU DÉJÀ CONNUE, constatée
- * en écrivant ce banc (2026-07-25) — PAS une propriété de moteur à masquer sur les autres nœuds. Seul
- * `insuline` y échoue aujourd'hui : dans la situation `basale_seule`, si aucune des 4 clauses de
- * sécurité (TBR/TBR_severe/CV_glycemique/hypo nocturne) ne se déclenche ET que la cible est déjà
- * atteinte (`cible_atteinte == true`), aucune des 3 options de cette situation ne s'applique (les deux
- * autres exigent `cible_atteinte == false`) — et `insuline.yaml`, contrairement à `prescription.yaml`,
- * n'a PAS d'option de repli (`["default"]`) du type « tout va bien, poursuivre ». C'est le même genre de
- * trou « sortie muette » que celui déjà corrigé sur `prescription` (cf. incertitude M3 citée dans
- * GRAMMAIRE-NOEUD.md), ici sur un nœud différent, pas encore corrigé. Cette liste ne doit grossir que si
- * un nouveau trou est diagnostiqué et commenté — jamais pour faire taire une régression inattendue sur un
+ * Nœuds pour lesquels l'invariant 2 (sortie jamais vide) est une DETTE DE CONTENU DÉJÀ CONNUE — PAS une
+ * propriété de moteur à masquer sur les autres nœuds. Vide depuis le 2026-07-25 : `insuline.yaml` a reçu
+ * une option de repli (« Poursuivre le schéma d'insuline en cours et réévaluer », `["default"]`, en
+ * dernière position) qui bouche le trou « sortie muette » de la situation `basale_seule` sans clause de
+ * sécurité déclenchée et déjà à l'objectif (arbitrage référent). Cette liste ne doit grossir que si un
+ * nouveau trou est diagnostiqué et commenté — jamais pour faire taire une régression inattendue sur un
  * autre nœud (prescription, cible-glycémique, rhd, statine passent normalement).
  */
-const NOEUDS_AVEC_SORTIE_VIDE_CONNUE = new Set(['insuline'])
+const NOEUDS_AVEC_SORTIE_VIDE_CONNUE = new Set<string>([])
 
 describe.each(noeuds.map((node) => [node.id, node] as const))('banc — invariants génériques · nœud %s', (_id, node) => {
   const profils = genererProfils(node, tailleBanc(node))
@@ -217,15 +213,25 @@ describe('banc — invariants spécifiques au domaine DT2 (nœud prescription, v
     expect(violations).toEqual([])
   })
 
-  // Constaté en écrivant ce test (2026-07-25) : la place résiduelle gliptine/sulfamide se déclenche
-  // aussi via `classes_a_benefice_indisponibles == true`, un booléen SAISI indépendamment de
-  // `position_vs_cible` — rien n'empêche un profil `sous_objectif` (sur-contrôle, cf. `cible_atteinte`)
-  // de porter aussi ce drapeau, auquel cas la place résiduelle redevient applicable alors que le patient
-  // est déjà EN DESSOUS de sa cible. C'est un manque de jonction entre deux dimensions indépendantes du
-  // contenu (le drapeau « classes indisponibles » ne se soucie pas de la position vs cible), pas un bug
-  // de moteur : à corriger en contenu (gater aussi sur `cible_atteinte == false`, ou documenter que la
-  // place résiduelle sert aussi à un allègement — ce qui contredirait alors son propre `intitule`
-  // « option glycémique... » à ce rang). Ne pas affaiblir l'assertion.
+  // PARTIELLEMENT corrigé le 2026-07-25 (arbitrage référent, tâche F) : la place résiduelle gliptine/
+  // sulfamide se déclenchait aussi via `classes_a_benefice_indisponibles == true`, un booléen SAISI
+  // indépendamment de `position_vs_cible` — rien n'empêchait un profil `sous_objectif` (sur-contrôle,
+  // cf. `cible_atteinte`) de porter aussi ce drapeau. Corrigé en contenu par l'ajout de la garde
+  // `position_vs_cible != sous_objectif` aux DEUX options de place résiduelle nommées par l'arbitrage
+  // (gliptine, sulfamide) — c'est tout ce que la tâche F a demandé de toucher.
+  //
+  // RESTE ROUGE (constaté en exécutant ce test après la correction, pas anticipé par la tâche) :
+  // « Insuline d'initiation (souvent transitoire — état catabolique) » — gate purement catabolique
+  // (`HbA1c_actuelle >= 10 AND symptomes_glucotoxicite == true OR cetonemie == true`), SANS aucune
+  // clause sur `cible_atteinte`/`position_vs_cible` par conception (cf. son propre `effet_attendu` dans
+  // prescription.yaml : « Distinct du gate catabolique, qui ne dépend pas de l'atteinte de l'objectif »).
+  // Un profil `sous_objectif` + `cetonemie == true` reste donc une violation de cet invariant tel qu'il
+  // est formulé aujourd'hui. La tâche F ne demandait de garder que les deux options de place résiduelle
+  // (gliptine, sulfamide) ; elle ne demandait pas de toucher au gate catabolique, et le faire serait
+  // inventer une règle clinique non spécifiée (l'état catabolique justifie l'insuline quelle que soit la
+  // position glycémique déclarée, au même titre que l'iSGLT2 en IC reste indiqué quelle que soit la
+  // glycémie — avertissement déjà consigné dans GRAMMAIRE-NOEUD.md sur ce même invariant n° 7). Laissé
+  // `it.fails` à dessein : ne PAS convertir en `it`, ne PAS élargir la garde F sans arbitrage référent.
   it.fails(
     '7 — aucun agent purement glycémique (gliptine, sulfamide, insuline) proposé à l’introduction si position_vs_cible == sous_objectif',
     () => {

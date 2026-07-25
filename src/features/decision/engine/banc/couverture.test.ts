@@ -18,16 +18,13 @@ import { genererProfils, tailleBanc } from './profils.ts'
 
 /**
  * Nœuds pour lesquels le test R5 (chaque critère saisissable est décisif quelque part) est une DETTE DE
- * CONTENU DÉJÀ DIAGNOSTIQUÉE (2026-07-25), PAS un artefact d'échantillonnage : `insuline.yaml` déclare
- * `IMC`, `TIR`, `TAR`, `GMI` et `dose_rapide_actuelle` (vérifié par grep sur le contenu) sans jamais les
- * référencer dans une `conditions`/`exclusions`/`priorite`/`alertes[].quand`/`derive` — `TIR`/`TAR`/`GMI`
- * ne sont cités qu'en PROSE (argumentaire, messages d'alerte en texte), jamais dans une expression
- * évaluée par le moteur ; `dose_rapide_actuelle` n'est même pas cité en prose. Aucun nombre de profils ne
- * peut les rendre décisifs : ce n'est pas le banc qui les rate, c'est le contenu qui ne les câble nulle
- * part. À corriger en YAML (les brancher, ou les retirer), jamais en affaiblissant ce test. Cette liste
- * ne doit grossir que sur un diagnostic similaire (jamais pour faire taire une régression ailleurs).
+ * CONTENU DÉJÀ DIAGNOSTIQUÉE, PAS un artefact d'échantillonnage. Vide depuis le 2026-07-25 : les quatre
+ * critères morts d'`insuline.yaml` (`IMC`, `TIR`, `TAR`, `GMI`) ont été retirés du contenu et
+ * `dose_rapide_actuelle` a été branché dans un `calculs` (arbitrage référent) — R5 passe désormais sur ce
+ * nœud. Cette liste ne doit grossir que sur un diagnostic similaire (jamais pour faire taire une
+ * régression ailleurs).
  */
-const NOEUDS_AVEC_CRITERES_MORTS_CONNUS = new Set(['insuline'])
+const NOEUDS_AVEC_CRITERES_MORTS_CONNUS = new Set<string>([])
 
 describe.each(noeuds.map((node) => [node.id, node] as const))('banc — couverture · nœud %s', (_id, node) => {
   const profils = genererProfils(node, tailleBanc(node))
