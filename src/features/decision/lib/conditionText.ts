@@ -15,6 +15,14 @@
 import { labelForCritere, labelForEnumValue } from './labels'
 
 const ATOMIC_RE = /^(\w+)\s*(==|!=|<=|>=|<|>)\s*(.+)$/
+/**
+ * Appartenance à une liste — forme du moteur (`conditions.ts`, `deriveCritere.ts`) que `ATOMIC_RE` ne
+ * reconnaît PAS, faute d'opérateur de comparaison. Sans elle, `humanizeAtomic` retombait sur son repli
+ * « renvoyer la chaîne telle quelle » et affichait un JETON DU DSL au clinicien
+ * (« traitements_en_cours ne_contient_pas gliptine »). Même classe de défaut que le sentinel `toujours`
+ * attrapé en vérification red-team de D16 — jamais recherchée ailleurs qu'à l'endroit où elle avait mordu.
+ */
+const MEMBERSHIP_RE = /^(\w+)\s+(contient|ne_contient_pas)\s+(.+)$/
 
 const OPERATOR_LABELS: Record<string, string> = {
   '==': '=',
@@ -27,10 +35,25 @@ const OPERATOR_LABELS: Record<string, string> = {
 
 function humanizeAtomic(text: string): string {
   const trimmed = text.trim()
+
+  const membership = MEMBERSHIP_RE.exec(trimmed)
+  if (membership) {
+    const [, variable, operator, rawValue] = membership
+    const verbe = operator === 'contient' ? 'comprend' : 'ne comprend pas'
+    return `${labelForCritere(variable)} ${verbe} ${labelForEnumValue(rawValue.trim())}`
+  }
+
   const match = ATOMIC_RE.exec(trimmed)
   if (!match) return trimmed
   const [, variable, operator, rawValue] = match
   const value = rawValue.trim()
+
+  // Booléen : « ASCVD établie = Oui » se lit comme une case de formulaire, pas comme une raison
+  // clinique. Le libellé seul porte l'affirmation, « : non » la négation — tournure sûre quel que soit
+  // le libellé, là où « pas de <libellé> » produirait des fautes de genre et de nombre.
+  if (operator === '==' && value === 'true') return labelForCritere(variable)
+  if (operator === '==' && value === 'false') return `${labelForCritere(variable)} : non`
+
   const operatorLabel = OPERATOR_LABELS[operator] ?? operator
   const valueLabel = value === 'true' ? 'Oui' : value === 'false' ? 'Non' : labelForEnumValue(value)
   return `${labelForCritere(variable)} ${operatorLabel} ${valueLabel}`
