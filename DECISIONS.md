@@ -573,6 +573,50 @@ traduira par un message lisible, jamais par un écran mort.
 
 ---
 
+## 2026-07-25 — D18 · Fusion des nœuds de prescription orale (B+C+D) en un nœud unique `prescription`
+
+### Décision
+
+Les trois nœuds de prescription non-insulinique — **B (1re intention)**, **C (intensification/optimisation)**
+et **D (sulfamides/gliptines)** — sont **fusionnés en un seul nœud `prescription`**, piloté par
+`traitements_en_cours` (liste vide = naïf = 1re intention) et `position_vs_cible` (champ unique à 4 crans).
+B/C/D (YAML + argumentaires de contenu) sont **retirés** ; leurs dossiers de preuve `docs/decision/noeuds/`
+persistent comme sources. Nœuds A (cible), E (insuline), F (statine), H (RHD) **inchangés**.
+
+Motivation : le découpage naïf/déjà-traité était artificiel pour le clinicien (mêmes déclencheurs
+comorbidité, même hiérarchie de molécules) et générait des incohérences d'encodage (ex. préférence
+iSGLT2/GLP-1 encodée deux fois, divergente). La fusion permet d'écrire **une seule fois** le gating négatif
+de terrain (IMC bas / dénutrition / infections uro / fragilité) et les portes SU/gliptine/intolérance.
+
+Contenu nouveau intégré à la fusion (gel référent 2026-07-24, `prescription.SPEC.md`) : gating de terrain
+(AR GLP-1 exclu IMC<22/dénutrition ; tirzépatide ⊂ obésité ; iSGLT2 rétrogradé si infections uro) ; portes
+SU/gliptine/intolérance → switch (à/au-dessus cible) ou déprescription (< 6,5 %, à tout âge) ; refus
+d'injection → injectables rétrogradés ; retrait du critère flou `sur_traitement`.
+
+### Portée
+
+- **Aucune modification du moteur** : tout est encodé en contenu (D13 `exclusions`/`liste`, D14 `priorite`
+  conditionnelle, D15 `alertes`, critères `derive`). Le socle générique (D8) est inchangé.
+- Cross-refs internes (E, H) mises à jour vers `nœud prescription`. Libellés UI ajoutés (`labels.ts`).
+- **Validation** : encodage vérifié bi-agents (S4) + validation adversariale P2·S3-S7 (agent red-team
+  indépendant + banc exécutable, 21 profils) → **0 finding HAUTE** ; corrections MOYENNE M1 (gating
+  `classes_a_benefice_indisponibles`) et M2 (alerte A9) appliquées. `content/…/prescription.yaml` **`valide`
+  v1.0**. Build + typecheck + 148 tests verts.
+
+### Raison
+
+Modèle mental du clinicien (regarder traitement en cours + terrain + tolérance, quel que soit le stade),
+suppression des coutures inter-nœuds, et écriture unique des garde-fous de terrain — la lacune la plus
+visible des nœuds B/C historiques. Remplace/absorbe l'ex-« P3 — Remédiation » esquissé dans le plan P2.
+
+### Arbitrages restants (référent, non bloquants)
+
+M3 (trou de couverture obèse+dénutri sans comorbidité → sortie « poursuivre ») ; présentation multi-options
+en double indication ; falaise du 6,5 % sur `en_dessous` non extrême. Consignés dans les `incertitudes` du
+nœud et le rapport `docs/decision/validation/RAPPORT-prescription-S3-S7.md`.
+
+---
+
 ## Décisions ouvertes (à trancher avec le comité MSP)
 
 - **Méthode d'authentification veille** : magic link vs e-mail+mot de passe (reco : magic link + liste

@@ -95,6 +95,14 @@ const CRITERE_LABELS: Record<string, string> = {
   // Nœud D « Sulfamides / gliptines » (docs/decision/noeuds/D-sulfamides-gliptines.md §1)
   classes_a_benefice_indisponibles:
     'iSGLT2 et AR GLP-1 tous deux inutilisables (contre-indication, intolérance ou refus)',
+  // Nœud fusionné « Prescription » (docs/decision/noeuds/prescription.SPEC.md) — critères ajoutés à la fusion.
+  intention: 'Intention thérapeutique (« je souhaite… »)',
+  position_vs_cible: 'HbA1c vs objectif',
+  hba1c_sous_cible: 'HbA1c < 6,5 % (sur-contrôle)',
+  denutrition: 'Dénutrition / carence (possible même chez l’obèse)',
+  infections_uro_genitales_recidivantes: 'Infections génito-urinaires récidivantes',
+  intolerance_traitement: 'Intolérance à un traitement en cours',
+  nature_intolerance: "Nature de l'intolérance",
 }
 
 /** Libellé d'un critère (`criteres_entree[].nom`) ; repli générique si critère non catalogué (nœud futur). */
@@ -128,15 +136,34 @@ const ENUM_VALUE_LABELS: Record<string, string> = {
   excursions_postprandiales: 'Excursions post-prandiales',
   hypo_interprandiale: 'Hypoglycémie interprandiale',
   stable: 'Stable',
-  // traitements_en_cours (liste, partagé B/C/E)
+  // traitements_en_cours (liste, partagé B/C/D/E, nœud fusionné prescription)
   metformine: 'Metformine',
   iSGLT2: 'iSGLT2 (gliflozine)',
   aGLP1: 'AR GLP-1',
+  tirzepatide: 'Tirzépatide',
   sulfamide: 'Sulfamide',
   glinide: 'Glinide',
   gliptine: 'Gliptine (iDPP4)',
+  insuline: 'Insuline',
   insuline_basale: 'Insuline basale',
   insuline_rapide: 'Insuline rapide',
+  // position_vs_cible (champ à 4 crans, nœud prescription)
+  a_la_cible: "À l'objectif",
+  au_dessus: "Au-dessus de l'objectif",
+  en_dessous: "En dessous de l'objectif",
+  tres_en_dessous: 'Très en dessous (< 6,5 %)',
+  // nature_intolerance (nœud prescription, S8)
+  aucune: 'Aucune / non précisée',
+  digestive: 'Digestive',
+  uro_genitale: 'Génito-urinaire',
+  perte_poids: 'Perte de poids excessive',
+  cutanee: 'Cutanée',
+  autre: 'Autre',
+  // intention (primer S8, nœud prescription)
+  initier: 'Initier un traitement',
+  intensifier: 'Intensifier (objectif non atteint)',
+  optimiser: 'Optimiser (à l’objectif mais ttt sous-optimal / intolérance / risque)',
+  deprescrire: 'Déprescrire (objectif dépassé ou risque)',
 }
 
 /** Libellé d'une valeur d'énumération ; repli générique (couvre aussi les valeurs numériques telles quelles). */

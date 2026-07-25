@@ -1,0 +1,860 @@
+# Nœud « Prescription non‑insulinique du DT2 » — FUSION de B (1re intention) + C (intensification) +
+# D (sulfamides/gliptines). BROUILLON v0.1 (2026‑07‑24) — issu du gel P3·S1.
+# Autorité : docs/decision/noeuds/prescription.SPEC.md (gelé 2026‑07‑24) + prescription.md (dossier consolidé,
+# socle de preuve importé de B/C/D) + .argumentaire.md (niveau 3). Vérification bi‑agents = P3·S4.
+# Ne PAS modifier les valeurs cliniques hors workflow veille → algo (D5). Statut clinique : à valider référent.
+#
+# NŒUD MULTI‑OPTIONS (D10/D11) : plusieurs gestes se combinent, triés par `priorite` croissante (D13/D14).
+# Piloté par le primer `intention` (S8) + `traitements_en_cours` (liste vide = naïf = 1re intention).
+# GATING NÉGATIF DE TERRAIN (gel S1 §4/§5) : AR GLP‑1 exclu si IMC < 22 OU dénutrition (mord même chez l'obèse) ;
+# tirzépatide réservé à l'obésité (IMC ≥ 30), exclu si dénutrition ; iSGLT2 rétrogradé (rang 6) + alerté si
+# infections génito‑urinaires récidivantes ; alerte fragilité sur les incrétines. Fix « préférence » (bug 9) :
+# priorités CONDITIONNELLES iSGLT2/GLP‑1 (athérome pur → GLP‑1 devant ; IC/rénal → iSGLT2 devant).
+# PORTES (gel) : SU/gliptine/intolérance → SWITCH si HbA1c à/au‑dessus de la cible ; DÉPRESCRIPTION si
+# hba1c_sous_cible (< 6,5 %, à tout âge — jamais un agent protecteur). Non‑association gliptine+GLP‑1 par
+# construction (O6/O7 exigent ne_contient_pas gliptine). REFONTE S8 (2026-07-25) : primer = `intention`
+# (initier/intensifier/optimiser/deprescrire) qui DÉDUIT `cible_atteinte` (dérivé) — remplace `position_vs_cible`.
+# `hba1c_sous_cible` = drapeau SAISI < 6,5 % (garde-fou absolu). `terrain_fragile` dérivé. PALETTE GLYCÉMIQUE
+# (S8) : iSGLT2/AR GLP-1 dispo aussi pour le contrôle glycémique (cible_atteinte==false), la comorbidité
+# PRIORISE ; insuline/SU/gliptine = agents possibles de bas rang ; repli insuline si palette non-insulinique
+# épuisée. `sur_traitement` RETIRÉ.
+id: prescription
+domaine: diabete-type-2
+titre: "Choisir / optimiser le traitement non‑insulinique du DT2 (selon les traitements en cours, la position vs objectif, les comorbidités et la tolérance)"
+population_cible: >-
+  Adulte DT2 (hors DT1, grossesse), à tout stade de la prescription non‑insulinique : naïf sous mesures
+  d'hygiène de vie (metformine socle), déjà traité à optimiser, ou candidat à une désintensification. Couvre
+  l'ajout d'un agent protecteur, le switch d'un agent de faible valeur (sulfamide/gliptine) ou mal toléré, la
+  désintensification, la place résiduelle des sulfamides/gliptines, et l'insuline d'INITIATION (état
+  catabolique). Hors périmètre : ajustement fin des doses d'insuline (nœud E) ; décompensation aiguë
+  (cétose/hyperosmolarité ≥ 3 mmol/L) = urgence (insuline + hospitalisation).
+selection: multi-options
+argumentaire_exhaustif: "prescription.argumentaire.md"
+criteres_entree:
+  - nom: traitements_en_cours
+    type: liste
+    valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, insuline, glinide]
+  - nom: intention
+    type: enum
+    # PRIMER (décision référent S8, 2026-07-25) : « je souhaite… ». Remplace `position_vs_cible` (l'HbA1c
+    # seule ne donne pas le « vs cible » sans le nœud A). L'intention DÉDUIT `cible_atteinte` ; elle ORGANISE
+    # (flux + affichage), elle ne filtre jamais durement (non-étanche : les gestes transverses restent affichés).
+    valeurs: [initier, intensifier, optimiser, deprescrire]
+  - nom: HbA1c_actuelle
+    type: nombre
+  - nom: ASCVD_etablie
+    type: bool
+  - nom: insuffisance_cardiaque
+    type: bool
+  - nom: DFG
+    type: nombre
+  - nom: albuminurie
+    type: enum
+    valeurs: [normo, micro, macro]
+  - nom: IMC
+    type: nombre
+  - nom: age
+    type: nombre
+  - nom: fragilite
+    type: bool
+  - nom: denutrition
+    type: bool
+  - nom: esperance_vie
+    type: enum
+    valeurs: [longue, intermediaire, limitee]
+  - nom: risque_hypoglycemie_schema
+    type: enum
+    valeurs: [faible, eleve]
+  - nom: infections_uro_genitales_recidivantes
+    type: bool
+  - nom: intolerance_traitement
+    type: bool
+  - nom: nature_intolerance
+    type: enum
+    # Cible l'agent en cause (S8, décision référent). `aucune` par défaut (sûr).
+    valeurs: [aucune, digestive, uro_genitale, perte_poids, cutanee, autre]
+  - nom: hypoglycemie_recente
+    type: bool
+  - nom: symptomes_glucotoxicite
+    type: bool
+  - nom: cetonemie
+    type: bool
+  - nom: preference_injection
+    type: enum
+    valeurs: [indifferent, accepte, refuse]
+  - nom: classes_a_benefice_indisponibles
+    type: bool
+  - nom: hba1c_sous_cible
+    type: bool
+    # DÉRIVÉ de l'HbA1c saisie (garde-fou ABSOLU < 6,5 %, indépendant de la cible du nœud A). Le garde `> 0`
+    # évite le faux positif quand l'HbA1c n'est pas encore saisie (défaut 0). Un défaut « false » d'un drapeau
+    # manuel n'était PAS sûr pour un garde-fou (patient à 6,0 % non coché → pas de déprescription — vérif S8).
+    derive: "HbA1c_actuelle > 0 AND HbA1c_actuelle < 6.5"
+  - nom: cible_atteinte
+    type: bool
+    derive: "intention == optimiser OR intention == deprescrire"
+  - nom: terrain_fragile
+    type: bool
+    derive: "age >= 75 OR fragilite == true OR esperance_vie == limitee OR risque_hypoglycemie_schema == eleve"
+  - nom: palette_glycemique_ouverte
+    type: bool
+    # Séquençage (décision référent S8) : la palette glycémique PURE (ajout d'un 2e agent sans indication de
+    # protection) est ouverte en INTENSIFICATION (déjà traité, objectif non atteint) ; à l'INITIATION (naïf),
+    # seulement si HbA1c ≥ 8,5 % (HAS : monothérapie metformine d'abord, bithérapie d'emblée si nettement au-
+    # dessus). optimiser/déprescrire ⇒ fermée. (≡ cible_atteinte==false, affiné par l'amplitude à l'initiation.)
+    derive: "intention == intensifier OR intention == initier AND HbA1c_actuelle >= 8.5"
+options:
+  # ---- Gate / socle -------------------------------------------------------------------------------------
+  - intitule: "Insuline d'initiation (souvent transitoire — état catabolique)"
+    conditions:
+      - "HbA1c_actuelle >= 10 AND symptomes_glucotoxicite == true OR cetonemie == true"
+    priorite: 1
+    avantages:
+      - "Corrige rapidement la glucotoxicité en cas d'hyperglycémie sévère symptomatique / catabolique ; le plus souvent transitoire (relais possible une fois la glucotoxicité levée)."
+    inconvenients:
+      - "Sans catabolisme franc, un AR GLP‑1 / tirzépatide (± insuline basale) est de plus en plus préféré (SIMPLE, ADA 2026)."
+      - "Contrainte (injections, auto‑surveillance), hypoglycémie, prise de poids. L'ajustement fin relève du nœud E."
+    effet_attendu: >-
+      Lève la glucotoxicité ; aucun bénéfice sur critère dur démontré (accord d'experts). Suspecter un DT1
+      devant une cétose / un amaigrissement rapide chez un sujet non obèse.
+    niveau_preuve: tres_faible
+    contre_indications:
+      - "Cétonémie ≥ 3 mmol/L → urgence (insuline + hospitalisation), hors périmètre du nœud."
+  - intitule: "Metformine (socle du traitement) — instaurer ou poursuivre"
+    conditions:
+      - "toujours"
+    priorite: 0
+    exclusions:
+      - "DFG < 30"
+    avantages:
+      - "Reco officielle française maintenue en 1re intention (coût, recul, tolérance, absence d'hypoglycémie) ; suffit SEULE sans indication d'agent à bénéfice d'organe."
+    inconvenients:
+      - "Bénéfice propre sur critère dur de preuve faible (ne pas afficher « bénéfice CV prouvé »)."
+      - "EXCEPTION à la poursuite — intolérance digestive (surtout si un AR GLP‑1 est aussi en cours) : la metformine étant l'agent au bénéfice le plus faible, sa réduction / son arrêt est à privilégier (cf. option « réduire l'agent mal toléré » et alerte)."
+    effet_attendu: >-
+      Pas de bénéfice sur critère dur démontré vs placebo (Griffin 2017, Boussageon 2012 NS). Socle par
+      tolérance / sécurité / coût / recul.
+    niveau_preuve: faible
+    contre_indications:
+      - "CONTRE‑INDIQUÉE si DFG < 30 (RCP ANSM) ; à écarter en insuffisance cardiaque décompensée, IDM récent, insuffisance hépatique, alcoolisme. À suspendre : déshydratation, sepsis, jeûne, produit de contraste iodé, chirurgie."
+  # ---- Sécurité rénale metformine ----------------------------------------------------------------------
+  - intitule: "Arrêter la metformine (DFG < 30 — contre‑indication rénale)"
+    conditions:
+      - "traitements_en_cours contient metformine"
+      - "DFG < 30"
+    priorite: 1
+    avantages:
+      - "Metformine CONTRE‑INDIQUÉE < 30 mL/min/1,73m² (RCP ANSM) : supprime le risque d'acidose lactique par accumulation. Relais possible : iSGLT2 (si DFG ≥ 20), AR GLP‑1."
+    inconvenients:
+      - "Réévaluer le contrôle après l'arrêt (socle retiré) ; renforcer souvent la protection cardio‑rénale en parallèle."
+    effet_attendu: >-
+      Suppression du risque d'acidose lactique en insuffisance rénale sévère (sécurité — RCP/ANSM).
+    niveau_preuve: eleve
+  - intitule: "Réduire la posologie de la metformine (fonction rénale altérée ou intolérance digestive)"
+    conditions:
+      - "traitements_en_cours contient metformine"
+      - "DFG >= 30 AND DFG < 60 OR nature_intolerance == digestive"
+    priorite: 3
+    avantages:
+      - "Adapter la dose au DFG (RCP ANSM : 45‑59 → max 2 g/j ; 30‑44 → max 1 g/j), OU réduire en cas d'intolérance digestive (la metformine étant l'agent au bénéfice le plus faible : à réduire/arrêter en priorité si un AR GLP‑1 partage l'intolérance — cf. alerte). Le praticien juge la dose."
+    inconvenients:
+      - "Revoir les facteurs de risque d'acidose lactique ; suspendre en cas de déshydratation, contraste iodé, jeûne. Si l'intolérance persiste malgré la réduction : arrêt (l'intolérance/CI metformine ouvre le remboursement d'une monothérapie AR GLP‑1)."
+    effet_attendu: >-
+      Réduit le risque d'accumulation en maintenant le bénéfice de la metformine dans la plage utilisable
+      (sécurité — RCP/ANSM).
+    niveau_preuve: eleve
+  - intitule: "Arrêter le sulfamide (DFG < 30 — contre‑indication rénale)"
+    conditions:
+      - "traitements_en_cours contient sulfamide"
+      - "DFG < 30"
+    priorite: 1
+    avantages:
+      - "Sulfamide CONTRE‑INDIQUÉ en insuffisance rénale sévère (DFG < 30, convention KDIGO/SFD) : risque d'hypoglycémie sévère et prolongée par accumulation. Arrêter (symétrie avec l'arrêt de la metformine)."
+    inconvenients:
+      - "Réévaluer le contrôle glycémique ; en rénal sévère, l'insuline devient souvent le pivot (± sitagliptine à dose adaptée au DFG)."
+    effet_attendu: >-
+      Suppression du risque d'hypoglycémie sévère par accumulation en insuffisance rénale (sécurité — RCP « IR
+      sévère » ; convention KDIGO/SFD).
+    niveau_preuve: eleve
+  # ---- Ajout d'un agent protecteur (fix bug 9 : priorités conditionnelles) ------------------------------
+  - intitule: "Introduire un iSGLT2 (protection cardio‑rénale et/ou contrôle glycémique)"
+    conditions:
+      - "insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo OR ASCVD_etablie == true OR palette_glycemique_ouverte == true"
+      - "traitements_en_cours ne_contient_pas iSGLT2"
+      - "classes_a_benefice_indisponibles == false"
+    exclusions:
+      - "DFG < 20"
+      - "symptomes_glucotoxicite == true"
+      - "cetonemie == true"
+    priorite:
+      - quand: "infections_uro_genitales_recidivantes == true"
+        rang: 6
+      - quand: "insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo"
+        rang: 2
+      - quand: "ASCVD_etablie == true OR IMC >= 30"
+        rang: 3
+      - quand: "default"
+        rang: 2
+    avantages:
+      - "Réduit l'hospitalisation pour IC et la progression rénale (effet de classe) — à privilégier quand l'IC ou la maladie rénale prédomine. Proposé indépendamment de l'HbA1c (protection, HAS R.64‑66 grade A)."
+      - "Aussi un bon agent de CONTRÔLE GLYCÉMIQUE (sans hypoglycémie, perte de poids modeste) même sans comorbidité : la comorbidité le PRIORISE (versant protecteur), elle ne conditionne pas sa disponibilité comme levier glycémique."
+    inconvenients:
+      - "Pas d'effet sur l'IDM ni l'AVC ; en athérome pur SANS IC ni maladie rénale, préférer un AR GLP‑1."
+      - "Infections génito‑urinaires récidivantes / gangrène de Fournier ; ne pas initier si DFG < 20 ; risque d'acidocétose (suspendre si jeûne, chirurgie, sepsis)."
+    effet_attendu: >-
+      Hospit. IC HR ~0,61‑0,73 (NNT ~19‑31 / 16‑26 mois) ; progression rénale HR ~0,56‑0,76 (NNT DAPA‑CKD 19,
+      CREDENCE 22). IDM/AVC non réduits.
+    niveau_preuve: eleve
+    contre_indications:
+      - "Ne pas initier si DFG < 20 (poursuivre jusqu'à la dialyse si déjà en cours — KDIGO 2024)."
+      - "Infections génito‑urinaires récidivantes ; antécédent de gangrène de Fournier ; prudence si artériopathie évoluée / amputation (signal canagliflozine)."
+      - "En cas d'IC avec saxagliptine en cours : arrêter la saxagliptine (signal SAVOR), ne pas se contenter d'ajouter l'iSGLT2."
+  - intitule: "Introduire un AR GLP‑1 (liraglutide, sémaglutide, dulaglutide)"
+    conditions:
+      - "ASCVD_etablie == true OR IMC >= 30 OR palette_glycemique_ouverte == true"
+      - "traitements_en_cours ne_contient_pas aGLP1"
+      - "traitements_en_cours ne_contient_pas tirzepatide"
+      - "traitements_en_cours ne_contient_pas gliptine"
+      - "classes_a_benefice_indisponibles == false"
+    exclusions:
+      - "IMC < 22"
+      - "denutrition == true"
+      - "symptomes_glucotoxicite == true"
+      - "cetonemie == true"
+    priorite:
+      - quand: "preference_injection == refuse"
+        rang: 7
+      - quand: "insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo"
+        rang: 3
+      - quand: "ASCVD_etablie == true OR IMC >= 30"
+        rang: 2
+      - quand: "IMC < 25"
+        rang: 4
+      - quand: "default"
+        rang: 2
+    avantages:
+      - "Réduit les événements athéromateux (surtout l'AVC ; mortalité CV pour le liraglutide) — à privilégier en maladie athéromateuse ou obésité ; forte efficacité HbA1c et perte de poids. Néphroprotection dure = sémaglutide (FLOW)."
+      - "Aussi un puissant agent de CONTRÔLE GLYCÉMIQUE (forte baisse d'HbA1c, pas d'hypoglycémie) même sans comorbidité — sous réserve du garde‑fou terrain (exclu si IMC<22 / dénutrition)."
+    inconvenients:
+      - "GARDE‑FOU TERRAIN : à ne PAS initier chez le sujet maigre (IMC < 22) ou dénutri (aggravation de la dénutrition / sarcopénie) ; prudence chez le sujet fragile (alerte)."
+      - "Bénéfice molécule‑spécifique (exclure lixisénatide, exénatide LP) ; quasi nul sur l'IC ; effets digestifs, pancréatite ; signaux mal cernés (thyroïde, NAION séma). Sous gliptine : remplacer, pas associer."
+    effet_attendu: >-
+      MACE HR ~0,87‑0,88 (AVC/mort CV/IDM selon la molécule) ; NNT ~18 en prévention secondaire, ~60‑70 en
+      primaire. Rénal dur = sémaglutide (FLOW, HR 0,76).
+    niveau_preuve: modere
+    contre_indications:
+      - "Antécédent de pancréatite ; antécédent personnel/familial de cancer médullaire de la thyroïde ou NEM2."
+      - "Refus des injections : préférer le sémaglutide oral ou une autre classe. Rétinopathie proliférante non stabilisée : prudence."
+      - "IMC bas / dénutrition : contre‑indication de terrain (perte de poids délétère)."
+  - intitule: "Introduire le tirzépatide (obésité — prescription spécialisée)"
+    conditions:
+      - "IMC >= 30"
+      - "traitements_en_cours ne_contient_pas tirzepatide"
+      - "traitements_en_cours ne_contient_pas aGLP1"
+      - "traitements_en_cours ne_contient_pas gliptine"
+      - "classes_a_benefice_indisponibles == false"
+    exclusions:
+      - "denutrition == true"
+    priorite:
+      - quand: "preference_injection == refuse"
+        rang: 7
+      - quand: "default"
+        rang: 4
+    avantages:
+      - "Efficacité HbA1c et perte de poids supérieures aux AR GLP‑1 ; réservé à l'OBÉSITÉ associée au diabète (IMC ≥ 30), prescription par spécialiste."
+    inconvenients:
+      - "Bénéfice CV par NON‑INFÉRIORITÉ au dulaglutide seulement (SURPASS‑CVOT, pas de supériorité, pas de CVOT vs placebo). Mêmes effets digestifs/pancréatiques ; injectable hebdomadaire."
+      - "GARDE‑FOU TERRAIN : exclu si dénutrition (même chez l'obèse sarcopénique) ; non indiqué hors obésité."
+    effet_attendu: >-
+      Non‑infériorité au dulaglutide sur le MACE‑3 (HR 0,92 [0,83‑1,01]) ; composite rénal 0,77 [0,68‑0,88].
+    niveau_preuve: modere
+    contre_indications:
+      - "Antécédent de pancréatite ; cancer médullaire de la thyroïde / NEM2 ; refus des injections ; dénutrition."
+  - intitule: "Association iSGLT2 + AR GLP‑1 (deux indications distinctes)"
+    conditions:
+      - "insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo"
+      - "ASCVD_etablie == true OR IMC >= 30"
+      - "traitements_en_cours ne_contient_pas gliptine"
+      - "traitements_en_cours ne_contient_pas iSGLT2"
+      - "traitements_en_cours ne_contient_pas aGLP1"
+      - "traitements_en_cours ne_contient_pas tirzepatide"
+      - "classes_a_benefice_indisponibles == false"
+    exclusions:
+      - "DFG < 20"
+      - "symptomes_glucotoxicite == true"
+      - "cetonemie == true"
+      - "IMC < 22"
+      - "denutrition == true"
+    priorite:
+      - quand: "preference_injection == refuse"
+        rang: 7
+      - quand: "default"
+        rang: 4
+    avantages:
+      - "Couvre le versant IC/rénal (iSGLT2) ET athéromateux/pondéral (AR GLP‑1) quand les deux indications sont fortes."
+    inconvenients:
+      - "Bénéfice additif sur critère DUR de preuve FAIBLE (observationnel + sous‑groupes ; PRECIDENTD en cours) : justifié par la coexistence de deux indications, pas par une synergie prouvée. Coût et charge de traitement cumulés (risque d'abandon)."
+    effet_attendu: >-
+      Additivité glycémique/pondérale acquise (DURATION‑8) ; bénéfice dur additif non confirmé par un ECR dédié.
+    niveau_preuve: faible
+  - intitule: "Envisager l'insuline (palette non‑insulinique épuisée — ajustement fin → nœud E)"
+    conditions:
+      - "cible_atteinte == false"
+      - "traitements_en_cours contient iSGLT2 AND traitements_en_cours contient aGLP1 OR traitements_en_cours contient iSGLT2 AND denutrition == true OR traitements_en_cours contient iSGLT2 AND IMC < 22"
+    priorite: 6
+    avantages:
+      - "Quand les options non insuliniques sont épuisées ou contre‑indiquées, l'insuline est le levier glycémique le plus puissant et souvent nécessaire. Cas types : metformine + iSGLT2 + AR GLP‑1 toujours déséquilibré ; incrétines exclues par le terrain (dénutrition / IMC bas) chez un patient déjà sous iSGLT2 non contrôlé. (En insuffisance rénale sévère, un AR GLP‑1 ou la sitagliptine à dose adaptée restent souvent utilisables : la palette n'est pas forcément épuisée.)"
+    inconvenients:
+      - "Contrainte (injections, auto‑surveillance), hypoglycémie, prise de poids ; aucun bénéfice CV (ORIGIN). Débuter par une basale ± AR GLP‑1 si possible. L'AJUSTEMENT FIN (titration, schéma) relève du nœud E."
+    effet_attendu: >-
+      Baisse d'HbA1c dose‑dépendante ; aucun bénéfice sur critère dur. Distinct du gate catabolique (qui ne
+      dépend pas de l'atteinte de l'objectif).
+    niveau_preuve: faible
+    contre_indications:
+      - "Arrêter le sulfamide / le glinide à l'introduction de l'insuline (hypoglycémie cumulée). Suspecter un DT1 devant une cétose / un amaigrissement rapide chez un sujet non obèse."
+  # ---- Switch (portes SU/gliptine, branche à/au‑dessus de la cible) -------------------------------------
+  - intitule: "Remplacer la gliptine par un AR GLP‑1 (switch, jamais d'association)"
+    conditions:
+      - "traitements_en_cours contient gliptine"
+      - "ASCVD_etablie == true OR IMC >= 30 OR cible_atteinte == false"
+      - "traitements_en_cours ne_contient_pas aGLP1"
+      - "traitements_en_cours ne_contient_pas tirzepatide"
+    exclusions:
+      - "IMC < 22"
+      - "denutrition == true"
+      - "symptomes_glucotoxicite == true"
+      - "cetonemie == true"
+    priorite: 3
+    avantages:
+      - "L'AR GLP‑1 est constamment supérieur à la gliptine sur l'HbA1c et le poids (PIONEER‑3, SUSTAIN‑2, AWARD‑5 ; switch Pratley 2012, méta Tran/Kramer −0,69 % / −2,25 kg) et apporte un bénéfice cardio‑rénal que la gliptine n'a pas."
+    inconvenients:
+      - "RÈGLE DURE : ne jamais ASSOCIER gliptine + AR GLP‑1 (même voie incrétine, aucun bénéfice additif — Nauck 2017 ; ADA §9 ; KDIGO PP4.2.3 ; HAS R.80) → l'introduction de l'AR GLP‑1 implique l'ARRÊT de la gliptine."
+      - "Gain démontré glycémique/pondéral (substitution) ; effets digestifs/pancréatiques ; injectable (sauf séma oral). Garde‑fou terrain IMC<22/dénutrition."
+    effet_attendu: >-
+      Switch : gain HbA1c ~−0,5 à −1,06 % et poids ~−1,6 à −4,2 kg. Bénéfice d'organe = celui de la classe
+      AR GLP‑1, non redémontré ici.
+    niveau_preuve: modere
+    contre_indications:
+      - "Ne pas maintenir la gliptine en association : la remplacer. Mêmes CI que l'AR GLP‑1 (pancréatite, thyroïde/NEM2, refus d'injection, IMC bas/dénutrition)."
+  - intitule: "Arrêter la gliptine redondante (association gliptine + AR GLP‑1 / tirzépatide déjà en place)"
+    conditions:
+      - "traitements_en_cours contient gliptine"
+      - "traitements_en_cours contient aGLP1 OR traitements_en_cours contient tirzepatide"
+    priorite: 3
+    avantages:
+      - "Corrige une association INTERDITE déjà en place : gliptine + AR GLP‑1/tirzépatide = redondance incrétine sans bénéfice additif → arrêter la gliptine (ADA §9 ; KDIGO PP4.2.3 « stopping the gliptin » ; HAS R.80)."
+    inconvenients:
+      - "À repérer surtout chez un patient adressé déjà sous les deux ; réévaluer l'HbA1c après l'arrêt (pas de perte d'efficacité attendue)."
+    effet_attendu: >-
+      Simplification sans perte d'efficacité (Nauck 2017 : +78 % GLP‑1 intact sans effet glycémique additionnel).
+    niveau_preuve: modere
+  - intitule: "Remplacer le sulfamide (moins d'hypoglycémie, moins de poids, plus de bénéfice)"
+    conditions:
+      - "traitements_en_cours contient sulfamide"
+      - "hypoglycemie_recente == false"
+      - "hba1c_sous_cible == false"
+      - "insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo OR ASCVD_etablie == true OR IMC >= 30 OR risque_hypoglycemie_schema == eleve OR cible_atteinte == false"
+    exclusions:
+      - "DFG < 30"
+    priorite: 4
+    avantages:
+      - "Le sulfamide n'a aucun bénéfice cardio‑rénal propre (CAROLINA, TOSCA.IT neutres) et cause hypoglycémie + poids + moindre durabilité. Le remplaçant réduit fortement l'hypo sévère (CAROLINA NNT 45) et fait perdre du poids."
+    inconvenients:
+      - "Aucun ECR de switch dédié ne montre que RETIRER le SU réduit un critère dur (bénéfice d'organe = le remplaçant, argument indirect). Choisir le remplaçant selon la comorbidité (iSGLT2 si IC/rein ; AR GLP‑1 si athérome/obésité)."
+      - "REPLI : si aucun remplaçant protecteur n'est applicable sur ce terrain (AR GLP‑1 exclu par IMC<22/dénutrition ET iSGLT2 non indiqué), NE PAS switcher à vide → surveiller ou déprescrire le sulfamide."
+    effet_attendu: >-
+      Hypo sévère 0,45 → 0,07 / 100 p‑a (CAROLINA, NNT 45) ; poids ~−1,5 à −4 kg ; bénéfice d'organe = iSGLT2 /
+      AR GLP‑1 choisi.
+    niveau_preuve: modere
+    contre_indications:
+      - "En sur‑contrôle (hba1c_sous_cible) ou après hypoglycémie/chute récente : il s'agit de DÉSINTENSIFIER (retirer sans remplacer) — cette option ne se déclenche pas. Si un SU doit être conservé : gliclazide/glimépiride, jamais le glibenclamide."
+  # ---- Intolérance (porte : réduction OU switch) -------------------------------------------------------
+  - intitule: "Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer"
+    conditions:
+      - "intolerance_traitement == true"
+    priorite: 2
+    avantages:
+      - "Une intolérance justifie d'agir. Deux voies : (1) RÉDUIRE la posologie de la molécule en cause si l'intolérance est NON MAJEURE (sévérité et dose = jugement du praticien ; aucun dosage imposé) ; (2) REMPLACER par une classe mieux tolérée (voir les options de switch selon les comorbidités, en excluant la classe en cause)."
+    inconvenients:
+      - "Documenter la nature de l'intolérance avant de conclure à un échec de classe. Intolérance DIGESTIVE : la metformine ET l'AR GLP‑1 en sont deux sources — privilégier la réduction/l'arrêt de la metformine (bénéfice moindre), cf. alerte."
+    effet_attendu: >-
+      Restaure la tolérance sans nécessairement abandonner un agent à bénéfice d'organe. Effet non chiffrable
+      (dépend de l'agent et du geste retenu).
+    niveau_preuve: faible
+  # ---- Désintensification (porte : hba1c_sous_cible à tout âge, ou hypo récente sur terrain fragile) ----
+  - intitule: "Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline"
+    conditions:
+      - "hba1c_sous_cible == true OR hypoglycemie_recente == true AND terrain_fragile == true"
+      - "traitements_en_cours contient sulfamide OR traitements_en_cours contient glinide OR traitements_en_cours contient insuline"
+    priorite: 1
+    avantages:
+      - "Réduit les hypoglycémies sévères et les chutes sans dégrader le contrôle (Grant 2025 ; ADA 13.14a‑c ; HAS R.103 ; SFD Avis 5 bis). Un HbA1c < 6,5 % sous agent hypoglycémiant = sur‑traitement iatrogène — déprescrire à TOUT ÂGE."
+      - "Déclenchée aussi par une hypoglycémie/chute récente chez le sujet fragile (l'HbA1c seule prédit mal l'hypo — HYPOAGE)."
+    inconvenients:
+      - "Preuve faible / accord d'experts (aucun ECR de devenirs durs). Surveiller la glycémie après l'allègement, réévaluer l'HbA1c à ~3 mois."
+    effet_attendu: >-
+      Réduit le risque d'hypoglycémie sévère sans dégradation du contrôle (Grant 2025 : hypo sévère 4,7 % vs
+      6,5 % NS). Bénéfice sur critères durs non chiffrable.
+    niveau_preuve: faible
+    contre_indications:
+      - "Ne JAMAIS retirer un iSGLT2 ni un AR GLP‑1 pour désintensifier : bénéfice cardio‑rénal maintenu quelle que soit la glycémie (ADA 13.14d grade A). La désintensification ne cible que sulfamide / glinide / excès d'insuline."
+  # ---- Déprescrire par RÉDUCTION de dose (distinct par traitement ; le praticien juge la dose, S8) -------
+  - intitule: "Réduire la posologie de l'insuline (sur‑basalisation / hypoglycémie)"
+    conditions:
+      - "traitements_en_cours contient insuline"
+      - "hba1c_sous_cible == true OR hypoglycemie_recente == true OR intolerance_traitement == true"
+    priorite: 1
+    avantages:
+      - "Réduire plutôt qu'arrêter : diminue le risque d'hypoglycémie (sur‑basalisation, sujet fragile) sans sevrer un patient qui en a besoin. Le praticien juge la dose (aucun dosage imposé). L'ajustement fin relève du nœud E."
+    inconvenients:
+      - "Surveiller la glycémie après la baisse ; contrôle volontairement un peu moins strict (assumé)."
+    effet_attendu: "Moins d'hypoglycémie sans sevrage complet ; effet non chiffrable."
+    niveau_preuve: faible
+  - intitule: "Réduire la posologie de l'AR GLP‑1 (perte de poids excessive / intolérance digestive)"
+    conditions:
+      - "traitements_en_cours contient aGLP1"
+      - "denutrition == true OR nature_intolerance == perte_poids OR nature_intolerance == digestive"
+    priorite: 2
+    avantages:
+      - "Réduire plutôt qu'arrêter préserve une partie du bénéfice tout en limitant la perte de poids excessive ou les troubles digestifs. Le praticien juge la dose."
+    inconvenients:
+      - "Si la perte de poids / dénutrition est marquée : envisager l'arrêt. Réévaluer l'état nutritionnel."
+    effet_attendu: "non chiffrable"
+    niveau_preuve: faible
+  - intitule: "Réduire la posologie du tirzépatide (perte de poids excessive / intolérance)"
+    conditions:
+      - "traitements_en_cours contient tirzepatide"
+      - "denutrition == true OR nature_intolerance == perte_poids OR nature_intolerance == digestive"
+    priorite: 2
+    avantages:
+      - "Même logique que l'AR GLP‑1 : réduire avant d'arrêter en cas de perte de poids excessive ou d'intolérance. Le praticien juge la dose."
+    inconvenients:
+      - "Si dénutrition marquée : arrêt et réévaluation nutritionnelle."
+    effet_attendu: "non chiffrable"
+    niveau_preuve: faible
+  - intitule: "Réduire la posologie du sulfamide / du glinide (tolérance, hypoglycémie légère)"
+    conditions:
+      - "traitements_en_cours contient sulfamide OR traitements_en_cours contient glinide"
+      - "intolerance_traitement == true OR hypoglycemie_recente == true"
+    priorite: 2
+    avantages:
+      - "Réduire la dose limite l'hypoglycémie tout en gardant l'effet glycémique. Le praticien juge la dose."
+    inconvenients:
+      - "En sur‑contrôle franc (< 6,5 %) ou hypo/chute chez le fragile : préférer l'allègement/l'arrêt (désintensification). Agent sans bénéfice d'organe : envisager plutôt un switch vers un agent protecteur si le terrain s'y prête."
+    effet_attendu: "non chiffrable"
+    niveau_preuve: faible
+  - intitule: "Reconsidérer un agent protecteur prescrit hors indication ET posant un risque (ex. iSGLT2 sans terrain + infections uro)"
+    conditions:
+      - "traitements_en_cours contient iSGLT2 AND ASCVD_etablie == false AND insuffisance_cardiaque == false AND DFG >= 60 AND albuminurie == normo AND infections_uro_genitales_recidivantes == true"
+    priorite: 4
+    avantages:
+      - "Un agent à bénéfice associé (rein/CV) prescrit SANS le terrain correspondant ET posant un risque (iSGLT2 sans IC/rein/ASCVD avec infections génito‑urinaires récidivantes) → l'envisager en retrait / switch vers une molécule sûre et bénéfique. (La gliptine sans bénéfice relève, elle, du switch vers un AR GLP‑1 — option dédiée — ou de l'arrêt si association redondante.)"
+    inconvenients:
+      - "Ne JAMAIS déprescrire un agent qui COUVRE un risque établi (iSGLT2 en IC/rein, AR GLP‑1 en ASCVD). Un iSGLT2/GLP‑1 sans terrain garde une utilité glycémique : ne le retirer que si un risque (ici infections uro) le justifie."
+    effet_attendu: "Simplification thérapeutique ; pas de perte de bénéfice d'organe (par construction)."
+    niveau_preuve: faible
+  # ---- Place résiduelle SU / gliptine (classes protectrices indisponibles) ------------------------------
+  - intitule: "Gliptine (sitagliptine) — option glycémique orale de bas rang (place résiduelle)"
+    conditions:
+      - "classes_a_benefice_indisponibles == true OR palette_glycemique_ouverte == true"
+      - "traitements_en_cours ne_contient_pas gliptine"
+      - "traitements_en_cours ne_contient_pas aGLP1"
+      - "traitements_en_cours ne_contient_pas tirzepatide"
+    exclusions:
+      - "symptomes_glucotoxicite == true"
+      - "cetonemie == true"
+    priorite:
+      - quand: "classes_a_benefice_indisponibles == true"
+        rang: 3
+      - quand: "default"
+        rang: 5
+    avantages:
+      - "Agent glycémique ORAL possible « avec ses limites » (bas rang) : sans hypoglycémie, neutre sur le poids, bien toléré sur le plan digestif — la niche quand on veut éviter l'hypoglycémie sans injection, ou quand iSGLT2 et AR GLP‑1 sont indisponibles (le rang remonte alors). Molécule = SITAGLIPTINE (seule gliptine FR à sécurité CV démontrée, TECOS ; utilisable jusqu'en dialyse à dose réduite). Préférée au sulfamide (ordre HAS/SFD)."
+    inconvenients:
+      - "AUCUN bénéfice sur critère dur (4 CVOT neutres) ; efficacité modeste (~0,5‑0,8 % HbA1c). Effets indésirables : pemphigoïde bulleuse (Lee 2020 HR 1,42), arthralgies (FDA), pancréatite (signal méta). Prescrire l'écarte. Ne jamais associer à un AR GLP‑1."
+    effet_attendu: >-
+      Baisse d'HbA1c ~0,5‑0,8 % (substitution) ; aucun bénéfice dur. Face au sulfamide : absence d'hypoglycémie
+      et de prise de poids (CAROLINA).
+    niveau_preuve: modere
+    contre_indications:
+      - "SITAGLIPTINE (dose au DFG : 100 mg si ≥ 45 ; 50 mg si 30‑44 ; 25 mg si < 30, dialyse incluse). Ne pas utiliser saxagliptine (IC + retrait FR) ni lina/alogliptine (non commercialisées FR). Éruption bulleuse → évoquer pemphigoïde, arrêter."
+  - intitule: "Sulfamide (gliclazide MR ou glimépiride) — option glycémique de bas rang, derrière la gliptine"
+    conditions:
+      - "classes_a_benefice_indisponibles == true OR palette_glycemique_ouverte == true"
+      - "traitements_en_cours ne_contient_pas sulfamide"
+      - "traitements_en_cours ne_contient_pas insuline"
+    exclusions:
+      - "DFG < 30"
+      - "symptomes_glucotoxicite == true"
+      - "cetonemie == true"
+    priorite:
+      - quand: "classes_a_benefice_indisponibles == true"
+        rang: 3
+      - quand: "default"
+        rang: 5
+    avantages:
+      - "Agent glycémique possible « avec ses limites » (bas rang) : efficacité nette (~1‑1,5 % HbA1c), la plus forte des deux classes résiduelles ; les SU modernes (gliclazide, glimépiride) ne sont pas plus délétères en CV que des comparateurs récents (CAROLINA, TOSCA.IT, GRADE neutres). Rang remonté si iSGLT2/AR GLP‑1 indisponibles."
+    inconvenients:
+      - "AUCUN bénéfice sur critère dur. Vrais inconvénients : HYPOGLYCÉMIE (sévère chez l'âgé/l'insuffisant rénal) et PRISE DE POIDS ; durabilité moindre. JAMAIS le glibenclamide (Simpson 2015)."
+    effet_attendu: >-
+      Baisse d'HbA1c ~1‑1,5 % (substitution) ; aucun bénéfice dur. Gain glycémique contre risque d'hypoglycémie
+      (34‑42 % de toute hypo sous SU) et prise de poids.
+    niveau_preuve: modere
+    contre_indications:
+      - "CONTRE‑INDIQUÉ si DFG < 30. Déconseillé chez le sujet à risque d'hypoglycémie élevé (âgé fragile, IR, alimentation irrégulière) : préférer la gliptine. Molécule : gliclazide MR ou glimépiride, jamais le glibenclamide."
+  # ---- Repli ------------------------------------------------------------------------------------------
+  - intitule: "Poursuivre le traitement en cours et réévaluer"
+    conditions:
+      - "default"
+    avantages:
+      - "Aucun geste d'ajout, d'optimisation ni de désintensification n'est indiqué : objectif atteint sans agent iatrogène à optimiser ni indication de protection non couverte. Poursuivre et réévaluer à 3‑6 mois (HAS R.47)."
+    inconvenients:
+      - "Réévaluer efficacité, tolérance et adhésion à chaque consultation ; arrêter un agent non‑répondeur (< 0,5 % sans indication de protection)."
+    effet_attendu: >-
+      Pas de modification. Surveillance du contrôle, de la tolérance et de l'apparition d'une indication de
+      protection (qui rouvrirait la prescription).
+    niveau_preuve: faible
+alertes:
+  - quand: "HbA1c_actuelle >= 10 OR symptomes_glucotoxicite == true"
+    niveau: attention
+    message: >-
+      Contrôler la cétonémie capillaire (β‑hydroxybutyrate) : décompensation catabolique possible malgré une
+      HbA1c non franchement élevée. ≥ 0,6 mmol/L → insuline d'initiation ; ≥ 3 mmol/L → urgence (insuline +
+      hospitalisation).
+  - quand: "DFG < 60 AND DFG >= 45"
+    niveau: attention
+    message: >-
+      Metformine : dose maximale 2 000 mg/j si DFG 45‑59 (RCP ANSM) ; revoir au préalable les facteurs de
+      risque d'acidose lactique.
+  - quand: "DFG < 45 AND DFG >= 30"
+    niveau: attention
+    message: >-
+      Metformine : dose maximale 1 000 mg/j, initiation ≤ 500 mg si DFG 30‑44 (RCP ANSM).
+  - quand: "DFG < 30"
+    niveau: attention
+    message: >-
+      Metformine CONTRE‑INDIQUÉE si DFG < 30 (RCP ANSM) : arrêter. Un iSGLT2 reste initiable jusqu'à DFG ≥ 20
+      (indication rénale) ; en dessous, relais par une autre classe (nœud E). Sulfamide aussi CI < 30.
+  - quand: "fragilite == true AND ASCVD_etablie == true OR fragilite == true AND IMC >= 30 OR fragilite == true AND traitements_en_cours contient aGLP1 OR fragilite == true AND traitements_en_cours contient tirzepatide"
+    niveau: attention
+    message: >-
+      Sujet fragile chez qui un incrétine (AR GLP‑1 / tirzépatide) est en cours ou envisagé : surveiller le
+      poids et l'état nutritionnel (risque de sarcopénie / anorexie). En cas de dénutrition ou d'IMC bas,
+      l'incrétine est contre‑indiquée (garde‑fou de terrain — l'option est alors retirée).
+  - quand: "infections_uro_genitales_recidivantes == true AND traitements_en_cours contient iSGLT2 OR infections_uro_genitales_recidivantes == true AND insuffisance_cardiaque == true OR infections_uro_genitales_recidivantes == true AND DFG < 60 OR infections_uro_genitales_recidivantes == true AND albuminurie != normo OR infections_uro_genitales_recidivantes == true AND ASCVD_etablie == true"
+    niveau: attention
+    message: >-
+      iSGLT2 (en cours ou indiqué par la comorbidité) + infections génito‑urinaires récidivantes : réévaluer
+      l'indication (ne pas initier / envisager l'arrêt) ; risque de gangrène de Fournier. Préférer une autre
+      classe si une protection est requise.
+  - quand: "nature_intolerance == digestive AND traitements_en_cours contient metformine AND traitements_en_cours contient aGLP1 OR nature_intolerance == digestive AND traitements_en_cours contient metformine AND traitements_en_cours contient tirzepatide"
+    niveau: attention
+    message: >-
+      Intolérance digestive : la metformine ET l'AR GLP‑1 / tirzépatide en sont deux sources. Privilégier
+      généralement la réduction / l'arrêt de la METFORMINE (bénéfice le plus faible). L'intolérance ou la
+      contre‑indication à la metformine ouvre d'ailleurs le remboursement d'une MONOTHÉRAPIE d'AR GLP‑1
+      (dulaglutide/liraglutide) en France — formulaire Assurance Maladie, Art. 61 de la convention médicale,
+      arrêté du 10/01/2025 : « en monothérapie, quand l'utilisation de la metformine est considérée comme
+      inappropriée en raison d'une intolérance ou de contre‑indications ».
+  - quand: "classes_a_benefice_indisponibles == true AND risque_hypoglycemie_schema == eleve"
+    niveau: attention
+    message: >-
+      Risque d'hypoglycémie élevé + place résiduelle : DÉCONSEILLER le sulfamide, préférer la gliptine
+      (sitagliptine, sans hypoglycémie). Si un SU est retenu : gliclazide MR à dose basse, jamais le
+      glibenclamide, avec éducation à l'hypoglycémie.
+  - quand: "classes_a_benefice_indisponibles == true AND DFG < 45"
+    niveau: attention
+    message: >-
+      Place résiduelle en insuffisance rénale : sitagliptine à dose réduite (50 mg si DFG 30‑44 ; 25 mg si
+      < 30, dialyse incluse). Sulfamide gliclazide/glimépiride à dose réduite mais CONTRE‑INDIQUÉ < 30 ;
+      jamais de glibenclamide.
+  - quand: "traitements_en_cours contient insuline AND traitements_en_cours contient sulfamide OR traitements_en_cours contient insuline AND traitements_en_cours contient glinide"
+    niveau: attention
+    message: >-
+      Association insuline + sulfamide / glinide : risque d'hypoglycémie cumulée. Envisager d'arrêter le
+      sulfamide / le glinide, surtout à l'introduction ou à l'intensification de l'insuline.
+  - quand: "preference_injection == refuse AND ASCVD_etablie == true OR preference_injection == refuse AND IMC >= 30"
+    niveau: attention
+    message: >-
+      Refus des injections : privilégier une alternative ORALE (sémaglutide oral, iSGLT2, iDPP4) — les options
+      injectables (AR GLP‑1 injectable, tirzépatide, association) sont reléguées en dernier. Si aucune
+      alternative non injectable adaptée n'existe alors qu'un bénéfice cardio‑rénal prouvé est requis, un
+      injectable reste à discuter avec le patient (le refus ne doit pas priver d'un traitement à bénéfice démontré).
+  - quand: "traitements_en_cours contient sulfamide AND insuffisance_cardiaque == false AND ASCVD_etablie == false AND DFG >= 60 AND albuminurie == normo AND IMC < 22 OR traitements_en_cours contient sulfamide AND insuffisance_cardiaque == false AND ASCVD_etablie == false AND DFG >= 60 AND albuminurie == normo AND denutrition == true"
+    niveau: attention
+    message: >-
+      Sulfamide chez un patient SANS indication d'iSGLT2 (pas d'IC, DFG ≥ 60, normoalbuminurie, pas d'ASCVD)
+      et où l'AR GLP‑1 est contre‑indiqué par le terrain (IMC < 22 ou dénutrition) : aucun remplaçant
+      protecteur pertinent. Préférer SURVEILLER ou DÉPRESCRIRE le sulfamide plutôt qu'un switch à vide (repli
+      de l'option « remplacer le sulfamide »).
+  - quand: "intention == optimiser AND HbA1c_actuelle >= 9 OR intention == deprescrire AND HbA1c_actuelle >= 9"
+    niveau: attention
+    message: >-
+      Cohérence : HbA1c élevée (≥ 9 %) alors que l'intention saisie est « optimiser » / « déprescrire »
+      (qui supposent l'objectif atteint ou dépassé). Vérifier l'objectif du patient — une INTENSIFICATION
+      est probablement indiquée (rebasculer l'intention sur « intensifier »).
+  - quand: "intention == intensifier AND hba1c_sous_cible == true"
+    niveau: attention
+    message: >-
+      Cohérence : HbA1c < 6,5 % alors que l'intention saisie est « intensifier ». L'objectif est déjà dépassé
+      sous agent hypoglycémiant — envisager plutôt une DÉPRESCRIPTION (rebasculer l'intention sur « déprescrire »).
+  - quand: "traitements_en_cours contient insuline AND risque_hypoglycemie_schema == eleve"
+    niveau: attention
+    message: >-
+      Patient sous insuline à haut risque hypoglycémique : ÉVITER d'ajouter un sécrétagogue (sulfamide /
+      glinide). Privilégier un agent sans hypoglycémie (iSGLT2 / AR GLP‑1) ou l'ajustement de l'insuline
+      (nœud E).
+argumentaire: >
+  Ce nœud unique outille toute la prescription non‑insulinique du DT2, à partir de L'INTENTION du praticien
+  (initier / intensifier / optimiser / déprescrire) qui organise la saisie et déduit la position vs objectif,
+  sans jamais masquer un geste transverse indiqué. La hiérarchie de valeur est constante : iSGLT2 et AR GLP‑1
+  ont un bénéfice d'organe démontré (CVOT vs placebo, critères durs) EN PRÉSENCE de la comorbidité
+  correspondante (IC/rein pour l'iSGLT2, athérome pour l'AR GLP‑1) ; sulfamides et gliptines n'ont aucun
+  bénéfice d'organe (essais de sécurité CV neutres). Quand l'objectif n'est pas atteint, iSGLT2 et AR GLP‑1
+  sont aussi des LEVIERS GLYCÉMIQUES à part entière (sans hypoglycémie, perte de poids), disponibles même sans
+  comorbidité — la comorbidité les PRIORISE, elle ne conditionne pas leur disponibilité (ordre préférentiel
+  HAS R.74 : iSGLT2/AR GLP‑1 > iDPP4 > sulfamide) ; insuline, sulfamide et gliptine restent des agents
+  possibles « avec leurs limites » (bas rang), l'insuline en repli quand la palette non‑insulinique est
+  épuisée. Fix de préférence : en athérome pur, l'AR GLP‑1 passe DEVANT l'iSGLT2 (sans effet démontré sur
+  l'IDM/l'AVC). On SWITCHE un agent de faible valeur ou mal toléré, jamais en associant gliptine + AR GLP‑1
+  (même voie incrétine). On DÉPRESCRIT (fort sur les hypoglycémiants ; réduction ou arrêt) : un HbA1c < 6,5 %
+  sous agent hypoglycémiant est une iatrogénie à corriger à tout âge, sans jamais retirer un agent protecteur.
+  Un gating négatif de terrain empêche les erreurs du sujet fragile : AR GLP‑1 et tirzépatide exclus chez le
+  maigre (IMC < 22) ou le dénutri (même obèse), tirzépatide réservé à l'obésité, iSGLT2 déconseillé en cas
+  d'infections génito‑urinaires récidivantes. En état catabolique, une insuline d'initiation (transitoire)
+  s'impose ; son ajustement fin relève du nœud E. NB EBM : lorsqu'iSGLT2/AR GLP‑1 sont proposés au SEUL titre
+  glycémique (sans comorbidité), leur bénéfice attendu est glycémique (absence d'hypoglycémie, poids), PAS le
+  bénéfice d'organe des populations enrichies des CVOT ; Prescrire réserve d'ailleurs la dapagliflozine à
+  l'IC / l'insuffisance rénale (divergence de degré, cf. divergence).
+sources:
+  references_primaires:
+    - titre: "EMPA-REG OUTCOME (empagliflozine) — mortalité CV, IC"
+      annee: 2015
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa1504720"
+    - titre: "DAPA-CKD (dapagliflozine, MRC) — NNT 19 / 2,4 ans"
+      annee: 2020
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa2024816"
+    - titre: "CREDENCE (canagliflozine, néphropathie)"
+      annee: 2019
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa1811744"
+    - titre: "EMPEROR-Reduced (empagliflozine, IC FE réduite) — NNT 19"
+      annee: 2020
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa2022190"
+    - titre: "LEADER (liraglutide) — mortalité CV"
+      annee: 2016
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa1603827"
+    - titre: "REWIND (dulaglutide) — AVC"
+      annee: 2019
+      type_critere: dur
+      lien: "https://doi.org/10.1016/S0140-6736(19)31149-3"
+    - titre: "FLOW (sémaglutide, maladie rénale) — 1er critère rénal dur AR GLP-1"
+      annee: 2024
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa2403347"
+    - titre: "SURPASS-CVOT (tirzépatide vs dulaglutide) — non-infériorité"
+      annee: 2025
+      type_critere: dur
+      lien: "https://pubmed.ncbi.nlm.nih.gov/41406444/"
+    - titre: "CAROLINA (linagliptine vs glimépiride) — neutralité CV du SU, hypo NNT 45"
+      annee: 2019
+      type_critere: mixte
+      lien: "https://doi.org/10.1001/jama.2019.13772"
+    - titre: "GRADE (glimépiride/sitagliptine/liraglutide/glargine) — durabilité, hypo, poids"
+      annee: 2022
+      type_critere: substitution
+      lien: "https://doi.org/10.1056/NEJMoa2200433"
+    - titre: "TOSCA.IT (sulfamide vs pioglitazone) — neutralité CV, hypo 34 % vs 10 %"
+      annee: 2017
+      type_critere: dur
+      lien: "https://doi.org/10.1016/S2213-8587(17)30317-0"
+    - titre: "Simpson (méta-réseau) — gliclazide RR 0,65 vs glibenclamide (mortalité)"
+      annee: 2015
+      type_critere: dur
+      lien: "https://pubmed.ncbi.nlm.nih.gov/25466239/"
+    - titre: "Nauck (sitagliptine + liraglutide) — pas de bénéfice additif : non-association"
+      annee: 2017
+      type_critere: substitution
+      lien: "https://doi.org/10.1111/dom.12802"
+    - titre: "PIONEER-3 (séma oral vs sitagliptine) — supériorité HbA1c/poids"
+      annee: 2019
+      type_critere: substitution
+      lien: "https://doi.org/10.1001/jama.2019.2942"
+    - titre: "Tran/Kramer (méta switch iDPP4 → AR GLP-1) — −0,69 % HbA1c, −2,25 kg"
+      annee: 2018
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/29364587/"
+    - titre: "TECOS (sitagliptine vs placebo) — MACE neutre, IC neutre (HR 1,00)"
+      annee: 2015
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa1501352"
+    - titre: "SAVOR-TIMI 53 (saxagliptine) — signal IC (HR 1,27)"
+      annee: 2013
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa1307684"
+    - titre: "Lee (gliptine vs SU) — pemphigoïde bulleuse HR 1,42"
+      annee: 2020
+      type_critere: dur
+      lien: "https://doi.org/10.1001/jamadermatol.2020.2158"
+    - titre: "HYPOAGE / Christiaens — l'HbA1c seule prédit mal l'hypoglycémie (CGM, âgé)"
+      annee: 2025
+      type_critere: substitution
+      lien: "https://doi.org/10.2337/dc24-1058"
+    - titre: "Grant — déprescription chez le sujet âgé : sûre (ECR)"
+      annee: 2025
+      type_critere: mixte
+      lien: "https://pubmed.ncbi.nlm.nih.gov/40549370/"
+    - titre: "Griffin (méta metformine vs placebo — aucun critère dur significatif)"
+      annee: 2017
+      type_critere: dur
+      lien: "https://doi.org/10.1007/s00125-017-4337-9"
+  medicalement_geek:
+    synthese: >-
+      Approuve l'intensification pilotée par les comorbidités (iSGLT2/AR GLP‑1), la relégation des sulfamides
+      et des gliptines (aucun bénéfice d'organe démontré), et la désintensification du sujet âgé fragile ;
+      critique la metformine en 1re intention (bénéfice clinique non démontré). Coût du sulfamide = argument
+      inopérant en France (remboursement).
+    lien: "https://www.medicalement-geek.com/2023/01/les-traitements-du-diabete-formule-all.html"
+  prescrire:
+    synthese: >-
+      Quand la metformine ne suffit pas, ajouter un AR GLP‑1 (sémaglutide/dulaglutide 1er choix) est le plus
+      souvent le premier choix, surtout si risque CV élevé ; dapagliflozine (voire empagliflozine) si IC ou
+      IR modérée avec protéinurie ; tirzépatide non supérieur au dulaglutide (SURPASS‑CVOT). Gliptines et
+      pioglitazone « plus dangereuses qu'utiles, à écarter quelle que soit la situation ». Sulfamides : « gare
+      aux hypoglycémies ». Espérance de vie faible → ne pas ajouter tant que HbA1c ≤ 8,5‑9 %. (Résumé — droit
+      d'auteur ; réf. Rev Prescrire 2023;43(478):595‑605 ; synthèses docs/decision/sources/prescrire-dt2.md.)
+  reco_officielle:
+    source: "HAS 2024 (Stratégie thérapeutique DT2, R.45‑R.105) ; SFD 2025 (Med Mal Metab 2025;19:630‑662, Avis 3/5/5bis/6/11‑15) ; ADA Standards of Care 2026 ; KDIGO 2022 ; RCP metformine/iSGLT2/incrétines (ANSM)"
+    position: >-
+      Sur socle metformine + mode de vie : en cas de maladie CV établie, IC ou MRC, prescrire d'emblée un
+      iSGLT2 ou un AR GLP‑1 (ou tirzépatide) à bénéfice prouvé, quel que soit l'HbA1c ; en obésité (IMC ≥ 30),
+      AR GLP‑1 ou tirzépatide. Sulfamides plus la stratégie préférentielle (R.69) ; ne pas associer GLP‑1 et
+      iDPP4 (R.80) ; chez le sujet âgé sur‑traité, éviter le surtraitement et désintensifier (R.102/103/105 ;
+      SFD Avis 5 bis ; ADA 13.14), en maintenant iSGLT2/AR GLP‑1. Sécurité rénale metformine : 3 g ≥ 60,
+      2 g 45‑59, 1 g 30‑44, CI < 30.
+    divergence: true
+    explication: >-
+      Convergence forte sur la direction (relégation SU/gliptines, priorité iSGLT2/AR GLP‑1 par comorbidité,
+      non‑association gliptine+GLP‑1, désintensification). Divergences : (1) Prescrire écarte l'iDPP4 quelle
+      que soit la situation, là où HAS/SFD le gardent en place résiduelle ; (2) granularité EBM — l'outil ne
+      durcit pas les gains hypo/poids/HbA1c en bénéfice cardio‑rénal, nomme la molécule quand la protection est
+      molécule‑spécifique, et ajoute un gating négatif de terrain (IMC bas/dénutrition/infections uro) absent
+      des recos en tant que règle algorithmique. L'association iSGLT2 + AR GLP‑1 = coexistence de deux
+      indications (séquençage), pas synergie prouvée (bénéfice dur additif non démontré).
+incertitudes:
+  - "Seuils de terrain (IMC 22 pour les AR GLP‑1 ; obésité 30 pour le tirzépatide) = repères pragmatiques (décision référent) : la preuve borne la direction, pas le chiffre exact."
+  - "Remboursement FR « intolérance/CI metformine → monothérapie AR GLP‑1 » : CONFIRMÉ (formulaire Assurance Maladie dulaglutide/liraglutide, Art. 61 convention médicale, arrêté du 10/01/2025). Le formulaire vise dulaglutide/liraglutide ; sémaglutide/autres = formulaires propres (même logique)."
+  - "Bénéfice dur de la substitution elle-même : jamais testé en switch (argument indirect = valeur comparée des classes)."
+  - "Additivité iSGLT2 + AR GLP‑1 sur critères durs : non démontrée (PRECIDENTD en cours) ; additivité glycémique/pondérale acquise."
+  - "Désintensification : preuve faible / accord d'experts ; pas d'ECR de devenirs durs."
+  - "Chaînage inter-nœuds A→prescription (la cible individualisée du nœud A n'est pas importée : la position vient de l'intention, le garde-fou < 6,5 % est absolu) et prescription→E (insuline) : hors moteur (P3+)."
+  - "ARBITRAGE (red-team S3-S7, M3) : obèse (IMC ≥ 30) + dénutrition + sans comorbidité CV/rénale + classes disponibles + au-dessus de la cible → incrétines exclues (dénutrition), intensification glycémique O16 fermée (IMC ≥ 30), place résiduelle fermée (flag non posé) → sortie [socle metformine, poursuivre]. Posture conservatrice défendable chez un dénutri ; si un levier glycémique est requis, poser classes_a_benefice_indisponibles == true (incrétines de fait inutilisables) ouvre la niche SU/gliptine. Comportement laissé tel quel, à confirmer par le référent."
+  - "classes_a_benefice_indisponibles == true supprime désormais l'introduction d'iSGLT2 / AR GLP-1 / tirzépatide / association et l'intensification glycémique résiduelle (correction S3-S7, M1) : cohérent avec la niche SU/gliptine qui n'existe que lorsque ces classes sont inutilisables."
+  - "Repli O11 (« pas de remplaçant protecteur pertinent ») : encodé en ALERTE A9 (2 disjonctions pur-AND, causes IMC<22 / dénutrition sans indication iSGLT2) + rappel en prose dans l'option. Couvre le cas sans indication protectrice ; ne se déclenche pas si un remplaçant serait valide."
+veille_liee: []
+meta:
+  date_revue: "2026-07-25"
+  auteur: "référent DT2 + Opus"
+  statut: brouillon
+  version: "0.9"
+  changelog:
+    - date: "2026-07-24"
+      auteur: "référent DT2 + Opus"
+      resume: >-
+        Création par FUSION des nœuds B (première-intention), C (intensification) et D (sulfamides-gliptines)
+        — plan P3, gel S1 (prescription.SPEC.md, 2026-07-24). Socle de preuve importé de B/C/D (non re-dérivé) ;
+        règles NOUVELLES du gel : (1) gating négatif de terrain — AR GLP‑1 exclu si IMC < 22 OU dénutrition,
+        tirzépatide réservé obésité (IMC ≥ 30) + exclu si dénutrition, iSGLT2 rétrogradé/alerté si infections
+        génito‑urinaires récidivantes, alerte fragilité incrétine ; (2) fix « préférence » bug 9 — priorités
+        conditionnelles iSGLT2/GLP‑1 (athérome pur → GLP‑1 devant) ; (3) portes SU/gliptine/intolérance →
+        switch si HbA1c à/au-dessus de la cible, déprescription si hba1c_sous_cible (< 6,5 %, à tout âge) ;
+        (4) intolérance → réduction de dose OU switch, + alerte « viser la metformine » en cas d'intolérance
+        digestive sous metformine + incrétine ; (5) retrait du critère flou `sur_traitement` (gel D1),
+        `hba1c_sous_cible` = drapeau saisi. Aucune modification du moteur (tout en contenu D13/D14/D15 +
+        critères `derive`). STATUT : brouillon — vérification bi-agents P3·S4 puis validation clinique référent
+        P3·S6 requises avant `valide`. B/C/D non retirés tant que ce nœud n'est pas validé + câblé (P3·S5).
+    - date: "2026-07-24"
+      auteur: "red-team S4 + Opus"
+      resume: >-
+        Corrections issues de la vérification S4 (banc de vignettes exécutable 17 profils + red-team agent) :
+        (H1) alerte « iSGLT2 + infections génito-urinaires » rendue active aussi quand l'iSGLT2 est INDIQUÉ par
+        la comorbidité, pas seulement déjà en cours (elle était morte à l'initiation) ; (M1) ajout de l'alerte
+        « insuline + sulfamide/glinide → hypoglycémie cumulée » (absente) ; (B2) option « Association iSGLT2 +
+        AR GLP-1 » restreinte par ne_contient_pas iSGLT2/aGLP1/tirzepatide (ne plus proposer d'associer chez un
+        patient déjà sous l'une des deux classes). Arbitrages BAS laissés au référent (preference_injection
+        inerte ; contradiction possible position_vs_cible/hba1c_sous_cible saisis). 0 finding HAUTE résiduel.
+    - date: "2026-07-25"
+      auteur: "référent DT2 + Opus"
+      resume: >-
+        REFONTE S8 « par intention » (docs/decision/noeuds/prescription.SPEC-intentions.md, décisions référent).
+        (1) Primer `intention` (initier/intensifier/optimiser/deprescrire) REMPLACE `position_vs_cible` et
+        DÉDUIT `cible_atteinte` ; `hba1c_sous_cible` redevient un drapeau saisi (< 6,5 %, garde-fou absolu).
+        (2) PALETTE GLYCÉMIQUE : iSGLT2 et AR GLP-1 disponibles aussi pour le contrôle glycémique (cible non
+        atteinte) même sans comorbidité — la comorbidité PRIORISE ; SU/gliptine deviennent des options
+        glycémiques de bas rang (le flag `classes_a_benefice_indisponibles` les remonte). (3) REPLI INSULINE
+        (palette non-insulinique épuisée : metformine+iSGLT2+GLP-1 déséquilibré, DFG<20, incrétines exclues par
+        le terrain sous iSGLT2). (4) DÉPRESCRIRE affiné : fort sur les hypoglycémiants ; option « simplifier »
+        hiérarchisée (agents sans bénéfice puis protecteur sans terrain+risque) ; RÉDUCTIONS de dose distinctes
+        par traitement (insuline, AR GLP-1, tirzépatide, sulfamide/glinide ; pas l'iSGLT2 = dose unique).
+        (5) Option « Arrêter le sulfamide (DFG<30) » (symétrie metformine). (6) Suppression d'O16 (« intensifier
+        le contrôle glycémique » — absorbée par la palette). Source AM remboursement (arrêté 10/01/2025)
+        intégrée à l'alerte intolérance. Ajv OK, 148 tests + build verts. STATUT toujours brouillon —
+        RE-TEST focalisé adversarial requis (l'applicabilité change : palette, repli insuline, réductions).
+    - date: "2026-07-25"
+      auteur: "vérification adversariale 4 agents + Opus"
+      resume: >-
+        Corrections post-vérification adversariale S8 (4 agents : EBM+argumentaire, vignettes étendues,
+        sécurité, robustesse intention). HAUTE : (1) non-association gliptine+incrétine rétablie sur la voie
+        palette (gliptine résiduelle O14 : + ne_contient_pas aGLP1/tirzepatide) ; (2) alertes de COHÉRENCE
+        intention↔HbA1c ajoutées (SPEC §5 : optimiser/déprescrire + HbA1c ≥ 9 → intensifier ; intensifier +
+        HbA1c < 6,5 → déprescrire). MOYENNE : exclusions cataboliques (cétonémie/glucotoxicité) alignées sur
+        O6/O9/O14/O15 ; `hba1c_sous_cible` DÉRIVÉ de l'HbA1c (garde `>0`, plus de drapeau défaut-false peu sûr) ;
+        réduction metformine (O4) déclenchée aussi par l'intolérance ; alerte insuline+sécrétagogue ; pas de SU
+        en add-on d'insuline ; « Simplifier » recentré sur iSGLT2-sans-terrain+uro (retrait de la redondance
+        gliptine vs switch) ; repli insuline : retrait du déclencheur DFG<20 seul + « seule option » adouci
+        (GLP-1/sitagliptine restent utilisables). BASSE : remplacer-SU exclu si DFG<30 ; socle « instaurer ou
+        poursuivre » ; argumentaire inline recalibré S8 + ancrage HAS R.74 + divergence Prescrire (iSGLT2 non
+        durci en bénéfice d'organe pour l'usage glycémique) ; statut remis à brouillon (0.9). Remboursement FR
+        CONFIRMÉ (source AM fournie). 153 tests + build verts. ARBITRAGES CLINIQUES LAISSÉS AU RÉFÉRENT :
+        séquençage à l'initiation (bithérapie d'emblée seulement si HbA1c ≥ 8,5 ?) ; ordre AR GLP-1 vs iSGLT2
+        en pur glycémique sans comorbidité ; identification de l'agent en cause d'une intolérance.
+    - date: "2026-07-25"
+      auteur: "référent DT2 + Opus"
+      resume: >-
+        Arbitrages référent tranchés (post-vérification). (1) SÉQUENÇAGE : palette glycémique PURE gatée par
+        le dérivé `palette_glycemique_ouverte` = intensification, OU initiation si HbA1c ≥ 8,5 % (HAS :
+        monothérapie metformine d'abord, bithérapie d'emblée si nettement au-dessus) — appliqué à O5/O6 et aux
+        SU/gliptine résiduelles. (2) ORDRE en pur glycémique sans comorbidité : iSGLT2 et AR GLP-1 à ÉGALITÉ de
+        rang (2), SAUF refus d'injection (GLP-1 rang 7) ou IMC < 25 (GLP-1 rang 4 → iSGLT2 devant) ; athérome
+        ET obésité gardent le GLP-1 devant (rang 2 vs iSGLT2 3), IC/rénal l'iSGLT2 devant. (3) NATURE de
+        l'intolérance : nouveau critère `nature_intolerance` (digestive/uro_genitale/perte_poids/cutanee/autre)
+        ciblant les réductions AR GLP-1/tirzépatide (digestive/perte_poids) et metformine (digestive) et
+        l'alerte A5 (digestive). 158 tests + build verts.
+    - date: "2026-07-24"
+      auteur: "référent DT2 + Opus"
+      resume: >-
+        Affinements référent : (#5b) champ UNIQUE position_vs_cible à 4 crans
+        [a_la_cible/au_dessus/en_dessous/tres_en_dessous] ; hba1c_sous_cible devient DÉRIVÉ
+        (= tres_en_dessous, < 6,5 %), sur_traitement définitivement retiré. (#5a) refus d'injection →
+        options injectables (O6/O7/O8) rétrogradées rang 7 + alerte dédiée (non supprimées : pas de
+        cul-de-sac ; sémaglutide oral / classes orales privilégiés). (#4) remboursement FR d'une monothérapie
+        AR GLP-1 sur intolérance/CI metformine CONFIRMÉ + sourcé (formulaire Assurance Maladie
+        dulaglutide/liraglutide, Art. 61 convention médicale, arrêté du 10/01/2025).
+    - date: "2026-07-25"
+      auteur: "red-team S3-S7 (agent indépendant) + référent + Opus"
+      resume: >-
+        Validation adversariale P2·S3-S7 (agent red-team indépendant + banc exécutable) : 0 finding HAUTE,
+        3 MOYENNE, 5 BASSE. CORRECTIONS appliquées : (M1) classes_a_benefice_indisponibles == true supprime
+        désormais l'introduction iSGLT2/AR GLP-1/tirzépatide/association et l'intensification glycémique
+        résiduelle (levait une contradiction : proposer en tête des classes déclarées inutilisables) ;
+        (M2) alerte A9 « switch de sulfamide sans remplaçant protecteur valable → surveiller/déprescrire »
+        désormais ENCODÉE (2 disjonctions pur-AND, causes IMC<22 / dénutrition) au lieu de la seule prose ;
+        cross-refs des nœuds E/H mises à jour (voir nœud prescription au lieu de B/C/D supprimés) ;
+        dérives doc corrigées (SPEC 4 crans, vignettes). ARBITRAGE M3 (trou de couverture obèse+dénutri)
+        consigné en incertitude, comportement conservateur laissé tel quel. PROMOTION à statut `valide` v1.0
+        sur go référent (S6). Restent des arbitrages BAS de présentation (menu multi-options en double
+        indication, falaise 6,5 % assumée) — non bloquants.

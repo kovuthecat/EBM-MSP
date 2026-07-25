@@ -7,6 +7,18 @@
 > Un bloc par écran/module courant. Passage à l'échelle : router la validation propre à un
 > sous-domaine dans `docs/<sous-domaine>/VALIDATION.md` si ce fichier gonfle.
 
+## Refonte UI — estompage + reco provisoire (P3 · S7‑ui, Lots 1‑3)
+
+> Générique (tous nœuds). Build + typecheck + tests unitaires OK ; **visuel à valider par le référent.**
+
+- [ ] Champs SANS effet sur la reco du patient courant **estompés** (opacity ~0,45) + note « · sans effet
+  sur la reco actuelle » sur les champs nombre/enum. Vérifier sur un nœud riche : cocher/décocher une
+  comorbidité (dé)clarifie bien les champs liés en temps réel.
+- [ ] Bandeau **« Reco provisoire — N critère(s) décisif(s) non confirmé(s) : … »** (liseré ambre) tant que
+  des critères décisifs restent non renseignés ; disparaît quand tous confirmés (reco définitive).
+- [ ] Pas de régression A/E/F/H (estompage additif, prop optionnelle `pertinents`).
+- [ ] Lot 4 NON fait (primer traitements→position, rail de groupes, argumentaires courts/tiering) — à venir.
+
 ## Shell (S1 · T-001)
 
 - [ ] Header sticky : logo + libellé, pills Décision/Veille (transparent inactif / plein actif), lien

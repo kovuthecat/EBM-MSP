@@ -381,6 +381,11 @@ agents A/B (triangulation A × B × OE — `00-global.md` étape 4). **OE = déb
 primaire** ; tout PMID/DOI/chiffre renvoyé sera re-vérifié contre la source primaire au red-team. Chaque
 prompt demande explicitement effet **absolu/NNT**, **dur vs substitution**, GRADE.
 
+**Périmètre OE — sources FR proscrites du prompt** : ne jamais demander à OpenEvidence d'explorer/citer
+**HAS, SFD, CMG, Prescrire, Médicalement Geek/DragiWebdo, Minerva, ebmfrance** (accès non fiable → il
+hallucine PMID/URL/positions). Ces sources sont curées **par les agents** (`docs/decision/sources/` + web +
+référent). Cf. `00-global.md` (Règles de sourcing) et `BRIEF_DECISION.md` §14bis.
+
 - **OE-F1** — Prévention secondaire (ASCVD établie) vs placebo (critères durs, absolu/NNT) **+ haute vs
   modérée intensité** (PROVE-IT, TNT, IDEAL, CTT 2010, méta diabète) ; l'intensification seule réduit-elle
   la mortalité ?
@@ -391,6 +396,10 @@ prompt demande explicitement effet **absolu/NNT**, **dur vs substitution**, GRAD
   ODYSSEY sous-groupes).
 - **OE-F4** — Populations spéciales : **> 75 ans** en prévention primaire (PROSPER, méta CTT par âge 2019,
   STAREE) ; **dialyse / MRC avancée** (4D, AURORA, SHARP) — initier une statine en dialyse ?
-- **OE-F5** — **Reco officielles** (HAS 2024, SFD 2025, CMG, ESC/EAS, ADA 2026) + **SCORE2-Diabetes** + axe
-  **divergence** avec la position critique (Prescrire/Minerva/Médicalement Geek : dose fixe, pas de cible,
-  mortalité primaire peu démontrée).
+- **OE-F5** — **Reco internationales indexées** (ESC/EAS dyslipidémie, ADA Standards of Care 2026 — chapitre
+  risque CV/lipides) + **SCORE2-Diabetes** (Eur Heart J, indexé) : statine chez le diabétique, seuils
+  d'intensité, dose fixe vs cible LDL. Axe critique **tiré des essais primaires** (CTT ; dose fixe vs
+  treat-to-target ; mortalité primaire peu démontrée). PMID/DOI exigés ; si non ancrable dans un document
+  indexé réel, le dire — **ne rien inventer**. **NE PAS demander à OE d'explorer/citer HAS, SFD, CMG,
+  Prescrire, Minerva ou Médicalement Geek** (accès non fiable → hallucination) : sources FR curées par les
+  agents (sources locales + web) et le référent.

@@ -54,10 +54,39 @@ statut : ` ` à faire · `~` en cours · `x` fait · modèles/efforts : `WORKFLO
 - [x] T-005 — UI Décision D2 (domaines + liste nœuds) · modèle: Sonnet, effort: high · plan: → plans/P1/S4.md
 - [x] T-006 — UI Décision D3 (form → options → argumentaire, câblé moteur) · modèle: Sonnet, effort: high · plan: → plans/P1/S4.md
 
-## Backlog (Phases 2–3 — non cadré)
+## Backlog (P2 — Validation systémique DT2, cohérence inter-nœuds) — cadré dans `plans/P2/`
 
-- [ ] Nœuds B→H (contenu clinique DT2) — un lot par nœud
-- [ ] JSON Schema entrée de veille + module Veille (liste filtrable V1, détail V2)
+> Méthode : `docs/decision/VALIDATION_COHERENCE.md`. Exécution = workflow multi-agents (1 session = 1 phase).
+
+- [x] T-011 — Inventaire mécanique des éléments partagés inter-nœuds · modèle: Haiku, effort: low · plan: → plans/P2/S1.md
+- [x] T-012 — Carte de cohérence des valeurs + relevé des divergences · modèle: Sonnet, effort: medium · plan: → plans/P2/S2.md
+- [ ] T-013 — Red-team données EBM inter-nœuds (validité globale) · modèle: Opus, effort: max · plan: → plans/P2/S3.md
+- [ ] T-014 — Banc de vignettes + confrontation des trajectoires · modèle: Opus, effort: xhigh · plan: → plans/P2/S4.md
+- [ ] T-015 — Red-team contradictoire (personas hostiles) · modèle: Opus, effort: high · plan: → plans/P2/S5.md
+- [ ] T-016 — Vérification adversariale des findings (anti-faux-positif) · modèle: Opus, effort: xhigh · plan: → plans/P2/S6.md
+- [ ] T-017 — Rapport de validation + registres de défendabilité + spec tests · modèle: Opus, effort: xhigh · plan: → plans/P2/S7.md
+
+## P3 — Fusion prescription (plans/P3-fusion/) — en cours
+
+- [x] T-020 — SPEC nœud unifié (gelé référent 2026-07-24) · plan: → plans/P3-fusion/S1.md
+- [x] T-021 — Dossier de preuve consolidé (prescription.md) · plan: → plans/P3-fusion/S2.md
+- [x] T-022 — Encodage prescription.yaml + argumentaire (brouillon v0.1), Ajv OK · plan: → plans/P3-fusion/S3.md
+- [x] T-023 — Vérification S4 (banc exécutable 17 profils + red-team, 0 HAUTE) · plan: → plans/P3-fusion/S4.md
+- [x] T-024 — Câblage app 3 onglets→1 + retrait B/C/D (148 tests + build OK) · plan: → plans/P3-fusion/S5.md
+- [x] Validation adversariale P2·S3–S7 (red-team indépendant + banc exécutable, 0 HAUTE, M1/M2 corrigés) · → RAPPORT-prescription-S3-S7.md
+- [x] T-025 — Validation référent → `prescription.yaml` **valide v1.0** + D18 (go référent) · plan: → plans/P3-fusion/S6.md
+- [~] T-026 — Refonte UI : Lots 1-3 faits (relevance + estompage + reco provisoire) ; **Lot 4 restant** (primer/rail/argumentaires, visuel référent) · plan: → plans/P3-fusion/S7-ui.md
+
+## Backlog (P3 — Remédiation & robustesse, alimenté par P2) — non cadré
+
+- [ ] T-018 — Coder les tests de non-régression inter-nœuds (spec = P2/S7) · modèle: Sonnet, effort: high · plan: —
+- [ ] T-019 — Catalogue de critères canonique + persistance de session **partagée** des critères (store en mémoire, invariant 1 ; entrée `DECISIONS.md`) · modèle: Opus/Sonnet, effort: high · plan: —
+- [ ] Corrections YAML issues du RAPPORT + validation référent finale de D et E → `valide`
+
+## Backlog (Phases suivantes — non cadré)
+
+- [ ] Nœuds B→H : contenu **déjà encodé** (A–F, H) ; reste la validation référent de D et E (→ T-019 zone P3)
+- [ ] **P4** — JSON Schema entrée de veille + module Veille (liste filtrable V1, détail V2)
 - [ ] Comptes Supabase (auth V5, profil V3, pour mémoire V4) + conformité RGPD
 - [ ] Pont couplage veille ↔ nœud (marqueur « impacte un algorithme »)
 - [ ] Page Méthode (S1, SOP publiée)

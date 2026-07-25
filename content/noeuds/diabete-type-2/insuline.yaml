@@ -71,7 +71,7 @@ criteres_entree:
     type: bool
   - nom: traitements_en_cours
     type: liste
-    valeurs: [metformine, iSGLT2, aGLP1, sulfamide, glinide, gliptine, insuline_basale, insuline_rapide]
+    valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, glinide, gliptine, insuline_basale, insuline_rapide]
   - nom: preference_injection
     type: enum
     valeurs: [accepte, refuse, indifferent]
@@ -114,14 +114,14 @@ options:
       - "traitements_en_cours ne_contient_pas aGLP1"
     priorite: 1
     avantages:
-      - "Le GLP-1 (AR GLP-1 ou co-agoniste GIP/GLP-1) est préféré à l'insuline comme premier injectable (ADA 2026 rec 9.21 ; SFD 2025 Avis 19) : moins d'hypoglycémie, perte de poids, et bénéfice cardiovasculaire propre (démontré au niveau de la classe — voir nœuds B/C) que l'insuline n'a pas (ORIGIN neutre)."
+      - "Le GLP-1 (AR GLP-1 ou co-agoniste GIP/GLP-1) est préféré à l'insuline comme premier injectable (ADA 2026 rec 9.21 ; SFD 2025 Avis 19) : moins d'hypoglycémie, perte de poids, et bénéfice cardiovasculaire propre (démontré au niveau de la classe — voir nœud prescription) que l'insuline n'a pas (ORIGIN neutre)."
       - "Les associations à ratio fixe (IDegLira, iGlarLixi) simplifient le schéma (1 injection) tout en apportant l'effet du GLP-1."
     inconvenients:
       - "Effets indésirables digestifs ; le GLP-1 ne remplace pas l'insuline en cas de glucotoxicité sévère, de cétose ou d'hyperglycémie très symptomatique."
       - "Les associations fixes n'ont pas de CVOT dédié : leur bénéfice cardiovasculaire s'infère de leurs composants, il n'est pas démontré pour la combinaison elle-même."
     effet_attendu: >-
       Ajout d'un GLP-1 : baisse d'HbA1c avec perte de poids et peu d'hypoglycémie (chiffres et choix de la
-      molécule : voir nœuds B/C). Priorité EBM : épargner l'insuline tant qu'un GLP-1 est possible et suffisant.
+      molécule : voir nœud prescription). Priorité EBM : épargner l'insuline tant qu'un GLP-1 est possible et suffisant.
     niveau_preuve: modere
   - intitule: "Initier une insuline basale (en maintenant les antidiabétiques en cours)"
     conditions:
@@ -220,7 +220,7 @@ options:
   - intitule: "Ajouter un GLP-1 / une association fixe d'abord (si non encore fait)"
     conditions:
       - "situation_insuline == basale_plus_bolus"
-      - "traitements_en_cours ne_contient_pas aGLP1"
+      - "traitements_en_cours ne_contient_pas aGLP1 AND traitements_en_cours ne_contient_pas tirzepatide"
     priorite: 1
     avantages:
       - "Avant tout bolus prandial : ajouter un GLP-1 ou passer à une association fixe (IDegLira, iGlarLixi) — même HbA1c que le basal-bolus, avec moins d'hypoglycémie et de poids et une seule injection (DUAL VII ; métas Eng, Maiorino)."
@@ -295,7 +295,9 @@ alertes:
     niveau: attention
     message: >-
       Insuffisance rénale : besoins en insuline réduits et risque d'hypoglycémie majoré (adapter les doses,
-      renforcer la surveillance) ; sulfamides à proscrire ; adapter ou arrêter la metformine selon le DFG.
+      renforcer la surveillance) ; sulfamide (s'il est encore utilisé) : gliclazide/glimépiride à dose réduite
+      et surveillance rapprochée si DFG 30-44, contre-indiqué si DFG < 30 (convention KDIGO/SFD — cf. nœud
+      prescription, place résiduelle SU/gliptine) ; adapter ou arrêter la metformine selon le DFG.
   - quand: "over_basalisation == true"
     niveau: info
     message: >-
@@ -481,7 +483,7 @@ meta:
   date_revue: "2026-07-24"
   auteur: "référent DT2 (Thibault) + Opus"
   statut: brouillon
-  version: "0.1"
+  version: "0.2"
   changelog:
     - date: "2026-07-24"
       auteur: "Opus + référent"
@@ -495,3 +497,14 @@ meta:
         Cibles de MCG relâchées sur terrain fragile (cohérence nœud A). Arbitrages référent §8-1→8-7 tranchés.
         RESTE avant valide : validation clinique du référent option par option, puis vérification d'encodage
         bi-agents (étape 8). Câblage formulaire = P3.
+    - date: "2026-07-24"
+      auteur: "référent DT2 (Thibault) + Opus"
+      resume: >-
+        Corrections issues de l'audit de cohérence inter-nœuds P2 (gate humaine post-S2, `docs/decision/
+        validation/carte-coherence.md` — D6, D7), arbitrées par le référent : (D6) ajout de `tirzepatide` à
+        l'énumération `traitements_en_cours` (absent alors qu'il
+        figure dans C/D/H) + exclusion de `tirzepatide` de la condition d'ajout d'un GLP-1 (éviter une
+        redondance incrétine chez un patient déjà sous tirzépatide) ; (D7) message de l'alerte `DFG < 45`
+        corrigé pour ne plus proscrire les sulfamides en bloc — aligné sur le nœud D (référence documentaire
+        sulfamides) : dose réduite + surveillance rapprochée si DFG 30-44, contre-indication seulement
+        si DFG < 30 (convention KDIGO/SFD).

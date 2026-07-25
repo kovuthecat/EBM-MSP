@@ -85,7 +85,7 @@ DiRECT, Kanbour).
 - **Modulation de la probabilité de rémission** par l'ancienneté (fenêtre favorable < 6 ans vs moins probable
   au-delà).
 - **Marge de manœuvre** : mode de vie déjà optimisé → « maintenir/renforcer », bénéfice additionnel limité,
-  envisager d'autres leviers (nœuds B/C) si le contrôle reste insuffisant.
+  envisager d'autres leviers (nœud prescription) si le contrôle reste insuffisant.
 - **Activité adaptée** (capacité limitée) ; **adhésion à renforcer** (objectifs modestes négociés).
 - **Hypoglycémie** : sous insuline, sulfamide ou glinide, la perte de poids majore le risque d'hypoglycémie →
   anticiper l'allègement / la déprescription (nœuds C/D/E).

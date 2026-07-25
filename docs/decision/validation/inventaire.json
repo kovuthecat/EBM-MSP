@@ -1,0 +1,2479 @@
+{
+  "meta": {
+    "genere_le": "2026-07-24",
+    "session": "P2/S1 T-011",
+    "noeuds_couverts": [
+      "cible-glycemique",
+      "premiere-intention",
+      "intensification",
+      "sulfamides-gliptines",
+      "insuline",
+      "statine",
+      "rhd"
+    ]
+  },
+  "seuils_numeriques": [
+    {
+      "cle": "age",
+      "operateur": "<",
+      "valeur": "70",
+      "noeud": "cible-glycemique",
+      "contexte": "conditions",
+      "provenance": "cible-glycemique.yaml:50"
+    },
+    {
+      "cle": "anciennete_diabete_annees",
+      "operateur": "<",
+      "valeur": "5",
+      "noeud": "cible-glycemique",
+      "contexte": "conditions",
+      "provenance": "cible-glycemique.yaml:51"
+    },
+    {
+      "cle": "anciennete_diabete_annees",
+      "operateur": ">",
+      "valeur": "10",
+      "noeud": "cible-glycemique",
+      "contexte": "conditions",
+      "provenance": "cible-glycemique.yaml:41"
+    },
+    {
+      "cle": "HbA1c",
+      "operateur": "==",
+      "valeur": "6.4",
+      "noeud": "cible-glycemique",
+      "contexte": "argumentaire",
+      "brut": "ACCORD (6,4 vs 7,5 %)",
+      "provenance": "cible-glycemique.yaml:79",
+      "justification_citee": "ACCORD"
+    },
+    {
+      "cle": "HbA1c",
+      "operateur": "==",
+      "valeur": "7.5",
+      "noeud": "cible-glycemique",
+      "contexte": "argumentaire",
+      "brut": "ACCORD (6,4 vs 7,5 %)",
+      "provenance": "cible-glycemique.yaml:79",
+      "justification_citee": "ACCORD"
+    },
+    {
+      "cle": "HbA1c",
+      "operateur": "==",
+      "valeur": "6.5",
+      "noeud": "cible-glycemique",
+      "contexte": "argumentaire",
+      "brut": "ADVANCE a atteint 6,5 %",
+      "provenance": "cible-glycemique.yaml:81",
+      "justification_citee": "ADVANCE"
+    },
+    {
+      "cle": "HbA1c",
+      "operateur": "~",
+      "valeur": "6.5",
+      "noeud": "cible-glycemique",
+      "contexte": "options",
+      "brut": "Cible ~6,5 % (6,5–7 %)",
+      "provenance": "cible-glycemique.yaml:48"
+    },
+    {
+      "cle": "HbA1c",
+      "operateur": "<=",
+      "valeur": "7",
+      "noeud": "cible-glycemique",
+      "contexte": "options",
+      "brut": "Cible ≤ 7 %",
+      "provenance": "cible-glycemique.yaml:67"
+    },
+    {
+      "cle": "HbA1c",
+      "operateur": "<=",
+      "valeur": "8",
+      "noeud": "cible-glycemique",
+      "contexte": "options",
+      "brut": "Cible ≤ 8 %",
+      "provenance": "cible-glycemique.yaml:39"
+    },
+    {
+      "cle": "HbA1c",
+      "operateur": "<",
+      "valeur": "9",
+      "noeud": "cible-glycemique",
+      "contexte": "options",
+      "brut": "Cible < 9 %",
+      "provenance": "cible-glycemique.yaml:29"
+    },
+    {
+      "cle": "HbA1c",
+      "operateur": "<=",
+      "valeur": "7",
+      "noeud": "cible-glycemique",
+      "contexte": "reco_officielle",
+      "brut": "≤7 % (la plupart)",
+      "provenance": "cible-glycemique.yaml:135"
+    },
+    {
+      "cle": "HbA1c",
+      "operateur": "<=",
+      "valeur": "6.5",
+      "noeud": "cible-glycemique",
+      "contexte": "reco_officielle",
+      "brut": "≤6,5 % si récent",
+      "provenance": "cible-glycemique.yaml:135"
+    },
+    {
+      "cle": "HbA1c",
+      "operateur": "<=",
+      "valeur": "8",
+      "noeud": "cible-glycemique",
+      "contexte": "reco_officielle",
+      "brut": "≤8 % comorbidité grave",
+      "provenance": "cible-glycemique.yaml:135"
+    },
+    {
+      "cle": "HbA1c",
+      "operateur": "<",
+      "valeur": "9",
+      "noeud": "cible-glycemique",
+      "contexte": "reco_officielle",
+      "brut": "<9 % âgé dépendant",
+      "provenance": "cible-glycemique.yaml:135"
+    },
+    {
+      "cle": "HbA1c",
+      "operateur": "~",
+      "valeur": "7.5",
+      "noeud": "cible-glycemique",
+      "contexte": "reco_officielle",
+      "brut": "~7,5 % puis ~7,5-8,5 %",
+      "provenance": "cible-glycemique.yaml:131"
+    },
+    {
+      "cle": "HbA1c",
+      "operateur": "~",
+      "valeur": "8.5",
+      "noeud": "cible-glycemique",
+      "contexte": "reco_officielle",
+      "brut": "7,5–8,5 % (voire 8–9 %)",
+      "provenance": "cible-glycemique.yaml:131"
+    },
+    {
+      "cle": "HbA1c",
+      "operateur": "prose",
+      "valeur": "< 5 ans",
+      "noeud": "cible-glycemique",
+      "contexte": "reco_officielle",
+      "brut": "espérance de vie < 5 ans",
+      "provenance": "cible-glycemique.yaml:131"
+    },
+    {
+      "cle": "HbA1c_actuelle",
+      "operateur": ">=",
+      "valeur": "10",
+      "noeud": "premiere-intention",
+      "contexte": "conditions",
+      "provenance": "premiere-intention.yaml:68"
+    },
+    {
+      "cle": "DFG",
+      "operateur": "<",
+      "valeur": "60",
+      "noeud": "premiere-intention",
+      "contexte": "conditions",
+      "provenance": "premiere-intention.yaml:85"
+    },
+    {
+      "cle": "DFG",
+      "operateur": "<",
+      "valeur": "60",
+      "noeud": "premiere-intention",
+      "contexte": "priorite conditionnelle",
+      "provenance": "premiere-intention.yaml:91"
+    },
+    {
+      "cle": "DFG",
+      "operateur": "<",
+      "valeur": "20",
+      "noeud": "premiere-intention",
+      "contexte": "exclusions",
+      "provenance": "premiere-intention.yaml:89"
+    },
+    {
+      "cle": "IMC",
+      "operateur": ">=",
+      "valeur": "30",
+      "noeud": "premiere-intention",
+      "contexte": "conditions",
+      "provenance": "premiere-intention.yaml:114"
+    },
+    {
+      "cle": "DFG",
+      "operateur": "<",
+      "valeur": "60",
+      "noeud": "premiere-intention",
+      "contexte": "alertes",
+      "brut": "DFG < 60 AND DFG >= 45",
+      "provenance": "premiere-intention.yaml:333"
+    },
+    {
+      "cle": "DFG",
+      "operateur": ">=",
+      "valeur": "45",
+      "noeud": "premiere-intention",
+      "contexte": "alertes",
+      "brut": "DFG < 60 AND DFG >= 45",
+      "provenance": "premiere-intention.yaml:333"
+    },
+    {
+      "cle": "DFG",
+      "operateur": "<",
+      "valeur": "45",
+      "noeud": "premiere-intention",
+      "contexte": "alertes",
+      "brut": "DFG < 45 AND DFG >= 30",
+      "provenance": "premiere-intention.yaml:338"
+    },
+    {
+      "cle": "DFG",
+      "operateur": ">=",
+      "valeur": "30",
+      "noeud": "premiere-intention",
+      "contexte": "alertes",
+      "brut": "DFG < 45 AND DFG >= 30",
+      "provenance": "premiere-intention.yaml:338"
+    },
+    {
+      "cle": "DFG",
+      "operateur": "<",
+      "valeur": "30",
+      "noeud": "premiere-intention",
+      "contexte": "alertes",
+      "provenance": "premiere-intention.yaml:342"
+    },
+    {
+      "cle": "HbA1c",
+      "operateur": ">",
+      "valeur": "10",
+      "noeud": "premiere-intention",
+      "contexte": "contre_indications",
+      "brut": "HbA1c > 10 % avec cétose",
+      "provenance": "premiere-intention.yaml:107"
+    },
+    {
+      "cle": "DFG",
+      "operateur": "<",
+      "valeur": "20",
+      "noeud": "premiere-intention",
+      "contexte": "contre_indications",
+      "brut": "DFG < 20 mL/min/1,73m²",
+      "provenance": "premiere-intention.yaml:108"
+    },
+    {
+      "cle": "DFG",
+      "operateur": "<",
+      "valeur": "30",
+      "noeud": "premiere-intention",
+      "contexte": "contre_indications",
+      "provenance": "premiere-intention.yaml:189"
+    },
+    {
+      "cle": "age",
+      "operateur": ">=",
+      "valeur": "75",
+      "noeud": "intensification",
+      "contexte": "conditions",
+      "provenance": "intensification.yaml:73"
+    },
+    {
+      "cle": "DFG",
+      "operateur": "<",
+      "valeur": "30",
+      "noeud": "intensification",
+      "contexte": "conditions",
+      "provenance": "intensification.yaml:94"
+    },
+    {
+      "cle": "DFG",
+      "operateur": ">=",
+      "valeur": "30",
+      "noeud": "intensification",
+      "contexte": "conditions",
+      "provenance": "intensification.yaml:110"
+    },
+    {
+      "cle": "DFG",
+      "operateur": "<",
+      "valeur": "60",
+      "noeud": "intensification",
+      "contexte": "conditions",
+      "provenance": "intensification.yaml:111"
+    },
+    {
+      "cle": "DFG",
+      "operateur": "<",
+      "valeur": "60",
+      "noeud": "intensification",
+      "contexte": "conditions",
+      "provenance": "intensification.yaml:123"
+    },
+    {
+      "cle": "IMC",
+      "operateur": ">=",
+      "valeur": "30",
+      "noeud": "intensification",
+      "contexte": "conditions",
+      "provenance": "intensification.yaml:147"
+    },
+    {
+      "cle": "DFG",
+      "operateur": "<",
+      "valeur": "20",
+      "noeud": "intensification",
+      "contexte": "exclusions",
+      "provenance": "intensification.yaml:140"
+    },
+    {
+      "cle": "DFG",
+      "operateur": "prose",
+      "valeur": "45-59",
+      "noeud": "intensification",
+      "contexte": "argumentaire",
+      "brut": "max 2 g/j si DFG 45–59",
+      "provenance": "intensification.yaml:11"
+    },
+    {
+      "cle": "DFG",
+      "operateur": "prose",
+      "valeur": "30-44",
+      "noeud": "intensification",
+      "contexte": "argumentaire",
+      "brut": "max 1 g/j si DFG 30–44",
+      "provenance": "intensification.yaml:11"
+    },
+    {
+      "cle": "DFG",
+      "operateur": "<",
+      "valeur": "30",
+      "noeud": "intensification",
+      "contexte": "argumentaire",
+      "provenance": "intensification.yaml:12"
+    },
+    {
+      "cle": "DFG",
+      "operateur": "prose",
+      "valeur": "45-59",
+      "noeud": "intensification",
+      "contexte": "avantages",
+      "brut": "DFG 45-59 → maximum 2 g/j",
+      "provenance": "intensification.yaml:113"
+    },
+    {
+      "cle": "DFG",
+      "operateur": "prose",
+      "valeur": "30-44",
+      "noeud": "intensification",
+      "contexte": "avantages",
+      "brut": "DFG 30-44 → maximum 1 g/j",
+      "provenance": "intensification.yaml:113"
+    },
+    {
+      "cle": "DFG",
+      "operateur": "<",
+      "valeur": "60",
+      "noeud": "intensification",
+      "contexte": "conditions",
+      "provenance": "intensification.yaml:232"
+    },
+    {
+      "cle": "DFG",
+      "operateur": "<",
+      "valeur": "20",
+      "noeud": "intensification",
+      "contexte": "contre_indications",
+      "provenance": "intensification.yaml:142"
+    },
+    {
+      "cle": "DFG",
+      "operateur": "<",
+      "valeur": "30",
+      "noeud": "sulfamides-gliptines",
+      "contexte": "exclusions",
+      "provenance": "sulfamides-gliptines.yaml:112"
+    },
+    {
+      "cle": "DFG",
+      "operateur": "prose",
+      "valeur": "≥ 45",
+      "noeud": "sulfamides-gliptines",
+      "contexte": "contre_indications",
+      "brut": "100 mg si DFG ≥ 45",
+      "provenance": "sulfamides-gliptines.yaml:91"
+    },
+    {
+      "cle": "DFG",
+      "operateur": "prose",
+      "valeur": "30-44",
+      "noeud": "sulfamides-gliptines",
+      "contexte": "contre_indications",
+      "brut": "50 mg si 30-44",
+      "provenance": "sulfamides-gliptines.yaml:91"
+    },
+    {
+      "cle": "DFG",
+      "operateur": "<",
+      "valeur": "30",
+      "noeud": "sulfamides-gliptines",
+      "contexte": "contre_indications",
+      "provenance": "sulfamides-gliptines.yaml:91"
+    },
+    {
+      "cle": "DFG",
+      "operateur": "<",
+      "valeur": "45",
+      "noeud": "sulfamides-gliptines",
+      "contexte": "alertes",
+      "provenance": "sulfamides-gliptines.yaml:124"
+    },
+    {
+      "cle": "age",
+      "operateur": ">=",
+      "valeur": "75",
+      "noeud": "insuline",
+      "contexte": "derive",
+      "brut": "fragilite OR esperance_vie==limitee OR age>=75",
+      "provenance": "insuline.yaml:67"
+    },
+    {
+      "cle": "poids",
+      "operateur": "prose",
+      "valeur": "0.5 U/kg",
+      "noeud": "insuline",
+      "contexte": "derive",
+      "brut": "dose_basale_actuelle / poids > 0.5",
+      "provenance": "insuline.yaml:108"
+    },
+    {
+      "cle": "TBR",
+      "operateur": ">",
+      "valeur": "4",
+      "noeud": "insuline",
+      "contexte": "conditions",
+      "provenance": "insuline.yaml:168"
+    },
+    {
+      "cle": "TBR_severe",
+      "operateur": ">",
+      "valeur": "1",
+      "noeud": "insuline",
+      "contexte": "conditions",
+      "provenance": "insuline.yaml:168"
+    },
+    {
+      "cle": "CV_glycemique",
+      "operateur": ">",
+      "valeur": "36",
+      "noeud": "insuline",
+      "contexte": "conditions",
+      "provenance": "insuline.yaml:168"
+    },
+    {
+      "cle": "GAJ",
+      "operateur": ">=",
+      "valeur": "0.7",
+      "noeud": "insuline",
+      "contexte": "derive",
+      "brut": "GAJ >= 0.7 AND GAJ <= 1.2",
+      "provenance": "insuline.yaml:99"
+    },
+    {
+      "cle": "GAJ",
+      "operateur": "<=",
+      "valeur": "1.2",
+      "noeud": "insuline",
+      "contexte": "derive",
+      "brut": "GAJ >= 0.7 AND GAJ <= 1.2",
+      "provenance": "insuline.yaml:99"
+    },
+    {
+      "cle": "DFG",
+      "operateur": "<",
+      "valeur": "45",
+      "noeud": "insuline",
+      "contexte": "alertes",
+      "provenance": "insuline.yaml:294"
+    },
+    {
+      "cle": "TIR",
+      "operateur": ">",
+      "valeur": "70",
+      "noeud": "insuline",
+      "contexte": "alertes",
+      "brut": "TIR > 70 %",
+      "provenance": "insuline.yaml:308"
+    },
+    {
+      "cle": "TBR",
+      "operateur": "<",
+      "valeur": "4",
+      "noeud": "insuline",
+      "contexte": "alertes",
+      "brut": "TBR < 4 %",
+      "provenance": "insuline.yaml:308"
+    },
+    {
+      "cle": "TBR",
+      "operateur": "<",
+      "valeur": "1",
+      "noeud": "insuline",
+      "contexte": "alertes",
+      "brut": "TBR < 1 %",
+      "provenance": "insuline.yaml:308"
+    },
+    {
+      "cle": "TAR",
+      "operateur": "<",
+      "valeur": "25",
+      "noeud": "insuline",
+      "contexte": "alertes",
+      "brut": "TAR < 25 %",
+      "provenance": "insuline.yaml:309"
+    },
+    {
+      "cle": "TAR",
+      "operateur": "<",
+      "valeur": "5",
+      "noeud": "insuline",
+      "contexte": "alertes",
+      "brut": "TAR < 5 % (> 250 mg/dL)",
+      "provenance": "insuline.yaml:309"
+    },
+    {
+      "cle": "CV_glycemique",
+      "operateur": "<=",
+      "valeur": "36",
+      "noeud": "insuline",
+      "contexte": "alertes",
+      "brut": "coefficient de variation ≤ 36 %",
+      "provenance": "insuline.yaml:309"
+    },
+    {
+      "cle": "TIR",
+      "operateur": ">",
+      "valeur": "50",
+      "noeud": "insuline",
+      "contexte": "alertes",
+      "brut": "terrain fragile: TIR > 50 %",
+      "provenance": "insuline.yaml:312"
+    },
+    {
+      "cle": "TBR",
+      "operateur": "<",
+      "valeur": "1",
+      "noeud": "insuline",
+      "contexte": "alertes",
+      "brut": "terrain fragile: TBR < 1 %",
+      "provenance": "insuline.yaml:312"
+    },
+    {
+      "cle": "GAJ",
+      "operateur": "prose",
+      "valeur": "0.70-1.20 g/L",
+      "noeud": "insuline",
+      "contexte": "effet_attendu",
+      "brut": "cible de glycémie à jeun ~0,70-1,20 g/L",
+      "provenance": "insuline.yaml:140"
+    },
+    {
+      "cle": "glucose_post_prandial",
+      "operateur": "<",
+      "valeur": "1.80",
+      "noeud": "insuline",
+      "contexte": "effet_attendu",
+      "brut": "cible...post-prandiale < 1,80 g/L à 2 h",
+      "provenance": "insuline.yaml:241"
+    },
+    {
+      "cle": "anciennete_diabete_annees",
+      "operateur": "<",
+      "valeur": "10",
+      "noeud": "statine",
+      "contexte": "conditions",
+      "provenance": "statine.yaml:75"
+    },
+    {
+      "cle": "age",
+      "operateur": ">",
+      "valeur": "75",
+      "noeud": "statine",
+      "contexte": "alertes",
+      "provenance": "statine.yaml:107"
+    },
+    {
+      "cle": "SCORE2",
+      "operateur": "<",
+      "valeur": "5",
+      "noeud": "statine",
+      "contexte": "alertes",
+      "brut": "faible < 5 % (SCORE2-Diabète)",
+      "provenance": "statine.yaml:128"
+    },
+    {
+      "cle": "SCORE2",
+      "operateur": "prose",
+      "valeur": "5-<10",
+      "noeud": "statine",
+      "contexte": "alertes",
+      "brut": "modéré 5-<10 %",
+      "provenance": "statine.yaml:128"
+    },
+    {
+      "cle": "SCORE2",
+      "operateur": "prose",
+      "valeur": "10-<20",
+      "noeud": "statine",
+      "contexte": "alertes",
+      "brut": "haut 10-<20 %",
+      "provenance": "statine.yaml:128"
+    },
+    {
+      "cle": "SCORE2",
+      "operateur": ">=",
+      "valeur": "20",
+      "noeud": "statine",
+      "contexte": "alertes",
+      "brut": "très haut ≥ 20 %",
+      "provenance": "statine.yaml:128"
+    },
+    {
+      "cle": "age",
+      "operateur": "prose",
+      "valeur": "40-69",
+      "noeud": "statine",
+      "contexte": "alertes",
+      "brut": "SCORE2-Diabète validé 40-69 ans",
+      "provenance": "statine.yaml:129"
+    },
+    {
+      "cle": "IMC",
+      "operateur": ">=",
+      "valeur": "27",
+      "noeud": "rhd",
+      "contexte": "conditions",
+      "provenance": "rhd.yaml:70"
+    },
+    {
+      "cle": "IMC",
+      "operateur": ">=",
+      "valeur": "35",
+      "noeud": "rhd",
+      "contexte": "alertes",
+      "provenance": "rhd.yaml:226"
+    },
+    {
+      "cle": "anciennete_diabete_annees",
+      "operateur": "<",
+      "valeur": "6",
+      "noeud": "rhd",
+      "contexte": "alertes",
+      "provenance": "rhd.yaml:236"
+    },
+    {
+      "cle": "anciennete_diabete_annees",
+      "operateur": ">=",
+      "valeur": "6",
+      "noeud": "rhd",
+      "contexte": "alertes",
+      "provenance": "rhd.yaml:242"
+    },
+    {
+      "cle": "poids",
+      "operateur": "prose",
+      "valeur": "5-10%",
+      "noeud": "rhd",
+      "contexte": "options",
+      "brut": "objectif de perte de poids ≥ 5-10 %",
+      "provenance": "rhd.yaml:50"
+    },
+    {
+      "cle": "poids",
+      "operateur": "prose",
+      "valeur": "5-10%",
+      "noeud": "rhd",
+      "contexte": "argumentaire",
+      "brut": "5-10 % améliorent",
+      "provenance": "rhd.yaml:199"
+    },
+    {
+      "cle": "poids",
+      "operateur": "prose",
+      "valeur": "≥5%",
+      "noeud": "rhd",
+      "contexte": "argumentaire",
+      "brut": "≥ 5 % obésité",
+      "provenance": "rhd.yaml:199"
+    },
+    {
+      "cle": "poids",
+      "operateur": ">",
+      "valeur": "10",
+      "noeud": "rhd",
+      "contexte": "argumentaire",
+      "brut": "> 10 % pour le bénéfice hépatique",
+      "provenance": "rhd.yaml:200"
+    },
+    {
+      "cle": "poids",
+      "operateur": "prose",
+      "valeur": "5-15%",
+      "noeud": "rhd",
+      "contexte": "argumentaire",
+      "brut": "5-15 % « primary target »",
+      "provenance": "rhd.yaml:200"
+    }
+  ],
+  "molecules": [
+    {
+      "orthographe": "metformine",
+      "noeud": "B",
+      "provenance": "ligne 9, socle D16",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "metformine",
+      "noeud": "B",
+      "provenance": "ligne 172, option socle",
+      "dose_ou_palier": "",
+      "ci_mentionnee": "DFG < 30"
+    },
+    {
+      "orthographe": "iSGLT2",
+      "noeud": "B",
+      "provenance": "ligne 83, classe générique, option",
+      "dose_ou_palier": "",
+      "ci_mentionnee": "DFG < 20"
+    },
+    {
+      "orthographe": "empagliflozine",
+      "noeud": "B",
+      "provenance": "ligne 99, bénéfice IV dur",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "canagliflozine",
+      "noeud": "B",
+      "provenance": "ligne 111, signal amputation",
+      "dose_ou_palier": "",
+      "ci_mentionnee": "Artériopathie évoluée"
+    },
+    {
+      "orthographe": "liraglutide",
+      "noeud": "B",
+      "provenance": "ligne 112, titre option AR GLP-1",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "sémaglutide",
+      "noeud": "B",
+      "provenance": "ligne 112, titre option AR GLP-1",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "dulaglutide",
+      "noeud": "B",
+      "provenance": "ligne 112, titre option AR GLP-1",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "lixisénatide",
+      "noeud": "B",
+      "provenance": "ligne 124, exclu neutre",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "exénatide LP",
+      "noeud": "B",
+      "provenance": "ligne 124, exclu neutre",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "tirzépatide",
+      "noeud": "B",
+      "provenance": "ligne 135, option AR GIP/GLP-1",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "empagliflozine",
+      "noeud": "B",
+      "provenance": "ligne 207, EMPA-REG OUTCOME",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "canagliflozine",
+      "noeud": "B",
+      "provenance": "ligne 211, CANVAS",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "dapagliflozine",
+      "noeud": "B",
+      "provenance": "ligne 215, DECLARE-TIMI 58",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "canagliflozine",
+      "noeud": "B",
+      "provenance": "ligne 219, CREDENCE",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "dapagliflozine",
+      "noeud": "B",
+      "provenance": "ligne 223, DAPA-CKD",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "empagliflozine",
+      "noeud": "B",
+      "provenance": "ligne 227, EMPA-KIDNEY",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "dapagliflozine",
+      "noeud": "B",
+      "provenance": "ligne 231, DAPA-HF",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "empagliflozine",
+      "noeud": "B",
+      "provenance": "ligne 235, EMPEROR-Reduced",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "empagliflozine",
+      "noeud": "B",
+      "provenance": "ligne 239, EMPEROR-Preserved",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "ertugliflozine",
+      "noeud": "B",
+      "provenance": "ligne 243, VERTIS CV",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "liraglutide",
+      "noeud": "B",
+      "provenance": "ligne 247, LEADER",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "dulaglutide",
+      "noeud": "B",
+      "provenance": "ligne 251, REWIND",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "sémaglutide SC",
+      "noeud": "B",
+      "provenance": "ligne 255, SUSTAIN-6",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "sémaglutide",
+      "noeud": "B",
+      "provenance": "ligne 259, FLOW maladie rénale",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "tirzépatide",
+      "noeud": "B",
+      "provenance": "ligne 263, SURPASS-CVOT",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "saxagliptine",
+      "noeud": "B",
+      "provenance": "ligne 275, SAVOR-TIMI 53",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "linagliptine",
+      "noeud": "B",
+      "provenance": "ligne 279, CAROLINA",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "dapagliflozine",
+      "noeud": "B",
+      "provenance": "ligne 296, Prescrire synthèse",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "metformine",
+      "noeud": "C",
+      "provenance": "ligne 93, arrêter DFG<30",
+      "dose_ou_palier": "DFG < 30",
+      "ci_mentionnee": "RCP ANSM acidose lactique"
+    },
+    {
+      "orthographe": "metformine",
+      "noeud": "C",
+      "provenance": "ligne 107, réduire posologie",
+      "dose_ou_palier": "DFG 30-59: max 2g/45-59, max 1g/30-44",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "iSGLT2",
+      "noeud": "C",
+      "provenance": "ligne 121, option introduire",
+      "dose_ou_palier": "",
+      "ci_mentionnee": "DFG < 20"
+    },
+    {
+      "orthographe": "saxagliptine",
+      "noeud": "C",
+      "provenance": "ligne 132, note sécurité IC",
+      "dose_ou_palier": "",
+      "ci_mentionnee": "Signal SAVOR IC"
+    },
+    {
+      "orthographe": "liraglutide",
+      "noeud": "C",
+      "provenance": "ligne 145, option AR GLP-1",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "sémaglutide",
+      "noeud": "C",
+      "provenance": "ligne 145, option AR GLP-1",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "dulaglutide",
+      "noeud": "C",
+      "provenance": "ligne 145, option AR GLP-1",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "sémaglutide",
+      "noeud": "C",
+      "provenance": "ligne 153, FLOW néphroprotection",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "gliptine",
+      "noeud": "C",
+      "provenance": "ligne 169, remplacer par GLP-1",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "gliptine",
+      "noeud": "C",
+      "provenance": "ligne 179, règle dure association",
+      "dose_ou_palier": "",
+      "ci_mentionnee": "Ne jamais associer gliptine+GLP-1"
+    },
+    {
+      "orthographe": "gliptine",
+      "noeud": "C",
+      "provenance": "ligne 192, arrêter redondante",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "sulfamide",
+      "noeud": "C",
+      "provenance": "ligne 206, remplacer",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "gliclazide MR",
+      "noeud": "C",
+      "provenance": "ligne 217, CAROLINA essai",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "glimépiride",
+      "noeud": "C",
+      "provenance": "ligne 217, CAROLINA essai",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "sitagliptine",
+      "noeud": "C",
+      "provenance": "ligne 281, GRADE essai",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "liraglutide",
+      "noeud": "C",
+      "provenance": "ligne 281, GRADE essai",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "glargine",
+      "noeud": "C",
+      "provenance": "ligne 281, GRADE essai",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "gliclazide MR",
+      "noeud": "C",
+      "provenance": "ligne 187, ADVANCE essai",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "pioglitazone",
+      "noeud": "C",
+      "provenance": "ligne 293, TOSCA.IT essai",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "sitagliptine",
+      "noeud": "D",
+      "provenance": "ligne 71, option titre",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "sitagliptine",
+      "noeud": "D",
+      "provenance": "ligne 77, TECOS HR 0,98",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "sitagliptine",
+      "noeud": "D",
+      "provenance": "ligne 91, dosage RCP",
+      "dose_ou_palier": "100mg DFG≥45, 50mg 30-44, 25mg<30 dialyse",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "vildagliptine",
+      "noeud": "D",
+      "provenance": "ligne 91, alternative",
+      "dose_ou_palier": "50mg/j si DFG<50",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "saxagliptine",
+      "noeud": "D",
+      "provenance": "ligne 92, ne pas utiliser",
+      "dose_ou_palier": "",
+      "ci_mentionnee": "Retrait France Komboglyze 30/01/2026"
+    },
+    {
+      "orthographe": "linagliptine",
+      "noeud": "D",
+      "provenance": "ligne 92, jamais commercialisée FR",
+      "dose_ou_palier": "",
+      "ci_mentionnee": "Non disponible France"
+    },
+    {
+      "orthographe": "alogliptine",
+      "noeud": "D",
+      "provenance": "ligne 92, jamais commercialisée FR",
+      "dose_ou_palier": "",
+      "ci_mentionnee": "Non disponible France"
+    },
+    {
+      "orthographe": "gliclazide MR",
+      "noeud": "D",
+      "provenance": "ligne 94, option titre",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "glimépiride",
+      "noeud": "D",
+      "provenance": "ligne 94, option titre",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "glibenclamide",
+      "noeud": "D",
+      "provenance": "ligne 104, jamais utiliser",
+      "dose_ou_palier": "",
+      "ci_mentionnee": "Hypo sévères/prolongées"
+    },
+    {
+      "orthographe": "sitagliptine",
+      "noeud": "D",
+      "provenance": "ligne 127, alerte insuffisance rénale",
+      "dose_ou_palier": "50mg 30-44, 25mg<30",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "gliclazide",
+      "noeud": "D",
+      "provenance": "ligne 127, alerte insuffisance rénale",
+      "dose_ou_palier": "dose réduite",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "glimépiride",
+      "noeud": "D",
+      "provenance": "ligne 127, alerte insuffisance rénale",
+      "dose_ou_palier": "débuter 1mg/j",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "glibenclamide",
+      "noeud": "D",
+      "provenance": "ligne 129, alerte insuffisance rénale",
+      "dose_ou_palier": "",
+      "ci_mentionnee": "Jamais, métabolites actifs"
+    },
+    {
+      "orthographe": "insuline basale",
+      "noeud": "E",
+      "provenance": "ligne 126, initiation",
+      "dose_ou_palier": "poids × 0,1-0,2 U/kg/j ou 10U le soir",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "glargine U300",
+      "noeud": "E",
+      "provenance": "ligne 148, analogue 2e gén",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "degludec",
+      "noeud": "E",
+      "provenance": "ligne 148, analogue 2e gén",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "glargine U100",
+      "noeud": "E",
+      "provenance": "ligne 154, comparateur SWITCH 2",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "détémir",
+      "noeud": "E",
+      "provenance": "ligne 154, comparateur SWITCH 2",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "NPH",
+      "noeud": "E",
+      "provenance": "ligne 154, comparateur",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "sulfamide",
+      "noeud": "E",
+      "provenance": "ligne 286, alerte arrêter",
+      "dose_ou_palier": "",
+      "ci_mentionnee": "Hypoglycémie cumulée"
+    },
+    {
+      "orthographe": "glinide",
+      "noeud": "E",
+      "provenance": "ligne 286, alerte arrêter",
+      "dose_ou_palier": "",
+      "ci_mentionnee": "Hypoglycémie cumulée"
+    },
+    {
+      "orthographe": "iSGLT2",
+      "noeud": "E",
+      "provenance": "ligne 290, alerte iSGLT2+insuline",
+      "dose_ou_palier": "",
+      "ci_mentionnee": "Acidocétose euglycémique"
+    },
+    {
+      "orthographe": "metformine",
+      "noeud": "E",
+      "provenance": "ligne 298, alerte insuffisance rénale",
+      "dose_ou_palier": "",
+      "ci_mentionnee": "Adapter ou arrêter selon DFG"
+    },
+    {
+      "orthographe": "insuline rapide",
+      "noeud": "E",
+      "provenance": "ligne 232, bolus repas",
+      "dose_ou_palier": "~10% dose basale ou 4U",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "atorvastatine",
+      "noeud": "F",
+      "provenance": "ligne 71, haute intensité",
+      "dose_ou_palier": "40-80 mg",
+      "ci_mentionnee": "CYP3A4 interactions"
+    },
+    {
+      "orthographe": "rosuvastatine",
+      "noeud": "F",
+      "provenance": "ligne 71, haute intensité",
+      "dose_ou_palier": "10-20 mg",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "atorvastatine",
+      "noeud": "F",
+      "provenance": "ligne 104, modérée primaire",
+      "dose_ou_palier": "10-20 mg",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "simvastatine",
+      "noeud": "F",
+      "provenance": "ligne 104, modérée primaire",
+      "dose_ou_palier": "20-40 mg",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "pravastatine",
+      "noeud": "F",
+      "provenance": "ligne 104, modérée primaire",
+      "dose_ou_palier": "40 mg",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "simvastatine",
+      "noeud": "F",
+      "provenance": "ligne 63, à éviter haute dose",
+      "dose_ou_palier": "80 mg",
+      "ci_mentionnee": "Restriction FDA myopathie"
+    },
+    {
+      "orthographe": "atorvastatine",
+      "noeud": "F",
+      "provenance": "ligne 153, CARDS essai",
+      "dose_ou_palier": "10 mg",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "simvastatine",
+      "noeud": "F",
+      "provenance": "ligne 157, HPS essai",
+      "dose_ou_palier": "40 mg",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "pravastatine",
+      "noeud": "F",
+      "provenance": "ligne 169, CARE essai",
+      "dose_ou_palier": "40 mg",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "pravastatine",
+      "noeud": "F",
+      "provenance": "ligne 173, LIPID essai",
+      "dose_ou_palier": "40 mg",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "simvastatine",
+      "noeud": "F",
+      "provenance": "ligne 177, 4S essai",
+      "dose_ou_palier": "",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "atorvastatine",
+      "noeud": "F",
+      "provenance": "ligne 181, TNT essai",
+      "dose_ou_palier": "80 vs 10 mg",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "pravastatine",
+      "noeud": "F",
+      "provenance": "ligne 185, PROVE-IT essai",
+      "dose_ou_palier": "40 mg",
+      "ci_mentionnee": ""
+    },
+    {
+      "orthographe": "atorvastatine",
+      "noeud": "F",
+      "provenance": "ligne 189, ASPEN essai",
+      "dose_ou_palier": "10 mg",
+      "ci_mentionnee": ""
+    }
+  ],
+  "criteres_entree": [
+    {
+      "nom": "age",
+      "type": "nombre",
+      "noeud": "cible-glycemique",
+      "provenance": "cible-glycemique.yaml:12-13"
+    },
+    {
+      "nom": "anciennete_diabete_annees",
+      "type": "nombre",
+      "noeud": "cible-glycemique",
+      "provenance": "cible-glycemique.yaml:14-15"
+    },
+    {
+      "nom": "esperance_vie",
+      "type": "enum",
+      "valeurs": [
+        "longue",
+        "intermediaire",
+        "limitee"
+      ],
+      "noeud": "cible-glycemique",
+      "provenance": "cible-glycemique.yaml:16-18"
+    },
+    {
+      "nom": "fragilite",
+      "type": "bool",
+      "noeud": "cible-glycemique",
+      "provenance": "cible-glycemique.yaml:19-20"
+    },
+    {
+      "nom": "risque_hypoglycemie_schema",
+      "type": "enum",
+      "valeurs": [
+        "faible",
+        "eleve"
+      ],
+      "noeud": "cible-glycemique",
+      "provenance": "cible-glycemique.yaml:21-23"
+    },
+    {
+      "nom": "antecedent_cv",
+      "type": "bool",
+      "noeud": "cible-glycemique",
+      "provenance": "cible-glycemique.yaml:24-25"
+    },
+    {
+      "nom": "comorbidite_grave",
+      "type": "bool",
+      "noeud": "cible-glycemique",
+      "provenance": "cible-glycemique.yaml:26-27"
+    },
+    {
+      "nom": "ASCVD_etablie",
+      "type": "bool",
+      "noeud": "premiere-intention",
+      "provenance": "premiere-intention.yaml:41-42"
+    },
+    {
+      "nom": "insuffisance_cardiaque",
+      "type": "bool",
+      "noeud": "premiere-intention",
+      "provenance": "premiere-intention.yaml:43-44"
+    },
+    {
+      "nom": "DFG",
+      "type": "nombre",
+      "noeud": "premiere-intention",
+      "provenance": "premiere-intention.yaml:45-46"
+    },
+    {
+      "nom": "albuminurie",
+      "type": "enum",
+      "valeurs": [
+        "normo",
+        "micro",
+        "macro"
+      ],
+      "noeud": "premiere-intention",
+      "provenance": "premiere-intention.yaml:47-49"
+    },
+    {
+      "nom": "IMC",
+      "type": "nombre",
+      "noeud": "premiere-intention",
+      "provenance": "premiere-intention.yaml:50-51"
+    },
+    {
+      "nom": "age",
+      "type": "nombre",
+      "noeud": "premiere-intention",
+      "provenance": "premiere-intention.yaml:52-53"
+    },
+    {
+      "nom": "HbA1c_actuelle",
+      "type": "nombre",
+      "noeud": "premiere-intention",
+      "provenance": "premiere-intention.yaml:54-55"
+    },
+    {
+      "nom": "symptomes_glucotoxicite",
+      "type": "bool",
+      "noeud": "premiere-intention",
+      "provenance": "premiere-intention.yaml:56-57"
+    },
+    {
+      "nom": "cetonemie",
+      "type": "bool",
+      "noeud": "premiere-intention",
+      "provenance": "premiere-intention.yaml:58-59"
+    },
+    {
+      "nom": "preference_injection",
+      "type": "enum",
+      "valeurs": [
+        "accepte",
+        "refuse",
+        "indifferent"
+      ],
+      "noeud": "premiere-intention",
+      "provenance": "premiere-intention.yaml:60-62"
+    },
+    {
+      "nom": "contrainte_cout",
+      "type": "bool",
+      "noeud": "premiere-intention",
+      "provenance": "premiere-intention.yaml:63-64"
+    },
+    {
+      "nom": "cible_atteinte",
+      "type": "bool",
+      "noeud": "intensification",
+      "provenance": "intensification.yaml:39-40"
+    },
+    {
+      "nom": "sur_traitement",
+      "type": "bool",
+      "noeud": "intensification",
+      "provenance": "intensification.yaml:41-42"
+    },
+    {
+      "nom": "hypoglycemie_recente",
+      "type": "bool",
+      "noeud": "intensification",
+      "provenance": "intensification.yaml:43-44"
+    },
+    {
+      "nom": "traitements_en_cours",
+      "type": "liste",
+      "valeurs": [
+        "metformine",
+        "iSGLT2",
+        "aGLP1",
+        "tirzepatide",
+        "sulfamide",
+        "gliptine",
+        "insuline",
+        "glinide",
+        "pioglitazone"
+      ],
+      "noeud": "intensification",
+      "provenance": "intensification.yaml:45-47"
+    },
+    {
+      "nom": "ASCVD_etablie",
+      "type": "bool",
+      "noeud": "intensification",
+      "provenance": "intensification.yaml:48-49"
+    },
+    {
+      "nom": "insuffisance_cardiaque",
+      "type": "bool",
+      "noeud": "intensification",
+      "provenance": "intensification.yaml:50-51"
+    },
+    {
+      "nom": "DFG",
+      "type": "nombre",
+      "noeud": "intensification",
+      "provenance": "intensification.yaml:52-53"
+    },
+    {
+      "nom": "albuminurie",
+      "type": "enum",
+      "valeurs": [
+        "normo",
+        "micro",
+        "macro"
+      ],
+      "noeud": "intensification",
+      "provenance": "intensification.yaml:54-56"
+    },
+    {
+      "nom": "IMC",
+      "type": "nombre",
+      "noeud": "intensification",
+      "provenance": "intensification.yaml:57-58"
+    },
+    {
+      "nom": "risque_hypoglycemie_schema",
+      "type": "enum",
+      "valeurs": [
+        "faible",
+        "eleve"
+      ],
+      "noeud": "intensification",
+      "provenance": "intensification.yaml:59-61"
+    },
+    {
+      "nom": "age",
+      "type": "nombre",
+      "noeud": "intensification",
+      "provenance": "intensification.yaml:62-63"
+    },
+    {
+      "nom": "fragilite",
+      "type": "bool",
+      "noeud": "intensification",
+      "provenance": "intensification.yaml:64-65"
+    },
+    {
+      "nom": "esperance_vie",
+      "type": "enum",
+      "valeurs": [
+        "longue",
+        "intermediaire",
+        "limitee"
+      ],
+      "noeud": "intensification",
+      "provenance": "intensification.yaml:66-68"
+    },
+    {
+      "nom": "classes_a_benefice_indisponibles",
+      "type": "bool",
+      "noeud": "sulfamides-gliptines",
+      "provenance": "sulfamides-gliptines.yaml:47-48"
+    },
+    {
+      "nom": "traitements_en_cours",
+      "type": "liste",
+      "valeurs": [
+        "metformine",
+        "iSGLT2",
+        "aGLP1",
+        "tirzepatide",
+        "sulfamide",
+        "gliptine",
+        "insuline",
+        "glinide",
+        "pioglitazone"
+      ],
+      "noeud": "sulfamides-gliptines",
+      "provenance": "sulfamides-gliptines.yaml:49-51"
+    },
+    {
+      "nom": "DFG",
+      "type": "nombre",
+      "noeud": "sulfamides-gliptines",
+      "provenance": "sulfamides-gliptines.yaml:52-53"
+    },
+    {
+      "nom": "risque_hypoglycemie_schema",
+      "type": "enum",
+      "valeurs": [
+        "faible",
+        "eleve"
+      ],
+      "noeud": "sulfamides-gliptines",
+      "provenance": "sulfamides-gliptines.yaml:54-56"
+    },
+    {
+      "nom": "situation_insuline",
+      "type": "enum",
+      "valeurs": [
+        "naif",
+        "basale_seule",
+        "basale_plus_bolus",
+        "basal_bolus"
+      ],
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:41-43"
+    },
+    {
+      "nom": "age",
+      "type": "nombre",
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:44-45"
+    },
+    {
+      "nom": "HbA1c_actuelle",
+      "type": "nombre",
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:46-47"
+    },
+    {
+      "nom": "HbA1c_cible",
+      "type": "nombre",
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:48-49"
+    },
+    {
+      "nom": "cible_atteinte",
+      "type": "bool",
+      "derive": "HbA1c_actuelle <= HbA1c_cible",
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:50-52"
+    },
+    {
+      "nom": "DFG",
+      "type": "nombre",
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:53-54"
+    },
+    {
+      "nom": "IMC",
+      "type": "nombre",
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:55-56"
+    },
+    {
+      "nom": "fragilite",
+      "type": "bool",
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:57-58"
+    },
+    {
+      "nom": "esperance_vie",
+      "type": "enum",
+      "valeurs": [
+        "longue",
+        "intermediaire",
+        "limitee"
+      ],
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:59-61"
+    },
+    {
+      "nom": "risque_hypoglycemie_schema",
+      "type": "enum",
+      "valeurs": [
+        "faible",
+        "eleve"
+      ],
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:62-64"
+    },
+    {
+      "nom": "terrain_fragile",
+      "type": "bool",
+      "derive": "fragilite OR esperance_vie == limitee OR age >= 75 OR risque_hypoglycemie_schema == eleve",
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:65-67"
+    },
+    {
+      "nom": "hypo_severe_recurrente",
+      "type": "bool",
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:68-69"
+    },
+    {
+      "nom": "symptomes_glucotoxicite",
+      "type": "bool",
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:70-71"
+    },
+    {
+      "nom": "traitements_en_cours",
+      "type": "liste",
+      "valeurs": [
+        "metformine",
+        "iSGLT2",
+        "aGLP1",
+        "sulfamide",
+        "glinide",
+        "gliptine",
+        "insuline_basale",
+        "insuline_rapide"
+      ],
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:72-74"
+    },
+    {
+      "nom": "preference_injection",
+      "type": "enum",
+      "valeurs": [
+        "accepte",
+        "refuse",
+        "indifferent"
+      ],
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:75-77"
+    },
+    {
+      "nom": "mcg_disponible",
+      "type": "bool",
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:78-79"
+    },
+    {
+      "nom": "TIR",
+      "type": "nombre",
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:80-81"
+    },
+    {
+      "nom": "TBR",
+      "type": "nombre",
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:82-83"
+    },
+    {
+      "nom": "TBR_severe",
+      "type": "nombre",
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:84-85"
+    },
+    {
+      "nom": "TAR",
+      "type": "nombre",
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:86-87"
+    },
+    {
+      "nom": "CV_glycemique",
+      "type": "nombre",
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:88-89"
+    },
+    {
+      "nom": "GMI",
+      "type": "nombre",
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:90-91"
+    },
+    {
+      "nom": "profil_glycemique",
+      "type": "liste",
+      "valeurs": [
+        "hypo_nocturne",
+        "phenomene_aube",
+        "excursions_postprandiales",
+        "hypo_interprandiale",
+        "stable"
+      ],
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:92-94"
+    },
+    {
+      "nom": "GAJ",
+      "type": "nombre",
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:95-96"
+    },
+    {
+      "nom": "gaj_a_cible",
+      "type": "bool",
+      "derive": "GAJ >= 0.7 AND GAJ <= 1.2",
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:97-99"
+    },
+    {
+      "nom": "poids",
+      "type": "nombre",
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:100-101"
+    },
+    {
+      "nom": "dose_basale_actuelle",
+      "type": "nombre",
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:102-103"
+    },
+    {
+      "nom": "dose_rapide_actuelle",
+      "type": "nombre",
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:104-105"
+    },
+    {
+      "nom": "over_basalisation",
+      "type": "bool",
+      "derive": "dose_basale_actuelle / poids > 0.5",
+      "noeud": "insuline",
+      "provenance": "insuline.yaml:106-108"
+    },
+    {
+      "nom": "age",
+      "type": "nombre",
+      "noeud": "statine",
+      "provenance": "statine.yaml:42-43"
+    },
+    {
+      "nom": "ASCVD_etablie",
+      "type": "bool",
+      "noeud": "statine",
+      "provenance": "statine.yaml:44-45"
+    },
+    {
+      "nom": "anciennete_diabete_annees",
+      "type": "nombre",
+      "noeud": "statine",
+      "provenance": "statine.yaml:46-47"
+    },
+    {
+      "nom": "autres_FDRCV",
+      "type": "nombre",
+      "noeud": "statine",
+      "provenance": "statine.yaml:48-49"
+    },
+    {
+      "nom": "diabete_complique",
+      "type": "bool",
+      "noeud": "statine",
+      "provenance": "statine.yaml:50-51"
+    },
+    {
+      "nom": "dialyse",
+      "type": "bool",
+      "noeud": "statine",
+      "provenance": "statine.yaml:52-53"
+    },
+    {
+      "nom": "IMC",
+      "type": "nombre",
+      "noeud": "rhd",
+      "provenance": "rhd.yaml:34-35"
+    },
+    {
+      "nom": "anciennete_diabete_annees",
+      "type": "nombre",
+      "noeud": "rhd",
+      "provenance": "rhd.yaml:36-37"
+    },
+    {
+      "nom": "motivation",
+      "type": "bool",
+      "noeud": "rhd",
+      "provenance": "rhd.yaml:38-39"
+    },
+    {
+      "nom": "capacite_activite",
+      "type": "bool",
+      "noeud": "rhd",
+      "provenance": "rhd.yaml:40-41"
+    },
+    {
+      "nom": "alimentation_equilibree",
+      "type": "bool",
+      "noeud": "rhd",
+      "provenance": "rhd.yaml:42-43"
+    },
+    {
+      "nom": "activite_physique_reguliere",
+      "type": "bool",
+      "noeud": "rhd",
+      "provenance": "rhd.yaml:44-45"
+    },
+    {
+      "nom": "traitements_en_cours",
+      "type": "liste",
+      "valeurs": [
+        "metformine",
+        "iSGLT2",
+        "aGLP1",
+        "tirzepatide",
+        "sulfamide",
+        "gliptine",
+        "insuline",
+        "glinide",
+        "pioglitazone"
+      ],
+      "noeud": "rhd",
+      "provenance": "rhd.yaml:46-48"
+    }
+  ],
+  "catalogue_canonique_criteres": [
+    {
+      "nom": "age",
+      "noeuds": [
+        "cible-glycemique",
+        "premiere-intention",
+        "intensification",
+        "insuline",
+        "statine"
+      ],
+      "type": "nombre"
+    },
+    {
+      "nom": "anciennete_diabete_annees",
+      "noeuds": [
+        "cible-glycemique",
+        "statine",
+        "rhd"
+      ],
+      "type": "nombre"
+    },
+    {
+      "nom": "esperance_vie",
+      "noeuds": [
+        "cible-glycemique",
+        "intensification",
+        "insuline"
+      ],
+      "type": "enum",
+      "valeurs": [
+        "longue",
+        "intermediaire",
+        "limitee"
+      ]
+    },
+    {
+      "nom": "fragilite",
+      "noeuds": [
+        "cible-glycemique",
+        "intensification",
+        "insuline"
+      ],
+      "type": "bool"
+    },
+    {
+      "nom": "risque_hypoglycemie_schema",
+      "noeuds": [
+        "cible-glycemique",
+        "intensification",
+        "sulfamides-gliptines",
+        "insuline"
+      ],
+      "type": "enum",
+      "valeurs": [
+        "faible",
+        "eleve"
+      ]
+    },
+    {
+      "nom": "ASCVD_etablie",
+      "noeuds": [
+        "premiere-intention",
+        "intensification",
+        "statine"
+      ],
+      "type": "bool"
+    },
+    {
+      "nom": "insuffisance_cardiaque",
+      "noeuds": [
+        "premiere-intention",
+        "intensification"
+      ],
+      "type": "bool"
+    },
+    {
+      "nom": "DFG",
+      "noeuds": [
+        "premiere-intention",
+        "intensification",
+        "sulfamides-gliptines",
+        "insuline",
+        "statine"
+      ],
+      "type": "nombre"
+    },
+    {
+      "nom": "albuminurie",
+      "noeuds": [
+        "premiere-intention",
+        "intensification"
+      ],
+      "type": "enum",
+      "valeurs": [
+        "normo",
+        "micro",
+        "macro"
+      ]
+    },
+    {
+      "nom": "IMC",
+      "noeuds": [
+        "premiere-intention",
+        "intensification",
+        "insuline",
+        "rhd"
+      ],
+      "type": "nombre"
+    },
+    {
+      "nom": "HbA1c_actuelle",
+      "noeuds": [
+        "premiere-intention",
+        "insuline"
+      ],
+      "type": "nombre"
+    },
+    {
+      "nom": "symptomes_glucotoxicite",
+      "noeuds": [
+        "premiere-intention",
+        "insuline"
+      ],
+      "type": "bool"
+    },
+    {
+      "nom": "preference_injection",
+      "noeuds": [
+        "premiere-intention",
+        "insuline"
+      ],
+      "type": "enum",
+      "valeurs": [
+        "accepte",
+        "refuse",
+        "indifferent"
+      ]
+    },
+    {
+      "nom": "cible_atteinte",
+      "noeuds": [
+        "intensification",
+        "insuline"
+      ],
+      "type": "bool"
+    },
+    {
+      "nom": "traitements_en_cours",
+      "noeuds": [
+        "intensification",
+        "sulfamides-gliptines",
+        "insuline",
+        "rhd"
+      ],
+      "type": "liste"
+    }
+  ],
+  "garde_fous": [
+    {
+      "noeud": "A — Cible glycémique",
+      "exclusions": [],
+      "contre_indications": [
+        {
+          "texte": "Antécédent cardiovasculaire établi",
+          "provenance": "cible-glycemique.yaml:64"
+        },
+        {
+          "texte": "Schéma à risque d'hypoglycémie",
+          "provenance": "cible-glycemique.yaml:65"
+        },
+        {
+          "texte": "Rétinopathie préexistante : éviter une baisse rapide de l'HbA1c (risque d'aggravation)",
+          "provenance": "cible-glycemique.yaml:66"
+        }
+      ],
+      "appariements": []
+    },
+    {
+      "noeud": "B — Traitement de 1re intention",
+      "exclusions": [
+        {
+          "expression": "symptomes_glucotoxicite == true",
+          "provenance": "premiere-intention.yaml:87"
+        },
+        {
+          "expression": "cetonemie == true",
+          "provenance": "premiere-intention.yaml:88"
+        },
+        {
+          "expression": "DFG < 20",
+          "provenance": "premiere-intention.yaml:89"
+        },
+        {
+          "expression": "symptomes_glucotoxicite == true",
+          "provenance": "premiere-intention.yaml:161"
+        },
+        {
+          "expression": "cetonemie == true",
+          "provenance": "premiere-intention.yaml:162"
+        },
+        {
+          "expression": "DFG < 20",
+          "provenance": "premiere-intention.yaml:163"
+        },
+        {
+          "expression": "DFG < 30",
+          "provenance": "premiere-intention.yaml:177"
+        }
+      ],
+      "contre_indications": [
+        {
+          "texte": "Suspecter un DT1 devant une cétose / un amaigrissement rapide chez un sujet non obèse.",
+          "provenance": "premiere-intention.yaml:82"
+        },
+        {
+          "texte": "Ne pas initier en cas d'hyperglycémie sévère catabolique / HbA1c > 10 % avec cétose (risque d'acidocétose — AACE) : lever d'abord la glucotoxicité (insuline).",
+          "provenance": "premiere-intention.yaml:107"
+        },
+        {
+          "texte": "Ne pas initier si DFG < 20 mL/min/1,73m² (poursuivre jusqu'à la dialyse si déjà en cours — KDIGO 2024).",
+          "provenance": "premiere-intention.yaml:108"
+        },
+        {
+          "texte": "Risque ou antécédent d'acidocétose ; suspendre en cas de jeûne, chirurgie, sepsis, régime très pauvre en glucides.",
+          "provenance": "premiere-intention.yaml:109"
+        },
+        {
+          "texte": "Infections génito-urinaires récidivantes ; antécédent de gangrène de Fournier.",
+          "provenance": "premiere-intention.yaml:110"
+        },
+        {
+          "texte": "Artériopathie évoluée / antécédent d'amputation : prudence (signal canagliflozine).",
+          "provenance": "premiere-intention.yaml:111"
+        },
+        {
+          "texte": "Antécédent de pancréatite aiguë ou chronique.",
+          "provenance": "premiere-intention.yaml:131"
+        },
+        {
+          "texte": "Antécédent personnel ou familial de cancer médullaire de la thyroïde ou de NEM2.",
+          "provenance": "premiere-intention.yaml:132"
+        },
+        {
+          "texte": "Refus des injections : préférer le sémaglutide oral ou une autre classe (preference_injection == refuse).",
+          "provenance": "premiere-intention.yaml:133"
+        },
+        {
+          "texte": "Rétinopathie proliférante non stabilisée : prudence si baisse rapide de l'HbA1c (sémaglutide).",
+          "provenance": "premiere-intention.yaml:134"
+        },
+        {
+          "texte": "Antécédent de pancréatite aiguë ou chronique.",
+          "provenance": "premiere-intention.yaml:153"
+        },
+        {
+          "texte": "Antécédent personnel ou familial de cancer médullaire de la thyroïde ou de NEM2.",
+          "provenance": "premiere-intention.yaml:154"
+        },
+        {
+          "texte": "Refus des injections (preference_injection == refuse).",
+          "provenance": "premiere-intention.yaml:155"
+        },
+        {
+          "texte": "Metformine contre-indiquée si DFG < 30 mL/min/1,73m² ; à écarter aussi en insuffisance cardiaque décompensée, IDM récent, insuffisance hépatique, alcoolisme.",
+          "provenance": "premiere-intention.yaml:189"
+        },
+        {
+          "texte": "Intolérance digestive (~15 %) : titration progressive, prises au cours des repas.",
+          "provenance": "premiere-intention.yaml:190"
+        }
+      ],
+      "appariements": [
+        {
+          "objet": "iSGLT2 contre-indication DFG < 20",
+          "exclusion_provenance": "premiere-intention.yaml:89",
+          "contre_indication_provenance": "premiere-intention.yaml:108"
+        },
+        {
+          "objet": "iSGLT2 exclusion glucotoxicité / cétonémie",
+          "exclusion_provenance": "premiere-intention.yaml:87-88",
+          "contre_indication_provenance": "premiere-intention.yaml:107"
+        },
+        {
+          "objet": "Métformine contre-indication DFG < 30",
+          "exclusion_provenance": "premiere-intention.yaml:177",
+          "contre_indication_provenance": "premiere-intention.yaml:189"
+        }
+      ]
+    },
+    {
+      "noeud": "C — Intensification / Optimisation",
+      "exclusions": [
+        {
+          "expression": "DFG < 20",
+          "provenance": "intensification.yaml:140"
+        }
+      ],
+      "contre_indications": [
+        {
+          "texte": "Ne JAMAIS retirer un iSGLT2 ni un AR GLP-1 pour désintensifier : leur bénéfice cardio-rénal est maintenu quelle que soit la glycémie (ADA 2026 reco 13.14d, grade A ; SFD Avis 5).",
+          "provenance": "intensification.yaml:89"
+        },
+        {
+          "texte": "Après allègement : surveiller la glycémie capillaire, réévaluer l'HbA1c à ~3 mois.",
+          "provenance": "intensification.yaml:90"
+        },
+        {
+          "texte": "La metformine est aussi contre-indiquée en insuffisance cardiaque décompensée / instable, IDM récent, insuffisance hépatocellulaire, alcoolisme / intoxication alcoolique aiguë, et à SUSPENDRE temporairement en cas de déshydratation, sepsis, jeûne prolongé, produit de contraste iodé ou chirurgie (RCP).",
+          "provenance": "intensification.yaml:106"
+        },
+        {
+          "texte": "Ne pas initier si DFG < 20 mL/min/1,73m² (poursuivre jusqu'à la dialyse si déjà en cours — KDIGO 2024).",
+          "provenance": "intensification.yaml:142"
+        },
+        {
+          "texte": "Risque ou antécédent d'acidocétose ; suspendre en cas de jeûne, chirurgie, sepsis, régime très pauvre en glucides ; éviter en hyperglycémie sévère catabolique.",
+          "provenance": "intensification.yaml:143"
+        },
+        {
+          "texte": "Infections génito-urinaires récidivantes ; antécédent de gangrène de Fournier ; artériopathie évoluée / antécédent d'amputation (prudence, signal canagliflozine).",
+          "provenance": "intensification.yaml:144"
+        },
+        {
+          "texte": "Antécédent de pancréatite aiguë ou chronique.",
+          "provenance": "intensification.yaml:165"
+        },
+        {
+          "texte": "Antécédent personnel ou familial de cancer médullaire de la thyroïde ou de NEM2.",
+          "provenance": "intensification.yaml:166"
+        },
+        {
+          "texte": "Refus des injections : préférer le sémaglutide oral ou une autre classe.",
+          "provenance": "intensification.yaml:167"
+        },
+        {
+          "texte": "Rétinopathie proliférante non stabilisée : prudence si baisse rapide de l'HbA1c (sémaglutide).",
+          "provenance": "intensification.yaml:168"
+        },
+        {
+          "texte": "Ne pas maintenir la gliptine en association avec l'AR GLP-1 : la remplacer.",
+          "provenance": "intensification.yaml:189"
+        },
+        {
+          "texte": "Mêmes contre-indications que l'AR GLP-1 (pancréatite, cancer médullaire de la thyroïde / NEM2, refus d'injection).",
+          "provenance": "intensification.yaml:190"
+        },
+        {
+          "texte": "En contexte de désintensification (sur-traitement OU hypoglycémie / chute récente chez un sujet âgé ou fragile), il s'agit plutôt de désintensifier — retirer le sulfamide sans nécessairement le remplacer — voir l'option dédiée (cette option de remplacement ne se déclenche donc pas dans ce contexte).",
+          "provenance": "intensification.yaml:225"
+        }
+      ],
+      "appariements": [
+        {
+          "objet": "iSGLT2 contre-indication DFG < 20",
+          "exclusion_provenance": "intensification.yaml:140",
+          "contre_indication_provenance": "intensification.yaml:142"
+        }
+      ]
+    },
+    {
+      "noeud": "D — Place résiduelle des sulfamides et des gliptines",
+      "exclusions": [
+        {
+          "expression": "DFG < 30",
+          "provenance": "sulfamides-gliptines.yaml:112"
+        }
+      ],
+      "contre_indications": [
+        {
+          "texte": "Molécule : SITAGLIPTINE (dose adaptée au DFG : 100 mg si DFG ≥ 45 ; 50 mg si 30-44 ; 25 mg si < 30, dialyse incluse — RCP). Alternative : vildagliptine 50 mg/j si DFG < 50 (prudence en dialyse).",
+          "provenance": "sulfamides-gliptines.yaml:91"
+        },
+        {
+          "texte": "NE PAS utiliser saxagliptine (signal IC + retrait français, Komboglyze arrêté le 30/01/2026) ni linagliptine/alogliptine (jamais commercialisées en France) — la linagliptine, idéale sur le plan rénal, est inapplicable faute de disponibilité.",
+          "provenance": "sulfamides-gliptines.yaml:92"
+        },
+        {
+          "texte": "Antécédent de pancréatite : prudence. Éruption bulleuse sous gliptine → évoquer une pemphigoïde et arrêter. Ne pas associer à un AR GLP-1.",
+          "provenance": "sulfamides-gliptines.yaml:93"
+        },
+        {
+          "texte": "Contre-indiqué en insuffisance rénale sévère (seuil d'arrêt encodé : DFG < 30 — convention KDIGO/SFD ; les RCP mentionnent « IR sévère » sans seuil chiffré). En insuffisance rénale légère à modérée : gliclazide à même dose sous surveillance rapprochée, glimépiride à débuter à 1 mg/j — jamais le glibenclamide (métabolites actifs à élimination rénale).",
+          "provenance": "sulfamides-gliptines.yaml:114"
+        },
+        {
+          "texte": "Déconseillé chez le sujet à risque d'hypoglycémie élevé (âgé fragile, insuffisant rénal, alimentation irrégulière, mauvaise perception des hypoglycémies) : préférer alors la gliptine.",
+          "provenance": "sulfamides-gliptines.yaml:115"
+        },
+        {
+          "texte": "Prise de poids : défavorable chez le patient en surpoids/obèse.",
+          "provenance": "sulfamides-gliptines.yaml:116"
+        }
+      ],
+      "appariements": [
+        {
+          "objet": "Sulfamide contre-indication DFG < 30",
+          "exclusion_provenance": "sulfamides-gliptines.yaml:112",
+          "contre_indication_provenance": "sulfamides-gliptines.yaml:114"
+        }
+      ]
+    },
+    {
+      "noeud": "E — Insuline",
+      "exclusions": [
+        {
+          "expression": "TBR > 4",
+          "provenance": "insuline.yaml:196"
+        },
+        {
+          "expression": "TBR_severe > 1",
+          "provenance": "insuline.yaml:197"
+        },
+        {
+          "expression": "CV_glycemique > 36",
+          "provenance": "insuline.yaml:198"
+        },
+        {
+          "expression": "profil_glycemique contient hypo_nocturne",
+          "provenance": "insuline.yaml:199"
+        },
+        {
+          "expression": "TBR > 4",
+          "provenance": "insuline.yaml:215"
+        },
+        {
+          "expression": "TBR_severe > 1",
+          "provenance": "insuline.yaml:216"
+        },
+        {
+          "expression": "CV_glycemique > 36",
+          "provenance": "insuline.yaml:217"
+        },
+        {
+          "expression": "profil_glycemique contient hypo_nocturne",
+          "provenance": "insuline.yaml:218"
+        }
+      ],
+      "contre_indications": [
+        {
+          "texte": "Pas de contre-indication absolue à l'insuline. Arrêter le sulfamide / glinide à l'introduction (risque d'hypoglycémie cumulée).",
+          "provenance": "insuline.yaml:144"
+        }
+      ],
+      "appariements": [
+        {
+          "objet": "Hypoglycémie sévère (insuline) — exclusions TBR/CV",
+          "exclusion_provenance": "insuline.yaml:196-199",
+          "contre_indication_provenance": "insuline.yaml:144"
+        }
+      ]
+    },
+    {
+      "noeud": "F — Statine chez le diabétique",
+      "exclusions": [],
+      "contre_indications": [
+        {
+          "texte": "Molécules de haute intensité (baisse de LDL ≥ 50 %, SFE/SFD/NSFA/SFC 2026 Table 4) : atorvastatine 40-80 mg ou rosuvastatine 10-20 mg. Prudence d'interaction via le CYP3A4 avec l'atorvastatine (macrolides, azolés, amiodarone, vérapamil/diltiazem, inhibiteurs de protéase) ; préférer la rosuvastatine en cas de co-prescription à risque.",
+          "provenance": "statine.yaml:71"
+        },
+        {
+          "texte": "Ne pas INITIER de statine chez un patient déjà en dialyse (bénéfice non démontré — voir alerte) ; grossesse.",
+          "provenance": "statine.yaml:72"
+        },
+        {
+          "texte": "Molécule d'intensité modérée en 1re intention : atorvastatine 10-20 mg, ou simvastatine 20-40 mg / pravastatine 40 mg (mieux évaluées, moins d'interactions — position EBM). Escalade vers la haute intensité si le risque est très élevé.",
+          "provenance": "statine.yaml:104"
+        },
+        {
+          "texte": "Ne pas INITIER de statine chez un patient déjà en dialyse (voir alerte) ; grossesse.",
+          "provenance": "statine.yaml:105"
+        }
+      ],
+      "appariements": [
+        {
+          "objet": "Dialyse — contre-indication à l'initiation de statine",
+          "exclusion_provenance": "",
+          "contre_indication_provenance": "statine.yaml:72,105"
+        }
+      ]
+    },
+    {
+      "noeud": "H — RHD / perte de poids / rémission",
+      "exclusions": [],
+      "contre_indications": [],
+      "appariements": []
+    }
+  ],
+  "couplages_inter_noeuds": [
+    {
+      "expression": "si la cible glycémique (nœud A) n'est pas atteinte → intensifier (nœud C)",
+      "noeud": "B",
+      "provenance": "premiere-intention.yaml, ligne 182, prose des inconvénients option Metformine",
+      "refere_vers": "A (cible-glycemique) et C (intensification)",
+      "type": "mention_prose_autre_noeud"
+    },
+    {
+      "expression": "Voir aussi la voie perte de poids (DiRECT), mieux validée pour le phénotype européen (nœud H)",
+      "noeud": "B",
+      "provenance": "premiere-intention.yaml, ligne 79, prose de l'option Insuline d'initiation",
+      "refere_vers": "H (rhd)",
+      "type": "mention_prose_autre_noeud"
+    },
+    {
+      "expression": "cible_atteinte (bool) — pas d'initialisation, dérivé fourni par le formulaire",
+      "noeud": "C",
+      "provenance": "intensification.yaml, lignes 39-40, criteres_entree",
+      "refere_vers": "A (cible-glycemique) via HbA1c_cible",
+      "type": "derive"
+    },
+    {
+      "expression": "Critères dérivés cible_atteinte / sur_traitement calculés par le formulaire (HbA1c actuelle vs cible du nœud A) : le DSL ne compare pas deux variables ; le chaînage inter-nœuds A→C reste hors moteur (P3).",
+      "noeud": "C",
+      "provenance": "intensification.yaml, ligne 395, section incertitudes",
+      "refere_vers": "A (cible-glycemique)",
+      "type": "derive"
+    },
+    {
+      "expression": "voir les nœuds B (1re intention) et C (intensification)",
+      "noeud": "D",
+      "provenance": "sulfamides-gliptines.yaml, lignes 62-63, prose de l'option Socle",
+      "refere_vers": "B (premiere-intention) et C (intensification)",
+      "type": "mention_prose_autre_noeud"
+    },
+    {
+      "expression": "HbA1c_cible (type nombre, critère d'entrée)",
+      "noeud": "E",
+      "provenance": "insuline.yaml, lignes 48-49, criteres_entree",
+      "refere_vers": "A (cible-glycemique)",
+      "type": "HbA1c_cible"
+    },
+    {
+      "expression": "cible_atteinte (type bool, derive: \"HbA1c_actuelle <= HbA1c_cible\")",
+      "noeud": "E",
+      "provenance": "insuline.yaml, lignes 50-52, criteres_entree",
+      "refere_vers": "A (cible-glycemique)",
+      "type": "derive"
+    },
+    {
+      "expression": "terrain_fragile (type bool, derive: \"fragilite OR esperance_vie == limitee OR age >= 75 OR risque_hypoglycemie_schema == eleve\")",
+      "noeud": "E",
+      "provenance": "insuline.yaml, lignes 65-67, criteres_entree",
+      "refere_vers": "A (cible-glycemique) — reprend les déclencheurs de relaxation",
+      "type": "derive"
+    },
+    {
+      "expression": "Intégration inter-nœuds : HbA1c_cible provient du nœud A et terrain_fragile reprend ses déclencheurs de relaxation — cohérence à maintenir.",
+      "noeud": "E",
+      "provenance": "insuline.yaml, ligne 478, section incertitudes",
+      "refere_vers": "A (cible-glycemique)",
+      "type": "autre"
+    },
+    {
+      "expression": "prevention n'est PAS une variable : prévention secondaire ⟺ ASCVD_etablie (une seule source de vérité)",
+      "noeud": "F",
+      "provenance": "statine.yaml, ligne 10, commentaire d'en-tête",
+      "refere_vers": "none (conception indépendante)",
+      "type": "autre"
+    }
+  ]
+}

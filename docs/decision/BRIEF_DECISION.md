@@ -305,6 +305,30 @@ Ne pas extrapoler ; signaler les incertitudes.
 ```
 > Sortie = point de départ, à **re-vérifier sur les sources primaires**.
 
+### 14bis. Périmètre OpenEvidence — sources à NE JAMAIS lui demander (non négociable)
+
+OpenEvidence est adossé à la **littérature internationale indexée** (PubMed/revues à comité de lecture,
+recommandations publiées dans des revues). Il **n'a pas d'accès fiable** aux sources de recommandation et
+d'EBM **françaises / francophones / indépendantes** :
+
+> **HAS · SFD · Collège de la Médecine Générale (CMG) · Prescrire · Médicalement Geek / DragiWebdo ·
+> Minerva · Exercer · ebmfrance.**
+
+Quand un prompt lui demande **explicitement** de couvrir/citer ces sources, il **hallucine** : PMID/DOI/URL
+inexistants, positions inventées (cas déjà survenus — OE-E5 a fabriqué une position « Prescrire = NPH » et une
+« position CMG », toutes deux introuvables dans les sources réelles ; cf. `noeuds/E-insuline.md` §5).
+
+**Règles pour tout prompt OpenEvidence :**
+
+- **Ne jamais** demander à OE d'explorer, résumer ou citer les sources ci-dessus.
+- Cadrer les prompts sur ce qu'OE couvre réellement : **essais primaires** (ECR, méta-analyses) et
+  **recommandations internationales indexées** (ADA/EASD consensus, ADA Standards of Care, ESC/EAS, KDIGO…).
+- Exiger dans chaque prompt : *« Si tu ne peux pas ancrer une affirmation dans un document indexé réel,
+  dis-le — n'invente aucune référence. »*
+- La **reco officielle française** (HAS/SFD/CMG) et la **position critique** (Prescrire/Médicalement Geek/
+  Minerva) sont curées **par les agents** depuis les **sources locales** (`docs/decision/sources/`) + web-fetch
+  ciblé + le **référent** — **jamais déléguées à OpenEvidence**.
+
 ---
 
 ## 15. Gouvernance & maintenance

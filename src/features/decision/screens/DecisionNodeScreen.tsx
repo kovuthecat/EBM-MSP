@@ -8,6 +8,7 @@ import { getNoeudById } from '../content/loadNodes'
 import type { Criteria, CriteriaValue } from '../engine/conditions'
 import { calculerCriteresDerives, criteresReferences } from '../engine/deriveCritere'
 import { evaluateNode } from '../engine/evaluateNode'
+import { criteresPertinents } from '../engine/relevance'
 import { ESPERANCE_VIE_DRIVERS, hasEsperanceVieCritere, suggestEsperanceVie } from '../lib/esperanceVieDefault'
 import { computeBadges } from '../lib/optionBadges'
 import { formatDateRevue, labelForCritere, labelForDomaine } from '../lib/labels'
@@ -74,6 +75,16 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
     return evaluateNode(node, calculerCriteresDerives(node.criteres_entree, criteria))
   }, [node, criteria, criteresPretsAEvaluer])
 
+  // Critères PERTINENTS pour ce patient (moteur `engine/relevance.ts`, refonte UI P3) : pilote l'estompage
+  // des champs sans effet (remarque 6) et la reco « provisoire » (remarque 7). Recalculé par perturbation à
+  // chaque changement de critère — coût borné (quelques évaluations du moteur déterministe).
+  const pertinents = useMemo(() => {
+    if (!node || node.criteres_entree.length === 0 || node.options.length === 0) return undefined
+    return criteresPertinents(node, criteria)
+  }, [node, criteria])
+  // Décisifs encore non confirmés par le praticien (∩ non `touched`) → tant qu'il en reste, reco provisoire.
+  const decisifsManquants = pertinents ? [...pertinents].filter((nom) => !touched.has(nom)) : []
+
   if (!node) {
     return (
       <div className="decision-node decision-node--missing">
@@ -132,6 +143,7 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
             criteresEntree={node.criteres_entree}
             criteria={criteria}
             touched={touched}
+            pertinents={pertinents}
             hints={
               hasEsperanceVieCritere(node.criteres_entree) && !touched.has('esperance_vie')
                 ? { esperance_vie: 'Suggestion auto (âge, fragilité, comorbidité grave, antécédent CV) — à valider' }
@@ -143,6 +155,23 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
           {result && <AlertList alertes={result.alertes} />}
 
           <div className="decision-node__section-title">Options applicables</div>
+          {criteresPretsAEvaluer && decisifsManquants.length > 0 && (
+            <p
+              className="decision-node__provisional"
+              style={{
+                margin: '0 0 10px',
+                padding: '8px 12px',
+                borderRadius: 8,
+                border: '1px solid #e6c200',
+                background: 'rgba(255, 214, 0, 0.08)',
+                fontSize: '0.85rem',
+              }}
+            >
+              <strong>Reco provisoire</strong> — {decisifsManquants.length} critère(s) décisif(s) non
+              confirmé(s) : {decisifsManquants.map(labelForCritere).join(', ')}. La recommandation peut
+              changer une fois renseignés.
+            </p>
+          )}
           {!criteresPretsAEvaluer ? (
             <p className="decision-node__empty">
               Renseignez {champsNumeriquesManquants.map(labelForCritere).join(', ')} pour afficher les

@@ -2,7 +2,55 @@
 
 Photo à l'instant T. Mis à jour en fin de session.
 
-> **Dernière mise à jour :** 2026-07-23 (nuit — nœud F « Statine » validé)
+> **Dernière mise à jour :** 2026-07-24 (P2 gate humaine CLOSE — 11/11 divergences arbitrées, go S3 possible)
+
+## P2 · Gate humaine — CLOSE, 11/11 divergences arbitrées (2026-07-24)
+
+Décisions du référent sur les 11 divergences de `docs/decision/validation/carte-coherence.md` (détail
+§5) :
+
+- **D7 corrigé** : nœud E aligné sur le nœud D (référence documentaire sulfamides) — l'alerte `DFG < 45`
+  ne proscrit plus les sulfamides en bloc, reprend la nuance dose réduite (30-44) / CI dure (< 30).
+- **D6 corrigé** : `tirzepatide` ajouté à l'énumération `traitements_en_cours` du nœud E (+ exclu de
+  l'option d'ajout d'un GLP-1, redondance incrétine). `pioglitazone` retirée des énumérations C/D/H —
+  non commercialisée en France (AMM suspendue ANSM 11/07/2011, risque vessie) ; mentions d'essais/
+  Prescrire conservées (faits historiques).
+- **D1, D2, D8, D9 confirmés sans action** (contextes/design volontaires, arbitrage référent).
+- **D3 vérifié sans action** : les 3 seuils d'IMC (30 obésité OMS/HAS ; 27 = borne d'inclusion de
+  l'essai DiRECT/DIADEM-1 ; 35 = seuil HAS d'orientation chirurgie bariatrique) sont 3 sources EBM
+  distinctes correctement citées, pas une incohérence.
+- **D5** : dette de câblage déjà tracée pour P3, hors périmètre contenu clinique.
+- Versions bumpées avec changelog (`intensification.yaml` 1.0→1.1 ; `sulfamides-gliptines.yaml`,
+  `insuline.yaml`, `rhd.yaml` 0.1→0.2). Build + **139/139 tests verts**. Rien commité (fin de plan P2).
+- **Prochaine étape** : go/no-go référent sur l'engagement du budget Opus S3-S7 (red-team données,
+  vignettes, red-team contradictoire, vérification, synthèse) — plus aucun blocage de contenu identifié.
+
+## P2 · S1+S2 — Inventaire + carte de cohérence inter-nœuds — GATE HUMAINE EN ATTENTE (2026-07-24)
+
+Plan P2 (`plans/P2/index.md`, validation systémique cohérence inter-nœuds DT2) : **S1 et S2 exécutées**
+via l'outil Workflow (orchestration multi-agents), conformément à `docs/decision/VALIDATION_COHERENCE.md`.
+
+- **S1 (T-011, Haiku, fan-out 5 catégories)** : `docs/decision/validation/inventaire.json` — 83 seuils
+  numériques, 87 mentions de molécules, 77 critères d'entrée (15 homonymes candidats), garde-fous des
+  7 nœuds, 10 couplages inter-nœuds. Les 7 nœuds tous couverts, aucun avertissement.
+- **S2 (T-012, Sonnet)** : `docs/decision/validation/carte-coherence.md` — 11 divergences de valeurs
+  relevées (8 « clinique · à arbitrer », 3 « triviale ») + 1 cas connu conclu non-divergent (DFG<30
+  metformine RCP vs sulfamide KDIGO/SFD).
+- **2 divergences BLOQUENT l'engagement du budget Opus (S3-S7)** tant qu'elles ne sont pas arbitrées par
+  le référent — ce sont des contradictions actives entre nœuds sur la sécurité médicamenteuse, pas des
+  questions d'exactitude EBM, donc S3 (red-team données) ne les détecterait pas :
+  - **D6** — l'énumération `traitements_en_cours` du nœud E (insuline) omet `tirzepatide` et
+    `pioglitazone` (présents dans C/D/H) → risque de proposer à tort l'ajout d'un GLP-1 chez un patient
+    déjà sous tirzépatide.
+  - **D7** — contradiction directe : le nœud E affiche « sulfamides à proscrire » dès DFG < 45, alors que
+    le nœud D (référence) autorise une poursuite à dose réduite entre 30-44 et ne proscrit qu'en dessous
+    de 30.
+- 6 autres divergences cliniques (seuils d'âge/ancienneté/IMC multiples, mécanisme `cible_atteinte`
+  asymétrique C/E, garde-fou dialyse statine alerte-vs-exclusion, parité DSL/prose glucotoxicité B) sont
+  réglables en remédiation, non bloquantes. 3 triviales (documentation/lexique) sans impact clinique.
+- **🚦 Gate humaine (`index.md` §Ordonnancement)** : go/no-go sur l'engagement du budget Opus S3-S7,
+  conditionné à l'arbitrage référent de D6/D7 au minimum. Rien commité/poussé (consolidation prévue en
+  fin de plan, vague 6).
 
 ## Nœud F « Statine chez le diabétique » — VALIDÉ + ENCODÉ (2026-07-23)
 
@@ -69,6 +117,27 @@ référent (borne d'âge sur le strict, CV grave→≤8 via `comorbidite_grave`,
 - Nœud A : dossier de preuve + 2ᵉ passe + argumentaire exhaustif complets ; **ré-encodage YAML fait
   (T-007bis)**, `content/…/cible-glycemique.yaml` v2.0 `statut: valide`.
 - Git : remote GitHub, `main` à jour, tous les commits P1 poussés (à confirmer avant push, cf. consolidation).
+
+## P3 — Fusion prescription (B+C+D) — EN COURS (2026-07-24)
+
+- **S1 gelé** : `docs/decision/noeuds/prescription.SPEC.md` (6 décisions référent : `sur_traitement` retiré ;
+  déprescription < 6,5 % à tout âge ; GLP-1 exclu IMC<22/dénutrition ; tirzépatide ⊂ obésité ; portes
+  SU/gliptine/intolérance ; alerte metformine-first).
+- **S2/S3 faits** : `docs/decision/noeuds/prescription.md` + `content/…/prescription.yaml` (v0.1 **brouillon**)
+  + argumentaire. Ajv OK. Fusionne B/C/D ; **aucune modif moteur** (tout en contenu D13/D14/D15 + `derive`).
+- **S4 fait** : banc de vignettes exécutable (17 profils, `engine/evaluateNode.prescription.test.ts`) +
+  red-team agent → **0 finding HAUTE résiduel** (H1 alerte iSGLT2/uro + M1 alerte insuline+SU corrigés).
+- **UI (S7-ui Lots 1-3)** : `engine/relevance.ts` (moteur de pertinence, testé) + estompage des champs +
+  bandeau reco provisoire (`CriteriaForm`, `DecisionNodeScreen`). Visuel à valider (VALIDATION.md).
+- `npm run build` + `npx tsc --noEmit` + `npm test` → **163/163 verts**. **Rien committé** (WIP, référent non validé).
+- **MISE À JOUR 2026-07-25 — fusion terminée** : affinements référent (position_vs_cible à 4 crans ; refus
+  d'injection → injectables rétrogradés + alerte ; remboursement FR monothérapie AR GLP-1 sourcé sur le
+  formulaire Assurance Maladie). **S5 fait** (B/C/D **supprimés**, `prescription` seule voie non-insulinique,
+  labels UI, cross-refs E/H). **P2·S3–S7 fait** (red-team indépendant + banc exécutable → **0 HAUTE** ; M1
+  gating `classes_a_benefice_indisponibles` + M2 alerte A9 corrigés ; `RAPPORT-prescription-S3-S7.md`).
+  **S6 fait** : `prescription.yaml` **`valide` v1.0**, **D18** écrit. Build + typecheck + **148 tests** verts.
+  **RESTE** : UI Lot 4 (primer/rail/argumentaires courts, visuel référent) ; arbitrages BAS M3/B1-B3
+  (non bloquants) ; **rien committé** (à faire à ta main ou sur demande).
 
 ## Ce qui casse / n'est pas testé
 

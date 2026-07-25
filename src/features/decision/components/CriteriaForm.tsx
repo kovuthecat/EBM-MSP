@@ -10,6 +10,12 @@ interface CriteriaFormProps {
   touched: ReadonlySet<string>
   /** Texte d'aide optionnel par nom de critère (ex. suggestion auto d'`esperance_vie`) — générique, le contenu du texte est décidé par l'appelant (D8). */
   hints?: Partial<Record<string, string>>
+  /**
+   * Critères PERTINENTS pour le patient courant (moteur `engine/relevance.ts`, refonte UI P3). Fourni →
+   * les champs hors de cet ensemble sont ESTOMPÉS (ils ne changent pas la reco actuelle, remarque 6).
+   * Optionnel : absent → aucun estompage (rétro‑compatible, générique — aucun nom de critère en dur).
+   */
+  pertinents?: ReadonlySet<string>
   onChange: (nom: string, value: CriteriaValue) => void
 }
 
@@ -47,13 +53,17 @@ export function buildDefaultCriteria(criteresEntree: CritereEntree[]): Criteria 
  * checkbox). Générique : ne connaît aucun nom de critère par avance, fonctionne pour n'importe quel
  * nœud futur sans modification (DECISIONS.md D8).
  */
-export function CriteriaForm({ criteresEntree, criteria, touched, hints, onChange }: CriteriaFormProps) {
+export function CriteriaForm({ criteresEntree, criteria, touched, hints, pertinents, onChange }: CriteriaFormProps) {
   // Les critères DÉRIVÉS (champ `derive`) sont calculés depuis d'autres critères (engine/deriveCritere.ts) :
   // ils ne sont pas saisis à la main, donc jamais rendus comme champ.
   const saisis = criteresEntree.filter((critere) => critere.derive == null)
   const champs = saisis.filter((critere) => critere.type === 'nombre' || critere.type === 'enum')
   const facteurs = saisis.filter((critere) => critere.type === 'bool')
   const listes = saisis.filter((critere) => critere.type === 'liste')
+
+  // Estompage (remarque 6) : un critère hors de `pertinents` n'a, pour CE patient, aucun effet sur la reco.
+  // Absent (`pertinents` non fourni) → jamais estompé. Générique : aucun nom de critère connu d'avance.
+  const estDim = (nom: string) => pertinents != null && !pertinents.has(nom)
 
   /** Coche/décoche une valeur dans un critère `liste` (tableau de libellés, D13). */
   const toggleListeValeur = (nom: string, valeur: string, coche: boolean) => {
@@ -67,8 +77,19 @@ export function CriteriaForm({ criteresEntree, criteria, touched, hints, onChang
       <div className="criteria-form__label">Critères du patient</div>
       <div className="criteria-form__grid">
         {champs.map((critere) => (
-          <div key={critere.nom} className="criteria-form__field">
-            <div className="criteria-form__field-label">{labelForCritere(critere.nom)}</div>
+          <div
+            key={critere.nom}
+            className="criteria-form__field"
+            style={{ opacity: estDim(critere.nom) ? 0.45 : 1, transition: 'opacity .15s' }}
+          >
+            <div className="criteria-form__field-label">
+              {labelForCritere(critere.nom)}
+              {estDim(critere.nom) && (
+                <span style={{ fontWeight: 400, fontStyle: 'italic', opacity: 0.8 }}>
+                  {' '}· sans effet sur la reco actuelle
+                </span>
+              )}
+            </div>
             {critere.type === 'nombre' ? (
               <input
                 type="number"
@@ -99,7 +120,11 @@ export function CriteriaForm({ criteresEntree, criteria, touched, hints, onChang
       {facteurs.length > 0 && (
         <div className="criteria-form__checkboxes">
           {facteurs.map((critere) => (
-            <label key={critere.nom} className="criteria-form__checkbox-row">
+            <label
+              key={critere.nom}
+              className="criteria-form__checkbox-row"
+              style={{ opacity: estDim(critere.nom) ? 0.45 : 1, transition: 'opacity .15s' }}
+            >
               <input
                 type="checkbox"
                 checked={Boolean(criteria[critere.nom])}
@@ -114,7 +139,11 @@ export function CriteriaForm({ criteresEntree, criteria, touched, hints, onChang
       {listes.map((critere) => {
         const valeursCochees = Array.isArray(criteria[critere.nom]) ? (criteria[critere.nom] as string[]) : []
         return (
-          <div key={critere.nom} className="criteria-form__liste">
+          <div
+            key={critere.nom}
+            className="criteria-form__liste"
+            style={{ opacity: estDim(critere.nom) ? 0.45 : 1, transition: 'opacity .15s' }}
+          >
             <div className="criteria-form__field-label">{labelForCritere(critere.nom)}</div>
             <div className="criteria-form__checkboxes">
               {(critere.valeurs ?? []).map((valeur) => (

@@ -45,7 +45,7 @@ criteres_entree:
     type: bool
   - nom: traitements_en_cours
     type: liste
-    valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, insuline, glinide, pioglitazone]
+    valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, insuline, glinide]
 options:
   - intitule: "Mesures hygiéno-diététiques — socle recommandé à tous (alimentation type méditerranéen, activité physique adaptée, objectif de perte de poids ≥ 5-10 % si surpoids/obésité)"
     conditions:
@@ -250,7 +250,7 @@ alertes:
     message: >-
       Mode de vie déjà optimisé (alimentation équilibrée + activité physique régulière) : marge de manœuvre
       hygiéno-diététique faible → renforcer / maintenir plutôt que « faire plus » ; le bénéfice additionnel des
-      MHD est limité. Si le contrôle reste insuffisant, envisager d'autres leviers (nœuds B/C).
+      MHD est limité. Si le contrôle reste insuffisant, envisager d'autres leviers (nœud prescription).
   - quand: "capacite_activite == false"
     niveau: info
     message: >-
@@ -276,7 +276,7 @@ meta:
   date_revue: "2026-07-24"
   auteur: "Opus + référent (Thibault)"
   statut: brouillon
-  version: "0.1"
+  version: "0.2"
   changelog:
     - date: "2026-07-24"
       auteur: "Opus + référent (Thibault)"
@@ -294,3 +294,10 @@ meta:
         « exclusivement » observationnel, B2 références ajoutées, B3 nuance HAS 2024 — corrigés) + Agent B red-team
         moteur (18 profils tracés, 0 HAUTE / 0 MOYENNE / 2 BASSE documentées). RESTE : validation clinique finale
         du référent → passage `valide` + commit.
+    - date: "2026-07-24"
+      auteur: "référent DT2 (Thibault) + Opus"
+      resume: >-
+        Correction issue de l'audit de cohérence inter-nœuds P2 (gate humaine post-S2, `docs/decision/
+        validation/carte-coherence.md`) : retrait de `pioglitazone` de l'énumération `traitements_en_cours`
+        — non commercialisée en France (AMM suspendue par l'ANSM le 11/07/2011, risque de cancer de la
+        vessie, aucune levée identifiée).

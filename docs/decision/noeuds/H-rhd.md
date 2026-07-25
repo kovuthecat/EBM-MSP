@@ -616,6 +616,11 @@ Ajv + vitest + build, et vérif. encodage bi-agents étape 8.)*
 re-vérifié contre la source primaire au red-team. Chaque prompt exige explicitement l'effet **absolu / NNT-NNH
 (+ horizon)**, la distinction **critère dur vs substitution**, et une appréciation **GRADE**.
 
+**Périmètre OE — sources FR proscrites du prompt** : ne jamais demander à OpenEvidence d'explorer/citer
+**HAS, SFD, CMG, Prescrire, Médicalement Geek/DragiWebdo, Minerva, ebmfrance** (accès non fiable → il
+hallucine PMID/URL/positions). Ces sources sont curées **par les agents** (`docs/decision/sources/` + web +
+référent). Cf. `00-global.md` (Règles de sourcing) et `BRIEF_DECISION.md` §14bis.
+
 ### OE-H1 — Rémission du DT2 par perte de poids (interventions non chirurgicales)
 
 > In adults with **established type 2 diabetes**, does an **intensive non-surgical weight-loss programme**
@@ -665,15 +670,17 @@ re-vérifié contre la source primaire au red-team. Chaque prompt exige explicit
 > thresholds** used in guidelines/consensus (e.g. Diabetes Surgery Summit). Separate **RCT surrogate/remission
 > evidence** from **observational hard-outcome evidence**. Give a **GRADE** appraisal. Flag unsourced figures.
 
-### OE-H5 — Recommandations officielles & divergence critique
+### OE-H5 — Recommandations internationales indexées — FR sources exclus
 
-> What do **clinical guidelines** recommend for **lifestyle / weight management / remission** in established
-> type 2 diabetes? Cover **HAS 2024** (France), **SFD 2025**, **Collège de la Médecine Générale (CMG)**, the
-> **ADA/EASD 2022 consensus report** (weight management, remission targets, ≥ 15 % weight-loss goal), **ADA
-> Standards of Care 2026** (Lifestyle/Obesity chapters), and **Prescrire** (positions P1 févr. 2026 and P2
-> oct. 2006). Report, for each: is lifestyle the **first-line / permanent foundation**? what **weight-loss
-> target** (5-10 % vs ≥ 15 %)? is **remission an explicit goal**, and by which means (diet, surgery)? place of
-> **metabolic surgery** (BMI thresholds)? Then articulate the **divergence** between guideline enthusiasm for
-> remission/aggressive weight loss and the **critical EBM view** (Prescrire, Médicalement Geek/DragiWebdo,
-> Minerva): what is actually demonstrated on **hard outcomes** vs surrogates (recall **Look AHEAD** neutral on
-> CV; remission = surrogate). Give **PMID/DOI or official URL** for each source. Flag anything unsourced.
+> What do **international clinical guidelines indexed in the peer-reviewed literature** recommend for **lifestyle
+> / weight management / remission** in established type 2 diabetes? Cover the **ADA/EASD 2022 consensus report**
+> (weight management, remission targets, ≥ 15 % weight-loss goal) and the **ADA Standards of Care 2026**
+> (Lifestyle/Obesity chapters). Report, for each: is lifestyle the **first-line / permanent foundation**? what
+> **weight-loss target** (5-10 % vs ≥ 15 %)? is **remission an explicit goal**, and by which means (diet,
+> surgery)? place of **metabolic surgery** (BMI thresholds)? Then state the **critical caveat straight from the
+> primary trials**: what is actually demonstrated on **hard outcomes** vs surrogates (recall **Look AHEAD**
+> neutral on CV; remission = surrogate). Give **PMID/DOI** for each guideline and trial; **if you cannot ground
+> a claim in a real indexed document, say so — do not invent a reference.** **Do NOT attempt to cover, summarise
+> or cite French / independent-EBM sources (HAS, SFD, CMG/Collège de la Médecine Générale, Prescrire,
+> Médicalement Geek/DragiWebdo, Minerva): the analysts curate those separately from the local corpus and the
+> référent.** Flag anything unsourced.

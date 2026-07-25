@@ -35,6 +35,10 @@ _(répéter par étude)_
 - **Agent A (extraction/chiffres)** : …
 - **Agent B (red-team, DOI/chiffres vs source primaire)** : …
 - **Réconciliation** : consensus vérifié · divergences escaladées · non-vérifiable (écarté/`[À VÉRIFIER]`)
+- **Débroussaillage OpenEvidence (annexe)** : prompts cadrés sur essais primaires + reco **internationales
+  indexées** (ADA/EASD, ADA SoC, ESC/EAS, KDIGO). **Jamais** demander à OE d'explorer HAS/SFD/CMG/Prescrire/
+  Médicalement Geek/Minerva/ebmfrance (il les hallucine) — sources FR curées par les agents + référent. Cf.
+  `00-global.md` (Règles de sourcing) et `BRIEF_DECISION.md` §14bis.
 
 ## 6. Incertitudes
 
