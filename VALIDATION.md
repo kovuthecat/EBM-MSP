@@ -7,6 +7,25 @@
 > Un bloc par écran/module courant. Passage à l'échelle : router la validation propre à un
 > sous-domaine dans `docs/<sous-domaine>/VALIDATION.md` si ce fichier gonfle.
 
+## Familles explicites + badge « le plan complet » (2026-07-25)
+
+> Nœud `prescription` (seul nœud à déclarer `Noeud.familles` pour l'instant). Build + typecheck + 231
+> tests unitaires OK ; **visuel à valider par le référent.**
+
+- [ ] Ordre des sections respecté : « À faire d'emblée — sécurité » → « Socle du traitement » → « Agent à
+  ajouter » → « Traitement à corriger ou remplacer » → « Traitement à alléger » → « Aucun geste —
+  surveiller » (urgence d'abord, décision référent) — stable quel que soit le profil patient.
+- [ ] Mention « — en choisir un » visible UNIQUEMENT à côté du titre de la section « Agent à ajouter »
+  (seule famille `exclusive: true`) ; aucune autre section ne porte de mention (les 5 autres sont
+  cumulables, silencieuses par défaut).
+- [ ] Badge « Recommandée » présent sur TOUS les gestes cumulables affichés dans une même section (ex.
+  « À faire d'emblée — sécurité », « Traitement à alléger »), même si leurs rangs internes diffèrent.
+- [ ] Dans « Agent à ajouter », le badge « Recommandée » reste limité au groupe de tête (à égalité de
+  meilleur rang) ; les options de rang inférieur de cette même section n'ont pas de badge.
+- [ ] Scénario référent : patient sous AR GLP‑1 mal toléré + indication rénale (DFG < 60) → « Réduire la
+  posologie de l'AR GLP‑1 » ET « Introduire un iSGLT2 » portent TOUS LES DEUX le badge « Recommandée »
+  (le plan se lit comme deux gestes à faire en parallèle, pas un choix entre les deux).
+
 ## Refonte UI — estompage + reco provisoire (P3 · S7‑ui, Lots 1‑3)
 
 > Générique (tous nœuds). Build + typecheck + tests unitaires OK ; **visuel à valider par le référent.**
@@ -175,3 +194,164 @@ simples). Ajv + 137 tests + build OK.
   bénéfice sur critère dur ») ; sitagliptine mise en avant, saxa/lina/alo signalées non commercialisées en France.
 - [ ] Argumentaire exhaustif (`sulfamides-gliptines.argumentaire.md`) : s'ouvre, complet, tableaux/sources avec
   PMID, **aucun `**`/`*` brut**.
+
+## Refonte du flux de saisie + correctif du gate bloquant (2026-07-25, P3 · S7-ui Lot 2/3)
+
+Suite recette référent sur le nœud « Traiter ». **Bug corrigé** : l'écran exigeait tous les nombres
+référencés par une règle avant d'afficher quoi que ce soit (`age`, via le dérivé `terrain_fragile`) alors
+que le moteur de pertinence estompait ces mêmes champs « sans effet sur la reco » — un champ pouvait être
+à la fois estompé et bloquant, sans issue. Réclamé et estompé dérivent désormais de la **même** source
+(`criteresPertinents`), la contradiction est impossible par construction.
+
+**Ordre de saisie porté par le CONTENU** : nouveaux champs optionnels `groupe` (section d'affichage, ordre =
+1re apparition) et `visible_si` (condition DSL de visibilité) dans `criteres_entree`. Un intitulé ou un ordre
+qui ne convient pas se corrige en YAML, sans toucher au code. Nœuds sans `groupe` (A/E/F/H) : rendu à plat
+inchangé, aucune régression. 178 tests (+20, `lib/formLayout.test.ts`) + build + typecheck OK.
+
+- [ ] Nœud « Traiter » — sections dans cet ordre : **Intention thérapeutique** → **Traitement actuel et
+  contrôle** → **Ce qui oriente le choix** → **Signaux d'alerte et tolérance** → **Terrain et préférences**.
+- [ ] `Intention` en **boutons segmentés** (4 valeurs visibles d'un coup, plus de menu déroulant).
+- [ ] Intention = **Initier** → la section « Traitement actuel et contrôle » ne montre **que l'HbA1c** :
+  `Traitements en cours` est **masqué** (patient naïf par définition), pas seulement estompé.
+- [ ] Intention = **Intensifier / Optimiser / Déprescrire** → `Traitements en cours` réapparaît en
+  **2e élément à renseigner**, juste sous l'intention (et non plus tout en bas de la page).
+- [ ] **Sûreté** : cocher « Metformine » en Intensifier → repasser en **Initier** → revenir en Intensifier :
+  la case est **décochée** (une valeur masquée ne doit jamais continuer à piloter la reco en silence).
+- [ ] `Nature de l'intolérance` n'apparaît **que** si « Intolérance à un traitement en cours » est cochée.
+- [ ] Trois états de champ lisibles et **jamais cumulés** : *estompé* « sans effet sur la reco actuelle » ·
+  *bord jaune* « à confirmer » (décisif, pas encore renseigné) · neutre.
+- [ ] La reco s'affiche **en direct dès l'ouverture** (plus de « Renseignez … pour afficher les options »),
+  badgée « Options applicables — provisoire » tant qu'il reste des critères à confirmer.
+- [ ] Le bandeau provisoire donne un **compte** et renvoie aux champs marqués (plus de liste de 10 libellés
+  en prose, illisible en consultation).
+- [ ] Profil témoin (Initier, HbA1c 8,5, DFG 80, IMC 32) → metformine socle + AR GLP-1 + iSGLT2 +
+  tirzépatide + gliptine + sulfamide, sans écran blanc ni erreur console.
+- [ ] **RESTE** : `groupe`/`visible_si` non appliqués aux nœuds A/E/F/H (rendu à plat conservé) — à faire
+  nœud par nœud, c'est un arbitrage de contenu.
+
+## Correctifs de recette n°2 (2026-07-25, P3 · S7-ui Lot 3)
+
+Quatre points remontés par le référent sur le nœud « Traiter », traités dans l'ordre.
+
+**Bug corrigé (le plus important)** : sur le profil (Initier, HbA1c 8,6, DFG 74, IMC 25, albuminurie normo,
+ASCVD non, IC non), `insuffisance_cardiaque` était estompé à tort. Cause racine : à ce profil, les options
+iSGLT2 et AR GLP-1 tombent toutes deux sur leur rang « default » (2 = égalité), départagées par l'ordre du
+CONTENU (iSGLT2 déclaré avant AR GLP-1) — pas par une préférence clinique. Cocher IC fait passer AR GLP-1 à
+un rang moins bon (3) SANS jamais dépasser le rang d'iSGLT2 (resté à 2) : l'ORDRE final affiché ne change
+donc jamais, alors que le calcul interne, si. `criteresPertinents` (`engine/relevance.ts`) ne comparait que
+l'ordre des intitulés et manquait ce cas. Correctif MOTEUR (générique, aucun nom de critère/option en dur) :
+`evaluateNode` expose désormais le rang retenu par option (`EvaluateNodeResult.rangs`), et la signature de
+pertinence l'inclut — un critère qui change un rang interne est désormais détecté même si l'ordre affiché,
+par coïncidence, ne bouge pas. Aucune valeur clinique du contenu n'a été modifiée.
+
+- [ ] Profil (Initier, HbA1c 8,6, DFG 74, IMC 25, albuminurie normo, ASCVD non, IC non) : `Insuffisance
+  cardiaque` n'est **plus estompé** (case pleinement lisible, pas de mention « sans effet »).
+- [ ] Sur ce même profil, `Albuminurie` non plus (même mécanisme de rang à égalité).
+- [ ] Intention = **Initier** : `Intolérance à un traitement en cours` et `Hypoglycémie récente` sont
+  **masqués** (sans objet chez un patient naïf) ; `Nature de l'intolérance` l'est aussi, en cascade.
+- [ ] Les cases à cocher NON cochées (`bool`) ne portent **plus** de bord ambre ni de mention « à
+  confirmer » — seuls les champs **numériques** (HbA1c, DFG, IMC…) non renseignés le portent.
+- [ ] Dans une section comportant **au moins 2** drapeaux (`bool`) décisifs non renseignés, un bouton
+  discret **« Rien à signaler »** apparaît en pied de section ; cliquer le fait disparaître (les cases
+  restent décochées, juste confirmées).
+- [ ] En pied de section, une ligne discrète rappelle les champs **numériques** encore à renseigner (ex.
+  « À renseigner dans cette section : HbA1c actuelle, DFG ») ; elle cohabite proprement avec le bouton
+  « Rien à signaler » quand les deux sont présents.
+- [ ] **Estompage sans à-coup** : modifier un champ (ex. l'IMC) ne fait plus « clignoter » (saut d'opacité)
+  les champs plus haut dans le formulaire ; seule la mention textuelle grise signale un champ sans effet,
+  avec un léger temps de latence (dixième de seconde) assumé — l'important est l'absence de saut visuel.
+- [ ] Un champ déjà renseigné (coché/rempli) reste **toujours pleinement lisible**, même s'il redevient
+  sans effet suite à une autre saisie (jamais estompé une fois `touched`).
+- [ ] Aucune régression sur les profils déjà validés (metformine socle + comorbidités, désintensification,
+  intolérance) : mêmes options, mêmes alertes, mêmes libellés qu'avant ce correctif.
+
+## Correctifs de recette n°3 (2026-07-25, P3 · S7-ui Lot 3 bis — égalité affichée côte à côte)
+
+Suite du correctif précédent : le référent a tranché que deux options à égalité de rang (ex. iSGLT2 /
+AR GLP-1 sur le profil témoin) doivent être présentées **littéralement côte à côte**, pas empilées comme
+si l'ordre du contenu valait hiérarchie. La signature de pertinence est passée de « rang brut » (trop
+sensible : un rang qui change de 2 à 3 SANS jamais créer/rompre une égalité aurait été vu à tort comme
+décisif) à « groupes d'égalité » (`groupesExAequo`, `engine/evaluateNode.ts`) — la même structure pilote
+maintenant le rendu ET le calcul de pertinence, pour qu'un défaut de ce type ne puisse plus réapparaître
+sous une autre forme. Aucune valeur clinique du contenu n'a été modifiée.
+
+- [ ] Profil témoin (Initier, HbA1c 8,6, DFG 74, IMC 25, albuminurie normo, ASCVD non, IC non) : les
+  options **« Introduire un iSGLT2 »** et **« Introduire un AR GLP-1 »** sont rendues **côte à côte**
+  dans un encadré commun portant la mention « À égalité — aucune de ces options n'est préférable à
+  l'autre » (pas empilées comme les autres options).
+- [ ] Sur ce même profil, la case **« Insuffisance cardiaque »** n'est **pas estompée** (elle départage
+  réellement l'égalité, cf. correctif n°2 ci-dessus).
+- [ ] Cocher **« Insuffisance cardiaque »** fait passer l'affichage d'un encadré « à égalité » (iSGLT2 +
+  AR GLP-1 côte à côte) à un affichage **ordonné classique** (empilé), iSGLT2 en tête — l'égalité
+  disparaît visiblement, cohérente avec le rang interne qui vient de se rompre.
+- [ ] Le badge **« Recommandée »** est porté par LES DEUX options du groupe de tête à égalité (iSGLT2 ET
+  AR GLP-1), jamais par une seule des deux — sinon le badge contredirait l'égalité montrée à l'écran.
+- [ ] Largeur réduite de la carte en 2 colonnes : le contenu (avantages/inconvénients/contre-indications)
+  reste lisible ; sur écran étroit, les listes internes de la carte peuvent repasser en 1 colonne, ce qui
+  est attendu (pas un bug).
+- [ ] Responsive : sur écran étroit, les deux cartes à égalité repassent en pile, mais la mention
+  « à égalité » reste visible au-dessus (elle ne dépend pas de la largeur d'écran).
+- [ ] **Aucun changement d'affichage sur les autres nœuds** (A « Cible glycémique », B, E, F, H) : ces
+  nœuds n'ont pas d'options à rang strictement égal pour les profils déjà validés, donc aucun encadré
+  « à égalité » ne doit apparaître dessus — à vérifier en parcourant chaque nœud rapidement.
+
+## Nœud « prescription » — sections par FAMILLE clinique (correctif « priorité multi-natures », 2026-07-25)
+
+L'axe `priorite` seul mélangeait des natures d'actes différentes (rang partagé par un « ajout » et un
+« allègement » de nature distincte), ce que l'encadré « à égalité » présentait à tort comme un choix
+exclusif alors que ces gestes se CUMULENT (ex. « Introduire un iSGLT2 » + « Réduire la posologie du
+sulfamide »). Ajout d'un champ CONTENU `Option.famille` (présentation pure, aucun effet moteur) : les 23
+options du nœud `prescription` sont qualifiées (`content/noeuds/diabete-type-2/prescription.yaml`), l'écran
+rend une section par famille, et le calcul d'égalité (`groupesParFamille`, `engine/evaluateNode.ts`) est
+désormais CONFINÉ à l'intérieur d'une même famille. Build + typecheck + tests unitaires OK ; **visuel à
+valider par le référent**, notamment le point badge non tranché ci-dessous.
+
+- [ ] **Ordre des sections — NE peut PAS être garanti fixe, contrairement à ce qu'on pourrait attendre** :
+  `groupesParFamille` ordonne les familles par leur PREMIÈRE apparition dans `applicable`, qui est déjà
+  trié par `priorite` CROISSANT (rang le plus bas d'abord). Or une même famille contient des options à des
+  rangs différents (ex. « Traitement à alléger » va de rang 1 à rang 4 ; « À faire d'emblée — sécurité » va
+  de rang 1 à rang 3) : l'ordre des sections dépend donc du rang MINIMUM atteint, parmi les options
+  applicables de chaque famille, POUR CE PATIENT PRÉCIS — pas d'un ordre unique valable pour tous les
+  profils. Vérifié empiriquement (évaluation directe du moteur, 5 profils) :
+  - Profil « déjà traité, metformine seule, intensifier » (socle + options d'ajout seulement) :
+    **Socle → Agent à ajouter** — Sécurité et Alléger absentes (aucune option applicable), donc invisibles.
+  - Profil BASE `intensifier` (test existant) : **Socle → Agent à ajouter**.
+  - Profil DFG 25 sous metformine+sulfamide (vignette S1) : **Sécurité → Agent à ajouter** (Metformine
+    socle EXCLUE par DFG < 30, donc absente).
+  - Profil complexe (IC, ASCVD, gliptine+sulfamide en place, intolérance) : **Socle → Agent à ajouter →
+    Alléger → Sécurité → Corriger/remplacer** — Sécurité arrive ICI en 4e position, après Alléger, parce
+    que sa seule option applicable pour ce patient (« Réduire la posologie de la metformine ») est de rang
+    3, alors qu'Alléger a des options de rang 1-2 applicables.
+  Conclusion : l'ordre « Socle → Sécurité → Agent à ajouter → Corriger/remplacer → Alléger → Aucun geste »
+  demandé par la consigne n'est vérifié QUE pour certains profils (ceux où le membre de rang le plus bas de
+  chaque famille est bien atteint dans cet ordre) ; il peut être différent pour d'autres patients bien
+  réels (ex. le profil complexe ci-dessus). Le YAML n'a volontairement PAS été réordonné (hors périmètre :
+  aucun ordre fixe n'existerait de toute façon avec l'implémentation demandée, `groupesParFamille` triant
+  par 1re apparition dans `applicable`). **Décision référent nécessaire** : soit accepter un ordre de
+  section VARIABLE selon le patient (actuel), soit demander un ordre de section FIXE indépendant du rang
+  (ex. trié par 1re apparition dans `node.options` plutôt que dans `applicable` — changement d'implémentation
+  hors périmètre de cette tâche, à ne PAS faire sans validation).
+- [ ] Sur un profil DFG < 30 sous metformine + sulfamide (ex. vignette S1/S2 des tests, DFG 25) :
+  **« Introduire un iSGLT2 »** et **« Réduire la posologie du sulfamide / du glinide »** ne sont PLUS
+  jamais présentées comme équivalentes/à égalité même si leur rang coïncide (elles apparaissent dans des
+  sections différentes : « Agent à ajouter » vs « Traitement à alléger »).
+- [ ] Profil témoin recette référent (Initier, HbA1c 8,6, DFG 74, IMC 25, albuminurie normo, ASCVD non, IC
+  non) : **« Introduire un iSGLT2 »** et **« Introduire un AR GLP-1 »** restent à égalité, mais désormais
+  À L'INTÉRIEUR de la section « Agent à ajouter — en choisir un » (pas de changement visible pour ce cas).
+- [ ] La mention de l'encadré d'égalité est désormais **neutre** : « À égalité — même niveau de priorité »
+  (remplace « aucune de ces options n'est préférable à l'autre », faux pour des gestes cumulables). La
+  nuance clinique (« en choisir un » vs « cumulables ») est maintenant portée par le TITRE DE SECTION
+  (libellé de famille), pas par l'encadré.
+- [ ] **Badge « Recommandée » — à trancher par le référent** : la politique de badge (1re option non-socle
+  de la liste triée par rang) N'A PAS été modifiée, mais peut désormais atterrir sur une option de la
+  famille « Sécurité » plutôt que sur le choix d'agent visé. Exemple concret : profil DFG 25, sous
+  metformine + sulfamide, intention intensifier, HbA1c 8 → la metformine socle est exclue (DFG < 30), donc
+  la 1re option non-socle de la liste triée est **« Arrêter la metformine (DFG < 30) »** (rang 1, famille
+  Sécurité) — le badge « Recommandée » atterrit sur ce groupe (avec « Arrêter le sulfamide », même rang),
+  jamais sur une option de la famille « Agent à ajouter ». Ce défaut est ANTÉRIEUR à cette tâche (il existe
+  dès que `priorite` place une option de sécurité en tête) ; il devient simplement plus visible avec les
+  sections par famille. Décision demandée : la politique de badge doit-elle exclure la famille « Sécurité »
+  (comme elle exclut déjà le socle « toujours ») ?
+- [ ] **Aucun changement visuel sur les 4 autres nœuds** (« Cible glycémique », insuline, statine, rhd) :
+  aucun ne déclare `famille` sur ses options → repli « famille unique sans libellé », rendu identique à
+  avant cette tâche (pas de titre de section supplémentaire, pas de changement de regroupement).
