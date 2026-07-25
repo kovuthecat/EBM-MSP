@@ -1,9 +1,8 @@
 import { EvidenceBadge } from '../../shared/badges/EvidenceBadge'
 import type { Option } from '../content/node.types'
-import type { Criteria } from '../engine/conditions'
-import { evaluerNombre } from '../engine/deriveCritere'
 import { describeReasons } from '../lib/conditionText'
 import { toSharedNiveauPreuve } from '../lib/labels'
+import type { CalculAffiche } from '../lib/vueDecision'
 import './OptionCard.css'
 
 interface OptionCardProps {
@@ -19,8 +18,9 @@ interface OptionCardProps {
   badge: 'recommandee' | 'reco-officielle' | null
   /** Conditions satisfaites pour cette option (`evaluateNode(...).reasons.get(option)`). */
   reasons: string[]
-  /** Critères du patient — pour évaluer les doses calculées `option.calculs` (câblage P3). */
-  criteria: Criteria
+  /** Doses calculées DÉJÀ ÉVALUÉES (`lib/vueDecision.ts` `construireVueDecision`) : cette carte ne
+   * connaît plus les critères du patient, seulement le résultat déjà filtré (non-calculables omis). */
+  calculs: CalculAffiche[]
 }
 
 /**
@@ -28,13 +28,7 @@ interface OptionCardProps {
  * attendu, avantages/inconvénients (qui portent déjà la position critique — D12), contre-indications
  * si renseignées, et la ligne « Pourquoi cette option » dérivée des conditions satisfaites (`lib/conditionText.ts`).
  */
-export function OptionCard({ option, badge, reasons, criteria }: OptionCardProps) {
-  // Doses calculées (P3) : évaluées depuis les critères du patient ; on n'affiche que celles calculables
-  // (une primitive non saisie — ex. poids — donne `null` et la ligne est omise).
-  const calculs = (option.calculs ?? [])
-    .map((calcul) => ({ libelle: calcul.libelle, valeur: evaluerNombre(calcul.expression, criteria), unite: calcul.unite }))
-    .filter((ligne): ligne is { libelle: string; valeur: number; unite: string | undefined } => ligne.valeur != null)
-
+export function OptionCard({ option, badge, reasons, calculs }: OptionCardProps) {
   return (
     <div className={badge ? 'option-card option-card--primary' : 'option-card'}>
       <div className="option-card__header">

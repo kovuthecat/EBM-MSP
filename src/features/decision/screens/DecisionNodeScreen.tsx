@@ -6,12 +6,10 @@ import { CriteriaForm } from '../components/CriteriaForm'
 import { OptionCard } from '../components/OptionCard'
 import { getNoeudById } from '../content/loadNodes'
 import type { Criteria, CriteriaValue } from '../engine/conditions'
-import { calculerCriteresDerives } from '../engine/deriveCritere'
-import { evaluateNode, groupesParFamille } from '../engine/evaluateNode'
 import { criteresPertinents } from '../engine/relevance'
 import { ESPERANCE_VIE_DRIVERS, hasEsperanceVieCritere, suggestEsperanceVie } from '../lib/esperanceVieDefault'
 import { buildDefaultCriteria, decisifsAConfirmer, reinitialiserChampsMasques } from '../lib/formLayout'
-import { computeBadges } from '../lib/optionBadges'
+import { construireVueDecision } from '../lib/vueDecision'
 import { formatDateRevue, labelForDomaine } from '../lib/labels'
 import './DecisionNodeScreen.css'
 
@@ -22,12 +20,13 @@ interface DecisionNodeScreenProps {
 
 /**
  * D3 — nœud interrogeable (S4.md T-006) : formulaire de critères → options applicables (moteur S3)
- * → argumentaire dépliable. Recalcule `evaluateNode` à chaque changement de critère (état éphémère,
- * `criteria`/`argOpen` en `useState` — aucune persistance, CLAUDE.md invariant 1). Les options
- * affichées viennent strictement du moteur (`evaluateNode(node, criteria)`, T-006 "Décision clé") ;
- * si le contenu et les critères sont incohérents (variable inconnue, etc.), `evaluateNode` lève une
- * `ConditionError` qui n'est volontairement pas capturée ici — propager l'erreur plutôt que
- * masquer un écart moteur/contenu (S4.md règle "Si bloqué" ; `engine/conditions.ts`).
+ * → argumentaire dépliable. Recalcule `construireVueDecision` à chaque changement de critère (état
+ * éphémère, `criteria`/`argOpen` en `useState` — aucune persistance, CLAUDE.md invariant 1). Tout ce
+ * qui est affiché vient strictement du modèle de vue (`lib/vueDecision.ts` `construireVueDecision`,
+ * T-006 "Décision clé") ; si le contenu et les critères sont incohérents (variable inconnue, etc.),
+ * le moteur sous-jacent (`evaluateNode`) lève une `ConditionError` qui n'est volontairement pas
+ * capturée ici — propager l'erreur plutôt que masquer un écart moteur/contenu (S4.md règle "Si
+ * bloqué" ; `engine/conditions.ts`).
  */
 export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   const node = nodeId ? getNoeudById(nodeId) : undefined
@@ -51,9 +50,13 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   // (constaté sur `age`, référencé par le dérivé `terrain_fragile` mais non décisif pour le patient en
   // cours). Les deux notions sont désormais dérivées de la MÊME source — `criteresPertinents` — ce qui
   // rend cette contradiction impossible par construction : estompé ⟺ non pertinent, réclamé ⟺ pertinent.
-  const result = useMemo(() => {
+  //
+  // Modèle de vue UNIQUE (`lib/vueDecision.ts`) : l'écran ne calcule plus rien lui-même (ni
+  // `groupesParFamille`, ni `computeBadges`, ni les doses `calculs`) — tout vient de `construireVueDecision`,
+  // la même fonction pure que sérialise `engine/relevance.ts` pour la signature de pertinence.
+  const vue = useMemo(() => {
     if (!node) return undefined
-    return evaluateNode(node, calculerCriteresDerives(node.criteres_entree, criteria))
+    return construireVueDecision(node, criteria)
   }, [node, criteria])
 
   // TEMPORISATION (tâche 6c, recette référent) : `criteresPertinents` perturbe le moteur une fois par
@@ -176,7 +179,7 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
             onChange={handleCriteriaChange}
           />
 
-          {result && <AlertList alertes={result.alertes} />}
+          {vue && <AlertList alertes={vue.alertes} />}
 
           <div className="decision-node__section-title">
             {decisifsManquants.length > 0 ? 'Options applicables — provisoire' : 'Options applicables'}
@@ -189,34 +192,31 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
               confirment d'un clic par « Rien à signaler ». La recommandation peut encore changer.
             </p>
           )}
-          {result && result.applicable.length > 0 ? (
+          {vue && vue.familles.some((famille) => famille.groupes.length > 0) ? (
             (() => {
               // Regroupement PAR FAMILLE (`Noeud.familles` si déclarées, sinon repli historique — cf.
-              // `groupesParFamille`, `engine/evaluateNode.ts`) : une section par famille, dans l'ORDRE
-              // EXPLICITE de `Noeud.familles` (plus un sous-produit de l'ordre d'écriture des options),
-              // et à l'intérieur seulement, les groupes d'égalité (`groupesExAequo`) rendus côte à côte
-              // pour un rang fini partagé — jamais deux options de familles différentes, même à rang
-              // égal (ce qui suggérerait à tort un choix exclusif entre deux gestes qui en réalité se
-              // CUMULENT, ex. « introduire un iSGLT2 » et « réduire la posologie du sulfamide »). Repli
+              // `lib/vueDecision.ts` `construireVueDecision`, qui compose `groupesParFamille`) : une
+              // section par famille, dans l'ORDRE EXPLICITE de `Noeud.familles` (plus un sous-produit de
+              // l'ordre d'écriture des options), et à l'intérieur seulement, les groupes d'égalité rendus
+              // côte à côte pour un rang fini partagé — jamais deux options de familles différentes, même
+              // à rang égal (ce qui suggérerait à tort un choix exclusif entre deux gestes qui en réalité
+              // se CUMULENT, ex. « introduire un iSGLT2 » et « réduire la posologie du sulfamide »). Repli
               // sans `famille` déclarée (les 4 autres nœuds actuels) : une unique famille sans libellé,
-              // rendu identique à l'ancien comportement à plat.
-              const familles = groupesParFamille(node, result.applicable, result.rangs)
-              // Le badge se calcule maintenant PAR FAMILLE (correctif « le badge, c'est le plan »,
-              // 2026-07-25) : une famille cumulable badge TOUTES ses options affichées, une famille
-              // exclusive réserve le badge au groupe de tête — cf. `lib/optionBadges.ts`.
-              const badges = computeBadges(familles)
+              // rendu identique à l'ancien comportement à plat. Le badge (« le badge, c'est le plan »,
+              // 2026-07-25) et les doses calculées sont déjà résolus dans `vue` — l'écran ne calcule plus
+              // rien, il assemble.
               let cle = 0
-              return familles.map((famille, indexFamille) => {
+              return vue.familles.map((famille, indexFamille) => {
                 const sectionsGroupes = famille.groupes.map((groupe) => {
-                  const cartes = groupe.map((option) => (
+                  const cartes = groupe.map((optionVue) => (
                     <OptionCard
                       // `intitule` n'est pas garanti unique (cf. commentaire `EvaluateNodeResult` dans
                       // `engine/evaluateNode.ts`) : on compose avec un compteur pour une clé React sûre.
-                      key={`${cle++}-${option.intitule}`}
-                      option={option}
-                      badge={badges.get(option) ?? null}
-                      reasons={result.reasons.get(option) ?? []}
-                      criteria={criteria}
+                      key={`${cle++}-${optionVue.option.intitule}`}
+                      option={optionVue.option}
+                      badge={optionVue.badge}
+                      reasons={optionVue.reasons}
+                      calculs={optionVue.calculs}
                     />
                   ))
                   if (groupe.length < 2) return cartes
