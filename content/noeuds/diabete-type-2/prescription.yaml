@@ -355,6 +355,12 @@ options:
     effet_attendu: >-
       MACE HR ~0,87‑0,88 (AVC/mort CV/IDM selon la molécule) ; NNT ~18 en prévention secondaire, ~60‑70 en
       primaire. Rénal dur = sémaglutide (FLOW, HR 0,76).
+    # R2 — vérifié à la source le 2026-07-25, les trois molécules nommées ayant trois durées distinctes :
+    # SUSTAIN-6 sémaglutide 104 semaines (2 ans) ; LEADER liraglutide 3,8 ans (médiane) ; REWIND
+    # dulaglutide 5,4 ans (médiane). ⚠ Les 5,4 ans de REWIND portent sur une population majoritairement en
+    # PRÉVENTION PRIMAIRE, où le taux d'événements est plus bas : la durée y reflète en partie la
+    # population, pas seulement la cinétique de la molécule.
+    delai_benefice: "2 à 5,4 ans selon la molécule"
     niveau_preuve: modere
     contre_indications:
       - "Antécédent de pancréatite ; antécédent personnel/familial de cancer médullaire de la thyroïde ou NEM2."
