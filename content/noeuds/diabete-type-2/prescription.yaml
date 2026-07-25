@@ -11,8 +11,10 @@
 # infections génito‑urinaires récidivantes ; alerte fragilité sur les incrétines. Fix « préférence » (bug 9) :
 # priorités CONDITIONNELLES iSGLT2/GLP‑1 (athérome pur → GLP‑1 devant ; IC/rénal → iSGLT2 devant).
 # PORTES (gel) : SU/gliptine/intolérance → SWITCH si HbA1c à/au‑dessus de la cible ; DÉPRESCRIPTION si
-# hba1c_sous_cible (< 6,5 %, à tout âge — jamais un agent protecteur). Non‑association gliptine+GLP‑1 par
-# construction (O6/O7 exigent ne_contient_pas gliptine). REFONTE S8 (2026-07-25) : primer = `intention`
+# hba1c_sous_cible (< 6,5 %, à tout âge — jamais un agent protecteur). LEVÉE DU VERROU GLIPTINE (référent,
+# 2026-07-25, après R4) : la non‑association gliptine+AR GLP‑1 n'est plus garantie PAR CONSTRUCTION (l'option
+# AR GLP‑1 n'exige plus `ne_contient_pas gliptine`) mais PAR L'AFFICHAGE — le verdict sur la gliptine (R3) et
+# l'alerte dédiée se déclenchent systématiquement dès qu'une gliptine est en cours. REFONTE S8 (2026-07-25) : primer = `intention`
 # (initier/intensifier/optimiser/deprescrire), organise le flux et la saisie (visible_si) sans jamais
 # affirmer un état. RECÂBLAGE R1 (2026-07-25, docs/decision/GRAMMAIRE-NOEUD.md) : `cible_atteinte`
 # redevient dérivé de l'ÉTAT DÉCLARÉ `position_vs_cible` (plus de l'intention — cf. commentaires des
@@ -182,11 +184,14 @@ criteres_entree:
     # glycémique. Décision référent 2026-07-25 : le switch se déclenche dès qu'un tel agent est en cours,
     # sans exiger de comorbidité (« même sans maladie avérée, ça reste protecteur »). La comorbidité CHOISIT
     # désormais le remplaçant et son rang (priorités conditionnelles) ; elle n'autorise plus le geste.
-    # SULFAMIDE SEULEMENT à ce stade : la gliptine y sera ajoutée quand `ne_contient_pas gliptine` sera levé
-    # de l'option AR GLP-1 (après R4). L'inclure maintenant proposerait « Introduire un iSGLT2 » à un patient
-    # sous gliptine dont le switch peut être exclu par ailleurs — soit un ajout de protecteur SANS verdict
-    # sur l'agent sans bénéfice, exactement le défaut que la recette référent a fait remonter.
-    derive: "traitements_en_cours contient sulfamide"
+    # LEVÉE DU VERROU GLIPTINE (référent, 2026-07-25) : la restriction « sulfamide seulement » est levée
+    # maintenant que `ne_contient_pas gliptine` est retiré de l'option AR GLP‑1 (R4 livré, commit 3886d07).
+    # La raison qui la motivait — proposer un protecteur (ex. iSGLT2) SANS verdict sur l'agent sans bénéfice
+    # — disparaît avec la généralisation de l'option de switch de la gliptine : elle n'est plus verrouillée
+    # sur une seule destination exclue par le terrain. C'était exactement le défaut d'origine remonté par la
+    # recette référent (patient IMC 20 sous gliptine + athérome : ajout d'un iSGLT2 en CONSERVANT la
+    # gliptine, faute de verdict sur cette dernière).
+    derive: "traitements_en_cours contient sulfamide OR traitements_en_cours contient gliptine"
 # `familles` (correctif « ordre accidentel / badge multi-natures », 2026-07-25) : déclaration EXPLICITE
 # des sections du panneau de résultats, présentation pure (aucun effet moteur, cf.
 # schema/noeud.schema.json). L'ORDRE DE CE TABLEAU EST L'ORDRE D'AFFICHAGE — « urgence d'abord » (décision
@@ -323,11 +328,15 @@ options:
       - "Infections génito‑urinaires récidivantes ; antécédent de gangrène de Fournier ; prudence si artériopathie évoluée / amputation (signal canagliflozine)."
       - "En cas d'IC avec saxagliptine en cours : arrêter la saxagliptine (signal SAVOR), ne pas se contenter d'ajouter l'iSGLT2."
   - intitule: "Introduire un AR GLP‑1 (liraglutide, sémaglutide, dulaglutide)"
+    # LEVÉE DU VERROU (référent, 2026-07-25) : `ne_contient_pas gliptine` retiré. La non-association
+    # gliptine + AR GLP‑1 n'est plus garantie par construction (elle empêchait aussi le SWITCH, pas
+    # seulement l'association) mais par l'affichage : dès qu'une gliptine est en cours, le verdict dédié
+    # (option « Remplacer la gliptine », plus bas) se déclenche systématiquement (R3) et porte l'alerte de
+    # non-association (cf. `alertes`) — l'AR GLP‑1 ne peut donc jamais apparaître sans son contexte de switch.
     conditions:
       - "ASCVD_etablie == true OR IMC >= 30 OR palette_glycemique_ouverte == true OR remplacement_agent_sans_benefice == true"
       - "traitements_en_cours ne_contient_pas aGLP1"
       - "traitements_en_cours ne_contient_pas tirzepatide"
-      - "traitements_en_cours ne_contient_pas gliptine"
       - "classes_a_benefice_indisponibles == false"
     exclusions:
       - "IMC < 22"
@@ -438,31 +447,39 @@ options:
   # ---- Switch (portes SU/gliptine, branche à/au‑dessus de la cible) -------------------------------------
   # R3 (docs/decision/GRAMMAIRE-NOEUD.md) : le verdict sur la gliptine (agent sans bénéfice dur) se
   # déclenche désormais sur la SEULE présence de la ligne — la comorbidité (ASCVD/IMC/cible non atteinte)
-  # a migré vers le CHOIX du remplaçant (indications/priorités de l'option AR GLP‑1 ci‑dessus), elle
-  # n'autorise plus le geste. Décision de séquencement du référent : option laissée atomique (cf. tâche 3).
-  - intitule: "Remplacer la gliptine par un AR GLP‑1 (switch, jamais d'association)"
+  # a migré vers le CHOIX du remplaçant (indications/priorités des options iSGLT2/AR GLP‑1 ci‑dessus), elle
+  # n'autorise plus le geste. LEVÉE DU VERROU (référent, 2026-07-25) : l'option, atomique jusqu'ici (verdict
+  # + destination confondus, verrouillée sur l'AR GLP‑1 seul), est généralisée sur le modèle déjà correct de
+  # l'option sulfamide — le remplaçant est iSGLT2 OU AR GLP‑1 selon la comorbidité, choisi par les options
+  # d'ajout elles-mêmes. C'est ce défaut exact (remplaçant unique, exclu par le terrain IMC < 22) qui faisait
+  # disparaître le verdict sur la gliptine avec lui — le défaut d'origine de toute la série R1→R4.
+  # Exclusions restreintes aux seules structurelles (gate catabolique) : celles du remplaçant (IMC < 22,
+  # dénutrition, propres à l'AR GLP‑1) ne portent plus sur CE verdict, cf. R3 (« les exclusions du verdict
+  # sont structurelles, jamais celles d'une destination »).
+  - intitule: "Remplacer la gliptine (aucun bénéfice sur critère dur — préférer un agent qui en apporte)"
     conditions:
       - "traitements_en_cours contient gliptine"
       - "traitements_en_cours ne_contient_pas aGLP1"
       - "traitements_en_cours ne_contient_pas tirzepatide"
     exclusions:
-      - "IMC < 22"
-      - "denutrition == true"
       - "symptomes_glucotoxicite == true"
       - "cetonemie == true"
     priorite: 3
     famille: "Traitement à corriger ou remplacer"
     avantages:
-      - "L'AR GLP‑1 est constamment supérieur à la gliptine sur l'HbA1c et le poids (PIONEER‑3, SUSTAIN‑2, AWARD‑5 ; switch Pratley 2012, méta Tran/Kramer −0,69 % / −2,25 kg) et apporte un bénéfice cardio‑rénal que la gliptine n'a pas."
+      - "La gliptine n'apporte aucun bénéfice sur critère dur (4 CVOT neutres : TECOS, SAVOR, EXAMINE, CARMELINA) et son efficacité glycémique est modeste (~0,5-0,8 % d'HbA1c). Lui substituer un agent à bénéfice d'organe apporte une protection que la classe n'a pas, à contrôle glycémique au moins équivalent."
+      - "Choisir le remplaçant selon la comorbidité, comme pour le sulfamide : iSGLT2 si l'insuffisance cardiaque ou l'atteinte rénale prédomine ; AR GLP‑1 si la maladie athéromateuse ou l'obésité prédomine. Sans terrain particulier, l'un ou l'autre selon la tolérance et la préférence du patient."
     inconvenients:
-      - "RÈGLE DURE : ne jamais ASSOCIER gliptine + AR GLP‑1 (même voie incrétine, aucun bénéfice additif — Nauck 2017 ; ADA §9 ; KDIGO PP4.2.3 ; HAS R.80) → l'introduction de l'AR GLP‑1 implique l'ARRÊT de la gliptine."
-      - "Gain démontré glycémique/pondéral (substitution) ; effets digestifs/pancréatiques ; injectable (sauf séma oral). Garde‑fou terrain IMC<22/dénutrition."
+      - "RÈGLE DURE : ne jamais ASSOCIER gliptine + AR GLP‑1 (même voie incrétine, aucun bénéfice additif — Nauck 2017 ; ADA §9 ; KDIGO PP4.2.3 ; HAS R.80) → l'introduction d'un AR GLP‑1 implique l'ARRÊT de la gliptine."
+      - "Aucun ECR de switch dédié ne montre que RETIRER la gliptine réduit un critère dur : le bénéfice d'organe est celui du remplaçant (argument indirect, même structure que pour le sulfamide). Le switch n'est documenté que sur critères de substitution (vers AR GLP‑1 : Pratley 2012 ; méta Tran/Kramer −0,69 % d'HbA1c, −2,25 kg)."
+      - "REPLI : si aucun remplaçant protecteur n'est applicable sur ce terrain, NE PAS switcher à vide → poursuivre la gliptine, bien tolérée et sans hypoglycémie, et réévaluer."
     effet_attendu: >-
-      Switch : gain HbA1c ~−0,5 à −1,06 % et poids ~−1,6 à −4,2 kg. Bénéfice d'organe = celui de la classe
-      AR GLP‑1, non redémontré ici.
+      Bénéfice d'organe = celui du remplaçant retenu (iSGLT2 : hospitalisation pour IC HR ~0,61‑0,73,
+      progression rénale HR ~0,56‑0,76 ; AR GLP‑1 : événements athéromateux, surtout l'AVC). Gain propre
+      au retrait de la gliptine : aucun sur critère dur.
     niveau_preuve: modere
     contre_indications:
-      - "Ne pas maintenir la gliptine en association : la remplacer. Mêmes CI que l'AR GLP‑1 (pancréatite, thyroïde/NEM2, refus d'injection, IMC bas/dénutrition)."
+      - "Ne pas maintenir la gliptine en association avec un AR GLP‑1 : la remplacer. Les contre-indications propres au remplaçant retenu s'appliquent (voir l'option correspondante)."
   - intitule: "Arrêter la gliptine redondante (association gliptine + AR GLP‑1 / tirzépatide déjà en place)"
     conditions:
       - "traitements_en_cours contient gliptine"
@@ -743,6 +760,16 @@ alertes:
       Patient sous insuline à haut risque hypoglycémique : ÉVITER d'ajouter un sécrétagogue (sulfamide /
       glinide). Privilégier un agent sans hypoglycémie (iSGLT2 / AR GLP‑1) ou l'ajustement de l'insuline
       (nœud E).
+  # LEVÉE DU VERROU GLIPTINE (référent, 2026-07-25) : remplace la garantie structurelle retirée de l'option
+  # « Introduire un AR GLP‑1 » (`ne_contient_pas gliptine`) — la non-association est désormais garantie par
+  # l'affichage de cette alerte, dès que la gliptine est en cours. Texte dérivé mot pour mot de la prose déjà
+  # sourcée dans l'option « Remplacer la gliptine » (règle dure Nauck/ADA/KDIGO/HAS).
+  - quand: "traitements_en_cours contient gliptine"
+    niveau: attention
+    message: >-
+      Non-association incrétine : si un AR GLP‑1 ou le tirzépatide est introduit, la gliptine doit être
+      ARRÊTÉE — même voie incrétine, aucun bénéfice additif (Nauck 2017 ; ADA §9 ; KDIGO PP4.2.3 ;
+      HAS R.80). Ne jamais les associer.
 argumentaire: >
   Ce nœud unique outille toute la prescription non‑insulinique du DT2, à partir de L'INTENTION du praticien
   (initier / intensifier / optimiser / déprescrire) qui organise la saisie et déduit la position vs objectif,
@@ -899,8 +926,36 @@ meta:
   date_revue: "2026-07-25"
   auteur: "référent DT2 + Opus"
   statut: brouillon
-  version: "0.12"
+  version: "0.13"
   changelog:
+    - date: "2026-07-25"
+      auteur: "référent DT2 + Opus"
+      resume: >-
+        LEVÉE DU VERROU GLIPTINE (séquencement tranché par le référent : garantie structurelle conservée
+        jusqu'à ce que R4 soit livré — commit 3886d07 — puis levée). C'est le défaut d'origine de toute la
+        série R1→R4 (docs/decision/GRAMMAIRE-NOEUD.md, DECISIONS.md D19) : chez un patient IMC 20 sous
+        gliptine avec athérome, l'outil proposait d'AJOUTER un iSGLT2 en CONSERVANT la gliptine, faute de
+        verdict sur cette dernière — le remplaçant unique (AR GLP‑1) étant exclu par le terrain (IMC < 22).
+        (1) Retrait de `traitements_en_cours ne_contient_pas gliptine` de l'option « Introduire un AR GLP‑1 »
+        — seule condition touchée, aucune autre condition/exclusion modifiée. (2) `remplacement_agent_sans_
+        benefice` étendu à `OR traitements_en_cours contient gliptine` (n'était que « sulfamide seulement »
+        depuis R3, dans l'attente de cette levée). (3) Option de switch de la gliptine généralisée sur le
+        modèle sulfamide (renommée « Remplacer la gliptine (aucun bénéfice sur critère dur — préférer un
+        agent qui en apporte) », remplaçant choisi par comorbidité parmi iSGLT2/AR GLP‑1) — exclusions
+        `IMC < 22` et `denutrition == true` retirées (celles du remplaçant, pas du verdict, R3) ; gate
+        catabolique (`symptomes_glucotoxicite`, `cetonemie`) conservé, structurel. (4) Nouvelle alerte de
+        nœud (`traitements_en_cours contient gliptine`) reprenant mot pour mot la règle dure déjà sourcée
+        dans l'option (Nauck 2017 ; ADA §9 ; KDIGO PP4.2.3 ; HAS R.80) : la non-association gliptine + AR
+        GLP‑1 n'est plus garantie PAR CONSTRUCTION (verrou retiré) mais PAR L'AFFICHAGE (verdict + alerte
+        systématiques dès que la gliptine est en cours). (5) Invariant 5 du banc (`banc/invariants.test.ts`)
+        reconverti d'`it.fails` en `it` — il passe désormais au vert (0 `it.fails` sur le banc `prescription`) ;
+        c'est la dette que ce travail referme. (6) Test `RECETTE` (`evaluateNode.prescription.test.ts`) mis à
+        jour : il vérifiait l'ANCIEN défaut (switch gliptine→AR GLP‑1 exclu IMC < 22, aucun verdict sur la
+        gliptine) ; il vérifie désormais qu'un verdict sur la gliptine ET l'iSGLT2 sont applicables sur ce
+        même profil — c'est l'inverse exact de l'attente précédente, et c'est précisément ce qui était corrigé.
+        Tests `D4` et `R3-2` (mêmes fichiers) mis à jour pour la même raison (GLP1/iSGLT2 désormais
+        applicables quand la gliptine seule est en cours). `niveau_preuve`, `priorite`, `famille` de l'option
+        de switch INCHANGÉS ; pas de `delai_benefice` (le bénéfice est celui du remplaçant, pas du retrait).
     - date: "2026-07-25"
       auteur: "référent DT2 + Opus"
       resume: >-

@@ -169,18 +169,17 @@ describe('banc — invariants spécifiques au domaine DT2 (nœud prescription, v
     expect(violations).toEqual([])
   })
 
-  // DETTE CONNUE (2026-07-25) : le profil « IMC < 22 + gliptine + athérome » introduit un iSGLT2
-  // (bénéfice d'organe, indiqué par ASCVD_etablie) SANS qu'aucun verdict sur la gliptine ne soit
-  // applicable — le switch « Remplacer la gliptine » est EXCLU par le garde-fou de terrain (IMC < 22,
-  // le remplaçant AR GLP-1 étant contre-indiqué), et « Arrêter la gliptine redondante » ne se déclenche
-  // que si une incrétine (aGLP1/tirzépatide) est DÉJÀ en place, pas dans ce cas. C'est exactement le
-  // défaut R3 documenté dans docs/decision/GRAMMAIRE-NOEUD.md (« la clause de repli reste en prose, non
-  // encodée ») : la clause de repli existe en PROSE dans l'option « Optimiser l'agent mal toléré » et
-  // dans l'argumentaire, mais rien ne rend applicable une option de verdict PUR (sans remplaçant) sur la
-  // gliptine hors intolérance déclarée. Ne PAS affaiblir cette assertion : la dette est réelle, à
-  // résorber en contenu (une option « la gliptine ne sert à rien ici, à arrêter » indépendante du
-  // remplaçant), pas en test.
-  it.fails(
+  // DETTE REFERMÉE (2026-07-25, levée du verrou gliptine) : le profil « IMC < 22 + gliptine + athérome »
+  // introduisait un iSGLT2 (bénéfice d'organe, indiqué par ASCVD_etablie) SANS qu'aucun verdict sur la
+  // gliptine ne soit applicable — le switch « Remplacer la gliptine » était EXCLU par le garde-fou de
+  // terrain (IMC < 22, alors propre au seul remplaçant AR GLP-1). Résorbé en contenu (pas en test) : les
+  // exclusions IMC < 22 / dénutrition — celles du remplaçant, pas du verdict (R3) — ont été retirées de
+  // l'option de switch de la gliptine, désormais généralisée (remplaçant choisi parmi iSGLT2/AR GLP-1
+  // selon la comorbidité, comme pour le sulfamide) ; le verrou `ne_contient_pas gliptine` de l'option
+  // « Introduire un AR GLP-1 » est levé (R4 livré). Le verdict sur la gliptine se déclenche donc
+  // désormais dans tous les cas où un agent à bénéfice d'organe devient applicable pendant qu'elle est en
+  // cours — c'est l'invariant ci-dessous, qui passe maintenant au vert.
+  it(
     '5 — agent sans bénéfice dur en cours + introduction d’un agent à bénéfice d’organe ⇒ un verdict sur le premier est aussi applicable',
     () => {
       const violations: string[] = []

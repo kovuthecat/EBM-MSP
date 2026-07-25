@@ -170,12 +170,21 @@ describe('prescription — D · portes SU/gliptine × position', () => {
     expect(idx(t, GLP1)).toBeLessThan(idx(t, ISGLT2))
   })
 
-  it('D4 — gliptine + obésité + au-dessus : REMPLACER la gliptine, jamais associer (pas d’ajout GLP-1/tirzépatide)', () => {
+  it('D4 — gliptine + obésité + au-dessus : REMPLACER la gliptine, destination AR GLP-1 applicable (verrou levé), tirzépatide toujours écarté', () => {
+    // ⚠ ATTENTE INVERSÉE par la levée du verrou gliptine (2026-07-25). Avant cette tâche, l'option
+    // « Introduire un AR GLP-1 » exigeait `ne_contient_pas gliptine` : GLP1 était donc à `false` ici par
+    // VERROU STRUCTUREL (même si l'IMC ≥ 30 l'indiquait par ailleurs), et seule l'ex-option atomique
+    // « Remplacer la gliptine par un AR GLP-1 » portait la destination. Depuis la levée (option AR GLP-1
+    // généralisée en destination de switch comme en ajout, cf. prescription.yaml), GLP1 devient
+    // APPLICABLE — c'est la destination du switch de la gliptine, affichée à côté du verdict, pas une
+    // association (le verdict « Remplacer la gliptine » implique l'arrêt de cette dernière, cf. alerte
+    // dédiée). Le tirzépatide, lui, reste verrouillé : son option n'a PAS été touchée par cette tâche
+    // (`ne_contient_pas gliptine` y est conservé), donc toujours écarté ici.
     const o = { traitements_en_cours: ['metformine', 'gliptine'], intention: 'intensifier',
       position_vs_cible: 'au_dessus', IMC: 31, HbA1c_actuelle: 7.5 } as Partial<Criteria>
     const t = titles(o)
     expect(has(t, 'Remplacer la gliptine')).toBe(true)
-    expect(has(t, GLP1)).toBe(false)
+    expect(has(t, GLP1)).toBe(true)
     expect(has(t, TIRZ)).toBe(false)
   })
 
@@ -377,12 +386,22 @@ describe('prescription — arbitrages référent S8 (séquençage, ordre pur-gly
 })
 
 describe('prescription — recette référent R1 (position_vs_cible déclaré, GRAMMAIRE-NOEUD.md)', () => {
-  it('RECETTE — optimiser + à l’objectif, fragile/EV limitée, ASCVD, IMC 20 sous metformine+gliptine : cible_atteinte=true, iSGLT2 applicable, switch gliptine→GLP-1 écarté (IMC < 22)', () => {
-    // Profil exact de la recette qui a motivé R1 (docs/decision/GRAMMAIRE-NOEUD.md) : avant le recâblage,
-    // `cible_atteinte` était déduit de `intention == optimiser`, ce qui était vrai ici par construction du
-    // test — désormais il faut le DÉCLARER (`position_vs_cible: 'a_l_objectif'`) pour obtenir le même fait.
-    // Ne teste que ce qui est FACTUEL aujourd'hui (pas de nouvelle option R3 — l'option de switch gliptine
-    // reste unique, non scindée « arrêter » / « remplacer »).
+  it('RECETTE — optimiser + à l’objectif, fragile/EV limitée, ASCVD, IMC 20 sous metformine+gliptine : cible_atteinte=true, verdict sur la gliptine ET iSGLT2 applicables (levée du verrou gliptine)', () => {
+    // Profil exact de la recette qui a motivé R1 ET R3/R4 (docs/decision/GRAMMAIRE-NOEUD.md) — LE défaut
+    // d'origine de toute la série : chez ce patient (IMC 20, athérome, sous gliptine), l'outil proposait
+    // d'AJOUTER un iSGLT2 en CONSERVANT la gliptine, faute de verdict sur cette dernière (l'unique
+    // remplaçant de l'ex-option atomique, l'AR GLP-1, étant exclu par l'IMC < 22).
+    //
+    // ⚠ ATTENTE INVERSÉE par la levée du verrou gliptine (2026-07-25, séquencement référent : garantie
+    // structurelle conservée jusqu'à R4 — commit 3886d07 — puis levée). AVANT cette tâche, ce test
+    // vérifiait que « Remplacer la gliptine par un AR GLP-1 » figurait dans `excluded` avec le motif
+    // « IMC < 22 » et qu'aucun verdict sur la gliptine n'existait par ailleurs — c'était EXACTEMENT le
+    // défaut à corriger, pas un comportement à figer. Depuis : (1) l'option de switch de la gliptine est
+    // généralisée (remplaçant choisi parmi iSGLT2/AR GLP-1 selon la comorbidité, comme pour le sulfamide)
+    // et ne porte plus les exclusions du remplaçant (IMC < 22 / dénutrition retirées, R3) ; (2)
+    // `remplacement_agent_sans_benefice` couvre désormais la gliptine, pas seulement le sulfamide. Un
+    // verdict sur la gliptine est donc désormais APPLICABLE ici (plus « écarté »), et l'iSGLT2 aussi —
+    // les deux, ce que l'invariant 5 du banc vérifie sur tout l'espace des profils.
     const o = {
       intention: 'optimiser',
       traitements_en_cours: ['metformine', 'gliptine'],
@@ -400,11 +419,9 @@ describe('prescription — recette référent R1 (position_vs_cible déclaré, G
     expect(criteria.cible_atteinte).toBe(true)
 
     const result = evaluateNode(node!, criteria)
-    expect(has(result.applicable.map((opt) => opt.intitule), ISGLT2)).toBe(true)
-
-    const gliptineSwitch = [...result.excluded.entries()].find(([opt]) => opt.intitule.includes('Remplacer la gliptine'))
-    expect(gliptineSwitch).toBeDefined()
-    expect(gliptineSwitch?.[1]).toContain('IMC < 22')
+    const applicableTitles = result.applicable.map((opt) => opt.intitule)
+    expect(has(applicableTitles, ISGLT2)).toBe(true)
+    expect(has(applicableTitles, 'Remplacer la gliptine')).toBe(true)
   })
 })
 
@@ -420,14 +437,19 @@ describe('prescription — R3 (remplacement_agent_sans_benefice, GRAMMAIRE-NOEUD
     expect(has(t, ISGLT2) || has(t, GLP1)).toBe(true)
   })
 
-  it('R3-2 — gliptine seule, sans comorbidité, à l’objectif : switch gliptine→AR GLP-1 applicable ; iSGLT2 NON proposé (le dérivé ne couvre que le sulfamide, pas la gliptine)', () => {
-    // Le commentaire du critère (`prescription.yaml`) est explicite : la gliptine est volontairement
-    // exclue du dérivé à ce stade (attend la levée de `ne_contient_pas gliptine` sur l'option AR GLP-1,
-    // après R4). Ce test verrouille cette limite de périmètre.
+  it('R3-2 — gliptine seule, sans comorbidité, à l’objectif : le switch se déclenche ET une destination protectrice devient applicable (verrou levé)', () => {
+    // ⚠ ATTENTE INVERSÉE par la levée du verrou gliptine (2026-07-25, séquencement référent : cf. tâche de
+    // levée du verrou). Ce test vérifiait auparavant que la gliptine était volontairement EXCLUE du
+    // dérivé `remplacement_agent_sans_benefice` (« sulfamide seulement », en attendant que
+    // `ne_contient_pas gliptine` soit retiré de l'option AR GLP-1 après R4) — d'où iSGLT2 NON proposé. R4
+    // est livré (commit 3886d07) et le verrou levé : la gliptine rejoint le sulfamide dans le dérivé, et
+    // ce profil (sans aucune comorbidité) suit désormais EXACTEMENT le même chemin que R3-1 (sulfamide) :
+    // le switch se déclenche sur la seule présence de l'agent, et au moins une destination protectrice
+    // (iSGLT2 et/ou AR GLP-1, aucun terrain ne les excluant ici) devient applicable.
     const o = { traitements_en_cours: ['metformine', 'gliptine'] } as Partial<Criteria>
     const t = titles(o)
     expect(has(t, 'Remplacer la gliptine')).toBe(true)
-    expect(has(t, ISGLT2)).toBe(false)
+    expect(has(t, ISGLT2) || has(t, GLP1)).toBe(true)
   })
 
   it('R3-3 — sulfamide + HbA1c < 6,5 % (hba1c_sous_cible) : le switch NE se déclenche PAS (sur-contrôle → déprescription, pas de remplacement)', () => {
