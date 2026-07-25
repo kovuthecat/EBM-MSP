@@ -220,24 +220,26 @@ describe('banc — invariants spécifiques au domaine DT2 (nœud prescription, v
   // `position_vs_cible != sous_objectif` aux DEUX options de place résiduelle nommées par l'arbitrage
   // (gliptine, sulfamide) — c'est tout ce que la tâche F a demandé de toucher.
   //
-  // RESTE ROUGE (constaté en exécutant ce test après la correction, pas anticipé par la tâche) :
-  // « Insuline d'initiation (souvent transitoire — état catabolique) » — gate purement catabolique
-  // (`HbA1c_actuelle >= 10 AND symptomes_glucotoxicite == true OR cetonemie == true`), SANS aucune
-  // clause sur `cible_atteinte`/`position_vs_cible` par conception (cf. son propre `effet_attendu` dans
-  // prescription.yaml : « Distinct du gate catabolique, qui ne dépend pas de l'atteinte de l'objectif »).
-  // Un profil `sous_objectif` + `cetonemie == true` reste donc une violation de cet invariant tel qu'il
-  // est formulé aujourd'hui. La tâche F ne demandait de garder que les deux options de place résiduelle
-  // (gliptine, sulfamide) ; elle ne demandait pas de toucher au gate catabolique, et le faire serait
-  // inventer une règle clinique non spécifiée (l'état catabolique justifie l'insuline quelle que soit la
-  // position glycémique déclarée, au même titre que l'iSGLT2 en IC reste indiqué quelle que soit la
-  // glycémie — avertissement déjà consigné dans GRAMMAIRE-NOEUD.md sur ce même invariant n° 7). Laissé
-  // `it.fails` à dessein : ne PAS convertir en `it`, ne PAS élargir la garde F sans arbitrage référent.
-  it.fails(
-    '7 — aucun agent purement glycémique (gliptine, sulfamide, insuline) proposé à l’introduction si position_vs_cible == sous_objectif',
+  // RESTRICTION DE L'INVARIANT (arbitrage référent, 2026-07-25) — c'est l'invariant qui était trop
+  // large, pas le contenu. « Insuline d'initiation (état catabolique) » se déclenche sur
+  // `HbA1c_actuelle >= 10 AND symptomes_glucotoxicite == true OR cetonemie == true`, SANS clause sur la
+  // position, par conception (cf. son `effet_attendu` : « distinct du gate catabolique, qui ne dépend
+  // pas de l'atteinte de l'objectif »). Or un patient PEUT être à sa cible, voire en dessous, ET en
+  // cétose : c'est l'acidocétose euglycémique sous iSGLT2, entité reconnue. L'insuline y est
+  // indispensable, et ce n'est pas « un agent glycémique de plus » — c'est un traitement d'urgence.
+  //
+  // C'est la DEUXIÈME fois que cet invariant doit être resserré : il disait d'abord « aucun ajout »,
+  // corrigé une 1re fois parce qu'un iSGLT2 en insuffisance cardiaque reste indiqué quelle que soit la
+  // glycémie. Même motif les deux fois — LES GARDE-FOUS D'URGENCE SONT ORTHOGONAUX À LA POSITION
+  // GLYCÉMIQUE. Un invariant qui les ignore force à encoder une règle fausse pour passer au vert.
+  it(
+    '7 — aucun agent purement glycémique (gliptine, sulfamide, insuline) proposé à l’introduction si position_vs_cible == sous_objectif, HORS gate catabolique',
     () => {
       const violations: string[] = []
       profils.forEach((profil, i) => {
         if (profil.position_vs_cible !== 'sous_objectif') return
+        // Gate catabolique : urgence métabolique, hors du champ de cet invariant (voir ci-dessus).
+        if (profil.symptomes_glucotoxicite === true || profil.cetonemie === true) return
         const t = intitules(node, profil)
         for (const fragment of AGENTS_PUREMENT_GLYCEMIQUES_INTRO) {
           if (t.some((x) => x.includes(fragment))) violations.push(`profil #${i} :: "${fragment}"`)

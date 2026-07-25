@@ -80,46 +80,43 @@ statut : ` ` à faire · `~` en cours · `x` fait · modèles/efforts : `WORKFLO
 
 ## Backlog (P3 — suites de la grammaire R1→R6, D19)
 
-> Les quatre premières lignes correspondent à des `it.fails` du banc
-> (`src/features/decision/engine/banc/`) : elles passent au vert d'elles-mêmes une fois corrigées, il
-> n'y a donc rien à penser à décocher.
+> Les lignes marquées **RÉFÉRENT** sont les arbitrages cliniques que Claude s'interdit de trancher.
+> Le banc (`src/features/decision/engine/banc/`) porte **1 `it.fails`** : l'invariant 5, dette gliptine.
+> Il passera au vert de lui-même à la levée ci-dessous — rien à décocher à la main.
 
-- [ ] **RÉFÉRENT** — `insuline` : `TIR`/`TAR`/`GMI` ne changent rien à l'écran. Non décisifs par
-      conception (axe « contrôle » jugé redondant avec l'HbA1c), mais leurs valeurs ne sont pas rendues
-      non plus — les alertes énoncent des cibles sans utiliser le chiffre saisi. Les brancher (afficher
-      la valeur vs la cible) ou les retirer du formulaire ? · plan: —
-- [ ] `insuline` : `IMC` et `dose_rapide_actuelle` morts (aucune règle, aucun calcul) — retirer ·
-      modèle: Sonnet, effort: low · plan: —
-- [ ] **RÉFÉRENT** — `insuline` : sortie vide possible (branche « basale seule », ni clause de sécurité
-      ni objectif manqué). Ce nœud n'a pas d'option de repli `["default"]`, contrairement à
-      `prescription` où le même trou (M3) a été corrigé · plan: —
-- [ ] **RÉFÉRENT** — jonction manquante : la place résiduelle gliptine/sulfamide est ouverte par
-      `classes_a_benefice_indisponibles`, drapeau indépendant de `position_vs_cible` — un patient en
-      sur-traitement peut donc se voir proposer un agent purement glycémique · plan: —
-- [ ] **R4** — tracer les échecs de condition dans `EvaluateNodeResult` ; afficher les options écartées
-      avec leur motif (poussé) et les non-retenues sur demande. **Bloque la levée de
-      `ne_contient_pas gliptine`** et donc la dette de la recette · modèle: Sonnet, effort: high · plan: —
-- [ ] **R6 fond** — `termesVrais` : ne renvoyer que les termes `OR` réellement vrais, motif de rang
-      (`resolvePriorite`). Après l'unification écran ↔ signature · modèle: Sonnet, effort: high · plan: —
-- [ ] **R6 liv. 2** — champ `prerequis` (schéma + moteur + migration de contenu) : séparer l'indication
-      qui justifie des garde-fous de cohérence qui n'apprennent rien · modèle: Sonnet, effort: high · plan: —
-- [ ] **R2, 2e moitié** — alertes portées par une option (affichées seulement si l'option est
-      applicable). Résout aussi l'alerte fragilité qui s'affiche pour une option écartée. Après
-      l'unification · modèle: Sonnet, effort: high · plan: —
 - [ ] **RÉFÉRENT** — lever `ne_contient_pas gliptine` de l'option AR GLP‑1, généraliser l'option de
-      switch de la gliptine (prose déjà rédigée et validée, en attente) et ajouter la gliptine à
-      `remplacement_agent_sans_benefice`. **Après R4**, séquencement tranché le 2026-07-25 · plan: —
-- [ ] **RÉFÉRENT** — alerte M2/A9 : elle affirme « aucun remplaçant protecteur pertinent » alors que
-      R3 rend l'iSGLT2 applicable par la voie du remplacement, y compris chez le patient à IMC < 22
-      qu'elle visait. Son test reste vert : il ne vérifie que la présence du message, pas sa justesse · plan: —
-- [ ] **RÉFÉRENT** — les deux alertes de cohérence intention↔HbA1c conseillent « rebasculer
-      l'intention » ; depuis R1 le bon geste serait de corriger `position_vs_cible` · plan: —
-- [ ] **RÉFÉRENT** — `delai_benefice` manquants : AR GLP‑1 (aucune durée écrite dans son
-      `effet_attendu`), insuline (le « ~2 ans » de DEVOTE ne vaut que pour degludec vs glargine U100,
-      l'option portant sur la classe), rhd (les chiffres DiRECT décrivent l'érosion d'un substitut) · plan: —
-- [ ] Rebrancher le test R5 du banc sur le modèle de vue une fois l'unification faite : contre
-      `evaluateNode` il sous-estime la portée d'un critère (une dose calculée, un texte d'alerte) ·
+      switch de la gliptine (prose déjà rédigée et validée le 2026-07-25, en attente) et ajouter la
+      gliptine à `remplacement_agent_sans_benefice`. **R4 est fait, donc débloqué.** Referme la dette de
+      la recette : le patient à IMC 20 verra enfin un verdict sur sa gliptine. Le texte de l'alerte de
+      non-association doit être validé avant encodage — c'est la garantie qui remplace le garde-fou
+      structurel retiré · plan: —
+- [ ] **RÉFÉRENT** — `delai_benefice` manquants : AR GLP‑1 (proposé « 2-4 ans » d'après LEADER 3,8 ans et
+      SUSTAIN‑6 2,1 ans, **de mémoire, à vérifier à la source**) ; insuline et rhd restent vides pour des
+      raisons documentées (D19) · plan: —
+- [ ] **R6 fond** — `termesVrais` : ne renvoyer que les termes `OR` réellement vrais ; motif de rang via
+      `resolvePriorite`. L'unification écran ↔ signature est faite, donc débloqué · modèle: Sonnet,
+      effort: high · plan: —
+- [ ] **R6 liv. 2** — champ `prerequis` (schéma + moteur + migration de contenu) : séparer l'indication
+      qui justifie des garde-fous de cohérence qui n'apprennent rien. Validé par le référent le
+      2026-07-25 · modèle: Sonnet, effort: high · plan: —
+- [ ] **R2, 2e moitié** — alertes portées par une option (affichées seulement si l'option est
+      applicable). Résout aussi l'alerte fragilité qui s'affiche pour une option écartée · modèle:
+      Sonnet, effort: high · plan: —
+- [ ] Rebrancher le test R5 du banc sur le modèle de vue : contre `evaluateNode` il sous-estime la
+      portée d'un critère (une dose calculée, un texte d'alerte). Le modèle de vue existe désormais ·
       modèle: Sonnet, effort: medium · plan: —
+
+### Résolu le 2026-07-25 (arbitrages référent + R4)
+
+- [x] R4 — options écartées affichées avec leur motif, non-indiquées sur demande (`3886d07`)
+- [x] Unification écran ↔ signature sur un modèle de vue unique (`1a3b904`)
+- [x] `insuline` — retrait de TIR/TAR/GMI/IMC, câblage de `dose_rapide_actuelle` (`ab06062`)
+- [x] `insuline` — option de repli : plus de sortie muette (`ab06062`)
+- [x] Alerte M2/A9 supprimée — fossile du modèle d'avant R3 (`ab06062`)
+- [x] Alerte de cohérence n°1 reciblée sur `position_vs_cible` (`ab06062`)
+- [x] Garde `position_vs_cible != sous_objectif` sur la place résiduelle (`ab06062`)
+- [x] Invariant 7 resserré au gate catabolique près — c'était l'invariant qui était trop large, pas le
+      contenu (acidocétose euglycémique sous iSGLT2)
 
 ## Backlog (P3 — reste avant `valide` final)
 

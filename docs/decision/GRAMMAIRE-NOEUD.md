@@ -286,12 +286,21 @@ déclarer :
    comme propriété plutôt que comme cas)* ;
 6. à profil identique, `fragilite: true` ne produit jamais **plus** d'options dans la famille « Agent à
    ajouter » *(la propriété qui manquait à R5)* ;
-7. aucun agent **purement glycémique** ajouté chez un patient `sous_objectif`.
+7. aucun agent **purement glycémique** ajouté chez un patient `sous_objectif`, **hors gate catabolique**
+   (glucotoxicité, cétonémie), qui relève de l'urgence métabolique et non du contrôle glycémique.
 
-> ⚠ Le n° 7 a d'abord été formulé « aucun ajout chez un patient `sous_objectif` » — **faux** : un iSGLT2
-> en insuffisance cardiaque reste indiqué quelle que soit la glycémie (HAS R.64‑66 grade A ; ADA 13.14d
-> interdit de le retirer pour désintensifier). Un invariant trop large est pire qu'absent : il force à
-> encoder une règle fausse pour le faire passer.
+> ⚠ **Le n° 7 a dû être resserré deux fois, pour le même motif.** Première formulation : « aucun ajout
+> chez un patient `sous_objectif` » — faux, un iSGLT2 en insuffisance cardiaque reste indiqué quelle que
+> soit la glycémie (HAS R.64‑66 grade A ; ADA 13.14d interdit même de le retirer pour désintensifier).
+> Deuxième : « aucun agent purement glycémique » — encore faux, l'insuline d'un état catabolique se
+> déclenche sur la cétonémie sans regarder la position, et à raison : un patient peut être à sa cible,
+> voire en dessous, **et** en cétose — c'est l'acidocétose euglycémique sous iSGLT2.
+>
+> **La règle générale : les garde-fous d'urgence sont orthogonaux à la position vs objectif.** Tout
+> invariant formulé sur la position doit les exclure explicitement. Un invariant trop large est pire
+> qu'absent — il force à encoder une règle fausse pour le faire passer, ce qui est exactement l'inverse
+> du service qu'on lui demande. Quand un invariant échoue, la première question n'est donc pas « quel
+> contenu corriger » mais « l'invariant dit-il vraiment ce que je voulais dire ».
 
 ---
 

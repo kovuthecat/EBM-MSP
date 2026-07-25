@@ -25,13 +25,23 @@ dans `docs/decision/GRAMMAIRE-NOEUD.md` (**D19**).
 - **Docs** — `BRIEF_DECISION.md` et `00-global.md` renvoient à la grammaire ; la liste des « variables
   communes » du §6 est supprimée, quatre des variables listées n'existant dans aucun nœud.
 
-**En cours** : unification écran ↔ signature de pertinence sur un modèle de vue unique — le verrou de
-R4, du fond de R6 et des alertes portées par une option.
+- **Unification écran ↔ signature** sur un modèle de vue unique : tout ce qui est affiché entre dans la
+  signature par construction. A révélé au passage un 5ᵉ écart jamais constaté — les doses calculées
+  étaient rendues mais absentes de la signature.
+- **R4** — les options écartées s'affichent avec leur motif ; les non-indiquées sur demande.
+- **Six arbitrages référent** (2026-07-25) : retrait de TIR/TAR/GMI/IMC du nœud `insuline`, câblage de
+  `dose_rapide_actuelle`, option de repli contre la sortie muette, suppression de l'alerte M2/A9 devenue
+  fausse, reciblage de l'alerte de cohérence sur `position_vs_cible`, garde de sur-traitement sur la
+  place résiduelle.
 
-**Quatre dettes matérialisées en `it.fails`** dans le banc (elles virent au vert d'elles-mêmes une fois
-corrigées) : critères jamais décisifs du nœud `insuline` ; sortie vide possible sur `insuline` (pas
-d'option de repli) ; dette R3/R4 sur la gliptine ; jonction manquante entre
-`classes_a_benefice_indisponibles` et la position vs objectif.
+**Le banc est passé de 4 dettes à 1.** Ne reste que l'invariant 5 — la dette gliptine, qui se résorbera
+à la levée de `ne_contient_pas gliptine` (autorisée par le référent une fois R4 fait, donc débloquée).
+
+L'invariant 7 a dû être resserré **deux fois**, pour le même motif : les garde-fous d'urgence sont
+orthogonaux à la position glycémique. Leçon consignée dans la grammaire — quand un invariant échoue, la
+première question n'est pas « quel contenu corriger » mais « l'invariant dit-il ce que je voulais dire ».
+
+Effet secondaire : sans critère mort nulle part, R5 sort tôt partout et **la suite tombe de 27 s à 3-6 s**.
 
 **Rien n'est poussé.** Réservé au référent : les deux alertes de cohérence intention↔HbA1c, l'alerte
 M2/A9 devenue fausse plus souvent, la prose de l'option gliptine généralisée, les `delai_benefice`
