@@ -11,6 +11,7 @@ import { describe, expect, it } from 'vitest'
 import { getNoeudById } from '../content/loadNodes.ts'
 import { calculerCriteresDerives } from './deriveCritere.ts'
 import { evaluateNode } from './evaluateNode.ts'
+import { construireVueDecision } from '../lib/vueDecision.ts'
 import type { Criteria } from './conditions.ts'
 
 const node = getNoeudById('prescription')
@@ -89,7 +90,18 @@ describe('prescription — A · terrain fragile / nutrition (gating négatif)', 
     const t = titles(o)
     expect(has(t, GLP1)).toBe(true)
     expect(idx(t, GLP1)).toBeLessThan(idx(t, ISGLT2))
-    expect(alertMsgs(o).some((m) => m.includes('fragile'))).toBe(true)
+    // ⚠ ASSERTION DÉPLACÉE, pas affaiblie (R2, 2026-07-25). L'alerte fragilité « on va introduire un
+    // incrétine » a quitté les alertes de NŒUD pour devenir une alerte PORTÉE PAR L'OPTION : elle ne
+    // s'affiche que si l'AR GLP‑1 est réellement applicable, et disparaît d'elle-même quand le terrain
+    // l'écarte — c'est tout l'objet du découpage. Elle n'est donc plus dans `evaluateNode(...).alertes` ;
+    // on la vérifie là où elle vit désormais, sur le modèle de vue. L'intention du test est intacte : ce
+    // patient fragile à qui l'on propose un incrétine DOIT être averti.
+    const vue = construireVueDecision(node!, calculerCriteresDerives(node!.criteres_entree, { ...BASE, ...o } as Criteria))
+    const alertesGlp1 = vue.familles
+      .flatMap((famille) => famille.groupes.flat())
+      .filter((optionVue) => optionVue.option.intitule.includes(GLP1))
+      .flatMap((optionVue) => optionVue.alertes)
+    expect(alertesGlp1.some((a) => a.message.includes('fragile'))).toBe(true)
   })
 })
 

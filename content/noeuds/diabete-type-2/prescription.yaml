@@ -383,6 +383,16 @@ options:
       - "Antécédent de pancréatite ; antécédent personnel/familial de cancer médullaire de la thyroïde ou NEM2."
       - "Refus des injections : préférer le sémaglutide oral ou une autre classe. Rétinopathie proliférante non stabilisée : prudence."
       - "IMC bas / dénutrition : contre‑indication de terrain (perte de poids délétère)."
+    # R2 — branche « on va en introduire un » de l'ancienne alerte fragilité de nœud. PORTÉE PAR L'OPTION :
+    # elle ne s'affiche donc que si cette option est réellement applicable, et disparaît d'elle-même quand
+    # le terrain l'écarte (IMC < 22, dénutrition). Plus besoin de recopier `ASCVD OR IMC >= 30` pour
+    # deviner « envisagé » : l'applicabilité de l'option EST le fait recherché.
+    alertes:
+      - quand: "fragilite == true"
+        niveau: attention
+        message: >-
+          Chez un sujet fragile, surveiller le poids et l'état nutritionnel à l'instauration d'un
+          incrétine (risque de sarcopénie / anorexie).
   - intitule: "Introduire le tirzépatide (obésité — prescription spécialisée)"
     conditions:
       - "IMC >= 30"
@@ -411,6 +421,14 @@ options:
     niveau_preuve: modere
     contre_indications:
       - "Antécédent de pancréatite ; cancer médullaire de la thyroïde / NEM2 ; refus des injections ; dénutrition."
+    # R2 — même alerte que sur l'option AR GLP‑1 : l'ancienne alerte de nœud couvrait les DEUX incrétines
+    # (« AR GLP‑1 / tirzépatide »), son périmètre est conservé à l'identique.
+    alertes:
+      - quand: "fragilite == true"
+        niveau: attention
+        message: >-
+          Chez un sujet fragile, surveiller le poids et l'état nutritionnel à l'instauration d'un
+          incrétine (risque de sarcopénie / anorexie).
   - intitule: "Association iSGLT2 + AR GLP‑1 (deux indications distinctes)"
     conditions:
       - "insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo"
@@ -721,12 +739,23 @@ alertes:
     message: >-
       Metformine CONTRE‑INDIQUÉE si DFG < 30 (RCP ANSM) : arrêter. Un iSGLT2 reste initiable jusqu'à DFG ≥ 20
       (indication rénale) ; en dessous, relais par une autre classe (nœud E). Sulfamide aussi CI < 30.
-  - quand: "fragilite == true AND ASCVD_etablie == true OR fragilite == true AND IMC >= 30 OR fragilite == true AND traitements_en_cours contient aGLP1 OR fragilite == true AND traitements_en_cours contient tirzepatide"
+  # R2 (docs/decision/GRAMMAIRE-NOEUD.md) — DÉCOUPÉE le 2026-07-25 (arbitrage référent). Cette alerte
+  # confondait deux faits sous un même `quand` : le patient est DÉJÀ sous incrétine (fait observé) et le
+  # moteur est SUR LE POINT d'en proposer un. La seconde branche s'écrivait `ASCVD_etablie == true OR
+  # IMC >= 30`, c'est-à-dire une RECOPIE des conditions de déclenchement de l'option AR GLP‑1, faute de
+  # pouvoir interroger ce que le moteur a retenu. Ce proxy se retournait contre lui-même : le terrain qui
+  # ouvre l'indication (athérome, obésité) est aussi celui qui fait EXCLURE l'incrétine chez le sujet
+  # maigre ou dénutri (IMC < 22, dénutrition), et l'alerte se déclenchait quand même — elle parlait d'un
+  # traitement que le moteur venait d'écarter. Ne reste ici que la branche « déjà sous incrétine », qui
+  # est un état du patient et non une supposition sur la sortie. La branche « on va en introduire un » est
+  # devenue une alerte PORTÉE PAR L'OPTION (cf. `alertes` des options AR GLP‑1 et tirzépatide) : elle n'a
+  # plus rien à deviner, elle s'affiche si et seulement si l'option est applicable.
+  - quand: "fragilite == true AND traitements_en_cours contient aGLP1 OR fragilite == true AND traitements_en_cours contient tirzepatide"
     niveau: attention
     message: >-
-      Sujet fragile chez qui un incrétine (AR GLP‑1 / tirzépatide) est en cours ou envisagé : surveiller le
-      poids et l'état nutritionnel (risque de sarcopénie / anorexie). En cas de dénutrition ou d'IMC bas,
-      l'incrétine est contre‑indiquée (garde‑fou de terrain — l'option est alors retirée).
+      Sujet fragile déjà sous incrétine (AR GLP‑1 / tirzépatide) : surveiller le poids et l'état
+      nutritionnel (risque de sarcopénie / anorexie). En cas de dénutrition ou d'IMC bas, réévaluer
+      l'indication — réduire la posologie ou arrêter.
   - quand: "infections_uro_genitales_recidivantes == true AND traitements_en_cours contient iSGLT2 OR infections_uro_genitales_recidivantes == true AND insuffisance_cardiaque == true OR infections_uro_genitales_recidivantes == true AND DFG < 60 OR infections_uro_genitales_recidivantes == true AND albuminurie != normo OR infections_uro_genitales_recidivantes == true AND ASCVD_etablie == true"
     niveau: attention
     message: >-
@@ -949,8 +978,23 @@ meta:
   date_revue: "2026-07-25"
   auteur: "référent DT2 + Opus"
   statut: brouillon
-  version: "0.14"
+  version: "0.15"
   changelog:
+    - date: "2026-07-25"
+      auteur: "référent DT2 + Opus"
+      resume: >-
+        R2 — DÉCOUPAGE DE L'ALERTE FRAGILITÉ (arbitrage référent). Elle confondait deux faits sous un
+        même `quand` : le patient est DÉJÀ sous incrétine (fait observé) et le moteur est SUR LE POINT
+        d'en proposer un. La seconde branche s'écrivait `ASCVD_etablie == true OR IMC >= 30`, soit une
+        RECOPIE des conditions de déclenchement de l'option AR GLP-1, faute de pouvoir interroger ce que
+        le moteur avait retenu. Ce proxy se retournait contre lui-même : le terrain qui ouvre l'indication
+        (athérome, obésité) est aussi celui qui fait EXCLURE l'incrétine chez le sujet maigre ou dénutri,
+        et l'alerte se déclenchait quand même — elle parlait d'un traitement que le moteur venait
+        d'écarter, défaut remonté en recette. L'alerte de nœud ne garde que la branche « déjà sous
+        incrétine » ; la branche « on va en introduire un » devient une alerte PORTÉE PAR L'OPTION sur
+        « Introduire un AR GLP-1 » et « Introduire le tirzépatide » (périmètre de l'ancienne alerte
+        conservé à l'identique) : elle n'a plus rien à deviner, elle s'affiche si et seulement si l'option
+        est applicable. Vignette F3 : assertion DÉPLACÉE vers le modèle de vue, pas affaiblie.
     - date: "2026-07-25"
       auteur: "référent DT2 + Opus"
       resume: >-
