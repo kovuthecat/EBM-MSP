@@ -83,19 +83,8 @@ statut : ` ` à faire · `~` en cours · `x` fait · modèles/efforts : `WORKFLO
 > Les six règles sont **entièrement livrées**. Le banc (`src/features/decision/engine/banc/`) est à
 > **0 `it.fails`** : plus aucune dette matérialisée. Ce qui suit relève du référent ou du confort.
 
-- [ ] **RÉFÉRENT** — découper l'alerte fragilité de `prescription.yaml`. Elle confond deux faits sous un
-      même `quand` : le patient est DÉJÀ sous incrétine (fait observé, légitime en alerte de nœud) et le
-      moteur est SUR LE POINT d'en proposer un (branche `ASCVD OR IMC >= 30`, qui n'est qu'un proxy
-      recopiant les conditions de déclenchement de l'option AR GLP‑1). C'est cette seconde branche qui
-      se déclenche à tort quand l'AR GLP‑1 vient d'être écarté par le terrain. Le mécanisme d'alerte
-      portée par une option existe désormais : la branche « envisagé » n'a plus besoin du proxy, elle se
-      déclenche quand l'option est applicable, par construction. Proposition de formulation rédigée, à
-      arbitrer · plan: —
-- [ ] **RÉFÉRENT** — validation clinique de bout en bout sur le déployé, puis `prescription.yaml` et
-      `insuline.yaml` en `statut: valide` · plan: —
-- [ ] **RÉFÉRENT** — le `delai_benefice` de l'AR GLP‑1 dit « 2 à 5,4 ans selon la molécule ». Les 5,4 ans
-      de REWIND portent sur une population majoritairement en prévention primaire : la durée reflète en
-      partie la population. Décider si l'écran doit le dire · plan: —
+- [ ] **RÉFÉRENT** — validation clinique de bout en bout sur le déployé (recette en cours, Claude
+      Desktop), puis `prescription.yaml` et `insuline.yaml` en `statut: valide` · plan: —
 - [ ] Rebrancher le test R5 du banc sur le modèle de vue : contre `evaluateNode` il sous-estime la portée
       d'un critère (une dose calculée, une alerte d'option, un motif de rang) · modèle: Sonnet,
       effort: medium · plan: —
@@ -115,6 +104,9 @@ statut : ` ` à faire · `~` en cours · `x` fait · modèles/efforts : `WORKFLO
       R2, R4 et R6 livrables sans rouvrir le défaut récurrent
 - [x] Six arbitrages référent : critères morts, sortie muette, alertes obsolètes, garde de
       sur-traitement (`ab06062`) ; invariant 7 resserré au gate catabolique près (`f1d9846`)
+- [x] Alerte fragilité découpée en deux (nœud + option), validée référent (`c6ed2ac`)
+- [x] `delai_benefice` de l'AR GLP‑1 explicité par molécule (2 ans sémaglutide → 5,4 ans dulaglutide,
+      réserve prévention primaire), validé référent
 
 ## Backlog (P3 — reste avant `valide` final)
 

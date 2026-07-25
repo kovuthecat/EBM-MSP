@@ -374,10 +374,12 @@ options:
       primaire. Rénal dur = sémaglutide (FLOW, HR 0,76).
     # R2 — vérifié à la source le 2026-07-25, les trois molécules nommées ayant trois durées distinctes :
     # SUSTAIN-6 sémaglutide 104 semaines (2 ans) ; LEADER liraglutide 3,8 ans (médiane) ; REWIND
-    # dulaglutide 5,4 ans (médiane). ⚠ Les 5,4 ans de REWIND portent sur une population majoritairement en
+    # dulaglutide 5,4 ans (médiane). Les 5,4 ans de REWIND portent sur une population majoritairement en
     # PRÉVENTION PRIMAIRE, où le taux d'événements est plus bas : la durée y reflète en partie la
-    # population, pas seulement la cinétique de la molécule.
-    delai_benefice: "2 à 5,4 ans selon la molécule"
+    # population, pas seulement la cinétique de la molécule — décision référent 2026-07-25 : le dire à
+    # l'écran plutôt qu'en commentaire seul, pour ne pas laisser croire que 5,4 ans est une propriété
+    # uniforme de la classe.
+    delai_benefice: "2 ans (sémaglutide) à 5,4 ans (dulaglutide, population surtout en prévention primaire)"
     niveau_preuve: modere
     contre_indications:
       - "Antécédent de pancréatite ; antécédent personnel/familial de cancer médullaire de la thyroïde ou NEM2."
@@ -978,8 +980,14 @@ meta:
   date_revue: "2026-07-25"
   auteur: "référent DT2 + Opus"
   statut: brouillon
-  version: "0.15"
+  version: "0.16"
   changelog:
+    - date: "2026-07-25"
+      auteur: "référent DT2 + Opus"
+      resume: >-
+        R2 — délai de bénéfice de l'AR GLP-1 explicité par molécule (décision référent) : « 2 ans
+        (sémaglutide) à 5,4 ans (dulaglutide, population surtout en prévention primaire) » remplace
+        « 2 à 5,4 ans selon la molécule », qui laissait croire à une propriété uniforme de la classe.
     - date: "2026-07-25"
       auteur: "référent DT2 + Opus"
       resume: >-
