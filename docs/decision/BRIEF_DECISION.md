@@ -53,6 +53,8 @@ Préciser toujours **critère dur vs substitution** et **effet absolu / NNT** si
 
 Contenu = données versionnées, **un fichier YAML par nœud** dans `/content/noeuds`, plus **un fichier par entrée de veille** dans `/content/veille`. Validation par **JSON Schema**. Séparer *contenu / logique / présentation*.
 
+> **Règles de modélisation, tous domaines : [`GRAMMAIRE-NOEUD.md`](GRAMMAIRE-NOEUD.md).** Le présent §5 décrit la **forme** du fichier ; la grammaire décrit **ce qu'il faut y mettre** pour que le nœud rende le raisonnement du praticien — un état ne se déduit pas d'une intention (R1), toute option porte son délai de bénéfice (R2), modifier un traitement est deux décisions (R3), écarté et non-indiqué sont deux silences distincts (R4), un critère qu'on demande doit agir (R5), l'argumentaire est situationnel (R6) — ainsi que la structure du banc de test d'un nœud. À lire **avant** d'écrire un nœud, dans quelque domaine que ce soit.
+
 ### 5.1 Schéma d'un nœud de décision
 
 ```yaml
@@ -113,13 +115,19 @@ auteur:
 
 ## 6. Variables d'entrée communes (DT2)
 
-`age`, `anciennete_diabete_annees`, `esperance_vie`, `fragilite`, `risque_hypoglycemie_schema`, `HbA1c_actuelle`, `DFG`, `albuminurie`, `ASCVD_etablie`, `insuffisance_cardiaque`, `IRC`, `IMC`, `prevention`, `autres_FDRCV`, `SCORE2`, `preference_injection`, `contrainte_cout`, `traitements_en_cours`.
+**Autorité : les `criteres_entree` des fichiers `content/noeuds/diabete-type-2/*.yaml`.** Cette section ne les recopie plus — une liste dupliquée diverge du contenu réel, ce qui s'est produit : `contrainte_cout` (coût écarté comme critère en France, décision référent), `prevention`, `SCORE2` et `IRC` étaient encore listés ici alors qu'ils n'existent **dans aucun nœud**.
+
+Noyau effectivement partagé par plusieurs nœuds : `age`, `esperance_vie`, `fragilite`, `risque_hypoglycemie_schema`, `HbA1c_actuelle`, `DFG`, `albuminurie`, `ASCVD_etablie`, `insuffisance_cardiaque`, `IMC`, `preference_injection`, `traitements_en_cours`, `anciennete_diabete_annees`.
+
+Rappel [`GRAMMAIRE-NOEUD.md`](GRAMMAIRE-NOEUD.md) **R5** : un critère déclaré doit changer la sortie pour au moins un profil du banc du nœud, sinon il est retiré ou rebranché — jamais laissé en place. Le test est mécanique (`engine/relevance.ts` appliqué au banc).
 
 ---
 
 ## 7. Logique décisionnelle
 
 Appariement par **règles transparentes**. Chaque option porte des `conditions` booléennes ; le moteur filtre les options applicables, les classe (préférence par nœud), et affiche **pourquoi** chacune est proposée. Aucun score caché.
+
+> Le « pourquoi » se lit au sens de [`GRAMMAIRE-NOEUD.md`](GRAMMAIRE-NOEUD.md) **R6** : les critères **de ce patient** qui ont fait proposer l'option, jamais l'énumération des critères qui *pourraient* la faire proposer. Et une option retirée l'est de deux façons qui ne se présentent pas pareil (**R4**) : écartée par une `exclusion` — elle était indiquée, un garde-fou l'a retirée, c'est une information de sécurité qui s'affiche ; non retenue faute de `condition` — elle n'était pas indiquée, cela se consulte sur demande.
 
 ---
 
