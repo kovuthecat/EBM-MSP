@@ -54,6 +54,19 @@ export interface EvaluateNodeResult {
    */
   excluded: Map<Option, string[]>
   /**
+   * Options NON RETENUES faute de `condition` (R4, `docs/decision/GRAMMAIRE-NOEUD.md`) : l'option
+   * n'a jamais été candidate — l'une de ses `conditions` était fausse. Indexées par la PREMIÈRE
+   * condition non satisfaite (pas toutes) : c'est celle qui explique, cf. R4. Distinct d'`excluded` :
+   * ici l'option n'était pas indiquée pour ce patient (information d'EXPLICATION, consultée sur
+   * demande) ; `excluded` retire une option qui ÉTAIT indiquée (information de SÉCURITÉ, toujours
+   * visible). Les options de repli (`["default"]`) n'y figurent JAMAIS : leur non-activation n'est
+   * pas un refus, c'est leur sémantique (le repli n'active que si rien d'autre ne s'applique). Les
+   * options « toujours » (D16) n'y figurent pas non plus : sans condition réelle à échouer, elles ne
+   * peuvent jamais être « non retenues faute de condition ». Vide si toutes les options non-repli/
+   * non-toujours sont soit applicables, soit exclues.
+   */
+  nonRetenues: Map<Option, string>
+  /**
    * Alertes cliniques déclenchées pour ces critères (D15) : rappels/avertissements indépendants de
    * la sélection des options (ex. contrôler la cétonémie, adapter la dose au DFG). Vide si aucune.
    */
@@ -250,6 +263,23 @@ function triggeredExclusions(option: Option, criteria: Criteria): string[] {
 }
 
 /**
+ * Première condition de `option.conditions` qui s'évalue à FAUX, ou `undefined` si toutes sont
+ * vraies (option applicable sur ses conditions). Remplace `option.conditions.every(...)` : même
+ * nombre d'appels à `evaluateCondition` — arrêt au premier échec, exactement comme `.every()` — mais
+ * expose LA condition fautive plutôt qu'un simple booléen, sans évaluation supplémentaire (R4,
+ * `docs/decision/GRAMMAIRE-NOEUD.md` : « la condition non satisfaite est déjà connue au moment où la
+ * boucle s'arrête, il suffit de la retenir »). Coût nul par rapport au comportement précédent — décisif
+ * ici : cette fonction est appelée par `evaluateNode`, lui-même rappelé des centaines de fois par
+ * frappe via la boucle de perturbation (`engine/relevance.ts`).
+ */
+function firstFailingCondition(option: Option, criteria: Criteria): string | undefined {
+  for (const condition of option.conditions) {
+    if (!evaluateCondition(condition, criteria)) return condition
+  }
+  return undefined
+}
+
+/**
  * Alertes déclenchées d'un nœud pour ces critères (D15) : celles dont `quand` vaut `"default"`
  * (toujours) ou dont l'expression DSL est vraie. Indépendant de la sélection des options. Propage
  * `ConditionError` sur une expression malformée (jamais de faux silencieux, brief §7).
@@ -319,6 +349,7 @@ export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResul
   const applicable: Option[] = []
   const reasons = new Map<Option, string[]>()
   const excluded = new Map<Option, string[]>()
+  const nonRetenues = new Map<Option, string>()
   const defaults: Option[] = []
   let anyNonDefaultApplicable = false
 
@@ -340,8 +371,13 @@ export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResul
       continue
     }
     requireConditions(option)
-    const satisfied = option.conditions.every((condition) => evaluateCondition(condition, criteria))
-    if (!satisfied) continue
+    // R4 : la condition fautive (s'il y en a une) est retenue au passage, sans réévaluation (cf.
+    // docstring `firstFailingCondition`).
+    const failing = firstFailingCondition(option, criteria)
+    if (failing !== undefined) {
+      nonRetenues.set(option, failing)
+      continue
+    }
     // Applicable sur ses conditions : une exclusion dure la retire (et la trace dans `excluded`).
     const triggered = triggeredExclusions(option, criteria)
     if (triggered.length > 0) {
@@ -382,7 +418,7 @@ export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResul
     return ra < rb ? -1 : 1
   })
 
-  return { applicable, reasons, excluded, alertes, rangs }
+  return { applicable, reasons, excluded, nonRetenues, alertes, rangs }
 }
 
 /**
@@ -391,33 +427,48 @@ export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResul
  * repli (`["default"]`, placée en dernier). Pour les nœuds à cible unique (ex. cible glycémique) :
  * l'ordre EST la sémantique explicite, ce qui lève l'ambiguïté des conditions qui se chevauchent.
  * Propage `ConditionError` comme `evaluateNode` (jamais de faux silencieux, brief §7).
+ *
+ * `nonRetenues` (R4) ne peut tracer que les options VUES avant l'arrêt de la boucle (le 1er match ou
+ * l'épuisement du nœud) : une fois une option retenue, les suivantes dans l'ordre du nœud ne sont
+ * jamais évaluées — cohérent avec `excluded`, qui a la même limite en OFM.
  */
 function evaluateOrderedFirstMatch(
   node: Noeud,
   criteria: Criteria,
 ): Omit<EvaluateNodeResult, 'alertes' | 'rangs'> {
   const excluded = new Map<Option, string[]>()
+  const nonRetenues = new Map<Option, string>()
   for (const option of node.options) {
     if (isDefaultOption(option)) continue
     requireConditions(option)
-    const satisfied = isToujoursOption(option) || option.conditions.every((condition) => evaluateCondition(condition, criteria))
-    if (!satisfied) continue
+    if (!isToujoursOption(option)) {
+      const failing = firstFailingCondition(option, criteria)
+      if (failing !== undefined) {
+        nonRetenues.set(option, failing)
+        continue
+      }
+    }
     // 1re option satisfaite : une exclusion dure la saute (on continue vers la suivante).
     const triggered = triggeredExclusions(option, criteria)
     if (triggered.length > 0) {
       excluded.set(option, triggered)
       continue
     }
-    return { applicable: [option], reasons: new Map([[option, [...option.conditions]]]), excluded }
+    return { applicable: [option], reasons: new Map([[option, [...option.conditions]]]), excluded, nonRetenues }
   }
   const fallback = node.options.find(isDefaultOption)
   if (fallback) {
     const triggered = triggeredExclusions(fallback, criteria)
     if (triggered.length > 0) {
       excluded.set(fallback, triggered)
-      return { applicable: [], reasons: new Map(), excluded }
+      return { applicable: [], reasons: new Map(), excluded, nonRetenues }
     }
-    return { applicable: [fallback], reasons: new Map([[fallback, [...fallback.conditions]]]), excluded }
+    return {
+      applicable: [fallback],
+      reasons: new Map([[fallback, [...fallback.conditions]]]),
+      excluded,
+      nonRetenues,
+    }
   }
-  return { applicable: [], reasons: new Map(), excluded }
+  return { applicable: [], reasons: new Map(), excluded, nonRetenues }
 }

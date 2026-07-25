@@ -7,6 +7,7 @@ import { OptionCard } from '../components/OptionCard'
 import { getNoeudById } from '../content/loadNodes'
 import type { Criteria, CriteriaValue } from '../engine/conditions'
 import { criteresPertinents } from '../engine/relevance'
+import { describeReasons } from '../lib/conditionText'
 import { ESPERANCE_VIE_DRIVERS, hasEsperanceVieCritere, suggestEsperanceVie } from '../lib/esperanceVieDefault'
 import { buildDefaultCriteria, decisifsAConfirmer, reinitialiserChampsMasques } from '../lib/formLayout'
 import { construireVueDecision } from '../lib/vueDecision'
@@ -39,6 +40,10 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   // un âge/ancienneté resté à 0 sans que le praticien s'en rende compte.
   const [touched, setTouched] = useState<Set<string>>(() => new Set())
   const [argOpen, setArgOpen] = useState(false)
+  // R4 (`docs/decision/GRAMMAIRE-NOEUD.md`) : les options NON RETENUES (faute de condition) sont une
+  // information d'EXPLICATION, consultée sur demande — fermée par défaut, jamais poussée à l'écran
+  // (contrairement aux options ÉCARTÉES par une exclusion, information de SÉCURITÉ, toujours visibles).
+  const [nonRetenuesOpen, setNonRetenuesOpen] = useState(false)
 
   // Les critères dérivés (ex. cible_atteinte = HbA1c_actuelle <= HbA1c_cible ; over_basalisation =
   // dose_basale_actuelle / poids > 0,5) sont recalculés depuis les primitives saisies AVANT l'évaluation
@@ -255,6 +260,42 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
             })()
           ) : (
             <p className="decision-node__empty">Aucune option ne correspond à ces critères.</p>
+          )}
+
+          {/* R4 — ÉCARTÉES (sécurité) : l'option était indiquée, une exclusion l'a retirée. Toujours
+              visible, discrètement, sous le panneau de résultats — jamais en silence (D13/R4). */}
+          {vue && vue.ecartees.length > 0 && (
+            <div className="decision-node__ecartees">
+              {vue.ecartees.map((ecartee, index) => (
+                <p key={`${index}-${ecartee.option.intitule}`} className="decision-node__ecartee">
+                  {ecartee.option.intitule} écarté : {describeReasons(ecartee.motifs)}
+                </p>
+              ))}
+            </div>
+          )}
+
+          {/* R4 — NON RETENUES (explication) : l'option n'était pas indiquée pour ce patient. Consultée
+              sur demande seulement — sur un nœud à 22 options, la pousser rendrait l'écran illisible. */}
+          {vue && vue.nonRetenues.length > 0 && (
+            <div className="decision-node__non-retenues">
+              <button
+                type="button"
+                className="decision-node__non-retenues-toggle"
+                aria-expanded={nonRetenuesOpen}
+                onClick={() => setNonRetenuesOpen((open) => !open)}
+              >
+                {nonRetenuesOpen ? 'Masquer les autres options' : 'Pourquoi pas d’autres options ?'}
+              </button>
+              {nonRetenuesOpen && (
+                <div className="decision-node__non-retenues-liste">
+                  {vue.nonRetenues.map((nonRetenue, index) => (
+                    <p key={`${index}-${nonRetenue.option.intitule}`} className="decision-node__non-retenue">
+                      {nonRetenue.option.intitule} : {describeReasons([nonRetenue.condition])}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
 
           <button

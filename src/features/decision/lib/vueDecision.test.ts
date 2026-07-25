@@ -8,6 +8,7 @@
  */
 import { describe, expect, it } from 'vitest'
 import type { Alerte, Noeud, Option } from '../content/node.types.ts'
+import { criteresPertinents } from '../engine/relevance.ts'
 import { construireVueDecision, signatureVue } from './vueDecision.ts'
 
 /** Fabrique une option minimale (comme `groupesExAequo.test.ts`/`optionBadges.test.ts`). */
@@ -148,5 +149,88 @@ describe('signatureVue — invariant central : totale et stable', () => {
     // Rien d'autre ne bouge (même option, même badge) — seule la signature totale le détecte.
     expect(vueSansY.familles[0].groupes[0][0].badge).toBe(vueAvecY.familles[0].groupes[0][0].badge)
     expect(signatureVue(vueSansY)).not.toBe(signatureVue(vueAvecY))
+  })
+})
+
+describe('construireVueDecision — R4 : écartées (sécurité) vs non retenues (explication)', () => {
+  it('une option EXCLUE apparaît dans `ecartees` avec le(s) motif(s) déclenché(s) ; une option qui échoue sur une condition apparaît dans `nonRetenues` avec SEULEMENT la 1re condition fautive', () => {
+    const ecartee = opt('Écartée', ['flag == true'], { exclusions: ['danger == true'] })
+    // Deux conditions : la 1re vraie (`ok`), la 2e fausse (`jamais`) — vérifie qu'on ne retient QUE la
+    // première condition qui échoue, pas toutes (R4 : « c'est celle qui explique »).
+    const nonRetenue = opt('Non retenue', ['ok == true', 'jamais == true'])
+    const def = opt('Défaut', ['default'])
+    const node = makeNode(
+      [ecartee, nonRetenue, def],
+      [
+        { nom: 'flag', type: 'bool' },
+        { nom: 'danger', type: 'bool' },
+        { nom: 'ok', type: 'bool' },
+        { nom: 'jamais', type: 'bool' },
+      ],
+    )
+    const vue = construireVueDecision(node, { flag: true, danger: true, ok: true, jamais: false })
+    expect(vue.ecartees).toEqual([{ option: ecartee, motifs: ['danger == true'] }])
+    expect(vue.nonRetenues).toEqual([{ option: nonRetenue, condition: 'jamais == true' }])
+  })
+
+  it('une option de repli (`["default"]`) NON ACTIVÉE (une autre option couvre le patient) n’apparaît JAMAIS dans `nonRetenues` : sa non-activation n’est pas un refus, c’est sa sémantique', () => {
+    const ajout = opt('Ajout', ['flag == true'])
+    const def = opt('Défaut', ['default'])
+    const node = makeNode([ajout, def], [{ nom: 'flag', type: 'bool' }])
+    const vue = construireVueDecision(node, { flag: true }) // Ajout applicable → le repli ne s'active pas
+    expect(vue.familles[0].groupes.flat().map((ov) => ov.option.intitule)).toEqual(['Ajout'])
+    expect(vue.ecartees).toEqual([])
+    expect(vue.nonRetenues).toEqual([])
+  })
+
+  it('un repli EXCLU par sa propre exclusion apparaît dans `ecartees` (sécurité) ; il n’a JAMAIS de vraie condition à faire échouer (`["default"]`), donc il ne peut pas figurer dans `nonRetenues`', () => {
+    // Ici le repli ne s'active QUE parce qu'`A` a elle-même échoué sur sa condition (flag=false) :
+    // `A` figure donc légitimement dans `nonRetenues` (faute de condition, explication) tandis que le
+    // repli, une fois activé, est retiré par SA PROPRE exclusion et figure dans `ecartees` (sécurité).
+    // Les deux listes coexistent ici, chacune pour la bonne raison — c'est ce qui distingue les deux
+    // canaux, pas leur exclusivité mutuelle sur un même profil.
+    const a = opt('A', ['flag == true'])
+    const def = opt('Défaut', ['default'], { exclusions: ['interdit == true'] })
+    const node = makeNode([a, def], [
+      { nom: 'flag', type: 'bool' },
+      { nom: 'interdit', type: 'bool' },
+    ])
+    const vue = construireVueDecision(node, { flag: false, interdit: true })
+    expect(vue.ecartees).toEqual([{ option: def, motifs: ['interdit == true'] }])
+    expect(vue.nonRetenues).toEqual([{ option: a, condition: 'flag == true' }])
+  })
+})
+
+describe('signatureVue — R4 : un critère qui ne change QUE la liste des ÉCARTÉES est décisif (verrou du travail)', () => {
+  // « A » est TOUJOURS candidate (`a == true`, fixé dans les deux profils comparés) et TOUJOURS exclue
+  // (`y == true`, fixé lui aussi) : elle n'entre JAMAIS dans `applicable`/`familles`, quelle que soit la
+  // valeur de `x`. Seule la liste des MOTIFS d'exclusion déclenchés (2e exclusion de l'option) varie selon
+  // `x` — exactement le cas que R4 doit rendre visible : un critère qui ne bouge RIEN dans le panneau de
+  // résultats (mêmes familles, mêmes alertes, aucune option ne devient applicable ou inapplicable) mais
+  // change ce qui s'affiche dans les écartées. Avant ce travail, `excluded` n'entrait pas dans
+  // `VueDecision`/`signatureVue` : un tel critère aurait été estompé à tort comme « sans effet ».
+  const a = opt('A', ['a == true'], { exclusions: ['y == true', 'x == true'] })
+  const node = makeNode(
+    [a],
+    [
+      { nom: 'a', type: 'bool' },
+      { nom: 'y', type: 'bool' },
+      { nom: 'x', type: 'bool' },
+    ],
+  )
+
+  it('les familles et les alertes sont IDENTIQUES entre x=false et x=true ; seule `ecartees` change', () => {
+    const vueSansX = construireVueDecision(node, { a: true, y: true, x: false })
+    const vueAvecX = construireVueDecision(node, { a: true, y: true, x: true })
+    expect(vueSansX.familles).toEqual(vueAvecX.familles)
+    expect(vueSansX.alertes).toEqual(vueAvecX.alertes)
+    expect(vueSansX.ecartees).toEqual([{ option: a, motifs: ['y == true'] }])
+    expect(vueAvecX.ecartees).toEqual([{ option: a, motifs: ['y == true', 'x == true'] }])
+    expect(signatureVue(vueSansX)).not.toBe(signatureVue(vueAvecX))
+  })
+
+  it('`criteresPertinents` (engine/relevance.ts) voit bien `x` comme DÉCISIF alors qu’il ne change QUE les écartées — la propriété que ce travail garantit', () => {
+    const pertinents = criteresPertinents(node, { a: true, y: true, x: false })
+    expect(pertinents.has('x')).toBe(true)
   })
 })

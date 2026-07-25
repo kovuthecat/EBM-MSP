@@ -117,6 +117,51 @@
   margin-bottom: 0;
 }
 
+/* R4 (`docs/decision/GRAMMAIRE-NOEUD.md`) — ÉCARTÉES : information de SÉCURITÉ, toujours affichée mais
+   discrète (texte muet, pas de bloc coloré comme `AlertList` — une exclusion n'est pas une alerte à
+   part entière, c'est la trace de ce qui a déjà été retiré). */
+.decision-node__ecartees {
+  margin: 0 0 20px;
+}
+
+.decision-node__ecartee {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--c-text-faible);
+  margin: 0 0 4px;
+}
+
+/* R4 — NON RETENUES : information d'EXPLICATION, repliée par défaut (« pourquoi pas X ? »). Bouton au
+   même gabarit que `decision-node__toggle-argument`, en plus discret (pas de fond) : c'est une
+   sous-action de consultation, pas une action principale de l'écran. */
+.decision-node__non-retenues {
+  margin: 0 0 20px;
+}
+
+.decision-node__non-retenues-toggle {
+  border: 1px solid var(--c-border);
+  background: transparent;
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--c-text-muted);
+}
+
+.decision-node__non-retenues-liste {
+  margin-top: 10px;
+  padding-left: 14px;
+  border-left: 2px solid var(--c-border);
+}
+
+.decision-node__non-retenue {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--c-text-faible);
+  margin: 0 0 4px;
+}
+
 .decision-node__toggle-argument {
   border: 1px solid var(--c-border);
   background: var(--c-surface);

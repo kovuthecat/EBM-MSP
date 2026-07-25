@@ -19,11 +19,13 @@
  * `signatureVue` sérialise directement le même objet `VueDecision` que l'écran rend : tout ce qui
  * est affiché est dans la signature PAR CONSTRUCTION, plus par discipline.
  *
- * ⚠️ Périmètre volontairement borné à ce que l'écran rend AUJOURD'HUI : `excluded` (options écartées,
- * calculé par `evaluateNode` mais non encore affiché) n'entre PAS dans `VueDecision`. L'y mettre
- * maintenant recréerait le défaut symétrique — une signature qui contient ce que l'écran ne montre
- * pas encore, donc des critères déclarés décisifs sans rien changer de visible. `excluded` entrera
- * dans la vue et dans l'écran au même moment, dans une tâche ultérieure.
+ * R4 (`docs/decision/GRAMMAIRE-NOEUD.md`) : `ecartees` (options retirées par une `exclusion` —
+ * information de SÉCURITÉ, toujours affichée) et `nonRetenues` (options qui ont échoué sur une
+ * `condition` — information d'EXPLICATION, consultée sur demande) entrent désormais dans
+ * `VueDecision` ET dans `signatureVue`. C'est ce qui garantit qu'un critère qui ne change QUE l'une de
+ * ces deux listes reste détecté comme DÉCISIF par `engine/relevance.ts` — sinon il serait estompé à
+ * tort comme « sans effet », le défaut récurrent que ce fichier existe pour empêcher (cf. R6, même
+ * document).
  */
 import type { Alerte, Noeud, Option } from '../content/node.types.ts'
 import type { Criteria } from '../engine/conditions.ts'
@@ -56,10 +58,34 @@ export interface FamilleVue {
   groupes: OptionVue[][]
 }
 
+/**
+ * Une option ÉCARTÉE (R4) : elle était indiquée (ses `conditions` étaient vraies), une `exclusion` l'a
+ * retirée. Information de SÉCURITÉ — toujours affichée, discrètement, avec son motif.
+ */
+export interface OptionEcarteeVue {
+  option: Option
+  /** Expressions `exclusions` déclenchées (`EvaluateNodeResult.excluded`) ; jamais vide. */
+  motifs: string[]
+}
+
+/**
+ * Une option NON RETENUE faute de `condition` (R4) : elle n'était pas indiquée pour ce patient.
+ * Information d'EXPLICATION — consultée sur demande, jamais poussée à l'écran.
+ */
+export interface OptionNonRetenueVue {
+  option: Option
+  /** Première condition non satisfaite (`EvaluateNodeResult.nonRetenues`) — celle qui explique. */
+  condition: string
+}
+
 /** Tout ce que l'écran de décision rend pour un nœud et un jeu de critères donnés. */
 export interface VueDecision {
   familles: FamilleVue[]
   alertes: Alerte[]
+  /** R4 — options écartées par une exclusion (sécurité, toujours visibles). */
+  ecartees: OptionEcarteeVue[]
+  /** R4 — options non retenues faute de condition (explication, à la demande). */
+  nonRetenues: OptionNonRetenueVue[]
 }
 
 /** Doses calculées d'une option (déplacé depuis `OptionCard.tsx`, comportement inchangé) : n'affiche
@@ -87,7 +113,7 @@ function calculsAffiches(option: Option, criteria: Criteria): CalculAffiche[] {
  */
 export function construireVueDecision(node: Noeud, criteria: Criteria): VueDecision {
   const derived = calculerCriteresDerives(node.criteres_entree, criteria)
-  const { applicable, reasons, alertes, rangs } = evaluateNode(node, derived)
+  const { applicable, reasons, alertes, rangs, excluded, nonRetenues } = evaluateNode(node, derived)
   const famillesBrutes = groupesParFamille(node, applicable, rangs)
   const badges = computeBadges(famillesBrutes)
 
@@ -106,7 +132,16 @@ export function construireVueDecision(node: Noeud, criteria: Criteria): VueDecis
     ),
   }))
 
-  return { familles, alertes }
+  // R4 : ordre de `EvaluateNodeResult.excluded`/`nonRetenues`, lui-même l'ordre d'itération de
+  // `node.options` dans `evaluateNode` (les deux Map sont peuplées dans cet ordre) — déterministe,
+  // stable d'un appel à l'autre pour un même contenu.
+  const ecartees: OptionEcarteeVue[] = [...excluded].map(([option, motifs]) => ({ option, motifs }))
+  const nonRetenuesVue: OptionNonRetenueVue[] = [...nonRetenues].map(([option, condition]) => ({
+    option,
+    condition,
+  }))
+
+  return { familles, alertes, ecartees, nonRetenues: nonRetenuesVue }
 }
 
 /**
@@ -133,14 +168,26 @@ function serialiseFamille(famille: FamilleVue): string {
     .join('|')}`
 }
 
+/** Sérialisation d'une option écartée (R4) : identité + TOUS les motifs d'exclusion déclenchés. */
+function serialiseEcartee(ecartee: OptionEcarteeVue): string {
+  return `${ecartee.option.intitule}«${ecartee.motifs.join('&')}»`
+}
+
+/** Sérialisation d'une option non retenue (R4) : identité + la condition fautive retenue. */
+function serialiseNonRetenue(nonRetenue: OptionNonRetenueVue): string {
+  return `${nonRetenue.option.intitule}«${nonRetenue.condition}»`
+}
+
 /**
  * Sérialise une `VueDecision` en chaîne STABLE et TOTALE : deux vues égales produisent la même
  * chaîne, et RIEN du modèle de vue n'est omis (familles, groupes d'égalité, badges, raisons, doses
- * calculées, alertes) — c'est cette totalité qui garantit qu'aucun critère décisif à l'écran ne peut
- * plus être estompé à tort par `engine/relevance.ts`.
+ * calculées, alertes, options écartées et non retenues — R4) — c'est cette totalité qui garantit
+ * qu'aucun critère décisif à l'écran ne peut plus être estompé à tort par `engine/relevance.ts`.
  */
 export function signatureVue(vue: VueDecision): string {
   const familles = vue.familles.map(serialiseFamille).join('§§')
   const alertes = vue.alertes.map((a) => `${a.message}~${a.niveau ?? ''}`).join('|')
-  return `${familles}##${alertes}`
+  const ecartees = vue.ecartees.map(serialiseEcartee).join('|')
+  const nonRetenues = vue.nonRetenues.map(serialiseNonRetenue).join('|')
+  return `${familles}##${alertes}##${ecartees}##${nonRetenues}`
 }
