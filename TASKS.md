@@ -74,8 +74,14 @@ statut : ` ` à faire · `~` en cours · `x` fait · modèles/efforts : `WORKFLO
 - [x] T-023 — Vérification S4 (banc exécutable 17 profils + red-team, 0 HAUTE) · plan: → plans/P3-fusion/S4.md
 - [x] T-024 — Câblage app 3 onglets→1 + retrait B/C/D (148 tests + build OK) · plan: → plans/P3-fusion/S5.md
 - [x] Validation adversariale P2·S3–S7 (red-team indépendant + banc exécutable, 0 HAUTE, M1/M2 corrigés) · → RAPPORT-prescription-S3-S7.md
-- [x] T-025 — Validation référent → `prescription.yaml` **valide v1.0** + D18 (go référent) · plan: → plans/P3-fusion/S6.md
-- [~] T-026 — Refonte UI : Lots 1-3 faits (relevance + estompage + reco provisoire) ; **Lot 4 restant** (primer/rail/argumentaires, visuel référent) · plan: → plans/P3-fusion/S7-ui.md
+- [x] T-025 — Validation référent initiale → `valide` v1.0 + D18 · plan: → plans/P3-fusion/S6.md *(voir T-027 : repassé brouillon pour la refonte S8, D18 à mettre à jour)*
+- [~] T-026 — Refonte UI : Lots 1-3 faits (relevance + estompage + reco provisoire) ; **Lot 4 restant** (primer par intention/rail/argumentaires, visuel référent) · plan: → plans/P3-fusion/S7-ui.md
+- [x] T-027 — Refonte « par intention » (S8) : 4 intentions (initier/intensifier/optimiser/déprescrire) remplacent `position_vs_cible` ; palette glycémique + séquençage HAS ; repli insuline ; déprescription nuancée (réductions distinctes, `nature_intolerance`) ; alertes de cohérence. Vérifié 4 agents adversariaux (2 HAUTE corrigées) + passe ciblée sur 3 arbitrages référent (0 finding). 158 tests + build verts. **Poussé sur `main` (a561b8b)**, `statut: brouillon` v0.9 en attente de validation clinique sur le déployé · plan: → docs/decision/noeuds/prescription.SPEC-intentions.md
+
+## Backlog (P3 — reste avant `valide` final)
+
+- [ ] Validation clinique référent sur ebm-msp.vercel.app (post-S8) → `prescription.yaml` `statut: valide`, bump version, mise à jour `DECISIONS.md` D18 (actuellement daté de la fusion S6, à réaligner sur S8)
+- [ ] T-026 Lot 4 — flux de saisie par intention (maquette 4a) + affichage groupé par intention, visuel référent
 
 ## Backlog (P3 — Remédiation & robustesse, alimenté par P2) — non cadré
 

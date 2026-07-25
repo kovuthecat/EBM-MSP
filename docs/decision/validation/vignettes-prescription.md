@@ -1,9 +1,15 @@
 # Banc de vignettes — nœud fusionné `prescription` (oracle de test)
 
-> **Rôle** : cas de test exécutables pour (1) le red‑team bi‑agents **P3·S4**, (2) les tests de non‑régression
-> **P3·S5**, (3) les vignettes re‑pointées de **P2·S4**. Chaque vignette cible **une règle**. « Attendu » =
-> comportement du nœud fusionné **après** correctifs gelés ; « Aujourd'hui » = comportement des nœuds B/C
-> actuels (le défaut à corriger), pour référence.
+> **⚠ Document historique (P3·S1, avant la refonte S8).** Utilise encore le champ `position_vs_cible`
+> (remplacé par le primer `intention` en S8). Les RÈGLES qu'il vérifie restent valables, mais la SYNTAXE des
+> profils est obsolète. **Source de vérité à jour** : le banc de tests exécutable
+> [`src/features/decision/engine/evaluateNode.prescription.test.ts`](../../../src/features/decision/engine/evaluateNode.prescription.test.ts)
+> (158 tests, modèle `intention`) — s'y référer pour toute vérification post-S8.
+>
+> **Rôle (d'origine)** : cas de test exécutables pour (1) le red‑team bi‑agents **P3·S4**, (2) les tests de
+> non‑régression **P3·S5**, (3) les vignettes re‑pointées de **P2·S4**. Chaque vignette cible **une règle**.
+> « Attendu » = comportement du nœud fusionné **après** correctifs gelés ; « Aujourd'hui » = comportement des
+> nœuds B/C actuels (le défaut à corriger), pour référence.
 >
 > **Règles gelées (réf. [`../../../plans/P3-fusion/S1.md`](../../../plans/P3-fusion/S1.md) §4) :**
 > GLP‑1 **exclu** si `IMC < 22` **ou** `denutrition == true` ; **alerte** si `fragilite`. Tirzépatide **réservé

@@ -2,7 +2,7 @@
 
 Photo à l'instant T. Mis à jour en fin de session.
 
-> **Dernière mise à jour :** 2026-07-24 (P2 gate humaine CLOSE — 11/11 divergences arbitrées, go S3 possible)
+> **Dernière mise à jour :** 2026-07-25 (P3 · nœud `prescription` refondu par intention, vérifié, poussé sur `main`)
 
 ## P2 · Gate humaine — CLOSE, 11/11 divergences arbitrées (2026-07-24)
 
@@ -118,26 +118,36 @@ référent (borne d'âge sur le strict, CV grave→≤8 via `comorbidite_grave`,
   (T-007bis)**, `content/…/cible-glycemique.yaml` v2.0 `statut: valide`.
 - Git : remote GitHub, `main` à jour, tous les commits P1 poussés (à confirmer avant push, cf. consolidation).
 
-## P3 — Fusion prescription (B+C+D) — EN COURS (2026-07-24)
+## P3 — Fusion prescription (B+C+D) + refonte par intention (S8) — POUSSÉ, validation clinique en attente
 
-- **S1 gelé** : `docs/decision/noeuds/prescription.SPEC.md` (6 décisions référent : `sur_traitement` retiré ;
-  déprescription < 6,5 % à tout âge ; GLP-1 exclu IMC<22/dénutrition ; tirzépatide ⊂ obésité ; portes
-  SU/gliptine/intolérance ; alerte metformine-first).
-- **S2/S3 faits** : `docs/decision/noeuds/prescription.md` + `content/…/prescription.yaml` (v0.1 **brouillon**)
-  + argumentaire. Ajv OK. Fusionne B/C/D ; **aucune modif moteur** (tout en contenu D13/D14/D15 + `derive`).
-- **S4 fait** : banc de vignettes exécutable (17 profils, `engine/evaluateNode.prescription.test.ts`) +
-  red-team agent → **0 finding HAUTE résiduel** (H1 alerte iSGLT2/uro + M1 alerte insuline+SU corrigés).
-- **UI (S7-ui Lots 1-3)** : `engine/relevance.ts` (moteur de pertinence, testé) + estompage des champs +
-  bandeau reco provisoire (`CriteriaForm`, `DecisionNodeScreen`). Visuel à valider (VALIDATION.md).
-- `npm run build` + `npx tsc --noEmit` + `npm test` → **163/163 verts**. **Rien committé** (WIP, référent non validé).
-- **MISE À JOUR 2026-07-25 — fusion terminée** : affinements référent (position_vs_cible à 4 crans ; refus
-  d'injection → injectables rétrogradés + alerte ; remboursement FR monothérapie AR GLP-1 sourcé sur le
-  formulaire Assurance Maladie). **S5 fait** (B/C/D **supprimés**, `prescription` seule voie non-insulinique,
-  labels UI, cross-refs E/H). **P2·S3–S7 fait** (red-team indépendant + banc exécutable → **0 HAUTE** ; M1
-  gating `classes_a_benefice_indisponibles` + M2 alerte A9 corrigés ; `RAPPORT-prescription-S3-S7.md`).
-  **S6 fait** : `prescription.yaml` **`valide` v1.0**, **D18** écrit. Build + typecheck + **148 tests** verts.
-  **RESTE** : UI Lot 4 (primer/rail/argumentaires courts, visuel référent) ; arbitrages BAS M3/B1-B3
-  (non bloquants) ; **rien committé** (à faire à ta main ou sur demande).
+**Chronologie complète** (S1→S6 = fusion ; S8 = refonte par intention, ajoutée après coup suite à la relecture
+référent des 4 situations d'usage réelles) :
+
+- **S1-S5** : fusion de B (1re intention) + C (intensification) + D (sulfamides/gliptines) en un nœud unique
+  `prescription`. Gating de terrain (GLP-1 exclu IMC<22/dénutrition, tirzépatide ⊂ obésité, iSGLT2
+  rétrogradé si infections uro), portes SU/gliptine/intolérance, refus d'injection → injectables rétrogradés.
+  B/C/D **supprimés** du repo. Remboursement FR (monothérapie AR GLP-1) sourcé sur le formulaire Assurance
+  Maladie (Art. 61, arrêté du 10/01/2025).
+- **S6** : validation référent initiale → `valide` v1.0, **D18** écrit — **puis repassé `brouillon`** (voir S8,
+  la refonte par intention rouvre l'applicabilité, re-validation requise sur le contenu final).
+- **S8 (2026-07-25, refonte par intention)** : le référent a reformulé le modèle de saisie autour de 4
+  intentions d'usage réelles — `initier / intensifier / optimiser / déprescrire` — qui remplacent le champ
+  `position_vs_cible`. Nouveau : palette glycémique (iSGLT2/GLP-1 disponibles hors comorbidité, priorisés par
+  elle, séquençage HAS ≥8,5% à l'initiation) ; repli insuline explicite ; déprescription nuancée (réductions de
+  dose distinctes par traitement, `nature_intolerance` ciblant l'agent en cause) ; alertes de cohérence
+  intention↔HbA1c. **Vérifié par 4 agents adversariaux indépendants** (EBM+argumentaire, vignettes étendues,
+  sécurité, robustesse du modèle) → 2 HAUTE trouvées et corrigées (non-association gliptine+incrétine rouverte
+  par la palette ; alertes de cohérence manquantes) + plusieurs MOYENNE/BASSE. **3 arbitrages référent**
+  supplémentaires tranchés et encodés (séquençage, ordre iSGLT2/GLP-1 en pur glycémique, nature d'intolérance)
+  puis **re-vérifiés par une passe adversariale ciblée sur ces 3 deltas → 0 finding**.
+- **Statut final** : `content/…/prescription.yaml` **`statut: brouillon` v0.9** (volontairement — la
+  validation clinique se fait sur la version **déployée**, pas avant). Build + typecheck + **158 tests** verts.
+- **Poussé sur `main`** (commit `a561b8b`, 2026-07-25) → déploiement Vercel déclenché. `DECISIONS.md` D18 à
+  mettre à jour après validation référent finale (actuellement encore daté de la fusion S6, pas de S8).
+- **UI** : `engine/relevance.ts` (moteur de pertinence, estompage + reco provisoire) livré et câblé. **Lot 4
+  restant** : flux de saisie par intention (primer → traitements → drapeaux → critères positifs → affinage),
+  regroupement d'affichage par intention (maquette 4a) — visuel à valider par le référent.
+- **RESTE** : validation clinique référent sur le déployé → promotion `statut: valide`, mise à jour D18.
 
 ## Ce qui casse / n'est pas testé
 

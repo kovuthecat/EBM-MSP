@@ -1,5 +1,13 @@
 # Plan P3 — Fusion du module « Prescription non‑insulinique » (B+C+D) + gating de terrain   (rédigé par Opus)
 
+> **STATUT (2026-07-25) : plan clos jusqu'à S8 inclus.** S1→S6 (fusion) + S8 (refonte « par intention »,
+> ajoutée après S6 suite à la relecture référent des 4 situations d'usage réelles) sont **faits, vérifiés et
+> poussés sur `main`** (commit `a561b8b`). `content/…/prescription.yaml` est en **`brouillon` v0.9** — seule
+> étape restante : **validation clinique référent sur le déployé** (ebm-msp.vercel.app) → `valide` + mise à
+> jour `DECISIONS.md` D18. Détail : [S8 dans le tableau ci-dessous](#sessions) et
+> [`prescription.SPEC-intentions.md`](../../docs/decision/noeuds/prescription.SPEC-intentions.md) §7/§8.
+> Reste aussi le **Lot 4** de [S7‑ui](S7-ui.md) (UI, visuel référent).
+
 > **À appliquer AVANT de reprendre P2 · S3–S7** (red‑team système). On corrige et on fusionne d'abord,
 > puis les sessions adverses mordent sur la vraie cible (le nœud fusionné durci), au lieu de re‑découvrir
 > des trous déjà identifiés (gating négatif absent, préférence iSGLT2/GLP‑1 inversée, flux de saisie).
@@ -73,9 +81,9 @@ session de code.
 | [S4](S4.md) | T‑023 | **Vérification bi‑agents** (A fidélité + B red‑team moteur) | Opus | xhigh | S3 | banc exécutable + red‑team agent | [x] fait — **0 HAUTE résiduel** (H1/M1 corrigés) |
 | [S5](S5.md) | T‑024 | **Câblage app** (3 onglets → 1) + tests + retrait B/C/D | Sonnet | medium | S4 | `src/…`, cross‑refs, `content/` (retrait) | [x] fait — B/C/D retirés, 148 tests + build OK (visuel → VALIDATION.md) |
 | S3–S7 | — | **Validation adversariale** (red-team indépendant + banc exécutable) | Opus | xhigh | S5 | `docs/decision/validation/RAPPORT-prescription-S3-S7.md` | [x] fait — **0 HAUTE** ; M1/M2 corrigés, M3 arbitrage consigné |
-| [S6](S6.md) | T‑025 | **Validation référent** → `valide` + D18 | humain | — | S3–S7 | YAML `valide` v1.0, `DECISIONS.md` D18 | [x] fait (go référent) |
-| [S7‑ui](S7-ui.md) | T‑026 | **Refonte UI** (maquette 4a), générique | Sonnet/Opus | medium | — | `engine/relevance.ts`, `CriteriaForm`, `DecisionNodeScreen` | [~] Lots 1‑3 faits (moteur+estompage+reco provisoire) — **visuel à valider**, Lot 4 (primer/rail/argumentaires) restant |
-| S8 | T‑027 | **Refonte « par intention »** (4 intentions) + trous glycémiques (M3/insuline/déprescrire/B2) | Opus | high | S6 | `prescription.SPEC-intentions.md` (spec) → contenu + UI | [~] **SPEC écrit — gel réf. en attente** ; re-test focalisé requis |
+| [S6](S6.md) | T‑025 | **Validation référent** → `valide` + D18 | humain | — | S3–S7 | YAML `valide` v1.0, `DECISIONS.md` D18 | [x] fait (go référent initial) — **repassé `brouillon` en S8**, re-validation requise sur le contenu final |
+| [S7‑ui](S7-ui.md) | T‑026 | **Refonte UI** (maquette 4a), générique | Sonnet/Opus | medium | — | `engine/relevance.ts`, `CriteriaForm`, `DecisionNodeScreen` | [~] Lots 1‑3 faits (moteur+estompage+reco provisoire) — **visuel à valider**, Lot 4 (primer par intention/rail/argumentaires) restant |
+| S8 | T‑027 | **Refonte « par intention »** (4 intentions) + trous glycémiques (M3/insuline/déprescrire/B2) | Opus | high | S6 | `content/…/prescription.yaml`, `prescription.SPEC-intentions.md` | [x] **FAIT** — gelé §7/§8, encodé, 4 agents adversariaux (2 HAUTE corrigées), 3 arbitrages référent encodés + re-vérifiés (0 finding), 158 tests + build verts, **poussé sur `main` (a561b8b)**. Statut `brouillon` v0.9 — validation clinique référent sur le déployé restante. |
 
 **Track UI actif (parallèle, décision user 2026‑07‑24)** — [S7‑ui](S7-ui.md) : flux de saisie de la maquette 4a
 (primer→drapeaux→groupes, estompage des champs sans effet, **reco provisoire + champs décisifs manquants**),

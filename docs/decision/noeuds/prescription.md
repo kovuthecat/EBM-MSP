@@ -7,6 +7,13 @@
 > [`../VALIDATION_COHERENCE.md`](../VALIDATION_COHERENCE.md). **Le socle de preuve EBM (CVOT, switch, hypo,
 > désintensification, place résiduelle) n'est PAS re‑dérivé ici : il est importé de B/C/D par référence.**
 > Ce document ne détaille que (1) la réconciliation et (2) le sourcing des règles neuves.
+>
+> **⚠ Addendum S8 (2026‑07‑25) : modèle de saisie changé.** Le champ `position_vs_cible` décrit ci‑dessous
+> (§ Frontières) a été **remplacé par le primer `intention`** (initier/intensifier/optimiser/déprescrire),
+> qui déduit `cible_atteinte`. `hba1c_sous_cible` est désormais **dérivé de l'HbA1c saisie** (< 6,5 %),
+> indépendant du nœud A. Voir [`prescription.SPEC-intentions.md`](prescription.SPEC-intentions.md) (autorité
+> à jour du modèle de saisie et des arbitrages §7/§8) — ce document garde son autorité sur la **réconciliation
+> du socle de preuve B/C/D**, non re‑dérivée par S8.
 
 ## En bref
 
@@ -21,10 +28,12 @@ récidivant) et des **portes explicites** (SU/gliptine/intolérance).
 
 ## Frontières entre nœuds
 
-**A** fixe la cible d'HbA1c (fournit la cible pour `position_vs_cible`/`cible_atteinte`/`hba1c_sous_cible`).
-**Ce nœud** recommande le traitement non‑insulinique **et** l'insuline *d'initiation* (gate catabolique) ou
-*oriente* vers l'insuline. **E** ajuste finement les doses d'insuline (chaînage → E). **F** = statine. **H** =
-MHD / perte de poids / rémission. Décompensation aiguë ≥ 3 mmol/L = urgence, hors périmètre.
+**A** fixe la cible d'HbA1c individualisée (référence pour le praticien, non importée par le moteur — le
+chaînage A→prescription reste hors moteur, cf. incertitudes). **Ce nœud** (depuis S8, piloté par le primer
+`intention` — voir addendum ci‑dessus) recommande le traitement non‑insulinique **et** l'insuline
+*d'initiation* (gate catabolique) ou *oriente* vers l'insuline. **E** ajuste finement les doses d'insuline
+(chaînage → E). **F** = statine. **H** = MHD / perte de poids / rémission. Décompensation aiguë ≥ 3 mmol/L =
+urgence, hors périmètre.
 
 ## 1. Réconciliation B+C+D (importée, non re‑dérivée)
 
