@@ -175,6 +175,18 @@ criteres_entree:
     # un patient fragile naïf à 8,7 % dont l'objectif est < 9 % déclenchait une bithérapie d'emblée.
     # `nettement_au_dessus` est relatif à l'objectif fixé pour CE patient, pas à un seuil universel.
     derive: "intention == intensifier AND position_vs_cible == au_dessus OR intention == intensifier AND position_vs_cible == nettement_au_dessus OR intention == initier AND position_vs_cible == nettement_au_dessus"
+  - nom: remplacement_agent_sans_benefice
+    type: bool
+    # R3 (docs/decision/GRAMMAIRE-NOEUD.md) : remplacer un agent sans bénéfice sur critère dur est une
+    # TROISIÈME voie d'accès aux classes protectrices, à côté de l'indication d'organe et de la palette
+    # glycémique. Décision référent 2026-07-25 : le switch se déclenche dès qu'un tel agent est en cours,
+    # sans exiger de comorbidité (« même sans maladie avérée, ça reste protecteur »). La comorbidité CHOISIT
+    # désormais le remplaçant et son rang (priorités conditionnelles) ; elle n'autorise plus le geste.
+    # SULFAMIDE SEULEMENT à ce stade : la gliptine y sera ajoutée quand `ne_contient_pas gliptine` sera levé
+    # de l'option AR GLP-1 (après R4). L'inclure maintenant proposerait « Introduire un iSGLT2 » à un patient
+    # sous gliptine dont le switch peut être exclu par ailleurs — soit un ajout de protecteur SANS verdict
+    # sur l'agent sans bénéfice, exactement le défaut que la recette référent a fait remonter.
+    derive: "traitements_en_cours contient sulfamide"
 # `familles` (correctif « ordre accidentel / badge multi-natures », 2026-07-25) : déclaration EXPLICITE
 # des sections du panneau de résultats, présentation pure (aucun effet moteur, cf.
 # schema/noeud.schema.json). L'ORDRE DE CE TABLEAU EST L'ORDRE D'AFFICHAGE — « urgence d'abord » (décision
@@ -277,7 +289,7 @@ options:
   # ---- Ajout d'un agent protecteur (fix bug 9 : priorités conditionnelles) ------------------------------
   - intitule: "Introduire un iSGLT2 (protection cardio‑rénale et/ou contrôle glycémique)"
     conditions:
-      - "insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo OR ASCVD_etablie == true OR palette_glycemique_ouverte == true"
+      - "insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo OR ASCVD_etablie == true OR palette_glycemique_ouverte == true OR remplacement_agent_sans_benefice == true"
       - "traitements_en_cours ne_contient_pas iSGLT2"
       - "classes_a_benefice_indisponibles == false"
     exclusions:
@@ -310,7 +322,7 @@ options:
       - "En cas d'IC avec saxagliptine en cours : arrêter la saxagliptine (signal SAVOR), ne pas se contenter d'ajouter l'iSGLT2."
   - intitule: "Introduire un AR GLP‑1 (liraglutide, sémaglutide, dulaglutide)"
     conditions:
-      - "ASCVD_etablie == true OR IMC >= 30 OR palette_glycemique_ouverte == true"
+      - "ASCVD_etablie == true OR IMC >= 30 OR palette_glycemique_ouverte == true OR remplacement_agent_sans_benefice == true"
       - "traitements_en_cours ne_contient_pas aGLP1"
       - "traitements_en_cours ne_contient_pas tirzepatide"
       - "traitements_en_cours ne_contient_pas gliptine"
@@ -416,10 +428,13 @@ options:
     contre_indications:
       - "Arrêter le sulfamide / le glinide à l'introduction de l'insuline (hypoglycémie cumulée). Suspecter un DT1 devant une cétose / un amaigrissement rapide chez un sujet non obèse."
   # ---- Switch (portes SU/gliptine, branche à/au‑dessus de la cible) -------------------------------------
+  # R3 (docs/decision/GRAMMAIRE-NOEUD.md) : le verdict sur la gliptine (agent sans bénéfice dur) se
+  # déclenche désormais sur la SEULE présence de la ligne — la comorbidité (ASCVD/IMC/cible non atteinte)
+  # a migré vers le CHOIX du remplaçant (indications/priorités de l'option AR GLP‑1 ci‑dessus), elle
+  # n'autorise plus le geste. Décision de séquencement du référent : option laissée atomique (cf. tâche 3).
   - intitule: "Remplacer la gliptine par un AR GLP‑1 (switch, jamais d'association)"
     conditions:
       - "traitements_en_cours contient gliptine"
-      - "ASCVD_etablie == true OR IMC >= 30 OR cible_atteinte == false"
       - "traitements_en_cours ne_contient_pas aGLP1"
       - "traitements_en_cours ne_contient_pas tirzepatide"
     exclusions:
@@ -453,12 +468,17 @@ options:
     effet_attendu: >-
       Simplification sans perte d'efficacité (Nauck 2017 : +78 % GLP‑1 intact sans effet glycémique additionnel).
     niveau_preuve: modere
+  # R3 (docs/decision/GRAMMAIRE-NOEUD.md) : le verdict sur le sulfamide (agent sans bénéfice dur) se
+  # déclenche désormais sur la SEULE présence de la ligne — la comorbidité (IC/rein/ASCVD/IMC/hypo
+  # schéma/cible non atteinte) a migré vers le CHOIX du remplaçant (indications/priorités des options
+  # iSGLT2/AR GLP‑1 ci‑dessus), elle n'autorise plus le geste. `hypoglycemie_recente`/`hba1c_sous_cible`
+  # restent des gardes-fous DISTINCTS : dans ces deux cas, on déprescrit, on ne switche pas (cf. l'option
+  # de désintensification).
   - intitule: "Remplacer le sulfamide (moins d'hypoglycémie, moins de poids, plus de bénéfice)"
     conditions:
       - "traitements_en_cours contient sulfamide"
       - "hypoglycemie_recente == false"
       - "hba1c_sous_cible == false"
-      - "insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo OR ASCVD_etablie == true OR IMC >= 30 OR risque_hypoglycemie_schema == eleve OR cible_atteinte == false"
     exclusions:
       - "DFG < 30"
     priorite: 4
@@ -876,7 +896,7 @@ meta:
   date_revue: "2026-07-25"
   auteur: "référent DT2 + Opus"
   statut: brouillon
-  version: "0.10"
+  version: "0.11"
   changelog:
     - date: "2026-07-24"
       auteur: "référent DT2 + Opus"
@@ -999,3 +1019,34 @@ meta:
         applicable, switch gliptine→GLP-1 écarté IMC < 22). Alertes de cohérence intention↔HbA1c (« rebasculer
         l'intention ») VOLONTAIREMENT NON TOUCHÉES : leur pertinence sous R1 est un arbitrage clinique du
         référent, pas de ce recâblage. STATUT toujours brouillon.
+    - date: "2026-07-25"
+      auteur: "référent DT2 + Opus"
+      resume: >-
+        Application de R3 (docs/decision/GRAMMAIRE-NOEUD.md) : modifier un traitement existant = DEUX
+        décisions distinctes (le verdict sur la ligne en cours ; le choix du remplaçant), jamais recopiées
+        l'une dans l'autre. Nouveau critère DÉRIVÉ `remplacement_agent_sans_benefice` (= `traitements_en_cours
+        contient sulfamide` ; SULFAMIDE SEULEMENT à ce stade, la gliptine y entrera après R4) : troisième voie
+        d'accès aux classes protectrices, à côté de l'indication d'organe et de la palette glycémique.
+        Décision référent : le verdict sur un agent sans bénéfice dur (sulfamide, gliptine) se déclenche
+        désormais sur la SEULE présence de la ligne, plus sur une comorbidité — la comorbidité CHOISIT
+        maintenant le remplaçant et son rang (elle n'autorise plus le geste). En conséquence : (1) conditions
+        d'« Introduire un iSGLT2 » et d'« Introduire un AR GLP‑1 » élargies par `OR remplacement_agent_
+        sans_benefice == true` (uniquement leur 1re condition ; exclusions/priorité inchangées) ; (2) la liste
+        de comorbidités déclenchant « Remplacer le sulfamide » est supprimée (les gardes `hypoglycemie_recente
+        == false` et `hba1c_sous_cible == false` sont CONSERVÉS : en sur-contrôle ou hypo récente, on
+        déprescrit, on ne switche pas) ; (3) la même liste est supprimée d'« Remplacer la gliptine par un AR
+        GLP‑1 » — option laissée sciemment ATOMIQUE (décision de séquencement du référent : la gliptine
+        n'entre pas encore dans le dérivé, cf. commentaire du critère). Fix moteur NÉCESSAIRE constaté en
+        cours de tâche : la grammaire `derive` (engine/deriveCritere.ts) ne supportait QUE des comparaisons
+        scalaires/arithmétiques, pas `contient`/`ne_contient_pas` — l'expression du dérivé ci-dessus aurait
+        levé une `ConditionError` pour CHAQUE évaluation du nœud. Ajout générique (mirroir de
+        `conditions.ts`, aucune connaissance de domaine) + tests dédiés (`deriveCritere.test.ts`), schéma
+        (`noeud.schema.json`) mis à jour en conséquence. CONSÉQUENCE ASSUMÉE, SIGNALÉE AU RÉFÉRENT : le test
+        préexistant `PC1` (sulfamide, à l'objectif, sans comorbidité) attendait iSGLT2/AR GLP‑1 NON
+        applicables — c'est exactement le chemin que R3 ouvre désormais ; laissé ROUGE à dessein (voir
+        rapport de tâche), PAS ajusté. Nouvelles vignettes ajoutées à `evaluateNode.prescription.test.ts`
+        pour les 4 chemins ouverts/confirmés par R3 (sulfamide seul switchable + destination protectrice ;
+        gliptine seule switchable sans iSGLT2 ; sur-contrôle et hypo récente sous sulfamide : switch toujours
+        bloqué). Labels.ts : les 3 libellés d'intention affirmant une position vs objectif (`intensifier`/
+        `optimiser`/`deprescrire`) sont reformulés en ACTE (R1) au lieu d'ÉTAT. STATUT toujours brouillon —
+        validation clinique référent requise avant `valide`.

@@ -1,20 +1,27 @@
 /**
  * Critères DÉRIVÉS (câblage P3, nœud E « Insuline ») — calculés par le formulaire à partir d'autres
  * critères, JAMAIS saisis à la main. Un critère porteur d'un champ `derive` (schema `noeud.schema.json`)
- * voit sa valeur recalculée ici avant l'évaluation du moteur, ce qui résout deux limites du DSL de
+ * voit sa valeur recalculée ici avant l'évaluation du moteur, ce qui résout trois limites du DSL de
  * `conditions.ts` (qui ne compare qu'`variable OP littéral`) :
  *
  * - comparer DEUX variables : `HbA1c_actuelle <= HbA1c_cible` → `cible_atteinte` ;
- * - une expression arithmétique : `dose_basale_actuelle / poids > 0.5` → `over_basalisation`.
+ * - une expression arithmétique : `dose_basale_actuelle / poids > 0.5` → `over_basalisation` ;
+ * - l'appartenance à une liste (`contient` / `ne_contient_pas`, critère de type `liste`), ex.
+ *   `traitements_en_cours contient sulfamide` → `remplacement_agent_sans_benefice` (recette référent
+ *   R3, docs/decision/GRAMMAIRE-NOEUD.md) : même sémantique que `conditions.ts`, ajoutée ici pour que
+ *   `derive` en soit un VRAI sur-ensemble (un critère saisi de type liste doit pouvoir nourrir un
+ *   dérivé sans détour par une option).
  *
  * Volontairement SÉPARÉ de `conditions.ts` (partagé par tous les nœuds au runtime) : la grammaire
- * `derive` est un sur-ensemble (var-vs-var, arithmétique) qui n'a pas à alourdir ni risquer le moteur
- * de conditions. Générique (DECISIONS.md D8) : aucune connaissance d'un nom de critère. Pas d'`eval`.
+ * `derive` est un sur-ensemble (var-vs-var, arithmétique, appartenance) qui n'a pas à alourdir ni
+ * risquer le moteur de conditions. Générique (DECISIONS.md D8) : aucune connaissance d'un nom de
+ * critère. Pas d'`eval`.
  *
- * Grammaire `derive` (composition `OR` > `AND` > comparaison > arithmétique, `AND`/`OR` majuscules
- * entourés d'espaces, pas de parenthèses — comme `conditions.ts`) :
- *   terme        := comparaison | booleen_nu
+ * Grammaire `derive` (composition `OR` > `AND` > comparaison/appartenance > arithmétique, `AND`/`OR`
+ * majuscules entourés d'espaces, pas de parenthèses — comme `conditions.ts`) :
+ *   terme        := comparaison | appartenance | booleen_nu
  *   comparaison  := arith  (== | != | <= | >= | < | >)  arith
+ *   appartenance := variable_liste (contient | ne_contient_pas) libellé
  *   arith        := operande [ (+ | - | * | /) operande ]
  *   operande     := nom_de_variable | nombre | true | false | libellé_enum
  */
@@ -25,6 +32,10 @@ type Scalaire = number | boolean | string
 
 const COMPARE_RE = /^(.+?)\s*(==|!=|<=|>=|<|>)\s*(.+)$/
 const ARITH_RE = /^(.+?)\s*([+\-*/])\s*(.+)$/
+// Appartenance à une liste (même sémantique que `conditions.ts` MEMBERSHIP_RE) : `variable` à un seul
+// mot (`\w+`), pas de forme collée — détectée AVANT la comparaison scalaire, seule forme opérant sur
+// un critère de type `liste` (valeur = tableau de libellés).
+const MEMBERSHIP_RE = /^(\w+)\s+(contient|ne_contient_pas)\s+(.+)$/
 
 function splitMots(expression: string, motCle: 'AND' | 'OR'): string[] {
   return expression
@@ -71,7 +82,27 @@ function resoudreArith(expression: string, criteria: Criteria): Scalaire {
 }
 
 function evaluerTerme(terme: string, criteria: Criteria): boolean {
-  const c = COMPARE_RE.exec(terme.trim())
+  const trimmed = terme.trim()
+
+  // Appartenance à une liste (`contient` / `ne_contient_pas`) : traitée en premier, comme dans
+  // `conditions.ts` — seule forme opérant sur un critère de type `liste`.
+  const membership = MEMBERSHIP_RE.exec(trimmed)
+  if (membership) {
+    const [, variable, operator, rawValue] = membership
+    if (!(variable in criteria)) {
+      throw new ConditionError(`Dérivation : variable de critère inconnue "${variable}".`)
+    }
+    const actual = criteria[variable]
+    if (!Array.isArray(actual)) {
+      throw new ConditionError(
+        `Dérivation : opérateur "${operator}" réservé aux critères de type liste ("${variable}" n'en est pas une).`,
+      )
+    }
+    const present = actual.includes(rawValue.trim())
+    return operator === 'contient' ? present : !present
+  }
+
+  const c = COMPARE_RE.exec(trimmed)
   if (c) {
     const gauche = resoudreArith(c[1], criteria)
     const droite = resoudreArith(c[3], criteria)

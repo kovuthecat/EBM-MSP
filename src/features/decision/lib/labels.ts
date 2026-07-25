@@ -175,11 +175,15 @@ const ENUM_VALUE_LABELS: Record<string, string> = {
   perte_poids: 'Perte de poids excessive',
   cutanee: 'Cutanée',
   autre: 'Autre',
-  // intention (primer S8, nœud prescription)
+  // intention (primer S8, nœud prescription) — R1 (docs/decision/GRAMMAIRE-NOEUD.md) : l'intention décrit
+  // un ACTE du praticien (« je souhaite… »), jamais un ÉTAT du patient (position vs objectif) — c'est
+  // `position_vs_cible`/`cible_atteinte` qui portent l'état, déclaré séparément. Libellés reformulés en
+  // conséquence (2026-07-25) : les trois affirmaient encore une position vs objectif, ce que R1 a
+  // précisément retiré du moteur ; les laisser aurait enseigné à l'écran une sémantique abandonnée.
   initier: 'Initier un traitement',
-  intensifier: 'Intensifier (objectif non atteint)',
-  optimiser: 'Optimiser (à l’objectif mais ttt sous-optimal / intolérance / risque)',
-  deprescrire: 'Déprescrire (objectif dépassé ou risque)',
+  intensifier: 'Intensifier (renforcer le contrôle glycémique)',
+  optimiser: 'Optimiser (améliorer le rapport bénéfice/risque du traitement)',
+  deprescrire: 'Déprescrire (alléger ou retirer un traitement)',
 }
 
 /** Libellé d'une valeur d'énumération ; repli générique (couvre aussi les valeurs numériques telles quelles). */

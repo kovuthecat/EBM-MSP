@@ -122,7 +122,7 @@
         "derive": {
           "type": "string",
           "minLength": 1,
-          "description": "Critère DÉRIVÉ (câblage P3) : expression calculée par le formulaire depuis d'autres critères, non saisie à la main (grammaire de deriveCritere.ts : compare 2 variables, arithmétique + - * /, comparaisons, AND/OR — sur-ensemble du DSL de conditions). Ex. 'HbA1c_actuelle <= HbA1c_cible' pour cible_atteinte, 'dose_basale_actuelle / poids > 0.5' pour over_basalisation. Résout la limite du DSL (variable OP littéral seulement)."
+          "description": "Critère DÉRIVÉ (câblage P3) : expression calculée par le formulaire depuis d'autres critères, non saisie à la main (grammaire de deriveCritere.ts : compare 2 variables, arithmétique + - * /, comparaisons, contient/ne_contient_pas (critère liste), AND/OR — sur-ensemble du DSL de conditions). Ex. 'HbA1c_actuelle <= HbA1c_cible' pour cible_atteinte, 'dose_basale_actuelle / poids > 0.5' pour over_basalisation, 'traitements_en_cours contient sulfamide' pour remplacement_agent_sans_benefice. Résout la limite du DSL (variable OP littéral seulement)."
         },
         "groupe": {
           "type": "string",

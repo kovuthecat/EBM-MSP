@@ -239,16 +239,28 @@ describe('prescription — E · intolérance & F · garde-fous durs', () => {
     expect(alertMsgs(o).some((m) => m.includes("Refus des injections"))).toBe(true)
   })
 
-  it('PC1 — optimiser, HbA1c 6,9 % (≥ 6,5 %) sous SU : ni déprescription ni palette glycémique (à l’objectif)', () => {
+  it('PC1 — optimiser, HbA1c 6,9 % (≥ 6,5 %) sous SU : pas de déprescription, palette fermée, mais switch ouvert', () => {
     // R1 : `position_vs_cible: 'a_l_objectif'` (déclaré, plus déduit d'`optimiser`) ⇒ cible_atteinte=true ;
     // palette fermée par construction (intention ≠ intensifier/initier) ; HbA1c 6,9 ⇒ hba1c_sous_cible=false
     // (pas d'O13).
+    //
+    // ⚠ ATTENTE RETOURNÉE PAR R3 (décision référent du 2026-07-25 : « le switch se déclenche dès qu'un
+    // agent sans bénéfice dur est en cours, même sans maladie avérée »). Ce test exigeait auparavant
+    // qu'aucun iSGLT2 / AR GLP-1 ne soit proposé ici. Ils le sont désormais — mais par une route
+    // DIFFÉRENTE de celle que ce test gardait : la palette glycémique reste FERMÉE (pas d'escalade
+    // glycémique à l'objectif, l'intention de PC1 est préservée), l'accès vient de
+    // `remplacement_agent_sans_benefice`, qui fait du sulfamide en cours une 3ᵉ voie d'accès aux classes
+    // protectrices. On assertionne donc les deux mécanismes séparément, et plus seulement leur effet
+    // visible — sans quoi la distinction se perdrait au prochain changement.
     const o = { traitements_en_cours: ['metformine', 'sulfamide'], intention: 'optimiser',
       position_vs_cible: 'a_l_objectif', age: 60, HbA1c_actuelle: 6.9 } as Partial<Criteria>
+    const criteria = calculerCriteresDerives(node!.criteres_entree, { ...BASE, ...o } as Criteria)
     const t = titles(o)
-    expect(has(t, 'Désintensifier')).toBe(false)
-    expect(has(t, GLP1)).toBe(false) // pas d'ajout glycémique à l'objectif sans comorbidité
-    expect(has(t, ISGLT2)).toBe(false)
+    expect(criteria.palette_glycemique_ouverte).toBe(false) // aucune escalade glycémique à l'objectif
+    expect(criteria.remplacement_agent_sans_benefice).toBe(true) // ...mais le SU ouvre le switch (R3)
+    expect(has(t, 'Désintensifier')).toBe(false) // 6,9 % ≥ 6,5 % : pas de sur-traitement caractérisé
+    expect(has(t, 'Remplacer le sulfamide')).toBe(true)
+    expect(has(t, ISGLT2)).toBe(true) // destination du switch, pas ajout glycémique
   })
 
   it('PC2 — refus + obésité seule (pas d’alternative orale à bénéfice) : incrétines reléguées mais AFFICHÉES + alerte', () => {
@@ -390,5 +402,40 @@ describe('prescription — recette référent R1 (position_vs_cible déclaré, G
     const gliptineSwitch = [...result.excluded.entries()].find(([opt]) => opt.intitule.includes('Remplacer la gliptine'))
     expect(gliptineSwitch).toBeDefined()
     expect(gliptineSwitch?.[1]).toContain('IMC < 22')
+  })
+})
+
+describe('prescription — R3 (remplacement_agent_sans_benefice, GRAMMAIRE-NOEUD.md § « modifier un traitement existant »)', () => {
+  it('R3-1 — sulfamide seul, sans comorbidité, à l’objectif : le switch se déclenche (seule présence de l’agent) et une destination protectrice devient applicable', () => {
+    // R3 : chemin NOUVELLEMENT ouvert par cette tâche. Même profil que PC1 (ci-dessus, describe « E ·
+    // intolérance & F · garde-fous durs ») dont le résultat ATTENDU était l'inverse (ni switch, ni ajout) —
+    // PC1 est laissé rouge à dessein (cf. rapport de tâche) : R3 fait du sulfamide en cours une TROISIÈME
+    // voie d'accès aux classes protectrices, indépendante de toute comorbidité.
+    const o = { traitements_en_cours: ['metformine', 'sulfamide'] } as Partial<Criteria>
+    const t = titles(o)
+    expect(has(t, 'Remplacer le sulfamide')).toBe(true)
+    expect(has(t, ISGLT2) || has(t, GLP1)).toBe(true)
+  })
+
+  it('R3-2 — gliptine seule, sans comorbidité, à l’objectif : switch gliptine→AR GLP-1 applicable ; iSGLT2 NON proposé (le dérivé ne couvre que le sulfamide, pas la gliptine)', () => {
+    // Le commentaire du critère (`prescription.yaml`) est explicite : la gliptine est volontairement
+    // exclue du dérivé à ce stade (attend la levée de `ne_contient_pas gliptine` sur l'option AR GLP-1,
+    // après R4). Ce test verrouille cette limite de périmètre.
+    const o = { traitements_en_cours: ['metformine', 'gliptine'] } as Partial<Criteria>
+    const t = titles(o)
+    expect(has(t, 'Remplacer la gliptine')).toBe(true)
+    expect(has(t, ISGLT2)).toBe(false)
+  })
+
+  it('R3-3 — sulfamide + HbA1c < 6,5 % (hba1c_sous_cible) : le switch NE se déclenche PAS (sur-contrôle → déprescription, pas de remplacement)', () => {
+    const o = { traitements_en_cours: ['metformine', 'sulfamide'], HbA1c_actuelle: 6.0 } as Partial<Criteria>
+    const t = titles(o)
+    expect(has(t, 'Remplacer le sulfamide')).toBe(false)
+    expect(has(t, 'Désintensifier')).toBe(true) // le sur-contrôle reste géré par la désintensification
+  })
+
+  it('R3-4 — sulfamide + hypoglycémie récente : le switch NE se déclenche PAS non plus', () => {
+    const o = { traitements_en_cours: ['metformine', 'sulfamide'], hypoglycemie_recente: true } as Partial<Criteria>
+    expect(has(titles(o), 'Remplacer le sulfamide')).toBe(false)
   })
 })

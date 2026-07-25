@@ -33,6 +33,18 @@ describe('evaluerDerive — grammaire de dérivation', () => {
     expect(() => evaluerDerive('', {})).toThrow(ConditionError)
     expect(() => evaluerDerive('age', { age: 60 })).toThrow(ConditionError) // nombre nu, pas un booléen
   })
+
+  it('appartenance à une liste (contient / ne_contient_pas, R3 docs/decision/GRAMMAIRE-NOEUD.md — nécessaire à `remplacement_agent_sans_benefice`)', () => {
+    const criteria = { traitements_en_cours: ['metformine', 'sulfamide'] }
+    expect(evaluerDerive('traitements_en_cours contient sulfamide', criteria)).toBe(true)
+    expect(evaluerDerive('traitements_en_cours contient gliptine', criteria)).toBe(false)
+    expect(evaluerDerive('traitements_en_cours ne_contient_pas gliptine', criteria)).toBe(true)
+    expect(evaluerDerive('traitements_en_cours ne_contient_pas sulfamide', criteria)).toBe(false)
+  })
+
+  it('contient lève sur un critère qui n’est pas une liste', () => {
+    expect(() => evaluerDerive('age contient 60', { age: 60 })).toThrow(ConditionError)
+  })
 })
 
 describe('calculerCriteresDerives', () => {
