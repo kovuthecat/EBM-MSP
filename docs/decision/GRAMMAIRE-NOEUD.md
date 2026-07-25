@@ -75,18 +75,41 @@ impossible — et **le jugement sur la gliptine a disparu avec lui**. L'outil a 
 un agent en *conservant* la gliptine. Aucun clinicien ne perd « cette gliptine ne sert à rien » parce
 que le remplaçant n'est pas disponible.
 
-**Forme canonique.** Le découpage se fait sur l'**état vs l'objectif**, pas sur la disponibilité d'un
-remplaçant (que le moteur ne sait pas interroger d'une option à l'autre, et ne doit pas apprendre à
-interroger — cela introduirait un ordre d'évaluation implicite) :
+**Forme canonique.**
 
-| option | conditions | exclusions |
+| décision | déclenchée par | exclusions portées |
 | --- | --- | --- |
-| **Arrêter X** (déprescription) | ligne présente **ET à l'objectif** | structurelles seulement |
-| **Remplacer X par un agent à bénéfice** | ligne présente **ET au-dessus de l'objectif** | structurelles seulement ; le texte explique le choix du remplaçant et la clause de repli |
+| **le verdict sur la ligne** | la ligne elle-même : un agent au rapport bénéfice/risque défavorable est présent | **structurelles seulement** — ce qui rend tout geste électif impossible (état aigu, catabolique), jamais les garde-fous d'une destination |
+| **le choix du remplaçant** | les options d'ajout, avec leurs propres indications et garde-fous | les siennes |
 
-À l'objectif, on retire ; au-dessus, on remplace. Les deux branches restent atteignables quel que soit
-le terrain, et le choix du remplaçant se fait dans la famille « agent à ajouter », avec ses propres
-garde-fous.
+La comorbidité **choisit le remplaçant et son rang** ; elle n'autorise pas le geste. Un agent sans
+bénéfice dur reste un agent sans bénéfice dur, que le patient ait ou non une comorbidité par ailleurs.
+
+**Correction d'une erreur commise dans la première rédaction de ce document.** J'avais écrit « à
+l'objectif → arrêter ; au-dessus → remplacer », en découpant sur la position vs objectif. C'est
+cliniquement faux, et le cas de recette le montre : *patient **à l'objectif**, sous gliptine, avec
+maladie athéromateuse → **remplacer**, pas arrêter*, parce qu'il existe une indication de protection
+non couverte. Le déclencheur du verdict n'est pas la position glycémique, c'est la présence de la ligne.
+
+**Ce qui ne s'encode pas, et pourquoi.** La clause de repli — « si aucun remplaçant n'est applicable sur
+ce terrain, ne pas retirer à vide » — reste **en prose**. L'encoder demanderait à une option d'interroger
+l'applicabilité d'une autre : le moteur ne sait pas le faire, et ne doit pas apprendre à le faire (cela
+introduirait un ordre d'évaluation implicite entre options, donc un arbitrage caché). Recopier les
+exclusions des destinations dans la condition du verdict serait pire encore : la duplication dériverait
+à la première modification d'une exclusion.
+
+**R4 complète R3, la prose la rend livrable seule.** Un verdict déclenché systématiquement rend *plus*
+fréquent le cas « verdict proposé, aucune destination applicable ». Deux sous-cas, et c'est le second qui
+compte :
+
+- la destination est **écartée par une exclusion** (AR GLP‑1 sur `IMC < 22`) → R4 l'affiche avec son
+  motif, à côté du verdict. Résolu ;
+- la destination **échoue sur une condition** (ni iSGLT2 ni AR GLP‑1 indiqués faute de comorbidité) →
+  elle n'entre même pas dans `excluded`. **Seule la moitié « sur demande » de R4 l'explique.**
+
+D'où l'obligation, pour toute option de verdict, d'une **clause de repli explicite dans la prose** —
+« si aucun remplaçant n'est applicable sur ce terrain, ne pas retirer à vide : poursuivre et réévaluer ».
+C'est elle qui rend R3 livrable avant R4 : sans elle, R3 seul produirait une injonction sans issue.
 
 ---
 
@@ -198,6 +221,53 @@ distinctes :
 
 ---
 
+## Le banc d'un nœud — trois couches (généralisation de R5)
+
+Un banc de vignettes cliniques ne suffit pas, et l'agrandir ne suffit pas davantage. Sur les six défauts
+qui ont motivé ce document, **quatre vivaient entre le moteur et l'écran** — une donnée calculée jamais
+rendue, un argumentaire générique, un jeton du DSL affiché brut, un badge désaccordé des familles. Un
+banc qui appelle `evaluateNode` et vérifie `applicable` n'atteint pas cette zone, quel que soit le nombre
+de profils. C'est structurel, pas quantitatif.
+
+**Sur quoi assertionner.** Dès qu'un modèle de vue unique existe (`construireVueDecision`), le banc
+s'exécute contre **ce que le praticien voit**, et non contre la seule liste d'options. L'unification
+écran ↔ signature n'est donc pas qu'un correctif d'architecture : c'est ce qui rend cette zone testable.
+
+**Trois couches, dont deux ne coûtent aucune relecture clinique.** C'est le point décisif pour la
+soutenabilité : valider la sortie exacte de 200 profils demande 200 relectures ; une *propriété* se
+valide une fois et couvre tout l'espace.
+
+| couche | contenu | validation |
+| --- | --- | --- |
+| **Vignettes** | patients réels, sortie exacte attendue | **clinique**, une par vignette — donc peu nombreuses, choisies pour ce qu'elles seules peuvent dire |
+| **Couverture** | chaque option se déclenche ≥ 1 fois et est exclue ≥ 1 fois ; chaque exclusion est déclenchée ≥ 1 fois ; chaque règle de `priorite` conditionnelle matche ≥ 1 fois ; chaque critère est décisif ≥ 1 fois (R5) | **aucune** — purement mécanique |
+| **Invariants** | propriétés vraies pour *tout* profil, vérifiées sur un échantillon tiré à graine fixe (~2000 profils ; moteur pur et déterministe, moins d'une seconde, aucun appel externe) | **clinique, une fois par invariant** |
+
+La couche *couverture* est celle qui détecte les règles mortes — un critère collecté qui n'agit nulle
+part, une exclusion qu'aucun profil ne déclenche, une branche de `priorite` inatteignable. C'est le test
+de R5, généralisé aux options et aux règles.
+
+**Invariants du domaine DT2** (validés par le référent, 2026-07-25) — modèle de ce qu'un domaine doit
+déclarer :
+
+1. jamais une option affichée dont une exclusion est vraie ;
+2. jamais de sortie vide *(aurait détecté le trou « sortie muette » M3 de la fusion B+C+D)* ;
+3. jamais gliptine et AR GLP‑1 proposés ou maintenus ensemble ;
+4. jamais de sulfamide proposé si DFG < 30 ;
+5. si un agent sans bénéfice dur est en cours **et** qu'un agent à bénéfice d'organe est proposé à
+   l'ajout, alors le verdict sur le premier est proposé aussi *(le défaut de la recette référent, exprimé
+   comme propriété plutôt que comme cas)* ;
+6. à profil identique, `fragilite: true` ne produit jamais **plus** d'options dans la famille « Agent à
+   ajouter » *(la propriété qui manquait à R5)* ;
+7. aucun agent **purement glycémique** ajouté chez un patient `sous_objectif`.
+
+> ⚠ Le n° 7 a d'abord été formulé « aucun ajout chez un patient `sous_objectif` » — **faux** : un iSGLT2
+> en insuffisance cardiaque reste indiqué quelle que soit la glycémie (HAS R.64‑66 grade A ; ADA 13.14d
+> interdit de le retirer pour désintensifier). Un invariant trop large est pire qu'absent : il force à
+> encoder une règle fausse pour le faire passer.
+
+---
+
 ## Additions au schéma (`schema/noeud.schema.json`)
 
 Trois champs optionnels au schéma, aucun changement de la boucle de résolution du moteur.
@@ -291,7 +361,7 @@ Avant : metformine + « Introduire un iSGLT2 » badgé Recommandée, et rien d'a
 | | règle | nature | dépend de |
 | --- | --- | --- | --- |
 | 1 | **R1**, **R3** | contenu pur | rien — corrigent à eux seuls l'essentiel de la recette |
-| 2 | **R5** | test | banc de vignettes existant ; le calcul est déjà écrit |
+| 2 | **banc — couches couverture + invariants** | test | rien ; s'exécute sur `evaluateNode` dès maintenant, à rebrancher sur le modèle de vue à l'étape 3 |
 | 3 | *(unification écran ↔ signature sur un modèle de vue unique)* | architecture | — |
 | 4 | **R6** livraison 1, **R2**, alertes d'option | moteur + schéma + écran | l'étape 3 |
 | 5 | **R4** | moteur (tracer les échecs de condition) + affordance UI | l'étape 3 |
