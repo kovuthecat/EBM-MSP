@@ -412,6 +412,89 @@ describe('evaluateNode — option « toujours » (D16, socle systématiquement a
   })
 })
 
+describe('evaluateNode — `prerequis` (R6, GRAMMAIRE-NOEUD.md § arbitrage indication/prérequis)', () => {
+  it('une option ordinaire dont un `prerequis` est FAUX n’est pas applicable, et figure dans `nonRetenues` (R4), comme pour une condition', () => {
+    const a = opt('A', ['x == true'], { prerequis: ['y == true'] })
+    const def = opt('Défaut', ['default'])
+    const node = makeNode([a, def])
+
+    const res = evaluateNode(node, { x: true, y: false })
+    expect(noms(res.applicable)).toEqual(['Défaut'])
+    expect(res.nonRetenues.get(a)).toBe('y == true')
+    expect(res.excluded.size).toBe(0) // un prérequis faux n'est pas une exclusion (R4 : deux silences distincts)
+  })
+
+  it('une option ordinaire dont `conditions` ET `prerequis` sont tous vrais reste applicable ; `reasons` ne contient QUE les `conditions` (jamais le `prerequis`)', () => {
+    const a = opt('A', ['x == true'], { prerequis: ['y == true'] })
+    const def = opt('Défaut', ['default'])
+    const node = makeNode([a, def])
+
+    const res = evaluateNode(node, { x: true, y: true })
+    expect(noms(res.applicable)).toEqual(['A'])
+    expect(res.reasons.get(a)).toEqual(['x == true'])
+  })
+
+  it('une option `["toujours"]` (D16) dont le `prerequis` est FAUX n’est pas applicable et figure dans `nonRetenues` — le sentinel n’exempte que lui-même, pas son `prerequis`', () => {
+    const socle = opt('Socle', ['toujours'], { prerequis: ['y == true'] })
+    const def = opt('Défaut', ['default'])
+    const node = makeNode([socle, def])
+
+    const res = evaluateNode(node, { y: false })
+    expect(noms(res.applicable)).toEqual(['Défaut'])
+    expect(res.nonRetenues.get(socle)).toBe('y == true')
+  })
+
+  it('une option `["toujours"]` dont le `prerequis` est VRAI reste applicable, orthogonale au repli `default` (D16 inchangé)', () => {
+    const socle = opt('Socle', ['toujours'], { prerequis: ['y == true'] })
+    const def = opt('Défaut', ['default'])
+    const node = makeNode([socle, def])
+
+    const res = evaluateNode(node, { y: true })
+    expect(noms(res.applicable)).toEqual(['Socle', 'Défaut'])
+  })
+
+  it('le repli `["default"]` lui-même dont le `prerequis` est FAUX figure dans `nonRetenues` (pas dans `excluded`) : aucune option n’est alors applicable', () => {
+    const a = opt('A', ['x == true'])
+    const def = opt('Défaut', ['default'], { prerequis: ['y == true'] })
+    const node = makeNode([a, def])
+
+    const res = evaluateNode(node, { x: false, y: false })
+    expect(res.applicable).toHaveLength(0)
+    expect(res.nonRetenues.get(def)).toBe('y == true')
+    expect(res.excluded.size).toBe(0)
+  })
+
+  it('en `ordered-first-match`, une option dont le `prerequis` est FAUX est sautée au profit de la suivante, et figure dans `nonRetenues`', () => {
+    const premiere = opt('Première', ['a == true'], { prerequis: ['b == true'] })
+    const seconde = opt('Seconde', ['a == true'])
+    const def = opt('Défaut', ['default'])
+    const node = makeNode([premiere, seconde, def], 'ordered-first-match')
+
+    const res = evaluateNode(node, { a: true, b: false })
+    expect(noms(res.applicable)).toEqual(['Seconde'])
+    expect(res.nonRetenues.get(premiere)).toBe('b == true')
+  })
+
+  it('en `ordered-first-match`, un « toujours » dont le `prerequis` est FAUX est sauté (le repli `default` prend le relais)', () => {
+    const socle = opt('Socle', ['toujours'], { prerequis: ['b == true'] })
+    const def = opt('Défaut', ['default'])
+    const node = makeNode([socle, def], 'ordered-first-match')
+
+    const res = evaluateNode(node, { b: false })
+    expect(noms(res.applicable)).toEqual(['Défaut'])
+    expect(res.nonRetenues.get(socle)).toBe('b == true')
+  })
+
+  it('un nœud SANS `prerequis` (aucune option n’en porte) se comporte exactement comme avant ce champ (non-régression)', () => {
+    const a = opt('A', ['x == true'])
+    const def = opt('Défaut', ['default'])
+    const node = makeNode([a, def])
+
+    expect(noms(evaluateNode(node, { x: true }).applicable)).toEqual(['A'])
+    expect(noms(evaluateNode(node, { x: false }).applicable)).toEqual(['Défaut'])
+  })
+})
+
 describe('evaluateNode — alertes cliniques conditionnelles (D15)', () => {
   it('déclenche une alerte quand son `quand` est vrai, pas sinon', () => {
     const node = makeNode([opt('A', ['a == true']), opt('Défaut', ['default'])])

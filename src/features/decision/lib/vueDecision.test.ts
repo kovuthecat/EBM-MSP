@@ -329,6 +329,30 @@ describe('criteresPertinents — TEST VERROU (R6) : un critère qui ne change QU
   })
 })
 
+describe('construireVueDecision — R6 arbitrage indication/prérequis : `prerequis` jamais dans `reasons`', () => {
+  it('un `prerequis` VRAI (l’option reste applicable) n’apparaît JAMAIS dans `reasons`, même seul motif de non-retrait', () => {
+    const a = opt('A', ['x == true'], { prerequis: ['y == true'] })
+    const node = makeNode([a], [
+      { nom: 'x', type: 'bool' },
+      { nom: 'y', type: 'bool' },
+    ])
+    const vue = construireVueDecision(node, { x: true, y: true })
+    const ov = vue.familles[0].groupes.flat().find((o) => o.option === a)
+    expect(ov?.reasons).toEqual(['x == true'])
+  })
+
+  it('un `prerequis` FAUX retire l’option de l’écran (elle n’apparaît dans aucune famille) et figure dans `nonRetenues` avec ce prérequis comme motif — jamais dans `reasons` d’une carte affichée puisqu’elle n’est pas affichée', () => {
+    const a = opt('A', ['x == true'], { prerequis: ['y == true'] })
+    const node = makeNode([a], [
+      { nom: 'x', type: 'bool' },
+      { nom: 'y', type: 'bool' },
+    ])
+    const vue = construireVueDecision(node, { x: true, y: false })
+    expect(vue.familles[0].groupes.flat()).toEqual([])
+    expect(vue.nonRetenues).toEqual([{ option: a, condition: 'y == true' }])
+  })
+})
+
 describe('construireVueDecision — R6 couche 2 : motif de rang (« pourquoi à ce rang »)', () => {
   it('rendu quand la famille distingue au moins deux rangs : présent pour l’option dont une règle de `priorite` CONDITIONNELLE (non "default") a matché, absent pour l’autre (rang FIXE, D13)', () => {
     const a = opt('A', ['toujours'], {

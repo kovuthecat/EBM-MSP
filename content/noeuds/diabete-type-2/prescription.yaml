@@ -295,6 +295,11 @@ options:
   - intitule: "Introduire un iSGLT2 (protection cardio‑rénale et/ou contrôle glycémique)"
     conditions:
       - "insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo OR ASCVD_etablie == true OR palette_glycemique_ouverte == true OR remplacement_agent_sans_benefice == true"
+    # R6 (docs/decision/GRAMMAIRE-NOEUD.md, arbitrage indication/prérequis) : garde-fous de cohérence,
+    # évalués comme des conditions mais jamais montrés comme justification (n'apprennent rien à
+    # l'écran : « ne prend pas déjà d'iSGLT2 » ; la double négation « iSGLT2/AR GLP‑1 tous deux
+    # inutilisables : non »).
+    prerequis:
       - "traitements_en_cours ne_contient_pas iSGLT2"
       - "classes_a_benefice_indisponibles == false"
     exclusions:
@@ -335,6 +340,9 @@ options:
     # non-association (cf. `alertes`) — l'AR GLP‑1 ne peut donc jamais apparaître sans son contexte de switch.
     conditions:
       - "ASCVD_etablie == true OR IMC >= 30 OR palette_glycemique_ouverte == true OR remplacement_agent_sans_benefice == true"
+    # R6 : garde-fous de cohérence (ne pas déjà prendre la classe visée / une classe concurrente ;
+    # niche non ouverte) — jamais montrés comme justification (cf. option iSGLT2 ci-dessus).
+    prerequis:
       - "traitements_en_cours ne_contient_pas aGLP1"
       - "traitements_en_cours ne_contient_pas tirzepatide"
       - "classes_a_benefice_indisponibles == false"
@@ -378,6 +386,9 @@ options:
   - intitule: "Introduire le tirzépatide (obésité — prescription spécialisée)"
     conditions:
       - "IMC >= 30"
+    # R6 : garde-fous de cohérence (ne pas déjà prendre la classe visée / une classe concurrente ;
+    # niche non ouverte) — jamais montrés comme justification (cf. option iSGLT2 plus haut).
+    prerequis:
       - "traitements_en_cours ne_contient_pas tirzepatide"
       - "traitements_en_cours ne_contient_pas aGLP1"
       - "traitements_en_cours ne_contient_pas gliptine"
@@ -404,6 +415,9 @@ options:
     conditions:
       - "insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo"
       - "ASCVD_etablie == true OR IMC >= 30"
+    # R6 : garde-fous de cohérence (ne pas déjà prendre l'une des classes concurrentes/visées ; niche
+    # non ouverte) — jamais montrés comme justification (cf. option iSGLT2 plus haut).
+    prerequis:
       - "traitements_en_cours ne_contient_pas gliptine"
       - "traitements_en_cours ne_contient_pas iSGLT2"
       - "traitements_en_cours ne_contient_pas aGLP1"
@@ -459,6 +473,9 @@ options:
   - intitule: "Remplacer la gliptine (aucun bénéfice sur critère dur — préférer un agent qui en apporte)"
     conditions:
       - "traitements_en_cours contient gliptine"
+    # R6 : garde-fous de cohérence (ne pas déjà prendre le remplaçant visé) — jamais montrés comme
+    # justification (cf. option iSGLT2 plus haut).
+    prerequis:
       - "traitements_en_cours ne_contient_pas aGLP1"
       - "traitements_en_cours ne_contient_pas tirzepatide"
     exclusions:
@@ -615,10 +632,13 @@ options:
   - intitule: "Gliptine (sitagliptine) — option glycémique orale de bas rang (place résiduelle)"
     conditions:
       - "classes_a_benefice_indisponibles == true OR palette_glycemique_ouverte == true"
+      - "position_vs_cible != sous_objectif"
+    # R6 : garde-fous de cohérence (ne pas déjà prendre la classe visée / une classe concurrente) —
+    # jamais montrés comme justification (cf. option iSGLT2 plus haut).
+    prerequis:
       - "traitements_en_cours ne_contient_pas gliptine"
       - "traitements_en_cours ne_contient_pas aGLP1"
       - "traitements_en_cours ne_contient_pas tirzepatide"
-      - "position_vs_cible != sous_objectif"
     exclusions:
       - "symptomes_glucotoxicite == true"
       - "cetonemie == true"
@@ -641,9 +661,12 @@ options:
   - intitule: "Sulfamide (gliclazide MR ou glimépiride) — option glycémique de bas rang, derrière la gliptine"
     conditions:
       - "classes_a_benefice_indisponibles == true OR palette_glycemique_ouverte == true"
+      - "position_vs_cible != sous_objectif"
+    # R6 : garde-fous de cohérence (ne pas déjà prendre la classe visée / une classe concurrente) —
+    # jamais montrés comme justification (cf. option iSGLT2 plus haut).
+    prerequis:
       - "traitements_en_cours ne_contient_pas sulfamide"
       - "traitements_en_cours ne_contient_pas insuline"
-      - "position_vs_cible != sous_objectif"
     exclusions:
       - "DFG < 30"
       - "symptomes_glucotoxicite == true"
@@ -926,8 +949,23 @@ meta:
   date_revue: "2026-07-25"
   auteur: "référent DT2 + Opus"
   statut: brouillon
-  version: "0.13"
+  version: "0.14"
   changelog:
+    - date: "2026-07-25"
+      auteur: "référent DT2 + Opus"
+      resume: >-
+        R6 livraison 2 (docs/decision/GRAMMAIRE-NOEUD.md, arbitrage indication/prérequis) : migration
+        MÉCANIQUE, sans arbitrage clinique, des garde-fous de cohérence hors du champ `conditions` vers
+        le nouveau champ `prerequis` (évalué à l'identique par le moteur, jamais montré comme
+        justification). 21 expressions déplacées sur 7 options (« Introduire un iSGLT2 » 2, « Introduire
+        un AR GLP‑1 » 3, « Introduire le tirzépatide » 4, « Association iSGLT2 + AR GLP‑1 » 5,
+        « Remplacer la gliptine » 2, « Gliptine (sitagliptine) » 3, « Sulfamide » 2) : exclusivement des
+        négations d'appartenance (`traitements_en_cours ne_contient_pas X` — ne pas déjà prendre la
+        classe visée ou une classe concurrente) et une négation de disponibilité
+        (`classes_a_benefice_indisponibles == false`). Aucune autre condition déplacée : les
+        déclencheurs positifs (`contient X`, indications d'organe, position vs objectif) restent des
+        `conditions`. Comportement du moteur inchangé (une option applicable si conditions ET
+        prerequis vrais) — migration de forme, pas de fond.
     - date: "2026-07-25"
       auteur: "référent DT2 + Opus"
       resume: >-

@@ -26,6 +26,16 @@
  * `priorite`, `exclusions` et le sentinel `toujours` sont optionnels/nouveaux : un nœud qui ne les
  * utilise pas (A actuel) garde exactement le comportement antérieur (P2 réalisée, DECISIONS.md D13,
  * sans régression).
+ *
+ * `prerequis` (R6, `docs/decision/GRAMMAIRE-NOEUD.md`, arbitrage indication/prérequis) : une option est
+ * applicable si TOUTES ses `conditions` **ET** TOUS ses `prerequis` sont vrais — évalués par le moteur
+ * exactement de la même façon (même grammaire DSL, même traitement de l'échec — R4). La SEULE différence
+ * est en aval, à l'affichage (`lib/vueDecision.ts`) : la justification montrée au praticien (`reasons`)
+ * ne cite jamais un `prerequis`, seulement les `conditions` vraies — un `prerequis` est un garde-fou de
+ * cohérence (« ne prend pas déjà cette classe », « la niche de repli n'est pas ouverte ») qui n'apprend
+ * rien affiché. Les sentinelles `["default"]`/`["toujours"]` portent sur `conditions` uniquement (leur
+ * `prerequis` éventuel, lui, reste une expression DSL réelle, évaluée normalement). Optionnel : un nœud
+ * qui n'en déclare aucun garde exactement le comportement antérieur.
  */
 import type { Alerte, Noeud, Option } from '../content/node.types.ts'
 import type { Criteria } from './conditions.ts'
@@ -46,7 +56,13 @@ export interface EvaluateNodeResult {
    * nœud) ; en `ordered-first-match`, un seul élément (l'ordre du nœud fait foi).
    */
   applicable: Option[]
-  /** Conditions satisfaites (le « pourquoi ») pour chaque option de `applicable`. */
+  /**
+   * Conditions satisfaites (le « pourquoi ») pour chaque option de `applicable` : toujours
+   * `[...option.conditions]`, JAMAIS `option.prerequis` (R6, arbitrage indication/prérequis) — un
+   * prérequis est évalué pour l'applicabilité mais n'est pas une justification montrable. Reste la
+   * liste LITTÉRALE des conditions (branches `OR` comprises) ; `lib/vueDecision.ts` en tire la version
+   * SITUATIONNELLE (termes `OR` réellement vrais) pour l'affichage.
+   */
   reasons: Map<Option, string[]>
   /**
    * Options qui auraient été applicables mais qu'une exclusion dure a retirées, indexées par la ou
@@ -54,16 +70,18 @@ export interface EvaluateNodeResult {
    */
   excluded: Map<Option, string[]>
   /**
-   * Options NON RETENUES faute de `condition` (R4, `docs/decision/GRAMMAIRE-NOEUD.md`) : l'option
-   * n'a jamais été candidate — l'une de ses `conditions` était fausse. Indexées par la PREMIÈRE
-   * condition non satisfaite (pas toutes) : c'est celle qui explique, cf. R4. Distinct d'`excluded` :
-   * ici l'option n'était pas indiquée pour ce patient (information d'EXPLICATION, consultée sur
-   * demande) ; `excluded` retire une option qui ÉTAIT indiquée (information de SÉCURITÉ, toujours
-   * visible). Les options de repli (`["default"]`) n'y figurent JAMAIS : leur non-activation n'est
-   * pas un refus, c'est leur sémantique (le repli n'active que si rien d'autre ne s'applique). Les
-   * options « toujours » (D16) n'y figurent pas non plus : sans condition réelle à échouer, elles ne
-   * peuvent jamais être « non retenues faute de condition ». Vide si toutes les options non-repli/
-   * non-toujours sont soit applicables, soit exclues.
+   * Options NON RETENUES faute de `condition` OU de `prerequis` (R4, `docs/decision/GRAMMAIRE-NOEUD.md` ;
+   * `prerequis` : § arbitrage indication/prérequis) : l'option n'a jamais été candidate — l'une de ses
+   * `conditions` ou l'un de ses `prerequis` était faux (les deux sont évalués à l'identique, seule la
+   * restitution à l'écran diffère). Indexées par la PREMIÈRE expression non satisfaite rencontrée (pas
+   * toutes) : c'est celle qui explique, cf. R4. Distinct d'`excluded` : ici l'option n'était pas indiquée
+   * pour ce patient (information d'EXPLICATION, consultée sur demande) ; `excluded` retire une option qui
+   * ÉTAIT indiquée (information de SÉCURITÉ, toujours visible). Les options de repli (`["default"]`) et
+   * « toujours » (D16) n'y figurent, PAR LEURS `conditions`, JAMAIS (leur sentinel n'est pas une expression
+   * évaluable — le moteur ne l'évalue jamais comme condition) ; elles PEUVENT néanmoins y figurer par un
+   * `prerequis` propre qui échoue, exactement comme une option ordinaire — un sentinel n'exempte que la
+   * sentinelle elle-même, pas ses `prerequis`. Vide si toutes les options non-repli/non-toujours sont soit
+   * applicables, soit exclues, ET tous les `prerequis` (de toute option, sentinel comprise) sont vrais.
    */
   nonRetenues: Map<Option, string>
   /**
@@ -261,6 +279,13 @@ export function isToujoursOption(option: Option): boolean {
  * Rejette une option non-repli au tableau `conditions` vide : sinon `[].every()` vaut `true`
  * (vérité vacante) et l'option serait applicable sans aucun « pourquoi », neutralisant le repli.
  * Défense au runtime (le schéma pose `minItems: 1`, mais `loadNodes` ne valide pas via Ajv, D9).
+ *
+ * NE PORTE QUE SUR `conditions` (R6, arbitrage indication/prérequis) : un `prerequis` ne remplace pas
+ * une condition — une option dont `conditions` serait vide mais `prerequis` rempli resterait sans aucun
+ * « pourquoi » montrable, exactement le défaut que cette garde existe pour empêcher. `prerequis` reste
+ * optionnel et peut légitimement être vide/absent (aucune garde équivalente n'est nécessaire côté
+ * `prerequis` : un tableau vide s'y comporte comme « aucun garde-fou », jamais comme une vérité vacante
+ * puisqu'il ne conditionne jamais, à lui seul, l'affichage d'un « pourquoi »).
  */
 function requireConditions(option: Option): void {
   if (option.conditions.length === 0) {
@@ -282,20 +307,45 @@ function triggeredExclusions(option: Option, criteria: Criteria): string[] {
 }
 
 /**
- * Première condition de `option.conditions` qui s'évalue à FAUX, ou `undefined` si toutes sont
- * vraies (option applicable sur ses conditions). Remplace `option.conditions.every(...)` : même
- * nombre d'appels à `evaluateCondition` — arrêt au premier échec, exactement comme `.every()` — mais
- * expose LA condition fautive plutôt qu'un simple booléen, sans évaluation supplémentaire (R4,
- * `docs/decision/GRAMMAIRE-NOEUD.md` : « la condition non satisfaite est déjà connue au moment où la
- * boucle s'arrête, il suffit de la retenir »). Coût nul par rapport au comportement précédent — décisif
- * ici : cette fonction est appelée par `evaluateNode`, lui-même rappelé des centaines de fois par
- * frappe via la boucle de perturbation (`engine/relevance.ts`).
+ * Première expression de `expressions` qui s'évalue à FAUX, ou `undefined` si toutes sont vraies.
+ * Brique commune à `firstFailingCondition` et `firstFailingPrerequisite` ci-dessous : `conditions` et
+ * `prerequis` sont évalués EXACTEMENT de la même façon par le moteur (R6, arbitrage indication/
+ * prérequis) — seule la restitution à l'écran les distingue (`lib/vueDecision.ts`). Même nombre
+ * d'appels à `evaluateCondition` qu'un `.every()` — arrêt au premier échec — mais expose L'EXPRESSION
+ * fautive plutôt qu'un simple booléen, sans évaluation supplémentaire (R4, `docs/decision/
+ * GRAMMAIRE-NOEUD.md` : « la condition non satisfaite est déjà connue au moment où la boucle s'arrête,
+ * il suffit de la retenir »).
  */
-function firstFailingCondition(option: Option, criteria: Criteria): string | undefined {
-  for (const condition of option.conditions) {
-    if (!evaluateCondition(condition, criteria)) return condition
+function firstFailingExpression(expressions: string[], criteria: Criteria): string | undefined {
+  for (const expression of expressions) {
+    if (!evaluateCondition(expression, criteria)) return expression
   }
   return undefined
+}
+
+/**
+ * Première condition de `option.conditions` OU premier `prerequis` de `option.prerequis` qui s'évalue à
+ * FAUX, ou `undefined` si tout est vrai (option applicable sur ses conditions ET ses prérequis, R6). Les
+ * deux tableaux sont concaténés puis scannés dans cet ordre — conditions d'abord, comme avant ce champ —
+ * de sorte que la première expression fautive rencontrée est celle retenue, qu'elle vienne de l'une ou
+ * l'autre liste : `nonRetenues` (R4) ne distingue pas la source, seule compte l'expression qui explique.
+ * NE S'UTILISE JAMAIS sur une option sentinelle (`["default"]`/`["toujours"]`) : ces mots ne sont pas des
+ * expressions DSL évaluables — `evaluateCondition` lèverait dessus. Pour une sentinelle, cf.
+ * `firstFailingPrerequisite`, qui n'évalue que `prerequis`, jamais `conditions`.
+ */
+function firstFailingCondition(option: Option, criteria: Criteria): string | undefined {
+  return firstFailingExpression([...option.conditions, ...(option.prerequis ?? [])], criteria)
+}
+
+/**
+ * Premier `prerequis` de `option.prerequis` qui s'évalue à FAUX, ou `undefined` si tous sont vrais (ou
+ * si l'option n'en porte aucun). Réservée aux options SENTINELLES (`["default"]`/`["toujours"]`, D11/
+ * D16) : leur tableau `conditions` n'est pas une expression évaluable, mais un `prerequis` — ajouté par
+ * R6 — reste une expression DSL réelle, à évaluer normalement (docstring de tête de ce fichier). Une
+ * option ordinaire passe par `firstFailingCondition` (qui couvre déjà `prerequis`).
+ */
+function firstFailingPrerequisite(option: Option, criteria: Criteria): string | undefined {
+  return firstFailingExpression(option.prerequis ?? [], criteria)
 }
 
 /**
@@ -395,7 +445,14 @@ export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResul
     }
     if (isToujoursOption(option)) {
       // Toujours candidate (D16), sans compter comme un non-default « réel » : ne doit pas
-      // masquer un éventuel repli `default` par ailleurs. Reste soumise à ses `exclusions`.
+      // masquer un éventuel repli `default` par ailleurs. Le sentinel lui-même n'a pas de `prerequis`
+      // à échouer, mais l'option PEUT en porter un (R6) : évalué normalement, AVANT les `exclusions`
+      // (une option retirée par prérequis n'était pas applicable, elle n'a donc rien à exclure).
+      const failingPrereq = firstFailingPrerequisite(option, criteria)
+      if (failingPrereq !== undefined) {
+        nonRetenues.set(option, failingPrereq)
+        continue
+      }
       const triggeredAlways = triggeredExclusions(option, criteria)
       if (triggeredAlways.length > 0) {
         excluded.set(option, triggeredAlways)
@@ -425,9 +482,15 @@ export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResul
   }
 
   // Le repli ne s'active que si AUCUNE option non-default n'est réellement applicable (une option
-  // exclue ne compte pas). Le repli est lui aussi soumis à ses propres exclusions.
+  // exclue ne compte pas). Le repli est lui aussi soumis à ses propres `prerequis` (R6, évalués AVANT
+  // les `exclusions` — mêmes raisons que la branche « toujours » ci-dessus) puis exclusions.
   if (!anyNonDefaultApplicable) {
     for (const option of defaults) {
+      const failingPrereq = firstFailingPrerequisite(option, criteria)
+      if (failingPrereq !== undefined) {
+        nonRetenues.set(option, failingPrereq)
+        continue
+      }
       const triggered = triggeredExclusions(option, criteria)
       if (triggered.length > 0) {
         excluded.set(option, triggered)
@@ -465,10 +528,10 @@ export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResul
 
 /**
  * Sélection « ordered-first-match » (sortie UNIQUE, DECISIONS.md D11) : renvoie la PREMIÈRE option
- * non-default, dans l'ordre du nœud, dont toutes les conditions sont vraies ; à défaut, l'option de
- * repli (`["default"]`, placée en dernier). Pour les nœuds à cible unique (ex. cible glycémique) :
- * l'ordre EST la sémantique explicite, ce qui lève l'ambiguïté des conditions qui se chevauchent.
- * Propage `ConditionError` comme `evaluateNode` (jamais de faux silencieux, brief §7).
+ * non-default, dans l'ordre du nœud, dont toutes les conditions (ET tous les prérequis, R6) sont vraies ;
+ * à défaut, l'option de repli (`["default"]`, placée en dernier). Pour les nœuds à cible unique (ex.
+ * cible glycémique) : l'ordre EST la sémantique explicite, ce qui lève l'ambiguïté des conditions qui se
+ * chevauchent. Propage `ConditionError` comme `evaluateNode` (jamais de faux silencieux, brief §7).
  *
  * `nonRetenues` (R4) ne peut tracer que les options VUES avant l'arrêt de la boucle (le 1er match ou
  * l'épuisement du nœud) : une fois une option retenue, les suivantes dans l'ordre du nœud ne sont
@@ -484,9 +547,18 @@ function evaluateOrderedFirstMatch(
     if (isDefaultOption(option)) continue
     requireConditions(option)
     if (!isToujoursOption(option)) {
+      // Couvre `conditions` ET `prerequis` (R6, cf. docstring `firstFailingCondition`).
       const failing = firstFailingCondition(option, criteria)
       if (failing !== undefined) {
         nonRetenues.set(option, failing)
+        continue
+      }
+    } else {
+      // Sentinel `["toujours"]` : `conditions` n'est pas évaluable, mais un `prerequis` éventuel l'est
+      // (R6) — évalué normalement, avant l'exclusion, comme en `multi-options`.
+      const failingPrereq = firstFailingPrerequisite(option, criteria)
+      if (failingPrereq !== undefined) {
+        nonRetenues.set(option, failingPrereq)
         continue
       }
     }
@@ -500,6 +572,12 @@ function evaluateOrderedFirstMatch(
   }
   const fallback = node.options.find(isDefaultOption)
   if (fallback) {
+    // Repli `["default"]` : idem, seul un `prerequis` propre (R6) peut l'écarter avant l'exclusion.
+    const failingPrereq = firstFailingPrerequisite(fallback, criteria)
+    if (failingPrereq !== undefined) {
+      nonRetenues.set(fallback, failingPrereq)
+      return { applicable: [], reasons: new Map(), excluded, nonRetenues }
+    }
     const triggered = triggeredExclusions(fallback, criteria)
     if (triggered.length > 0) {
       excluded.set(fallback, triggered)

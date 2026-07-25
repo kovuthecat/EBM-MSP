@@ -91,6 +91,23 @@ export interface Option {
    * ex. socle metformine — D16), soumise à ses `exclusions`.
    */
   conditions: string[]
+  /**
+   * R6 (`docs/decision/GRAMMAIRE-NOEUD.md`, arbitrage indication/prérequis) : garde-fous de COHÉRENCE,
+   * évalués EXACTEMENT comme les `conditions` (même grammaire DSL, mêmes règles d'applicabilité : une
+   * option est applicable si TOUTES ses `conditions` ET TOUS ses `prerequis` sont vrais) mais JAMAIS
+   * affichés comme justification — `OptionVue.reasons` (`lib/vueDecision.ts`) ne lit que `conditions`.
+   *
+   * Distinction : une `condition` répond à « pourquoi cette option est proposée à CE patient » (une
+   * indication clinique, ex. `ASCVD_etablie == true`) ; un `prerequis` répond à « qu'est-ce qui ne
+   * l'empêche pas » (ex. `traitements_en_cours ne_contient_pas iSGLT2` — ne pas déjà prendre la classe ;
+   * `classes_a_benefice_indisponibles == false` — la niche de repli n'est pas ouverte) — vrai pour la
+   * quasi-totalité des patients, son énoncé n'apprend rien au praticien (double négation illisible pour
+   * le second exemple). Les deux sont ÉVALUÉS : une option retirée par un `prerequis` faux est « non
+   * retenue », comme pour une condition (R4, `EvaluateNodeResult.nonRetenues`). Seule la première
+   * justifie ce qui est montré. Optionnel : absent → comportement rigoureusement identique à avant ce
+   * champ.
+   */
+  prerequis?: string[]
   /** Optionnel : omis dans le gabarit §11 pour les options sans contre-indication propre. Prose
    * d'affichage destinée au lecteur — distincte de `exclusions`, qui est évaluée par le moteur (D13). */
   contre_indications?: string[]

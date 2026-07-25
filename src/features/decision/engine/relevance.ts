@@ -42,6 +42,12 @@ function reglesDuNoeud(node: Noeud): string[] {
   const regles: string[] = []
   for (const option of node.options) {
     regles.push(...option.conditions)
+    // `prerequis` (R6, GRAMMAIRE-NOEUD.md § arbitrage indication/prérequis) est évalué EXACTEMENT
+    // comme `conditions` par le moteur : un seuil numérique qui n'existerait que dans un `prerequis`
+    // doit être trouvé ici au même titre, sous peine de sous-échantillonner ses valeurs candidates
+    // (`valeursCandidates`) et de manquer un critère pourtant décisif (R5). Aucun contenu actuel n'a
+    // de `prerequis` numérique — extension par cohérence, pas un correctif d'un défaut observé.
+    if (option.prerequis) regles.push(...option.prerequis)
     if (option.exclusions) regles.push(...option.exclusions)
     if (Array.isArray(option.priorite)) regles.push(...option.priorite.map((r) => r.quand))
   }

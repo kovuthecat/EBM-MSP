@@ -169,6 +169,12 @@
           "items": { "type": "string", "minLength": 1 },
           "description": "Regles d'affichage : expressions booleennes sur les criteres_entree (ex. 'age < 60'), ou ['default'] pour l'option de repli du noeud, ou ['toujours'] pour une option systematiquement applicable (D16, ex. socle metformine en multi-options), soumise a ses `exclusions`. Au moins une expression non vide (une condition vide leverait ConditionError au runtime, D13)."
         },
+        "prerequis": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 },
+          "description": "R6 (docs/decision/GRAMMAIRE-NOEUD.md, arbitrage indication/prerequis) : garde-fous de COHERENCE, evalues EXACTEMENT comme les `conditions` (meme grammaire DSL, memes regles d'applicabilite : une option est applicable si TOUTES ses `conditions` ET TOUS ses `prerequis` sont vrais) mais JAMAIS affiches comme justification (`OptionVue.reasons`, lib/vueDecision.ts, ne lit que `conditions`). Distinction : une `condition` repond a « pourquoi cette option est proposee a CE patient » (une indication clinique) ; un `prerequis` repond a « qu'est-ce qui ne l'empeche pas » (ex. 'traitements_en_cours ne_contient_pas iSGLT2' — ne pas deja prendre la classe ; 'classes_a_benefice_indisponibles == false' — la niche de repli n'est pas ouverte) — vrai pour la quasi-totalite des patients, son enonce n'apprend rien au praticien. Une option retiree par un `prerequis` faux est « non retenue » comme pour une condition (R4). Optionnel : absent = comportement rigoureusement identique a avant ce champ."
+        },
         "contre_indications": {
           "type": "array",
           "items": { "type": "string" },

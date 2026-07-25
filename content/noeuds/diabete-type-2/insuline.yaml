@@ -103,6 +103,9 @@ options:
   - intitule: "Envisager un GLP-1 (ou une association fixe basale + GLP-1) avant ou avec l'insuline"
     conditions:
       - "situation_insuline == naif"
+    # R6 (docs/decision/GRAMMAIRE-NOEUD.md, arbitrage indication/prérequis) : garde-fou de cohérence
+    # (ne pas déjà prendre la classe visée) — jamais montré comme justification.
+    prerequis:
       - "traitements_en_cours ne_contient_pas aGLP1"
     priorite: 1
     avantages:
@@ -212,6 +215,9 @@ options:
   - intitule: "Ajouter un GLP-1 / une association fixe d'abord (si non encore fait)"
     conditions:
       - "situation_insuline == basale_plus_bolus"
+    # R6 : garde-fou de cohérence (ne pas déjà prendre l'une des classes visées) — jamais montré comme
+    # justification.
+    prerequis:
       - "traitements_en_cours ne_contient_pas aGLP1 AND traitements_en_cours ne_contient_pas tirzepatide"
     priorite: 1
     avantages:
@@ -488,8 +494,19 @@ meta:
   date_revue: "2026-07-25"
   auteur: "référent DT2 (Thibault) + Opus"
   statut: brouillon
-  version: "0.3"
+  version: "0.4"
   changelog:
+    - date: "2026-07-25"
+      auteur: "référent DT2 + Opus"
+      resume: >-
+        R6 livraison 2 (docs/decision/GRAMMAIRE-NOEUD.md, arbitrage indication/prérequis) : migration
+        MÉCANIQUE, sans arbitrage clinique, des garde-fous de cohérence hors du champ `conditions` vers
+        le nouveau champ `prerequis` (évalué à l'identique par le moteur, jamais montré comme
+        justification). 2 expressions déplacées sur 2 options (« Envisager un GLP-1… avant ou avec
+        l'insuline » 1, « Ajouter un GLP-1 / une association fixe d'abord » 1) : des négations
+        d'appartenance (`traitements_en_cours ne_contient_pas X` — ne pas déjà prendre la classe visée).
+        Aucune autre condition déplacée (`situation_insuline == …` reste le déclencheur de situation).
+        Comportement du moteur inchangé — migration de forme, pas de fond.
     - date: "2026-07-25"
       auteur: "référent DT2 + Opus"
       resume: >-

@@ -63,6 +63,12 @@ export interface OptionVue {
    * ci-dessous). En général un seul motif ; plusieurs quand le patient cumule les indications (information
    * clinique, pas du bruit). Les sentinelles `["default"]`/`["toujours"]` traversent inchangées —
    * `describeReasons` (`lib/conditionText.ts`) les traite par un cas spécial.
+   *
+   * NE CONTIENT JAMAIS `option.prerequis` (R6, § arbitrage indication/prérequis) : un prérequis est un
+   * garde-fou de cohérence (« ne prend pas déjà cette classe », « la niche n'est pas ouverte »), vrai
+   * chez la quasi-totalité des patients — son énoncé n'apprend rien affiché, même s'il est aussi vrai
+   * qu'une condition (l'évaluateur du moteur ne fait aucune différence entre les deux). Volontaire, pas
+   * un oubli : voir `raisonsSituationnelles`, qui ne lit que `conditions`.
    */
   reasons: string[]
   /** Doses calculées déjà évaluées ; ne contient que celles calculables (cf. `evaluerNombre`). */
@@ -145,6 +151,13 @@ function estSentinelle(conditions: string[]): boolean {
  * on concatène, plutôt que de recopier les règles littéralement (`EvaluateNodeResult.reasons`, qui reste
  * la liste brute des conditions, inchangée — utile ailleurs, ex. `evaluateNode.test.ts`). Les sentinelles
  * traversent SANS être évaluées (cf. `estSentinelle`) : `describeReasons` les traite par un cas spécial.
+ *
+ * PREND EXPLICITEMENT `option.conditions` en paramètre, PAS `option.prerequis` (R6, § arbitrage
+ * indication/prérequis, livraison 2) : un `prerequis` est évalué EXACTEMENT comme une condition par le
+ * moteur (`engine/evaluateNode.ts`), et serait donc tout aussi « décisif » si on le passait ici — c'est
+ * précisément ce que l'arbitrage écarte. Ne JAMAIS élargir cette fonction à `option.prerequis`, même par
+ * souci de symétrie avec le moteur : la séparation conditions/prérequis n'a de sens QUE si cette
+ * frontière est tenue ici.
  */
 function raisonsSituationnelles(conditions: string[], criteria: Criteria): string[] {
   if (estSentinelle(conditions)) return conditions
