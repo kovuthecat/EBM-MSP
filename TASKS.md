@@ -78,6 +78,49 @@ statut : ` ` à faire · `~` en cours · `x` fait · modèles/efforts : `WORKFLO
 - [~] T-026 — Refonte UI : Lots 1-3 faits (relevance + estompage + reco provisoire) ; **Lot 4 restant** (primer par intention/rail/argumentaires, visuel référent) · plan: → plans/P3-fusion/S7-ui.md
 - [x] T-027 — Refonte « par intention » (S8) : 4 intentions (initier/intensifier/optimiser/déprescrire) remplacent `position_vs_cible` ; palette glycémique + séquençage HAS ; repli insuline ; déprescription nuancée (réductions distinctes, `nature_intolerance`) ; alertes de cohérence. Vérifié 4 agents adversariaux (2 HAUTE corrigées) + passe ciblée sur 3 arbitrages référent (0 finding). 158 tests + build verts. **Poussé sur `main` (a561b8b)**, `statut: brouillon` v0.9 en attente de validation clinique sur le déployé · plan: → docs/decision/noeuds/prescription.SPEC-intentions.md
 
+## Backlog (P3 — suites de la grammaire R1→R6, D19)
+
+> Les quatre premières lignes correspondent à des `it.fails` du banc
+> (`src/features/decision/engine/banc/`) : elles passent au vert d'elles-mêmes une fois corrigées, il
+> n'y a donc rien à penser à décocher.
+
+- [ ] **RÉFÉRENT** — `insuline` : `TIR`/`TAR`/`GMI` ne changent rien à l'écran. Non décisifs par
+      conception (axe « contrôle » jugé redondant avec l'HbA1c), mais leurs valeurs ne sont pas rendues
+      non plus — les alertes énoncent des cibles sans utiliser le chiffre saisi. Les brancher (afficher
+      la valeur vs la cible) ou les retirer du formulaire ? · plan: —
+- [ ] `insuline` : `IMC` et `dose_rapide_actuelle` morts (aucune règle, aucun calcul) — retirer ·
+      modèle: Sonnet, effort: low · plan: —
+- [ ] **RÉFÉRENT** — `insuline` : sortie vide possible (branche « basale seule », ni clause de sécurité
+      ni objectif manqué). Ce nœud n'a pas d'option de repli `["default"]`, contrairement à
+      `prescription` où le même trou (M3) a été corrigé · plan: —
+- [ ] **RÉFÉRENT** — jonction manquante : la place résiduelle gliptine/sulfamide est ouverte par
+      `classes_a_benefice_indisponibles`, drapeau indépendant de `position_vs_cible` — un patient en
+      sur-traitement peut donc se voir proposer un agent purement glycémique · plan: —
+- [ ] **R4** — tracer les échecs de condition dans `EvaluateNodeResult` ; afficher les options écartées
+      avec leur motif (poussé) et les non-retenues sur demande. **Bloque la levée de
+      `ne_contient_pas gliptine`** et donc la dette de la recette · modèle: Sonnet, effort: high · plan: —
+- [ ] **R6 fond** — `termesVrais` : ne renvoyer que les termes `OR` réellement vrais, motif de rang
+      (`resolvePriorite`). Après l'unification écran ↔ signature · modèle: Sonnet, effort: high · plan: —
+- [ ] **R6 liv. 2** — champ `prerequis` (schéma + moteur + migration de contenu) : séparer l'indication
+      qui justifie des garde-fous de cohérence qui n'apprennent rien · modèle: Sonnet, effort: high · plan: —
+- [ ] **R2, 2e moitié** — alertes portées par une option (affichées seulement si l'option est
+      applicable). Résout aussi l'alerte fragilité qui s'affiche pour une option écartée. Après
+      l'unification · modèle: Sonnet, effort: high · plan: —
+- [ ] **RÉFÉRENT** — lever `ne_contient_pas gliptine` de l'option AR GLP‑1, généraliser l'option de
+      switch de la gliptine (prose déjà rédigée et validée, en attente) et ajouter la gliptine à
+      `remplacement_agent_sans_benefice`. **Après R4**, séquencement tranché le 2026-07-25 · plan: —
+- [ ] **RÉFÉRENT** — alerte M2/A9 : elle affirme « aucun remplaçant protecteur pertinent » alors que
+      R3 rend l'iSGLT2 applicable par la voie du remplacement, y compris chez le patient à IMC < 22
+      qu'elle visait. Son test reste vert : il ne vérifie que la présence du message, pas sa justesse · plan: —
+- [ ] **RÉFÉRENT** — les deux alertes de cohérence intention↔HbA1c conseillent « rebasculer
+      l'intention » ; depuis R1 le bon geste serait de corriger `position_vs_cible` · plan: —
+- [ ] **RÉFÉRENT** — `delai_benefice` manquants : AR GLP‑1 (aucune durée écrite dans son
+      `effet_attendu`), insuline (le « ~2 ans » de DEVOTE ne vaut que pour degludec vs glargine U100,
+      l'option portant sur la classe), rhd (les chiffres DiRECT décrivent l'érosion d'un substitut) · plan: —
+- [ ] Rebrancher le test R5 du banc sur le modèle de vue une fois l'unification faite : contre
+      `evaluateNode` il sous-estime la portée d'un critère (une dose calculée, un texte d'alerte) ·
+      modèle: Sonnet, effort: medium · plan: —
+
 ## Backlog (P3 — reste avant `valide` final)
 
 - [ ] Validation clinique référent sur ebm-msp.vercel.app (post-S8) → `prescription.yaml` `statut: valide`, bump version, mise à jour `DECISIONS.md` D18 (actuellement daté de la fusion S6, à réaligner sur S8)

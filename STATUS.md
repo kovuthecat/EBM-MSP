@@ -2,7 +2,40 @@
 
 Photo à l'instant T. Mis à jour en fin de session.
 
-> **Dernière mise à jour :** 2026-07-25 (P3 · nœud `prescription` refondu par intention, vérifié, poussé sur `main`)
+> **Dernière mise à jour :** 2026-07-25 (P3 · recette référent → grammaire de modélisation R1→R6, D19 ; 8 commits locaux **non poussés**)
+
+## P3 · Recette référent → grammaire de modélisation — EN COURS (2026-07-25)
+
+La recette du nœud `prescription` a produit une série de corrections qui ne convergeait pas. Le
+diagnostic, obtenu en rejouant le profil de recette sur le moteur réel, est que les défauts n'étaient
+pas des bugs d'affichage mais **des défauts de modélisation du raisonnement clinique** — donc
+reproductibles dans tout nœud et tout domaine à venir. D'où six règles génériques hissées hors de DT2
+dans `docs/decision/GRAMMAIRE-NOEUD.md` (**D19**).
+
+**Livré et commité localement** (chaque étape typecheck + tests + build verts) :
+
+- **R1** — `position_vs_cible` déclaré remplace `cible_atteinte` déduit de l'intention ; disparition du
+  seuil absolu `HbA1c >= 8,5 %`, aveugle à l'objectif du patient.
+- **R3** — le switch d'un agent sans bénéfice dur se déclenche sur sa seule présence ; nouveau dérivé
+  `remplacement_agent_sans_benefice` (sulfamide seulement à ce stade, cf. dette ci-dessous).
+- **R2, 1re moitié** — champ `delai_benefice`, 3 valeurs extraites d'`effet_attendu` déjà sourcés.
+- **R6, mise en forme** — plus de jeton du DSL affiché au clinicien (`ne_contient_pas` était rendu brut).
+- **Banc** — couches couverture et invariants (`engine/banc/`), 800 à 2000 profils par nœud, générateur
+  déterministe. ~23 s, dominé par R5.
+- **Docs** — `BRIEF_DECISION.md` et `00-global.md` renvoient à la grammaire ; la liste des « variables
+  communes » du §6 est supprimée, quatre des variables listées n'existant dans aucun nœud.
+
+**En cours** : unification écran ↔ signature de pertinence sur un modèle de vue unique — le verrou de
+R4, du fond de R6 et des alertes portées par une option.
+
+**Quatre dettes matérialisées en `it.fails`** dans le banc (elles virent au vert d'elles-mêmes une fois
+corrigées) : critères jamais décisifs du nœud `insuline` ; sortie vide possible sur `insuline` (pas
+d'option de repli) ; dette R3/R4 sur la gliptine ; jonction manquante entre
+`classes_a_benefice_indisponibles` et la position vs objectif.
+
+**Rien n'est poussé.** Réservé au référent : les deux alertes de cohérence intention↔HbA1c, l'alerte
+M2/A9 devenue fausse plus souvent, la prose de l'option gliptine généralisée, les `delai_benefice`
+manquants, et le passage en `statut: valide`.
 
 ## P2 · Gate humaine — CLOSE, 11/11 divergences arbitrées (2026-07-24)
 
