@@ -144,14 +144,25 @@ describe('relevance — non-régression de la signature « groupes d’égalité
   // dépend, via une priorité conditionnelle. `y` fait passer A de rang 2 à rang 3, mais B reste à 5 :
   // aucune égalité n'apparaît ni ne disparaît, et l'ORDRE affiché (A puis B) ne change jamais. L'ancienne
   // signature « rang brut » (`intitulé@rang`) aurait vu 2→3 comme un changement et signalé `y` comme
-  // décisif à tort ; la signature « groupes d'égalité » doit l'ignorer.
+  // décisif à tort ; la signature « groupes d'égalité » l'ignorait — CE QUI RESTE VRAI ici.
   const a = opt('A', ['toujours'], { priorite: [{ quand: 'y == true', rang: 3 }, { quand: 'default', rang: 2 }] })
   const b = opt('B', ['toujours'], { priorite: 5 })
   const node = makeNode([a, b], [{ nom: 'y', type: 'bool' }])
 
-  it('« y » ne change ni l’ordre ni les égalités affichées → non pertinent', () => {
+  // ⚠ ATTENTE INVERSÉE (R6 couche 2, `docs/decision/GRAMMAIRE-NOEUD.md` § « pourquoi à ce rang » —
+  // motif de rang, tâche « justification situationnelle »). ANCIEN : `false` (ce test attendait `y`
+  // non pertinent). NOUVEAU : `true`. Le mécanisme n'est PAS celui que ce test met en garde contre (la
+  // sensibilité au rang BRUT) — les groupes d'égalité restent identiques dans les deux cas ([A],[B]),
+  // exactement comme avant. Ce qui a changé est une AUTRE dimension, désormais affichée : le motif du
+  // rang de A (`OptionVue.motifRang`). Ce nœud sans `familles` déclarées retombe sur une famille unique
+  // à 2 groupes (≥ 2, la condition de rendu du motif) ; pour `y == false`, la règle retenue est le repli
+  // `"default"` → pas de motif (`undefined`) ; pour `y == true`, la règle « y == true » matche → motif
+  // = "y == true". La carte de A affiche donc réellement une ligne en plus quand `y` passe à vrai — ce
+  // n'est plus une variation interne invisible, c'est une variation d'ÉCRAN, donc `y` est bien DÉCISIF
+  // par construction de `signatureVue` (totale, cf. `lib/vueDecision.ts`). Non un retour du bug d'origine.
+  it('« y » ne change ni l’ordre ni les égalités affichées, mais fait apparaître le motif de rang de A → pertinent', () => {
     const pertinents = criteresPertinents(node, { y: false })
-    expect(pertinents.has('y')).toBe(false)
+    expect(pertinents.has('y')).toBe(true)
   })
 
   it('non-régression : un nœud sans aucune `priorite` déclarée ne produit aucun groupe d’égalité', () => {

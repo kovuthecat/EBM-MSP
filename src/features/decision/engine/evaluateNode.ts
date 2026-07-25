@@ -81,6 +81,25 @@ export interface EvaluateNodeResult {
    * Vide en `ordered-first-match` (la `priorite` y est ignorée, D11 : l'ordre du nœud fait foi).
    */
   rangs: Map<Option, number>
+  /**
+   * Motif de rang (R6 couche 2, `docs/decision/GRAMMAIRE-NOEUD.md` § « pourquoi à ce rang ») : pour
+   * chaque option de `applicable` dont le rang (`rangs`) provient d'une règle de `priorite`
+   * CONDITIONNELLE (D14) dont le `quand` a matché, la condition `quand` de CETTE règle — brute (DSL),
+   * à humaniser côté vue comme `reasons` (`lib/conditionText.ts`). Gratuit : `resolvePriorite` connaît
+   * déjà cette information au moment où elle détermine le rang de tri, elle n'est jamais réévaluée.
+   *
+   * ABSENTE pour une option sans `priorite`, à `priorite` FIXE (D13, un simple entier), ou dont seule la
+   * règle de repli `quand: "default"` a matché (pas de motif clinique distinct à exposer — la note
+   * d'appel de `resolvePriorite` documente ce dernier cas). Vide en `ordered-first-match` (la `priorite`
+   * y est ignorée, D11, comme `rangs`).
+   *
+   * Ne décide PAS si le motif doit être affiché : `resolvePriorite`/`evaluateNode` tournent des centaines
+   * de fois par frappe via la boucle de perturbation (`engine/relevance.ts`) et n'ont aucune connaissance
+   * de la famille du patient. C'est `lib/vueDecision.ts` (le modèle de vue, calculé une fois par rendu)
+   * qui décide du RENDU — réservé aux familles comptant au moins deux groupes d'égalité, cf. R6 : sans
+   * concurrence de rang réelle, « pourquoi celle-ci d'abord » ne veut rien dire.
+   */
+  rangMotifs: Map<Option, string>
 }
 
 /**
@@ -292,21 +311,37 @@ function evaluateAlertes(node: Noeud, criteria: Criteria): Alerte[] {
 }
 
 /**
+ * Résolution du rang d'une option pour ces critères (`resolvePriorite`) : le rang lui-même, ET — quand
+ * il provient d'une règle CONDITIONNELLE (D14) autre que le repli `"default"` — le `quand` de cette
+ * règle, retenu au passage sans réévaluation (R6 couche 2, docstring `EvaluateNodeResult.rangMotifs`).
+ */
+interface ResolutionRang {
+  rang: number
+  /** `quand` de la règle de `priorite` retenue, si et seulement si ce n'est pas le repli `"default"`. */
+  motif?: string
+}
+
+/**
  * Rang effectif d'une option pour ces critères. `priorite` peut être :
  * - **absente** → rang le plus faible (`+Infinity`, placée en dernier) ;
  * - un **entier** → rang FIXE (D13) ;
  * - une **liste de règles** `{ quand, rang }` → rang CONDITIONNEL (D14) : la 1re règle dont `quand`
  *   est vrai (ou vaut exactement `"default"`) donne le rang ; si aucune ne matche → `+Infinity`.
  * Propage `ConditionError` si un `quand` est malformé (jamais de faux silencieux, brief §7).
+ *
+ * Expose aussi le MOTIF de ce rang (R6 couche 2) quand il vient d'une règle conditionnelle réelle : la
+ * boucle ci-dessous connaît déjà `regle.quand` au moment où elle retient le rang, coût nul à le
+ * renvoyer. Le repli `"default"` n'a, par construction, aucun motif clinique distinct (c'est l'ABSENCE
+ * de toute autre règle qui l'a fait matcher) : `motif` reste `undefined` dans ce cas.
  */
-function resolvePriorite(option: Option, criteria: Criteria): number {
+function resolvePriorite(option: Option, criteria: Criteria): ResolutionRang {
   const p = option.priorite
-  if (p === undefined) return Number.POSITIVE_INFINITY
+  if (p === undefined) return { rang: Number.POSITIVE_INFINITY }
   if (typeof p === 'number') {
     if (!Number.isFinite(p)) {
       throw new ConditionError(`Option "${option.intitule}" : priorité numérique invalide (${String(p)}).`)
     }
-    return p
+    return { rang: p }
   }
   // Contenu non validé par Ajv au runtime (D9) : garder les mêmes garde-fous « loud » qu'ailleurs
   // dans le moteur — une forme malformée lève `ConditionError` (nommant l'option), jamais un tri muet.
@@ -325,10 +360,10 @@ function resolvePriorite(option: Option, criteria: Criteria): number {
           `Option "${option.intitule}" : règle de priorité (${regle.quand}) sans "rang" fini (${String(regle.rang)}).`,
         )
       }
-      return regle.rang
+      return { rang: regle.rang, motif: regle.quand === 'default' ? undefined : regle.quand }
     }
   }
-  return Number.POSITIVE_INFINITY
+  return { rang: Number.POSITIVE_INFINITY }
 }
 
 /**
@@ -343,7 +378,7 @@ export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResul
 
   // Nœud à sortie unique (D11) : la 1re option applicable dans l'ordre du nœud l'emporte.
   if (node.selection === 'ordered-first-match') {
-    return { ...evaluateOrderedFirstMatch(node, criteria), alertes, rangs: new Map() }
+    return { ...evaluateOrderedFirstMatch(node, criteria), alertes, rangs: new Map(), rangMotifs: new Map() }
   }
 
   const applicable: Option[] = []
@@ -406,8 +441,15 @@ export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResul
   // Tri stable par priorité (fixe D13 ou conditionnelle D14). Rangs pré-calculés une seule fois :
   // évite de ré-évaluer les conditions à chaque comparaison et fait remonter proprement une
   // ConditionError (plutôt qu'en plein tri) ; sans `priorite`, l'ordre du contenu est préservé.
+  // Le motif de rang (R6 couche 2, `rangMotifs`) est un sous-produit GRATUIT de ce même calcul : aucune
+  // évaluation supplémentaire, `resolvePriorite` le connaît déjà au moment où elle fixe le rang.
   const rangs = new Map<Option, number>()
-  for (const option of applicable) rangs.set(option, resolvePriorite(option, criteria))
+  const rangMotifs = new Map<Option, string>()
+  for (const option of applicable) {
+    const resolution = resolvePriorite(option, criteria)
+    rangs.set(option, resolution.rang)
+    if (resolution.motif !== undefined) rangMotifs.set(option, resolution.motif)
+  }
   applicable.sort((a, b) => {
     // `resolvePriorite` garantit un nombre fini ou `+Infinity` (jamais `undefined`/`NaN`) : comparaison
     // explicite plutôt qu'une soustraction (qui donnerait `NaN` pour deux `+Infinity`) ; rangs égaux
@@ -418,7 +460,7 @@ export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResul
     return ra < rb ? -1 : 1
   })
 
-  return { applicable, reasons, excluded, nonRetenues, alertes, rangs }
+  return { applicable, reasons, excluded, nonRetenues, alertes, rangs, rangMotifs }
 }
 
 /**
@@ -435,7 +477,7 @@ export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResul
 function evaluateOrderedFirstMatch(
   node: Noeud,
   criteria: Criteria,
-): Omit<EvaluateNodeResult, 'alertes' | 'rangs'> {
+): Omit<EvaluateNodeResult, 'alertes' | 'rangs' | 'rangMotifs'> {
   const excluded = new Map<Option, string[]>()
   const nonRetenues = new Map<Option, string>()
   for (const option of node.options) {

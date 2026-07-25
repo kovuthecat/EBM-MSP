@@ -16,19 +16,31 @@ interface OptionCardProps {
    * - `null` — carte non mise en avant.
    */
   badge: 'recommandee' | 'reco-officielle' | null
-  /** Conditions satisfaites pour cette option (`evaluateNode(...).reasons.get(option)`). */
+  /**
+   * Justification SITUATIONNELLE (R6, `docs/decision/GRAMMAIRE-NOEUD.md`) : les termes réellement vrais
+   * pour ce patient (`lib/vueDecision.ts` `OptionVue.reasons`), pas la règle recopiée telle quelle.
+   */
   reasons: string[]
   /** Doses calculées DÉJÀ ÉVALUÉES (`lib/vueDecision.ts` `construireVueDecision`) : cette carte ne
    * connaît plus les critères du patient, seulement le résultat déjà filtré (non-calculables omis). */
   calculs: CalculAffiche[]
+  /**
+   * Motif de rang (R6 couche 2, « pourquoi à ce rang » — `lib/vueDecision.ts` `OptionVue.motifRang`) :
+   * la condition qui a fixé le rang de CETTE option parmi les autres de sa famille, DSL brut à humaniser
+   * comme `reasons`. `undefined` la plupart du temps (cf. docstring `OptionVue.motifRang` pour les
+   * conditions d'affichage) — n'apparaît que quand ça compte cliniquement (deux options en concurrence
+   * de rang réelle).
+   */
+  motifRang: string | undefined
 }
 
 /**
  * Carte d'option applicable (T-006 étape 2) : intitulé, badge de mise en avant, badge preuve, effet
  * attendu, avantages/inconvénients (qui portent déjà la position critique — D12), contre-indications
- * si renseignées, et la ligne « Pourquoi cette option » dérivée des conditions satisfaites (`lib/conditionText.ts`).
+ * si renseignées, la ligne « Proposé parce que » dérivée des termes réellement vrais pour ce patient
+ * (R6, `lib/conditionText.ts`), et — quand elle compte — le motif du rang parmi les options de sa famille.
  */
-export function OptionCard({ option, badge, reasons, calculs }: OptionCardProps) {
+export function OptionCard({ option, badge, reasons, calculs, motifRang }: OptionCardProps) {
   return (
     <div className={badge ? 'option-card option-card--primary' : 'option-card'}>
       <div className="option-card__header">
@@ -91,7 +103,11 @@ export function OptionCard({ option, badge, reasons, calculs }: OptionCardProps)
         </div>
       )}
 
-      <div className="option-card__pourquoi">Pourquoi cette option : {describeReasons(reasons)}</div>
+      <div className="option-card__pourquoi">Proposé parce que : {describeReasons(reasons)}</div>
+
+      {/* R6 couche 2 : pourquoi CE rang parmi les autres options de la famille — seulement quand une
+          vraie concurrence de rang existe (cf. `lib/vueDecision.ts` `OptionVue.motifRang`). */}
+      {motifRang && <div className="option-card__rang">Ce rang tient compte de : {describeReasons([motifRang])}</div>}
     </div>
   )
 }

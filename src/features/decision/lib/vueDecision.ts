@@ -26,9 +26,21 @@
  * ces deux listes reste détecté comme DÉCISIF par `engine/relevance.ts` — sinon il serait estompé à
  * tort comme « sans effet », le défaut récurrent que ce fichier existe pour empêcher (cf. R6, même
  * document).
+ *
+ * R6 (même document, § « l'argumentaire est situationnel ») : `OptionVue.reasons` n'est plus la liste
+ * littérale de `Option.conditions` (`EvaluateNodeResult.reasons`) mais les termes `OR` réellement vrais
+ * pour CE patient (`engine/conditions.ts` `termesVrais`), calculés ICI et non dans `evaluateNode` —
+ * `evaluateNode` tourne des centaines de fois par frappe via la boucle de perturbation, une
+ * justification situationnelle n'a de coût que pour ce qui est rendu. `OptionVue.motifRang` (R6 couche
+ * 2, « pourquoi à ce rang ») est en revanche déjà calculé par `evaluateNode` sans coût supplémentaire
+ * (`EvaluateNodeResult.rangMotifs`, sous-produit de `resolvePriorite`) : ce fichier décide seulement DE
+ * L'AFFICHER, réservé aux familles à au moins deux groupes d'égalité (une vraie concurrence de rang).
+ * Ces deux dimensions entrent dans `signatureVue` au même titre que les autres (totalité, ci-dessus) :
+ * un critère qui ne change QUE la justification ou QUE le motif de rang doit rester DÉCISIF.
  */
 import type { Alerte, Noeud, Option } from '../content/node.types.ts'
 import type { Criteria } from '../engine/conditions.ts'
+import { termesVrais } from '../engine/conditions.ts'
 import { calculerCriteresDerives, evaluerNombre } from '../engine/deriveCritere.ts'
 import { evaluateNode, groupesParFamille } from '../engine/evaluateNode.ts'
 import { computeBadges, type OptionBadge } from './optionBadges.ts'
@@ -44,10 +56,26 @@ export interface CalculAffiche {
 export interface OptionVue {
   option: Option
   badge: OptionBadge
-  /** Conditions satisfaites (le « pourquoi cette option », `EvaluateNodeResult.reasons`). */
+  /**
+   * Justification SITUATIONNELLE (R6, `docs/decision/GRAMMAIRE-NOEUD.md`) : les termes `OR` de
+   * `option.conditions` réellement VRAIS pour CE patient — jamais la règle recopiée telle quelle
+   * (`EvaluateNodeResult.reasons`, qui reste la liste littérale des conditions, cf. `raisonsSituationnelles`
+   * ci-dessous). En général un seul motif ; plusieurs quand le patient cumule les indications (information
+   * clinique, pas du bruit). Les sentinelles `["default"]`/`["toujours"]` traversent inchangées —
+   * `describeReasons` (`lib/conditionText.ts`) les traite par un cas spécial.
+   */
   reasons: string[]
   /** Doses calculées déjà évaluées ; ne contient que celles calculables (cf. `evaluerNombre`). */
   calculs: CalculAffiche[]
+  /**
+   * Motif de rang (R6 couche 2, « pourquoi à ce rang ») : le `quand` (DSL brut, à humaniser comme
+   * `reasons`) de la règle de `priorite` CONDITIONNELLE (D14) qui a fixé le rang de cette option pour ce
+   * patient (`EvaluateNodeResult.rangMotifs`). `undefined` si l'option n'a pas de motif de rang (pas de
+   * `priorite`, `priorite` FIXE D13, ou seul le repli `"default"` a matché) OU si sa famille ne compte
+   * qu'UN SEUL groupe d'égalité — sans concurrence de rang réelle dans la famille, « pourquoi celle-ci
+   * d'abord » ne veut rien dire (cf. `construireVueDecision`, qui applique cette dernière condition).
+   */
+  motifRang: string | undefined
 }
 
 /** Une section de l'écran : une famille clinique (ou le repli à plat, `libelle: undefined`). */
@@ -101,6 +129,29 @@ function calculsAffiches(option: Option, criteria: Criteria): CalculAffiche[] {
 }
 
 /**
+ * Une sentinelle moteur (`["default"]` D11, `["toujours"]` D16) N'EST PAS une expression évaluable :
+ * `termesVrais`/`evaluateCondition` lèveraient dessus (`ConditionError`, variable de critère inconnue).
+ * Même test que `isDefaultOption`/`isToujoursOption` (`engine/evaluateNode.ts`), réécrit ici sur un
+ * `string[]` brut plutôt que sur une `Option` — évite d'exporter ces deux prédicats hors du moteur pour
+ * un usage aussi ponctuel.
+ */
+function estSentinelle(conditions: string[]): boolean {
+  return conditions.length === 1 && (conditions[0] === 'default' || conditions[0] === 'toujours')
+}
+
+/**
+ * Justification SITUATIONNELLE d'une option (R6, `docs/decision/GRAMMAIRE-NOEUD.md`) : `option.conditions`
+ * porte plusieurs chaînes en ET (`evaluateNode` : `.every(...)`) — on applique `termesVrais` à CHACUNE et
+ * on concatène, plutôt que de recopier les règles littéralement (`EvaluateNodeResult.reasons`, qui reste
+ * la liste brute des conditions, inchangée — utile ailleurs, ex. `evaluateNode.test.ts`). Les sentinelles
+ * traversent SANS être évaluées (cf. `estSentinelle`) : `describeReasons` les traite par un cas spécial.
+ */
+function raisonsSituationnelles(conditions: string[], criteria: Criteria): string[] {
+  if (estSentinelle(conditions)) return conditions
+  return conditions.flatMap((condition) => termesVrais(condition, criteria))
+}
+
+/**
  * Construit le modèle de vue complet d'un nœud pour un jeu de critères. Recalcule les critères
  * dérivés en entrée (`calculerCriteresDerives`) avant d'évaluer le nœud — comme le faisait
  * `relevance.ts` — puis regroupe par famille (`groupesParFamille`) et calcule les badges
@@ -110,27 +161,39 @@ function calculsAffiches(option: Option, criteria: Criteria): CalculAffiche[] {
  * dérivés) : c'est le comportement historique de `OptionCard.tsx`, conservé à l'identique — les
  * expressions de `Option.calculs` (ex. `poids * 0.1`) portent sur des primitives saisies, jamais sur
  * un critère dérivé.
+ *
+ * `OptionVue.reasons` (R6) est calculé ICI, PAS dans `evaluateNode` : ce dernier tourne des centaines de
+ * fois par frappe via la boucle de perturbation (`engine/relevance.ts`), et une justification
+ * situationnelle n'est utile que pour ce qui est RENDU une fois par cycle de rendu React. `motifRang`
+ * (R6 couche 2) est en revanche un sous-produit GRATUIT déjà calculé par `evaluateNode`
+ * (`EvaluateNodeResult.rangMotifs`) — cette fonction ne fait que décider SI on le montre : seulement
+ * pour une famille dont `groupesParFamille` a produit AU MOINS DEUX groupes d'égalité (une vraie
+ * concurrence de rang), sinon « pourquoi celle-ci d'abord » n'a pas de réponse à donner (R6).
  */
 export function construireVueDecision(node: Noeud, criteria: Criteria): VueDecision {
   const derived = calculerCriteresDerives(node.criteres_entree, criteria)
-  const { applicable, reasons, alertes, rangs, excluded, nonRetenues } = evaluateNode(node, derived)
+  const { applicable, alertes, rangs, rangMotifs, excluded, nonRetenues } = evaluateNode(node, derived)
   const famillesBrutes = groupesParFamille(node, applicable, rangs)
   const badges = computeBadges(famillesBrutes)
 
-  const familles: FamilleVue[] = famillesBrutes.map((famille) => ({
-    libelle: famille.libelle,
-    exclusive: famille.exclusive,
-    groupes: famille.groupes.map((groupe) =>
-      groupe.map(
-        (option): OptionVue => ({
-          option,
-          badge: badges.get(option) ?? null,
-          reasons: reasons.get(option) ?? [],
-          calculs: calculsAffiches(option, criteria),
-        }),
+  const familles: FamilleVue[] = famillesBrutes.map((famille) => {
+    const motifRangPertinent = famille.groupes.length >= 2
+    return {
+      libelle: famille.libelle,
+      exclusive: famille.exclusive,
+      groupes: famille.groupes.map((groupe) =>
+        groupe.map(
+          (option): OptionVue => ({
+            option,
+            badge: badges.get(option) ?? null,
+            reasons: raisonsSituationnelles(option.conditions, derived),
+            calculs: calculsAffiches(option, criteria),
+            motifRang: motifRangPertinent ? rangMotifs.get(option) : undefined,
+          }),
+        ),
       ),
-    ),
-  }))
+    }
+  })
 
   // R4 : ordre de `EvaluateNodeResult.excluded`/`nonRetenues`, lui-même l'ordre d'itération de
   // `node.options` dans `evaluateNode` (les deux Map sont peuplées dans cet ordre) — déterministe,
@@ -147,19 +210,22 @@ export function construireVueDecision(node: Noeud, criteria: Criteria): VueDecis
 /**
  * Sérialisation d'une option de vue : identité (intitulé — même convention que l'ancienne
  * `signature()` et que la clé React de l'écran ; `Option` n'est pas garanti unique mais suffisant en
- * pratique, cf. docstring `EvaluateNodeResult` dans `engine/evaluateNode.ts`), badge, raisons et doses.
- * Concaténation manuelle plutôt que `JSON.stringify` : `engine/relevance.ts` appelle cette fonction
- * par PERTURBATION (une reconstruction complète de la vue par valeur candidate de chaque critère
- * saisissable, cf. `criteresPertinents`) — sur le banc `prescription` (~1800 profils × ~25 critères ×
- * plusieurs candidats), ça représente des centaines de milliers d'appels ; `JSON.stringify` mesurait
- * ~6 % plus lent que cette forme sur ce banc (30,2 s vs 28,6 s, chronométré 2026-07-25), au point de
- * faire dépasser le budget de 30 s du test R5 (`banc/couverture.test.ts`). Les séparateurs (`|`, `§`,
- * `«`…) sont choisis sans autre propriété que de ne pas apparaître dans le contenu clinique réel.
+ * pratique, cf. docstring `EvaluateNodeResult` dans `engine/evaluateNode.ts`), badge, raisons, doses et
+ * motif de rang (R6 couche 2 — DIMENSION AFFICHÉE depuis ce travail, donc soumise au même invariant de
+ * totalité que les autres : un critère qui ne change QUE le motif de rang doit rester décisif pour
+ * `engine/relevance.ts`, cf. `vueDecision.test.ts`). Concaténation manuelle plutôt que `JSON.stringify` :
+ * `engine/relevance.ts` appelle cette fonction par PERTURBATION (une reconstruction complète de la vue
+ * par valeur candidate de chaque critère saisissable, cf. `criteresPertinents`) — sur le banc
+ * `prescription` (~1800 profils × ~25 critères × plusieurs candidats), ça représente des centaines de
+ * milliers d'appels ; `JSON.stringify` mesurait ~6 % plus lent que cette forme sur ce banc (30,2 s vs
+ * 28,6 s, chronométré 2026-07-25), au point de faire dépasser le budget de 30 s du test R5
+ * (`banc/couverture.test.ts`). Les séparateurs (`|`, `§`, `«`…) sont choisis sans autre propriété que de
+ * ne pas apparaître dans le contenu clinique réel.
  */
 function serialiseOption(ov: OptionVue): string {
   const reasons = ov.reasons.join('&')
   const calculs = ov.calculs.map((c) => `${c.libelle}=${c.valeur}${c.unite ?? ''}`).join('&')
-  return `${ov.option.intitule}@${ov.badge ?? ''}«${reasons}»[${calculs}]`
+  return `${ov.option.intitule}@${ov.badge ?? ''}«${reasons}»[${calculs}]¦${ov.motifRang ?? ''}`
 }
 
 function serialiseFamille(famille: FamilleVue): string {

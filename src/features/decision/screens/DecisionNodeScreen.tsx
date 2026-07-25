@@ -222,6 +222,7 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                       badge={optionVue.badge}
                       reasons={optionVue.reasons}
                       calculs={optionVue.calculs}
+                      motifRang={optionVue.motifRang}
                     />
                   ))
                   if (groupe.length < 2) return cartes

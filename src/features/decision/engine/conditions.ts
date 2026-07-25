@@ -176,3 +176,24 @@ export function evaluateCondition(expression: string, criteria: Criteria): boole
     return andTerms.every((atomic) => evaluateAtomic(atomic, criteria))
   })
 }
+
+/**
+ * Termes `OR` de `expression` réellement VRAIS pour ces critères (`docs/decision/GRAMMAIRE-NOEUD.md`,
+ * R6 : « l'argumentaire est situationnel, jamais encyclopédique »). Le DSL n'a pas de parenthèses et
+ * `AND` est prioritaire sur `OR` (docstring de tête de ce fichier) : toute expression est donc une
+ * DISJONCTION DE CONJONCTIONS, et découper sur `OR` est EXACT, jamais une approximation.
+ *
+ * Réutilise `evaluateCondition` sur CHAQUE terme plutôt qu'un second tokeniseur : un terme `OR` est par
+ * construction une conjonction SANS `OR` interne, donc l'évaluer seul via `evaluateCondition` est
+ * strictement équivalent à évaluer sa conjonction de `AND` — c'est la seule façon de garantir que ce qui
+ * est renvoyé ici est exactement ce que le moteur a évalué pour sélectionner l'option (même défaut que
+ * le formateur `describeReasons` avant ce correctif, qui retokenisait de son côté et avait laissé passer
+ * la fuite `ne_contient_pas`).
+ *
+ * Ne gère PAS les sentinelles `"default"` (D11) / `"toujours"` (D16) : comme `evaluateCondition`, cette
+ * fonction ne reçoit que des expressions de comparaison réelles — c'est à l'appelant (`lib/vueDecision.ts`)
+ * de les traiter en amont, avant tout appel à `termesVrais`.
+ */
+export function termesVrais(expression: string, criteria: Criteria): string[] {
+  return splitTopLevel(expression, 'OR').filter((terme) => evaluateCondition(terme, criteria))
+}

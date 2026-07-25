@@ -4,7 +4,7 @@
  * critères ci-dessous sont des exemples synthétiques choisis pour couvrir la sémantique du DSL.
  */
 import { describe, expect, it } from 'vitest'
-import { ConditionError, evaluateCondition } from './conditions.ts'
+import { ConditionError, evaluateCondition, termesVrais } from './conditions.ts'
 
 describe('evaluateCondition — comparaisons atomiques', () => {
   it('compare un nombre avec chaque opérateur', () => {
@@ -160,5 +160,47 @@ describe('evaluateCondition — expressions malformées : lever, jamais un faux 
   it('une expression bien formée n’est pas affectée par le garde', () => {
     expect(evaluateCondition('age > 0 OR age < -5', { age: 3 })).toBe(true)
     expect(evaluateCondition('age > 0 AND age < 10', { age: 3 })).toBe(true)
+  })
+})
+
+describe('termesVrais — termes OR réellement vrais (R6, docs/decision/GRAMMAIRE-NOEUD.md)', () => {
+  // Expression à 3 termes OR (ex. proche de l'option iSGLT2 réelle), un seul vrai pour ce patient.
+  const expr = 'insuffisance_cardiaque == true OR DFG < 60 OR ASCVD_etablie == true'
+
+  it('un seul terme OR vrai parmi plusieurs → un seul motif renvoyé (pas les autres, même syntaxiquement présents)', () => {
+    const criteria = { insuffisance_cardiaque: false, DFG: 80, ASCVD_etablie: true }
+    expect(termesVrais(expr, criteria)).toEqual(['ASCVD_etablie == true'])
+  })
+
+  it('plusieurs termes OR vrais → TOUS renvoyés (le patient cumule les indications, information clinique)', () => {
+    const criteria = { insuffisance_cardiaque: true, DFG: 45, ASCVD_etablie: true }
+    expect(termesVrais(expr, criteria)).toEqual([
+      'insuffisance_cardiaque == true',
+      'DFG < 60',
+      'ASCVD_etablie == true',
+    ])
+  })
+
+  it('aucun terme vrai → tableau vide (jamais l’énumération complète des cas possibles)', () => {
+    const criteria = { insuffisance_cardiaque: false, DFG: 80, ASCVD_etablie: false }
+    expect(termesVrais(expr, criteria)).toEqual([])
+  })
+
+  it('un terme est une conjonction AND : renvoyé ENTIER s’il est vrai, absent s’il est faux (jamais scindé)', () => {
+    const criteria = { fragilite: true, esperance_vie: 'limitee' }
+    expect(termesVrais('fragilite == true AND esperance_vie == limitee', criteria)).toEqual([
+      'fragilite == true AND esperance_vie == limitee',
+    ])
+    expect(termesVrais('fragilite == true AND esperance_vie == longue', criteria)).toEqual([])
+  })
+
+  it('expression sans OR (un seul terme atomique) : renvoie ce terme si vrai, tableau vide sinon', () => {
+    expect(termesVrais('age >= 75', { age: 80 })).toEqual(['age >= 75'])
+    expect(termesVrais('age >= 75', { age: 10 })).toEqual([])
+  })
+
+  it('réutilise evaluateCondition (pas de second tokeniseur) : propage ConditionError, jamais un faux silencieux', () => {
+    expect(() => termesVrais('poids < 80', { age: 10 })).toThrow(ConditionError)
+    expect(() => termesVrais('n\'importe quoi', { age: 10 })).toThrow(ConditionError)
   })
 })

@@ -112,3 +112,10 @@
   border-top: 1px solid var(--c-pill-track);
   padding-top: 12px;
 }
+
+/* R6 couche 2 : discret, comme le délai (R2) — un fait de tri à consulter, pas une alerte. */
+.option-card__rang {
+  font-size: 12px;
+  color: var(--c-text-muted);
+  margin-top: 6px;
+}

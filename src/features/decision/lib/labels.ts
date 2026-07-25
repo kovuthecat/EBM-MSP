@@ -115,6 +115,13 @@ const CRITERE_LABELS: Record<string, string> = {
   intention: 'Intention thérapeutique (« je souhaite… »)',
   position_vs_cible: "Par rapport à l'objectif fixé pour ce patient",
   hba1c_sous_cible: 'HbA1c < 6,5 % (sur-contrôle)',
+  // Critères DÉRIVÉS : jamais saisis, mais désormais LISIBLES — depuis R6 la ligne « Proposé parce que »
+  // ne cite plus que les termes vrais, donc un dérivé sans libellé s'affichait sous son nom de variable
+  // humanisé (« Remplacement agent sans benefice », sans accents). Ils ont besoin d'un libellé au même
+  // titre qu'un critère saisi.
+  palette_glycemique_ouverte: "Palette glycémique ouverte (place pour un agent de contrôle en plus)",
+  remplacement_agent_sans_benefice:
+    "Remplacement d'un agent sans bénéfice sur critère dur (gliptine, sulfamide)",
   denutrition: 'Dénutrition / carence (possible même chez l’obèse)',
   infections_uro_genitales_recidivantes: 'Infections génito-urinaires récidivantes',
   intolerance_traitement: 'Intolérance à un traitement en cours',

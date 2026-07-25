@@ -234,3 +234,145 @@ describe('signatureVue — R4 : un critère qui ne change QUE la liste des ÉCAR
     expect(pertinents.has('x')).toBe(true)
   })
 })
+
+describe('construireVueDecision — R6 : justification SITUATIONNELLE (termes OR réellement vrais, pas la règle recopiée)', () => {
+  it('une expression à plusieurs OR dont un seul terme est vrai pour ce patient → un seul motif dans `reasons`', () => {
+    const a = opt('A', ['x == true OR y == true OR z == true'])
+    const node = makeNode([a], [
+      { nom: 'x', type: 'bool' },
+      { nom: 'y', type: 'bool' },
+      { nom: 'z', type: 'bool' },
+    ])
+    const vue = construireVueDecision(node, { x: false, y: true, z: false })
+    const ov = vue.familles[0].groupes.flat().find((o) => o.option === a)
+    expect(ov?.reasons).toEqual(['y == true'])
+  })
+
+  it('plusieurs termes OR vrais → TOUS renvoyés (le patient cumule les indications, information clinique, pas du bruit)', () => {
+    const a = opt('A', ['x == true OR y == true OR z == true'])
+    const node = makeNode([a], [
+      { nom: 'x', type: 'bool' },
+      { nom: 'y', type: 'bool' },
+      { nom: 'z', type: 'bool' },
+    ])
+    const vue = construireVueDecision(node, { x: true, y: false, z: true })
+    const ov = vue.familles[0].groupes.flat().find((o) => o.option === a)
+    expect(ov?.reasons).toEqual(['x == true', 'z == true'])
+  })
+
+  it('plusieurs chaînes de `conditions` (en ET) : `termesVrais` appliqué à CHACUNE, résultats concaténés', () => {
+    const a = opt('A', ['x == true OR y == true', 'z == true'])
+    const node = makeNode([a], [
+      { nom: 'x', type: 'bool' },
+      { nom: 'y', type: 'bool' },
+      { nom: 'z', type: 'bool' },
+    ])
+    const vue = construireVueDecision(node, { x: true, y: true, z: true })
+    const ov = vue.familles[0].groupes.flat().find((o) => o.option === a)
+    expect(ov?.reasons).toEqual(['x == true', 'y == true', 'z == true'])
+  })
+
+  it('les sentinelles `["default"]`/`["toujours"]` traversent SANS être évaluées par `termesVrais` (ne lèvent pas)', () => {
+    const socle = opt('Socle', ['toujours'])
+    const repli = opt('Repli', ['default'])
+    const node = makeNode([socle, repli], [])
+    // Aucune de ces deux options ne référence de critère réel : si `raisonsSituationnelles` tentait de
+    // les évaluer comme des expressions, `termesVrais`/`evaluateCondition` lèveraient (`ConditionError`,
+    // segment vide ou variable inconnue) plutôt que de les laisser passer telles quelles.
+    expect(() => construireVueDecision(node, {})).not.toThrow()
+    const vue = construireVueDecision(node, {})
+    const ovSocle = vue.familles[0].groupes.flat().find((o) => o.option === socle)
+    expect(ovSocle?.reasons).toEqual(['toujours'])
+    // « Repli » ne s'active que si aucune option non-default n'est applicable : ici `socle` est
+    // `toujours`, orthogonal au repli (docstring `evaluateNode.ts`) — le repli s'active donc bien.
+    const ovRepli = vue.familles[0].groupes.flat().find((o) => o.option === repli)
+    expect(ovRepli?.reasons).toEqual(['default'])
+  })
+})
+
+describe('criteresPertinents — TEST VERROU (R6) : un critère qui ne change QUE la justification est vu DÉCISIF', () => {
+  it('`w` ne change ni la sélection, ni le rang, ni le badge de A — seulement `reasons` — et reste pourtant décisif', () => {
+    // `ok` est fixé à `true` dans les deux profils comparés : A est TOUJOURS applicable (1er terme OR
+    // vrai), quelle que soit la valeur de `w`. Rien dans le panneau de résultats ne bouge (même option,
+    // même — unique — famille/groupe, même badge, aucune alerte, aucune écartée/non-retenue) SAUF la
+    // justification : `w` ajoute ou retire un second motif à `reasons`.
+    const a = opt('A', ['ok == true OR w == true'])
+    const node = makeNode([a], [
+      { nom: 'ok', type: 'bool' },
+      { nom: 'w', type: 'bool' },
+    ])
+
+    const vueSansW = construireVueDecision(node, { ok: true, w: false })
+    const vueAvecW = construireVueDecision(node, { ok: true, w: true })
+
+    // Tout, hors `reasons`, est identique — le « verrou » : rien d'autre à l'écran ne signale `w`.
+    const sansReasons = (vue: ReturnType<typeof construireVueDecision>) => ({
+      ...vue,
+      familles: vue.familles.map((f) => ({
+        ...f,
+        groupes: f.groupes.map((g) =>
+          g.map((ov) => ({ option: ov.option, badge: ov.badge, calculs: ov.calculs, motifRang: ov.motifRang })),
+        ),
+      })),
+    })
+    expect(sansReasons(vueSansW)).toEqual(sansReasons(vueAvecW))
+
+    // La justification, elle, diffère bien :
+    expect(vueSansW.familles[0].groupes[0][0].reasons).toEqual(['ok == true'])
+    expect(vueAvecW.familles[0].groupes[0][0].reasons).toEqual(['ok == true', 'w == true'])
+    expect(signatureVue(vueSansW)).not.toBe(signatureVue(vueAvecW))
+
+    // ... et c'est précisément ce qui rend `w` DÉCISIF pour `engine/relevance.ts` : un critère qui ne
+    // change QUE le texte de justification doit cesser d'être estompé à tort comme « sans effet » (R6).
+    const pertinents = criteresPertinents(node, { ok: true, w: false })
+    expect(pertinents.has('w')).toBe(true)
+  })
+})
+
+describe('construireVueDecision — R6 couche 2 : motif de rang (« pourquoi à ce rang »)', () => {
+  it('rendu quand la famille distingue au moins deux rangs : présent pour l’option dont une règle de `priorite` CONDITIONNELLE (non "default") a matché, absent pour l’autre (rang FIXE, D13)', () => {
+    const a = opt('A', ['toujours'], {
+      priorite: [
+        { quand: 'ic == true', rang: 1 },
+        { quand: 'default', rang: 3 },
+      ],
+    })
+    const b = opt('B', ['toujours'], { priorite: 2 })
+    const node = makeNode([a, b], [{ nom: 'ic', type: 'bool' }])
+    const vue = construireVueDecision(node, { ic: true })
+    const ovA = vue.familles[0].groupes.flat().find((ov) => ov.option === a)
+    const ovB = vue.familles[0].groupes.flat().find((ov) => ov.option === b)
+    expect(ovA?.motifRang).toBe('ic == true')
+    expect(ovB?.motifRang).toBeUndefined() // rang FIXE : jamais de motif conditionnel à exposer
+  })
+
+  it('NON rendu quand seule la règle de repli `"default"` a matché (pas de motif clinique distinct)', () => {
+    const a = opt('A', ['toujours'], {
+      priorite: [
+        { quand: 'ic == true', rang: 1 },
+        { quand: 'default', rang: 3 },
+      ],
+    })
+    const b = opt('B', ['toujours'], { priorite: 2 })
+    const node = makeNode([a, b], [{ nom: 'ic', type: 'bool' }])
+    const vue = construireVueDecision(node, { ic: false }) // seule "default" matche pour A
+    const ovA = vue.familles[0].groupes.flat().find((ov) => ov.option === a)
+    expect(ovA?.motifRang).toBeUndefined()
+  })
+
+  it('NON rendu quand la famille ne forme qu’UN SEUL groupe d’égalité (aucune concurrence de rang à expliquer)', () => {
+    // Une seule option dans la famille : par construction un seul groupe (`groupesExAequo`), même si sa
+    // priorité est conditionnelle et a matché une règle réelle — « pourquoi celle-ci d'abord » n'a pas
+    // de sens quand elle n'est en concurrence avec personne (R6, condition de rendu du motif de rang).
+    const a = opt('A', ['toujours'], {
+      priorite: [
+        { quand: 'ic == true', rang: 1 },
+        { quand: 'default', rang: 3 },
+      ],
+    })
+    const node = makeNode([a], [{ nom: 'ic', type: 'bool' }])
+    const vue = construireVueDecision(node, { ic: true })
+    const ovA = vue.familles[0].groupes.flat().find((ov) => ov.option === a)
+    expect(ovA?.motifRang).toBeUndefined()
+  })
+})
