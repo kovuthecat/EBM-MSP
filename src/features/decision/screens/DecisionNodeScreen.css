@@ -46,6 +46,77 @@
   color: var(--c-text-muted);
 }
 
+/* Reco affichée en direct mais pas encore stabilisée : des critères décisifs restent non confirmés
+   (P3 · S7-ui Lot 3). Signale sans bloquer — l'ancien gate dur contredisait l'estompage. */
+.decision-node__provisional {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--c-attention-border);
+  background: var(--c-attention-soft);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  color: var(--c-text);
+}
+
+/* Section par FAMILLE clinique (`Option.famille`, correctif « priorité multi-natures ») : regroupe les
+   options d'une même nature d'acte (ex. « Agent à ajouter — en choisir un ») sous un titre dédié, dans
+   l'ordre de 1re apparition du contenu (cf. `groupesParFamille`, `engine/evaluateNode.ts`). Absente des
+   nœuds sans `famille` déclarée (repli à plat, cf. l'écran) : ce style ne s'applique alors jamais. */
+.decision-node__famille {
+  margin-bottom: 20px;
+}
+
+.decision-node__famille-titre {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--c-text-muted);
+  margin-bottom: 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--c-border);
+}
+
+/* Mention d'interface générique (« en choisir un » / « gestes cumulables »), dérivée de
+   `GroupeFamille.exclusive` — jamais un libellé clinique en dur (cf. `DecisionNodeScreen.tsx`). Poids
+   normal pour rester visuellement subordonnée au libellé de famille qui la précède. */
+.decision-node__famille-mention {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+/* Groupe d'égalité (S7-ui Lot 2) : options à même rang fini, rendues côte à côte plutôt qu'empilées
+   pour ne pas suggérer une hiérarchie qui n'existe pas (cf. `groupesExAequo`, `engine/evaluateNode.ts`).
+   L'encadré (et sa mention) reste un bloc SÉPARÉ de la grille : sur écran étroit, `auto-fit` fait
+   repasser les cartes en pile, mais la mention « à égalité » — l'information clinique, pas une
+   décoration — reste toujours visible au-dessus, jamais conditionnée à la largeur d'écran. */
+.decision-node__egalite {
+  border: 1px dashed var(--c-accent-decision);
+  border-radius: var(--radius-lg);
+  padding: 16px 16px 0;
+  margin-bottom: 16px;
+}
+
+.decision-node__egalite-mention {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--c-accent-decision);
+  margin: 0 0 12px;
+}
+
+.decision-node__egalite-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+/* La grille gère déjà l'espacement (`gap`) : la marge propre à la carte ferait un double espace en bas. */
+.decision-node__egalite-grid .option-card {
+  margin-bottom: 0;
+}
+
 .decision-node__toggle-argument {
   border: 1px solid var(--c-border);
   background: var(--c-surface);

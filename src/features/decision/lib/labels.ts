@@ -16,7 +16,7 @@
  * directement `noeud.titre` (champ réel, déjà en français correct) comme intitulé de groupe — voir
  * `DecisionDomainsScreen.tsx`.
  */
-import type { NiveauPreuve as NoeudNiveauPreuve, TypeCritere } from '../content/node.types'
+import type { NiveauPreuve as NoeudNiveauPreuve, Noeud, TypeCritere } from '../content/node.types'
 import type { NiveauPreuve as SharedNiveauPreuve } from '../../shared/types'
 import { humanize } from './humanize'
 
@@ -41,6 +41,20 @@ export const UPCOMING_DOMAINS: UpcomingDomain[] = [
 /** Libellé d'un domaine (slug réel, ex. `diabete-type-2`) ; repli générique si domaine non catalogué. */
 export function labelForDomaine(domaine: string): string {
   return DOMAIN_LABELS[domaine] ?? humanize(domaine)
+}
+
+/** Ordre d'affichage des nœuds par domaine (id du nœud), parcours clinique voulu — pas l'ordre alphabétique
+ *  des fichiers dont il dérive par défaut (`loadNodes.ts`). */
+const NODE_ORDER: Record<string, string[]> = {
+  'diabete-type-2': ['rhd', 'cible-glycemique', 'prescription', 'insuline', 'statine'],
+}
+
+/** Trie les nœuds d'un domaine selon `NODE_ORDER` ; nœud non catalogué (futur) placé en fin, ordre de contenu. */
+export function sortNodesForDomaine(domaine: string, nodes: Noeud[]): Noeud[] {
+  const ordre = NODE_ORDER[domaine]
+  if (!ordre) return nodes
+  const rang = new Map(ordre.map((id, index) => [id, index]))
+  return [...nodes].sort((a, b) => (rang.get(a.id) ?? ordre.length) - (rang.get(b.id) ?? ordre.length))
 }
 
 /** Dictionnaire consolidé des variables d'entrée, `docs/decision/CADRAGE-8-noeuds.md` §0 (nœuds A→H). */
@@ -68,6 +82,8 @@ const CRITERE_LABELS: Record<string, string> = {
   comorbidite_grave: 'Comorbidité grave',
   diabete_complique: "Diabète compliqué (atteinte d'organe : rétinopathie, néphropathie, neuropathie, macrovasculaire)",
   dialyse: 'Dialyse',
+  cetonemie: 'Cétonémie',
+  hypoglycemie_recente: 'Hypoglycémie récente',
   motivation: "Motivation du patient",
   capacite_activite: "Capacité à l'activité physique",
   alimentation_equilibree: 'Alimentation déjà équilibrée',

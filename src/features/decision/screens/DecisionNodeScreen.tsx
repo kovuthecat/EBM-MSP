@@ -1,17 +1,18 @@
-import { useMemo, useState } from 'react'
+import { useDeferredValue, useMemo, useState } from 'react'
 import type { Navigation } from '../../shared/navigation'
 import { AlertList } from '../components/AlertList'
 import { ArgumentPanel } from '../components/ArgumentPanel'
-import { buildDefaultCriteria, CriteriaForm } from '../components/CriteriaForm'
+import { CriteriaForm } from '../components/CriteriaForm'
 import { OptionCard } from '../components/OptionCard'
 import { getNoeudById } from '../content/loadNodes'
 import type { Criteria, CriteriaValue } from '../engine/conditions'
-import { calculerCriteresDerives, criteresReferences } from '../engine/deriveCritere'
-import { evaluateNode } from '../engine/evaluateNode'
+import { calculerCriteresDerives } from '../engine/deriveCritere'
+import { evaluateNode, groupesParFamille } from '../engine/evaluateNode'
 import { criteresPertinents } from '../engine/relevance'
 import { ESPERANCE_VIE_DRIVERS, hasEsperanceVieCritere, suggestEsperanceVie } from '../lib/esperanceVieDefault'
+import { buildDefaultCriteria, decisifsAConfirmer, reinitialiserChampsMasques } from '../lib/formLayout'
 import { computeBadges } from '../lib/optionBadges'
-import { formatDateRevue, labelForCritere, labelForDomaine } from '../lib/labels'
+import { formatDateRevue, labelForDomaine } from '../lib/labels'
 import './DecisionNodeScreen.css'
 
 interface DecisionNodeScreenProps {
@@ -40,50 +41,48 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   const [touched, setTouched] = useState<Set<string>>(() => new Set())
   const [argOpen, setArgOpen] = useState(false)
 
-  // Toutes les règles du nœud (conditions, exclusions, priorités conditionnelles, `quand` des alertes) :
-  // ne requérir que les nombres RÉELLEMENT utilisés (directement ou via un `derive`). Un nombre non
-  // référencé ne peut pas changer la sortie du moteur — l'exiger n'apporte aucune sécurité (T-009) et
-  // alourdit inutilement la saisie (le nœud E déclare des nombres informatifs, ex. IMC/TIR/TAR/GMI).
-  const reglesDuNoeud = node
-    ? [
-        ...node.options.flatMap((option) => [
-          ...option.conditions,
-          ...(option.exclusions ?? []),
-          ...(Array.isArray(option.priorite) ? option.priorite.map((regle) => regle.quand) : []),
-        ]),
-        ...(node.alertes?.map((alerte) => alerte.quand) ?? []),
-      ]
-    : []
-  const criteresReferencees = node ? criteresReferences(node.criteres_entree, reglesDuNoeud) : new Set<string>()
-
-  const champsNumeriquesRequis = node
-    ? node.criteres_entree
-        .filter(
-          (critere) =>
-            critere.type === 'nombre' && critere.derive == null && criteresReferencees.has(critere.nom),
-        )
-        .map((critere) => critere.nom)
-    : []
-  const champsNumeriquesManquants = champsNumeriquesRequis.filter((nom) => !touched.has(nom))
-  const criteresPretsAEvaluer = champsNumeriquesManquants.length === 0
-
   // Les critères dérivés (ex. cible_atteinte = HbA1c_actuelle <= HbA1c_cible ; over_basalisation =
   // dose_basale_actuelle / poids > 0,5) sont recalculés depuis les primitives saisies AVANT l'évaluation
   // du moteur — le DSL de `conditions.ts` ne compare qu'`variable OP littéral` (engine/deriveCritere.ts).
+  //
+  // La reco est calculée en PERMANENCE (P3 · S7-ui Lot 3, « sans gate dur »). L'ancien gate — exiger que
+  // TOUS les nombres référencés soient saisis avant d'afficher quoi que ce soit — contredisait le moteur
+  // de pertinence : un champ pouvait être à la fois estompé « sans effet sur la reco » ET bloquant
+  // (constaté sur `age`, référencé par le dérivé `terrain_fragile` mais non décisif pour le patient en
+  // cours). Les deux notions sont désormais dérivées de la MÊME source — `criteresPertinents` — ce qui
+  // rend cette contradiction impossible par construction : estompé ⟺ non pertinent, réclamé ⟺ pertinent.
   const result = useMemo(() => {
-    if (!node || !criteresPretsAEvaluer) return undefined
+    if (!node) return undefined
     return evaluateNode(node, calculerCriteresDerives(node.criteres_entree, criteria))
-  }, [node, criteria, criteresPretsAEvaluer])
+  }, [node, criteria])
+
+  // TEMPORISATION (tâche 6c, recette référent) : `criteresPertinents` perturbe le moteur une fois par
+  // critère saisissable (plusieurs évaluations d'`evaluateNode` chacune) — recalculer à CHAQUE frappe sur
+  // un `nombre` (ex. HbA1c) fait bouger l'estompage de champs plus haut dans le formulaire pendant que le
+  // praticien tape encore, ce qui est déstabilisant (bug remonté : « modifier l'IMC active/désactive des
+  // critères plus haut »). `useDeferredValue` laisse React prioriser la frappe (valeur affichée immédiate,
+  // cf. `criteria` passé tel quel à `CriteriaForm`) et ne recalculer la pertinence qu'une fois le rythme de
+  // saisie retombé — sans code de temporisation maison, sans changer `relevance.ts` (qui reste synchrone
+  // et testable, la temporisation ne vit QUE dans cet écran).
+  const criteriaDiffere = useDeferredValue(criteria)
 
   // Critères PERTINENTS pour ce patient (moteur `engine/relevance.ts`, refonte UI P3) : pilote l'estompage
-  // des champs sans effet (remarque 6) et la reco « provisoire » (remarque 7). Recalculé par perturbation à
-  // chaque changement de critère — coût borné (quelques évaluations du moteur déterministe).
+  // des champs sans effet (remarque 6) et la reco « provisoire » (remarque 7). Calculé sur `criteriaDiffere`
+  // (temporisé) : coût borné mais non négligeable (plusieurs évaluations du moteur déterministe par frappe).
   const pertinents = useMemo(() => {
     if (!node || node.criteres_entree.length === 0 || node.options.length === 0) return undefined
-    return criteresPertinents(node, criteria)
-  }, [node, criteria])
-  // Décisifs encore non confirmés par le praticien (∩ non `touched`) → tant qu'il en reste, reco provisoire.
-  const decisifsManquants = pertinents ? [...pertinents].filter((nom) => !touched.has(nom)) : []
+    return criteresPertinents(node, criteriaDiffere)
+  }, [node, criteriaDiffere])
+
+  // Décisifs encore non confirmés → tant qu'il en reste, la reco est « provisoire » (jamais bloquée).
+  // Réclamé et estompé dérivent tous deux de `pertinents` (cf. `decisifsAConfirmer`) : un champ ne peut
+  // plus être simultanément « sans effet » et exigé. Calculé sur la MÊME source différée que `pertinents`
+  // (`criteriaDiffere`, pas `criteria`) : sinon la visibilité (immédiate) et la pertinence (temporisée)
+  // pourraient transitoirement se contredire (ex. un champ tout juste démasqué mais pas encore réévalué).
+  const decisifsManquants = useMemo(
+    () => decisifsAConfirmer(node?.criteres_entree ?? [], criteriaDiffere, touched, pertinents),
+    [node, criteriaDiffere, touched, pertinents],
+  )
 
   if (!node) {
     return (
@@ -96,19 +95,41 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
     )
   }
 
+  // Calculé en synchrone (pas via les updaters de `setState`) : la mise à jour de `touched` dépend du
+  // résultat de celle de `criteria`, et faire transiter cette information par une variable mutée entre
+  // deux updaters dépendrait de leur ordre d'exécution et casserait en StrictMode (double invocation).
   const handleCriteriaChange = (nom: string, value: CriteriaValue) => {
-    setTouched((previous) => new Set(previous).add(nom))
-    setCriteria((previous) => {
-      const next = { ...previous, [nom]: value }
-      // Suggestion auto d'`esperance_vie` (non sourcée, cf. lib/esperanceVieDefault.ts) : ne
-      // s'applique que tant que le praticien n'a pas choisi cette valeur lui-même, et se recalcule
-      // seulement quand un critère dont elle dépend change (pas à chaque frappe non liée).
-      const espChoisieAMain = touched.has('esperance_vie') || nom === 'esperance_vie'
-      const dependClicheEsp = (ESPERANCE_VIE_DRIVERS as readonly string[]).includes(nom)
-      if (!espChoisieAMain && dependClicheEsp && node && hasEsperanceVieCritere(node.criteres_entree)) {
-        next.esperance_vie = suggestEsperanceVie(next)
-      }
-      return next
+    const next = { ...criteria, [nom]: value }
+    // Suggestion auto d'`esperance_vie` (non sourcée, cf. lib/esperanceVieDefault.ts) : ne
+    // s'applique que tant que le praticien n'a pas choisi cette valeur lui-même, et se recalcule
+    // seulement quand un critère dont elle dépend change (pas à chaque frappe non liée).
+    const espChoisieAMain = touched.has('esperance_vie') || nom === 'esperance_vie'
+    const dependClicheEsp = (ESPERANCE_VIE_DRIVERS as readonly string[]).includes(nom)
+    if (!espChoisieAMain && dependClicheEsp && hasEsperanceVieCritere(node.criteres_entree)) {
+      next.esperance_vie = suggestEsperanceVie(next)
+    }
+
+    // Un champ que ce changement vient de MASQUER (`visible_si`) est remis à sa valeur par défaut : une
+    // valeur invisible ne doit jamais continuer à piloter la reco (cf. `formLayout.ts`). Il redevient
+    // aussi « non renseigné », sinon il passerait pour confirmé s'il réapparaissait plus tard.
+    const { criteria: nettoye, reinitialises } = reinitialiserChampsMasques(node.criteres_entree, next)
+    setCriteria(nettoye)
+    setTouched((previous) => {
+      const suivant = new Set(previous).add(nom)
+      for (const efface of reinitialises) suivant.delete(efface)
+      return suivant
+    })
+  }
+
+  // « Rien à signaler » (tâche 4) : confirme d'un coup les drapeaux (`bool`) décisifs non renseignés
+  // d'une section SANS changer leur valeur — ils restent à `false`, qui EST la réponse clinique (« non »).
+  // Sans ce raccourci, ces critères resteraient éternellement « non confirmés » dans le compteur de la
+  // reco provisoire dès lors que le praticien n'a — légitimement — rien à cocher.
+  const handleConfirmerChamps = (noms: string[]) => {
+    setTouched((previous) => {
+      const suivant = new Set(previous)
+      for (const nom of noms) suivant.add(nom)
+      return suivant
     })
   }
 
@@ -142,55 +163,95 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
           <CriteriaForm
             criteresEntree={node.criteres_entree}
             criteria={criteria}
+            criteriaGroupement={criteriaDiffere}
             touched={touched}
             pertinents={pertinents}
+            aConfirmer={new Set(decisifsManquants)}
             hints={
               hasEsperanceVieCritere(node.criteres_entree) && !touched.has('esperance_vie')
                 ? { esperance_vie: 'Suggestion auto (âge, fragilité, comorbidité grave, antécédent CV) — à valider' }
                 : undefined
             }
+            onConfirmerChamps={handleConfirmerChamps}
             onChange={handleCriteriaChange}
           />
 
           {result && <AlertList alertes={result.alertes} />}
 
-          <div className="decision-node__section-title">Options applicables</div>
-          {criteresPretsAEvaluer && decisifsManquants.length > 0 && (
-            <p
-              className="decision-node__provisional"
-              style={{
-                margin: '0 0 10px',
-                padding: '8px 12px',
-                borderRadius: 8,
-                border: '1px solid #e6c200',
-                background: 'rgba(255, 214, 0, 0.08)',
-                fontSize: '0.85rem',
-              }}
-            >
-              <strong>Reco provisoire</strong> — {decisifsManquants.length} critère(s) décisif(s) non
-              confirmé(s) : {decisifsManquants.map(labelForCritere).join(', ')}. La recommandation peut
-              changer une fois renseignés.
+          <div className="decision-node__section-title">
+            {decisifsManquants.length > 0 ? 'Options applicables — provisoire' : 'Options applicables'}
+          </div>
+          {decisifsManquants.length > 0 && (
+            <p className="decision-node__provisional">
+              <strong>Reco provisoire</strong> — {decisifsManquants.length} critère
+              {decisifsManquants.length > 1 ? 's décisifs non confirmés' : ' décisif non confirmé'} dans le
+              formulaire ci-dessus : les mesures chiffrées y sont marquées « à confirmer », les drapeaux se
+              confirment d'un clic par « Rien à signaler ». La recommandation peut encore changer.
             </p>
           )}
-          {!criteresPretsAEvaluer ? (
-            <p className="decision-node__empty">
-              Renseignez {champsNumeriquesManquants.map(labelForCritere).join(', ')} pour afficher les
-              options applicables.
-            </p>
-          ) : result && result.applicable.length > 0 ? (
+          {result && result.applicable.length > 0 ? (
             (() => {
-              const badges = computeBadges(result.applicable)
-              return result.applicable.map((option, index) => (
-                <OptionCard
-                  // `intitule` n'est pas garanti unique (cf. commentaire `EvaluateNodeResult` dans
-                  // `engine/evaluateNode.ts`) : on compose avec l'index pour une clé React sûre.
-                  key={`${index}-${option.intitule}`}
-                  option={option}
-                  badge={badges.get(option) ?? null}
-                  reasons={result.reasons.get(option) ?? []}
-                  criteria={criteria}
-                />
-              ))
+              // Regroupement PAR FAMILLE (`Noeud.familles` si déclarées, sinon repli historique — cf.
+              // `groupesParFamille`, `engine/evaluateNode.ts`) : une section par famille, dans l'ORDRE
+              // EXPLICITE de `Noeud.familles` (plus un sous-produit de l'ordre d'écriture des options),
+              // et à l'intérieur seulement, les groupes d'égalité (`groupesExAequo`) rendus côte à côte
+              // pour un rang fini partagé — jamais deux options de familles différentes, même à rang
+              // égal (ce qui suggérerait à tort un choix exclusif entre deux gestes qui en réalité se
+              // CUMULENT, ex. « introduire un iSGLT2 » et « réduire la posologie du sulfamide »). Repli
+              // sans `famille` déclarée (les 4 autres nœuds actuels) : une unique famille sans libellé,
+              // rendu identique à l'ancien comportement à plat.
+              const familles = groupesParFamille(node, result.applicable, result.rangs)
+              // Le badge se calcule maintenant PAR FAMILLE (correctif « le badge, c'est le plan »,
+              // 2026-07-25) : une famille cumulable badge TOUTES ses options affichées, une famille
+              // exclusive réserve le badge au groupe de tête — cf. `lib/optionBadges.ts`.
+              const badges = computeBadges(familles)
+              let cle = 0
+              return familles.map((famille, indexFamille) => {
+                const sectionsGroupes = famille.groupes.map((groupe) => {
+                  const cartes = groupe.map((option) => (
+                    <OptionCard
+                      // `intitule` n'est pas garanti unique (cf. commentaire `EvaluateNodeResult` dans
+                      // `engine/evaluateNode.ts`) : on compose avec un compteur pour une clé React sûre.
+                      key={`${cle++}-${option.intitule}`}
+                      option={option}
+                      badge={badges.get(option) ?? null}
+                      reasons={result.reasons.get(option) ?? []}
+                      criteria={criteria}
+                    />
+                  ))
+                  if (groupe.length < 2) return cartes
+                  return (
+                    <div className="decision-node__egalite" key={`egalite-${cle}`}>
+                      {/* Mention NEUTRE (correctif « priorité multi-natures ») : elle affirmait avant
+                          « aucune de ces options n'est préférable à l'autre », faux pour des gestes
+                          cumulables. La nuance « en choisir un » / « cumulables » est désormais portée
+                          par le TITRE DE FAMILLE (mention générique dérivée de `exclusive`, ci-dessous),
+                          jamais par cet encadré générique. */}
+                      <p className="decision-node__egalite-mention">À égalité — même niveau de priorité.</p>
+                      <div className="decision-node__egalite-grid">{cartes}</div>
+                    </div>
+                  )
+                })
+                if (famille.libelle == null) return sectionsGroupes
+                return (
+                  <div className="decision-node__famille" key={`famille-${indexFamille}-${famille.libelle}`}>
+                    <div className="decision-node__famille-titre">
+                      {famille.libelle}
+                      {/* Mention d'interface GÉNÉRIQUE dérivée de `exclusive` (correctif « libellés
+                          sans redondance », 2026-07-25) : jamais un vocabulaire clinique, juste la
+                          convention « on choisit un » vs « tout est à faire ». Absente si `exclusive`
+                          est `undefined` (nœud sans `familles` déclarées, repli). */}
+                      {famille.exclusive === true && (
+                        <span className="decision-node__famille-mention"> — en choisir un</span>
+                      )}
+                      {famille.exclusive === false && (
+                        <span className="decision-node__famille-mention"> — gestes cumulables</span>
+                      )}
+                    </div>
+                    {sectionsGroupes}
+                  </div>
+                )
+              })
             })()
           ) : (
             <p className="decision-node__empty">Aucune option ne correspond à ces critères.</p>

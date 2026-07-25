@@ -65,9 +65,30 @@
       "type": "array",
       "items": { "$ref": "#/definitions/alerte" },
       "description": "Alertes cliniques conditionnelles (DECISIONS.md D15) : messages affiches quand `quand` est vrai, independamment des options selectionnees."
+    },
+    "familles": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/famille" },
+      "description": "Declaration EXPLICITE des familles d'actes cliniques du noeud (correctif « ordre accidentel / badge multi-natures », 2026-07-25). L'ORDRE DE CE TABLEAU EST L'ORDRE D'AFFICHAGE DES SECTIONS du panneau de resultats : il ne depend plus de l'ordre d'ecriture des options dans `options` (un reordonnancement du fichier ne change plus rien a l'affichage). Chaque entree porte aussi `exclusive` : true = les options de cette famille sont des ALTERNATIVES (on en choisit une, badge « recommandee » reserve au groupe de tete) ; false = des gestes CUMULABLES (tout ce qui est affiche est a faire, badge « recommandee » sur tous). `option.famille` est une REFERENCE a `familles[].libelle` (integrite verifiee par un test dedie, pas par ce schema qui ne peut pas croiser deux champs). Optionnel : un noeud sans `familles` retombe integralement sur le rendu a plat historique (ordre de 1re apparition dans `options`, badge selon la regle D16 d'origine)."
     }
   },
   "definitions": {
+    "famille": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["libelle", "exclusive"],
+      "properties": {
+        "libelle": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Libelle de section, rendu tel quel comme titre. Doit correspondre a au moins une valeur `option.famille` du meme noeud (integrite verifiee par un test, pas par ce schema)."
+        },
+        "exclusive": {
+          "type": "boolean",
+          "description": "true = alternatives (on choisit une option, l'UI derive la mention « en choisir un » et le badge « recommandee » se limite au groupe d'egalite de tete) ; false = gestes cumulables (mention « gestes cumulables », badge « recommandee » sur toutes les options affichees de la famille)."
+        }
+      }
+    },
     "alerte": {
       "type": "object",
       "additionalProperties": false,
@@ -102,6 +123,16 @@
           "type": "string",
           "minLength": 1,
           "description": "Critère DÉRIVÉ (câblage P3) : expression calculée par le formulaire depuis d'autres critères, non saisie à la main (grammaire de deriveCritere.ts : compare 2 variables, arithmétique + - * /, comparaisons, AND/OR — sur-ensemble du DSL de conditions). Ex. 'HbA1c_actuelle <= HbA1c_cible' pour cible_atteinte, 'dose_basale_actuelle / poids > 0.5' pour over_basalisation. Résout la limite du DSL (variable OP littéral seulement)."
+        },
+        "groupe": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Section d'affichage du formulaire (P3 S7-ui Lot 2) : le libellé est rendu tel quel comme titre de section, et l'ordre des sections suit celui de leur PREMIERE apparition dans criteres_entree. Ordonne le formulaire selon le raisonnement clinique plutôt que par type de donnée. Aucun effet sur le moteur (pure présentation). Absent sur tous les critères d'un nœud = repli sur le rendu à plat historique."
+        },
+        "visible_si": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Condition DSL (grammaire de conditions.ts, évaluée sur les critères dérivés inclus) sous laquelle ce champ est AFFICHE. Fausse = champ masqué et retiré de la saisie (ex. 'traitements en cours' sans objet quand l'intention est d'initier ; 'nature de l'intolérance' sans objet si aucune intolérance). Pure présentation : le moteur continue de recevoir la valeur du critère, qui reste à sa valeur par défaut tant que le champ est masqué."
         }
       }
     },
@@ -175,6 +206,11 @@
               "unite": { "type": "string" }
             }
           }
+        },
+        "famille": {
+          "type": "string",
+          "minLength": 1,
+          "description": "REFERENCE au libelle d'une entree de `Noeud.familles` (correctif « ordre accidentel / badge multi-natures », 2026-07-25) : SECTION d'affichage du panneau de resultats, distincte du rang de priorite qui reste l'unique base du tri/du regroupement en egalite. Depuis l'introduction de `Noeud.familles`, ce n'est plus ce champ qui fixe l'ordre des sections ni la semantique « en choisir un » vs « cumulables » — ces deux informations sont portees explicitement par l'entree `familles[]` correspondante (`ordre` = ordre du tableau, `exclusive` = alternative vs cumulable). Presentation pure, AUCUN effet sur la selection ni le tri des options. Optionnel : absent de toutes les options d'un noeud → repli sur le rendu a plat historique (regroupement en egalite calcule sur la liste entiere, comme avant ce champ)."
         }
       }
     },

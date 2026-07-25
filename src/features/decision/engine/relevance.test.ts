@@ -4,7 +4,10 @@
  */
 import { describe, expect, it } from 'vitest'
 import { getNoeudById } from '../content/loadNodes.ts'
+import { buildDefaultCriteria } from '../lib/formLayout.ts'
 import type { Criteria } from './conditions.ts'
+import { calculerCriteresDerives } from './deriveCritere.ts'
+import { evaluateNode } from './evaluateNode.ts'
 import { champsDecisifsManquants, criteresPertinents } from './relevance.ts'
 
 const node = getNoeudById('prescription')
@@ -58,6 +61,69 @@ describe('relevance — criteresPertinents', () => {
     expect(pertinents.has('cible_atteinte')).toBe(false)
     expect(pertinents.has('terrain_fragile')).toBe(false)
     expect(pertinents.has('hba1c_sous_cible')).toBe(false) // dérivé de HbA1c_actuelle (S8)
+  })
+})
+
+describe('relevance — égalité de rang par défaut ne doit pas masquer un critère décisif (recette référent, S7-ui)', () => {
+  // Profil de la recette : rien ne distingue iSGLT2 d'AR GLP‑1 par comorbidité (albuminurie normo, DFG ≥
+  // 60, ASCVD absent, IMC < 30) → les deux tombent sur leur rang « default » (2 = égalité), départagés
+  // par l'ordre du contenu (iSGLT2 déclaré avant AR GLP‑1) — PAS par une vraie préférence clinique. Cocher
+  // `insuffisance_cardiaque` fait passer AR GLP‑1 à un rang moins bon (3) sans jamais dépasser le rang
+  // d'iSGLT2 (qui reste 2) : l'ORDRE affiché ne change donc jamais, même si le calcul interne, si. Avant
+  // le correctif (`evaluateNode.ts` expose `rangs`, `relevance.ts` les inclut dans la signature),
+  // `criteresPertinents` ne regardait que l'ordre des intitulés et estompait `insuffisance_cardiaque` à
+  // tort (« sans effet »), alors qu'il pilote bien un rang réel — juste invisible par coïncidence de tri.
+  const PROFIL_RECETTE: Criteria = {
+    ...buildDefaultCriteria(node!.criteres_entree),
+    intention: 'initier',
+    HbA1c_actuelle: 8.6,
+    DFG: 74,
+    IMC: 25,
+    albuminurie: 'normo',
+    ASCVD_etablie: false,
+    insuffisance_cardiaque: false,
+  }
+
+  it("insuffisance_cardiaque est décisif même s'il ne change jamais l'ordre affiché pour ce patient", () => {
+    const pertinents = criteresPertinents(node!, PROFIL_RECETTE)
+    expect(pertinents.has('insuffisance_cardiaque')).toBe(true)
+  })
+
+  it('albuminurie (même mécanisme de rang à égalité) est décisif pour ce patient', () => {
+    const pertinents = criteresPertinents(node!, PROFIL_RECETTE)
+    expect(pertinents.has('albuminurie')).toBe(true)
+  })
+
+  it("l'ordre affiché des options est bien inchangé entre IC=false et IC=true (le piège de la recette)", () => {
+    // Non-régression du diagnostic : ce n'est PAS un défaut de tri (l'ordre est correct et stable dans
+    // les deux cas) — le défaut était que `criteresPertinents` confondait « ordre inchangé » avec
+    // « aucun effet », alors que le RANG retenu, lui, change bien (2 → 3 pour AR GLP‑1).
+    const derive = (ic: boolean) => ({ ...PROFIL_RECETTE, insuffisance_cardiaque: ic })
+    const noms = (c: Criteria) => {
+      const derived = calculerCriteresDerives(node!.criteres_entree, c)
+      return evaluateNode(node!, derived).applicable.map((o) => o.intitule)
+    }
+    expect(noms(derive(false))).toEqual(noms(derive(true)))
+  })
+
+  it('aucun autre critère saisissable connu du patient n’est estompé à tort sur ce profil (garde-fou large)', () => {
+    // Les critères transverses (âge, fragilité, préférences…) sont légitimement inertes ici (aucune
+    // option ne dépend d'eux pour CE patient) : seule la liste ci-dessous est acceptée comme non-pertinente.
+    const pertinents = criteresPertinents(node!, PROFIL_RECETTE)
+    const inertesAcceptes = new Set([
+      'age',
+      'fragilite',
+      'esperance_vie',
+      'risque_hypoglycemie_schema',
+      'hypoglycemie_recente',
+      'nature_intolerance',
+      'traitements_en_cours', // naïf par construction pour intention=initier (visible_si, T-2)
+    ])
+    for (const critere of node!.criteres_entree) {
+      if (critere.derive != null) continue
+      if (pertinents.has(critere.nom)) continue
+      expect(inertesAcceptes.has(critere.nom)).toBe(true)
+    }
   })
 })
 

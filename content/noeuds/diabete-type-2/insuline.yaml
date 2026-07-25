@@ -28,7 +28,7 @@
 # Prescrire ne pose PAS la NPH en référence (invention écartée) ; il n'existe pas de position CMG dédiée.
 id: insuline
 domaine: diabete-type-2
-titre: "Insulinothérapie du DT2 : initier, optimiser une basale, ajouter un bolus, adapter un basal-bolus"
+titre: "Insulinothérapie du DT2 : Initier, optimiser, intensifier"
 population_cible: >-
   Adulte DT2 (hors DT1, grossesse, diabètes secondaires) chez qui une insulinothérapie est justifiée. Aide à
   la prescription en médecine générale : initiation et titration d'une basale, intensification par étapes

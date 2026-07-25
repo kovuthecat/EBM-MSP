@@ -23,7 +23,7 @@
 #  - `traitements_en_cours` (liste, D13) sert à l'alerte hypoglycémie (§8-5) sous insuline/sulfamide/glinide.
 id: rhd
 domaine: diabete-type-2
-titre: "Recommander les mesures hygiéno-diététiques, la perte de poids et la rémission (aide à la recommandation en soins premiers)"
+titre: "Accompagner les mesures hygiéno-diététiques"
 population_cible: >-
   Adulte DT2 déjà déclaré, hors DT1 et grossesse. Hors périmètre : la prévention du DT2 chez le sujet à
   risque / prédiabétique (mentionnée en argumentaire, ne pilote pas le nœud). Outil d'aide à la RECOMMANDATION :

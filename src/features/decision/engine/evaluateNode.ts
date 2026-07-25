@@ -58,6 +58,156 @@ export interface EvaluateNodeResult {
    * la sélection des options (ex. contrôler la cétonémie, adapter la dose au DFG). Vide si aucune.
    */
   alertes: Alerte[]
+  /**
+   * Rang numérique RETENU pour chaque option de `applicable` (`resolvePriorite`, D13/D14). N'est PAS
+   * consommé tel quel (en valeur brute) par les autres modules — un rang brut est trop sensible : passer
+   * de rangs (2,2) à (2,3) ou de (2,3) à (2,4) sont deux changements de rang, mais seul le premier change
+   * ce qui est affiché (l'égalité disparaît). Sert de matière première à `groupesExAequo` ci-dessous, qui
+   * en tire la structure réellement significative — les GROUPES D'ÉGALITÉ — consommée à la fois par
+   * `engine/relevance.ts` (signature de pertinence) et par l'écran (rendu « côte à côte », S7‑ui Lot 2).
+   * Vide en `ordered-first-match` (la `priorite` y est ignorée, D11 : l'ordre du nœud fait foi).
+   */
+  rangs: Map<Option, number>
+}
+
+/**
+ * Regroupe les options APPLICABLES (déjà triées par `evaluateNode`, tri stable) en groupes d'égalité :
+ * une suite d'options consécutives partageant le même rang FINI. C'est très exactement ce que l'écran
+ * donne à voir — un groupe de ≥ 2 membres n'a, par construction, aucune préférence interne (leur ordre
+ * relatif ne vient que de l'ordre de déclaration dans le contenu, jamais d'une hiérarchie clinique) ;
+ * un groupe d'un seul membre n'est à égalité avec personne.
+ *
+ * Garde-fou décisif : un rang `+Infinity` (option sans `priorite` déclarée, cf. `resolvePriorite`)
+ * n'est JAMAIS groupé, même si plusieurs options partagent ce même `+Infinity` — sinon un nœud où
+ * AUCUNE option ne déclare de `priorite` verrait TOUTES ses options « à égalité » et rendues côte à
+ * côte, régression visuelle majeure sur tous les nœuds n'utilisant pas encore D13/D14. Chaque rang
+ * infini forme donc son propre groupe singleton (empilage classique, inchangé).
+ *
+ * Fonction pure, réutilisée à l'identique par `relevance.ts` (signature de pertinence) et par
+ * `DecisionNodeScreen.tsx` (rendu) : les deux DOIVENT voir la même structure, sinon le défaut d'origine
+ * (égalité invisible au tri mais bien réelle au calcul) réapparaît sous une autre forme.
+ */
+export function groupesExAequo(applicable: Option[], rangs: Map<Option, number>): Option[][] {
+  const groupes: Option[][] = []
+  for (const option of applicable) {
+    const rang = rangs.get(option)
+    const groupeCourant = groupes[groupes.length - 1]
+    const rangGroupeCourant = groupeCourant ? rangs.get(groupeCourant[0]) : undefined
+    const memeRangFini =
+      groupeCourant !== undefined &&
+      rang !== undefined &&
+      Number.isFinite(rang) &&
+      rang === rangGroupeCourant
+    if (memeRangFini) {
+      groupeCourant.push(option)
+    } else {
+      groupes.push([option])
+    }
+  }
+  return groupes
+}
+
+/**
+ * Regroupement d'options d'une même FAMILLE clinique (`Option.famille`, correctif « ordre accidentel /
+ * badge multi-natures », 2026-07-25) : `libelle` est le libellé de famille rendu tel quel comme titre de
+ * section (ou `undefined` pour le repli à plat, cf. ci-dessous), `groupes` les groupes d'égalité
+ * (`groupesExAequo`) calculés SEULEMENT parmi les options de cette famille.
+ *
+ * `exclusive` reflète `Noeud.familles[].exclusive` : `true` = alternatives (le badge « recommandee » se
+ * limite au groupe de TÊTE de `groupes`) ; `false` = gestes cumulables (le badge va à toutes les options
+ * de la famille) ; `undefined` = nœud SANS `familles` déclarées (repli), la distinction alternative/
+ * cumulable n'existe alors pas et `computeBadges` retombe sur la règle historique (D16).
+ */
+export interface GroupeFamille {
+  libelle: string | undefined
+  groupes: Option[][]
+  exclusive: boolean | undefined
+}
+
+/** Vue minimale d'un nœud suffisante à `groupesParFamille` (évite de dépendre de tout `Noeud`). */
+type NoeudPourFamilles = Pick<Noeud, 'options'> & Partial<Pick<Noeud, 'familles'>>
+
+/**
+ * Partitionne les options APPLICABLES (déjà triées par `evaluateNode`) en FAMILLES cliniques, puis
+ * calcule, À L'INTÉRIEUR de chaque famille seulement, les groupes d'égalité via `groupesExAequo` (aucune
+ * duplication de logique).
+ *
+ * Raison d'être (défaut constaté en recette référent, nœud `prescription`) : l'axe `priorite` seul
+ * mélange des natures d'actes différentes (ex. « introduire un iSGLT2 » et « réduire la posologie du
+ * sulfamide » peuvent partager un rang) — les rendre « à égalité » suggère à tort un choix exclusif
+ * alors que ces gestes se CUMULENT. Confiner le calcul d'égalité à l'intérieur d'une même famille
+ * élimine ces faux positifs SANS toucher au tri ni aux rangs eux-mêmes (`famille` est pure présentation,
+ * schema/noeud.schema.json).
+ *
+ * ORDRE DES SECTIONS (correctif « ordre accidentel », 2026-07-25) : si `node.familles` est déclaré,
+ * l'ordre des sections EST l'ordre de ce tableau — une décision éditoriale explicite (contenu), plus
+ * jamais un sous-produit de l'ordre d'écriture des `options`. Sinon (nœud sans `familles`, ou options
+ * marquant `famille` sans déclaration de nœud — compatibilité des tests historiques), repli sur
+ * l'ancienne convention : ordre de 1re apparition dans `node.options` (PAS `applicable`, déjà trié par
+ * rang — une famille s'étale sur plusieurs rangs, en dériver l'ordre des sections de `applicable` les
+ * ferait dépendre du patient, l'instabilité déjà corrigée sur le formulaire).
+ *
+ * Repli total : si AUCUNE option de `applicable` ne porte de `famille` (et `node.familles` absent),
+ * renvoie une famille UNIQUE sans libellé (`libelle: undefined`, `exclusive: undefined`) dont les
+ * groupes sont EXACTEMENT `groupesExAequo(applicable, rangs)` — comportement rigoureusement identique à
+ * avant l'introduction de `famille` (non-régression sur les nœuds qui ne l'utilisent pas).
+ *
+ * Fonction pure, consommée à la fois par `relevance.ts` (signature de pertinence), `optionBadges.ts`
+ * (calcul du badge) et `DecisionNodeScreen.tsx` (rendu par section) : les trois DOIVENT voir la même
+ * structure, sinon le défaut d'origine (égalité affichée mais absente de la signature, ou l'inverse)
+ * réapparaît sous une autre forme — cf. docstring `groupesExAequo` ci-dessus.
+ */
+export function groupesParFamille(
+  node: NoeudPourFamilles,
+  applicable: Option[],
+  rangs: Map<Option, number>,
+): GroupeFamille[] {
+  if (node.familles && node.familles.length > 0) {
+    const parFamille = new Map<string, Option[]>()
+    for (const option of applicable) {
+      // Intégrité (option.famille ∈ familles[].libelle) garantie par un test dédié
+      // (content.test.ts), pas par ce moteur : une option sans famille référencée ici serait un
+      // contenu invalide, jamais silencieusement absorbée.
+      if (option.famille == null) continue
+      if (!parFamille.has(option.famille)) parFamille.set(option.famille, [])
+      parFamille.get(option.famille)!.push(option)
+    }
+    return node.familles
+      // Une famille sans option applicable pour ce patient ne s'affiche pas.
+      .filter((famille) => parFamille.has(famille.libelle))
+      .map((famille) => ({
+        libelle: famille.libelle,
+        groupes: groupesExAequo(parFamille.get(famille.libelle)!, rangs),
+        exclusive: famille.exclusive,
+      }))
+  }
+
+  // Repli historique (nœud sans `familles` déclarées) : comportement rigoureusement identique à
+  // avant cette évolution.
+  const aucuneFamille = applicable.every((option) => option.famille == null)
+  if (aucuneFamille) {
+    return [{ libelle: undefined, groupes: groupesExAequo(applicable, rangs), exclusive: undefined }]
+  }
+
+  const ordre: (string | undefined)[] = []
+  for (const option of node.options) {
+    if (!ordre.includes(option.famille)) ordre.push(option.famille)
+  }
+
+  const parFamille = new Map<string | undefined, Option[]>()
+  for (const option of applicable) {
+    const cle = option.famille
+    if (!parFamille.has(cle)) parFamille.set(cle, [])
+    parFamille.get(cle)!.push(option)
+  }
+
+  return ordre
+    .filter((libelle) => parFamille.has(libelle))
+    .map((libelle) => ({
+      libelle,
+      groupes: groupesExAequo(parFamille.get(libelle)!, rangs),
+      exclusive: undefined,
+    }))
 }
 
 /** Une option de repli porte exactement `conditions: ["default"]` (brief §11, ex. "Cible ~7 %"). */
@@ -163,7 +313,7 @@ export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResul
 
   // Nœud à sortie unique (D11) : la 1re option applicable dans l'ordre du nœud l'emporte.
   if (node.selection === 'ordered-first-match') {
-    return { ...evaluateOrderedFirstMatch(node, criteria), alertes }
+    return { ...evaluateOrderedFirstMatch(node, criteria), alertes, rangs: new Map() }
   }
 
   const applicable: Option[] = []
@@ -232,7 +382,7 @@ export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResul
     return ra < rb ? -1 : 1
   })
 
-  return { applicable, reasons, excluded, alertes }
+  return { applicable, reasons, excluded, alertes, rangs }
 }
 
 /**
@@ -245,7 +395,7 @@ export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResul
 function evaluateOrderedFirstMatch(
   node: Noeud,
   criteria: Criteria,
-): Omit<EvaluateNodeResult, 'alertes'> {
+): Omit<EvaluateNodeResult, 'alertes' | 'rangs'> {
   const excluded = new Map<Option, string[]>()
   for (const option of node.options) {
     if (isDefaultOption(option)) continue

@@ -25,6 +25,14 @@
   --c-disclaimer-bg: oklch(95% 0.02 230);
   --c-disclaimer-border: oklch(87% 0.03 230);
 
+  /* « À confirmer » / reco provisoire (P3 · S7-ui) — registre AMBRE, volontairement distinct des bleus
+     du module Décision et du disclaimer : signale un état INCOMPLET de la saisie, jamais un risque
+     clinique (les alertes cliniques restent gérées par AlertList). Absent du prototype : teinte
+     construite dans le même espace OKLCH que les tokens ci-dessus. */
+  --c-attention: oklch(48% 0.09 85);
+  --c-attention-border: oklch(76% 0.12 85);
+  --c-attention-soft: oklch(97% 0.035 85);
+
   /* Badges — niveau de preuve (GRADE simplifié) */
   --c-badge-preuve-eleve-bg: oklch(46% 0.09 254);
   --c-badge-preuve-eleve-text: white;

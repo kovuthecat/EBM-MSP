@@ -30,6 +30,19 @@ export interface CritereEntree {
    * arithmétique (`dose_basale_actuelle / poids > 0.5`). Un critère dérivé n'est pas rendu comme champ.
    */
   derive?: string
+  /**
+   * Section d'affichage du formulaire (P3 S7‑ui Lot 2) : libellé rendu tel quel comme titre de section,
+   * l'ordre des sections suivant celui de leur PREMIÈRE apparition dans `criteres_entree`. Ordonne la
+   * saisie selon le raisonnement clinique (intention → état des lieux → ce qui oriente → garde‑fous)
+   * plutôt que par type de donnée. Pure présentation, aucun effet moteur ; absent partout → rendu à plat.
+   */
+  groupe?: string
+  /**
+   * Condition DSL (`conditions.ts`, évaluée dérivés inclus) sous laquelle le champ est AFFICHÉ. Fausse →
+   * champ masqué (ex. « traitements en cours » sans objet à l'initiation). Pure présentation : le critère
+   * garde sa valeur par défaut côté moteur tant que le champ est masqué.
+   */
+  visible_si?: string
 }
 
 /**
@@ -84,6 +97,17 @@ export interface Option {
   exclusions?: string[]
   /** Doses/valeurs calculées affichées avec l'option (câblage P3, ex. dose d'initiation = poids × 0,1-0,2 U/kg). */
   calculs?: Calcul[]
+  /**
+   * RÉFÉRENCE au `libelle` d'une entrée de `Noeud.familles` (correctif « ordre accidentel / badge
+   * multi-natures », 2026-07-25) : SECTION d'affichage du panneau de résultats, distincte du rang
+   * `priorite` qui reste l'unique base du tri et du regroupement en égalité (`engine/evaluateNode.ts`
+   * `groupesParFamille`). Depuis l'introduction de `Noeud.familles`, ni l'ordre des sections ni la
+   * sémantique « alternatives vs cumulables » ne sont plus portés par CE CHAMP : ils viennent de
+   * l'entrée `familles[]` correspondante (ordre du tableau, `exclusive`). Présentation pure, aucun
+   * effet sur la sélection ni le tri. Absent de toutes les options d'un nœud (ou nœud sans `familles`
+   * déclarées) → repli sur le rendu à plat historique.
+   */
+  famille?: string
 }
 
 export interface ReferencePrimaire {
@@ -138,6 +162,24 @@ export interface Alerte {
   niveau?: 'info' | 'attention'
 }
 
+/**
+ * Famille d'actes cliniques déclarée au niveau du NŒUD (correctif « ordre accidentel / badge
+ * multi-natures », 2026-07-25) : `option.famille` y fait désormais RÉFÉRENCE (`libelle`). Deux
+ * informations explicites que le libellé français seul ne portait pas de façon exploitable par le
+ * code (invariant CLAUDE.md 5 — jamais de libellé clinique en dur) :
+ * - **l'ordre d'affichage des sections** = l'ordre de CE TABLEAU, indépendant de l'ordre d'écriture
+ *   des options dans `Noeud.options` (un réordonnancement du fichier ne change plus rien à
+ *   l'affichage — avant, l'ordre dérivait de la 1re apparition dans `options`, donc accidentel) ;
+ * - **`exclusive`** : `true` = les options de cette famille sont des ALTERNATIVES (on en choisit
+ *   une — le badge « recommandee » se limite alors au groupe d'égalité de TÊTE de la famille) ;
+ *   `false` = des gestes CUMULABLES (tout ce qui est affiché est à faire — le badge « recommandee »
+ *   va à TOUTES les options affichées de la famille, indépendamment de leur rang respectif).
+ */
+export interface Famille {
+  libelle: string
+  exclusive: boolean
+}
+
 /** Nœud de décision (brief §5.1). `domaine` obligatoire — module Décision multi-domaine (D8). */
 export interface Noeud {
   id: string
@@ -158,4 +200,11 @@ export interface Noeud {
   argumentaire_exhaustif?: string
   /** Alertes cliniques conditionnelles, évaluées indépendamment des options (D15). */
   alertes?: Alerte[]
+  /**
+   * Familles d'actes cliniques déclarées explicitement (correctif « ordre accidentel / badge
+   * multi-natures », 2026-07-25) : ordre d'affichage des sections + `exclusive` (alternatives vs
+   * cumulables), référencées par `Option.famille`. Absent → repli intégral sur le rendu à plat
+   * historique (voir `Option.famille`, `engine/evaluateNode.ts` `groupesParFamille`).
+   */
+  familles?: Famille[]
 }

@@ -43,3 +43,39 @@ describe('contenu des nœuds de décision (conformité à schema/noeud.schema.js
     },
   )
 })
+
+/**
+ * Intégrité référentielle `Noeud.familles` ↔ `Option.famille` (correctif « ordre accidentel / badge
+ * multi-natures », 2026-07-25) : le schéma JSON ne peut PAS croiser deux champs (un `option.famille`
+ * inconnu de `familles[].libelle` y passerait inaperçu), d'où ce test dédié plutôt qu'un commentaire.
+ * Deux sens de vérification :
+ * - toute valeur `option.famille` utilisée doit être déclarée dans `familles[].libelle` du même nœud
+ *   (sinon l'option tomberait dans un trou noir : `groupesParFamille` l'ignorerait silencieusement) ;
+ * - toute famille déclarée doit être utilisée par au moins une option (sinon une section morte, jamais
+ *   affichée, resterait dans le contenu sans que rien ne le signale).
+ */
+describe('intégrité référentielle Noeud.familles ↔ Option.famille', () => {
+  it.each(noeuds.map((noeud) => [noeud.domaine, noeud.id, noeud] as const))(
+    'nœud "%s/%s" : chaque `option.famille` référence une famille déclarée, chaque famille déclarée est utilisée',
+    (_domaine, id, noeud) => {
+      const familles = noeud.familles ?? []
+      const libellesDeclares = new Set(familles.map((f) => f.libelle))
+      const famillesUtilisees = new Set(
+        noeud.options.map((o) => o.famille).filter((f): f is string => f != null),
+      )
+
+      for (const famille of noeud.options.map((o) => o.famille).filter((f): f is string => f != null)) {
+        expect(
+          libellesDeclares.has(famille),
+          `Nœud "${id}" : option.famille "${famille}" n'est déclarée dans aucune entrée de \`familles\`.`,
+        ).toBe(true)
+      }
+      for (const libelle of libellesDeclares) {
+        expect(
+          famillesUtilisees.has(libelle),
+          `Nœud "${id}" : famille "${libelle}" déclarée dans \`familles\` mais utilisée par aucune option.`,
+        ).toBe(true)
+      }
+    },
+  )
+})

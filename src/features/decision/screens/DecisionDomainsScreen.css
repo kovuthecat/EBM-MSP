@@ -55,15 +55,6 @@
   margin-top: 24px;
 }
 
-.decision-domains__group-title {
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--c-text-faible);
-  margin: 0 0 10px;
-}
-
 .decision-domains__node {
   width: 100%;
   display: flex;
@@ -91,11 +82,6 @@
   font-size: 15px;
   font-weight: 600;
   color: var(--c-text);
-}
-
-.decision-domains__node-meta {
-  font-size: 13px;
-  color: var(--c-text-muted);
 }
 
 .decision-domains__node-badge {

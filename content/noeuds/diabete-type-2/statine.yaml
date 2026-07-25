@@ -30,7 +30,7 @@
 # chez un patient déjà diabétique.
 id: statine
 domaine: diabete-type-2
-titre: "Prescrire une statine (et à quelle intensité) chez le diabétique de type 2"
+titre: "Prescrire une statine dans le DT2"
 population_cible: >-
   Adulte DT2, hors DT1 et grossesse (statines contre-indiquées pendant la grossesse). Décision du volet
   lipidique de la prévention cardiovasculaire, indépendante de l'HbA1c et du traitement antidiabétique.

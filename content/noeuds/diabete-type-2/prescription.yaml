@@ -20,7 +20,7 @@
 # épuisée. `sur_traitement` RETIRÉ.
 id: prescription
 domaine: diabete-type-2
-titre: "Choisir / optimiser le traitement non‑insulinique du DT2 (selon les traitements en cours, la position vs objectif, les comorbidités et la tolérance)"
+titre: "Traiter : initier, optimiser, intensifier"
 population_cible: >-
   Adulte DT2 (hors DT1, grossesse), à tout stade de la prescription non‑insulinique : naïf sous mesures
   d'hygiène de vie (metformine socle), déjà traité à optimiser, ou candidat à une désintensification. Couvre
@@ -30,60 +30,106 @@ population_cible: >-
   (cétose/hyperosmolarité ≥ 3 mmol/L) = urgence (insuline + hospitalisation).
 selection: multi-options
 argumentaire_exhaustif: "prescription.argumentaire.md"
+# ORDRE DE SAISIE = ORDRE DU RAISONNEMENT EN CONSULTATION (refonte UI P3 · S7-ui Lot 2, 2026-07-25).
+# Les champs `groupe` / `visible_si` sont de la PRÉSENTATION PURE (aucun effet moteur) : ils décident de
+# l'ordre des sections du formulaire (ordre de 1re apparition ci-dessous) et du masquage des champs sans
+# objet. Séquence : pourquoi je touche au traitement → où on en est → ce qui oriente vers une classe →
+# ce qui l'interdit → le terrain et les préférences.
 criteres_entree:
-  - nom: traitements_en_cours
-    type: liste
-    valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, insuline, glinide]
+  # 1. LE CADRE — posé en premier, il conditionne tout le reste (et l'affichage de la section suivante).
   - nom: intention
     type: enum
+    groupe: Intention thérapeutique
     # PRIMER (décision référent S8, 2026-07-25) : « je souhaite… ». Remplace `position_vs_cible` (l'HbA1c
     # seule ne donne pas le « vs cible » sans le nœud A). L'intention DÉDUIT `cible_atteinte` ; elle ORGANISE
     # (flux + affichage), elle ne filtre jamais durement (non-étanche : les gestes transverses restent affichés).
     valeurs: [initier, intensifier, optimiser, deprescrire]
+
+  # 2. L'ÉTAT DES LIEUX — ce que le patient prend déjà, et où en est le contrôle.
+  - nom: traitements_en_cours
+    type: liste
+    groupe: Traitement actuel et contrôle
+    # INITIER = patient naïf par définition : la question n'a pas d'objet, le champ est masqué (et remis à
+    # vide s'il avait été rempli sous une autre intention — cf. lib/formLayout.ts).
+    visible_si: "intention != initier"
+    valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, insuline, glinide]
   - nom: HbA1c_actuelle
     type: nombre
+    groupe: Traitement actuel et contrôle
+
+  # 3. CE QUI ORIENTE POSITIVEMENT vers une classe (indications d'organe : cœur, rein, poids).
   - nom: ASCVD_etablie
     type: bool
+    groupe: Ce qui oriente le choix
   - nom: insuffisance_cardiaque
     type: bool
+    groupe: Ce qui oriente le choix
   - nom: DFG
     type: nombre
+    groupe: Ce qui oriente le choix
   - nom: albuminurie
     type: enum
+    groupe: Ce qui oriente le choix
     valeurs: [normo, micro, macro]
   - nom: IMC
     type: nombre
-  - nom: age
-    type: nombre
-  - nom: fragilite
+    groupe: Ce qui oriente le choix
+
+  # 4. CE QUI RESTREINT — drapeaux de sécurité et de tolérance (gating négatif, gel S1 §4/§5).
+  - nom: symptomes_glucotoxicite
     type: bool
+    groupe: Signaux d'alerte et tolérance
+  - nom: cetonemie
+    type: bool
+    groupe: Signaux d'alerte et tolérance
+  - nom: hypoglycemie_recente
+    type: bool
+    groupe: Signaux d'alerte et tolérance
+    # INITIER = naïf de tout traitement : on ne peut pas être en hypoglycémie SOUS traitement quand
+    # aucun traitement n'est encore prescrit (décision référent, recette 2026-07-25). Question sans objet.
+    visible_si: "intention != initier"
   - nom: denutrition
     type: bool
+    groupe: Signaux d'alerte et tolérance
+  - nom: infections_uro_genitales_recidivantes
+    type: bool
+    groupe: Signaux d'alerte et tolérance
+  - nom: intolerance_traitement
+    type: bool
+    groupe: Signaux d'alerte et tolérance
+    # INITIER = naïf de tout traitement : on ne peut être intolérant à un traitement qui n'a jamais été
+    # instauré (décision référent, recette 2026-07-25). `nature_intolerance` suit en cascade (déjà masqué
+    # derrière `intolerance_traitement == true`, lui-même désormais masqué à l'initiation).
+    visible_si: "intention != initier"
+  - nom: nature_intolerance
+    type: enum
+    groupe: Signaux d'alerte et tolérance
+    # Sous-question : sans objet tant qu'aucune intolérance n'est signalée. `aucune` par défaut (sûr).
+    visible_si: "intolerance_traitement == true"
+    valeurs: [aucune, digestive, uro_genitale, perte_poids, cutanee, autre]
+
+  # 5. LE TERRAIN ET LES PRÉFÉRENCES — modulent, décident rarement seuls.
+  - nom: age
+    type: nombre
+    groupe: Terrain et préférences
+  - nom: fragilite
+    type: bool
+    groupe: Terrain et préférences
   - nom: esperance_vie
     type: enum
+    groupe: Terrain et préférences
     valeurs: [longue, intermediaire, limitee]
   - nom: risque_hypoglycemie_schema
     type: enum
+    groupe: Terrain et préférences
     valeurs: [faible, eleve]
-  - nom: infections_uro_genitales_recidivantes
-    type: bool
-  - nom: intolerance_traitement
-    type: bool
-  - nom: nature_intolerance
-    type: enum
-    # Cible l'agent en cause (S8, décision référent). `aucune` par défaut (sûr).
-    valeurs: [aucune, digestive, uro_genitale, perte_poids, cutanee, autre]
-  - nom: hypoglycemie_recente
-    type: bool
-  - nom: symptomes_glucotoxicite
-    type: bool
-  - nom: cetonemie
-    type: bool
   - nom: preference_injection
     type: enum
+    groupe: Terrain et préférences
     valeurs: [indifferent, accepte, refuse]
   - nom: classes_a_benefice_indisponibles
     type: bool
+    groupe: Terrain et préférences
   - nom: hba1c_sous_cible
     type: bool
     # DÉRIVÉ de l'HbA1c saisie (garde-fou ABSOLU < 6,5 %, indépendant de la cible du nœud A). Le garde `> 0`
@@ -103,12 +149,34 @@ criteres_entree:
     # seulement si HbA1c ≥ 8,5 % (HAS : monothérapie metformine d'abord, bithérapie d'emblée si nettement au-
     # dessus). optimiser/déprescrire ⇒ fermée. (≡ cible_atteinte==false, affiné par l'amplitude à l'initiation.)
     derive: "intention == intensifier OR intention == initier AND HbA1c_actuelle >= 8.5"
+# `familles` (correctif « ordre accidentel / badge multi-natures », 2026-07-25) : déclaration EXPLICITE
+# des sections du panneau de résultats, présentation pure (aucun effet moteur, cf.
+# schema/noeud.schema.json). L'ORDRE DE CE TABLEAU EST L'ORDRE D'AFFICHAGE — « urgence d'abord » (décision
+# référent) — indépendant de l'ordre d'écriture des options ci-dessous. `exclusive` porte la sémantique
+# « on en choisit un » (true) vs « on fait tout » (false) ; l'UI en dérive la mention de section, jamais
+# un libellé clinique en dur. Confine aussi les égalités de `priorite` À L'INTÉRIEUR d'une même famille
+# (`groupesParFamille`) : deux gestes de familles différentes au même rang ne sont plus jamais présentés
+# comme un choix exclusif alors qu'ils se cumulent.
+familles:
+  - libelle: "À faire d'emblée — sécurité"
+    exclusive: false
+  - libelle: "Socle du traitement"
+    exclusive: false
+  - libelle: "Agent à ajouter"
+    exclusive: true
+  - libelle: "Traitement à corriger ou remplacer"
+    exclusive: false
+  - libelle: "Traitement à alléger"
+    exclusive: false
+  - libelle: "Aucun geste — surveiller"
+    exclusive: false
 options:
   # ---- Gate / socle -------------------------------------------------------------------------------------
   - intitule: "Insuline d'initiation (souvent transitoire — état catabolique)"
     conditions:
       - "HbA1c_actuelle >= 10 AND symptomes_glucotoxicite == true OR cetonemie == true"
     priorite: 1
+    famille: "À faire d'emblée — sécurité"
     avantages:
       - "Corrige rapidement la glucotoxicité en cas d'hyperglycémie sévère symptomatique / catabolique ; le plus souvent transitoire (relais possible une fois la glucotoxicité levée)."
     inconvenients:
@@ -124,6 +192,7 @@ options:
     conditions:
       - "toujours"
     priorite: 0
+    famille: "Socle du traitement"
     exclusions:
       - "DFG < 30"
     avantages:
@@ -143,6 +212,7 @@ options:
       - "traitements_en_cours contient metformine"
       - "DFG < 30"
     priorite: 1
+    famille: "À faire d'emblée — sécurité"
     avantages:
       - "Metformine CONTRE‑INDIQUÉE < 30 mL/min/1,73m² (RCP ANSM) : supprime le risque d'acidose lactique par accumulation. Relais possible : iSGLT2 (si DFG ≥ 20), AR GLP‑1."
     inconvenients:
@@ -155,6 +225,7 @@ options:
       - "traitements_en_cours contient metformine"
       - "DFG >= 30 AND DFG < 60 OR nature_intolerance == digestive"
     priorite: 3
+    famille: "À faire d'emblée — sécurité"
     avantages:
       - "Adapter la dose au DFG (RCP ANSM : 45‑59 → max 2 g/j ; 30‑44 → max 1 g/j), OU réduire en cas d'intolérance digestive (la metformine étant l'agent au bénéfice le plus faible : à réduire/arrêter en priorité si un AR GLP‑1 partage l'intolérance — cf. alerte). Le praticien juge la dose."
     inconvenients:
@@ -168,6 +239,7 @@ options:
       - "traitements_en_cours contient sulfamide"
       - "DFG < 30"
     priorite: 1
+    famille: "À faire d'emblée — sécurité"
     avantages:
       - "Sulfamide CONTRE‑INDIQUÉ en insuffisance rénale sévère (DFG < 30, convention KDIGO/SFD) : risque d'hypoglycémie sévère et prolongée par accumulation. Arrêter (symétrie avec l'arrêt de la metformine)."
     inconvenients:
@@ -195,6 +267,7 @@ options:
         rang: 3
       - quand: "default"
         rang: 2
+    famille: "Agent à ajouter"
     avantages:
       - "Réduit l'hospitalisation pour IC et la progression rénale (effet de classe) — à privilégier quand l'IC ou la maladie rénale prédomine. Proposé indépendamment de l'HbA1c (protection, HAS R.64‑66 grade A)."
       - "Aussi un bon agent de CONTRÔLE GLYCÉMIQUE (sans hypoglycémie, perte de poids modeste) même sans comorbidité : la comorbidité le PRIORISE (versant protecteur), elle ne conditionne pas sa disponibilité comme levier glycémique."
@@ -232,6 +305,7 @@ options:
         rang: 4
       - quand: "default"
         rang: 2
+    famille: "Agent à ajouter"
     avantages:
       - "Réduit les événements athéromateux (surtout l'AVC ; mortalité CV pour le liraglutide) — à privilégier en maladie athéromateuse ou obésité ; forte efficacité HbA1c et perte de poids. Néphroprotection dure = sémaglutide (FLOW)."
       - "Aussi un puissant agent de CONTRÔLE GLYCÉMIQUE (forte baisse d'HbA1c, pas d'hypoglycémie) même sans comorbidité — sous réserve du garde‑fou terrain (exclu si IMC<22 / dénutrition)."
@@ -260,6 +334,7 @@ options:
         rang: 7
       - quand: "default"
         rang: 4
+    famille: "Agent à ajouter"
     avantages:
       - "Efficacité HbA1c et perte de poids supérieures aux AR GLP‑1 ; réservé à l'OBÉSITÉ associée au diabète (IMC ≥ 30), prescription par spécialiste."
     inconvenients:
@@ -290,6 +365,7 @@ options:
         rang: 7
       - quand: "default"
         rang: 4
+    famille: "Agent à ajouter"
     avantages:
       - "Couvre le versant IC/rénal (iSGLT2) ET athéromateux/pondéral (AR GLP‑1) quand les deux indications sont fortes."
     inconvenients:
@@ -302,6 +378,7 @@ options:
       - "cible_atteinte == false"
       - "traitements_en_cours contient iSGLT2 AND traitements_en_cours contient aGLP1 OR traitements_en_cours contient iSGLT2 AND denutrition == true OR traitements_en_cours contient iSGLT2 AND IMC < 22"
     priorite: 6
+    famille: "Agent à ajouter"
     avantages:
       - "Quand les options non insuliniques sont épuisées ou contre‑indiquées, l'insuline est le levier glycémique le plus puissant et souvent nécessaire. Cas types : metformine + iSGLT2 + AR GLP‑1 toujours déséquilibré ; incrétines exclues par le terrain (dénutrition / IMC bas) chez un patient déjà sous iSGLT2 non contrôlé. (En insuffisance rénale sévère, un AR GLP‑1 ou la sitagliptine à dose adaptée restent souvent utilisables : la palette n'est pas forcément épuisée.)"
     inconvenients:
@@ -325,6 +402,7 @@ options:
       - "symptomes_glucotoxicite == true"
       - "cetonemie == true"
     priorite: 3
+    famille: "Traitement à corriger ou remplacer"
     avantages:
       - "L'AR GLP‑1 est constamment supérieur à la gliptine sur l'HbA1c et le poids (PIONEER‑3, SUSTAIN‑2, AWARD‑5 ; switch Pratley 2012, méta Tran/Kramer −0,69 % / −2,25 kg) et apporte un bénéfice cardio‑rénal que la gliptine n'a pas."
     inconvenients:
@@ -341,6 +419,7 @@ options:
       - "traitements_en_cours contient gliptine"
       - "traitements_en_cours contient aGLP1 OR traitements_en_cours contient tirzepatide"
     priorite: 3
+    famille: "Traitement à corriger ou remplacer"
     avantages:
       - "Corrige une association INTERDITE déjà en place : gliptine + AR GLP‑1/tirzépatide = redondance incrétine sans bénéfice additif → arrêter la gliptine (ADA §9 ; KDIGO PP4.2.3 « stopping the gliptin » ; HAS R.80)."
     inconvenients:
@@ -357,6 +436,7 @@ options:
     exclusions:
       - "DFG < 30"
     priorite: 4
+    famille: "Traitement à corriger ou remplacer"
     avantages:
       - "Le sulfamide n'a aucun bénéfice cardio‑rénal propre (CAROLINA, TOSCA.IT neutres) et cause hypoglycémie + poids + moindre durabilité. Le remplaçant réduit fortement l'hypo sévère (CAROLINA NNT 45) et fait perdre du poids."
     inconvenients:
@@ -373,6 +453,7 @@ options:
     conditions:
       - "intolerance_traitement == true"
     priorite: 2
+    famille: "Traitement à alléger"
     avantages:
       - "Une intolérance justifie d'agir. Deux voies : (1) RÉDUIRE la posologie de la molécule en cause si l'intolérance est NON MAJEURE (sévérité et dose = jugement du praticien ; aucun dosage imposé) ; (2) REMPLACER par une classe mieux tolérée (voir les options de switch selon les comorbidités, en excluant la classe en cause)."
     inconvenients:
@@ -387,6 +468,7 @@ options:
       - "hba1c_sous_cible == true OR hypoglycemie_recente == true AND terrain_fragile == true"
       - "traitements_en_cours contient sulfamide OR traitements_en_cours contient glinide OR traitements_en_cours contient insuline"
     priorite: 1
+    famille: "Traitement à alléger"
     avantages:
       - "Réduit les hypoglycémies sévères et les chutes sans dégrader le contrôle (Grant 2025 ; ADA 13.14a‑c ; HAS R.103 ; SFD Avis 5 bis). Un HbA1c < 6,5 % sous agent hypoglycémiant = sur‑traitement iatrogène — déprescrire à TOUT ÂGE."
       - "Déclenchée aussi par une hypoglycémie/chute récente chez le sujet fragile (l'HbA1c seule prédit mal l'hypo — HYPOAGE)."
@@ -404,6 +486,7 @@ options:
       - "traitements_en_cours contient insuline"
       - "hba1c_sous_cible == true OR hypoglycemie_recente == true OR intolerance_traitement == true"
     priorite: 1
+    famille: "Traitement à alléger"
     avantages:
       - "Réduire plutôt qu'arrêter : diminue le risque d'hypoglycémie (sur‑basalisation, sujet fragile) sans sevrer un patient qui en a besoin. Le praticien juge la dose (aucun dosage imposé). L'ajustement fin relève du nœud E."
     inconvenients:
@@ -415,6 +498,7 @@ options:
       - "traitements_en_cours contient aGLP1"
       - "denutrition == true OR nature_intolerance == perte_poids OR nature_intolerance == digestive"
     priorite: 2
+    famille: "Traitement à alléger"
     avantages:
       - "Réduire plutôt qu'arrêter préserve une partie du bénéfice tout en limitant la perte de poids excessive ou les troubles digestifs. Le praticien juge la dose."
     inconvenients:
@@ -426,6 +510,7 @@ options:
       - "traitements_en_cours contient tirzepatide"
       - "denutrition == true OR nature_intolerance == perte_poids OR nature_intolerance == digestive"
     priorite: 2
+    famille: "Traitement à alléger"
     avantages:
       - "Même logique que l'AR GLP‑1 : réduire avant d'arrêter en cas de perte de poids excessive ou d'intolérance. Le praticien juge la dose."
     inconvenients:
@@ -437,6 +522,7 @@ options:
       - "traitements_en_cours contient sulfamide OR traitements_en_cours contient glinide"
       - "intolerance_traitement == true OR hypoglycemie_recente == true"
     priorite: 2
+    famille: "Traitement à alléger"
     avantages:
       - "Réduire la dose limite l'hypoglycémie tout en gardant l'effet glycémique. Le praticien juge la dose."
     inconvenients:
@@ -447,6 +533,7 @@ options:
     conditions:
       - "traitements_en_cours contient iSGLT2 AND ASCVD_etablie == false AND insuffisance_cardiaque == false AND DFG >= 60 AND albuminurie == normo AND infections_uro_genitales_recidivantes == true"
     priorite: 4
+    famille: "Traitement à alléger"
     avantages:
       - "Un agent à bénéfice associé (rein/CV) prescrit SANS le terrain correspondant ET posant un risque (iSGLT2 sans IC/rein/ASCVD avec infections génito‑urinaires récidivantes) → l'envisager en retrait / switch vers une molécule sûre et bénéfique. (La gliptine sans bénéfice relève, elle, du switch vers un AR GLP‑1 — option dédiée — ou de l'arrêt si association redondante.)"
     inconvenients:
@@ -468,6 +555,7 @@ options:
         rang: 3
       - quand: "default"
         rang: 5
+    famille: "Agent à ajouter"
     avantages:
       - "Agent glycémique ORAL possible « avec ses limites » (bas rang) : sans hypoglycémie, neutre sur le poids, bien toléré sur le plan digestif — la niche quand on veut éviter l'hypoglycémie sans injection, ou quand iSGLT2 et AR GLP‑1 sont indisponibles (le rang remonte alors). Molécule = SITAGLIPTINE (seule gliptine FR à sécurité CV démontrée, TECOS ; utilisable jusqu'en dialyse à dose réduite). Préférée au sulfamide (ordre HAS/SFD)."
     inconvenients:
@@ -492,6 +580,7 @@ options:
         rang: 3
       - quand: "default"
         rang: 5
+    famille: "Agent à ajouter"
     avantages:
       - "Agent glycémique possible « avec ses limites » (bas rang) : efficacité nette (~1‑1,5 % HbA1c), la plus forte des deux classes résiduelles ; les SU modernes (gliclazide, glimépiride) ne sont pas plus délétères en CV que des comparateurs récents (CAROLINA, TOSCA.IT, GRADE neutres). Rang remonté si iSGLT2/AR GLP‑1 indisponibles."
     inconvenients:
@@ -506,6 +595,7 @@ options:
   - intitule: "Poursuivre le traitement en cours et réévaluer"
     conditions:
       - "default"
+    famille: "Aucun geste — surveiller"
     avantages:
       - "Aucun geste d'ajout, d'optimisation ni de désintensification n'est indiqué : objectif atteint sans agent iatrogène à optimiser ni indication de protection non couverte. Poursuivre et réévaluer à 3‑6 mois (HAS R.47)."
     inconvenients:
