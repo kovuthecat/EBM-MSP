@@ -72,6 +72,18 @@ export interface Option {
   inconvenients: string[]
   /** Effet absolu / NNT / NNH, sinon la chaîne `"non chiffrable"`. */
   effet_attendu: string
+  /**
+   * R2 (`docs/decision/GRAMMAIRE-NOEUD.md`) : délai d'apparition du bénéfice **tel qu'observé dans les
+   * essais cités** (« 16-26 mois »), ou `"immédiat"`, ou `"non établi"`.
+   *
+   * **Affichage seul — le moteur ne le lit jamais.** Un patient a un horizon, une option a un délai ;
+   * les rapprocher est l'arbitrage central de la prescription gériatrique, et il revient au praticien.
+   * Le calculer automatiquement supposerait de convertir « espérance de vie limitée » en mois, ce qui
+   * produirait une fausse précision et un arbitrage clinique caché — interdit par l'invariant 2. L'outil
+   * pose les deux faits côte à côte, rien de plus. Quand une réserve explicite est voulue, elle s'écrit
+   * comme une alerte portée par l'option, sous la plume du référent.
+   */
+  delai_benefice?: string
   niveau_preuve: NiveauPreuve
   /**
    * Règles d'affichage : expressions booléennes sur les `criteres_entree`, ou `['default']` (repli,

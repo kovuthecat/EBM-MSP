@@ -62,6 +62,19 @@
   margin-bottom: 14px;
 }
 
+/* Le délai suit immédiatement l'effet auquel il se rapporte : on rapproche les deux lignes. */
+.option-card__effet:has(+ .option-card__delai) {
+  margin-bottom: 3px;
+}
+
+/* R2 : présent mais discret. C'est un fait à mettre en balance avec l'horizon du patient, pas une
+   alerte — l'outil ne juge pas à sa place (cf. `node.types.ts`, `delai_benefice`). */
+.option-card__delai {
+  font-size: 12px;
+  color: var(--c-text-muted);
+  margin-bottom: 14px;
+}
+
 .option-card__lists {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));

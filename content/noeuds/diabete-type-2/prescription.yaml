@@ -315,6 +315,8 @@ options:
     effet_attendu: >-
       Hospit. IC HR ~0,61‑0,73 (NNT ~19‑31 / 16‑26 mois) ; progression rénale HR ~0,56‑0,76 (NNT DAPA‑CKD 19,
       CREDENCE 22). IDM/AVC non réduits.
+    # R2 : extrait de l'`effet_attendu` ci-dessus (« NNT ~19‑31 / 16‑26 mois »), non recalculé.
+    delai_benefice: "16-26 mois"
     niveau_preuve: eleve
     contre_indications:
       - "Ne pas initier si DFG < 20 (poursuivre jusqu'à la dialyse si déjà en cours — KDIGO 2024)."

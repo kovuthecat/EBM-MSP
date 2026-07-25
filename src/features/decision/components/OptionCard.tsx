@@ -50,6 +50,14 @@ export function OptionCard({ option, badge, reasons, criteria }: OptionCardProps
 
       <div className="option-card__effet">{option.effet_attendu}</div>
 
+      {/* R2 : le délai est posé À CÔTÉ de l'effet, jamais confronté à l'espérance de vie du patient par
+          l'outil — cette mise en balance est l'arbitrage du praticien (invariant 2, aucun score caché).
+          Formulation « Délai du bénéfice : X » plutôt que « Bénéfice attendu en X », qui deviendrait
+          fautive pour les valeurs `immédiat` et `non établi`. */}
+      {option.delai_benefice && (
+        <div className="option-card__delai">Délai du bénéfice : {option.delai_benefice}</div>
+      )}
+
       {calculs.length > 0 && (
         <div className="option-card__calculs">
           <span className="option-card__calculs-label">Doses indicatives : </span>

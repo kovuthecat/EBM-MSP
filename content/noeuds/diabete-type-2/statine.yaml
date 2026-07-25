@@ -66,6 +66,8 @@ options:
       5-6 ans en prévention secondaire (CARE NNT ~12 ; HPS ~20 ; LIPID ~18/6 ans, critère 1aire du sous-groupe
       NS). Intensification haute vs modérée : −15 % d'événements supplémentaires (CTT more-vs-less, NNT ~25 sur
       5 ans). Mortalité : réduite par la statine elle-même, PAS par l'intensification seule (TNT HR 1,01).
+    # R2 : extrait de l'`effet_attendu` ci-dessus (« NNT ~12-20 sur 5-6 ans »), non recalculé.
+    delai_benefice: "5-6 ans"
     niveau_preuve: eleve
     contre_indications:
       - "Molécules de haute intensité (baisse de LDL ≥ 50 %, SFE/SFD/NSFA/SFC 2026 Table 4) : atorvastatine 40-80 mg ou rosuvastatine 10-20 mg. Prudence d'interaction via le CYP3A4 avec l'atorvastatine (macrolides, azolés, amiodarone, vérapamil/diltiazem, inhibiteurs de protéase) ; préférer la rosuvastatine en cas de co-prescription à risque."
@@ -99,6 +101,8 @@ options:
       3,9 ans ; sous-groupe prévention primaire du HPS ~22 sur 5 ans). Mortalité toutes causes : NON démontrée
       en prévention primaire du DT2 (le signal de mortalité provient des méta-analyses mixtes prévention
       primaire + secondaire, porté par le secondaire).
+    # R2 : extrait de l'`effet_attendu` ci-dessus (« NNT ~22-37 sur 3-5 ans »), non recalculé.
+    delai_benefice: "3-5 ans"
     niveau_preuve: modere
     contre_indications:
       - "Molécule d'intensité modérée en 1re intention : atorvastatine 10-20 mg, ou simvastatine 20-40 mg / pravastatine 40 mg (mieux évaluées, moins d'interactions — position EBM). Escalade vers la haute intensité si le risque est très élevé."

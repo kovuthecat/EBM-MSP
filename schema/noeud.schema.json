@@ -157,6 +157,11 @@
           "minLength": 1,
           "description": "Effet absolu / NNT / NNH ; sinon la chaine 'non chiffrable'."
         },
+        "delai_benefice": {
+          "type": "string",
+          "minLength": 1,
+          "description": "R2 (docs/decision/GRAMMAIRE-NOEUD.md) : delai d'apparition du benefice tel qu'OBSERVE dans les essais cites ('16-26 mois', '5-6 ans'), ou 'immediat', ou 'non etabli'. AFFICHAGE SEUL : le moteur ne le lit pas et n'en tire aucune conclusion. Mettre en balance un delai avec l'esperance de vie du patient est un arbitrage clinique, qui reste au praticien ; l'outil se borne a poser les deux faits cote a cote (invariant 2 : aucun score cache). Obligatoire, par la grammaire, pour toute option revendiquant un benefice sur critere dur avec niveau_preuve modere ou eleve."
+        },
         "niveau_preuve": { "$ref": "#/definitions/niveauPreuve" },
         "conditions": {
           "type": "array",
