@@ -111,9 +111,18 @@ describe.each(noeuds.map((node) => [node.id, node] as const))('banc — couvertu
       const jamaisDecisif = new Set(saisissables)
       for (const profil of profils) {
         for (const nom of criteresPertinents(node, profil)) jamaisDecisif.delete(nom)
+        // Sortie anticipée — n'affaiblit PAS l'assertion : dès que chaque critère a été vu décisif au
+        // moins une fois, la conclusion est acquise et les profils restants ne peuvent plus la changer.
+        // Le cas d'ÉCHEC (un critère jamais décisif), lui, exige toujours d'épuiser le banc : c'est
+        // seulement le cas passant qui devient rapide. Sans cela, ce test frôlait son budget de 30 s sur
+        // `prescription` (~29,5 s mesurés) et basculait en échec selon la seule charge machine — un test
+        // dont le verdict dépend de la machine apprend à ignorer le rouge.
+        if (jamaisDecisif.size === 0) break
       }
       expect([...jamaisDecisif]).toEqual([])
     },
-    30000,
+    // Filet, dimensionné pour le cas d'échec qui doit parcourir tout le banc (nœud `insuline`), pas pour
+    // le cas passant que la sortie anticipée rend court.
+    120_000,
   )
 })
