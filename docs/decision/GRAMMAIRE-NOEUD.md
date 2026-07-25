@@ -137,10 +137,29 @@ condition, sur quelle option), même si l'UI ne les rend que sur sollicitation.
 
 ## R5 — Un critère qu'on demande doit agir ; sinon on ne le demande pas
 
-**Règle.** Chaque critère d'entrée doit changer la sortie pour **au moins un profil** du banc de
-vignettes du nœud. Un critère qui n'en change aucune est soit inutile (le retirer), soit mal câblé
-(le brancher) — jamais à laisser en l'état : il coûte du temps de consultation et donne l'illusion
-d'être pris en compte.
+**Règle.** Chaque critère d'entrée doit **changer quelque chose à l'écran** pour au moins un profil du
+banc — la recommandation, un rang, une alerte, une dose calculée ou un texte d'interprétation. Un
+critère qui ne change rien est soit inutile (le retirer), soit mal câblé (le brancher) — jamais à
+laisser en l'état : il coûte du temps de consultation et donne l'illusion d'être pris en compte.
+
+> **« Changer l'écran », pas « changer la sortie du moteur ».** La première rédaction disait « la
+> sortie », ce qui est trop étroit : un critère peut ne pas déplacer une seule option et pourtant être
+> utile, s'il alimente une dose calculée (`calculs`) ou le texte d'une alerte. Tant que le modèle de vue
+> unique n'existe pas, le test s'exécute contre `evaluateNode` et **sous-estime** donc la portée d'un
+> critère. À rebrancher sur le modèle de vue dès qu'il existe.
+
+**Ce que la première exécution a trouvé** (nœud `insuline`, 2026-07-25) — cinq critères jamais
+décisifs, et le diagnostic n'est pas le même pour tous, ce qui est précisément l'intérêt du test :
+
+- `TIR`, `TAR`, `GMI` — **non décisifs par conception** : le nœud déclare lui-même que l'axe « contrôle »
+  de la mesure continue est redondant avec l'HbA1c, qui gate déjà. Mais leurs valeurs ne sont pas
+  rendues non plus : les alertes énoncent des cibles générales (« TIR > 70 % ») sans jamais utiliser le
+  chiffre saisi. Collectés, donc, et véritablement inutilisés — l'intention du contenu n'a pas été
+  réalisée à l'écran ;
+- `IMC` — aucune règle, aucun calcul. Mort ;
+- `dose_rapide_actuelle` — mort, alors que `dose_basale_actuelle`, lui, **n'a pas été signalé** : il
+  alimente le dérivé `over_basalisation`. Le test discrimine donc bien les deux, il ne signale pas « tout
+  ce qui ressemble à une dose ».
 
 **Le cas.** `esperance_vie`, `age` et `fragilite` étaient collectés puis agrégés dans `terrain_fragile`,
 lui-même utilisé **une seule fois**, et uniquement en conjonction avec une hypoglycémie récente. Sans
@@ -241,7 +260,15 @@ valide une fois et couvre tout l'espace.
 | --- | --- | --- |
 | **Vignettes** | patients réels, sortie exacte attendue | **clinique**, une par vignette — donc peu nombreuses, choisies pour ce qu'elles seules peuvent dire |
 | **Couverture** | chaque option se déclenche ≥ 1 fois et est exclue ≥ 1 fois ; chaque exclusion est déclenchée ≥ 1 fois ; chaque règle de `priorite` conditionnelle matche ≥ 1 fois ; chaque critère est décisif ≥ 1 fois (R5) | **aucune** — purement mécanique |
-| **Invariants** | propriétés vraies pour *tout* profil, vérifiées sur un échantillon tiré à graine fixe (~2000 profils ; moteur pur et déterministe, moins d'une seconde, aucun appel externe) | **clinique, une fois par invariant** |
+| **Invariants** | propriétés vraies pour *tout* profil, vérifiées sur un échantillon déterministe (produit cartésien quand il reste petit, sinon tirage stratifié à graine fixe ; ~800 à 2000 profils par nœud, aucun appel externe) | **clinique, une fois par invariant** |
+
+> **Coût réel : ~23 s pour le banc complet**, et non « moins d'une seconde » comme je l'avais estimé en
+> écrivant cette section. Le coût est presque entièrement dans R5 (`criteresPertinents` perturbe chaque
+> critère sur chaque valeur candidate, soit un `evaluateNode` complet par combinaison) : 12,3 s sur
+> `prescription`, 8,4 s sur `insuline`, moins de 0,5 s sur tous les autres. Les couches couverture et
+> invariants hors R5 restent sous 200 ms. C'est supportable en CI et à la validation d'un nœud, pas à
+> chaque sauvegarde — si le confort de développement en souffre, isoler R5 dans un script à part plutôt
+> que d'affaiblir l'échantillonnage.
 
 La couche *couverture* est celle qui détecte les règles mortes — un critère collecté qui n'agit nulle
 part, une exclusion qu'aucun profil ne déclenche, une branche de `priorite` inatteignable. C'est le test
