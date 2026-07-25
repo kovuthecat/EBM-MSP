@@ -80,43 +80,41 @@ statut : ` ` à faire · `~` en cours · `x` fait · modèles/efforts : `WORKFLO
 
 ## Backlog (P3 — suites de la grammaire R1→R6, D19)
 
-> Les lignes marquées **RÉFÉRENT** sont les arbitrages cliniques que Claude s'interdit de trancher.
-> Le banc (`src/features/decision/engine/banc/`) porte **1 `it.fails`** : l'invariant 5, dette gliptine.
-> Il passera au vert de lui-même à la levée ci-dessous — rien à décocher à la main.
+> Les six règles sont **entièrement livrées**. Le banc (`src/features/decision/engine/banc/`) est à
+> **0 `it.fails`** : plus aucune dette matérialisée. Ce qui suit relève du référent ou du confort.
 
-- [ ] **RÉFÉRENT** — lever `ne_contient_pas gliptine` de l'option AR GLP‑1, généraliser l'option de
-      switch de la gliptine (prose déjà rédigée et validée le 2026-07-25, en attente) et ajouter la
-      gliptine à `remplacement_agent_sans_benefice`. **R4 est fait, donc débloqué.** Referme la dette de
-      la recette : le patient à IMC 20 verra enfin un verdict sur sa gliptine. Le texte de l'alerte de
-      non-association doit être validé avant encodage — c'est la garantie qui remplace le garde-fou
-      structurel retiré · plan: —
-- [ ] **RÉFÉRENT** — `delai_benefice` manquants : AR GLP‑1 (proposé « 2-4 ans » d'après LEADER 3,8 ans et
-      SUSTAIN‑6 2,1 ans, **de mémoire, à vérifier à la source**) ; insuline et rhd restent vides pour des
-      raisons documentées (D19) · plan: —
-- [ ] **R6 fond** — `termesVrais` : ne renvoyer que les termes `OR` réellement vrais ; motif de rang via
-      `resolvePriorite`. L'unification écran ↔ signature est faite, donc débloqué · modèle: Sonnet,
-      effort: high · plan: —
-- [ ] **R6 liv. 2** — champ `prerequis` (schéma + moteur + migration de contenu) : séparer l'indication
-      qui justifie des garde-fous de cohérence qui n'apprennent rien. Validé par le référent le
-      2026-07-25 · modèle: Sonnet, effort: high · plan: —
-- [ ] **R2, 2e moitié** — alertes portées par une option (affichées seulement si l'option est
-      applicable). Résout aussi l'alerte fragilité qui s'affiche pour une option écartée · modèle:
-      Sonnet, effort: high · plan: —
-- [ ] Rebrancher le test R5 du banc sur le modèle de vue : contre `evaluateNode` il sous-estime la
-      portée d'un critère (une dose calculée, un texte d'alerte). Le modèle de vue existe désormais ·
-      modèle: Sonnet, effort: medium · plan: —
+- [ ] **RÉFÉRENT** — découper l'alerte fragilité de `prescription.yaml`. Elle confond deux faits sous un
+      même `quand` : le patient est DÉJÀ sous incrétine (fait observé, légitime en alerte de nœud) et le
+      moteur est SUR LE POINT d'en proposer un (branche `ASCVD OR IMC >= 30`, qui n'est qu'un proxy
+      recopiant les conditions de déclenchement de l'option AR GLP‑1). C'est cette seconde branche qui
+      se déclenche à tort quand l'AR GLP‑1 vient d'être écarté par le terrain. Le mécanisme d'alerte
+      portée par une option existe désormais : la branche « envisagé » n'a plus besoin du proxy, elle se
+      déclenche quand l'option est applicable, par construction. Proposition de formulation rédigée, à
+      arbitrer · plan: —
+- [ ] **RÉFÉRENT** — validation clinique de bout en bout sur le déployé, puis `prescription.yaml` et
+      `insuline.yaml` en `statut: valide` · plan: —
+- [ ] **RÉFÉRENT** — le `delai_benefice` de l'AR GLP‑1 dit « 2 à 5,4 ans selon la molécule ». Les 5,4 ans
+      de REWIND portent sur une population majoritairement en prévention primaire : la durée reflète en
+      partie la population. Décider si l'écran doit le dire · plan: —
+- [ ] Rebrancher le test R5 du banc sur le modèle de vue : contre `evaluateNode` il sous-estime la portée
+      d'un critère (une dose calculée, une alerte d'option, un motif de rang) · modèle: Sonnet,
+      effort: medium · plan: —
 
-### Résolu le 2026-07-25 (arbitrages référent + R4)
+### Résolu le 2026-07-25 — les six règles, de la recette à la livraison
 
-- [x] R4 — options écartées affichées avec leur motif, non-indiquées sur demande (`3886d07`)
-- [x] Unification écran ↔ signature sur un modèle de vue unique (`1a3b904`)
-- [x] `insuline` — retrait de TIR/TAR/GMI/IMC, câblage de `dose_rapide_actuelle` (`ab06062`)
-- [x] `insuline` — option de repli : plus de sortie muette (`ab06062`)
-- [x] Alerte M2/A9 supprimée — fossile du modèle d'avant R3 (`ab06062`)
-- [x] Alerte de cohérence n°1 reciblée sur `position_vs_cible` (`ab06062`)
-- [x] Garde `position_vs_cible != sous_objectif` sur la place résiduelle (`ab06062`)
-- [x] Invariant 7 resserré au gate catabolique près — c'était l'invariant qui était trop large, pas le
-      contenu (acidocétose euglycémique sous iSGLT2)
+- [x] **R1** — `position_vs_cible` déclaré remplace `cible_atteinte` déduit de l'intention (`4466c11`)
+- [x] **R2** — `delai_benefice` affiché (`49dc5ef`), vérifié à la source pour l'AR GLP‑1 (`34667d0`),
+      alertes portées par une option (`8582676`)
+- [x] **R3** — switch déclenché sur la seule présence de l'agent (`b0d20de`), verrou gliptine levé et
+      verdict généralisé (`77f9a4d`)
+- [x] **R4** — options écartées affichées avec leur motif, non-indiquées sur demande (`3886d07`)
+- [x] **R5** — banc à trois couches, couverture et invariants (`ba2baa3`)
+- [x] **R6** — plus de jeton du DSL à l'écran (`7b3f656`), justification situationnelle (`e4fec6f`),
+      séparation indication / prérequis (`a97d180`)
+- [x] **Unification écran ↔ signature** sur un modèle de vue unique (`1a3b904`) — le verrou qui a rendu
+      R2, R4 et R6 livrables sans rouvrir le défaut récurrent
+- [x] Six arbitrages référent : critères morts, sortie muette, alertes obsolètes, garde de
+      sur-traitement (`ab06062`) ; invariant 7 resserré au gate catabolique près (`f1d9846`)
 
 ## Backlog (P3 — reste avant `valide` final)
 

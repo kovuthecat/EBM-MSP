@@ -34,8 +34,19 @@ dans `docs/decision/GRAMMAIRE-NOEUD.md` (**D19**).
   fausse, reciblage de l'alerte de cohérence sur `position_vs_cible`, garde de sur-traitement sur la
   place résiduelle.
 
-**Le banc est passé de 4 dettes à 1.** Ne reste que l'invariant 5 — la dette gliptine, qui se résorbera
-à la levée de `ne_contient_pas gliptine` (autorisée par le référent une fois R4 fait, donc débloquée).
+- **Verrou gliptine levé** : l'option de switch est généralisée, la non-association devient une garantie
+  d'affichage (verdict systématique + alerte) au lieu d'une garantie structurelle. **La recette référent
+  est refermée** — le patient à IMC 20 voit enfin un verdict sur sa gliptine.
+- **R6 fond** : la justification nomme les critères DE CE PATIENT, plus l'énumération des cas. Puis
+  séparation `conditions` / `prerequis` — la ligne du profil de recette est tombée de 4 motifs à 2.
+- **R2 seconde moitié** : une option peut porter ses propres alertes, rendues seulement si elle est
+  applicable. Mécanisme seul, le découpage de l'alerte fragilité est réservé au référent.
+
+**Le banc est passé de 4 dettes à 0.** L'invariant 5 — « si un protecteur est proposé alors qu'un agent
+sans bénéfice est en cours, un verdict sur ce dernier doit l'être aussi » — est l'énoncé formel du
+désaccord initial du référent : il est vert.
+
+**Les six règles sont livrées.** 324 tests, build vert, 21 commits locaux non poussés.
 
 L'invariant 7 a dû être resserré **deux fois**, pour le même motif : les garde-fous d'urgence sont
 orthogonaux à la position glycémique. Leçon consignée dans la grammaire — quand un invariant échoue, la
