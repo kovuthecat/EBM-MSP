@@ -37,12 +37,21 @@
  * L'AFFICHER, réservé aux familles à au moins deux groupes d'égalité (une vraie concurrence de rang).
  * Ces deux dimensions entrent dans `signatureVue` au même titre que les autres (totalité, ci-dessus) :
  * un critère qui ne change QUE la justification ou QUE le motif de rang doit rester DÉCISIF.
+ *
+ * Alertes d'OPTION (addendum au schéma, même document § « Additions au schéma ») : `OptionVue.alertes`
+ * ne vient PAS d'`evaluateNode`/`EvaluateNodeResult` — calculée ICI, sur `option.alertes`, avec la même
+ * brique que les alertes de nœud (`evaluateAlertesDeListe`, `engine/evaluateNode.ts`), pour la même
+ * raison que `reasons` : un coût par cycle de rendu, jamais par perturbation. Répond au défaut constaté
+ * en recette où une alerte de NŒUD (qui ne voit que les critères) s'affichait à propos d'un traitement
+ * que le moteur venait précisément d'écarter — une alerte d'OPTION, elle, n'existe que sur un `OptionVue`,
+ * donc uniquement pour une option retenue par le moteur. Entre dans `signatureVue` comme les autres
+ * dimensions (totalité) : un critère qui ne change QUE l'alerte d'une option doit rester DÉCISIF.
  */
 import type { Alerte, Noeud, Option } from '../content/node.types.ts'
 import type { Criteria } from '../engine/conditions.ts'
 import { termesVrais } from '../engine/conditions.ts'
 import { calculerCriteresDerives, evaluerNombre } from '../engine/deriveCritere.ts'
-import { evaluateNode, groupesParFamille } from '../engine/evaluateNode.ts'
+import { evaluateAlertesDeListe, evaluateNode, groupesParFamille } from '../engine/evaluateNode.ts'
 import { computeBadges, type OptionBadge } from './optionBadges.ts'
 
 /** Une dose/valeur calculée déjà évaluée, prête à l'affichage (câblage P3, `Option.calculs`). */
@@ -82,6 +91,21 @@ export interface OptionVue {
    * d'abord » ne veut rien dire (cf. `construireVueDecision`, qui applique cette dernière condition).
    */
   motifRang: string | undefined
+  /**
+   * Alertes PORTÉES PAR CETTE OPTION (`option.alertes`, `docs/decision/GRAMMAIRE-NOEUD.md` § additions
+   * au schéma), déjà filtrées : seulement celles dont `quand` est vrai pour CE patient
+   * (`evaluateAlertesDeListe`, `engine/evaluateNode.ts`). Calculées ICI (dans `construireVueDecision`),
+   * **PAS** dans `evaluateNode`/`EvaluateNodeResult` — mêmes raisons que `reasons` ci-dessus : une alerte
+   * d'option ne concerne que ce qui est RENDU, jamais l'applicabilité, et `evaluateNode` tourne des
+   * centaines de fois par frappe via la boucle de perturbation.
+   *
+   * `OptionVue` n'existe QUE pour les options APPLICABLES (cf. `familles` dans `VueDecision`) : c'est ce
+   * qui garantit, PAR CONSTRUCTION, qu'une alerte d'option ne s'affiche jamais pour un geste que le moteur
+   * n'a pas retenu — le défaut constaté en recette (une alerte de nœud citant un traitement qui vient
+   * d'être ÉCARTÉ) ne peut pas se reproduire ici : une option écartée ou non retenue n'a pas d'`OptionVue`
+   * (elle vit dans `VueDecision.ecartees`/`nonRetenues`, qui ne portent pas d'alertes).
+   */
+  alertes: Alerte[]
 }
 
 /** Une section de l'écran : une famille clinique (ou le repli à plat, `libelle: undefined`). */
@@ -202,6 +226,7 @@ export function construireVueDecision(node: Noeud, criteria: Criteria): VueDecis
             reasons: raisonsSituationnelles(option.conditions, derived),
             calculs: calculsAffiches(option, criteria),
             motifRang: motifRangPertinent ? rangMotifs.get(option) : undefined,
+            alertes: evaluateAlertesDeListe(option.alertes, derived),
           }),
         ),
       ),
@@ -234,11 +259,18 @@ export function construireVueDecision(node: Noeud, criteria: Criteria): VueDecis
  * 28,6 s, chronométré 2026-07-25), au point de faire dépasser le budget de 30 s du test R5
  * (`banc/couverture.test.ts`). Les séparateurs (`|`, `§`, `«`…) sont choisis sans autre propriété que de
  * ne pas apparaître dans le contenu clinique réel.
+ *
+ * `alertes` (addendum alertes d'option, `docs/decision/GRAMMAIRE-NOEUD.md`) entre dans cette
+ * sérialisation au même titre que les autres dimensions : c'est ce qui garantit qu'un critère qui ne
+ * change QUE l'alerte d'une option (aucune autre dimension affichée ne bouge) reste vu DÉCISIF par
+ * `engine/relevance.ts` — exactement le piège que l'unification écran/signature a fermé pour les autres
+ * dimensions (cf. docstring de tête de ce fichier).
  */
 function serialiseOption(ov: OptionVue): string {
   const reasons = ov.reasons.join('&')
   const calculs = ov.calculs.map((c) => `${c.libelle}=${c.valeur}${c.unite ?? ''}`).join('&')
-  return `${ov.option.intitule}@${ov.badge ?? ''}«${reasons}»[${calculs}]¦${ov.motifRang ?? ''}`
+  const alertes = ov.alertes.map((a) => `${a.message}~${a.niveau ?? ''}`).join('|')
+  return `${ov.option.intitule}@${ov.badge ?? ''}«${reasons}»[${calculs}]¦${ov.motifRang ?? ''}‖${alertes}`
 }
 
 function serialiseFamille(famille: FamilleVue): string {

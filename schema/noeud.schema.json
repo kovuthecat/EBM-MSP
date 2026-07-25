@@ -222,6 +222,11 @@
           "type": "string",
           "minLength": 1,
           "description": "REFERENCE au libelle d'une entree de `Noeud.familles` (correctif « ordre accidentel / badge multi-natures », 2026-07-25) : SECTION d'affichage du panneau de resultats, distincte du rang de priorite qui reste l'unique base du tri/du regroupement en egalite. Depuis l'introduction de `Noeud.familles`, ce n'est plus ce champ qui fixe l'ordre des sections ni la semantique « en choisir un » vs « cumulables » — ces deux informations sont portees explicitement par l'entree `familles[]` correspondante (`ordre` = ordre du tableau, `exclusive` = alternative vs cumulable). Presentation pure, AUCUN effet sur la selection ni le tri des options. Optionnel : absent de toutes les options d'un noeud → repli sur le rendu a plat historique (regroupement en egalite calcule sur la liste entiere, comme avant ce champ)."
+        },
+        "alertes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/alerte" },
+          "description": "Alertes PORTEES PAR CETTE OPTION (docs/decision/GRAMMAIRE-NOEUD.md, § additions au schema) : meme forme que `Noeud.alertes` (`quand`, `message`, `niveau`), mais rendues UNIQUEMENT quand cette option est APPLICABLE pour le patient — a distinguer d'une alerte de noeud (`Noeud.alertes`, DECISIONS.md D15), evaluee sur la seule situation du patient, independamment de ce que le moteur retient. Repond au defaut constate en recette : une alerte de noeud citant un traitement peut s'afficher alors meme que ce traitement vient d'etre ECARTE, faute de voir ce que le moteur a selectionne. Optionnel : absent = aucune alerte propre a l'option."
         }
       }
     },

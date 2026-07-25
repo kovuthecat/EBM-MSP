@@ -1,8 +1,9 @@
 import { EvidenceBadge } from '../../shared/badges/EvidenceBadge'
-import type { Option } from '../content/node.types'
+import type { Alerte, Option } from '../content/node.types'
 import { describeReasons } from '../lib/conditionText'
 import { toSharedNiveauPreuve } from '../lib/labels'
 import type { CalculAffiche } from '../lib/vueDecision'
+import { AlertList } from './AlertList'
 import './OptionCard.css'
 
 interface OptionCardProps {
@@ -32,15 +33,24 @@ interface OptionCardProps {
    * de rang réelle).
    */
   motifRang: string | undefined
+  /**
+   * Alertes PORTÉES PAR CETTE OPTION (addendum alertes d'option, `docs/decision/GRAMMAIRE-NOEUD.md`) :
+   * déjà filtrées par `lib/vueDecision.ts` (`OptionVue.alertes`) — seulement celles dont `quand` est
+   * vrai pour ce patient. Rendues via `AlertList` (réutilisation du composant des alertes de nœud,
+   * jamais un second rendu), variante `'option'` pour s'insérer dans la carte.
+   */
+  alertes: Alerte[]
 }
 
 /**
  * Carte d'option applicable (T-006 étape 2) : intitulé, badge de mise en avant, badge preuve, effet
  * attendu, avantages/inconvénients (qui portent déjà la position critique — D12), contre-indications
- * si renseignées, la ligne « Proposé parce que » dérivée des termes réellement vrais pour ce patient
- * (R6, `lib/conditionText.ts`), et — quand elle compte — le motif du rang parmi les options de sa famille.
+ * si renseignées, les alertes propres à l'option (jamais affichées pour une option écartée ou non
+ * retenue, puisque cette carte n'existe alors pas — cf. `lib/vueDecision.ts` `OptionVue.alertes`), la
+ * ligne « Proposé parce que » dérivée des termes réellement vrais pour ce patient (R6,
+ * `lib/conditionText.ts`), et — quand elle compte — le motif du rang parmi les options de sa famille.
  */
-export function OptionCard({ option, badge, reasons, calculs, motifRang }: OptionCardProps) {
+export function OptionCard({ option, badge, reasons, calculs, motifRang, alertes }: OptionCardProps) {
   return (
     <div className={badge ? 'option-card option-card--primary' : 'option-card'}>
       <div className="option-card__header">
@@ -102,6 +112,11 @@ export function OptionCard({ option, badge, reasons, calculs, motifRang }: Optio
           {option.contre_indications.join(' · ')}
         </div>
       )}
+
+      {/* Alertes PORTÉES PAR CETTE OPTION (addendum alertes d'option, GRAMMAIRE-NOEUD.md) : rendues
+          seulement ici, jamais sous le formulaire — à la différence des alertes de nœud (`AlertList`
+          rendue par `DecisionNodeScreen.tsx`), elles ne concernent QUE ce geste, déjà retenu ici. */}
+      <AlertList alertes={alertes} variant="option" />
 
       <div className="option-card__pourquoi">Proposé parce que : {describeReasons(reasons)}</div>
 

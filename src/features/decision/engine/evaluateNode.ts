@@ -349,15 +349,30 @@ function firstFailingPrerequisite(option: Option, criteria: Criteria): string | 
 }
 
 /**
- * Alertes déclenchées d'un nœud pour ces critères (D15) : celles dont `quand` vaut `"default"`
- * (toujours) ou dont l'expression DSL est vraie. Indépendant de la sélection des options. Propage
- * `ConditionError` sur une expression malformée (jamais de faux silencieux, brief §7).
+ * Alertes déclenchées parmi une liste `alertes` pour ces critères : celles dont `quand` vaut
+ * `"default"` (toujours) ou dont l'expression DSL est vraie. Propage `ConditionError` sur une
+ * expression malformée (jamais de faux silencieux, brief §7).
+ *
+ * Brique commune aux alertes de NŒUD (`Noeud.alertes`, D15 — appelée ci-dessous par `evaluateAlertes`,
+ * dans `EvaluateNodeResult.alertes`) et aux alertes d'OPTION (`Option.alertes`, schéma § additions
+ * alertes d'option, `docs/decision/GRAMMAIRE-NOEUD.md`). Ces dernières ne sont **volontairement PAS**
+ * évaluées ici, ni tracées dans `EvaluateNodeResult` : elles ne concernent que ce qui est AFFICHÉ pour
+ * une option déjà APPLICABLE (`lib/vueDecision.ts` `construireVueDecision`, une fois par cycle de rendu),
+ * jamais l'applicabilité elle-même — alors qu'`evaluateNode` tourne des centaines de fois par frappe via
+ * la boucle de perturbation (`engine/relevance.ts`). Exportée pour cette réutilisation plutôt que
+ * dupliquée dans `lib/vueDecision.ts`.
+ */
+export function evaluateAlertesDeListe(alertes: Alerte[] | undefined, criteria: Criteria): Alerte[] {
+  if (!alertes || alertes.length === 0) return []
+  return alertes.filter((alerte) => alerte.quand === 'default' || evaluateCondition(alerte.quand, criteria))
+}
+
+/**
+ * Alertes cliniques déclenchées d'un NŒUD pour ces critères (D15) : indépendant de la sélection des
+ * options. Cf. `evaluateAlertesDeListe` pour la sémantique de `quand`.
  */
 function evaluateAlertes(node: Noeud, criteria: Criteria): Alerte[] {
-  if (!node.alertes || node.alertes.length === 0) return []
-  return node.alertes.filter(
-    (alerte) => alerte.quand === 'default' || evaluateCondition(alerte.quand, criteria),
-  )
+  return evaluateAlertesDeListe(node.alertes, criteria)
 }
 
 /**

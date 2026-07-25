@@ -137,6 +137,26 @@ export interface Option {
    * déclarées) → repli sur le rendu à plat historique.
    */
   famille?: string
+  /**
+   * Alertes PORTÉES PAR CETTE OPTION (`docs/decision/GRAMMAIRE-NOEUD.md`, § additions au schéma) : même
+   * forme que `Noeud.alertes` (`quand`, `message`, `niveau`), mais rendues UNIQUEMENT quand cette option
+   * est APPLICABLE pour le patient (`lib/vueDecision.ts` `OptionVue.alertes` — jamais dans
+   * `EvaluateNodeResult`, cf. docstring `engine/evaluateNode.ts` `evaluateAlertesDeListe`).
+   *
+   * Distinction avec une alerte de NŒUD (`Noeud.alertes`, DECISIONS.md D15) : celle-ci porte sur la
+   * SITUATION du patient (un état, un terrain) — vraie ou fausse indépendamment de ce que le moteur a
+   * retenu parmi les options. Une alerte d'OPTION porte sur un GESTE que le moteur propose EFFECTIVEMENT
+   * à ce patient — elle n'a de sens que si ce geste est sur la table. Cas réel qui a motivé ce champ : une
+   * alerte de nœud sur « un incrétine en cours ou envisagé » s'affichait alors que l'AR GLP‑1 venait
+   * justement d'être écarté (garde-fou de terrain) — l'expression `quand` d'une alerte de nœud ne voit que
+   * les critères, jamais ce que le moteur a sélectionné.
+   *
+   * Écrire une clause d'exclusion dans le `quand` d'une alerte de nœud pour obtenir le même effet serait
+   * une DUPLICATION : la même information (les conditions/exclusions déjà portées par l'option) serait
+   * alors maintenue à deux endroits, et dériverait au premier changement des exclusions de l'option.
+   * Optionnel : absent = aucune alerte propre à l'option (comportement identique à avant ce champ).
+   */
+  alertes?: Alerte[]
 }
 
 export interface ReferencePrimaire {

@@ -24,3 +24,15 @@
   color: var(--c-text);
   border: 1px solid var(--c-disclaimer-border);
 }
+
+/* Variante « option » (`AlertList.tsx` `variant="option"`) : insérée dans `OptionCard.tsx`, resserrée
+   pour ne pas reproduire l'espacement pensé pour un bloc pleine largeur sous le formulaire. */
+.alert-list--option {
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.alert-list--option .alert-list__item {
+  font-size: 12px;
+  padding: 10px 12px;
+}

@@ -400,3 +400,84 @@ describe('construireVueDecision — R6 couche 2 : motif de rang (« pourquoi à 
     expect(ovA?.motifRang).toBeUndefined()
   })
 })
+
+describe('construireVueDecision — alertes PORTÉES PAR UNE OPTION (addendum GRAMMAIRE-NOEUD.md, R2/R3)', () => {
+  // Cas réel qui motive ce mécanisme : une alerte de NŒUD sur « incrétine en cours ou envisagé »
+  // s'affichait alors même que l'AR GLP‑1 venait d'être écarté. Une alerte d'OPTION, elle, ne peut
+  // exister QUE sur un `OptionVue` — qui n'existe QUE pour les options APPLICABLES (`familles`) — donc
+  // ne peut jamais s'afficher pour un geste que le moteur n'a pas retenu.
+  it('une alerte d’option dont `quand` est vraie apparaît sur son `OptionVue`', () => {
+    const alerteOption: Alerte = { quand: 'x == true', message: 'Alerte propre à A', niveau: 'attention' }
+    const a = opt('A', ['toujours'], { alertes: [alerteOption] })
+    const node = makeNode([a], [{ nom: 'x', type: 'bool' }])
+    const vue = construireVueDecision(node, { x: true })
+    const ov = vue.familles[0].groupes.flat().find((o) => o.option === a)
+    expect(ov?.alertes).toEqual([alerteOption])
+  })
+
+  it('une alerte d’option dont `quand` est fausse n’apparaît pas', () => {
+    const alerteOption: Alerte = { quand: 'x == true', message: 'Alerte propre à A' }
+    const a = opt('A', ['toujours'], { alertes: [alerteOption] })
+    const node = makeNode([a], [{ nom: 'x', type: 'bool' }])
+    const vue = construireVueDecision(node, { x: false })
+    const ov = vue.familles[0].groupes.flat().find((o) => o.option === a)
+    expect(ov?.alertes).toEqual([])
+  })
+
+  it('la même alerte n’apparaît PAS si l’option n’est pas applicable — la propriété qui motive tout le mécanisme', () => {
+    // `A` n'est applicable que si `present == true` ; son alerte propre, elle, ne dépend que de `x`.
+    // Ici `present` est faux : `A` échoue sur sa condition (non retenue), son `OptionVue` n'existe donc
+    // pas, quand bien même `x` (qui piloterait son alerte) est vrai — l'alerte ne peut apparaître nulle
+    // part, ni dans les familles, ni dans `ecartees`/`nonRetenues` (qui ne portent pas d'alertes).
+    const alerteOption: Alerte = { quand: 'x == true', message: 'Alerte propre à A' }
+    const a = opt('A', ['present == true'], { alertes: [alerteOption] })
+    const def = opt('Défaut', ['default'])
+    const node = makeNode([a, def], [
+      { nom: 'present', type: 'bool' },
+      { nom: 'x', type: 'bool' },
+    ])
+    const vue = construireVueDecision(node, { present: false, x: true })
+    expect(vue.familles[0].groupes.flat().map((ov) => ov.option.intitule)).toEqual(['Défaut'])
+    const alertesAffichees = vue.familles[0].groupes.flat().flatMap((ov) => ov.alertes)
+    expect(alertesAffichees).toEqual([])
+    expect(vue.nonRetenues).toEqual([{ option: a, condition: 'present == true' }])
+  })
+})
+
+describe('criteresPertinents — TEST VERROU (alertes d’option) : un critère qui ne change QUE l’alerte d’une option est vu DÉCISIF', () => {
+  it('`w` ne change ni la sélection, ni le rang, ni le badge, ni les raisons de A — seulement `alertes` — et reste pourtant décisif', () => {
+    const alerteOption: Alerte = { quand: 'w == true', message: 'Alerte propre à A', niveau: 'attention' }
+    const a = opt('A', ['toujours'], { alertes: [alerteOption] })
+    const node = makeNode([a], [{ nom: 'w', type: 'bool' }])
+
+    const vueSansW = construireVueDecision(node, { w: false })
+    const vueAvecW = construireVueDecision(node, { w: true })
+
+    // Tout, hors `alertes`, est identique — le « verrou » : rien d'autre à l'écran ne signale `w`.
+    const sansAlertesOption = (vue: ReturnType<typeof construireVueDecision>) => ({
+      ...vue,
+      familles: vue.familles.map((f) => ({
+        ...f,
+        groupes: f.groupes.map((g) =>
+          g.map((ov) => ({
+            option: ov.option,
+            badge: ov.badge,
+            reasons: ov.reasons,
+            calculs: ov.calculs,
+            motifRang: ov.motifRang,
+          })),
+        ),
+      })),
+    })
+    expect(sansAlertesOption(vueSansW)).toEqual(sansAlertesOption(vueAvecW))
+
+    expect(vueSansW.familles[0].groupes[0][0].alertes).toEqual([])
+    expect(vueAvecW.familles[0].groupes[0][0].alertes).toEqual([alerteOption])
+    expect(signatureVue(vueSansW)).not.toBe(signatureVue(vueAvecW))
+
+    // ... et c'est précisément ce qui rend `w` DÉCISIF pour `engine/relevance.ts` : un critère qui ne
+    // change QUE l'alerte d'une option doit être vu comme pertinent, pas estompé à tort.
+    const pertinents = criteresPertinents(node, { w: false })
+    expect(pertinents.has('w')).toBe(true)
+  })
+})
