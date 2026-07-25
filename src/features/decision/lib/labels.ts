@@ -113,7 +113,7 @@ const CRITERE_LABELS: Record<string, string> = {
     'iSGLT2 et AR GLP-1 tous deux inutilisables (contre-indication, intolérance ou refus)',
   // Nœud fusionné « Prescription » (docs/decision/noeuds/prescription.SPEC.md) — critères ajoutés à la fusion.
   intention: 'Intention thérapeutique (« je souhaite… »)',
-  position_vs_cible: 'HbA1c vs objectif',
+  position_vs_cible: "Par rapport à l'objectif fixé pour ce patient",
   hba1c_sous_cible: 'HbA1c < 6,5 % (sur-contrôle)',
   denutrition: 'Dénutrition / carence (possible même chez l’obèse)',
   infections_uro_genitales_recidivantes: 'Infections génito-urinaires récidivantes',
@@ -163,11 +163,11 @@ const ENUM_VALUE_LABELS: Record<string, string> = {
   insuline: 'Insuline',
   insuline_basale: 'Insuline basale',
   insuline_rapide: 'Insuline rapide',
-  // position_vs_cible (champ à 4 crans, nœud prescription)
-  a_la_cible: "À l'objectif",
+  // position_vs_cible (champ à 4 crans, nœud prescription — R1 docs/decision/GRAMMAIRE-NOEUD.md)
+  a_l_objectif: "À l'objectif",
   au_dessus: "Au-dessus de l'objectif",
-  en_dessous: "En dessous de l'objectif",
-  tres_en_dessous: 'Très en dessous (< 6,5 %)',
+  nettement_au_dessus: "Nettement au-dessus de l'objectif",
+  sous_objectif: "En dessous de l'objectif (sur-traitement probable)",
   // nature_intolerance (nœud prescription, S8)
   aucune: 'Aucune / non précisée',
   digestive: 'Digestive',

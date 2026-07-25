@@ -99,10 +99,14 @@ describe('groupesExAequo — cas réel (nœud `prescription`, recette référent
   if (!node) throw new Error('Nœud "prescription" introuvable.')
 
   // Profil de la recette référent : intention=initier, HbA1c 8.6, DFG 74, IMC 25, pas d'ASCVD, pas d'IC
-  // → rien ne distingue iSGLT2 d'AR GLP-1 (rang « default » = 2 pour les deux).
+  // → rien ne distingue iSGLT2 d'AR GLP-1 (rang « default » = 2 pour les deux). R1 (GRAMMAIRE-NOEUD.md) :
+  // aucune indication d'organe ici, les deux options ne sont applicables que via `palette_glycemique_ouverte`
+  // — `nettement_au_dessus` est, à l'initiation, la seule valeur qui l'ouvre (remplace l'ancien seuil
+  // absolu HbA1c ≥ 8,5 % désormais relatif à l'objectif du patient).
   const PROFIL: Criteria = {
     ...buildDefaultCriteria(node.criteres_entree),
     intention: 'initier',
+    position_vs_cible: 'nettement_au_dessus',
     HbA1c_actuelle: 8.6,
     DFG: 74,
     IMC: 25,
@@ -311,6 +315,7 @@ describe('groupesParFamille — cas réel (nœud `prescription`, correctif « pr
     const criteria: Criteria = {
       ...buildDefaultCriteria(node.criteres_entree),
       intention: 'initier',
+      position_vs_cible: 'nettement_au_dessus',
       HbA1c_actuelle: 8.6,
       DFG: 74,
       IMC: 25,
@@ -336,6 +341,7 @@ describe('groupesParFamille — cas réel (nœud `prescription`, correctif « pr
     const criteria: Criteria = {
       ...buildDefaultCriteria(node.criteres_entree),
       intention: 'initier',
+      position_vs_cible: 'nettement_au_dessus',
       HbA1c_actuelle: 8.6,
       DFG: 74,
       IMC: 25,

@@ -17,6 +17,10 @@ if (!node) throw new Error('Nœud "prescription" introuvable.')
 const PROFIL: Criteria = {
   traitements_en_cours: ['metformine'],
   intention: 'optimiser',
+  // R1 (GRAMMAIRE-NOEUD.md) : critère désormais DÉCLARÉ (plus déduit de `intention`) — sans lui, le moteur
+  // de dérivation traiterait le nom du critère comme un libellé littéral (aucune clé trouvée), ce qui
+  // fausserait silencieusement `cible_atteinte`/`palette_glycemique_ouverte`.
+  position_vs_cible: 'a_l_objectif',
   hba1c_sous_cible: false,
   HbA1c_actuelle: 8,
   ASCVD_etablie: true,
@@ -73,9 +77,14 @@ describe('relevance — égalité de rang par défaut ne doit pas masquer un cri
   // le correctif (`evaluateNode.ts` expose `rangs`, `relevance.ts` les inclut dans la signature),
   // `criteresPertinents` ne regardait que l'ordre des intitulés et estompait `insuffisance_cardiaque` à
   // tort (« sans effet »), alors qu'il pilote bien un rang réel — juste invisible par coïncidence de tri.
+  // R1 (GRAMMAIRE-NOEUD.md) : aucune indication d'organe ici (ASCVD/IC/DFG/albuminurie tous négatifs) —
+  // iSGLT2 et AR GLP-1 ne sont applicables que via `palette_glycemique_ouverte`, donc de
+  // `position_vs_cible` (plus de `intention` seule). `nettement_au_dessus` est, à l'initiation, la seule
+  // valeur qui l'ouvre (remplace l'ancien seuil absolu HbA1c ≥ 8,5 %).
   const PROFIL_RECETTE: Criteria = {
     ...buildDefaultCriteria(node!.criteres_entree),
     intention: 'initier',
+    position_vs_cible: 'nettement_au_dessus',
     HbA1c_actuelle: 8.6,
     DFG: 74,
     IMC: 25,

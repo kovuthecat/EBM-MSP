@@ -227,6 +227,10 @@ describe('computeBadges — cas réel (nœud `prescription`, « le badge, c’es
       const criteria: Criteria = {
         ...buildDefaultCriteria(node.criteres_entree),
         intention: 'intensifier',
+        // R1 (GRAMMAIRE-NOEUD.md) : la gliptine résiduelle testée ci-dessous n'a ICI aucune autre
+        // indication — son applicabilité dépend ENTIÈREMENT de `palette_glycemique_ouverte`, donc de
+        // `position_vs_cible` (plus de `intention` seule).
+        position_vs_cible: 'au_dessus',
         traitements_en_cours: ['metformine', 'sulfamide'],
         hypoglycemie_recente: false,
         HbA1c_actuelle: 8,

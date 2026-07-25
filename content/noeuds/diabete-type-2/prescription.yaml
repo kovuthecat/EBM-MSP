@@ -13,8 +13,11 @@
 # PORTES (gel) : SU/gliptine/intolérance → SWITCH si HbA1c à/au‑dessus de la cible ; DÉPRESCRIPTION si
 # hba1c_sous_cible (< 6,5 %, à tout âge — jamais un agent protecteur). Non‑association gliptine+GLP‑1 par
 # construction (O6/O7 exigent ne_contient_pas gliptine). REFONTE S8 (2026-07-25) : primer = `intention`
-# (initier/intensifier/optimiser/deprescrire) qui DÉDUIT `cible_atteinte` (dérivé) — remplace `position_vs_cible`.
-# `hba1c_sous_cible` = drapeau SAISI < 6,5 % (garde-fou absolu). `terrain_fragile` dérivé. PALETTE GLYCÉMIQUE
+# (initier/intensifier/optimiser/deprescrire), organise le flux et la saisie (visible_si) sans jamais
+# affirmer un état. RECÂBLAGE R1 (2026-07-25, docs/decision/GRAMMAIRE-NOEUD.md) : `cible_atteinte`
+# redevient dérivé de l'ÉTAT DÉCLARÉ `position_vs_cible` (plus de l'intention — cf. commentaires des
+# critères ci-dessous). `hba1c_sous_cible` = drapeau SAISI < 6,5 % (garde-fou absolu). `terrain_fragile`
+# dérivé. PALETTE GLYCÉMIQUE
 # (S8) : iSGLT2/AR GLP-1 dispo aussi pour le contrôle glycémique (cible_atteinte==false), la comorbidité
 # PRIORISE ; insuline/SU/gliptine = agents possibles de bas rang ; repli insuline si palette non-insulinique
 # épuisée. `sur_traitement` RETIRÉ.
@@ -40,9 +43,11 @@ criteres_entree:
   - nom: intention
     type: enum
     groupe: Intention thérapeutique
-    # PRIMER (décision référent S8, 2026-07-25) : « je souhaite… ». Remplace `position_vs_cible` (l'HbA1c
-    # seule ne donne pas le « vs cible » sans le nœud A). L'intention DÉDUIT `cible_atteinte` ; elle ORGANISE
-    # (flux + affichage), elle ne filtre jamais durement (non-étanche : les gestes transverses restent affichés).
+    # PRIMER (décision référent S8, 2026-07-25) : « je souhaite… ». ORGANISE le flux et l'affichage
+    # (groupe/visible_si), ne filtre jamais durement (non-étanche : les gestes transverses restent affichés).
+    # RECÂBLAGE R1 (2026-07-25, docs/decision/GRAMMAIRE-NOEUD.md) : ne DÉDUIT plus `cible_atteinte` — un
+    # état clinique (la position vs objectif) se DÉCLARE (cf. `position_vs_cible`), il ne se déduit jamais
+    # d'une intention (« optimiser » = améliorer le traitement, ce qui ne dit rien de la position vs cible).
     valeurs: [initier, intensifier, optimiser, deprescrire]
 
   # 2. L'ÉTAT DES LIEUX — ce que le patient prend déjà, et où en est le contrôle.
@@ -56,6 +61,19 @@ criteres_entree:
   - nom: HbA1c_actuelle
     type: nombre
     groupe: Traitement actuel et contrôle
+  - nom: position_vs_cible
+    type: enum
+    groupe: Traitement actuel et contrôle
+    # R1 (docs/decision/GRAMMAIRE-NOEUD.md) : l'ÉTAT du contrôle est DÉCLARÉ par le praticien, jamais
+    # déduit de son INTENTION — « optimiser » veut dire « améliorer le traitement », ce qui ne dit rien
+    # de la position vs objectif (recette référent 2026-07-25). Le nœud « Fixer la cible » reste une AIDE
+    # et jamais un prérequis : le praticien connaît l'objectif qu'il a fixé, la question porte sur la
+    # position par rapport à CET objectif-là, pas sur un seuil absolu.
+    # ORDRE DES VALEURS = SÛRETÉ : `valeurParDefaut` (lib/formLayout.ts) prend la 1re valeur déclarée.
+    # `a_l_objectif` est la seule valeur inerte sur un formulaire vierge (traitements vides + à
+    # l'objectif ⇒ aucun geste proposé, sortie « poursuivre et réévaluer »). Les autres déclencheraient
+    # d'emblée des ajouts ou une déprescription sur un formulaire non renseigné.
+    valeurs: [a_l_objectif, au_dessus, nettement_au_dessus, sous_objectif]
 
   # 3. CE QUI ORIENTE POSITIVEMENT vers une classe (indications d'organe : cœur, rein, poids).
   - nom: ASCVD_etablie
@@ -138,17 +156,25 @@ criteres_entree:
     derive: "HbA1c_actuelle > 0 AND HbA1c_actuelle < 6.5"
   - nom: cible_atteinte
     type: bool
-    derive: "intention == optimiser OR intention == deprescrire"
+    # R1 (GRAMMAIRE-NOEUD.md) : dérivé de l'ÉTAT déclaré (`position_vs_cible`), plus de l'intention.
+    # Gain n°2 de la refonte : le sur-traitement n'était détecté que par le garde-fou absolu
+    # `hba1c_sous_cible` (< 6,5 %) — un patient fragile à 6,8 % dont l'objectif est < 9 % ne déclenchait
+    # rien. `sous_objectif` le capte ici (cible « atteinte » au sens large : à l'objectif ou en dessous,
+    # donc rien à intensifier). `hba1c_sous_cible` reste INCHANGÉ, garde-fou dur indépendant.
+    derive: "position_vs_cible == a_l_objectif OR position_vs_cible == sous_objectif"
   - nom: terrain_fragile
     type: bool
     derive: "age >= 75 OR fragilite == true OR esperance_vie == limitee OR risque_hypoglycemie_schema == eleve"
   - nom: palette_glycemique_ouverte
     type: bool
     # Séquençage (décision référent S8) : la palette glycémique PURE (ajout d'un 2e agent sans indication de
-    # protection) est ouverte en INTENSIFICATION (déjà traité, objectif non atteint) ; à l'INITIATION (naïf),
-    # seulement si HbA1c ≥ 8,5 % (HAS : monothérapie metformine d'abord, bithérapie d'emblée si nettement au-
-    # dessus). optimiser/déprescrire ⇒ fermée. (≡ cible_atteinte==false, affiné par l'amplitude à l'initiation.)
-    derive: "intention == intensifier OR intention == initier AND HbA1c_actuelle >= 8.5"
+    # protection) est ouverte en INTENSIFICATION quand la position déclarée est au-dessus ou nettement au-
+    # dessus de l'objectif ; à l'INITIATION (naïf), seulement si NETTEMENT au-dessus (HAS : monothérapie
+    # metformine d'abord, bithérapie d'emblée si nettement au-dessus). optimiser/déprescrire ⇒ fermée.
+    # Gain n°1 de la refonte (R1) : l'ancien seuil ABSOLU `HbA1c_actuelle >= 8.5` était aveugle à la cible —
+    # un patient fragile naïf à 8,7 % dont l'objectif est < 9 % déclenchait une bithérapie d'emblée.
+    # `nettement_au_dessus` est relatif à l'objectif fixé pour CE patient, pas à un seuil universel.
+    derive: "intention == intensifier AND position_vs_cible == au_dessus OR intention == intensifier AND position_vs_cible == nettement_au_dessus OR intention == initier AND position_vs_cible == nettement_au_dessus"
 # `familles` (correctif « ordre accidentel / badge multi-natures », 2026-07-25) : déclaration EXPLICITE
 # des sections du panneau de résultats, présentation pure (aucun effet moteur, cf.
 # schema/noeud.schema.json). L'ORDRE DE CE TABLEAU EST L'ORDRE D'AFFICHAGE — « urgence d'abord » (décision
@@ -841,7 +867,7 @@ incertitudes:
   - "Bénéfice dur de la substitution elle-même : jamais testé en switch (argument indirect = valeur comparée des classes)."
   - "Additivité iSGLT2 + AR GLP‑1 sur critères durs : non démontrée (PRECIDENTD en cours) ; additivité glycémique/pondérale acquise."
   - "Désintensification : preuve faible / accord d'experts ; pas d'ECR de devenirs durs."
-  - "Chaînage inter-nœuds A→prescription (la cible individualisée du nœud A n'est pas importée : la position vient de l'intention, le garde-fou < 6,5 % est absolu) et prescription→E (insuline) : hors moteur (P3+)."
+  - "Chaînage inter-nœuds A→prescription : PAS de chaînage (R1, docs/decision/GRAMMAIRE-NOEUD.md) — la cible individualisée du nœud A n'est pas importée automatiquement, la position vs objectif est DÉCLARÉE ici (`position_vs_cible`), le nœud A restant une aide, jamais un prérequis ; le garde-fou < 6,5 % (`hba1c_sous_cible`) reste absolu, indépendant de la cible. Chaînage prescription→E (insuline) : hors moteur (P3+)."
   - "ARBITRAGE (red-team S3-S7, M3) : obèse (IMC ≥ 30) + dénutrition + sans comorbidité CV/rénale + classes disponibles + au-dessus de la cible → incrétines exclues (dénutrition), intensification glycémique O16 fermée (IMC ≥ 30), place résiduelle fermée (flag non posé) → sortie [socle metformine, poursuivre]. Posture conservatrice défendable chez un dénutri ; si un levier glycémique est requis, poser classes_a_benefice_indisponibles == true (incrétines de fait inutilisables) ouvre la niche SU/gliptine. Comportement laissé tel quel, à confirmer par le référent."
   - "classes_a_benefice_indisponibles == true supprime désormais l'introduction d'iSGLT2 / AR GLP-1 / tirzépatide / association et l'intensification glycémique résiduelle (correction S3-S7, M1) : cohérent avec la niche SU/gliptine qui n'existe que lorsque ces classes sont inutilisables."
   - "Repli O11 (« pas de remplaçant protecteur pertinent ») : encodé en ALERTE A9 (2 disjonctions pur-AND, causes IMC<22 / dénutrition sans indication iSGLT2) + rappel en prose dans l'option. Couvre le cas sans indication protectrice ; ne se déclenche pas si un remplaçant serait valide."
@@ -850,7 +876,7 @@ meta:
   date_revue: "2026-07-25"
   auteur: "référent DT2 + Opus"
   statut: brouillon
-  version: "0.9"
+  version: "0.10"
   changelog:
     - date: "2026-07-24"
       auteur: "référent DT2 + Opus"
@@ -948,3 +974,28 @@ meta:
         consigné en incertitude, comportement conservateur laissé tel quel. PROMOTION à statut `valide` v1.0
         sur go référent (S6). Restent des arbitrages BAS de présentation (menu multi-options en double
         indication, falaise 6,5 % assumée) — non bloquants.
+    - date: "2026-07-25"
+      auteur: "référent DT2 + Opus"
+      resume: >-
+        Application de R1 (docs/decision/GRAMMAIRE-NOEUD.md, recette référent) : un ÉTAT clinique ne se
+        déduit jamais d'une INTENTION déclarée. `cible_atteinte` cessait d'être fiable — « optimiser »
+        (améliorer le traitement) avait été confondu avec « être à l'objectif ». Nouveau critère SAISI
+        `position_vs_cible` (a_l_objectif/au_dessus/nettement_au_dessus/sous_objectif, groupe « Traitement
+        actuel et contrôle », juste après HbA1c_actuelle ; `a_l_objectif` en tête = seule valeur inerte sur
+        formulaire vierge). `cible_atteinte` dérive désormais de `position_vs_cible` (a_l_objectif OU
+        sous_objectif), plus de `intention`. `palette_glycemique_ouverte` recâblée à l'identique : gain n°1,
+        le seuil ABSOLU `HbA1c_actuelle >= 8.5` (aveugle à la cible individuelle — un fragile naïf à 8,7 %
+        dont l'objectif est < 9 % déclenchait une bithérapie d'emblée) est remplacé par `nettement_au_dessus`,
+        relatif à l'objectif du patient ; gain n°2, le sur-traitement n'était détecté que par le garde-fou
+        absolu `hba1c_sous_cible` (< 6,5 %, INCHANGÉ, toujours indépendant) — un fragile à 6,8 % dont
+        l'objectif est < 9 % ne déclenchait rien, `sous_objectif` le capte désormais via `cible_atteinte`.
+        `intention` CONSERVÉE comme primer (organise le flux/l'affichage, `visible_si`), elle n'affirme plus
+        aucun état. Libellés ajoutés (`labels.ts`) ; un dictionnaire orphelin d'un essai antérieur
+        (`a_la_cible`/`en_dessous`/`tres_en_dessous`) y a été remplacé par les 4 valeurs réelles. Banc de
+        vignettes recâblé : `position_vs_cible` ajouté à chaque profil dont le comportement dépendait de
+        `intention` pour la position vs cible (reproduisant EXACTEMENT l'ancienne valeur de `cible_atteinte`/
+        `palette_glycemique_ouverte`, aucune attente de test changée) + nouveau test reproduisant le profil de
+        la recette référent (fragile/EV limitée/ASCVD/IMC 20, metformine+gliptine, à l'objectif : iSGLT2
+        applicable, switch gliptine→GLP-1 écarté IMC < 22). Alertes de cohérence intention↔HbA1c (« rebasculer
+        l'intention ») VOLONTAIREMENT NON TOUCHÉES : leur pertinence sous R1 est un arbitrage clinique du
+        référent, pas de ce recâblage. STATUT toujours brouillon.
