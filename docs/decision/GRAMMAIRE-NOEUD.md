@@ -371,24 +371,42 @@ Deux défauts indépendants tombent avec ce changement :
   dont l'objectif est < 9 % ne déclenchait rien. `sous_objectif` le capte, tout en gardant
   `hba1c_sous_cible` comme garde-fou dur indépendant.
 
-**R3.** L'option « Remplacer la gliptine par un AR GLP-1 » se scinde en « Arrêter la gliptine » (à
-l'objectif) et « Remplacer la gliptine par un agent à bénéfice d'organe » (au-dessus), sur le modèle
-déjà correct de l'option sulfamide. La liste de déclenchement
-`ASCVD_etablie == true OR IMC >= 30 OR cible_atteinte == false` disparaît de la branche « arrêter » :
-**déprescrire un agent sans bénéfice dur n'a pas à être justifié par une comorbidité.** Même traitement
-pour l'option sulfamide, qui porte la même liste.
+**R3.** L'option « Remplacer la gliptine par un AR GLP-1 » devient **« Remplacer la gliptine (aucun
+bénéfice sur critère dur — préférer un agent qui en apporte) »** : une seule option, sur le modèle déjà
+correct de l'option sulfamide, dont les **exclusions sont structurelles** (gate catabolique seulement) et
+dont le texte explique le choix du remplaçant. `IMC < 22` et `denutrition` — les garde-fous de l'AR
+GLP-1, pas du verdict — la quittent. Sa liste de déclenchement
+`ASCVD_etablie == true OR IMC >= 30 OR cible_atteinte == false` disparaît : **le verdict sur un agent
+sans bénéfice dur n'a pas à être justifié par une comorbidité** (décision référent). Même traitement pour
+l'option sulfamide, qui portait la même liste.
 
-**Le profil de recette, après.** *Optimiser, metformine + gliptine, HbA1c 8 à l'objectif, ASCVD, DFG 70,
-IMC 20, 70 ans, fragile, espérance de vie limitée* :
+> **Correction d'une seconde erreur de ce document.** Cette section a d'abord décrit une **scission** en
+> deux options, « arrêter » (à l'objectif) et « remplacer » (au-dessus). C'est la même faute que celle
+> déjà corrigée plus haut dans la forme canonique de R3, restée ici par inadvertance : le déclencheur du
+> verdict est la **présence de la ligne**, pas la position glycémique. Le sulfamide n'a d'ailleurs jamais
+> été scindé dans le contenu réel, et c'est lui le modèle. Signalée par l'agent chargé d'appliquer la
+> levée, qui a suivi sa consigne plutôt que ce paragraphe — bon réflexe.
+
+**La non-association gliptine + AR GLP-1** cessait d'être garantie « par construction » : la condition
+`ne_contient_pas gliptine` de l'option AR GLP-1 empêchait cette classe d'être jamais la **destination**
+d'un switch de gliptine. Elle est levée, et la garantie devient **d'affichage** — le verdict sur la
+gliptine se déclenchant désormais sur sa seule présence, l'AR GLP-1 ne peut plus apparaître hors contexte
+de switch — plus une alerte de nœud reprenant la règle dure déjà sourcée (Nauck 2017 ; ADA §9 ;
+KDIGO PP4.2.3 ; HAS R.80). Échange assumé : plus juste cliniquement, plus fragile en principe.
+
+**Le profil de recette, après** — sortie réelle du moteur, pas une projection. *Optimiser, metformine +
+gliptine, HbA1c 8 à l'objectif, ASCVD, DFG 70, IMC 20, 70 ans, fragile, espérance de vie limitée* :
 
 | famille | sortie |
-|---|---|
-| Socle | Metformine — poursuivre |
-| Traitement à corriger | **Arrêter la gliptine** — aucun bénéfice sur critère dur *(R3, absent avant)* |
-| Agent à ajouter | Introduire un iSGLT2 — *bénéfice attendu en 16-26 mois (NNT 19-31)* ⚠ *espérance de vie limitée : à mettre en balance* *(R2, absent avant)* |
-| Écartées | « Remplacer la gliptine par un AR GLP-1 » — IMC < 22 *(R4, muet avant)* |
+| --- | --- |
+| Socle | Metformine — instaurer ou poursuivre |
+| Agent à ajouter | Introduire un iSGLT2 — *délai du bénéfice : 16-26 mois* *(R2, absent avant)* |
+| Traitement à corriger | **Remplacer la gliptine** — aucun bénéfice sur critère dur *(R3, absent avant)* |
+| Écartées | « Introduire un AR GLP-1 » — IMC < 22 *(R4, muet avant)* |
+| Alerte | Non-association incrétine *(garantie qui remplace le verrou structurel)* |
 
-Avant : metformine + « Introduire un iSGLT2 » badgé Recommandée, et rien d'autre.
+Avant : metformine + « Introduire un iSGLT2 » badgé Recommandée, et rien d'autre — la gliptine
+poursuivie sans le moindre verdict, un agent ajouté par-dessus.
 
 ---
 
