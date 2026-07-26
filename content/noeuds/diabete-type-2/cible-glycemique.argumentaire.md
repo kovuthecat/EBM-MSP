@@ -125,16 +125,20 @@ inchangées depuis 2013 (Annexe 3) :
 le lien entre la réduction de l'HbA1c et l'amélioration de la morbi-mortalité » (HbA1c = **critère
 intermédiaire**) et recommande d'envisager **arrêt ou désescalade** du traitement.
 
-**Position critique — Prescrire** *(résumé ; réf. « Diabète de type 2 chez un adulte », Premiers Choix,
-févr 2026 ; « Quand la metformine ne suffit pas », Stratégies, août 2023)* : l'objectif est d'**éviter ou
-retarder les complications** (surtout cardiovasculaires), pas la baisse de l'HbA1c en soi ; viser **≈ 7 %**
-les premières années après le diagnostic, **puis ≈ 7,5 %** ; chez l'âgé/fragile **7,5–8,5 %**, voire
-**8–9 %** en cas de complication vasculaire majeure, d'affection grave associée ou d'espérance de vie
-< 5 ans ; si l'espérance de vie est courte, viser un contrôle **moins strict, sans recourir à un médicament**.
-Position **un peu plus prudente** que le ≤ 7 % officiel.
-
-**Médicalement Geek / DragiWebdo** (EBM francophone) : mêmes bandes d'individualisation, insistance sur
-l'évitement du sur-traitement et la **déprescription si HbA1c < 6,5 %**.
+**Synthèse critique indépendante** *(données à l'appui — revues consultées listées en § Sources)* : aucun
+essai n'a comparé de bandes de cible étroites (extrapolation) ; le risque d'hypoglycémie sévère double à
+triple sous contrôle intensif (**Boussageon**, méta-analyse *BMJ* 2011, RR ~2,3) sans bénéfice de mortalité
+démontré chez le diabète installé, et **ACCORD** a montré une surmortalité inexpliquée au serrage agressif
+(HR 1,22, 6,4 vs 7,5 %) quand **ADVANCE** a atteint 6,5 % sans surmortalité — d'où une cible plus prudente :
+l'objectif est d'**éviter ou retarder les complications** (surtout cardiovasculaires), pas la baisse de
+l'HbA1c en soi ; viser **≈ 7 %** les premières années après le diagnostic, **puis ≈ 7,5 %** ; chez
+l'âgé/fragile **7,5–8,5 %**, voire **8–9 %** en cas de complication vasculaire majeure, d'affection grave
+associée ou d'espérance de vie < 5 ans ; si l'espérance de vie est courte, viser un contrôle **moins strict,
+sans recourir à un médicament** ; déprescription envisagée si HbA1c < 6,5 % sous agent hypoglycémiant — hors
+du profil UKPDS (sujet jeune, diabète récent, sans maladie cardiovasculaire). Position **un peu plus
+prudente** que le ≤ 7 % officiel. *(Prescrire, « Diabète de type 2 chez un adulte », Premiers Choix,
+févr 2026, et « Quand la metformine ne suffit pas », Stratégies, août 2023 ; Médicalement Geek/DragiWebdo,
+pages « diabétologie » — cf. § Sources.)*
 
 ## Révision 2026-07-26 — périmètre du nœud (risque hypoglycémique, antécédent CV, ancienneté)
 

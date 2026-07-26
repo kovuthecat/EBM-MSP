@@ -198,16 +198,38 @@ export interface ReferencePrimaire {
   type_critere: TypeCritere
 }
 
+/**
+ * Citation bibliographique d'une revue secondaire indépendante (DECISIONS.md D23) : jamais évaluée par
+ * le moteur, jamais le sujet grammatical d'un argument affiché — seulement une référence à côté de la
+ * donnée qui, elle, porte l'argument (`Source.synthese_critique.donnee`).
+ */
+export interface ReferenceCritique {
+  nom: string
+  /** URL, si disponible. */
+  lien?: string
+  /** Précision bibliographique libre (référence d'article, restriction d'accès, date d'édition...). */
+  detail?: string
+}
+
+/**
+ * Modèle réorganisé PAR NATURE de source (DECISIONS.md D23), pas par titre de publication : une donnée
+ * publiée (`references_primaires`), une synthèse critique INDÉPENDANTE qui interprète ces données
+ * (`synthese_critique` — fusion des ex-champs `medicalement_geek`/`prescrire` : Prescrire, Médicalement
+ * Geek/DragiWebdo, Minerva, ebmfrance/Duodecim... y sont citables en RÉFÉRENCE, jamais le sujet
+ * grammatical de l'argument), une recommandation OFFICIELLE (`reco_officielle` — HAS, SFD, ADA/EASD,
+ * KDIGO... des organismes qui émettent une recommandation formelle, à distinguer d'une revue secondaire
+ * indépendante même riche en données).
+ */
 export interface Source {
   references_primaires: ReferencePrimaire[]
-  medicalement_geek: {
-    synthese: string
-    lien: string
-  }
-  prescrire: {
-    synthese: string
+  synthese_critique: {
+    /** Argument sourcé par la donnée. Chaîne vide acceptée si aucune synthèse critique indépendante n'a été identifiée pour ce nœud. */
+    donnee: string
+    /** Revues secondaires indépendantes consultées — citables en bibliographie, ne portent jamais elles-mêmes l'argument de `donnee`. */
+    references: ReferenceCritique[]
   }
   reco_officielle: {
+    /** Organisme(s) émettant une recommandation OFFICIELLE. Une revue secondaire indépendante n'a pas sa place ici — cf. `synthese_critique.references` (D23). */
     source: string
     position: string
     divergence: boolean

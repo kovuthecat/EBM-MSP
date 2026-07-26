@@ -65,6 +65,12 @@
   margin: 0;
 }
 
+/* Références bibliographiques d'une synthèse critique indépendante (DECISIONS.md D23) : citées à la
+   suite de l'argument, jamais en préfixe qui l'estampille — cf. ArgumentPanel.tsx. */
+.argument-panel__source-refs a {
+  color: inherit;
+}
+
 .argument-panel__divergence {
   display: flex;
   align-items: center;

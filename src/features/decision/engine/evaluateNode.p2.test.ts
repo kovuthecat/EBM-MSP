@@ -41,8 +41,7 @@ function makeNode(
     argumentaire: 'x',
     sources: {
       references_primaires: [],
-      medicalement_geek: { synthese: '', lien: '' },
-      prescrire: { synthese: '' },
+      synthese_critique: { donnee: '', references: [] },
       reco_officielle: { source: '', position: '', divergence: false, explication: '' },
     },
     incertitudes: [],

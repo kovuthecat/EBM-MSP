@@ -317,20 +317,23 @@ sources:
       annee: 2022
       type_critere: substitution
       lien: "https://pubmed.ncbi.nlm.nih.gov/36049498/"
-  medicalement_geek:
-    synthese: >-
-      Ligne EBM francophone (Prescrire, Minerva, RecoMédicales, Louvain Médical) : dose fixe de statine calée
-      sur le risque absolu, pas de cible LDL dogmatique ; en prévention primaire, décider sur le risque
-      cardiovasculaire global, pas sur les chiffres lipidiques ; réserver la haute intensité à la prévention
-      secondaire.
-    lien: "https://recomedicales.fr/recommandations/statines/"
-  prescrire:
-    synthese: >-
-      Prévention secondaire = bénéfice net clair. Prévention primaire = seulement selon le risque absolu
-      (âge > 40 ans + autres indicateurs de risque cardiovasculaire), pas systématique ; dose modérée fixe,
-      pas de cible LDL dogmatique, molécule préférée = simvastatine (la mieux évaluée). (Résumé — droit
-      d'auteur ; position éditoriale constante ; réf. Rev Prescrire, « Diabète de type 2 : une statine pour
-      certains patients », juillet 2005 — texte réservé aux abonnés.)
+  synthese_critique:
+    donnee: >-
+      Décision fondée sur le risque absolu, pas sur une cible LDL chiffrée : aucun essai n'a randomisé
+      deux valeurs cibles de LDL, et une stratégie de treat-to-target n'est pas supérieure à une dose
+      fixe de haute intensité (LODESTAR, *JAMA* 2023, non-infériorité) ; CARDS et HPS ont démontré le
+      bénéfice à dose fixe, indépendamment du LDL de base. En prévention secondaire, le bénéfice net est
+      solidement établi (méta CTT, sous-groupe diabète : RR 0,79 par mmol/L de LDL abaissé). En
+      prévention primaire, le bénéfice a été démontré dans la population des essais dédiés — CARDS :
+      40-75 ans avec ≥ 1 facteur de risque cardiovasculaire additionnel ; ASPEN, à plus bas risque, est
+      nul — d'où une décision graduée par le risque plutôt qu'un traitement systématique.
+    references:
+      - nom: "Prescrire"
+        detail: "Position éditoriale constante ; réf. Rev Prescrire, « Diabète de type 2 : une statine pour certains patients », juillet 2005 — texte réservé aux abonnés."
+      - nom: "Minerva"
+      - nom: "RecoMédicales"
+        lien: "https://recomedicales.fr/recommandations/statines/"
+      - nom: "Louvain Médical"
   reco_officielle:
     source: >-
       Recommandation française à jour : SFE/SFD/NSFA/SFC 2026 « Management of dyslipidemia in adults »
@@ -386,8 +389,23 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Claude Code"
   statut: brouillon
-  version: "1.3"
+  version: "1.4"
   changelog:
+    - date: "2026-07-26"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        D23 (« la position affichée s'appuie sur la donnée publiée, jamais sur la publication ») :
+        `sources.medicalement_geek` + `sources.prescrire` fusionnés en `sources.synthese_critique`
+        (`donnee` + `references[]`). `donnee` reformulé pour s'appuyer sur LODESTAR/CTT/CARDS/ASPEN
+        plutôt que sur le nom d'une revue. Prescrire, Minerva, RecoMédicales et Louvain Médical restent
+        cités en référence bibliographique dans `references[]`. **DONNÉE À FOURNIR retirée** (pas
+        seulement marquée) : l'affirmation « molécule préférée = simvastatine (la mieux évaluée) »
+        (ex-`sources.prescrire.synthese`) n'est adossée à aucun essai comparatif entre statines dans le
+        dossier de preuve, et contredit le § Sécurité du même argumentaire (simvastatine/atorvastatine,
+        métabolisées par le CYP3A4, ont PLUS d'interactions que pravastatine/rosuvastatine/pitavastatine,
+        « à préférer en cas de co-prescription à risque ») — retirée plutôt que marquée, pour ne pas
+        laisser deux positions contradictoires dans le même document. Cf. `docs/decision/validation/
+        chantier-2026-07-26/sourcage-position-critique.md` (ST3/ST7).
     - date: "2026-07-26"
       auteur: "référent DT2 + Claude Code"
       resume: >-

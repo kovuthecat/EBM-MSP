@@ -121,8 +121,11 @@ conditionne pas la disponibilité. **1re ligne** : iSGLT2 + AR GLP‑1 — l'ord
 iSGLT2/AR GLP‑1 > iDPP4 > sulfamide) tient à **l'absence d'hypoglycémie et à la perte de poids**, PAS à un
 bénéfice d'organe chez le patient purement glycémique (les HR/NNT des CVOT viennent de populations enrichies —
 IC, macroalbuminurie — et ne sont pas transférables sans la comorbidité) ; garde‑fou terrain sur les incrétines.
-*Divergence Prescrire* : réserve la dapagliflozine à l'IC / l'insuffisance rénale (divergence de degré, non un
-usage glycémique général). **Agents possibles avec leurs limites** (bas rang) : insuline, sulfamide, gliptine —
+*Le bénéfice d'organe des iSGLT2 (mortalité CV, événements rénaux) est démontré dans des essais menés sur des
+populations enrichies en insuffisance cardiaque ou maladie rénale (EMPA-REG OUTCOME ; DAPA-CKD, NNT 19/2,4 ans ;
+EMPEROR-Reduced, NNT 19) — pas dans une population purement glycémique, d'où une lecture plus prudente (Prescrire)
+réservant la dapagliflozine à ces indications d'organe (divergence de degré, non un désaccord sur l'usage
+glycémique général).* **Agents possibles avec leurs limites** (bas rang) : insuline, sulfamide, gliptine —
 le flag « classes à bénéfice indisponibles » remonte SU/gliptine en rang. **Repli insuline** quand la palette
 non‑insulinique est épuisée (metformine + iSGLT2 + AR GLP‑1 toujours déséquilibré ; incrétines exclues par le
 terrain chez un patient déjà sous iSGLT2 — en rénal sévère, AR GLP‑1 et sitagliptine restent souvent

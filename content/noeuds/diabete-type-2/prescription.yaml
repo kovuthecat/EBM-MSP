@@ -1096,21 +1096,32 @@ sources:
       annee: 2017
       type_critere: dur
       lien: "https://doi.org/10.1007/s00125-017-4337-9"
-  medicalement_geek:
-    synthese: >-
-      Approuve l'intensification pilotée par les comorbidités (iSGLT2/AR GLP‑1), la relégation des sulfamides
-      et des gliptines (aucun bénéfice d'organe démontré), et la désintensification du sujet âgé fragile ;
-      critique la metformine en 1re intention (bénéfice clinique non démontré). Coût du sulfamide = argument
-      inopérant en France (remboursement).
-    lien: "https://www.medicalement-geek.com/2023/01/les-traitements-du-diabete-formule-all.html"
-  prescrire:
-    synthese: >-
-      Quand la metformine ne suffit pas, ajouter un AR GLP‑1 (sémaglutide/dulaglutide 1er choix) est le plus
-      souvent le premier choix, surtout si risque CV élevé ; dapagliflozine (voire empagliflozine) si IC ou
-      IR modérée avec protéinurie ; tirzépatide non supérieur au dulaglutide (SURPASS‑CVOT). Gliptines et
-      pioglitazone « plus dangereuses qu'utiles, à écarter quelle que soit la situation ». Sulfamides : « gare
-      aux hypoglycémies ». Espérance de vie faible → ne pas ajouter tant que HbA1c ≤ 8,5‑9 %. (Résumé — droit
-      d'auteur ; réf. Rev Prescrire 2023;43(478):595‑605 ; synthèses docs/decision/sources/prescrire-dt2.md.)
+  synthese_critique:
+    donnee: >-
+      Sur socle metformine, quand l'objectif n'est pas atteint : ajouter un AR GLP‑1 (sémaglutide ou
+      dulaglutide en premier choix) est le plus souvent indiqué, surtout à risque cardiovasculaire élevé ;
+      la dapagliflozine (voire l'empagliflozine) est réservée à l'insuffisance cardiaque ou à
+      l'insuffisance rénale modérée avec protéinurie — le bénéfice d'organe des iSGLT2 étant démontré dans
+      des essais menés sur des populations enrichies en IC/rein (EMPA-REG OUTCOME ; DAPA-CKD, NNT 19/2,4
+      ans ; EMPEROR-Reduced, NNT 19), pas dans une population purement glycémique. Le tirzépatide n'est pas
+      supérieur au dulaglutide sur les événements cardiovasculaires (SURPASS-CVOT, non-infériorité). Sur
+      les gliptines : aucun bénéfice sur critère dur dans 4 CVOT (TECOS neutre ; SAVOR-TIMI 53, signal
+      d'insuffisance cardiaque HR 1,27 pour la saxagliptine), et effets indésirables documentés
+      (pemphigoïde bulleuse HR 1,42, signal de pancréatite) — une lecture plus prudente les écarte
+      entièrement quand HAS/SFD les gardent en place résiduelle bien tolérée pour le reste : c'est le même
+      socle de preuve, soupesé différemment. Sur les sulfamides : hypoglycémie fréquente (34-42 % de toute
+      hypoglycémie sous SU dans les essais), aucun bénéfice sur critère dur. Le bénéfice de la metformine
+      en 1re intention n'est pas démontré sur critère dur contre placebo (Griffin 2017, méta-analyse) — un
+      argument distinct du coût, inopérant en France (remboursement identique). Chez l'espérance de vie
+      faible, ne pas ajouter de nouvel agent tant que l'HbA1c reste ≤ 8,5-9 %. Intensification pilotée par
+      les comorbidités, relégation des sulfamides et des gliptines (aucun bénéfice d'organe démontré),
+      désintensification du sujet âgé fragile validée par un essai randomisé (Grant 2025 : hypoglycémie
+      sévère non aggravée par l'allègement, 4,7 % vs 6,5 % NS).
+    references:
+      - nom: "Médicalement Geek"
+        lien: "https://www.medicalement-geek.com/2023/01/les-traitements-du-diabete-formule-all.html"
+      - nom: "Prescrire"
+        detail: "Résumé sous droit d'auteur ; réf. Rev Prescrire 2023;43(478):595-605 ; synthèses docs/decision/sources/prescrire-dt2.md."
   reco_officielle:
     source: "HAS 2024 (Stratégie thérapeutique DT2, R.45‑R.105) ; SFD 2025 (Med Mal Metab 2025;19:630‑662, Avis 3/5/5bis/6/11‑15) ; ADA Standards of Care 2026 ; KDIGO 2022 ; RCP metformine/iSGLT2/incrétines (ANSM)"
     position: >-
@@ -1123,8 +1134,12 @@ sources:
     divergence: true
     explication: >-
       Convergence forte sur la direction (relégation SU/gliptines, priorité iSGLT2/AR GLP‑1 par comorbidité,
-      non‑association gliptine+GLP‑1, désintensification). Divergences : (1) Prescrire écarte l'iDPP4 quelle
-      que soit la situation, là où HAS/SFD le gardent en place résiduelle ; (2) granularité EBM — l'outil ne
+      non‑association gliptine+GLP‑1, désintensification). Divergences : (1) sur les gliptines — aucun
+      bénéfice sur critère dur dans 4 CVOT (TECOS neutre ; SAVOR-TIMI 53, signal d'insuffisance cardiaque
+      HR 1,27 pour la saxagliptine) et effets indésirables documentés (pemphigoïde bulleuse HR 1,42, signal
+      de pancréatite) : une lecture plus prudente les écarte entièrement de la place résiduelle, là où
+      HAS/SFD les y maintiennent, bien tolérées pour le reste — même socle de preuve, soupesé différemment ;
+      (2) granularité EBM — l'outil ne
       durcit pas les gains hypo/poids/HbA1c en bénéfice cardio‑rénal, nomme la molécule quand la protection est
       molécule‑spécifique, et ajoute un gating négatif de terrain (IMC bas/dénutrition/infections uro) absent
       des recos en tant que règle algorithmique. L'association iSGLT2 + AR GLP‑1 = coexistence de deux
@@ -1151,8 +1166,25 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.20"
+  version: "0.21"
   changelog:
+    - date: "2026-07-26"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        D23 (« la position affichée s'appuie sur la donnée publiée, jamais sur la publication ») :
+        `sources.medicalement_geek` + `sources.prescrire` fusionnés en `sources.synthese_critique`
+        (`donnee` + `references[]`). `donnee` reformulé pour s'appuyer sur les essais déjà cités
+        (EMPA-REG OUTCOME, DAPA-CKD, EMPEROR-Reduced, SURPASS-CVOT, TECOS, SAVOR-TIMI 53, Lee 2020,
+        Griffin 2017) plutôt que sur des verdicts attribués à Prescrire (« à écarter quelle que soit la
+        situation »). `reco_officielle.explication` reformulée de même (« Prescrire écarte l'iDPP4 » →
+        données CVOT + effets indésirables). Médicalement Geek et Prescrire restent cités en référence
+        bibliographique dans `references[]`. Aucune information supprimée. `ArgumentPanel.tsx` mis à
+        jour en conséquence. Hors périmètre de ce lot (pas dans le bloc `sources`, signalé pour un
+        chantier ultérieur) : le champ `argumentaire` top-level (jamais rendu à l'écran) cite encore
+        « Prescrire réserve la dapagliflozine à l'IC/l'IR » sans données ; l'option Gliptine
+        (`options[].inconvenients`) affiche encore « Prescrire l'écarte » — ce champ n'entre pas dans
+        le périmètre de ce lot (`criteres_entree`/`options`/`alertes` exclus). Cf. `docs/decision/
+        validation/chantier-2026-07-26/sourcage-position-critique.md`.
     - date: "2026-07-26"
       auteur: "référent DT2 + Claude Code"
       resume: >-

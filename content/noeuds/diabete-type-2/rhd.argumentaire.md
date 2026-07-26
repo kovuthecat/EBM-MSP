@@ -40,14 +40,18 @@ les événements cardiovasculaires ni la mortalité** (Look AHEAD : critère 1ai
 pour futilité ; mortalité toutes causes **HR 0,91 [0,81-1,02]** à 16,7 ans, NS). Bénéfices secondaires réels de
 Look AHEAD (apnée du sommeil, mobilité, néphropathie **HR 0,69**, qualité de vie) = substituts / critères
 secondaires. Le régime méditerranéen hypocalorique + activité (**PREDIMED-Plus**) n'a **pas encore** de critère
-CV dur publié. À noter : l'alimentation et l'activité physique sont bénéfiques **même sans perte de poids**
-(grade A, ebmfrance).
+CV dur publié. À noter : la littérature générale décrit un bénéfice de l'alimentation et de l'activité
+physique indépendant de la perte de poids ; **DONNÉE À FOURNIR** — le dossier de preuve ne contient pas
+d'essai spécifiquement conçu pour isoler ce sous-effet dans le DT2 (Umpierre/Boulé, cités ci-dessus, mesurent
+l'effet global sur l'HbA1c, pas ce bénéfice indépendant de la perte de poids) : **position éditoriale non
+étayée par une donnée identifiée dans ce dossier**.
 
 ## Option 2 — Perte de poids importante visée rémission (informer, recommander, orienter) — si IMC ≥ 27
 
-**En médecine générale : informer** le patient de la possibilité d'une rémission (grade A, ebmfrance) et
-**l'orienter** vers un accompagnement structuré (diététicien, programme type substituts de repas / DiRECT). Le
-généraliste ne délivre pas le programme.
+**En médecine générale : informer** le patient de la possibilité d'une rémission — un résultat obtenu chez
+une fraction substantielle des patients en essai randomisé (DiRECT ~46 % à 1 an ; DIADEM-1 ~61 % à 1 an, DT2
+récent — cf. tableau ci-dessous) — et **l'orienter** vers un accompagnement structuré (diététicien, programme
+type substituts de repas / DiRECT). Le généraliste ne délivre pas le programme.
 
 | Essai | Population | Rémission | Durabilité |
 |---|---|---|---|

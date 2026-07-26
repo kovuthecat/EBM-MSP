@@ -179,22 +179,25 @@ sources:
       annee: 2021
       type_critere: substitution
       lien: "https://doi.org/10.2337/dci21-0034"
-  medicalement_geek:
-    synthese: >-
-      Couvre DiRECT (rémission ~46 % vs 4 % à 1 an) dans une ligne EBM anti-sur-traitement, cohérente avec
-      Prescrire/Minerva : la rémission est un résultat intermédiaire prometteur, dont le bénéfice sur les
-      complications cardiovasculaires reste à confirmer (rappel de la neutralité CV de Look AHEAD).
-    lien: "https://www.medicalement-geek.com/2017/12/dragi-webdo-n163.html"
-  prescrire:
-    synthese: >-
-      1er choix = mesures diététiques + activité physique, perte de 5-10 % du poids (Premiers Choix, actualisation
-      2026) ; alimentation de type méditerranéen ; écarter les édulcorants intenses. En prévention du DT2, le
-      mode de vie réduit l'incidence d'environ 30-55 %, mais sans bénéfice démontré sur la mortalité ni, à 15 ans
-      (DPPOS), sur les complications micro-angiopathiques. Objectif = éviter/retarder les complications, pas la
-      perte de poids ni l'HbA1c en soi. (Résumé — droit d'auteur ; réf. dans docs/decision/sources/prescrire-dt2.md,
-      P1/P2/P9-P13.)
+  synthese_critique:
+    donnee: >-
+      1er choix = mesures diététiques et activité physique, perte de poids de 5-10 % en cas de
+      surpoids/obésité ; alimentation de type méditerranéen ; écarter les édulcorants intenses. En
+      prévention du DT2, le mode de vie réduit l'incidence d'environ 30-55 %, mais sans bénéfice
+      démontré sur la mortalité ni, à 15 ans (DPPOS), sur les complications micro-angiopathiques —
+      l'objectif est d'éviter/retarder les complications, pas la perte de poids ni l'HbA1c en soi. Sur
+      la rémission par la perte de poids (DiRECT : rémission ~46 % vs 4 % à 1 an) : un résultat
+      intermédiaire prometteur, dont le bénéfice sur les complications cardiovasculaires reste à
+      confirmer (rappel de la neutralité CV de Look AHEAD, HR 0,95, arrêté pour futilité).
+    references:
+      - nom: "Prescrire"
+        detail: "Premiers Choix, actualisation 2026 ; résumé sous droit d'auteur, réf. docs/decision/sources/prescrire-dt2.md P1/P2/P9-P13."
+      - nom: "Médicalement Geek"
+        lien: "https://www.medicalement-geek.com/2017/12/dragi-webdo-n163.html"
+      - nom: "Minerva"
+      - nom: "EBM Guidelines / ebmfrance"
   reco_officielle:
-    source: "SFD 2025 (Darmon, Méd Mal Métab 2025;19(8):630-662) ; HAS 2024 (Stratégie thérapeutique du DT2) ; HAS parcours surpoids-obésité de l'adulte ; ADA/EASD 2022 (Davies, Diabetes Care 2022;45(11):2753) ; EBM Guidelines/ebmfrance (grade A) ; Prescrire (Premiers Choix 2026)"
+    source: "SFD 2025 (Darmon, Méd Mal Métab 2025;19(8):630-662) ; HAS 2024 (Stratégie thérapeutique du DT2) ; HAS parcours surpoids-obésité de l'adulte ; ADA/EASD 2022 (Davies, Diabetes Care 2022;45(11):2753)"
     position: >-
       Les mesures hygiéno-diététiques (alimentation, activité physique, éducation thérapeutique dès le diagnostic
       — ETP grade B USPSTF, HAS parcours obésité) sont la 1re ligne et le socle permanent, dans une approche
@@ -280,8 +283,22 @@ meta:
   date_revue: "2026-07-24"
   auteur: "Opus + référent (Thibault)"
   statut: brouillon
-  version: "0.3"
+  version: "0.4"
   changelog:
+    - date: "2026-07-26"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        D23 (« la position affichée s'appuie sur la donnée publiée, jamais sur la publication ») :
+        `sources.medicalement_geek` + `sources.prescrire` fusionnés en `sources.synthese_critique`
+        (`donnee` + `references[]`), texte peu modifié (déjà largement adossé à des essais nommés —
+        DiRECT, Look AHEAD, DPPOS). **Correction structurelle** (au-delà du texte) : `reco_officielle.
+        source` listait « Prescrire (Premiers Choix 2026) » et « EBM Guidelines/ebmfrance » aux côtés de
+        HAS/SFD/ADA-EASD — incohérence de nature relevée par l'audit (ce ne sont pas des organismes
+        émettant une recommandation officielle) ; les deux sont déplacés vers `synthese_critique.
+        references[]`. `reco_officielle.explication` et `position` inchangées (déjà jugées correctement
+        sourcées). Prescrire, Médicalement Geek, Minerva et EBM Guidelines/ebmfrance restent cités en
+        référence bibliographique. Cf. `docs/decision/validation/chantier-2026-07-26/
+        sourcage-position-critique.md`.
     - date: "2026-07-26"
       auteur: "référent DT2 + Claude Code"
       resume: >-

@@ -642,19 +642,29 @@ sources:
       annee: 2024
       type_critere: substitution
       lien: "https://pubmed.ncbi.nlm.nih.gov/38363342/"
-  medicalement_geek:
-    synthese: >-
-      Ligne EBM francophone (ebmfrance/Duodecim, Médicalement Geek/DragiWebdo) : basale + oraux/GLP-1 = schéma
-      de choix ; prandial et prémélangé hors 1ʳᵉ intention ; GLP-1 avant le bolus ; vigilance sur le
-      surtraitement du sujet âgé (aucune métrique — HbA1c ni MCG — ne prédit fiablement le risque d'hypoglycémie).
-    lien: "https://www.ebmfrance.net/Guidelines/Details/ebm00491"
-  prescrire:
-    synthese: >-
-      Insuline en AJOUT lorsque l'HbA1c est très élevée ou si éviter la prise de poids n'est pas prioritaire ;
-      le GLP-1 (sémaglutide, dulaglutide) est le plus souvent préféré AVANT l'insuline. Effets indésirables :
-      hypoglycémie, prise de poids, aggravation d'une rétinopathie en cas de baisse rapide de l'HbA1c. (Résumé
-      — droit d'auteur ; réf. prescrire-dt2.md P1/P3/P5/P8. NB : Prescrire ne traite pas la hiérarchie NPH /
-      analogues de 2ᵉ génération dans ces sources.)
+  synthese_critique:
+    donnee: >-
+      Schéma de choix = insuline basale ajoutée aux antidiabétiques oraux/GLP-1, avec le meilleur profil
+      tolérance/poids observé en essai randomisé (4T : hypo 2,3 vs 12,0 évén./patient/an, poids +1,9 vs
+      +5,7 kg vs un schéma prandial à 1 an, PMID 17890232) ; les schémas prandial et prémélangé
+      systématiques restent hors 1ʳᵉ intention (gain d'HbA1c modeste, −0,24 à −0,38 %, critère de
+      substitution — Bertuol, méta-analyse en réseau 2026, 58 essais/19 122 patients) ; le GLP-1 est
+      préféré avant tout bolus, avec un contrôle équivalent et moins d'hypoglycémie/de poids (DUAL VII ;
+      métas Eng et Maiorino). Vigilance sur le surtraitement du sujet âgé : aucune métrique, HbA1c ou
+      MCG, ne prédit fiablement le risque d'hypoglycémie, et les cibles de Time in Range restent un
+      consensus d'experts (Battelino/ATTD 2019), non un critère dur validé sur les complications — le
+      lien TIR-complications est observationnel (Beck 2019 en DT1 ; Lu 2021 en DT2). Insuline en ajout
+      lorsque l'HbA1c est très élevée ou si éviter la prise de poids n'est pas prioritaire ; effets
+      indésirables : hypoglycémie, prise de poids, aggravation d'une rétinopathie préexistante en cas de
+      baisse rapide de l'HbA1c. Remarque de sourçage : la synthèse Prescrire consultée ne traite pas la
+      hiérarchie NPH / analogues de 2ᵉ génération — cet argument s'appuie ici sur les essais dédiés
+      (SWITCH 2, DEVOTE, EDITION, BRIGHT, CONCLUDE, Cochrane Semlitsch).
+    references:
+      - nom: "ebmfrance/Duodecim"
+        lien: "https://www.ebmfrance.net/Guidelines/Details/ebm00491"
+      - nom: "Médicalement Geek / DragiWebdo"
+      - nom: "Prescrire"
+        detail: "Résumé sous droit d'auteur ; réf. prescrire-dt2.md P1/P3/P5/P8."
   reco_officielle:
     source: >-
       SFD 2025 (Darmon P et al., Médecine des maladies Métaboliques 2025;19(8):630-662) — reco française de
@@ -671,14 +681,19 @@ sources:
     explication: >-
       Deux frictions officielles : (1) la HAS 2024 (R.88, grade accord d'experts) place l'insuline prémélangée
       à parité avec le basal-bolus et reste muette sur la préférence 2ᵉ génération et sur « le GLP-1 avant le
-      bolus », là où ebmfrance et la SFD 2025 l'écartent ou l'énoncent explicitement ; (2) sur la MCG / le Time
-      in Range, un axe SFD 2025 / ADA 2026 technophile (MCG grade A, délivrance automatisée d'insuline désormais
-      proposée aussi en DT2, avec d'importants conflits d'intérêt avec les fabricants de dispositifs) s'oppose à
-      une HAS réservée (MCG « encouragée », sans cible de TIR) et à la position critique (Prescrire, Médicalement
-      Geek : les cibles de TIR sont un consensus / un substitut, aucune métrique ne prédit fiablement
-      l'hypoglycémie, d'où un risque de surtraitement guidé par la technologie). L'outil affiche la reco
-      française (SFD 2025, convergente avec l'EBM sur l'essentiel) et signale ces divergences ; il ne revendique
-      jamais de bénéfice cardiovasculaire pour l'insuline (ORIGIN neutre).
+      bolus » — deux préférences appuyées sur des essais publiés : réduction démontrée de l'hypoglycémie
+      nocturne (SWITCH 2 RR 0,70 ; EDITION U300 −31 %) et, vs glargine U100, de l'hypoglycémie sévère (DEVOTE,
+      NNT ~59/2 ans) pour le choix de génération ; même contrôle avec moins d'hypoglycémie et de poids
+      (DUAL VII ; méta Eng/Maiorino) pour le GLP-1 avant le bolus — la SFD 2025 les énonce explicitement, la
+      HAS reste silencieuse ; (2) sur la MCG / le Time in Range, un axe SFD 2025 / ADA 2026 technophile (MCG
+      grade A, délivrance automatisée d'insuline désormais proposée aussi en DT2, avec d'importants conflits
+      d'intérêt avec les fabricants de dispositifs) s'oppose à une HAS réservée (MCG « encouragée », sans
+      cible de TIR) et au fait que les cibles de Time in Range restent un consensus d'experts (Battelino/ATTD
+      2019), non un critère dur — le lien TIR-complications est observationnel (Beck 2019 en DT1 ; Lu 2021 en
+      DT2) et aucune métrique ne prédit fiablement l'hypoglycémie, d'où un risque de surtraitement guidé par
+      la technologie. L'outil affiche la reco française (SFD 2025, convergente avec l'EBM sur l'essentiel) et
+      signale ces divergences ; il ne revendique jamais de bénéfice cardiovasculaire pour l'insuline (ORIGIN
+      neutre).
 incertitudes:
   - "MCG : les cibles (TIR > 70 %, etc.) sont un consensus d'experts (Battelino 2019), pas un critère dur ; le lien TIR-complications est observationnel (Beck, ré-analyse du DCCT en DT1 ; Lu, cohorte T2D) ; le bénéfice de la MCG en DT2 porte sur des substituts (HbA1c, TIR), sans preuve sur les complications dures ni la mortalité (Jancev)."
   - "Bénéfice microvasculaire de l'insuline = extrapolé du contrôle glycémique (UKPDS), non démontré par un essai dédié à l'insuline sur critère dur."
@@ -695,8 +710,24 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Opus"
   statut: brouillon
-  version: "0.8"
+  version: "0.9"
   changelog:
+    - date: "2026-07-26"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        D23 (« la position affichée s'appuie sur la donnée publiée, jamais sur la publication ») :
+        `sources.medicalement_geek` + `sources.prescrire` fusionnés en `sources.synthese_critique`
+        (`donnee` + `references[]`). `donnee` reformulé pour s'appuyer sur les essais déjà cités dans
+        `references_primaires` (4T, Bertuol, Battelino, Beck, Lu) plutôt que sur le nom d'une revue ;
+        `reco_officielle.explication` reformulée de même (les deux frictions HAS/SFD s'appuient
+        désormais sur SWITCH 2/EDITION/DEVOTE/DUAL VII plutôt que sur « ebmfrance et la SFD l'écartent »
+        et « la position critique »). ebmfrance/Duodecim, Médicalement Geek/DragiWebdo et Prescrire
+        restent cités en référence bibliographique dans `references[]`. Aucune information supprimée
+        (le caveat « Prescrire ne traite pas la hiérarchie NPH/2ᵉ génération » est repris comme remarque
+        de sourçage). `ArgumentPanel.tsx` mis à jour en conséquence. Cf. `docs/decision/validation/
+        chantier-2026-07-26/sourcage-position-critique.md` — 2 occurrences DONNÉE À FOURNIR relevées
+        (IN5, dose de repli 10 U ; cf. `insuline.argumentaire.md`), marquées explicitement plutôt
+        qu'inventées.
     - date: "2026-07-26"
       auteur: "référent DT2 + Claude Code"
       resume: >-

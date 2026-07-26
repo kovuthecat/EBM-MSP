@@ -24,6 +24,11 @@
       "minLength": 1,
       "description": "Identifiant stable du noeud (ex. cible-glycemique)."
     },
+    "module": {
+      "type": "string",
+      "minLength": 1,
+      "description": "OPTIONNEL — libelle de MODULE regroupant plusieurs noeuds d'un meme domaine, rendu tel quel dans la liste (DECISIONS.md D22). Meme principe que `groupe` sur `criteres_entree` et `famille` sur les options : un libelle porte par le contenu, aucun nom connu du socle (invariant CLAUDE.md 5). Aucun effet moteur : `evaluateNode` l'ignore. Premier usage : module RHD = noeud alimentation + noeud activite physique. Le PREAMBULE PARTAGE et le PRIMER de levier prevus par D22 (poser le terrain une seule fois, orienter vers le bon axe) ne sont PAS portes par ce champ : ils demandent un ecran de module, non encore realise. En leur absence, chaque noeud declare ses propres criteres de terrain — a l'identique d'un noeud a l'autre, sous peine de violer l'invariant I4 (meme concept, meme expression)."
+    },
     "domaine": {
       "type": "string",
       "minLength": 1,
@@ -266,13 +271,30 @@
         "type_critere": { "$ref": "#/definitions/typeCritere" }
       }
     },
+    "referenceCritique": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["nom"],
+      "description": "Citation bibliographique d'une revue secondaire independante, dans `sources.synthese_critique.references` (DECISIONS.md D23). Jamais evaluee par le moteur ; jamais le sujet grammatical d'un argument affiche — seulement une reference a cote de la donnee qui, elle, porte l'argument.",
+      "properties": {
+        "nom": { "type": "string", "minLength": 1 },
+        "lien": {
+          "type": "string",
+          "description": "URL, si disponible."
+        },
+        "detail": {
+          "type": "string",
+          "description": "Precision bibliographique libre (reference d'article, restriction d'acces, date d'edition...)."
+        }
+      }
+    },
     "sources": {
       "type": "object",
       "additionalProperties": false,
+      "description": "Modele reorganise PAR NATURE de source (DECISIONS.md D23), pas par titre de publication : une donnee publiee (references_primaires), une synthese critique INDEPENDANTE qui interprete ces donnees (synthese_critique — Prescrire, Medicalement Geek/DragiWebdo, Minerva, ebmfrance/Duodecim... y sont citables en REFERENCE, jamais le sujet grammatical de l'argument), une recommandation OFFICIELLE (reco_officielle — HAS, SFD, ADA/EASD, KDIGO... des organismes qui emettent une recommandation formelle, a distinguer d'une revue secondaire independante meme si elle est riche en donnees).",
       "required": [
         "references_primaires",
-        "medicalement_geek",
-        "prescrire",
+        "synthese_critique",
         "reco_officielle"
       ],
       "properties": {
@@ -280,21 +302,21 @@
           "type": "array",
           "items": { "$ref": "#/definitions/referencePrimaire" }
         },
-        "medicalement_geek": {
+        "synthese_critique": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["synthese", "lien"],
+          "required": ["donnee", "references"],
+          "description": "Position critique independante (ex-medicalement_geek + ex-prescrire, fusionnes D23). `donnee` porte l'ARGUMENT — fonde sur les essais/meta-analyses (deja cites dans references_primaires ou repris ici), jamais sur le nom d'une revue. `references` cite les revues qui ont ete lues pour la construire : elles restent des references bibliographiques legitimes, jamais le sujet d'une phrase d'argument.",
           "properties": {
-            "synthese": { "type": "string" },
-            "lien": { "type": "string" }
-          }
-        },
-        "prescrire": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["synthese"],
-          "properties": {
-            "synthese": { "type": "string" }
+            "donnee": {
+              "type": "string",
+              "description": "Argument source par la donnee. Chaine vide acceptee si aucune synthese critique independante n'a ete identifiee pour ce noeud."
+            },
+            "references": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/referenceCritique" },
+              "description": "Revues secondaires independantes consultees (Prescrire, Medicalement Geek/DragiWebdo, Minerva, RecoMedicales, Louvain Medical, ebmfrance/Duodecim...). Citables en bibliographie ; ne portent jamais elles-memes l'argument de `donnee`."
+            }
           }
         },
         "reco_officielle": {
@@ -302,7 +324,10 @@
           "additionalProperties": false,
           "required": ["source", "position", "divergence", "explication"],
           "properties": {
-            "source": { "type": "string" },
+            "source": {
+              "type": "string",
+              "description": "Organisme(s) emettant une recommandation OFFICIELLE (HAS, SFD, ADA/EASD, KDIGO, RCP ANSM...). Une revue secondaire independante (Prescrire, Medicalement Geek, ebmfrance...) n'a pas sa place ici — cf. `synthese_critique.references` (D23)."
+            },
             "position": { "type": "string" },
             "divergence": {
               "type": "boolean",

@@ -176,9 +176,18 @@ basses, escalade PCSK9), non sur le socle « statine chez le diabétique à risq
 grain de la décision (dose fixe vs cible, honnêteté sur la mortalité), l'outil s'appuie sur l'EBM (CTT, CARDS,
 LODESTAR, VA/DoD 2026) et les sources critiques **indépendantes** (Prescrire, Minerva).
 
-**Position critique** (Prescrire, Minerva, EBM francophone) : **dose fixe** selon le risque absolu, **pas de
-cible LDL dogmatique** ; en prévention primaire, décider sur le **risque global**, pas sur les chiffres
-lipidiques ; molécule préférée **simvastatine**.
+**Synthèse critique indépendante** (Prescrire, Minerva — revues consultées, § Sources) : **dose fixe** de
+statine calée sur le risque absolu, **pas de cible LDL chiffrée** — aucun essai n'a randomisé deux valeurs
+cibles de LDL, et une stratégie de treat-to-target n'est pas supérieure à une dose fixe de haute intensité
+(**LODESTAR**, *JAMA* 2023, non-infériorité) ; **CARDS** et **HPS** ont démontré le bénéfice à dose fixe,
+indépendamment du LDL de base ; en prévention primaire, décider sur le **risque cardiovasculaire global**,
+pas sur les chiffres lipidiques.
+
+*(Retrait 2026-07-26, D23 : l'ancienne mention « molécule préférée = simvastatine » n'était adossée à aucun
+essai comparatif entre statines dans le dossier de preuve, et contredisait le § 6 Sécurité ci-dessous
+— simvastatine/atorvastatine ont PLUS d'interactions CYP3A4 que pravastatine/rosuvastatine/pitavastatine.
+Retirée plutôt que marquée « donnée à fournir », pour ne pas laisser deux positions contradictoires dans le
+même document — cf. `docs/decision/validation/chantier-2026-07-26/sourcage-position-critique.md`, ST3/ST7.)*
 
 **Divergence assumée par l'outil** : convergence totale sur la prévention **secondaire** ; en prévention
 **primaire**, l'outil (1) ne pilote pas par une **cible LDL chiffrée** (aucun ECR de valeur cible ; LODESTAR),

@@ -10,8 +10,10 @@ Quand une insuline devient nécessaire dans le DT2, quatre situations se présen
 **optimiser** une basale, **ajouter un bolus** (basal-plus), **adapter** un basal-bolus. Fils directeurs :
 
 - **La basale d'abord, en gardant les non-insulines.** Insuline basale + antidiabétiques (oraux et/ou GLP-1)
-  = schéma de choix (ebmfrance niveau B). Les schémas **prandial et prémélangé systématiques ne sont pas
-  fondés sur les preuves** (surcroît d'hypoglycémie et de poids).
+  = meilleur profil de tolérance parmi les schémas testés en essai randomisé (4T : hypoglycémie 2,3 vs
+  12,0 évén./patient/an et poids +1,9 vs +5,7 kg vs un schéma prandial à 1 an, PMID 17890232). Les schémas
+  **prandial et prémélangé systématiques ne sont pas fondés sur les preuves** (surcroît d'hypoglycémie et
+  de poids, gain d'HbA1c modeste — Bertuol, méta-analyse en réseau 2026).
 - **Intensifier par étapes, GLP-1 avant le bolus.** Sur une basale insuffisante, ajouter un GLP-1 (ou une
   association fixe) donne le même contrôle que le basal-bolus avec **moins d'hypoglycémie et de poids** ;
   réserver le bolus (basal-plus au repas principal, puis basal-bolus) aux cas où basale + GLP-1 sont insuffisants.
@@ -31,8 +33,8 @@ amaigrissement) — HAS 2024 (R.89 : HbA1c ≥ 10 % ou glycémies > 3 g/L répé
 ADA 2026 (rec 9.20). *Note red-team : la HAS déclenche sur des seuils glycémiques, le critère « symptômes »
 est propre à l'ADA.*
 
-**Basale = choix.** L'association agents oraux + insuline basale du soir est confirmée par méta-analyses
-(ebmfrance/Duodecim, niveau B). Le bras basal a le meilleur profil de tolérance :
+**Basale = choix.** L'association agents oraux + insuline basale du soir est confirmée par l'essai randomisé
+ci-dessous. Le bras basal a le meilleur profil de tolérance :
 
 | Étude | Comparaison | Hypoglycémie | Poids | HbA1c |
 | --- | --- | --- | --- | --- |
@@ -43,10 +45,13 @@ est propre à l'ADA.*
 **Argumentation négative.** Le gain d'HbA1c des schémas complexes est **modeste** (0,24-0,38 %, substitut) et
 se paie en hypoglycémie et en poids ; à 3 ans (4T), lorsque la plupart des patients basal ont été intensifiés,
 les HbA1c convergent — l'avantage cumulé du départ en basale (moins d'hypo, moins de poids) persiste. D'où :
-**prandial et prémélangé écartés de la 1ʳᵉ intention** (« ne constituent pas un traitement fondé sur les
-preuves » — ebmfrance). **Niveau de preuve : modéré à élevé** (essais robustes ; critères de substitution + sécurité).
+**prandial et prémélangé écartés de la 1ʳᵉ intention** — gain d'HbA1c modeste (0,24-0,38 %, substitution)
+qui se paie en hypoglycémie et en poids. **Niveau de preuve : modéré à élevé** (essais robustes ; critères
+de substitution + sécurité).
 
-**Titration.** Dose initiale = **poids × 0,1-0,2 U/kg/j** (repli fixe 10 U le soir — ebmfrance), auto-ajustement
+**Titration.** Dose initiale = **poids × 0,1-0,2 U/kg/j** (repli fixe 10 U le soir si le poids n'est pas
+disponible — **DONNÉE À FOURNIR** : position pragmatique usuelle, non validée spécifiquement par un essai
+identifié dans le dossier de preuve), auto-ajustement
 **+2 U** si la glycémie à jeun reste au-dessus de la cible 3 matins de suite (ou +10-20 % par paliers si dose
 > 40 U), adaptation tous les 3 jours ; cible de glycémie à jeun ~0,70-1,20 g/L. Algorithme validé par
 **Treat-to-Target** (PMID 14578243) : ~60 % atteignent la cible.
@@ -208,17 +213,23 @@ risque hypo ; 19 : GLP-1 préféré à l'insuline intensifiée, basal-plus > pr�
 23 : MCG remboursée si insuline, primoprescription MG). ADA 2026 : GLP-1 avant l'insuline (rec 9.21), MCG grade
 A (rec 7.15).
 
-**Position critique** (ebmfrance, Prescrire, Médicalement Geek) — affichée à côté. L'objectif reste d'éviter
-les complications : l'insuline corrige la glycémie et prévient le microvasculaire (extrapolé) mais n'a aucun
-bénéfice CV (ORIGIN) ; prandial/prémix systématique non fondé sur les preuves ; les cibles de TIR sont un
-consensus / un substitut, et **aucune métrique ne prédit fiablement l'hypoglycémie** → vigilance
-surtraitement, surtout chez l'âgé.
+**Synthèse critique indépendante** (revues consultées en référence, cf. § Sources) — affichée à côté.
+L'objectif reste d'éviter les complications : l'insuline corrige la glycémie et prévient le microvasculaire
+(extrapolé) mais n'a aucun bénéfice CV démontré (**ORIGIN**, MACE HR 1,02) ; les schémas prandial/prémélangé
+systématiques ne sont pas soutenus par les essais (**Bertuol**, méta-analyse en réseau 2026) ; les cibles de
+Time in Range restent un **consensus d'experts** (Battelino/ATTD 2019), non un critère dur validé sur les
+complications — le lien TIR-complications est observationnel (Beck 2019 en DT1 ; Lu 2021 en DT2) — d'où une
+vigilance sur le surtraitement, surtout chez l'âgé.
 
 **Divergences (deux frictions).** (1) **HAS 2024** (R.88, grade AE) admet le **prémix** à parité avec le
-basal-bolus et reste **muette sur la 2ᵉ génération** et sur « le GLP-1 avant le bolus », là où ebmfrance/SFD
-l'écartent ou l'énoncent. (2) **MCG / TIR** : axe **SFD 2025 / ADA 2026 technophile** (MCG grade A, délivrance
-automatisée désormais proposée en DT2, **fort conflit d'intérêt dispositifs**) vs **HAS réservée** (pas de
-cible TIR) et **position critique** (consensus / substitut, surtraitement). Sur le reste (basale + oraux/GLP-1,
+basal-bolus et reste **muette sur la 2ᵉ génération** et sur « le GLP-1 avant le bolus » — deux préférences
+appuyées sur des essais publiés : réduction démontrée de l'hypoglycémie nocturne (SWITCH 2 RR 0,70 ; EDITION
+U300 −31 %) et, vs glargine U100, de l'hypoglycémie sévère (DEVOTE, NNT ~59/2 ans) pour le choix de
+génération ; même contrôle avec moins d'hypoglycémie et de poids (DUAL VII ; méta Eng/Maiorino) pour le
+GLP-1 avant le bolus — **SFD 2025** les énonce explicitement, la HAS reste silencieuse. (2) **MCG / TIR** :
+axe **SFD 2025 / ADA 2026 technophile** (MCG grade A, délivrance automatisée désormais proposée en DT2,
+**fort conflit d'intérêt dispositifs**) vs **HAS réservée** (pas de cible TIR) et le fait que les cibles de
+TIR restent un consensus d'experts, non un critère dur (cf. ci-dessus). Sur le reste (basale + oraux/GLP-1,
 insuline en dernier, 2ᵉ génération pour l'hypo, GLP-1 avant le bolus), **SFD 2025 converge avec l'EBM**.
 
 *Réserves red-team (sources écartées).* La position « **Prescrire tient la NPH pour référence** » et la
