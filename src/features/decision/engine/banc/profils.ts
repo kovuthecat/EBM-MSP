@@ -2,6 +2,15 @@
  * Générateur de PROFILS DE CRITÈRES pour le banc d'un nœud (docs/decision/GRAMMAIRE-NOEUD.md,
  * section « Le banc d'un nœud — trois couches »), couches 2 (couverture) et 3 (invariants).
  *
+ * DEPUIS R7 (DECISIONS.md D20, `docs/decision/validation/chantier-2026-07-26/
+ * SPEC-valeur-indeterminee.md` §2), ce module produit aussi des profils PARTIELLEMENT renseignés
+ * (`genererProfilsPartiels`, en fin de fichier) : les fonctions ci-dessous (`genererProfils`,
+ * `genererPairesBooleennes`) ne renvoient QUE des `Criteria` bruts, sans notion de `renseignes` — un
+ * profil qu'elles engendrent est toujours implicitement COMPLET (repli « tout est renseigné » côté
+ * moteur). `genererProfilsPartiels` les réutilise puis retire un sous-ensemble de `renseignes`, à graine
+ * fixe — seule façon de mettre l'indétermination (R7) sous test, cf. sa docstring.
+ *
+
  * GÉNÉRIQUE par construction (invariant CLAUDE.md 5 / DECISIONS.md D8) : ce module ne connaît AUCUN nom
  * de critère ni de nœud (les noms de critère qu'il manipule sont lus dynamiquement sur `Noeud`, jamais
  * codés en dur). Pour chaque critère SAISISSABLE (non `derive`) de `Noeud.criteres_entree`, il tire une
@@ -324,4 +333,108 @@ export function genererPairesBooleennes(
     })
   }
   return paires
+}
+
+// ---------------------------------------------------------------------------------------------------
+// R7 · Profils PARTIELLEMENT renseignés (DECISIONS.md D20, `docs/decision/validation/chantier-2026-07-26/
+// SPEC-valeur-indeterminee.md` §2) : le golden master ci-dessus (`genererProfils`) engendre uniquement
+// des profils COMPLETS — un `renseignes` n'existe nulle part dans ce module avant cette section. Sans
+// elle, la caractérisation de l'indétermination (`caracterisation.test.ts`) et l'invariant I3
+// (`invariants.test.ts`) n'ont AUCUN profil à examiner : le défaut que R7 corrige (« le moteur ne
+// distingue pas non-renseigné de zéro ») serait livré sans un seul test capable de le mettre en évidence.
+// ---------------------------------------------------------------------------------------------------
+
+/** Expressions `exclusions` du nœud (mécanique, aucun nom de critère connu à l'avance) : sous-ensemble
+ * volontairement ÉTROIT de `reglesDuNoeud` ci-dessus — ne cible QUE les garde-fous (Q2 référent, D20,
+ * SPEC §0 : « un garde-fou sur un critère non renseigné ⇒ option en attente », le scénario le plus
+ * sensible du chantier, cf. le défaut réel « metformine écartée sur un DFG jamais saisi »). */
+function exclusionsDuNoeud(node: Noeud): string[] {
+  const regles: string[] = []
+  for (const option of node.options) if (option.exclusions) regles.push(...option.exclusions)
+  return regles
+}
+
+/** `critere` est-il cité (mot entier) dans au moins une expression de `regles` ? Même mécanique que
+ * `seuilsNumeriques` ci-dessus (motif `\b`), réutilisée à dessein plutôt que dupliquée sous une autre
+ * forme. */
+function critereCiteDans(critere: CritereEntree, regles: string[]): boolean {
+  const motif = new RegExp(`\\b${critere.nom}\\b`)
+  return regles.some((regle) => motif.test(regle))
+}
+
+/**
+ * Un profil PARTIELLEMENT renseigné : les mêmes VALEURS concrètes qu'un profil complet (`criteria` —
+ * SPEC §2.6, `touched` est un statut de PROVENANCE, jamais une seconde copie de la valeur), mais
+ * `renseignes` ne couvre qu'un SOUS-ENSEMBLE des critères saisissables du nœud. `masque` = les noms
+ * retirés d'un `renseignes` par ailleurs complet, exposé pour que l'appelant (document de relecture
+ * clinique, `caracterisation.test.ts`) puisse décrire la construction de chaque profil sans le
+ * redériver. `regime` DISTINGUE explicitement les deux RÉGIMES de construction (cf. `genererProfilsPartiels`
+ * ci-dessous) — NE PAS le redériver de `masque.length` côté appelant : un masque STRATIFIÉ peut, par
+ * hasard (fraction × total arrondie), retirer exactement UN critère sur un petit nœud (`statine`, 6
+ * critères saisissables), ce qui ressemblerait à tort à un masque CIBLÉ si on se fiait à la seule
+ * longueur.
+ */
+export interface ProfilPartiel {
+  criteria: Criteria
+  renseignes: ReadonlySet<string>
+  masque: string[]
+  regime: 'critique' | 'stratifie'
+}
+
+/**
+ * Génère `count` profils PARTIELLEMENT renseignés pour `node` (R7, DECISIONS.md D20). Réutilise `count`
+ * profils COMPLETS de `genererProfils` (mêmes valeurs concrètes, mêmes garanties de déterminisme) et
+ * retire de `renseignes` un sous-ensemble de critères SAISISSABLES, à graine fixe.
+ *
+ * DEUX RÉGIMES DE MASQUE, dans cet ordre (les premiers profils sont les plus CIBLÉS, donc les plus
+ * lisibles en relecture clinique) :
+ *
+ * 1. Un critère CRITIQUE — `nombre`/`enum` CITÉ PAR UNE `exclusions` de `node` (`exclusionsDuNoeud`
+ *    ci-dessus) — masqué SEUL (tous les autres critères restent renseignés), un profil par critère
+ *    critique, dans l'ordre de `criteres_entree`. C'est le scénario Q2 du référent (garde-fou sur donnée
+ *    manquante) à l'état le plus pur : un seul champ manque, et c'est justement celui qui commande un
+ *    garde-fou. `bool`/`liste` ne peuvent PAS produire ce scénario (SPEC §2.2 : ils restent déterminés
+ *    par défaut sauf `confirmation_requise`, absent de tout le contenu actuel) — non retenus ici.
+ * 2. Au-delà (nœud sans assez de critères critiques pour couvrir `count`, ex. `cible-glycemique`/`rhd`/
+ *    `statine`, aucune `exclusions` déclarée) : un masque STRATIFIÉ plus large — une fraction du
+ *    formulaire tirée dans [20 %, 70 %) à graine fixe (dérivée de l'INDICE du profil, jamais
+ *    `Math.random`, cf. docstring de tête du module) — simule un formulaire réellement partiel, pas
+ *    seulement un champ isolé.
+ *
+ * Générique (CLAUDE.md invariant 5 / DECISIONS.md D8) : ne connaît aucun nom de critère par avance, lit
+ * tout dynamiquement sur `node`, comme le reste de ce module.
+ */
+export function genererProfilsPartiels(node: Noeud, count: number, seed = GRAINE_PAR_DEFAUT): ProfilPartiel[] {
+  const saisissables = node.criteres_entree.filter((c) => c.derive == null)
+  const tousLesNoms = saisissables.map((c) => c.nom)
+  const exclusions = exclusionsDuNoeud(node)
+  const critiques = saisissables.filter(
+    (c) => (c.type === 'nombre' || c.type === 'enum') && critereCiteDans(c, exclusions),
+  )
+
+  const base = genererProfils(node, count, seed).slice(0, count)
+  const profils: ProfilPartiel[] = []
+
+  for (let i = 0; i < base.length; i++) {
+    let masque: string[]
+    let regime: ProfilPartiel['regime']
+    if (i < critiques.length) {
+      masque = [critiques[i].nom]
+      regime = 'critique'
+    } else {
+      const rng = mulberry32((seed ^ hashChaine(`__masque_partiel_${i}__`)) >>> 0)
+      const fraction = 0.2 + 0.5 * rng() // dans [0.2, 0.7)
+      const nb = Math.min(tousLesNoms.length, Math.max(1, Math.round(tousLesNoms.length * fraction)))
+      masque = melanger(tousLesNoms, rng).slice(0, nb)
+      regime = 'stratifie'
+    }
+    const masqueSet = new Set(masque)
+    profils.push({
+      criteria: base[i],
+      renseignes: new Set(tousLesNoms.filter((nom) => !masqueSet.has(nom))),
+      masque,
+      regime,
+    })
+  }
+  return profils
 }

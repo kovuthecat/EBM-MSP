@@ -24,8 +24,9 @@ import { describe, expect, it } from 'vitest'
 import { getNoeudById, noeuds } from '../../content/loadNodes.ts'
 import type { Noeud } from '../../content/node.types.ts'
 import type { Criteria } from '../conditions.ts'
-import { evaluateCondition } from '../conditions.ts'
+import { INDETERMINE, evaluateCondition } from '../conditions.ts'
 import { evaluateNode, groupesParFamille } from '../evaluateNode.ts'
+import { determinesEffectifs } from '../deriveCritere.ts'
 import { computeBadges } from '../../lib/optionBadges.ts'
 import { genererPairesBooleennes, genererProfils, tailleBanc } from './profils.ts'
 
@@ -103,15 +104,159 @@ describe.each(noeuds.map((node) => [node.id, node] as const))('banc — invarian
     expect(violations).toEqual([])
   })
 
+  /**
+   * I2′ (reformulation actée le 2026-07-26, DECISIONS.md D20, `docs/decision/validation/
+   * chantier-2026-07-26/SPEC-valeur-indeterminee.md` §2.7/§4) — REMPLACE l'ancien invariant n°2
+   * (« jamais `applicable` vide »), gardé ci-dessous à dessein plutôt que supprimé : cf. avertissement de
+   * méthode `GRAMMAIRE-NOEUD.md` (« un invariant trop large est pire qu'absent »).
+   *
+   * POURQUOI L'ANCIEN ÉNONCÉ EST DEVENU FAUX : depuis R7, une sortie `applicable` vide est désormais
+   * CORRECTE sur un profil dont un critère décisif n'est pas renseigné — c'est exactement ce que Q1/Q2
+   * du référent demandent (l'outil ne se prononce pas sur ce qu'il ignore, ni dans le sens rassurant ni
+   * dans le sens alarmant). Le remplacer par « jamais vide » tout court aurait forcé à encoder une
+   * fausseté (masquer l'indétermination) pour repasser au vert — précisément le piège que la grammaire
+   * signale. La reformulation retenue est : *jamais `applicable` vide LORSQUE TOUS LES CRITÈRES
+   * PERTINENTS SONT RENSEIGNÉS*.
+   *
+   * CE QUE LE TEST CHANGE, ET POURQUOI CE N'EST PAS UN AFFAIBLISSEMENT DÉGUISÉ : l'ancien corps passait
+   * `evaluateNode(node, profil)` SANS 3e argument — ce qui, avant R7, était la SEULE forme possible, et
+   * qui reste aujourd'hui le repli « tout est renseigné » (`engine/evaluateNode.ts`, docstring de tête).
+   * Le corps ci-dessous passe désormais EXPLICITEMENT `renseignes = tous les critères saisissables du
+   * nœud` plutôt que de compter sur l'omission implicite du paramètre : cela exerce RÉELLEMENT le chemin
+   * de code ternaire (D20) introduit par R7 — avec la garantie qu'aucun critère n'y est indéterminé —
+   * plutôt que de contourner ce chemin de code entièrement (ce que l'omission aurait fait). C'est la
+   * forme la plus littérale de « tous les critères sont renseignés », et elle revérifie au passage que
+   * R7 n'a rien changé au comportement sur un formulaire intégralement rempli (non-régression).
+   */
   const testInvariant2 = NOEUDS_AVEC_SORTIE_VIDE_CONNUE.has(node.id) ? it.fails : it
-  testInvariant2('2 — jamais `applicable` VIDE (aurait détecté le trou « sortie muette »)', () => {
-    const profilsMuets: number[] = []
-    profils.forEach((profil, i) => {
-      if (evaluateNode(node, profil).applicable.length === 0) profilsMuets.push(i)
-    })
-    expect(profilsMuets).toEqual([])
-  })
+  testInvariant2(
+    'I2′ — jamais `applicable` VIDE quand tous les critères sont renseignés (remplace l’ancien invariant n°2, cf. commentaire ci-dessus)',
+    () => {
+      const tousLesNoms = new Set(node.criteres_entree.filter((c) => c.derive == null).map((c) => c.nom))
+      const profilsMuets: number[] = []
+      profils.forEach((profil, i) => {
+        if (evaluateNode(node, profil, tousLesNoms).applicable.length === 0) profilsMuets.push(i)
+      })
+      expect(profilsMuets).toEqual([])
+    },
+  )
 })
+
+// ---------------------------------------------------------------------------------------------------
+// Invariant I3 (D20, SPEC-valeur-indeterminee.md §2.4/§4, Q1/Q2 référent) — GÉNÉRIQUE, vaut pour tout
+// nœud (moteur, aucune connaissance de contenu). Revérifie, EXTERNEMENT et avec les seules briques
+// génériques du moteur (`evaluateCondition`, `determinesEffectifs`), que rien de ce qu'`evaluateNode` a
+// classé `applicable` ne reposait sur une expression restée INDÉTERMINÉE faute de critère renseigné —
+// même esprit que l'invariant 1 ci-dessus (« jamais applicable dont une exclusion est vraie ») : une
+// propriété que `classerOption` (engine/evaluateNode.ts) garantit déjà EN INTERNE, revérifiée
+// MÉCANIQUEMENT de l'extérieur (cf. tête de fichier : « une propriété se valide une fois et couvre tout
+// l'espace »).
+//
+// ⚠ CE QUE CET INVARIANT NE FAIT PAS (piège signalé par la tâche, cf. avertissement de méthode
+// `GRAMMAIRE-NOEUD.md`) : il ne dit PAS « une option qui MENTIONNE TEXTUELLEMENT le critère masqué doit
+// être en attente ». Une disjonction dont une branche est vraie reste vraie même si une autre est
+// indéterminée (SPEC §2.3 : « propriété décisive qui limite le mutisme ») — ex.
+// `DFG < 60 OR ASCVD_etablie == true` avec `DFG` masqué mais `ASCVD_etablie` vraie reste VRAIE, l'option
+// reste normalement `applicable` (cf. `evaluateNode.indetermine.test.ts`, même propriété testée au niveau
+// unitaire). Un invariant qui exigerait « en attente » dès qu'une expression MENTIONNE le critère masqué
+// violerait ce principe et échouerait massivement sur du contenu correct — exactement l'invariant « trop
+// large » contre lequel la grammaire met en garde (ex. `prescription`, option iSGLT2 :
+// `insuffisance_cardiaque == true OR DFG < 60 OR ... OR ASCVD_etablie == true OR ...` — masquer `DFG`
+// seul ne doit PAS mettre cette option en attente pour un patient dont `ASCVD_etablie` est vraie). C'est
+// pour cette raison que le corps ci-dessous n'a JAMAIS été écrit comme une recherche textuelle du nom du
+// critère masqué dans l'expression — seulement comme une revérification du VERDICT ternaire
+// (`evaluateCondition`), la même brique que le moteur.
+// ---------------------------------------------------------------------------------------------------
+describe.each(noeuds.map((node) => [node.id, node] as const))(
+  'banc — invariant I3 (D20) — indétermination · nœud %s',
+  (_id, node) => {
+    const saisissables = node.criteres_entree.filter((c) => c.derive == null)
+    // Seuls les critères dont l'OMISSION peut réellement produire une indétermination (SPEC §2.2, cf.
+    // `deriveCritere.ts` `critereEstDetermine`) : `nombre`/`enum` toujours ; `bool`/`liste` seulement
+    // s'ils déclarent `confirmation_requise` (absent de tout le contenu actuel, cf. `content/noeuds/`).
+    // Les autres critères restent déterminés par leur défaut (une réponse clinique réelle, D20) : les
+    // retirer de `renseignes` ne changerait rien à `evaluateNode` — pas un cas de ce chantier.
+    const criteresIndeterminables = saisissables.filter(
+      (c) => c.type === 'nombre' || c.type === 'enum' || c.confirmation_requise === true,
+    )
+
+    const testI3 = criteresIndeterminables.length > 0 ? it : it.skip
+    testI3(
+      'I3 — aucune option APPLICABLE ne repose sur une condition/prérequis/exclusion indéterminée ; ' +
+        'aucune alerte de nœud au `quand` indéterminé ne s’affiche',
+      () => {
+        const tousLesNoms = new Set(saisissables.map((c) => c.nom))
+        // Volume MODÉRÉ (pas `tailleBanc`, jusqu'à 2000) : I3 boucle aussi sur CHAQUE critère
+        // indéterminable, le coût total est `profils × critères indéterminables` — cf. commentaire de
+        // tête sur le coût de perturbation déjà observé côté `relevance.ts`/`couverture.test.ts`.
+        const echantillon = genererProfils(node, 50).slice(0, 50)
+
+        const violations: string[] = []
+        for (const critere of criteresIndeterminables) {
+          const renseignesPartiel = new Set([...tousLesNoms].filter((nom) => nom !== critere.nom))
+          echantillon.forEach((profil, i) => {
+            const effectifs = determinesEffectifs(node.criteres_entree, profil, renseignesPartiel)!
+            const { applicable, excluded, alertes } = evaluateNode(node, profil, renseignesPartiel)
+
+            // Q1/Q2 référent : ni une condition/prérequis ni une exclusion indéterminés ne doivent
+            // laisser l'option `applicable` (Q2 est le point le plus sensible : un garde-fou
+            // indéterminé doit mettre l'option EN ATTENTE, jamais la laisser passer, cf. le défaut réel
+            // « metformine proposée sans vérifier le DFG »).
+            for (const option of applicable) {
+              // Les sentinelles `["default"]`/`["toujours"]` (D11/D16) ne sont PAS des expressions
+              // évaluables — `evaluateCondition` lève dessus (`ConditionError`), exactement comme le
+              // moteur les traite à part (`isDefaultOption`/`isToujoursOption`, `engine/evaluateNode.ts`).
+              // Un `prerequis`/`exclusions` propre à une option sentinelle, lui, RESTE une expression
+              // réelle (R6) : seul `conditions` est exclu ici quand il vaut exactement l'une des deux.
+              const estSentinelle =
+                option.conditions.length === 1 && (option.conditions[0] === 'default' || option.conditions[0] === 'toujours')
+              const expressions = [
+                ...(estSentinelle ? [] : option.conditions),
+                ...(option.prerequis ?? []),
+                ...(option.exclusions ?? []),
+              ]
+              for (const expr of expressions) {
+                if (evaluateCondition(expr, profil, effectifs) === INDETERMINE) {
+                  violations.push(
+                    `profil #${i}, critère masqué "${critere.nom}" :: option "${option.intitule}" ` +
+                      `APPLICABLE malgré "${expr}" indéterminée`,
+                  )
+                }
+              }
+            }
+
+            // Sanity symétrique côté `excluded` : le motif RENVOYÉ par `evaluateNode` (celui qui a
+            // justifié le retrait) doit rester STRICTEMENT vrai sous le même `renseignes` partiel —
+            // jamais une exclusion qui ne serait, en réalité, qu'indéterminée.
+            for (const [option, motifs] of excluded) {
+              for (const expr of motifs) {
+                if (evaluateCondition(expr, profil, effectifs) !== true) {
+                  violations.push(
+                    `profil #${i}, critère masqué "${critere.nom}" :: option "${option.intitule}" ÉCARTÉE ` +
+                      `sur un motif "${expr}" qui n'est plus strictement vrai`,
+                  )
+                }
+              }
+            }
+
+            // Aucune alerte de nœud affichée ne doit avoir un `quand` indéterminé (D20 §2.4 : « une
+            // alerte dont le quand est indéterminé ne s'affiche pas »).
+            for (const alerte of node.alertes ?? []) {
+              if (alerte.quand === 'default') continue
+              if (alertes.includes(alerte) && evaluateCondition(alerte.quand, profil, effectifs) !== true) {
+                violations.push(
+                  `profil #${i}, critère masqué "${critere.nom}" :: alerte "${alerte.message}" affichée ` +
+                    `malgré un "quand" non strictement vrai`,
+                )
+              }
+            }
+          })
+        }
+        expect(violations).toEqual([])
+      },
+    )
+  },
+)
 
 // ---------------------------------------------------------------------------------------------------
 // Invariants 3-7 : SPÉCIFIQUES au domaine DT2 (nœud `prescription` uniquement) — propriétés cliniques,

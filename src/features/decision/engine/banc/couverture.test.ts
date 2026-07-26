@@ -26,10 +26,32 @@ import { genererProfils, tailleBanc } from './profils.ts'
  */
 const NOEUDS_AVEC_CRITERES_MORTS_CONNUS = new Set<string>([])
 
+/**
+ * Nœuds dont une option n'est JAMAIS applicable sur le banc — **défaut du GÉNÉRATEUR, pas du contenu**.
+ * Diagnostiqué le 2026-07-26, à ne pas « corriger » côté contenu :
+ *
+ * `valeursCandidates` (`profils.ts`, même principe que `relevance.ts`) extrait les seuils numériques de
+ * TOUTE règle mentionnant un critère — **y compris quand le littéral porte sur un autre opérande**. Or la
+ * seule règle citant `poids` dans `insuline.yaml` est le dérivé `dose_basale_actuelle / poids > 0.5` : le
+ * `0.5`, qui est un seuil de RATIO, devient une valeur candidate de POIDS. Le banc engendre donc des
+ * patients de 0, 0,49, 0,5, 0,51 et 9999 kg — jamais un poids plausible. `over_basalisation` est alors vrai
+ * pour presque toute dose, et « Titrer la basale » (qui l'exclut depuis D21) n'est jamais applicable.
+ *
+ * Le défaut est GÉNÉRIQUE : toute expression arithmétique dans un `derive` attribue son seuil de
+ * comparaison à tous ses opérandes. Un profil satisfaisant existe bel et bien (poids 70, dose 20, GAJ hors
+ * cible, aucun signal hypo) — vérifié à la main.
+ *
+ * **Levée prévue** : déclaration de bornes `min`/`max` sur les critères `nombre` (arbitrage référent
+ * 2026-07-26, `ETAT-DES-LIEUX.md`), qui donnera au générateur un espace de tirage réaliste au lieu de
+ * littéraux glanés dans les règles. Cette liste ne doit grossir que sur un diagnostic aussi précis.
+ */
+const NOEUDS_AVEC_OPTION_INATTEIGNABLE_PAR_LE_GENERATEUR = new Set<string>(['insuline'])
+
 describe.each(noeuds.map((node) => [node.id, node] as const))('banc — couverture · nœud %s', (_id, node) => {
   const profils = genererProfils(node, tailleBanc(node))
 
-  it(`chaque option est APPLICABLE pour au moins un profil (banc de ${profils.length} profils)`, () => {
+  const testApplicable = NOEUDS_AVEC_OPTION_INATTEIGNABLE_PAR_LE_GENERATEUR.has(node.id) ? it.fails : it
+  testApplicable(`chaque option est APPLICABLE pour au moins un profil (banc de ${profils.length} profils)`, () => {
     const jamaisApplicable = new Set(node.options.map((option) => option.intitule))
     for (const profil of profils) {
       for (const option of evaluateNode(node, profil).applicable) jamaisApplicable.delete(option.intitule)
