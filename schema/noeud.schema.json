@@ -137,6 +137,14 @@
         "confirmation_requise": {
           "type": "boolean",
           "description": "Valeur indéterminée (DECISIONS.md D20, docs/decision/validation/chantier-2026-07-26/SPEC-valeur-indeterminee.md §2.2) : réservé aux critères bool/liste dont le défaut (false/[]) NE PEUT PAS être présumé sans risque clinique. Quand true, traité comme nombre/enum : indéterminé tant que non renseigné par le praticien, plutôt que de garder sa valeur par défaut. Absent ou false (repli) = comportement historique inchangé (une case non cochée EST une réponse clinique). Sans effet sur nombre/enum, déjà toujours indéterminés tant que non saisis."
+        },
+        "min": {
+          "type": "number",
+          "description": "Borne basse plausible du domaine clinique d'un critère `nombre` (table validée par le référent, docs/decision/GRAMMAIRE-NOEUD.md). Triple rôle, aucun des trois lu par le moteur (`evaluateNode` n'en sait rien) : (1) le formulaire (`components/CriteriaForm.tsx`) la répercute sur l'attribut HTML `min` de l'input, pour bloquer une saisie hors domaine (ex. -1 sur `autres_FDRCV`, qui fait basculer la sortie de `statine` d'un tier à l'autre) ; (2) les deux extracteurs de valeurs candidates du banc (`engine/banc/profils.ts`, `engine/relevance.ts`) écartent tout littéral hors de [min, max] trouvé dans une règle du nœud, pour ne plus attribuer à ce critère le seuil littéral d'un AUTRE critère mentionné dans la même expression (ex. le 0,5 d'un ratio dose/poids devenant un poids candidat, les 1000/2000 d'une dose de metformine devenant un DFG candidat) ; (3) sert de domaine de repli pour le tirage aléatoire du banc quand le filtre (2) n'a laissé aucun littéral valide. Optionnel : absent = comportement historique inchangé (aucune borne)."
+        },
+        "max": {
+          "type": "number",
+          "description": "Borne haute plausible du domaine clinique d'un critère `nombre` — voir `min` pour le triple rôle (saisie du formulaire, filtre des valeurs candidates du banc, domaine de repli du tirage). Optionnel, symétrique de `min`."
         }
       }
     },

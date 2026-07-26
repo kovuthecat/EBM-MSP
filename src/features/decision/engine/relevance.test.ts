@@ -15,8 +15,17 @@ const node = getNoeudById('prescription')
 if (!node) throw new Error('Nœud "prescription" introuvable.')
 
 // Patient sous metformine, au-dessus de la cible, sans comorbidité — la reco dépend fortement du terrain.
+// ⚠ Ce fixture énumère les critères À LA MAIN : il doit être complété à chaque critère ajouté au nœud,
+// sous peine d'une `ConditionError` « variable de critère inconnue » — LATENTE, car elle ne se déclenche
+// que si une perturbation atteint réellement le terme concerné (l'évaluation court-circuite sur AND).
+// C'est ce qui s'est produit le 2026-07-26 : `dose_metformine`, ajouté le matin, n'a fait échouer ce
+// fichier qu'après le lot des bornes, qui a changé les valeurs candidates donc les chemins explorés.
+// Le fixture voisin `PROFIL_RECETTE` n'a pas ce défaut : il part de `buildDefaultCriteria`.
 const PROFIL: Criteria = {
   traitements_en_cours: ['metformine'],
+  // DFG 80 : aucun plafond de dose ne s'applique (les paliers sont DFG 45-59 → 2 000 et 30-44 → 1 000),
+  // donc ce critère reste légitimement non décisif pour ce profil — cf. la liste des inertes acceptés.
+  dose_metformine: 2000,
   intention: 'optimiser',
   // R1 (GRAMMAIRE-NOEUD.md) : critère désormais DÉCLARÉ (plus déduit de `intention`) — sans lui, le moteur
   // de dérivation traiterait le nom du critère comme un libellé littéral (aucune clé trouvée), ce qui

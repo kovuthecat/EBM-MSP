@@ -55,6 +55,26 @@ export interface CritereEntree {
    * indéterminés tant que non saisis.
    */
   confirmation_requise?: boolean
+  /**
+   * Borne basse plausible du domaine clinique d'un critère `nombre` (table validée par le référent,
+   * `docs/decision/GRAMMAIRE-NOEUD.md`). Triple rôle, aucun lu par le moteur (`evaluateNode` l'ignore) :
+   * (1) le formulaire (`components/CriteriaForm.tsx`) la répercute sur l'attribut HTML `min` de l'input,
+   * pour bloquer une saisie hors domaine (ex. -1 sur `autres_FDRCV`, qui fait basculer la sortie de
+   * `statine` d'un tier à l'autre) ; (2) les deux extracteurs de valeurs candidates du banc
+   * (`engine/banc/profils.ts`, `engine/relevance.ts`) écartent tout littéral hors de `[min, max]` trouvé
+   * dans une règle du nœud, pour ne plus attribuer à ce critère le seuil littéral d'un AUTRE critère
+   * mentionné dans la même expression (ex. le 0,5 d'un ratio dose/poids devenant un poids candidat, les
+   * 1000/2000 d'une dose de metformine devenant un DFG candidat) ; (3) sert de domaine de repli pour le
+   * tirage aléatoire du banc quand le filtre (2) n'a laissé aucun littéral valide. Optionnel : absent =
+   * comportement historique inchangé (aucune borne).
+   */
+  min?: number
+  /**
+   * Borne haute plausible du domaine clinique d'un critère `nombre` — voir `min` pour le triple rôle
+   * (saisie du formulaire, filtre des valeurs candidates du banc, domaine de repli du tirage). Optionnel,
+   * symétrique de `min`.
+   */
+  max?: number
 }
 
 /**

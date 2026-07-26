@@ -28,34 +28,27 @@ const NOEUDS_AVEC_CRITERES_MORTS_CONNUS = new Set<string>([])
 
 /**
  * Nœuds dont une option n'est JAMAIS applicable sur le banc — **défaut du GÉNÉRATEUR, pas du contenu**.
- * Diagnostiqué le 2026-07-26, à ne pas « corriger » côté contenu :
+ * Diagnostiqué le 2026-07-26 (poids/DFG ci-dessous), **CORRIGÉ le même jour** par la déclaration de
+ * bornes `min`/`max` sur les critères `nombre` (table validée référent, docs/decision/GRAMMAIRE-NOEUD.md,
+ * schema/noeud.schema.json) et leur application aux DEUX extracteurs de valeurs candidates
+ * (`engine/banc/profils.ts` `seuilsNumeriques`, `engine/relevance.ts` `valeursCandidates`) : tout littéral
+ * hors `[min, max]` est désormais écarté, avec repli sur un tirage dans `[min, max]` quand plus aucun
+ * littéral ne subsiste. Vérifié après correction : `genererProfils` sur `insuline` ne produit plus de
+ * poids candidat à 0,5 kg (domaine observé : bornes + tirages dans [35, 250]) ; sur `prescription`, le
+ * domaine de tirage du DFG ne contient plus 1000/2000 (domaine observé : bornes + seuils réels dans
+ * [3, 150]). Liste laissée VIDE (constatation, pas seulement l'absence de nouveau diagnostic) — l'historique
+ * du défaut reste ci-dessous pour qui chercherait pourquoi `min`/`max` existent sur le schéma.
  *
- * `valeursCandidates` (`profils.ts`, même principe que `relevance.ts`) extrait les seuils numériques de
- * TOUTE règle mentionnant un critère — **y compris quand le littéral porte sur un autre opérande**. Or la
- * seule règle citant `poids` dans `insuline.yaml` est le dérivé `dose_basale_actuelle / poids > 0.5` : le
- * `0.5`, qui est un seuil de RATIO, devient une valeur candidate de POIDS. Le banc engendre donc des
- * patients de 0, 0,49, 0,5, 0,51 et 9999 kg — jamais un poids plausible. `over_basalisation` est alors vrai
- * pour presque toute dose, et « Titrer la basale » (qui l'exclut depuis D21) n'est jamais applicable.
- *
- * Le défaut est GÉNÉRIQUE : toute expression arithmétique dans un `derive` attribue son seuil de
- * comparaison à tous ses opérandes. Un profil satisfaisant existe bel et bien (poids 70, dose 20, GAJ hors
- * cible, aucun signal hypo) — vérifié à la main.
- *
- * ⚠ **`insuline` retiré de la liste le 2026-07-26 — le DÉFAUT DU GÉNÉRATEUR N'EST PAS CORRIGÉ.**
- * « Titrer la basale » est redevenue atteignable parce que le pivot nocturne (D-nn, décision référent)
- * lui a ouvert une branche `mcg_disponible == true` qui ne dépend plus de `gaj_a_cible` — l'option
- * contourne donc `over_basalisation`, elle ne guérit pas le tirage. Les poids de 0,5 kg sont toujours là.
- *
- * Le même mécanisme a depuis été observé sur `DFG` : la condition de « Réduire la posologie de la
- * metformine » mentionne à la fois `DFG` et les seuils de dose `1000`/`2000`, qui entrent donc dans le
- * domaine de tirage du DFG — le banc teste des patients à 2000 mL/min. **Le défaut s'aggrave à mesure
- * que le contenu s'enrichit** : toute règle associant deux critères d'échelles différentes corrompt le
- * domaine de l'un par les littéraux de l'autre.
- *
- * **Correction prévue, en deux gestes indissociables** : déclarer des bornes `min`/`max` sur les critères
- * `nombre`, ET écarter à l'extraction tout littéral hors de ces bornes — sans le second, le `2000`
- * continuerait d'entrer dans le domaine du DFG, le générateur ne sachant pas à quelle variable il
- * appartient. Cette liste ne doit grossir que sur un diagnostic aussi précis.
+ * **Historique du diagnostic (avant correction).** `valeursCandidates` (`profils.ts`, même principe que
+ * `relevance.ts`) extrayait les seuils numériques de TOUTE règle mentionnant un critère — **y compris
+ * quand le littéral porte sur un autre opérande**. La seule règle citant `poids` dans `insuline.yaml` est
+ * le dérivé `dose_basale_actuelle / poids > 0.5` : le `0.5`, seuil de RATIO, devenait une valeur candidate
+ * de POIDS (patients de 0, 0,49, 0,5, 0,51 et 9999 kg). Le même mécanisme touchait `DFG` : la condition de
+ * « Réduire la posologie de la metformine » mentionne à la fois `DFG` et les seuils de dose `1000`/`2000`,
+ * qui entraient dans le domaine de tirage du DFG (patients à 2000 mL/min). Le défaut était GÉNÉRIQUE :
+ * toute règle associant deux critères d'échelles différentes corrompait le domaine de l'un par les
+ * littéraux de l'autre, et s'aggravait à mesure que le contenu s'enrichissait — d'où la correction
+ * générique (bornes de contenu, pas un correctif ad hoc par nœud).
  */
 const NOEUDS_AVEC_OPTION_INATTEIGNABLE_PAR_LE_GENERATEUR = new Set<string>([])
 

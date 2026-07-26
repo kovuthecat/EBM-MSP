@@ -33,8 +33,12 @@ argumentaire_exhaustif: "rhd.argumentaire.md"
 criteres_entree:
   - nom: IMC
     type: nombre
+    min: 14
+    max: 70
   - nom: anciennete_diabete_annees
     type: nombre
+    min: 0
+    max: 60
   - nom: motivation
     type: bool
   - nom: capacite_activite
@@ -276,8 +280,16 @@ meta:
   date_revue: "2026-07-24"
   auteur: "Opus + référent (Thibault)"
   statut: brouillon
-  version: "0.2"
+  version: "0.3"
   changelog:
+    - date: "2026-07-26"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        Bornes `min`/`max` déclarées sur `IMC` (14-70) et `anciennete_diabete_annees` (0-60) — table
+        validée par le référent (docs/decision/GRAMMAIRE-NOEUD.md). Bloque la saisie hors domaine et
+        filtre les littéraux étrangers extraits par les deux générateurs de valeurs candidates du banc
+        (`engine/banc/profils.ts`, `engine/relevance.ts`). Mêmes bornes que sur les autres nœuds portant
+        ces deux critères (cible-glycemique, statine, prescription). Moteur inchangé.
     - date: "2026-07-24"
       auteur: "Opus + référent (Thibault)"
       resume: >-

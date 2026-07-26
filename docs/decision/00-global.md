@@ -4,10 +4,17 @@ Autorité du contenu clinique du **domaine `diabete-type-2`**. Un nœud d'algori
 d'un travail de preuve tracé ; ce fichier fixe la méthode, la racine `docs/decision/` la porte.
 
 **La grammaire générique a été sortie d'ici : [`GRAMMAIRE-NOEUD.md`](GRAMMAIRE-NOEUD.md).** Elle ne
-connaît aucun domaine et énonce ce qu'un nœud doit exprimer (R1→R6) plus la structure de son banc de
+connaît aucun domaine et énonce ce qu'un nœud doit exprimer (R1→R9) plus la structure de son banc de
 test — donc réutilisable telle quelle par les domaines à venir. **Ce fichier-ci reste DT2** : pipeline
 de preuve, règles de sourcing, socle de sources, état des nœuds. Les deux se lisent ensemble avant
 d'écrire un nœud ; la grammaire d'abord.
+
+**Le procédé de construction a lui aussi été sorti d'ici :
+[`CONSTRUIRE-UN-MODULE.md`](CONSTRUIRE-UN-MODULE.md)** — dans quel ordre bâtir un module (P0→P7),
+avec quelles portes de sortie et quelles checklists opposables. Ce fichier-ci décrit **comment
+sourcer** (étape P4 du procédé) ; l'autre décrit **quand le faire et ce qui doit être acquis avant**.
+Pour un nouveau domaine, `CONSTRUIRE-UN-MODULE.md` se lit **en premier** — la collecte n'est que la
+cinquième étape.
 
 > Sources amont : `docs/decision/BRIEF_DECISION.md` (§5 schéma, §10 nœuds A→H, §11 gabarit A) ·
 > `docs/veille/GRILLE_APPRECIATION.md` (grille d'appréciation) · `docs/veille/BRIEF_VEILLE.md` §7ter

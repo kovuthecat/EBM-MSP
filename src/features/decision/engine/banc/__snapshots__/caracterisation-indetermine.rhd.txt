@@ -35,10 +35,10 @@ Sortie :
 ### Profil #1 — 5 critère(s) masqué(s) (masque stratifié) : anciennete_diabete_annees, IMC, alimentation_equilibree, traitements_en_cours, activite_physique_reguliere
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ○ - IMC = 6
-  ○ - anciennete_diabete_annees = 999
-  ■ - motivation = false
-  ■ - capacite_activite = true
+  ○ - IMC = 35
+  ○ - anciennete_diabete_annees = 60
+  ■ - motivation = true
+  ■ - capacite_activite = false
   ○ - alimentation_equilibree = false
   ○ - activite_physique_reguliere = true
   ○ - traitements_en_cours = [metformine, iSGLT2, tirzepatide, glinide]
@@ -48,7 +48,7 @@ Sortie :
   - [reco-officielle] Mesures hygiéno-diététiques — socle recommandé à tous (alimentation type méditerranéen, activité physique adaptée, objectif de perte de poids ≥ 5-10 % si surpoids/obésité)
       proposé parce que : toujours
   Alertes de nœud :
-    - Adhésion à renforcer : négocier des objectifs modestes, concrets et mesurables (entretien motivationnel), inscrits dans le dossier et réévalués — plutôt que d'imposer un objectif ambitieux non tenu. [info]
+    - Adapter l'activité physique aux capacités (fractionnée, en position assise, supervisée) : toute activité compte, même sans perte de poids ; plusieurs séances courtes valent une longue. [info]
     - Sous insuline, sulfamide ou glinide, une perte de poids (et la réduction des apports) majore le risque d'HYPOGLYCÉMIE : anticiper l'allègement / la déprescription de ces agents (voir nœuds C / D / E). [attention]
     - Sujet âgé, fragile ou dénutri : viser le maintien de la masse musculaire (apports protéiques, renforcement) et NE PAS imposer de restriction calorique agressive (risque de sarcopénie) ; individualiser l'objectif. [info]
   Options EN ATTENTE (indétermination, R7/D20) :
@@ -57,10 +57,10 @@ Sortie :
 ### Profil #2 — 5 critère(s) masqué(s) (masque stratifié) : alimentation_equilibree, anciennete_diabete_annees, activite_physique_reguliere, motivation, traitements_en_cours
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - IMC = 36
-  ○ - anciennete_diabete_annees = 999
-  ○ - motivation = true
-  ■ - capacite_activite = true
+  ■ - IMC = 27
+  ○ - anciennete_diabete_annees = 0
+  ○ - motivation = false
+  ■ - capacite_activite = false
   ○ - alimentation_equilibree = true
   ○ - activite_physique_reguliere = true
   ○ - traitements_en_cours = [aGLP1, sulfamide, gliptine, insuline]
@@ -74,16 +74,17 @@ Sortie :
   - [recommandee] Perte de poids importante visée rémission — informer, recommander, orienter (accompagnement structuré, hors médecine générale)
       proposé parce que : IMC >= 27
   Alertes de nœud :
-    - Penser à discuter une évaluation de CHIRURGIE MÉTABOLIQUE en soins spécialisés : indication à considérer si IMC ≥ 35 avec une comorbidité sévère améliorable (le DT2 qualifie) — HAS parcours obésité / SFD / DSS-II — APRÈS 6-12 mois de prise en charge médicale sans bénéfice suffisant (préparation ≥ 6 mois, parcours pluridisciplinaire / centre spécialisé de l'obésité, suivi à vie). La SFD 2025 ouvre aussi l'indication à IMC 30-34,9 au cas par cas. Preuve de rémission par ECR (STAMPEDE, Mingrone, ARMMS-T2D) ; bénéfice sur critères durs EXCLUSIVEMENT observationnel (SOS, Aminian, Fisher ; aucun ECR de mortalité/CV). La décision relève des soins spécialisés (hors outil). [attention]
     - Mode de vie déjà optimisé (alimentation équilibrée + activité physique régulière) : marge de manœuvre hygiéno-diététique faible → renforcer / maintenir plutôt que « faire plus » ; le bénéfice additionnel des MHD est limité. Si le contrôle reste insuffisant, envisager d'autres leviers (nœud prescription). [info]
+    - Adapter l'activité physique aux capacités (fractionnée, en position assise, supervisée) : toute activité compte, même sans perte de poids ; plusieurs séances courtes valent une longue. [info]
+    - Adhésion à renforcer : négocier des objectifs modestes, concrets et mesurables (entretien motivationnel), inscrits dans le dossier et réévalués — plutôt que d'imposer un objectif ambitieux non tenu. [info]
     - Sous insuline, sulfamide ou glinide, une perte de poids (et la réduction des apports) majore le risque d'HYPOGLYCÉMIE : anticiper l'allègement / la déprescription de ces agents (voir nœuds C / D / E). [attention]
     - Sujet âgé, fragile ou dénutri : viser le maintien de la masse musculaire (apports protéiques, renforcement) et NE PAS imposer de restriction calorique agressive (risque de sarcopénie) ; individualiser l'objectif. [info]
 
 ### Profil #3 — 3 critère(s) masqué(s) (masque stratifié) : IMC, traitements_en_cours, alimentation_equilibree
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ○ - IMC = 7
-  ■ - anciennete_diabete_annees = 0
+  ○ - IMC = 28
+  ■ - anciennete_diabete_annees = 7
   ■ - motivation = true
   ■ - capacite_activite = false
   ○ - alimentation_equilibree = false
@@ -104,33 +105,13 @@ Sortie :
 ### Profil #4 — 3 critère(s) masqué(s) (masque stratifié) : alimentation_equilibree, traitements_en_cours, motivation
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - IMC = 0
-  ■ - anciennete_diabete_annees = 27
-  ○ - motivation = true
+  ■ - IMC = 35
+  ■ - anciennete_diabete_annees = 0
+  ○ - motivation = false
   ■ - capacite_activite = false
-  ○ - alimentation_equilibree = true
-  ■ - activite_physique_reguliere = false
+  ○ - alimentation_equilibree = false
+  ■ - activite_physique_reguliere = true
   ○ - traitements_en_cours = [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, glinide]
-
-Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
-  - [reco-officielle] Mesures hygiéno-diététiques — socle recommandé à tous (alimentation type méditerranéen, activité physique adaptée, objectif de perte de poids ≥ 5-10 % si surpoids/obésité)
-      proposé parce que : toujours
-  Alertes de nœud :
-    - Adapter l'activité physique aux capacités (fractionnée, en position assise, supervisée) : toute activité compte, même sans perte de poids ; plusieurs séances courtes valent une longue. [info]
-    - Sous insuline, sulfamide ou glinide, une perte de poids (et la réduction des apports) majore le risque d'HYPOGLYCÉMIE : anticiper l'allègement / la déprescription de ces agents (voir nœuds C / D / E). [attention]
-    - Sujet âgé, fragile ou dénutri : viser le maintien de la masse musculaire (apports protéiques, renforcement) et NE PAS imposer de restriction calorique agressive (risque de sarcopénie) ; individualiser l'objectif. [info]
-
-### Profil #5 — 2 critère(s) masqué(s) (masque stratifié) : anciennete_diabete_annees, traitements_en_cours
-
-Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - IMC = 999
-  ○ - anciennete_diabete_annees = 26
-  ■ - motivation = true
-  ■ - capacite_activite = true
-  ■ - alimentation_equilibree = true
-  ■ - activite_physique_reguliere = false
-  ○ - traitements_en_cours = [metformine, sulfamide]
 
 Sortie :
   Famille « (repli à plat) » (exclusive: n/a) :
@@ -142,19 +123,73 @@ Sortie :
       proposé parce que : IMC >= 27
   Alertes de nœud :
     - Penser à discuter une évaluation de CHIRURGIE MÉTABOLIQUE en soins spécialisés : indication à considérer si IMC ≥ 35 avec une comorbidité sévère améliorable (le DT2 qualifie) — HAS parcours obésité / SFD / DSS-II — APRÈS 6-12 mois de prise en charge médicale sans bénéfice suffisant (préparation ≥ 6 mois, parcours pluridisciplinaire / centre spécialisé de l'obésité, suivi à vie). La SFD 2025 ouvre aussi l'indication à IMC 30-34,9 au cas par cas. Preuve de rémission par ECR (STAMPEDE, Mingrone, ARMMS-T2D) ; bénéfice sur critères durs EXCLUSIVEMENT observationnel (SOS, Aminian, Fisher ; aucun ECR de mortalité/CV). La décision relève des soins spécialisés (hors outil). [attention]
+    - Fenêtre favorable à la rémission (diabète récent, < 6 ans) : rémission ~46-61 % à 1 an si perte de poids importante et maintenue (DiRECT/DIADEM-1). La rémission n'est PAS une guérison (surveillance métabolique à vie ; rechute fréquente si reprise de poids). [info]
+    - Adapter l'activité physique aux capacités (fractionnée, en position assise, supervisée) : toute activité compte, même sans perte de poids ; plusieurs séances courtes valent une longue. [info]
+    - Adhésion à renforcer : négocier des objectifs modestes, concrets et mesurables (entretien motivationnel), inscrits dans le dossier et réévalués — plutôt que d'imposer un objectif ambitieux non tenu. [info]
+    - Sous insuline, sulfamide ou glinide, une perte de poids (et la réduction des apports) majore le risque d'HYPOGLYCÉMIE : anticiper l'allègement / la déprescription de ces agents (voir nœuds C / D / E). [attention]
+    - Sujet âgé, fragile ou dénutri : viser le maintien de la masse musculaire (apports protéiques, renforcement) et NE PAS imposer de restriction calorique agressive (risque de sarcopénie) ; individualiser l'objectif. [info]
+
+### Profil #5 — 2 critère(s) masqué(s) (masque stratifié) : anciennete_diabete_annees, traitements_en_cours
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ■ - IMC = 27
+  ○ - anciennete_diabete_annees = 26
+  ■ - motivation = true
+  ■ - capacite_activite = false
+  ■ - alimentation_equilibree = true
+  ■ - activite_physique_reguliere = true
+  ○ - traitements_en_cours = [metformine, sulfamide]
+
+Sortie :
+  Famille « (repli à plat) » (exclusive: n/a) :
+    -- groupe d'égalité #0 --
+  - [reco-officielle] Mesures hygiéno-diététiques — socle recommandé à tous (alimentation type méditerranéen, activité physique adaptée, objectif de perte de poids ≥ 5-10 % si surpoids/obésité)
+      proposé parce que : toujours
+    -- groupe d'égalité #1 --
+  - [recommandee] Perte de poids importante visée rémission — informer, recommander, orienter (accompagnement structuré, hors médecine générale)
+      proposé parce que : IMC >= 27
+  Alertes de nœud :
+    - Mode de vie déjà optimisé (alimentation équilibrée + activité physique régulière) : marge de manœuvre hygiéno-diététique faible → renforcer / maintenir plutôt que « faire plus » ; le bénéfice additionnel des MHD est limité. Si le contrôle reste insuffisant, envisager d'autres leviers (nœud prescription). [info]
+    - Adapter l'activité physique aux capacités (fractionnée, en position assise, supervisée) : toute activité compte, même sans perte de poids ; plusieurs séances courtes valent une longue. [info]
     - Sous insuline, sulfamide ou glinide, une perte de poids (et la réduction des apports) majore le risque d'HYPOGLYCÉMIE : anticiper l'allègement / la déprescription de ces agents (voir nœuds C / D / E). [attention]
     - Sujet âgé, fragile ou dénutri : viser le maintien de la masse musculaire (apports protéiques, renforcement) et NE PAS imposer de restriction calorique agressive (risque de sarcopénie) ; individualiser l'objectif. [info]
 
 ### Profil #6 — 4 critère(s) masqué(s) (masque stratifié) : motivation, capacite_activite, anciennete_diabete_annees, alimentation_equilibree
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - IMC = 26
-  ○ - anciennete_diabete_annees = 27
+  ■ - IMC = 35
+  ○ - anciennete_diabete_annees = 0
   ○ - motivation = false
-  ○ - capacite_activite = true
-  ○ - alimentation_equilibree = true
+  ○ - capacite_activite = false
+  ○ - alimentation_equilibree = false
   ■ - activite_physique_reguliere = false
   ■ - traitements_en_cours = [iSGLT2, aGLP1, tirzepatide, gliptine, insuline, glinide]
+
+Sortie :
+  Famille « (repli à plat) » (exclusive: n/a) :
+    -- groupe d'égalité #0 --
+  - [reco-officielle] Mesures hygiéno-diététiques — socle recommandé à tous (alimentation type méditerranéen, activité physique adaptée, objectif de perte de poids ≥ 5-10 % si surpoids/obésité)
+      proposé parce que : toujours
+    -- groupe d'égalité #1 --
+  - [recommandee] Perte de poids importante visée rémission — informer, recommander, orienter (accompagnement structuré, hors médecine générale)
+      proposé parce que : IMC >= 27
+  Alertes de nœud :
+    - Penser à discuter une évaluation de CHIRURGIE MÉTABOLIQUE en soins spécialisés : indication à considérer si IMC ≥ 35 avec une comorbidité sévère améliorable (le DT2 qualifie) — HAS parcours obésité / SFD / DSS-II — APRÈS 6-12 mois de prise en charge médicale sans bénéfice suffisant (préparation ≥ 6 mois, parcours pluridisciplinaire / centre spécialisé de l'obésité, suivi à vie). La SFD 2025 ouvre aussi l'indication à IMC 30-34,9 au cas par cas. Preuve de rémission par ECR (STAMPEDE, Mingrone, ARMMS-T2D) ; bénéfice sur critères durs EXCLUSIVEMENT observationnel (SOS, Aminian, Fisher ; aucun ECR de mortalité/CV). La décision relève des soins spécialisés (hors outil). [attention]
+    - Adapter l'activité physique aux capacités (fractionnée, en position assise, supervisée) : toute activité compte, même sans perte de poids ; plusieurs séances courtes valent une longue. [info]
+    - Adhésion à renforcer : négocier des objectifs modestes, concrets et mesurables (entretien motivationnel), inscrits dans le dossier et réévalués — plutôt que d'imposer un objectif ambitieux non tenu. [info]
+    - Sous insuline, sulfamide ou glinide, une perte de poids (et la réduction des apports) majore le risque d'HYPOGLYCÉMIE : anticiper l'allègement / la déprescription de ces agents (voir nœuds C / D / E). [attention]
+    - Sujet âgé, fragile ou dénutri : viser le maintien de la masse musculaire (apports protéiques, renforcement) et NE PAS imposer de restriction calorique agressive (risque de sarcopénie) ; individualiser l'objectif. [info]
+
+### Profil #7 — 4 critère(s) masqué(s) (masque stratifié) : anciennete_diabete_annees, IMC, motivation, traitements_en_cours
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ○ - IMC = 26
+  ○ - anciennete_diabete_annees = 6
+  ○ - motivation = false
+  ■ - capacite_activite = true
+  ■ - alimentation_equilibree = true
+  ■ - activite_physique_reguliere = false
+  ○ - traitements_en_cours = [metformine, iSGLT2, tirzepatide, sulfamide, insuline, glinide]
 
 Sortie :
   Famille « (repli à plat) » (exclusive: n/a) :
@@ -164,37 +199,18 @@ Sortie :
     - Adhésion à renforcer : négocier des objectifs modestes, concrets et mesurables (entretien motivationnel), inscrits dans le dossier et réévalués — plutôt que d'imposer un objectif ambitieux non tenu. [info]
     - Sous insuline, sulfamide ou glinide, une perte de poids (et la réduction des apports) majore le risque d'HYPOGLYCÉMIE : anticiper l'allègement / la déprescription de ces agents (voir nœuds C / D / E). [attention]
     - Sujet âgé, fragile ou dénutri : viser le maintien de la masse musculaire (apports protéiques, renforcement) et NE PAS imposer de restriction calorique agressive (risque de sarcopénie) ; individualiser l'objectif. [info]
-
-### Profil #7 — 4 critère(s) masqué(s) (masque stratifié) : anciennete_diabete_annees, IMC, motivation, traitements_en_cours
-
-Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ○ - IMC = 28
-  ○ - anciennete_diabete_annees = 0
-  ○ - motivation = true
-  ■ - capacite_activite = true
-  ■ - alimentation_equilibree = false
-  ■ - activite_physique_reguliere = true
-  ○ - traitements_en_cours = [metformine, iSGLT2, tirzepatide, sulfamide, insuline, glinide]
-
-Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
-  - [reco-officielle] Mesures hygiéno-diététiques — socle recommandé à tous (alimentation type méditerranéen, activité physique adaptée, objectif de perte de poids ≥ 5-10 % si surpoids/obésité)
-      proposé parce que : toujours
-  Alertes de nœud :
-    - Sous insuline, sulfamide ou glinide, une perte de poids (et la réduction des apports) majore le risque d'HYPOGLYCÉMIE : anticiper l'allègement / la déprescription de ces agents (voir nœuds C / D / E). [attention]
-    - Sujet âgé, fragile ou dénutri : viser le maintien de la masse musculaire (apports protéiques, renforcement) et NE PAS imposer de restriction calorique agressive (risque de sarcopénie) ; individualiser l'objectif. [info]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Perte de poids importante visée rémission — informer, recommander, orienter (accompagnement structuré, hors médecine générale) :: à renseigner : IMC
 
 ### Profil #8 — 2 critère(s) masqué(s) (masque stratifié) : alimentation_equilibree, anciennete_diabete_annees
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - IMC = 36
-  ○ - anciennete_diabete_annees = 5
+  ■ - IMC = 70
+  ○ - anciennete_diabete_annees = 26
   ■ - motivation = true
-  ■ - capacite_activite = false
+  ■ - capacite_activite = true
   ○ - alimentation_equilibree = true
-  ■ - activite_physique_reguliere = false
+  ■ - activite_physique_reguliere = true
   ■ - traitements_en_cours = [aGLP1, gliptine]
 
 Sortie :
@@ -207,17 +223,17 @@ Sortie :
       proposé parce que : IMC >= 27
   Alertes de nœud :
     - Penser à discuter une évaluation de CHIRURGIE MÉTABOLIQUE en soins spécialisés : indication à considérer si IMC ≥ 35 avec une comorbidité sévère améliorable (le DT2 qualifie) — HAS parcours obésité / SFD / DSS-II — APRÈS 6-12 mois de prise en charge médicale sans bénéfice suffisant (préparation ≥ 6 mois, parcours pluridisciplinaire / centre spécialisé de l'obésité, suivi à vie). La SFD 2025 ouvre aussi l'indication à IMC 30-34,9 au cas par cas. Preuve de rémission par ECR (STAMPEDE, Mingrone, ARMMS-T2D) ; bénéfice sur critères durs EXCLUSIVEMENT observationnel (SOS, Aminian, Fisher ; aucun ECR de mortalité/CV). La décision relève des soins spécialisés (hors outil). [attention]
-    - Adapter l'activité physique aux capacités (fractionnée, en position assise, supervisée) : toute activité compte, même sans perte de poids ; plusieurs séances courtes valent une longue. [info]
+    - Mode de vie déjà optimisé (alimentation équilibrée + activité physique régulière) : marge de manœuvre hygiéno-diététique faible → renforcer / maintenir plutôt que « faire plus » ; le bénéfice additionnel des MHD est limité. Si le contrôle reste insuffisant, envisager d'autres leviers (nœud prescription). [info]
     - Sujet âgé, fragile ou dénutri : viser le maintien de la masse musculaire (apports protéiques, renforcement) et NE PAS imposer de restriction calorique agressive (risque de sarcopénie) ; individualiser l'objectif. [info]
 
 ### Profil #9 — 2 critère(s) masqué(s) (masque stratifié) : capacite_activite, anciennete_diabete_annees
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - IMC = 7
-  ○ - anciennete_diabete_annees = 27
-  ■ - motivation = true
+  ■ - IMC = 26
+  ○ - anciennete_diabete_annees = 26
+  ■ - motivation = false
   ○ - capacite_activite = true
-  ■ - alimentation_equilibree = true
+  ■ - alimentation_equilibree = false
   ■ - activite_physique_reguliere = false
   ■ - traitements_en_cours = [metformine, aGLP1, gliptine, glinide]
 
@@ -226,81 +242,20 @@ Sortie :
   - [reco-officielle] Mesures hygiéno-diététiques — socle recommandé à tous (alimentation type méditerranéen, activité physique adaptée, objectif de perte de poids ≥ 5-10 % si surpoids/obésité)
       proposé parce que : toujours
   Alertes de nœud :
+    - Adhésion à renforcer : négocier des objectifs modestes, concrets et mesurables (entretien motivationnel), inscrits dans le dossier et réévalués — plutôt que d'imposer un objectif ambitieux non tenu. [info]
     - Sous insuline, sulfamide ou glinide, une perte de poids (et la réduction des apports) majore le risque d'HYPOGLYCÉMIE : anticiper l'allègement / la déprescription de ces agents (voir nœuds C / D / E). [attention]
     - Sujet âgé, fragile ou dénutri : viser le maintien de la masse musculaire (apports protéiques, renforcement) et NE PAS imposer de restriction calorique agressive (risque de sarcopénie) ; individualiser l'objectif. [info]
 
 ### Profil #10 — 2 critère(s) masqué(s) (masque stratifié) : activite_physique_reguliere, capacite_activite
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - IMC = 6
+  ■ - IMC = 36
   ■ - anciennete_diabete_annees = 7
-  ■ - motivation = false
+  ■ - motivation = true
   ○ - capacite_activite = false
   ■ - alimentation_equilibree = false
   ○ - activite_physique_reguliere = false
   ■ - traitements_en_cours = [iSGLT2, tirzepatide, sulfamide, insuline]
-
-Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
-  - [reco-officielle] Mesures hygiéno-diététiques — socle recommandé à tous (alimentation type méditerranéen, activité physique adaptée, objectif de perte de poids ≥ 5-10 % si surpoids/obésité)
-      proposé parce que : toujours
-  Alertes de nœud :
-    - Adapter l'activité physique aux capacités (fractionnée, en position assise, supervisée) : toute activité compte, même sans perte de poids ; plusieurs séances courtes valent une longue. [info]
-    - Adhésion à renforcer : négocier des objectifs modestes, concrets et mesurables (entretien motivationnel), inscrits dans le dossier et réévalués — plutôt que d'imposer un objectif ambitieux non tenu. [info]
-    - Sous insuline, sulfamide ou glinide, une perte de poids (et la réduction des apports) majore le risque d'HYPOGLYCÉMIE : anticiper l'allègement / la déprescription de ces agents (voir nœuds C / D / E). [attention]
-    - Sujet âgé, fragile ou dénutri : viser le maintien de la masse musculaire (apports protéiques, renforcement) et NE PAS imposer de restriction calorique agressive (risque de sarcopénie) ; individualiser l'objectif. [info]
-
-### Profil #11 — 5 critère(s) masqué(s) (masque stratifié) : IMC, capacite_activite, motivation, activite_physique_reguliere, anciennete_diabete_annees
-
-Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ○ - IMC = 34
-  ○ - anciennete_diabete_annees = 28
-  ○ - motivation = true
-  ○ - capacite_activite = true
-  ■ - alimentation_equilibree = true
-  ○ - activite_physique_reguliere = false
-  ■ - traitements_en_cours = [metformine, iSGLT2, tirzepatide, gliptine, glinide]
-
-Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
-  - [reco-officielle] Mesures hygiéno-diététiques — socle recommandé à tous (alimentation type méditerranéen, activité physique adaptée, objectif de perte de poids ≥ 5-10 % si surpoids/obésité)
-      proposé parce que : toujours
-  Alertes de nœud :
-    - Sous insuline, sulfamide ou glinide, une perte de poids (et la réduction des apports) majore le risque d'HYPOGLYCÉMIE : anticiper l'allègement / la déprescription de ces agents (voir nœuds C / D / E). [attention]
-    - Sujet âgé, fragile ou dénutri : viser le maintien de la masse musculaire (apports protéiques, renforcement) et NE PAS imposer de restriction calorique agressive (risque de sarcopénie) ; individualiser l'objectif. [info]
-  Options EN ATTENTE (indétermination, R7/D20) :
-    - Perte de poids importante visée rémission — informer, recommander, orienter (accompagnement structuré, hors médecine générale) :: à renseigner : IMC
-
-### Profil #12 — 4 critère(s) masqué(s) (masque stratifié) : traitements_en_cours, motivation, activite_physique_reguliere, capacite_activite
-
-Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - IMC = 6
-  ■ - anciennete_diabete_annees = 999
-  ○ - motivation = true
-  ○ - capacite_activite = false
-  ■ - alimentation_equilibree = false
-  ○ - activite_physique_reguliere = true
-  ○ - traitements_en_cours = [aGLP1, sulfamide, insuline]
-
-Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
-  - [reco-officielle] Mesures hygiéno-diététiques — socle recommandé à tous (alimentation type méditerranéen, activité physique adaptée, objectif de perte de poids ≥ 5-10 % si surpoids/obésité)
-      proposé parce que : toujours
-  Alertes de nœud :
-    - Adapter l'activité physique aux capacités (fractionnée, en position assise, supervisée) : toute activité compte, même sans perte de poids ; plusieurs séances courtes valent une longue. [info]
-    - Sous insuline, sulfamide ou glinide, une perte de poids (et la réduction des apports) majore le risque d'HYPOGLYCÉMIE : anticiper l'allègement / la déprescription de ces agents (voir nœuds C / D / E). [attention]
-    - Sujet âgé, fragile ou dénutri : viser le maintien de la masse musculaire (apports protéiques, renforcement) et NE PAS imposer de restriction calorique agressive (risque de sarcopénie) ; individualiser l'objectif. [info]
-
-### Profil #13 — 3 critère(s) masqué(s) (masque stratifié) : traitements_en_cours, activite_physique_reguliere, anciennete_diabete_annees
-
-Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - IMC = 27
-  ○ - anciennete_diabete_annees = 7
-  ■ - motivation = false
-  ■ - capacite_activite = true
-  ■ - alimentation_equilibree = false
-  ○ - activite_physique_reguliere = true
-  ○ - traitements_en_cours = [metformine, aGLP1, tirzepatide, sulfamide, glinide]
 
 Sortie :
   Famille « (repli à plat) » (exclusive: n/a) :
@@ -311,19 +266,89 @@ Sortie :
   - [recommandee] Perte de poids importante visée rémission — informer, recommander, orienter (accompagnement structuré, hors médecine générale)
       proposé parce que : IMC >= 27
   Alertes de nœud :
+    - Penser à discuter une évaluation de CHIRURGIE MÉTABOLIQUE en soins spécialisés : indication à considérer si IMC ≥ 35 avec une comorbidité sévère améliorable (le DT2 qualifie) — HAS parcours obésité / SFD / DSS-II — APRÈS 6-12 mois de prise en charge médicale sans bénéfice suffisant (préparation ≥ 6 mois, parcours pluridisciplinaire / centre spécialisé de l'obésité, suivi à vie). La SFD 2025 ouvre aussi l'indication à IMC 30-34,9 au cas par cas. Preuve de rémission par ECR (STAMPEDE, Mingrone, ARMMS-T2D) ; bénéfice sur critères durs EXCLUSIVEMENT observationnel (SOS, Aminian, Fisher ; aucun ECR de mortalité/CV). La décision relève des soins spécialisés (hors outil). [attention]
+    - Diabète plus ancien (≥ 6 ans) : rémission moins probable ; viser d'abord l'amélioration du contrôle glycémique et l'allègement médicamenteux — le bénéfice de la perte de poids persiste indépendamment de la rémission. [info]
+    - Adapter l'activité physique aux capacités (fractionnée, en position assise, supervisée) : toute activité compte, même sans perte de poids ; plusieurs séances courtes valent une longue. [info]
+    - Sous insuline, sulfamide ou glinide, une perte de poids (et la réduction des apports) majore le risque d'HYPOGLYCÉMIE : anticiper l'allègement / la déprescription de ces agents (voir nœuds C / D / E). [attention]
+    - Sujet âgé, fragile ou dénutri : viser le maintien de la masse musculaire (apports protéiques, renforcement) et NE PAS imposer de restriction calorique agressive (risque de sarcopénie) ; individualiser l'objectif. [info]
+
+### Profil #11 — 5 critère(s) masqué(s) (masque stratifié) : IMC, capacite_activite, motivation, activite_physique_reguliere, anciennete_diabete_annees
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ○ - IMC = 28
+  ○ - anciennete_diabete_annees = 27
+  ○ - motivation = false
+  ○ - capacite_activite = false
+  ■ - alimentation_equilibree = false
+  ○ - activite_physique_reguliere = false
+  ■ - traitements_en_cours = [metformine, iSGLT2, tirzepatide, gliptine, glinide]
+
+Sortie :
+  Famille « (repli à plat) » (exclusive: n/a) :
+  - [reco-officielle] Mesures hygiéno-diététiques — socle recommandé à tous (alimentation type méditerranéen, activité physique adaptée, objectif de perte de poids ≥ 5-10 % si surpoids/obésité)
+      proposé parce que : toujours
+  Alertes de nœud :
+    - Adapter l'activité physique aux capacités (fractionnée, en position assise, supervisée) : toute activité compte, même sans perte de poids ; plusieurs séances courtes valent une longue. [info]
     - Adhésion à renforcer : négocier des objectifs modestes, concrets et mesurables (entretien motivationnel), inscrits dans le dossier et réévalués — plutôt que d'imposer un objectif ambitieux non tenu. [info]
+    - Sous insuline, sulfamide ou glinide, une perte de poids (et la réduction des apports) majore le risque d'HYPOGLYCÉMIE : anticiper l'allègement / la déprescription de ces agents (voir nœuds C / D / E). [attention]
+    - Sujet âgé, fragile ou dénutri : viser le maintien de la masse musculaire (apports protéiques, renforcement) et NE PAS imposer de restriction calorique agressive (risque de sarcopénie) ; individualiser l'objectif. [info]
+  Options EN ATTENTE (indétermination, R7/D20) :
+    - Perte de poids importante visée rémission — informer, recommander, orienter (accompagnement structuré, hors médecine générale) :: à renseigner : IMC
+
+### Profil #12 — 4 critère(s) masqué(s) (masque stratifié) : traitements_en_cours, motivation, activite_physique_reguliere, capacite_activite
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ■ - IMC = 36
+  ■ - anciennete_diabete_annees = 28
+  ○ - motivation = false
+  ○ - capacite_activite = true
+  ■ - alimentation_equilibree = true
+  ○ - activite_physique_reguliere = false
+  ○ - traitements_en_cours = [aGLP1, sulfamide, insuline]
+
+Sortie :
+  Famille « (repli à plat) » (exclusive: n/a) :
+    -- groupe d'égalité #0 --
+  - [reco-officielle] Mesures hygiéno-diététiques — socle recommandé à tous (alimentation type méditerranéen, activité physique adaptée, objectif de perte de poids ≥ 5-10 % si surpoids/obésité)
+      proposé parce que : toujours
+    -- groupe d'égalité #1 --
+  - [recommandee] Perte de poids importante visée rémission — informer, recommander, orienter (accompagnement structuré, hors médecine générale)
+      proposé parce que : IMC >= 27
+  Alertes de nœud :
+    - Penser à discuter une évaluation de CHIRURGIE MÉTABOLIQUE en soins spécialisés : indication à considérer si IMC ≥ 35 avec une comorbidité sévère améliorable (le DT2 qualifie) — HAS parcours obésité / SFD / DSS-II — APRÈS 6-12 mois de prise en charge médicale sans bénéfice suffisant (préparation ≥ 6 mois, parcours pluridisciplinaire / centre spécialisé de l'obésité, suivi à vie). La SFD 2025 ouvre aussi l'indication à IMC 30-34,9 au cas par cas. Preuve de rémission par ECR (STAMPEDE, Mingrone, ARMMS-T2D) ; bénéfice sur critères durs EXCLUSIVEMENT observationnel (SOS, Aminian, Fisher ; aucun ECR de mortalité/CV). La décision relève des soins spécialisés (hors outil). [attention]
+    - Diabète plus ancien (≥ 6 ans) : rémission moins probable ; viser d'abord l'amélioration du contrôle glycémique et l'allègement médicamenteux — le bénéfice de la perte de poids persiste indépendamment de la rémission. [info]
+    - Adhésion à renforcer : négocier des objectifs modestes, concrets et mesurables (entretien motivationnel), inscrits dans le dossier et réévalués — plutôt que d'imposer un objectif ambitieux non tenu. [info]
+    - Sous insuline, sulfamide ou glinide, une perte de poids (et la réduction des apports) majore le risque d'HYPOGLYCÉMIE : anticiper l'allègement / la déprescription de ces agents (voir nœuds C / D / E). [attention]
+    - Sujet âgé, fragile ou dénutri : viser le maintien de la masse musculaire (apports protéiques, renforcement) et NE PAS imposer de restriction calorique agressive (risque de sarcopénie) ; individualiser l'objectif. [info]
+
+### Profil #13 — 3 critère(s) masqué(s) (masque stratifié) : traitements_en_cours, activite_physique_reguliere, anciennete_diabete_annees
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ■ - IMC = 14
+  ○ - anciennete_diabete_annees = 27
+  ■ - motivation = true
+  ■ - capacite_activite = true
+  ■ - alimentation_equilibree = false
+  ○ - activite_physique_reguliere = true
+  ○ - traitements_en_cours = [metformine, aGLP1, tirzepatide, sulfamide, glinide]
+
+Sortie :
+  Famille « (repli à plat) » (exclusive: n/a) :
+  - [reco-officielle] Mesures hygiéno-diététiques — socle recommandé à tous (alimentation type méditerranéen, activité physique adaptée, objectif de perte de poids ≥ 5-10 % si surpoids/obésité)
+      proposé parce que : toujours
+  Alertes de nœud :
     - Sous insuline, sulfamide ou glinide, une perte de poids (et la réduction des apports) majore le risque d'HYPOGLYCÉMIE : anticiper l'allègement / la déprescription de ces agents (voir nœuds C / D / E). [attention]
     - Sujet âgé, fragile ou dénutri : viser le maintien de la masse musculaire (apports protéiques, renforcement) et NE PAS imposer de restriction calorique agressive (risque de sarcopénie) ; individualiser l'objectif. [info]
 
 ### Profil #14 — 3 critère(s) masqué(s) (masque stratifié) : IMC, anciennete_diabete_annees, capacite_activite
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ○ - IMC = 26
-  ○ - anciennete_diabete_annees = 26
-  ■ - motivation = false
+  ○ - IMC = 27
+  ○ - anciennete_diabete_annees = 60
+  ■ - motivation = true
   ○ - capacite_activite = false
-  ■ - alimentation_equilibree = true
-  ■ - activite_physique_reguliere = true
+  ■ - alimentation_equilibree = false
+  ■ - activite_physique_reguliere = false
   ■ - traitements_en_cours = [iSGLT2, gliptine, insuline]
 
 Sortie :
@@ -331,9 +356,7 @@ Sortie :
   - [reco-officielle] Mesures hygiéno-diététiques — socle recommandé à tous (alimentation type méditerranéen, activité physique adaptée, objectif de perte de poids ≥ 5-10 % si surpoids/obésité)
       proposé parce que : toujours
   Alertes de nœud :
-    - Mode de vie déjà optimisé (alimentation équilibrée + activité physique régulière) : marge de manœuvre hygiéno-diététique faible → renforcer / maintenir plutôt que « faire plus » ; le bénéfice additionnel des MHD est limité. Si le contrôle reste insuffisant, envisager d'autres leviers (nœud prescription). [info]
     - Adapter l'activité physique aux capacités (fractionnée, en position assise, supervisée) : toute activité compte, même sans perte de poids ; plusieurs séances courtes valent une longue. [info]
-    - Adhésion à renforcer : négocier des objectifs modestes, concrets et mesurables (entretien motivationnel), inscrits dans le dossier et réévalués — plutôt que d'imposer un objectif ambitieux non tenu. [info]
     - Sous insuline, sulfamide ou glinide, une perte de poids (et la réduction des apports) majore le risque d'HYPOGLYCÉMIE : anticiper l'allègement / la déprescription de ces agents (voir nœuds C / D / E). [attention]
     - Sujet âgé, fragile ou dénutri : viser le maintien de la masse musculaire (apports protéiques, renforcement) et NE PAS imposer de restriction calorique agressive (risque de sarcopénie) ; individualiser l'objectif. [info]
   Options EN ATTENTE (indétermination, R7/D20) :

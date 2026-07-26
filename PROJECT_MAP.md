@@ -80,6 +80,9 @@ Rôle : taxonomie de thèmes commune, badges, types, pont article↔nœud, layou
 
 - `docs/decision/BRIEF_DECISION.md`, `docs/veille/BRIEF_VEILLE.md`,
   `docs/veille/GRILLE_APPRECIATION.md`, `docs/veille/SOP_veille.md`.
+- **Transverse, aucun domaine** : `docs/decision/GRAMMAIRE-NOEUD.md` (règles d'écriture d'un nœud,
+  R1→R9) · `docs/decision/CONSTRUIRE-UN-MODULE.md` (procédé de construction d'un module, P0→P7,
+  portes de sortie et checklists). `docs/decision/00-global.md` reste **DT2** (pipeline de preuve).
 
 ---
 

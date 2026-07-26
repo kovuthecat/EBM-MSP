@@ -91,8 +91,15 @@ function reglesDuNoeud(node: Noeud): string[] {
 
 /**
  * Valeurs candidates à tester pour un critère saisissable. Pour un `nombre`, on cible les SEUILS
- * réellement présents dans les règles mentionnant ce critère (± ε de part et d'autre) — plus 0 et une
- * borne haute — puisque seul le franchissement d'un seuil peut changer la sortie.
+ * réellement présents dans les règles mentionnant ce critère (± ε de part et d'autre), FILTRÉS au domaine
+ * déclaré (`critere.min`/`critere.max`, table validée référent, docs/decision/GRAMMAIRE-NOEUD.md) pour ne
+ * jamais tester une valeur qui appartient en réalité à un AUTRE opérande de la même expression (ex. le
+ * 0,5 d'un ratio dose/poids testé comme un poids) — puisque seul le franchissement d'un seuil EN DOMAINE
+ * peut changer la sortie pour de vrai. Repli sur les bornes elles-mêmes quand aucun littéral en domaine ne
+ * subsiste : MÊME mécanique que `engine/banc/profils.ts` `seuilsNumeriques`/`tirageDansDomaine` — les deux
+ * extracteurs ne doivent jamais diverger sur ce filtre, sous peine de perturber la pertinence sur des
+ * valeurs que le banc n'engendre plus (2026-07-26). Domaine NON déclaré (min/max absents) : comportement
+ * historique inchangé (0 et 9999 en plancher/plafond, aucun filtre).
  */
 function valeursCandidates(node: Noeud, critere: CritereEntree, criteria: Criteria): CriteriaValue[] {
   if (critere.type === 'bool') return [true, false]
@@ -104,21 +111,40 @@ function valeursCandidates(node: Noeud, critere: CritereEntree, criteria: Criter
       courant.includes(v) ? courant.filter((x) => x !== v) : [...courant, v],
     )
   }
-  // nombre : seuils extraits des règles mentionnant le critère.
+  // nombre : seuils extraits des règles mentionnant le critère, filtrés au domaine déclaré.
   const motif = new RegExp(`\\b${critere.nom}\\b`)
-  const seuils = new Set<number>([0, 9999])
+  const { min, max } = critere
+  const dansDomaine = (v: number) => (min == null || v >= min) && (max == null || v <= max)
+  const brut = new Set<number>()
   for (const regle of reglesDuNoeud(node)) {
     if (!motif.test(regle)) continue
     for (const litt of regle.match(/-?\d+(?:\.\d+)?/g) ?? []) {
       const n = Number(litt)
       if (Number.isFinite(n)) {
-        seuils.add(n)
-        seuils.add(Math.round((n + 0.01) * 100) / 100)
-        seuils.add(Math.round((n - 0.01) * 100) / 100)
+        brut.add(n)
+        brut.add(Math.round((n + 0.01) * 100) / 100)
+        brut.add(Math.round((n - 0.01) * 100) / 100)
       }
     }
   }
-  return [...seuils]
+  const seuils = new Set<number>([...brut].filter(dansDomaine))
+  if (seuils.size > 0) {
+    // Bornes plancher/plafond garanties EN DOMAINE (remplace le sentinel universel 0/9999, hors domaine
+    // pour la plupart des critères bornés).
+    if (min != null) seuils.add(min)
+    if (max != null) seuils.add(max)
+    if (min == null && max == null) {
+      seuils.add(0)
+      seuils.add(9999)
+    }
+    return [...seuils]
+  }
+  // Aucun littéral EN DOMAINE : repli sur les bornes elles-mêmes (+ un point milieu, cf. docstring).
+  if (min != null && max != null) {
+    const milieu = Math.round(((min + max) / 2) * 100) / 100
+    return min === max ? [min] : [min, milieu, max]
+  }
+  return [0, 9999] // aucune borne déclarée pour ce critère : repli historique intégral.
 }
 
 /**

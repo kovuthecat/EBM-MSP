@@ -201,6 +201,13 @@ export function CriteriaForm({
             type="number"
             className="criteria-form__input"
             placeholder="—"
+            // Bornes du domaine clinique (docs/decision/GRAMMAIRE-NOEUD.md, schema/noeud.schema.json) :
+            // répercutées telles quelles sur l'attribut HTML natif, générique — aucun nom de critère en
+            // dur (invariant 5). Absentes du contenu → `undefined`, input non borné (comportement
+            // historique inchangé). Bloque la saisie absurde (ex. -1 sur un compte de facteurs de risque)
+            // sans que le moteur (`evaluateNode`) n'ait à en connaître.
+            min={critere.min}
+            max={critere.max}
             // Champ non touché : reste vide (pas de "0" trompeur pris pour une valeur saisie).
             value={touched.has(critere.nom) ? Number(criteria[critere.nom] ?? 0) : ''}
             onChange={(event) => {

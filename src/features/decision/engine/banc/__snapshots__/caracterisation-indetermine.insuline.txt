@@ -58,10 +58,10 @@ Sortie :
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - situation_insuline = basale_plus_bolus
-  ■ - age = 76
-  ■ - HbA1c_actuelle = 2
-  ■ - HbA1c_cible = 1
-  ■ - DFG = 44
+  ■ - age = 105
+  ■ - HbA1c_actuelle = 18
+  ■ - HbA1c_cible = 7.16
+  ■ - DFG = 3
   ■ - fragilite = true
   ■ - esperance_vie = intermediaire
   ■ - risque_hypoglycemie_schema = eleve
@@ -70,14 +70,14 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - traitements_en_cours = [metformine, iSGLT2, tirzepatide, glinide, insuline_basale, insuline_rapide]
   ■ - preference_injection = indifferent
   ■ - mcg_disponible = false
-  ○ - TBR = 0
-  ■ - TBR_severe = 3
-  ■ - CV_glycemique = 35
+  ○ - TBR = 4
+  ■ - TBR_severe = 1
+  ■ - CV_glycemique = 37
   ■ - profil_glycemique = [phenomene_aube, excursions_postprandiales, stable]
-  ■ - GAJ = -0.3
-  ■ - poids = 999
-  ■ - dose_basale_actuelle = 1.5
-  ■ - dose_rapide_actuelle = 0
+  ■ - GAJ = 1.2
+  ■ - poids = 250
+  ■ - dose_basale_actuelle = 0.5
+  ■ - dose_rapide_actuelle = 73.96
 
 Sortie :
   Famille « (repli à plat) » (exclusive: n/a) :
@@ -95,10 +95,10 @@ Sortie :
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - situation_insuline = naif
-  ■ - age = 999
-  ■ - HbA1c_actuelle = 999
-  ■ - HbA1c_cible = 0
-  ■ - DFG = 45
+  ■ - age = 74
+  ■ - HbA1c_actuelle = 14.27
+  ■ - HbA1c_cible = 8.25
+  ■ - DFG = 46
   ■ - fragilite = false
   ■ - esperance_vie = longue
   ■ - risque_hypoglycemie_schema = faible
@@ -107,38 +107,34 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - traitements_en_cours = [aGLP1, sulfamide, gliptine]
   ■ - preference_injection = refuse
   ■ - mcg_disponible = true
-  ■ - TBR = 999
-  ○ - TBR_severe = 36
-  ■ - CV_glycemique = 0
+  ■ - TBR = 3
+  ○ - TBR_severe = 35
+  ■ - CV_glycemique = 4
   ■ - profil_glycemique = [hypo_nocturne, hypo_interprandiale]
-  ■ - GAJ = 1.2
-  ■ - poids = 0
-  ■ - dose_basale_actuelle = 0
-  ■ - dose_rapide_actuelle = 999
+  ■ - GAJ = 0.4
+  ■ - poids = 35
+  ■ - dose_basale_actuelle = 150
+  ■ - dose_rapide_actuelle = 47.09
 
 Sortie :
   Famille « (repli à plat) » (exclusive: n/a) :
-    -- groupe d'égalité #0 --
   - [recommandee] Initier une insuline basale (en maintenant les antidiabétiques en cours)
       proposé parce que : situation_insuline == naif ; cible_atteinte == false
-      calculs : Dose initiale (0,1 U/kg) = 0U/j ; Dose initiale (0,2 U/kg) = 0U/j
-    -- groupe d'égalité #1 --
-  - [(sans badge)] Choisir un analogue basal de 2ᵉ génération (glargine U300 ou degludec) si risque hypoglycémique
-      proposé parce que : situation_insuline == naif ; terrain_fragile == true
+      calculs : Dose initiale (0,1 U/kg) = 3.5U/j ; Dose initiale (0,2 U/kg) = 7U/j
   Alertes de nœud :
     - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
-    - Sujet âgé / fragile / à haut risque d'hypoglycémie : cibles de MCG ASSOUPLIES — TIR > 50 %, TBR < 1 %, TAR plus permissif (cohérent avec la cible d'HbA1c relâchée issue du nœud A). [info]
+    - Cibles de MCG standard (consensus international Battelino 2019 — repères d'interprétation, PAS un critère dur validé sur les complications) : temps dans la cible (TIR) > 70 %, temps en hypoglycémie (TBR) < 4 % et < 1 % (< 54 mg/dL), temps au-dessus (TAR) < 25 % et < 5 % (> 250 mg/dL), coefficient de variation ≤ 36 %. [info]
     - L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1). [info]
 
 ### Profil #3 — 1 critère masqué (ciblé — cité par une `exclusions` du nœud) : CV_glycemique
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - situation_insuline = basal_bolus
-  ■ - age = 74
-  ■ - HbA1c_actuelle = 1
-  ■ - HbA1c_cible = 2
-  ■ - DFG = 0
+  ■ - age = 18
+  ■ - HbA1c_actuelle = 15.03
+  ■ - HbA1c_cible = 6
+  ■ - DFG = 45
   ■ - fragilite = true
   ■ - esperance_vie = limitee
   ■ - risque_hypoglycemie_schema = eleve
@@ -147,14 +143,14 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - traitements_en_cours = [insuline_basale]
   ■ - preference_injection = accepte
   ■ - mcg_disponible = true
-  ■ - TBR = 1
-  ■ - TBR_severe = 999
-  ○ - CV_glycemique = 999
+  ■ - TBR = 2
+  ■ - TBR_severe = 3
+  ○ - CV_glycemique = 3
   ■ - profil_glycemique = [excursions_postprandiales, stable]
-  ■ - GAJ = 1.7
-  ■ - poids = -0.5
-  ■ - dose_basale_actuelle = 0.5
-  ■ - dose_rapide_actuelle = 999
+  ■ - GAJ = 2.2
+  ■ - poids = 178.6
+  ■ - dose_basale_actuelle = 0
+  ■ - dose_rapide_actuelle = 0
 
 Sortie :
   Famille « (repli à plat) » (exclusive: n/a) :
@@ -163,11 +159,10 @@ Sortie :
       proposé parce que : situation_insuline == basal_bolus ; terrain_fragile == true ; hypo_severe_recurrente == true
     -- groupe d'égalité #1 --
   - [(sans badge)] Optimiser la répartition du basal-bolus (guidé par l'AGP et les doses actuelles)
-      proposé parce que : situation_insuline == basal_bolus ; TBR_severe > 1 ; CV_glycemique > 36
-      calculs : Dose totale quotidienne = 999.5U/j
+      proposé parce que : situation_insuline == basal_bolus ; cible_atteinte == false ; TBR_severe > 1
+      calculs : Dose totale quotidienne = 0U/j
   Alertes de nœud :
     - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
-    - Insuffisance rénale : besoins en insuline réduits et risque d'hypoglycémie majoré (adapter les doses, renforcer la surveillance) ; sulfamide (s'il est encore utilisé) : gliclazide/glimépiride à dose réduite et surveillance rapprochée si DFG 30-44, contre-indiqué si DFG < 30 (convention KDIGO/SFD — cf. nœud prescription, place résiduelle SU/gliptine) ; adapter ou arrêter la metformine selon le DFG. [attention]
     - Sujet âgé / fragile / à haut risque d'hypoglycémie : cibles de MCG ASSOUPLIES — TIR > 50 %, TBR < 1 %, TAR plus permissif (cohérent avec la cible d'HbA1c relâchée issue du nœud A). [info]
     - L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1). [info]
 
@@ -175,10 +170,10 @@ Sortie :
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - situation_insuline = basale_seule
-  ■ - age = 75
-  ○ - HbA1c_actuelle = 0
-  ■ - HbA1c_cible = 999
-  ■ - DFG = 999
+  ■ - age = 76
+  ○ - HbA1c_actuelle = 6.86
+  ■ - HbA1c_cible = 9.5
+  ■ - DFG = 44
   ○ - fragilite = false
   ○ - esperance_vie = limitee
   ■ - risque_hypoglycemie_schema = faible
@@ -187,14 +182,14 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - traitements_en_cours = [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, glinide, gliptine, insuline_rapide]
   ○ - preference_injection = indifferent
   ○ - mcg_disponible = false
-  ■ - TBR = 5
-  ■ - TBR_severe = 2
-  ■ - CV_glycemique = 5
+  ■ - TBR = 0
+  ■ - TBR_severe = 36
+  ■ - CV_glycemique = 0
   ○ - profil_glycemique = [hypo_nocturne, phenomene_aube, hypo_interprandiale]
-  ■ - GAJ = 0
-  ○ - poids = 1.5
-  ■ - dose_basale_actuelle = -0.5
-  ○ - dose_rapide_actuelle = 0
+  ■ - GAJ = 1.7
+  ○ - poids = 101.79
+  ■ - dose_basale_actuelle = 1.5
+  ○ - dose_rapide_actuelle = 150
 
 Sortie :
   Famille « (repli à plat) » (exclusive: n/a) :
@@ -204,6 +199,7 @@ Sortie :
     - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
     - iSGLT2 + insuline : maintenir l'iSGLT2 pour le bénéfice cardio-rénal, mais informer du risque d'acidocétose euglycémique — suspendre en cas de jeûne, de chirurgie ou de maladie aiguë intercurrente. [attention]
+    - Insuffisance rénale : besoins en insuline réduits et risque d'hypoglycémie majoré (adapter les doses, renforcer la surveillance) ; sulfamide (s'il est encore utilisé) : gliclazide/glimépiride à dose réduite et surveillance rapprochée si DFG 30-44, contre-indiqué si DFG < 30 (convention KDIGO/SFD — cf. nœud prescription, place résiduelle SU/gliptine) ; adapter ou arrêter la metformine selon le DFG. [attention]
     - L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1). [info]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Initier une insuline basale (en maintenant les antidiabétiques en cours) :: à renseigner : situation_insuline, HbA1c_actuelle
@@ -219,10 +215,10 @@ Sortie :
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - situation_insuline = basale_plus_bolus
-  ■ - age = 0
-  ■ - HbA1c_actuelle = 2
-  ■ - HbA1c_cible = 1
-  ○ - DFG = 46
+  ■ - age = 75
+  ■ - HbA1c_actuelle = 4
+  ■ - HbA1c_cible = 8.12
+  ○ - DFG = 150
   ■ - fragilite = false
   ○ - esperance_vie = longue
   ■ - risque_hypoglycemie_schema = faible
@@ -231,19 +227,19 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - traitements_en_cours = [metformine, sulfamide, insuline_basale, insuline_rapide]
   ○ - preference_injection = accepte
   ○ - mcg_disponible = false
-  ■ - TBR = 36
-  ■ - TBR_severe = 1
-  ■ - CV_glycemique = 36
+  ■ - TBR = 35
+  ■ - TBR_severe = 2
+  ■ - CV_glycemique = 35
   ■ - profil_glycemique = [hypo_nocturne, phenomene_aube]
-  ■ - GAJ = 0.2
-  ■ - poids = 0.5
-  ■ - dose_basale_actuelle = 999
-  ■ - dose_rapide_actuelle = 999
+  ■ - GAJ = 0.7
+  ■ - poids = 139.2
+  ■ - dose_basale_actuelle = 150
+  ■ - dose_rapide_actuelle = 99.66
 
 Sortie :
   Famille « (repli à plat) » (exclusive: n/a) :
-  - [recommandee] Ajouter un GLP-1 / une association fixe d'abord (si non encore fait)
-      proposé parce que : situation_insuline == basale_plus_bolus ; cible_atteinte == false ; situation_insuline == basale_plus_bolus ; TBR > 4 ; profil_glycemique contient hypo_nocturne ; over_basalisation == true
+  - [recommandee] Poursuivre le schéma d'insuline en cours et réévaluer
+      proposé parce que : default
   Alertes de nœud :
     - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
@@ -256,10 +252,10 @@ Sortie :
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - situation_insuline = basale_seule
-  ■ - age = 75
-  ■ - HbA1c_actuelle = 1
-  ○ - HbA1c_cible = 2
-  ○ - DFG = 45
+  ■ - age = 76
+  ■ - HbA1c_actuelle = 14.27
+  ○ - HbA1c_cible = 7.16
+  ○ - DFG = 46
   ○ - fragilite = true
   ■ - esperance_vie = intermediaire
   ■ - risque_hypoglycemie_schema = eleve
@@ -268,14 +264,14 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - traitements_en_cours = [iSGLT2, aGLP1, tirzepatide, glinide, gliptine]
   ○ - preference_injection = refuse
   ○ - mcg_disponible = true
-  ○ - TBR = 2
-  ○ - TBR_severe = 37
-  ○ - CV_glycemique = 2
+  ○ - TBR = 36
+  ○ - TBR_severe = 100
+  ○ - CV_glycemique = 36
   ○ - profil_glycemique = [excursions_postprandiales, hypo_interprandiale, stable]
-  ■ - GAJ = 0.7
-  ○ - poids = 0
+  ■ - GAJ = 5
+  ○ - poids = 35
   ■ - dose_basale_actuelle = 0
-  ○ - dose_rapide_actuelle = 0
+  ○ - dose_rapide_actuelle = 150
 
 Sortie :
   Famille « (repli à plat) » (exclusive: n/a) :
@@ -296,10 +292,10 @@ Sortie :
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - situation_insuline = basal_bolus
-  ■ - age = 999
-  ○ - HbA1c_actuelle = 999
-  ○ - HbA1c_cible = 0
-  ○ - DFG = 44
+  ■ - age = 74
+  ○ - HbA1c_actuelle = 4
+  ○ - HbA1c_cible = 8.25
+  ○ - DFG = 3
   ○ - fragilite = false
   ○ - esperance_vie = longue
   ■ - risque_hypoglycemie_schema = faible
@@ -308,14 +304,14 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - traitements_en_cours = [metformine, iSGLT2, tirzepatide, sulfamide, glinide]
   ○ - preference_injection = refuse
   ○ - mcg_disponible = false
-  ■ - TBR = 37
-  ■ - TBR_severe = 35
-  ■ - CV_glycemique = 4
+  ■ - TBR = 100
+  ■ - TBR_severe = 37
+  ■ - CV_glycemique = 5
   ○ - profil_glycemique = [hypo_nocturne, phenomene_aube, stable]
-  ■ - GAJ = 999
-  ■ - poids = 1.5
+  ■ - GAJ = 5
+  ■ - poids = 101.79
   ○ - dose_basale_actuelle = 1.5
-  ■ - dose_rapide_actuelle = 0
+  ■ - dose_rapide_actuelle = 47.09
 
 Sortie :
   Famille « (repli à plat) » (exclusive: n/a) :
@@ -342,10 +338,10 @@ Sortie :
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - situation_insuline = naif
-  ■ - age = 74
-  ■ - HbA1c_actuelle = 0
-  ■ - HbA1c_cible = 999
-  ■ - DFG = 999
+  ■ - age = 18
+  ■ - HbA1c_actuelle = 18
+  ■ - HbA1c_cible = 9.5
+  ■ - DFG = 44
   ○ - fragilite = true
   ■ - esperance_vie = limitee
   ○ - risque_hypoglycemie_schema = eleve
@@ -354,14 +350,14 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - traitements_en_cours = [aGLP1, gliptine, insuline_basale, insuline_rapide]
   ■ - preference_injection = accepte
   ○ - mcg_disponible = true
-  ■ - TBR = 4
-  ■ - TBR_severe = 4
-  ○ - CV_glycemique = 37
+  ■ - TBR = 5
+  ■ - TBR_severe = 5
+  ○ - CV_glycemique = 100
   ○ - profil_glycemique = [excursions_postprandiales, hypo_interprandiale]
-  ■ - GAJ = 2.2
-  ■ - poids = 999
-  ■ - dose_basale_actuelle = 999
-  ■ - dose_rapide_actuelle = 999
+  ■ - GAJ = 0.7
+  ■ - poids = 250
+  ■ - dose_basale_actuelle = 0.5
+  ■ - dose_rapide_actuelle = 73.96
 
 Sortie :
   Famille « (repli à plat) » (exclusive: n/a) :
@@ -370,6 +366,7 @@ Sortie :
   Alertes de nœud :
     - Incohérence de saisie : la situation « naïf d'insuline » et une insuline basale déjà cochée dans les traitements en cours sont contradictoires — un patient naïf ne peut pas être déjà sous insuline basale. Vérifier la situation renseignée ou la liste des traitements en cours. [attention]
     - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
+    - Insuffisance rénale : besoins en insuline réduits et risque d'hypoglycémie majoré (adapter les doses, renforcer la surveillance) ; sulfamide (s'il est encore utilisé) : gliclazide/glimépiride à dose réduite et surveillance rapprochée si DFG 30-44, contre-indiqué si DFG < 30 (convention KDIGO/SFD — cf. nœud prescription, place résiduelle SU/gliptine) ; adapter ou arrêter la metformine selon le DFG. [attention]
     - Sujet âgé / fragile / à haut risque d'hypoglycémie : cibles de MCG ASSOUPLIES — TIR > 50 %, TBR < 1 %, TAR plus permissif (cohérent avec la cible d'HbA1c relâchée issue du nœud A). [info]
     - L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1). [info]
 
@@ -377,10 +374,10 @@ Sortie :
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - situation_insuline = basale_seule
-  ■ - age = 0
-  ■ - HbA1c_actuelle = 2
-  ■ - HbA1c_cible = 2
-  ○ - DFG = 46
+  ■ - age = 75
+  ■ - HbA1c_actuelle = 15.03
+  ■ - HbA1c_cible = 8.12
+  ○ - DFG = 150
   ○ - fragilite = true
   ■ - esperance_vie = intermediaire
   ■ - risque_hypoglycemie_schema = faible
@@ -389,33 +386,36 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - traitements_en_cours = [metformine, aGLP1, glinide, gliptine, insuline_basale, insuline_rapide]
   ■ - preference_injection = indifferent
   ○ - mcg_disponible = true
-  ○ - TBR = 35
-  ○ - TBR_severe = 0
-  ■ - CV_glycemique = 3
+  ○ - TBR = 37
+  ○ - TBR_severe = 4
+  ■ - CV_glycemique = 1
   ■ - profil_glycemique = [hypo_nocturne, phenomene_aube, excursions_postprandiales]
-  ■ - GAJ = 2.2
-  ■ - poids = 0.5
+  ■ - GAJ = 0.4
+  ■ - poids = 139.2
   ■ - dose_basale_actuelle = 0.5
   ○ - dose_rapide_actuelle = 0
 
 Sortie :
   Famille « (repli à plat) » (exclusive: n/a) :
   - [recommandee] Corriger l'hypoglycémie ou la variabilité (réduire la dose, passer en 2ᵉ génération, relâcher la cible)
-      proposé parce que : situation_insuline == basale_seule ; TBR > 4 ; profil_glycemique contient hypo_nocturne
+      proposé parce que : situation_insuline == basale_seule ; TBR > 4 ; TBR_severe > 1 ; profil_glycemique contient hypo_nocturne
       calculs : Basale réduite (−20 %) = 0.4U/j
   Alertes de nœud :
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
     - Sujet âgé / fragile / à haut risque d'hypoglycémie : cibles de MCG ASSOUPLIES — TIR > 50 %, TBR < 1 %, TAR plus permissif (cohérent avec la cible d'HbA1c relâchée issue du nœud A). [info]
     - L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1). [info]
+  Options écartées (sécurité, R4) :
+    - Ne pas sur-titrer la basale — intensifier autrement (GLP-1 puis bolus) :: profil_glycemique contient hypo_nocturne
+    - Titrer la basale (augmenter la dose) :: profil_glycemique contient hypo_nocturne
 
 ### Profil #10 — 7 critère(s) masqué(s) (masque stratifié) : situation_insuline, GAJ, CV_glycemique, esperance_vie, risque_hypoglycemie_schema, HbA1c_cible, symptomes_glucotoxicite
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - situation_insuline = basale_plus_bolus
-  ■ - age = 76
-  ■ - HbA1c_actuelle = 999
-  ○ - HbA1c_cible = 999
-  ■ - DFG = 0
+  ■ - age = 105
+  ■ - HbA1c_actuelle = 6.86
+  ○ - HbA1c_cible = 6
+  ■ - DFG = 45
   ■ - fragilite = false
   ○ - esperance_vie = longue
   ○ - risque_hypoglycemie_schema = eleve
@@ -424,14 +424,14 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - traitements_en_cours = [iSGLT2, tirzepatide, sulfamide]
   ■ - preference_injection = refuse
   ■ - mcg_disponible = false
-  ■ - TBR = 3
-  ■ - TBR_severe = 5
-  ○ - CV_glycemique = 1
+  ■ - TBR = 1
+  ■ - TBR_severe = 0
+  ○ - CV_glycemique = 2
   ■ - profil_glycemique = [hypo_interprandiale, stable]
-  ○ - GAJ = 999
-  ■ - poids = -0.5
-  ■ - dose_basale_actuelle = -0.5
-  ■ - dose_rapide_actuelle = 999
+  ○ - GAJ = 1.7
+  ■ - poids = 178.6
+  ■ - dose_basale_actuelle = 1.5
+  ■ - dose_rapide_actuelle = 99.66
 
 Sortie :
   Famille « (repli à plat) » (exclusive: n/a) :
@@ -441,7 +441,6 @@ Sortie :
     - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
     - iSGLT2 + insuline : maintenir l'iSGLT2 pour le bénéfice cardio-rénal, mais informer du risque d'acidocétose euglycémique — suspendre en cas de jeûne, de chirurgie ou de maladie aiguë intercurrente. [attention]
-    - Insuffisance rénale : besoins en insuline réduits et risque d'hypoglycémie majoré (adapter les doses, renforcer la surveillance) ; sulfamide (s'il est encore utilisé) : gliclazide/glimépiride à dose réduite et surveillance rapprochée si DFG 30-44, contre-indiqué si DFG < 30 (convention KDIGO/SFD — cf. nœud prescription, place résiduelle SU/gliptine) ; adapter ou arrêter la metformine selon le DFG. [attention]
     - L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1). [info]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Envisager un GLP-1 (ou une association fixe basale + GLP-1) avant ou avec l'insuline :: à renseigner : situation_insuline, HbA1c_cible
@@ -459,10 +458,10 @@ Sortie :
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - situation_insuline = naif
-  ○ - age = 0
-  ○ - HbA1c_actuelle = 0
-  ○ - HbA1c_cible = 0
-  ○ - DFG = 46
+  ○ - age = 75
+  ○ - HbA1c_actuelle = 15.03
+  ○ - HbA1c_cible = 6
+  ○ - DFG = 150
   ○ - fragilite = false
   ○ - esperance_vie = intermediaire
   ■ - risque_hypoglycemie_schema = eleve
@@ -471,14 +470,14 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - traitements_en_cours = [metformine, iSGLT2, tirzepatide, glinide, gliptine]
   ○ - preference_injection = indifferent
   ■ - mcg_disponible = true
-  ■ - TBR = 36
-  ○ - TBR_severe = 35
-  ■ - CV_glycemique = 1
+  ■ - TBR = 35
+  ○ - TBR_severe = 37
+  ■ - CV_glycemique = 2
   ■ - profil_glycemique = [hypo_nocturne, phenomene_aube, hypo_interprandiale]
   ■ - GAJ = 1.2
-  ○ - poids = 999
-  ○ - dose_basale_actuelle = 0
-  ○ - dose_rapide_actuelle = 999
+  ○ - poids = 250
+  ○ - dose_basale_actuelle = 150
+  ○ - dose_rapide_actuelle = 150
 
 Sortie :
   Famille « (repli à plat) » (exclusive: n/a) :
@@ -506,10 +505,10 @@ Sortie :
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - situation_insuline = basal_bolus
-  ○ - age = 999
-  ○ - HbA1c_actuelle = 1
-  ■ - HbA1c_cible = 1
-  ■ - DFG = 999
+  ○ - age = 74
+  ○ - HbA1c_actuelle = 4
+  ■ - HbA1c_cible = 8.25
+  ■ - DFG = 44
   ■ - fragilite = true
   ○ - esperance_vie = limitee
   ■ - risque_hypoglycemie_schema = faible
@@ -518,22 +517,22 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - traitements_en_cours = [aGLP1, sulfamide, insuline_basale, insuline_rapide]
   ○ - preference_injection = accepte
   ○ - mcg_disponible = false
-  ■ - TBR = 37
-  ○ - TBR_severe = 1
-  ■ - CV_glycemique = 999
+  ■ - TBR = 100
+  ○ - TBR_severe = 2
+  ■ - CV_glycemique = 3
   ○ - profil_glycemique = [excursions_postprandiales, stable]
-  ■ - GAJ = -0.3
-  ○ - poids = -0.5
-  ○ - dose_basale_actuelle = 999
-  ○ - dose_rapide_actuelle = 0
+  ■ - GAJ = 2.2
+  ○ - poids = 178.6
+  ○ - dose_basale_actuelle = 0
+  ○ - dose_rapide_actuelle = 47.09
 
 Sortie :
   Famille « (repli à plat) » (exclusive: n/a) :
   - [recommandee] Poursuivre le schéma d'insuline en cours et réévaluer
       proposé parce que : default
   Alertes de nœud :
-    - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
+    - Insuffisance rénale : besoins en insuline réduits et risque d'hypoglycémie majoré (adapter les doses, renforcer la surveillance) ; sulfamide (s'il est encore utilisé) : gliclazide/glimépiride à dose réduite et surveillance rapprochée si DFG 30-44, contre-indiqué si DFG < 30 (convention KDIGO/SFD — cf. nœud prescription, place résiduelle SU/gliptine) ; adapter ou arrêter la metformine selon le DFG. [attention]
     - L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1). [info]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Choisir un analogue basal de 2ᵉ génération (glargine U300 ou degludec) si risque hypoglycémique :: à renseigner : situation_insuline, age, esperance_vie
@@ -548,10 +547,10 @@ Sortie :
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - situation_insuline = basale_plus_bolus
-  ■ - age = 74
-  ○ - HbA1c_actuelle = 1
-  ■ - HbA1c_cible = 0
-  ○ - DFG = 45
+  ■ - age = 18
+  ○ - HbA1c_actuelle = 6.86
+  ■ - HbA1c_cible = 9.5
+  ○ - DFG = 46
   ■ - fragilite = false
   ○ - esperance_vie = intermediaire
   ○ - risque_hypoglycemie_schema = eleve
@@ -560,14 +559,14 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - traitements_en_cours = [metformine, aGLP1, tirzepatide, sulfamide, glinide, insuline_rapide]
   ○ - preference_injection = refuse
   ■ - mcg_disponible = false
-  ■ - TBR = 35
-  ○ - TBR_severe = 4
-  ■ - CV_glycemique = 36
+  ■ - TBR = 37
+  ○ - TBR_severe = 5
+  ■ - CV_glycemique = 35
   ○ - profil_glycemique = [hypo_nocturne, phenomene_aube, excursions_postprandiales, hypo_interprandiale]
   ■ - GAJ = 1.7
-  ○ - poids = 0.5
-  ■ - dose_basale_actuelle = 1.5
-  ○ - dose_rapide_actuelle = 0
+  ○ - poids = 139.2
+  ■ - dose_basale_actuelle = 0.5
+  ○ - dose_rapide_actuelle = 99.66
 
 Sortie :
   Famille « (repli à plat) » (exclusive: n/a) :
@@ -590,10 +589,10 @@ Sortie :
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - situation_insuline = basal_bolus
-  ○ - age = 75
-  ○ - HbA1c_actuelle = 0
-  ■ - HbA1c_cible = 2
-  ○ - DFG = 44
+  ○ - age = 76
+  ○ - HbA1c_actuelle = 18
+  ■ - HbA1c_cible = 8.12
+  ○ - DFG = 3
   ○ - fragilite = true
   ○ - esperance_vie = limitee
   ■ - risque_hypoglycemie_schema = faible
@@ -602,14 +601,14 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - traitements_en_cours = [iSGLT2, gliptine, insuline_basale]
   ■ - preference_injection = accepte
   ■ - mcg_disponible = true
-  ■ - TBR = 1
-  ○ - TBR_severe = 37
-  ■ - CV_glycemique = 37
+  ■ - TBR = 2
+  ○ - TBR_severe = 100
+  ■ - CV_glycemique = 100
   ○ - profil_glycemique = [stable]
-  ■ - GAJ = 0
-  ○ - poids = 1.5
-  ○ - dose_basale_actuelle = 0.5
-  ■ - dose_rapide_actuelle = 999
+  ■ - GAJ = 2.2
+  ○ - poids = 101.79
+  ○ - dose_basale_actuelle = 1.5
+  ■ - dose_rapide_actuelle = 0
 
 Sortie :
   Famille « (repli à plat) » (exclusive: n/a) :
@@ -618,7 +617,7 @@ Sortie :
       proposé parce que : situation_insuline == basal_bolus ; terrain_fragile == true ; hypo_severe_recurrente == true
     -- groupe d'égalité #1 --
   - [(sans badge)] Optimiser la répartition du basal-bolus (guidé par l'AGP et les doses actuelles)
-      proposé parce que : situation_insuline == basal_bolus ; TBR_severe > 1 ; CV_glycemique > 36
+      proposé parce que : situation_insuline == basal_bolus ; cible_atteinte == false ; TBR_severe > 1 ; CV_glycemique > 36
   Alertes de nœud :
     - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
     - iSGLT2 + insuline : maintenir l'iSGLT2 pour le bénéfice cardio-rénal, mais informer du risque d'acidocétose euglycémique — suspendre en cas de jeûne, de chirurgie ou de maladie aiguë intercurrente. [attention]

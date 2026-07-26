@@ -254,6 +254,24 @@ qui le lèvera. Rien ne peut être oublié : l'attente est écrite et rouge.
 8. **Passe de preuve à lancer** : bénéfice d'introduire une statine à 82 ans en prévention primaire, et
    déprescription à cet âge.
 
+## Capitalisation — deux documents transverses issus de ce chantier
+
+| document | contenu | statut |
+|---|---|---|
+| `docs/decision/GRAMMAIRE-NOEUD.md` | **R7** (valeur indéterminée, D20) et **R8** (canal d'un fait de sécurité, D21) y sont désormais énoncées comme règles génériques, à côté de R1→R6. **R9** ajoutée en proposition : *un nœud qui recommande un geste doit savoir si le geste est déjà fait* — forme testable : tout concept nommé comme réserve dans la prose est soit un critère d'entrée, soit déclaré hors périmètre. Nuance ajoutée à R5 (un critère peut la satisfaire en n'allumant qu'une alerte, cf. `age` dans `statine`). | R7 livrée · R8 à livrer · **R9 à arbitrer** |
+| `docs/decision/CONSTRUIRE-UN-MODULE.md` | **Nouveau.** Procédé de construction d'un module, tous domaines : P0→P7 avec porte de sortie par étape, 5 checklists opposables (critère / option / alerte / nœud / module), tableau des 12 pièges constatés, formes de consignation de ce qui ne s'encode pas, discipline de session. Destiné au **prochain domaine**. | **à arbitrer** (les portes de sortie engagent du temps référent) |
+
+Référencé depuis `CLAUDE.md`, `PROJECT_MAP.md`, `BRIEF_DECISION.md` §5 et `00-global.md`.
+
+**Deux points à arbitrer par le référent**, listés ici pour ne pas être perdus à la clôture :
+
+1. **R9** — généraliser en règle opposable à tout nouveau nœud (le cas `statine` est déjà tranché :
+   ajout de `statine_deja_en_place` et `intolerance_statine`), et écrire l'invariant de banc
+   correspondant.
+2. **Le procédé P0→P7** — en particulier P2 (vignettes d'acceptation **gelées avant** le contenu) et
+   P3 (écran maquetté sur 3 vignettes avec contenu faux), qui déplacent l'effort référent vers
+   l'amont. C'est le point qui aurait le plus changé le DT2, et c'est celui qui coûte le plus tôt.
+
 ## Discipline pour la suite
 
 1. **Un seul document d'état** — celui-ci. Toute décision s'y consigne, puis migre vers

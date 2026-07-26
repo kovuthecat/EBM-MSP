@@ -42,6 +42,13 @@ npx tsc --noEmit
   `DECISIONS.md` (arbitrages transverses) · `PROJECT_MAP.md` (localisation).
 - Autorité du contenu clinique : `docs/decision/` (nœuds DT2) · méthodo veille : `docs/veille/`
   (SOP, grille, briefs sources).
+- **Avant d'écrire ou de modifier un nœud** : `docs/decision/GRAMMAIRE-NOEUD.md` — les règles
+  R1→R9, tous domaines (état ≠ intention, délai de bénéfice, deux décisions pour modifier un
+  traitement, écarté ≠ non-indiqué, un critère doit agir, argumentaire situationnel, jamais se
+  prononcer sur ce qu'on ignore, un canal par fait de sécurité, savoir si le geste est déjà fait).
+- **Avant de démarrer un nouveau module ou domaine** : `docs/decision/CONSTRUIRE-UN-MODULE.md` —
+  le procédé P0→P7 avec ses portes de sortie et ses checklists opposables. La collecte de preuve
+  n'est que la 5ᵉ étape ; l'ouvrir en premier évite de refaire les vagues de correction du DT2.
 
 ### Invariants non négociables
 

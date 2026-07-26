@@ -66,6 +66,8 @@ criteres_entree:
     valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, insuline, glinide]
   - nom: dose_metformine
     type: nombre
+    min: 0
+    max: 3000
     groupe: Traitement actuel et contrôle
     # NOUVEAU CRITÈRE (décision référent, 2026-07-26, 3e série — chantier vignettes, recette capture 1
     # problème 2) : « Metformine présente devrait peut-être demander de renseigner la dose. » Avant ce
@@ -79,6 +81,8 @@ criteres_entree:
     visible_si: "traitements_en_cours contient metformine"
   - nom: HbA1c_actuelle
     type: nombre
+    min: 4
+    max: 18
     groupe: Traitement actuel et contrôle
   - nom: position_vs_cible
     type: enum
@@ -103,6 +107,8 @@ criteres_entree:
     groupe: Ce qui oriente le choix
   - nom: DFG
     type: nombre
+    min: 3
+    max: 150
     groupe: Ce qui oriente le choix
   - nom: albuminurie
     type: enum
@@ -110,6 +116,8 @@ criteres_entree:
     valeurs: [normo, micro, macro]
   - nom: IMC
     type: nombre
+    min: 14
+    max: 70
     groupe: Ce qui oriente le choix
 
   # 4. CE QUI RESTREINT — drapeaux de sécurité et de tolérance (gating négatif, gel S1 §4/§5).
@@ -148,6 +156,8 @@ criteres_entree:
   # 5. LE TERRAIN ET LES PRÉFÉRENCES — modulent, décident rarement seuls.
   - nom: age
     type: nombre
+    min: 18
+    max: 105
     groupe: Terrain et préférences
   - nom: fragilite
     type: bool
@@ -1141,8 +1151,19 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.19"
+  version: "0.20"
   changelog:
+    - date: "2026-07-26"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        Bornes `min`/`max` déclarées sur `age` (18-105), `HbA1c_actuelle` (4-18), `DFG` (3-150), `IMC`
+        (14-70) et `dose_metformine` (0-3000) — table validée par le référent
+        (docs/decision/GRAMMAIRE-NOEUD.md). Bloque la saisie hors domaine côté formulaire et filtre les
+        littéraux étrangers extraits par les deux générateurs de valeurs candidates du banc
+        (`engine/banc/profils.ts`, `engine/relevance.ts`) — notamment les seuils de dose `1000`/`2000` de
+        l'option « Réduire la posologie de la metformine », qui contaminaient jusqu'ici le domaine de
+        tirage du DFG (banc générant des DFG à 2000 mL/min). Mêmes bornes que sur les autres nœuds
+        portant ces critères (cible-glycemique, statine, insuline, rhd). Moteur inchangé.
     - date: "2026-07-26"
       auteur: "référent DT2 + Claude"
       resume: >-

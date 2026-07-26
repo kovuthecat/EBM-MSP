@@ -77,17 +77,23 @@ criteres_entree:
   # sans que personne ne s'en aperçoive. Ce commentaire EST la trace qui doit l'en empêcher.
   - nom: age
     type: nombre
+    min: 18
+    max: 105
   - nom: ASCVD_etablie
     type: bool
   - nom: anciennete_diabete_annees
     type: nombre
-  # ⚠ Aucune borne de domaine déclarable ici : `critereEntree` (schema/noeud.schema.json) n'a pas de
-  # champ minimum/maximum pour un critère `nombre` — une valeur hors domaine (ex. -1) est aujourd'hui
-  # acceptée par le schéma et peut faire basculer la sortie d'un tier à l'autre (recette 2026-07-26,
-  # défaut 13.4). PAS corrigé dans ce lot (changement de schéma hors périmètre du lot statine) —
-  # signalé à l'orchestrateur.
+    min: 0
+    max: 60
+  # Borne ajoutée le 2026-07-26 (table validée par le référent, docs/decision/GRAMMAIRE-NOEUD.md) :
+  # corrige le défaut signalé ci-dessous jusqu'ici (recette 2026-07-26, défaut 13.4) — une valeur hors
+  # domaine (ex. -1) faisait basculer la sortie d'un tier à l'autre. `min`/`max` bloque la saisie côté
+  # formulaire (components/CriteriaForm.tsx) et filtre les littéraux étrangers extraits par les deux
+  # générateurs de valeurs candidates du banc (engine/banc/profils.ts, engine/relevance.ts).
   - nom: autres_FDRCV
     type: nombre
+    min: 0
+    max: 6
   - nom: diabete_complique
     type: bool
     confirmation_requise: true
@@ -380,8 +386,17 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Claude Code"
   statut: brouillon
-  version: "1.2"
+  version: "1.3"
   changelog:
+    - date: "2026-07-26"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        Bornes `min`/`max` déclarées sur `age` (18-105), `anciennete_diabete_annees` (0-60) et
+        `autres_FDRCV` (0-6) — table validée par le référent (docs/decision/GRAMMAIRE-NOEUD.md). Corrige
+        le défaut signalé le 2026-07-26 (recette, défaut 13.4) : `autres_FDRCV` acceptait -1, ce qui
+        faisait basculer la sortie d'un tier à l'autre. `min`/`max` bloque désormais la saisie côté
+        formulaire et filtre les littéraux étrangers extraits par les deux générateurs de valeurs
+        candidates du banc (`engine/banc/profils.ts`, `engine/relevance.ts`). Moteur inchangé.
     - date: "2026-07-26"
       auteur: "référent DT2 (Thibault, F-statine.md §9.4/§9.5) + Claude Code"
       resume: >-

@@ -20,16 +20,22 @@
  * - `liste`  → un sous-ensemble des `valeurs` déclarées (peut être vide ou complet) ;
  * - `nombre` → un des seuils littéraux présents dans les règles DU NŒUD qui MENTIONNENT ce critère
  *   (`conditions`, `exclusions`, `priorite` conditionnelle, `alertes[].quand`, ou le `derive` d'un
- *   AUTRE critère), chacun décliné à −1 / lui-même / +1, plus deux bornes plancher/plafond (0 et 999)
- *   qui couvrent le cas où AUCUNE règle ne mentionne ce critère par un seuil littéral (un tel critère
- *   n'aura alors que ces deux valeurs — ce qui le rend visible comme « jamais décisif » côté R5,
- *   cf. `couverture.test.ts`, exactement l'effet recherché).
+ *   AUTRE critère), chacun décliné à −1 / lui-même / +1, FILTRÉS au domaine déclaré (`critere.min`/
+ *   `critere.max`, table validée référent, docs/decision/GRAMMAIRE-NOEUD.md) pour ne jamais attribuer à
+ *   ce critère le seuil littéral d'un AUTRE opérande de la même expression (ex. le 0,5 d'un ratio
+ *   dose/poids devenant un seuil de POIDS, corrigé le 2026-07-26 — cf. `tirageDansDomaine`,
+ *   `seuilsNumeriques` ci-dessous) ; plus deux bornes plancher/plafond (le domaine [min, max] lui-même si
+ *   déclaré, sinon 0 et 999 en repli historique) qui couvrent le cas où AUCUN littéral EN DOMAINE
+ *   n'a été trouvé (un tel critère n'aura alors que ces valeurs de repli — ce qui le rend visible comme
+ *   « jamais décisif » côté R5, cf. `couverture.test.ts`, exactement l'effet recherché quand c'est
+ *   véritablement le cas).
  *
  * Même IDÉE que la fonction interne (non exportée) `valeursCandidates` de `engine/relevance.ts` —
- * réimplémentée ici à dessein : contrainte de la tâche, ne jamais modifier `relevance.ts` (un autre
- * agent travaille sur des fichiers voisins). Les deux implémentations sont volontairement proches mais
- * pas identiques (ε = 1 ici contre 0,01 dans `relevance.ts`, qui vise le franchissement exact d'un seuil
- * pour la perturbation ; ici on veut surtout des COMBINAISONS variées de critères).
+ * réimplémentée ici à dessein (les deux moteurs ne doivent jamais diverger sur le filtre de domaine, sous
+ * peine de perturber la pertinence sur des valeurs que le banc n'engendre plus — cf. le filtre `min`/`max`
+ * appliqué aux deux, 2026-07-26). Les deux implémentations restent volontairement proches
+ * mais pas identiques (ε = 1 ici contre 0,01 dans `relevance.ts`, qui vise le franchissement exact d'un
+ * seuil pour la perturbation ; ici on veut surtout des COMBINAISONS variées de critères).
  *
  * DEUX STRATÉGIES DE COMBINAISON (et non un tirage indépendant naïf profil par profil) :
  *
@@ -108,24 +114,63 @@ function reglesDuNoeud(node: Noeud): string[] {
 }
 
 /**
+ * Domaine de REPLI d'un critère borné (`critere.min`/`critere.max`, schema/noeud.schema.json, table
+ * validée référent, docs/decision/GRAMMAIRE-NOEUD.md) quand AUCUN littéral EN DOMAINE n'a été trouvé
+ * dans les règles du nœud — soit qu'aucune règle ne mentionne le critère, soit que toutes les mentions
+ * extraites appartenaient en réalité à un AUTRE opérande de la même expression (le défaut diagnostiqué
+ * dans `banc/couverture.test.ts` : le 0,5 d'un ratio `dose_basale_actuelle / poids > 0.5` devenait un
+ * seuil de POIDS, le 1000/2000 d'une dose de metformine devenait un seuil de DFG). Tirage DÉTERMINISTE
+ * (mulberry32, graine dérivée du nom du critère — jamais `Math.random`, cf. docstring de tête du module) :
+ * les deux bornes elles-mêmes plus 3 tirages intérieurs, assez pour peupler `sequenceStratifiee` sans
+ * coût combinatoire supplémentaire.
+ */
+function tirageDansDomaine(min: number, max: number, nomCritere: string): number[] {
+  if (min === max) return [min]
+  const rng = mulberry32((GRAINE_PAR_DEFAUT ^ hashChaine(`__domaine_${nomCritere}__`)) >>> 0)
+  const valeurs = new Set<number>([min, max])
+  while (valeurs.size < 5) valeurs.add(Math.round((min + rng() * (max - min)) * 100) / 100)
+  return [...valeurs]
+}
+
+/**
  * Seuils numériques candidats pour un critère `nombre` : littéraux trouvés dans les règles du nœud qui
- * MENTIONNENT ce critère (mot entier, `\b`), déclinés à −1/lui-même/+1, plus 0 et 999 (bornes qui
- * garantissent au moins deux valeurs même sans règle littérale sur ce critère).
+ * MENTIONNENT ce critère (mot entier, `\b`), déclinés à −1/lui-même/+1, FILTRÉS au domaine déclaré
+ * (`critere.min`/`critere.max`) pour écarter le seuil littéral d'un AUTRE opérande de la même expression
+ * — cf. `tirageDansDomaine` ci-dessus pour le repli quand ce filtre ne laisse plus aucun littéral. Domaine
+ * NON déclaré (min/max absents pour ce critère) : comportement historique intégralement inchangé (0 et
+ * 999 en plancher/plafond, aucun filtre).
  */
 function seuilsNumeriques(node: Noeud, critere: CritereEntree): number[] {
   const motif = new RegExp(`\\b${critere.nom}\\b`)
-  const seuils = new Set<number>([0, 999])
+  const { min, max } = critere
+  const dansDomaine = (v: number) => (min == null || v >= min) && (max == null || v <= max)
+  const brut = new Set<number>()
   for (const regle of reglesDuNoeud(node)) {
     if (!motif.test(regle)) continue
     for (const litteral of regle.match(/-?\d+(?:\.\d+)?/g) ?? []) {
       const n = Number(litteral)
       if (!Number.isFinite(n)) continue
-      seuils.add(n)
-      seuils.add(Math.round((n - 1) * 100) / 100)
-      seuils.add(Math.round((n + 1) * 100) / 100)
+      brut.add(n)
+      brut.add(Math.round((n - 1) * 100) / 100)
+      brut.add(Math.round((n + 1) * 100) / 100)
     }
   }
-  return [...seuils]
+  const seuils = new Set<number>([...brut].filter(dansDomaine))
+  if (seuils.size > 0) {
+    // Bornes plancher/plafond garanties EN DOMAINE (remplace le sentinel universel 0/999, hors domaine
+    // pour la plupart des critères bornés — ex. un poids de 0 kg) : au moins deux valeurs même quand des
+    // littéraux réels existent déjà.
+    if (min != null) seuils.add(min)
+    if (max != null) seuils.add(max)
+    if (min == null && max == null) {
+      seuils.add(0)
+      seuils.add(999)
+    }
+    return [...seuils]
+  }
+  // Aucun littéral EN DOMAINE : cf. `tirageDansDomaine` ci-dessus.
+  if (min != null && max != null) return tirageDansDomaine(min, max, critere.nom)
+  return [0, 999] // aucune borne déclarée pour ce critère : repli historique intégral.
 }
 
 /** Domaine énumérable d'un critère non `liste` (candidats un par un) ; `null` pour un critère `liste`

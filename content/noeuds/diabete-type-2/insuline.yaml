@@ -47,15 +47,23 @@ criteres_entree:
     valeurs: [naif, basale_seule, basale_plus_bolus, basal_bolus]
   - nom: age
     type: nombre
+    min: 18
+    max: 105
   - nom: HbA1c_actuelle
     type: nombre
+    min: 4
+    max: 18
   - nom: HbA1c_cible
     type: nombre
+    min: 6
+    max: 9.5
   - nom: cible_atteinte
     type: bool
     derive: "HbA1c_actuelle <= HbA1c_cible"
   - nom: DFG
     type: nombre
+    min: 3
+    max: 150
   - nom: fragilite
     type: bool
   - nom: esperance_vie
@@ -88,9 +96,13 @@ criteres_entree:
     visible_si: "situation_insuline != naif"
   - nom: TBR
     type: nombre
+    min: 0
+    max: 100
     visible_si: "situation_insuline != naif"
   - nom: TBR_severe
     type: nombre
+    min: 0
+    max: 100
     # Piège P1 : également lu par l'alerte non filtrée `hypo_severe_recurrente == true OR CV_glycemique >
     # 36 OR TBR_severe > 1` (ci-dessous). Sans conséquence : remis à 0, ce terme de la disjonction devient
     # simplement toujours faux (0 n'est jamais > 1) — il ne peut pas déclencher l'alerte à tort ; les deux
@@ -98,6 +110,8 @@ criteres_entree:
     visible_si: "situation_insuline != naif"
   - nom: CV_glycemique
     type: nombre
+    min: 0
+    max: 100
     # Même piège, même conclusion que TBR_severe ci-dessus (0 n'est jamais > 36).
     visible_si: "situation_insuline != naif"
   - nom: profil_glycemique
@@ -106,6 +120,8 @@ criteres_entree:
     visible_si: "situation_insuline != naif"
   - nom: GAJ
     type: nombre
+    min: 0.4
+    max: 5
     visible_si: "situation_insuline != naif"
   - nom: gaj_a_cible
     type: bool
@@ -137,8 +153,12 @@ criteres_entree:
     derive: "profil_glycemique contient excursions_postprandiales"
   - nom: poids
     type: nombre
+    min: 35
+    max: 250
   - nom: dose_basale_actuelle
     type: nombre
+    min: 0
+    max: 150
     # T4/(a) : un naïf n'a par définition aucune dose de basale en cours (12.10/capture 7) — pourtant
     # comptée parmi les critères décisifs non confirmés dans la recette. Sûr au masquage : aucune option
     # de la situation « naïf » ne lit ce champ ; `over_basalisation` resterait à 0 (faux), le comportement
@@ -146,6 +166,8 @@ criteres_entree:
     visible_si: "situation_insuline != naif"
   - nom: dose_rapide_actuelle
     type: nombre
+    min: 0
+    max: 150
     # Seul le `calculs` de « Optimiser la répartition du basal-bolus » lit ce champ (dose totale = basale +
     # rapide), propre à cette unique situation — masqué plus largement qu'un simple « != naif ».
     visible_si: "situation_insuline == basal_bolus"
@@ -673,8 +695,22 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Opus"
   statut: brouillon
-  version: "0.7"
+  version: "0.8"
   changelog:
+    - date: "2026-07-26"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        Bornes `min`/`max` déclarées sur les 11 critères `nombre` du nœud : `age` (18-105),
+        `HbA1c_actuelle` (4-18), `HbA1c_cible` (6-9.5), `DFG` (3-150), `TBR`/`TBR_severe`/`CV_glycemique`
+        (0-100 chacun), `GAJ` (0.4-5), `poids` (35-250), `dose_basale_actuelle`/`dose_rapide_actuelle`
+        (0-150 chacune, décision référent : au-delà de 150 U/j la question n'est plus la titration, le
+        nœud oriente déjà vers le basal-bolus au-delà de 0,5 U/kg) — table validée par le référent
+        (docs/decision/GRAMMAIRE-NOEUD.md). Corrige le défaut diagnostiqué dans
+        `engine/banc/couverture.test.ts` (`NOEUDS_AVEC_OPTION_INATTEIGNABLE_PAR_LE_GENERATEUR`) : le seul
+        littéral `0.5` du dérivé `dose_basale_actuelle / poids > 0.5` était jusqu'ici attribué à `poids`
+        par les deux générateurs de valeurs candidates du banc (`engine/banc/profils.ts`,
+        `engine/relevance.ts`), qui engendraient des patients de 0,5 kg. `min`/`max` bloque aussi la
+        saisie hors domaine côté formulaire. Moteur inchangé.
     - date: "2026-07-26"
       auteur: "référent DT2 + Opus"
       resume: >-

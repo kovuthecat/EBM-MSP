@@ -13,8 +13,12 @@ argumentaire_exhaustif: "cible-glycemique.argumentaire.md"
 criteres_entree:
   - nom: age
     type: nombre
+    min: 18
+    max: 105
   - nom: anciennete_diabete_annees
     type: nombre
+    min: 0
+    max: 60
   - nom: esperance_vie
     type: enum
     valeurs: [longue, intermediaire, limitee]
@@ -159,8 +163,17 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude Code"
   statut: valide
-  version: "2.1"
+  version: "2.2"
   changelog:
+    - date: "2026-07-26"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        Bornes `min`/`max` déclarées sur `age` (18-105) et `anciennete_diabete_annees` (0-60) — table
+        validée par le référent (docs/decision/GRAMMAIRE-NOEUD.md). Bloque la saisie hors domaine (ex.
+        âge négatif) et filtre les littéraux étrangers extraits par les deux générateurs de valeurs
+        candidates du banc (`engine/banc/profils.ts`, `engine/relevance.ts`). Ces deux critères sont
+        aussi déclarés sur d'autres nœuds (statine, prescription, insuline, rhd) avec les MÊMES bornes
+        (identité inter-nœuds requise). Moteur inchangé (`evaluateNode` ne lit pas ces champs).
     - date: "2026-07-26"
       auteur: "référent DT2 + Claude Code"
       resume: >-

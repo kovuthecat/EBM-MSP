@@ -28,8 +28,8 @@ Sortie :
 ### Profil #1 — 4 critère(s) masqué(s) (masque stratifié) : age, antecedent_cv, anciennete_diabete_annees, comorbidite_grave
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ○ - age = 999
-  ○ - anciennete_diabete_annees = 4
+  ○ - age = 69
+  ○ - anciennete_diabete_annees = 0
   ■ - esperance_vie = longue
   ■ - fragilite = true
   ○ - antecedent_cv = false
@@ -43,8 +43,8 @@ Sortie :
 ### Profil #2 — 4 critère(s) masqué(s) (masque stratifié) : fragilite, anciennete_diabete_annees, antecedent_cv, comorbidite_grave
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - age = 999
-  ○ - anciennete_diabete_annees = 6
+  ■ - age = 69
+  ○ - anciennete_diabete_annees = 60
   ■ - esperance_vie = limitee
   ○ - fragilite = true
   ○ - antecedent_cv = false
@@ -58,8 +58,8 @@ Sortie :
 ### Profil #3 — 3 critère(s) masqué(s) (masque stratifié) : age, fragilite, esperance_vie
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ○ - age = 0
-  ■ - anciennete_diabete_annees = 999
+  ○ - age = 70
+  ■ - anciennete_diabete_annees = 4
   ○ - esperance_vie = limitee
   ○ - fragilite = false
   ■ - antecedent_cv = false
@@ -73,8 +73,8 @@ Sortie :
 ### Profil #4 — 3 critère(s) masqué(s) (masque stratifié) : comorbidite_grave, fragilite, antecedent_cv
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - age = 70
-  ■ - anciennete_diabete_annees = 999
+  ■ - age = 71
+  ■ - anciennete_diabete_annees = 4
   ■ - esperance_vie = longue
   ○ - fragilite = true
   ○ - antecedent_cv = false
@@ -88,8 +88,8 @@ Sortie :
 ### Profil #5 — 1 critère(s) masqué(s) (masque stratifié) : anciennete_diabete_annees
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - age = 71
-  ○ - anciennete_diabete_annees = 999
+  ■ - age = 105
+  ○ - anciennete_diabete_annees = 4
   ■ - esperance_vie = intermediaire
   ■ - fragilite = false
   ■ - antecedent_cv = false
@@ -103,8 +103,8 @@ Sortie :
 ### Profil #6 — 4 critère(s) masqué(s) (masque stratifié) : esperance_vie, anciennete_diabete_annees, fragilite, comorbidite_grave
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - age = 69
-  ○ - anciennete_diabete_annees = 999
+  ■ - age = 18
+  ○ - anciennete_diabete_annees = 4
   ○ - esperance_vie = longue
   ○ - fragilite = false
   ■ - antecedent_cv = false
@@ -118,8 +118,8 @@ Sortie :
 ### Profil #7 — 3 critère(s) masqué(s) (masque stratifié) : age, anciennete_diabete_annees, comorbidite_grave
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ○ - age = 70
-  ○ - anciennete_diabete_annees = 4
+  ○ - age = 71
+  ○ - anciennete_diabete_annees = 0
   ■ - esperance_vie = intermediaire
   ■ - fragilite = false
   ■ - antecedent_cv = false
@@ -133,8 +133,8 @@ Sortie :
 ### Profil #8 — 2 critère(s) masqué(s) (masque stratifié) : antecedent_cv, anciennete_diabete_annees
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - age = 69
-  ○ - anciennete_diabete_annees = 4
+  ■ - age = 18
+  ○ - anciennete_diabete_annees = 0
   ■ - esperance_vie = longue
   ■ - fragilite = false
   ○ - antecedent_cv = false
@@ -148,8 +148,8 @@ Sortie :
 ### Profil #9 — 2 critère(s) masqué(s) (masque stratifié) : antecedent_cv, anciennete_diabete_annees
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - age = 71
-  ○ - anciennete_diabete_annees = 4
+  ■ - age = 105
+  ○ - anciennete_diabete_annees = 0
   ■ - esperance_vie = limitee
   ■ - fragilite = false
   ○ - antecedent_cv = false
@@ -163,8 +163,8 @@ Sortie :
 ### Profil #10 — 2 critère(s) masqué(s) (masque stratifié) : esperance_vie, antecedent_cv
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - age = 70
-  ■ - anciennete_diabete_annees = 5
+  ■ - age = 71
+  ■ - anciennete_diabete_annees = 6
   ○ - esperance_vie = intermediaire
   ■ - fragilite = false
   ○ - antecedent_cv = true
@@ -178,8 +178,8 @@ Sortie :
 ### Profil #11 — 4 critère(s) masqué(s) (masque stratifié) : age, esperance_vie, antecedent_cv, anciennete_diabete_annees
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ○ - age = 69
-  ○ - anciennete_diabete_annees = 6
+  ○ - age = 18
+  ○ - anciennete_diabete_annees = 60
   ○ - esperance_vie = limitee
   ■ - fragilite = false
   ○ - antecedent_cv = true
@@ -193,8 +193,8 @@ Sortie :
 ### Profil #12 — 4 critère(s) masqué(s) (masque stratifié) : comorbidite_grave, antecedent_cv, esperance_vie, age
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ○ - age = 999
-  ■ - anciennete_diabete_annees = 999
+  ○ - age = 69
+  ■ - anciennete_diabete_annees = 4
   ○ - esperance_vie = intermediaire
   ■ - fragilite = false
   ○ - antecedent_cv = true
@@ -208,8 +208,8 @@ Sortie :
 ### Profil #13 — 3 critère(s) masqué(s) (masque stratifié) : antecedent_cv, comorbidite_grave, anciennete_diabete_annees
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - age = 71
-  ○ - anciennete_diabete_annees = 4
+  ■ - age = 105
+  ○ - anciennete_diabete_annees = 0
   ■ - esperance_vie = longue
   ■ - fragilite = false
   ○ - antecedent_cv = true
@@ -223,8 +223,8 @@ Sortie :
 ### Profil #14 — 3 critère(s) masqué(s) (masque stratifié) : age, comorbidite_grave, fragilite
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ○ - age = 69
-  ■ - anciennete_diabete_annees = 6
+  ○ - age = 18
+  ■ - anciennete_diabete_annees = 60
   ■ - esperance_vie = intermediaire
   ○ - fragilite = true
   ■ - antecedent_cv = true

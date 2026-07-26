@@ -1,10 +1,14 @@
 # Grammaire de modélisation d'un nœud de décision — **générique, tous domaines**
 
-> **Statut** : proposition issue de la recette du nœud `prescription` (2026-07-25), à valider.
-> **Portée** : ce document ne parle **d'aucun domaine clinique**. Il énonce les règles que doit
-> respecter l'écriture de n'importe quel nœud, DT2 ou futur domaine. Le *quoi* clinique reste dans
-> `docs/decision/noeuds/` ; la *méthode de sourcing* reste dans `00-global.md` (DT2) ; le *contrat
-> exécutable* reste dans `schema/noeud.schema.json`.
+> **Statut** : R1→R6 issues de la recette du nœud `prescription` (2026-07-25), livrées. **R7 et R8**
+> ajoutées après la recette élargie du 2026-07-26 (nœuds `insuline`, `statine`, `rhd`) — R7 livrée
+> (D20), R8 à livrer (D21). **R9 est une proposition non arbitrée.**
+> **Portée** : ce document ne parle **d'aucun domaine clinique**. Il énonce les **règles** que doit
+> respecter l'écriture de n'importe quel nœud, DT2 ou futur domaine — il se consulte *pendant*
+> l'écriture. Le **procédé** de construction d'un module (ordre des étapes, portes de sortie,
+> checklists opposables) vit dans [`CONSTRUIRE-UN-MODULE.md`](CONSTRUIRE-UN-MODULE.md). Le *quoi*
+> clinique reste dans `docs/decision/noeuds/` ; la *méthode de sourcing* reste dans `00-global.md`
+> (DT2) ; le *contrat exécutable* reste dans `schema/noeud.schema.json`.
 
 ## Pourquoi ce document existe
 
@@ -177,6 +181,23 @@ union( criteresPertinents(node, profil) pour tout profil du banc )  ⊇  critèr
 
 Tout critère absent de l'union est signalé. **À ajouter au banc de tout nœud, tout domaine.**
 
+> **Nuance ajoutée après la recette du 2026-07-26 — R5 peut passer alors que le défaut demeure.**
+> Sur `statine`, `age` n'apparaît dans **aucune** condition d'option : il ne sert qu'à l'alerte
+> `age > 75 AND ASCVD_etablie == false`. R5 est donc **satisfaite** (le critère change l'écran), et
+> pourtant le nœud rend exactement la même carte — même titre, même badge « Recommandée », même
+> « délai du bénéfice : 3-5 ans » — à **30 ans** et à **90 ans**. L'estompage ne le signale pas non
+> plus, puisque l'âge *a* un effet.
+>
+> Le critère collecté donne donc au praticien l'illusion d'une décision individualisée sur l'âge,
+> alors qu'il n'allume qu'un message. Deux conséquences de rédaction :
+>
+> - **distinguer la portée d'un critère** — pilote-t-il la *décision* (option, rang, exclusion) ou
+>   seulement un *commentaire* (alerte, texte) ? Un critère qui ne fait que commenter ne devrait pas
+>   être présenté au même niveau que ceux qui décident ;
+> - **la borne manquante est un cas particulier de R9** : l'en-tête du nœud `statine` pose que la
+>   population prouvée est « CARDS = 40-75 ans », et rien n'en découle — un DT2 de 30 ans reçoit
+>   « Recommandée » sans réserve d'extrapolation.
+
 ---
 
 ## R6 — L'argumentaire est SITUATIONNEL, jamais encyclopédique
@@ -237,6 +258,98 @@ distinctes :
    des cas et l'affirmation fausse. Aucune décision clinique engagée ;
 2. **schéma + contenu** — séparer `conditions` (l'indication, ce qui justifie) de `prerequis` (les
    garde-fous de cohérence, silencieux à l'écran). Migration de contenu nœud par nœud.
+
+---
+
+## R7 — Le moteur ne se prononce jamais sur ce qu'il ignore
+
+**Règle.** Un critère non renseigné vaut `indetermine` — troisième état, distinct de `0`, de `false`
+et de la première valeur d'énumération. Évaluation ternaire. Une option dont une `conditions`,
+`prerequis` ou `exclusions` est indéterminée passe **en attente** : ni proposée, ni écartée. Alertes,
+doses calculées et dérivés indéterminés ne s'affichent pas.
+
+**Le cas.** Formulaire vierge : `statine` désignait un tier sur trois champs vides et l'affichait en
+justification (« Ancienneté < 10 et Autres FDRCV = 0 et Diabète compliqué : non ») ; `prescription`
+**écartait la metformine** sur un `DFG < 30` jamais saisi ; `insuline` affirmait simultanément une
+insuffisance rénale (DFG vide → `< 45`) et un objectif glycémique atteint (HbA1c vide → `0 <= cible`).
+Sur les 5 nœuds, 86 règles portent sur un `nombre`/`enum` : **56 penchent vers le rassurant, 16 vers
+l'alarmant** sur valeur par défaut. C'est l'asymétrie — le même vide lu dans deux sens opposés — qui
+fait le défaut, pas le sens choisi.
+
+**Spécification complète** : `validation/chantier-2026-07-26/SPEC-valeur-indeterminee.md` §2.
+**Décision** : D20. **Invariant de banc** : I3.
+
+**Ce que la règle rend obligatoire pour un nouveau nœud.** Déclarer, pour chaque `bool`/`liste` dont
+le « non » ne peut pas être présumé sans risque, un `confirmation_requise` — un drapeau de sécurité
+non coché n'est pas une réponse. Et vérifier, avant de figer les conditions, dans quel sens penche
+chaque règle sur valeur manquante : c'est un tableau à produire à l'écriture, pas un audit à faire
+après.
+
+---
+
+## R8 — Un fait de sécurité a un canal, et un seul
+
+**Règle.** Aiguillage selon ce que le fait *fait au geste* :
+
+- il rend un geste **contre-indiqué** → `options[].exclusions`, affichée avec son motif (R4) ;
+- il **qualifie** un geste sans l'interdire → `options[].alertes` ;
+- il est vrai **quel que soit le geste retenu** → `alertes` de nœud.
+
+Deux interdits : `priorite` ne porte **jamais** un fait de sécurité (rétrograder n'est pas retirer) ;
+une alerte de nœud n'a **jamais** `quand: "default"` (elle s'affiche alors pour tout le monde, donc
+pour personne).
+
+**Le cas.** Six couples où une alerte interdit ce qu'une carte prescrit. Les deux plus nets :
+« **ne pas INITIER une statine** » (dialyse) au-dessus de « Statine de haute intensité — prévention
+secondaire, délai du bénéfice 5-6 ans » ; « **ne pas poursuivre la titration de la basale** » au-dessus
+de « Titrer la basale (augmenter la dose) — Basale après +2 U ≈ 42 U/j ». Cause mécanique : une alerte
+de nœud est évaluée sur les seuls critères, jamais sur ce que le moteur a retenu — elle ne peut pas
+savoir qu'elle contredit la carte affichée juste en dessous.
+
+**Le malentendu levé.** D3 interdit les **scores cachés**, pas les **règles**. Une `exclusion` sur
+`dialyse == true`, affichée avec son motif, est l'exact opposé d'un arbitrage caché : c'est un
+arbitrage déclaré, sourcé et rendu à l'écran. Avoir conflaté les deux avait fait glisser des interdits
+de sécurité dans un canal sans pouvoir de retrait.
+
+**Décision** : D21. **Invariant de banc** : I7 (une alerte au libellé prohibitif implique une
+`exclusion` correspondante).
+
+> **Couplage à ne pas casser.** Transformer une alerte prohibitive en `exclusion` peut **vider** un
+> nœud en `ordered-first-match` — sur `statine`, l'exclusion dialyse sans les critères
+> `statine_deja_en_place` / `intolerance_statine` supprimerait les 3 options sans repli. Le canal de
+> sortie se change **après** avoir donné au nœud de quoi dire autre chose.
+
+---
+
+## R9 *(proposition, non arbitrée)* — Un nœud qui recommande un geste doit savoir si le geste est déjà fait
+
+**Règle proposée.** Toute option qui prescrit une action (introduire, initier, ajouter, majorer) doit
+disposer d'un critère lui disant si cette action est **déjà en place**, ou bien le nœud doit déclarer
+explicitement, dans `population_cible`, qu'il ne traite que l'initiation. Le silence sur ce point n'est
+pas neutre : il produit une injonction absurde chez un patient déjà traité.
+
+**Les cas — la même faute dans trois nœuds sur cinq :**
+
+| nœud | ce que l'outil a dit | à qui |
+|---|---|---|
+| `prescription` | « Envisager l'insuline » | patient dont « Insuline » est cochée |
+| `prescription` | « Metformine — **instaurer** ou poursuivre » | patient sous metformine, en même temps que « réduire la posologie de la metformine » |
+| `insuline` | « **Initier** une insuline basale » + dose de départ calculée | situation « Naïf » **et** « Insuline basale » cochée, sans alerte de cohérence |
+| `statine` | « Statine de haute intensité » | nœud sans aucun critère « statine déjà en cours » |
+
+**Le corollaire qui coûte le plus cher.** Sur `statine`, l'alerte dialyse se termine par « *Si une
+statine est déjà en place, sa poursuite est raisonnable* » — une nuance clinique juste, **structurellement
+inapplicable**, puisque le nœud ne pose jamais la question. Une réserve écrite en prose et non
+adossée à un critère n'est pas une réserve : c'est une décoration.
+
+**D'où la forme testable de la règle** : *tout concept nommé comme réserve dans la prose d'un nœud
+(« si déjà en place », « CARDS 40-75 ans », « en cas d'intolérance ») doit être **soit** un critère
+d'entrée, **soit** déclaré hors périmètre dans `population_cible`.* Un troisième statut — mentionné
+mais ni collecté ni exclu — n'existe pas.
+
+Le référent a déjà tranché le premier cas d'application (ajout de `statine_deja_en_place` et
+`intolerance_statine`, 2026-07-26) ; ce qui reste à arbitrer est la **généralisation** en règle
+opposable à tout nouveau nœud, et l'invariant de banc correspondant.
 
 ---
 
@@ -424,3 +537,20 @@ poursuivie sans le moindre verdict, un agent ajouté par-dessus.
 L'étape 3 n'est pas une préférence de style : R2, R4 et R6 ajoutent chacune une dimension à ce qui est
 affiché. Tant que la signature de pertinence reconstruit l'écran à la main, chacune rouvre le même
 défaut — quatre occurrences constatées, deux de plus programmées si l'ordre n'est pas tenu.
+
+---
+
+# Construire un nouveau module — voir le document dédié
+
+L'**ordre** dans lequel construire un module (cadrage par la consultation, vignettes gelées avant le
+contenu, écran maquetté avant la collecte, double vérification fidélité / comportement), les
+**checklists opposables** par critère / option / alerte / nœud / module, et le **tableau des pièges
+constatés** vivent dans un document séparé :
+
+> **[`CONSTRUIRE-UN-MODULE.md`](CONSTRUIRE-UN-MODULE.md)** — spécification de construction, tous
+> domaines.
+
+Séparation volontaire : **ce document-ci énonce les règles** qu'un nœud doit respecter, et se consulte
+*pendant* l'écriture ; l'autre énonce le **procédé**, et se suit *avant et autour*. Les mélanger rendait
+les deux moins utilisables — la grammaire cessait d'être une référence courte, le procédé se noyait
+dans des règles d'écriture.
