@@ -17,236 +17,221 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - anciennete_diabete_annees = 0
   ○ - esperance_vie = longue
   ○ - fragilite = false
-  ○ - risque_hypoglycemie_schema = faible
   ○ - antecedent_cv = false
   ○ - comorbidite_grave = false
 
 Sortie :
   (aucune option applicable — sortie vide)
   Options EN ATTENTE (indétermination, R7/D20) :
-    - Cible ≤ 8 % :: à renseigner : anciennete_diabete_annees, esperance_vie, risque_hypoglycemie_schema
+    - Cible ≤ 8 % :: à renseigner : esperance_vie
 
-### Profil #1 — 5 critère(s) masqué(s) (masque stratifié) : anciennete_diabete_annees, age, risque_hypoglycemie_schema, comorbidite_grave, antecedent_cv
+### Profil #1 — 4 critère(s) masqué(s) (masque stratifié) : age, antecedent_cv, anciennete_diabete_annees, comorbidite_grave
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - age = 999
   ○ - anciennete_diabete_annees = 4
+  ■ - esperance_vie = longue
+  ■ - fragilite = true
+  ○ - antecedent_cv = false
+  ○ - comorbidite_grave = false
+
+Sortie :
+  Famille « (repli à plat) » (exclusive: n/a) :
+  - [recommandee] Cible ≤ 8 %
+      proposé parce que : fragilite == true
+
+### Profil #2 — 4 critère(s) masqué(s) (masque stratifié) : fragilite, anciennete_diabete_annees, antecedent_cv, comorbidite_grave
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ■ - age = 999
+  ○ - anciennete_diabete_annees = 6
+  ■ - esperance_vie = limitee
+  ○ - fragilite = true
+  ○ - antecedent_cv = false
+  ○ - comorbidite_grave = false
+
+Sortie :
+  Famille « (repli à plat) » (exclusive: n/a) :
+  - [recommandee] Cible < 9 %
+      proposé parce que : esperance_vie == limitee ; fragilite == true
+
+### Profil #3 — 3 critère(s) masqué(s) (masque stratifié) : age, fragilite, esperance_vie
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ○ - age = 0
+  ■ - anciennete_diabete_annees = 999
+  ○ - esperance_vie = limitee
+  ○ - fragilite = false
+  ■ - antecedent_cv = false
+  ■ - comorbidite_grave = true
+
+Sortie :
+  (aucune option applicable — sortie vide)
+  Options EN ATTENTE (indétermination, R7/D20) :
+    - Cible < 9 % :: à renseigner : esperance_vie
+
+### Profil #4 — 3 critère(s) masqué(s) (masque stratifié) : comorbidite_grave, fragilite, antecedent_cv
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ■ - age = 70
+  ■ - anciennete_diabete_annees = 999
+  ■ - esperance_vie = longue
+  ○ - fragilite = true
+  ○ - antecedent_cv = false
+  ○ - comorbidite_grave = false
+
+Sortie :
+  Famille « (repli à plat) » (exclusive: n/a) :
+  - [recommandee] Cible ≤ 8 %
+      proposé parce que : fragilite == true
+
+### Profil #5 — 1 critère(s) masqué(s) (masque stratifié) : anciennete_diabete_annees
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ■ - age = 71
+  ○ - anciennete_diabete_annees = 999
+  ■ - esperance_vie = intermediaire
+  ■ - fragilite = false
+  ■ - antecedent_cv = false
+  ■ - comorbidite_grave = true
+
+Sortie :
+  Famille « (repli à plat) » (exclusive: n/a) :
+  - [recommandee] Cible ≤ 8 %
+      proposé parce que : comorbidite_grave == true
+
+### Profil #6 — 4 critère(s) masqué(s) (masque stratifié) : esperance_vie, anciennete_diabete_annees, fragilite, comorbidite_grave
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ■ - age = 69
+  ○ - anciennete_diabete_annees = 999
+  ○ - esperance_vie = longue
+  ○ - fragilite = false
+  ■ - antecedent_cv = false
+  ○ - comorbidite_grave = false
+
+Sortie :
+  (aucune option applicable — sortie vide)
+  Options EN ATTENTE (indétermination, R7/D20) :
+    - Cible ≤ 8 % :: à renseigner : esperance_vie
+
+### Profil #7 — 3 critère(s) masqué(s) (masque stratifié) : age, anciennete_diabete_annees, comorbidite_grave
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ○ - age = 70
+  ○ - anciennete_diabete_annees = 4
+  ■ - esperance_vie = intermediaire
+  ■ - fragilite = false
+  ■ - antecedent_cv = false
+  ○ - comorbidite_grave = true
+
+Sortie :
+  Famille « (repli à plat) » (exclusive: n/a) :
+  - [recommandee] Cible ≤ 8 %
+      proposé parce que : comorbidite_grave == true
+
+### Profil #8 — 2 critère(s) masqué(s) (masque stratifié) : antecedent_cv, anciennete_diabete_annees
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ■ - age = 69
+  ○ - anciennete_diabete_annees = 4
+  ■ - esperance_vie = longue
+  ■ - fragilite = false
+  ○ - antecedent_cv = false
+  ■ - comorbidite_grave = false
+
+Sortie :
+  (aucune option applicable — sortie vide)
+  Options EN ATTENTE (indétermination, R7/D20) :
+    - Cible ~6,5 % (6,5–7 %) :: à renseigner : anciennete_diabete_annees
+
+### Profil #9 — 2 critère(s) masqué(s) (masque stratifié) : antecedent_cv, anciennete_diabete_annees
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ■ - age = 71
+  ○ - anciennete_diabete_annees = 4
   ■ - esperance_vie = limitee
   ■ - fragilite = false
-  ○ - risque_hypoglycemie_schema = faible
-  ○ - antecedent_cv = true
-  ○ - comorbidite_grave = true
+  ○ - antecedent_cv = false
+  ■ - comorbidite_grave = true
 
 Sortie :
   Famille « (repli à plat) » (exclusive: n/a) :
   - [recommandee] Cible < 9 %
       proposé parce que : esperance_vie == limitee ; comorbidite_grave == true
 
-### Profil #2 — 5 critère(s) masqué(s) (masque stratifié) : risque_hypoglycemie_schema, anciennete_diabete_annees, antecedent_cv, esperance_vie, comorbidite_grave
-
-Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - age = 0
-  ○ - anciennete_diabete_annees = 5
-  ○ - esperance_vie = limitee
-  ■ - fragilite = true
-  ○ - risque_hypoglycemie_schema = faible
-  ○ - antecedent_cv = true
-  ○ - comorbidite_grave = false
-
-Sortie :
-  (aucune option applicable — sortie vide)
-  Options EN ATTENTE (indétermination, R7/D20) :
-    - Cible < 9 % :: à renseigner : esperance_vie
-
-### Profil #3 — 3 critère(s) masqué(s) (masque stratifié) : age, comorbidite_grave, risque_hypoglycemie_schema
-
-Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ○ - age = 71
-  ■ - anciennete_diabete_annees = 11
-  ■ - esperance_vie = longue
-  ■ - fragilite = true
-  ○ - risque_hypoglycemie_schema = eleve
-  ■ - antecedent_cv = false
-  ○ - comorbidite_grave = true
-
-Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
-  - [recommandee] Cible ≤ 8 %
-      proposé parce que : fragilite == true ; comorbidite_grave == true ; anciennete_diabete_annees > 10 AND risque_hypoglycemie_schema == eleve
-
-### Profil #4 — 3 critère(s) masqué(s) (masque stratifié) : risque_hypoglycemie_schema, comorbidite_grave, esperance_vie
-
-Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - age = 999
-  ■ - anciennete_diabete_annees = 9
-  ○ - esperance_vie = longue
-  ■ - fragilite = true
-  ○ - risque_hypoglycemie_schema = eleve
-  ■ - antecedent_cv = false
-  ○ - comorbidite_grave = true
-
-Sortie :
-  (aucune option applicable — sortie vide)
-  Options EN ATTENTE (indétermination, R7/D20) :
-    - Cible < 9 % :: à renseigner : esperance_vie
-
-### Profil #5 — 2 critère(s) masqué(s) (masque stratifié) : anciennete_diabete_annees, comorbidite_grave
+### Profil #10 — 2 critère(s) masqué(s) (masque stratifié) : esperance_vie, antecedent_cv
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - age = 70
-  ○ - anciennete_diabete_annees = 999
-  ■ - esperance_vie = intermediaire
-  ■ - fragilite = false
-  ■ - risque_hypoglycemie_schema = eleve
-  ■ - antecedent_cv = false
-  ○ - comorbidite_grave = false
-
-Sortie :
-  (aucune option applicable — sortie vide)
-  Options EN ATTENTE (indétermination, R7/D20) :
-    - Cible ≤ 8 % :: à renseigner : anciennete_diabete_annees
-
-### Profil #6 — 4 critère(s) masqué(s) (masque stratifié) : esperance_vie, fragilite, anciennete_diabete_annees, risque_hypoglycemie_schema
-
-Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - age = 69
-  ○ - anciennete_diabete_annees = 10
-  ○ - esperance_vie = limitee
-  ○ - fragilite = true
-  ○ - risque_hypoglycemie_schema = eleve
-  ■ - antecedent_cv = false
-  ■ - comorbidite_grave = false
-
-Sortie :
-  (aucune option applicable — sortie vide)
-  Options EN ATTENTE (indétermination, R7/D20) :
-    - Cible < 9 % :: à renseigner : esperance_vie
-
-### Profil #7 — 4 critère(s) masqué(s) (masque stratifié) : anciennete_diabete_annees, age, esperance_vie, comorbidite_grave
-
-Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ○ - age = 69
-  ○ - anciennete_diabete_annees = 999
-  ○ - esperance_vie = limitee
-  ■ - fragilite = false
-  ■ - risque_hypoglycemie_schema = faible
-  ■ - antecedent_cv = true
-  ○ - comorbidite_grave = true
-
-Sortie :
-  (aucune option applicable — sortie vide)
-  Options EN ATTENTE (indétermination, R7/D20) :
-    - Cible < 9 % :: à renseigner : esperance_vie
-
-### Profil #8 — 2 critère(s) masqué(s) (masque stratifié) : risque_hypoglycemie_schema, anciennete_diabete_annees
-
-Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - age = 69
-  ○ - anciennete_diabete_annees = 999
-  ■ - esperance_vie = intermediaire
-  ■ - fragilite = true
-  ○ - risque_hypoglycemie_schema = faible
-  ■ - antecedent_cv = true
-  ■ - comorbidite_grave = false
-
-Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
-  - [recommandee] Cible ≤ 8 %
-      proposé parce que : fragilite == true
-
-### Profil #9 — 2 critère(s) masqué(s) (masque stratifié) : fragilite, anciennete_diabete_annees
-
-Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - age = 71
-  ○ - anciennete_diabete_annees = 6
-  ■ - esperance_vie = longue
-  ○ - fragilite = true
-  ■ - risque_hypoglycemie_schema = eleve
-  ■ - antecedent_cv = true
-  ■ - comorbidite_grave = false
-
-Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
-  - [recommandee] Cible ≤ 8 %
-      proposé parce que : fragilite == true
-
-### Profil #10 — 2 critère(s) masqué(s) (masque stratifié) : antecedent_cv, fragilite
-
-Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - age = 70
-  ■ - anciennete_diabete_annees = 999
-  ■ - esperance_vie = limitee
-  ○ - fragilite = false
-  ■ - risque_hypoglycemie_schema = eleve
-  ○ - antecedent_cv = false
-  ■ - comorbidite_grave = false
-
-Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
-  - [recommandee] Cible ≤ 8 %
-      proposé parce que : esperance_vie == limitee ; anciennete_diabete_annees > 10 AND risque_hypoglycemie_schema == eleve
-
-### Profil #11 — 5 critère(s) masqué(s) (masque stratifié) : age, fragilite, esperance_vie, antecedent_cv, anciennete_diabete_annees
-
-Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ○ - age = 999
-  ○ - anciennete_diabete_annees = 0
+  ■ - anciennete_diabete_annees = 5
   ○ - esperance_vie = intermediaire
-  ○ - fragilite = false
-  ■ - risque_hypoglycemie_schema = eleve
-  ○ - antecedent_cv = false
-  ■ - comorbidite_grave = false
-
-Sortie :
-  (aucune option applicable — sortie vide)
-  Options EN ATTENTE (indétermination, R7/D20) :
-    - Cible ≤ 8 % :: à renseigner : anciennete_diabete_annees, esperance_vie
-
-### Profil #12 — 4 critère(s) masqué(s) (masque stratifié) : comorbidite_grave, esperance_vie, antecedent_cv, fragilite
-
-Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - age = 70
-  ■ - anciennete_diabete_annees = 0
-  ○ - esperance_vie = longue
-  ○ - fragilite = true
-  ■ - risque_hypoglycemie_schema = faible
-  ○ - antecedent_cv = true
-  ○ - comorbidite_grave = false
-
-Sortie :
-  (aucune option applicable — sortie vide)
-  Options EN ATTENTE (indétermination, R7/D20) :
-    - Cible < 9 % :: à renseigner : esperance_vie
-
-### Profil #13 — 3 critère(s) masqué(s) (masque stratifié) : comorbidite_grave, antecedent_cv, anciennete_diabete_annees
-
-Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - age = 999
-  ○ - anciennete_diabete_annees = 5
-  ■ - esperance_vie = limitee
   ■ - fragilite = false
-  ■ - risque_hypoglycemie_schema = faible
-  ○ - antecedent_cv = false
-  ○ - comorbidite_grave = false
-
-Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
-  - [recommandee] Cible ≤ 8 %
-      proposé parce que : esperance_vie == limitee
-
-### Profil #14 — 3 critère(s) masqué(s) (masque stratifié) : age, anciennete_diabete_annees, fragilite
-
-Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ○ - age = 71
-  ○ - anciennete_diabete_annees = 5
-  ■ - esperance_vie = limitee
-  ○ - fragilite = true
-  ■ - risque_hypoglycemie_schema = faible
-  ■ - antecedent_cv = true
+  ○ - antecedent_cv = true
   ■ - comorbidite_grave = true
 
 Sortie :
+  (aucune option applicable — sortie vide)
+  Options EN ATTENTE (indétermination, R7/D20) :
+    - Cible < 9 % :: à renseigner : esperance_vie
+
+### Profil #11 — 4 critère(s) masqué(s) (masque stratifié) : age, esperance_vie, antecedent_cv, anciennete_diabete_annees
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ○ - age = 69
+  ○ - anciennete_diabete_annees = 6
+  ○ - esperance_vie = limitee
+  ■ - fragilite = false
+  ○ - antecedent_cv = true
+  ■ - comorbidite_grave = false
+
+Sortie :
   Famille « (repli à plat) » (exclusive: n/a) :
-  - [recommandee] Cible < 9 %
-      proposé parce que : esperance_vie == limitee ; fragilite == true ; comorbidite_grave == true
+  - [recommandee] Cible ≤ 8 %
+      proposé parce que : esperance_vie == limitee ; antecedent_cv == true
+
+### Profil #12 — 4 critère(s) masqué(s) (masque stratifié) : comorbidite_grave, antecedent_cv, esperance_vie, age
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ○ - age = 999
+  ■ - anciennete_diabete_annees = 999
+  ○ - esperance_vie = intermediaire
+  ■ - fragilite = false
+  ○ - antecedent_cv = true
+  ○ - comorbidite_grave = false
+
+Sortie :
+  Famille « (repli à plat) » (exclusive: n/a) :
+  - [recommandee] Cible ≤ 8 %
+      proposé parce que : antecedent_cv == true
+
+### Profil #13 — 3 critère(s) masqué(s) (masque stratifié) : antecedent_cv, comorbidite_grave, anciennete_diabete_annees
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ■ - age = 71
+  ○ - anciennete_diabete_annees = 4
+  ■ - esperance_vie = longue
+  ■ - fragilite = false
+  ○ - antecedent_cv = true
+  ○ - comorbidite_grave = false
+
+Sortie :
+  Famille « (repli à plat) » (exclusive: n/a) :
+  - [recommandee] Cible ≤ 8 %
+      proposé parce que : antecedent_cv == true
+
+### Profil #14 — 3 critère(s) masqué(s) (masque stratifié) : age, comorbidite_grave, fragilite
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ○ - age = 69
+  ■ - anciennete_diabete_annees = 6
+  ■ - esperance_vie = intermediaire
+  ○ - fragilite = true
+  ■ - antecedent_cv = true
+  ○ - comorbidite_grave = false
+
+Sortie :
+  Famille « (repli à plat) » (exclusive: n/a) :
+  - [recommandee] Cible ≤ 8 %
+      proposé parce que : fragilite == true ; antecedent_cv == true
 

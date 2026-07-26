@@ -128,6 +128,10 @@ describe('relevance — égalité de rang par défaut ne doit pas masquer un cri
       'hypoglycemie_recente',
       'nature_intolerance',
       'traitements_en_cours', // naïf par construction pour intention=initier (visible_si, T-2)
+      // Ajouté le 2026-07-26 avec le critère lui-même : `dose_metformine` porte un `visible_si` sur la
+      // présence de la metformine dans `traitements_en_cours`. Ce profil étant naïf (intention=initier),
+      // le champ est masqué, donc inerte — légitimement, et pour la même raison que la ligne au-dessus.
+      'dose_metformine',
     ])
     for (const critere of node!.criteres_entree) {
       if (critere.derive != null) continue

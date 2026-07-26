@@ -48,8 +48,8 @@ Sortie :
     - Corriger l'hypoglycémie ou la variabilité (réduire la dose, passer en 2ᵉ génération, relâcher la cible) :: à renseigner : situation_insuline, TBR, TBR_severe, CV_glycemique
     - Ne pas sur-titrer la basale — intensifier autrement (GLP-1 puis bolus) :: à renseigner : situation_insuline, HbA1c_actuelle, HbA1c_cible, GAJ, poids, dose_basale_actuelle
     - Titrer la basale (augmenter la dose) :: à renseigner : situation_insuline, HbA1c_actuelle, HbA1c_cible, GAJ
-    - Ajouter un GLP-1 / une association fixe d'abord (si non encore fait) :: à renseigner : situation_insuline, HbA1c_actuelle, HbA1c_cible
-    - Ajouter un bolus au repas principal (basal-plus, par étapes) :: à renseigner : situation_insuline, HbA1c_actuelle, HbA1c_cible
+    - Ajouter un GLP-1 / une association fixe d'abord (si non encore fait) :: à renseigner : situation_insuline, HbA1c_actuelle, HbA1c_cible, TBR, TBR_severe, CV_glycemique, poids, dose_basale_actuelle
+    - Ajouter un bolus au repas principal (basal-plus, par étapes) :: à renseigner : situation_insuline, HbA1c_actuelle, HbA1c_cible, TBR, TBR_severe, CV_glycemique, poids, dose_basale_actuelle
     - Insuline prémélangée — option dégradée, dernier recours :: à renseigner : situation_insuline, preference_injection
     - Désintensifier / alléger le schéma :: à renseigner : situation_insuline, age, esperance_vie, risque_hypoglycemie_schema
     - Optimiser la répartition du basal-bolus (guidé par l'AGP et les doses actuelles) :: à renseigner : situation_insuline, HbA1c_actuelle, HbA1c_cible, TBR, TBR_severe, CV_glycemique
@@ -243,7 +243,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
 Sortie :
   Famille « (repli à plat) » (exclusive: n/a) :
   - [recommandee] Ajouter un GLP-1 / une association fixe d'abord (si non encore fait)
-      proposé parce que : situation_insuline == basale_plus_bolus ; cible_atteinte == false
+      proposé parce que : situation_insuline == basale_plus_bolus ; cible_atteinte == false ; situation_insuline == basale_plus_bolus ; TBR > 4 ; profil_glycemique contient hypo_nocturne ; over_basalisation == true
   Alertes de nœud :
     - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
@@ -289,6 +289,8 @@ Sortie :
   Options EN ATTENTE (indétermination, R7/D20) :
     - Corriger l'hypoglycémie ou la variabilité (réduire la dose, passer en 2ᵉ génération, relâcher la cible) :: à renseigner : TBR, TBR_severe, CV_glycemique
     - Ne pas sur-titrer la basale — intensifier autrement (GLP-1 puis bolus) :: à renseigner : HbA1c_cible, poids
+    - Titrer la basale (augmenter la dose) :: à renseigner : HbA1c_cible
+    - Ajouter un bolus au repas principal (basal-plus, par étapes) :: à renseigner : HbA1c_cible, TBR, TBR_severe, CV_glycemique, poids
 
 ### Profil #7 — 11 critère(s) masqué(s) (masque stratifié) : fragilite, preference_injection, profil_glycemique, DFG, dose_basale_actuelle, esperance_vie, HbA1c_actuelle, situation_insuline, HbA1c_cible, mcg_disponible, hypo_severe_recurrente
 
@@ -331,7 +333,7 @@ Sortie :
     - Corriger l'hypoglycémie ou la variabilité (réduire la dose, passer en 2ᵉ génération, relâcher la cible) :: à renseigner : situation_insuline
     - Ne pas sur-titrer la basale — intensifier autrement (GLP-1 puis bolus) :: à renseigner : situation_insuline, HbA1c_actuelle, HbA1c_cible, dose_basale_actuelle
     - Titrer la basale (augmenter la dose) :: à renseigner : situation_insuline, HbA1c_actuelle, HbA1c_cible
-    - Ajouter un bolus au repas principal (basal-plus, par étapes) :: à renseigner : situation_insuline, HbA1c_actuelle, HbA1c_cible
+    - Ajouter un bolus au repas principal (basal-plus, par étapes) :: à renseigner : situation_insuline, HbA1c_actuelle, HbA1c_cible, dose_basale_actuelle
     - Insuline prémélangée — option dégradée, dernier recours :: à renseigner : situation_insuline, preference_injection
     - Désintensifier / alléger le schéma :: à renseigner : situation_insuline, esperance_vie
     - Optimiser la répartition du basal-bolus (guidé par l'AGP et les doses actuelles) :: à renseigner : situation_insuline, HbA1c_actuelle, HbA1c_cible
@@ -366,6 +368,7 @@ Sortie :
   - [recommandee] Choisir un analogue basal de 2ᵉ génération (glargine U300 ou degludec) si risque hypoglycémique
       proposé parce que : situation_insuline == naif ; terrain_fragile == true
   Alertes de nœud :
+    - Incohérence de saisie : la situation « naïf d'insuline » et une insuline basale déjà cochée dans les traitements en cours sont contradictoires — un patient naïf ne peut pas être déjà sous insuline basale. Vérifier la situation renseignée ou la liste des traitements en cours. [attention]
     - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
     - Sujet âgé / fragile / à haut risque d'hypoglycémie : cibles de MCG ASSOUPLIES — TIR > 50 %, TBR < 1 %, TAR plus permissif (cohérent avec la cible d'HbA1c relâchée issue du nœud A). [info]
     - L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1). [info]
@@ -447,7 +450,7 @@ Sortie :
     - Corriger l'hypoglycémie ou la variabilité (réduire la dose, passer en 2ᵉ génération, relâcher la cible) :: à renseigner : situation_insuline, CV_glycemique
     - Ne pas sur-titrer la basale — intensifier autrement (GLP-1 puis bolus) :: à renseigner : situation_insuline, HbA1c_cible, GAJ
     - Titrer la basale (augmenter la dose) :: à renseigner : situation_insuline, HbA1c_cible, GAJ
-    - Ajouter un bolus au repas principal (basal-plus, par étapes) :: à renseigner : situation_insuline, HbA1c_cible
+    - Ajouter un bolus au repas principal (basal-plus, par étapes) :: à renseigner : situation_insuline, HbA1c_cible, CV_glycemique
     - Insuline prémélangée — option dégradée, dernier recours :: à renseigner : situation_insuline
     - Désintensifier / alléger le schéma :: à renseigner : situation_insuline, esperance_vie, risque_hypoglycemie_schema
     - Optimiser la répartition du basal-bolus (guidé par l'AGP et les doses actuelles) :: à renseigner : situation_insuline, HbA1c_cible, CV_glycemique
@@ -493,7 +496,8 @@ Sortie :
     - Choisir un analogue basal de 2ᵉ génération (glargine U300 ou degludec) si risque hypoglycémique :: à renseigner : situation_insuline, age, esperance_vie
     - Corriger l'hypoglycémie ou la variabilité (réduire la dose, passer en 2ᵉ génération, relâcher la cible) :: à renseigner : situation_insuline, TBR_severe
     - Ne pas sur-titrer la basale — intensifier autrement (GLP-1 puis bolus) :: à renseigner : situation_insuline, HbA1c_actuelle, HbA1c_cible, poids, dose_basale_actuelle
-    - Ajouter un bolus au repas principal (basal-plus, par étapes) :: à renseigner : situation_insuline, HbA1c_actuelle, HbA1c_cible
+    - Titrer la basale (augmenter la dose) :: à renseigner : situation_insuline, HbA1c_actuelle, HbA1c_cible
+    - Ajouter un bolus au repas principal (basal-plus, par étapes) :: à renseigner : situation_insuline, HbA1c_actuelle, HbA1c_cible, TBR_severe, poids, dose_basale_actuelle
     - Insuline prémélangée — option dégradée, dernier recours :: à renseigner : situation_insuline, preference_injection
     - Désintensifier / alléger le schéma :: à renseigner : situation_insuline, age, esperance_vie
     - Optimiser la répartition du basal-bolus (guidé par l'AGP et les doses actuelles) :: à renseigner : situation_insuline, HbA1c_actuelle, HbA1c_cible, TBR_severe

@@ -41,11 +41,23 @@ const NOEUDS_AVEC_CRITERES_MORTS_CONNUS = new Set<string>([])
  * comparaison à tous ses opérandes. Un profil satisfaisant existe bel et bien (poids 70, dose 20, GAJ hors
  * cible, aucun signal hypo) — vérifié à la main.
  *
- * **Levée prévue** : déclaration de bornes `min`/`max` sur les critères `nombre` (arbitrage référent
- * 2026-07-26, `ETAT-DES-LIEUX.md`), qui donnera au générateur un espace de tirage réaliste au lieu de
- * littéraux glanés dans les règles. Cette liste ne doit grossir que sur un diagnostic aussi précis.
+ * ⚠ **`insuline` retiré de la liste le 2026-07-26 — le DÉFAUT DU GÉNÉRATEUR N'EST PAS CORRIGÉ.**
+ * « Titrer la basale » est redevenue atteignable parce que le pivot nocturne (D-nn, décision référent)
+ * lui a ouvert une branche `mcg_disponible == true` qui ne dépend plus de `gaj_a_cible` — l'option
+ * contourne donc `over_basalisation`, elle ne guérit pas le tirage. Les poids de 0,5 kg sont toujours là.
+ *
+ * Le même mécanisme a depuis été observé sur `DFG` : la condition de « Réduire la posologie de la
+ * metformine » mentionne à la fois `DFG` et les seuils de dose `1000`/`2000`, qui entrent donc dans le
+ * domaine de tirage du DFG — le banc teste des patients à 2000 mL/min. **Le défaut s'aggrave à mesure
+ * que le contenu s'enrichit** : toute règle associant deux critères d'échelles différentes corrompt le
+ * domaine de l'un par les littéraux de l'autre.
+ *
+ * **Correction prévue, en deux gestes indissociables** : déclarer des bornes `min`/`max` sur les critères
+ * `nombre`, ET écarter à l'extraction tout littéral hors de ces bornes — sans le second, le `2000`
+ * continuerait d'entrer dans le domaine du DFG, le générateur ne sachant pas à quelle variable il
+ * appartient. Cette liste ne doit grossir que sur un diagnostic aussi précis.
  */
-const NOEUDS_AVEC_OPTION_INATTEIGNABLE_PAR_LE_GENERATEUR = new Set<string>(['insuline'])
+const NOEUDS_AVEC_OPTION_INATTEIGNABLE_PAR_LE_GENERATEUR = new Set<string>([])
 
 describe.each(noeuds.map((node) => [node.id, node] as const))('banc — couverture · nœud %s', (_id, node) => {
   const profils = genererProfils(node, tailleBanc(node))
