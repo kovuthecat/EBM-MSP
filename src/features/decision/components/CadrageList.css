@@ -1,0 +1,21 @@
+/* Cadrage de nœud (D24) — délibérément NEUTRE : ni fond d'alerte, ni couleur de vigilance. Un cadrage
+   n'est pas un signal, c'est le cadre de lecture des options. Le distinguer visuellement d'`AlertList`
+   est le point : sans cela, on reproduirait à l'écran le défaut que D24 corrige dans le contenu (un
+   avertissement affiché à tout le monde, qui dévalue les alertes conditionnelles voisines). Le seul
+   marqueur est un filet latéral, qui rattache le bloc au nœud sans crier. */
+.cadrage-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0 0 20px;
+  padding: 2px 0 2px 14px;
+  border-left: 3px solid var(--c-border);
+}
+
+.cadrage-list__item {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--c-text-muted);
+  white-space: pre-line;
+}

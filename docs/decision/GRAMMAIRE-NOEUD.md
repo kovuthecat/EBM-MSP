@@ -293,11 +293,20 @@ après.
 
 - il rend un geste **contre-indiqué** → `options[].exclusions`, affichée avec son motif (R4) ;
 - il **qualifie** un geste sans l'interdire → `options[].alertes` ;
-- il est vrai **quel que soit le geste retenu** → `alertes` de nœud.
+- il est vrai **quel que soit le geste retenu**, mais **pas pour tous les patients** → `alertes` de nœud ;
+- il est vrai **pour tous les patients du nœud** → `cadrage` (D24), rendu en tête, sans condition.
 
 Deux interdits : `priorite` ne porte **jamais** un fait de sécurité (rétrograder n'est pas retirer) ;
 une alerte de nœud n'a **jamais** `quand: "default"` (elle s'affiche alors pour tout le monde, donc
 pour personne).
+
+> **Le quatrième canal est venu du second interdit** (2026-07-26). Deux nœuds portaient en
+> `quand: "default"` un énoncé qu'aucun critère ne pouvait conditionner — il ne parlait pas du patient
+> mais de l'état des preuves du nœud (« l'insuline n'a pas de bénéfice cardiovasculaire démontré » ;
+> « la décision se grade sur le risque absolu, pas sur une cible LDL »). La dette était insoluble tant
+> que `alertes` restait le seul canal disponible : le défaut n'était pas le texte, c'était le canal. Test
+> pratique quand on hésite entre les deux — **une alerte qu'on n'arrive pas à conditionner est presque
+> toujours un cadrage qui s'ignore.**
 
 **Le cas.** Six couples où une alerte interdit ce qu'une carte prescrit. Les deux plus nets :
 « **ne pas INITIER une statine** » (dialyse) au-dessus de « Statine de haute intensité — prévention
@@ -311,8 +320,17 @@ savoir qu'elle contredit la carte affichée juste en dessous.
 arbitrage déclaré, sourcé et rendu à l'écran. Avoir conflaté les deux avait fait glisser des interdits
 de sécurité dans un canal sans pouvoir de retrait.
 
-**Décision** : D21. **Invariant de banc** : I7 (une alerte au libellé prohibitif implique une
-`exclusion` correspondante).
+**Décisions** : D21, puis D24 (le canal `cadrage`). **Invariants de banc** : I6 (aucune alerte de nœud en
+`quand: "default"` — **sans exception depuis le 2026-07-26**) et I7 (une alerte au libellé prohibitif
+implique un **garde-fou** correspondant — `exclusions` *ou* `prerequis`, les deux retirant réellement une
+option).
+
+**Ce que I7 ne demande pas** — deux erreurs de catégorie à ne pas commettre en le lisant. *Primo*, une
+injonction à **arrêter** un traitement en cours n'est pas une interdiction : R3 exige justement qu'elle
+soit une **option** à part entière, jamais une `exclusion`. *Secundo*, une alerte peut porter sur un geste
+qui appartient à un **autre nœud** (« le sulfamide est contre-indiqué — cf. nœud prescription ») : le nœud
+courant ne l'offre pas, il ne peut pas l'exclure. L'invariant est local par construction ; ces cas sont
+recensés un par un, avec leur motif, plutôt que dispensés en bloc.
 
 > **Couplage à ne pas casser.** Transformer une alerte prohibitive en `exclusion` peut **vider** un
 > nœud en `ordered-first-match` — sur `statine`, l'exclusion dialyse sans les critères
@@ -419,13 +437,14 @@ déclarer :
 
 ## Additions au schéma (`schema/noeud.schema.json`)
 
-Trois champs optionnels au schéma, aucun changement de la boucle de résolution du moteur.
+Quatre champs optionnels au schéma, aucun changement de la boucle de résolution du moteur.
 
 | champ | emplacement | type | effet moteur |
 |---|---|---|---|
 | `nature` | `criteres_entree[]` | enum `etat` \| `intention` \| `terrain` \| `preference` | **aucun** — sert au test R1 et au groupement |
 | `delai_benefice` | `options[]` | string | **aucun** — affichage seul (R2) |
 | `alertes` | `options[]` | même forme que `Noeud.alertes` | rendues **seulement si l'option est applicable** |
+| `cadrage` | racine du nœud | `string[]` | **aucun** — positions de lecture rendues en tête, sans condition (D24) |
 
 Les alertes portées par une option répondent à deux besoins d'un coup : la réserve
 délai/horizon de R2, et le défaut constaté en recette où une alerte de nœud s'affichait à propos d'un

@@ -1,0 +1,33 @@
+import './CadrageList.css'
+
+interface CadrageListProps {
+  cadrage: string[]
+}
+
+/**
+ * Positions de lecture d'un nœud (DECISIONS.md D24) : énoncés vrais pour TOUS ses patients, qui disent
+ * comment lire l'ensemble de ses options (« l'insuline n'a pas de bénéfice cardiovasculaire démontré »,
+ * « la décision se grade sur le risque absolu, pas sur une cible LDL chiffrée »). Rendus en tête du nœud,
+ * AVANT le formulaire — on les lit avant de saisir quoi que ce soit, ce qui est précisément leur fonction.
+ *
+ * Pourquoi un composant distinct d'`AlertList` alors que le rendu est proche : ces énoncés s'écrivaient
+ * avant comme des alertes en `quand: "default"`, que D21 proscrit. Les rendre avec le style d'une alerte
+ * reproduirait à l'écran exactement le défaut que D24 corrige dans le contenu — un avertissement affiché
+ * à tout le monde, qui dévalue par contagion les alertes réellement conditionnelles rendues juste en
+ * dessous. D'où un traitement visuel délibérément NEUTRE (ni fond d'alerte, ni couleur de vigilance) :
+ * c'est du cadre de lecture, pas un signal. Générique, comme tout le socle : aucun nœud ni domaine connu
+ * par son nom (invariant CLAUDE.md 5).
+ */
+export function CadrageList({ cadrage }: CadrageListProps) {
+  if (cadrage.length === 0) return null
+
+  return (
+    <aside className="cadrage-list" aria-label="Ce que dit la preuve pour ce nœud">
+      {cadrage.map((enonce, index) => (
+        <p className="cadrage-list__item" key={`${index}-${enonce.slice(0, 24)}`}>
+          {enonce}
+        </p>
+      ))}
+    </aside>
+  )
+}

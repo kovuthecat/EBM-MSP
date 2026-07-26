@@ -192,7 +192,7 @@ options:
       - "Intensité MODÉRÉE en 1re intention (atorvastatine 10-20 mg, ou simvastatine / pravastatine — dose fixe calée sur le risque), sans course à une cible LDL chiffrée (voir alerte)."
     inconvenients:
       - "La réduction de la MORTALITÉ TOTALE n'est PAS démontrée en prévention primaire chez le diabétique (CARDS : HR 0,73 p=0,059 NS ; méta des essais dédiés au diabète non significative ; ASPEN nul) : le bénéfice porte sur les événements CV, à présenter honnêtement."
-      - "Intensité HAUTE réservée au risque très élevé (multiples facteurs de risque, atteinte d'organe) ; sinon la dose modérée suffit (Prescrire ; LODESTAR : viser une cible ≡ dose fixe)."
+      - "Intensité HAUTE réservée au risque très élevé (multiples facteurs de risque, atteinte d'organe) ; sinon la dose modérée suffit — la population démontrée par CARDS/HPS est traitée à dose fixe modérée, et LODESTAR confirme qu'une stratégie de cible n'apporte pas de bénéfice supplémentaire."
     effet_attendu: >-
       Événements CV majeurs : NNT de l'ordre de ~22-37 sur 3-5 ans selon le risque de base (CARDS ~27-32 sur
       3,9 ans ; sous-groupe prévention primaire du HPS ~22 sur 5 ans). Mortalité toutes causes : NON démontrée
@@ -273,12 +273,15 @@ alertes:
       Réserve : SCORE2-Diabète n'est validé que 40-69 ans (SCORE2-OP / jugement clinique au-delà) — un
       profil sans critère de la grille est souvent JEUNE, donc potentiellement hors de la plage de
       validation de l'outil qu'on lui suggère de calculer.
-  - quand: "default"
-    niveau: info
-    message: >-
-      La décision (traiter / discuter) et l'intensité se gradent sur le RISQUE ABSOLU, pas sur une cible LDL
-      chiffrée : aucun ECR ne valide une valeur cible de LDL (LODESTAR : viser une cible ≡ dose fixe ; VA/DoD
-      2026 : preuve insuffisante pour le treat-to-target), et le bénéfice est indépendant du LDL de base (HPS).
+# Position de lecture du nœud (D24) — DÉPLACÉE le 2026-07-26 depuis `alertes` où elle était écrite en
+# `quand: "default"`, ce que D21 (interdit n°2) proscrit. Texte inchangé : le défaut était le canal, pas
+# l'énoncé. C'est la thèse structurante du nœud (risque absolu vs cible LDL) — elle vaut pour tous ses
+# patients, elle ne peut être fausse pour aucun, donc elle n'a jamais été une alerte.
+cadrage:
+  - >-
+    La décision (traiter / discuter) et l'intensité se gradent sur le RISQUE ABSOLU, pas sur une cible LDL
+    chiffrée : aucun ECR ne valide une valeur cible de LDL (LODESTAR : viser une cible ≡ dose fixe ; VA/DoD
+    2026 : preuve insuffisante pour le treat-to-target), et le bénéfice est indépendant du LDL de base (HPS).
 argumentaire: >
   La statine est le volet lipidique de la prévention cardiovasculaire du diabétique, à décider indépendamment
   de l'HbA1c. En prévention SECONDAIRE (maladie athéromateuse établie), le bénéfice est fort, sur critères
@@ -452,8 +455,34 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Claude Code"
   statut: brouillon
-  version: "1.5"
+  version: "1.7"
   changelog:
+    - date: "2026-07-26"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        D24 (résorption de la dette I6) : l'alerte de nœud en `quand: "default"` — « la décision et
+        l'intensité se gradent sur le RISQUE ABSOLU, pas sur une cible LDL chiffrée » — est DÉPLACÉE dans
+        le nouveau champ `cadrage`, TEXTE INCHANGÉ. C'est la thèse structurante du nœud : vraie pour tous
+        ses patients, fausse pour aucun, donc jamais une alerte au sens de D15 malgré le canal qu'elle
+        empruntait. Aucun effet moteur ; rendue sous le titre, avant le formulaire, en style neutre.
+    - date: "2026-07-26"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        D23, lot 2 : la seule occurrence restée dans les `options` est reformulée. `inconvenients` de
+        l'option « Statine (prévention primaire, intensité modérée — haute si risque très élevé) » :
+        « sinon la dose modérée suffit (Prescrire ; LODESTAR : viser une cible ≡ dose fixe) » → « sinon la
+        dose modérée suffit — la population démontrée par CARDS/HPS est traitée à dose fixe modérée, et
+        LODESTAR confirme qu'une stratégie de cible n'apporte pas de bénéfice supplémentaire » : même
+        position (dose fixe modérée suffisante hors risque très élevé), sourcée par les essais déjà cités
+        dans le fichier (CARDS, HPS, LODESTAR) plutôt que par le nom d'une revue ; LODESTAR (donnée d'essai,
+        pas une revue secondaire) reste nommé. Aucune `conditions`/`exclusions`/`prerequis`/`priorite`/
+        `famille` touchée — comportement du moteur strictement inchangé. Snapshot de caractérisation
+        (`__snapshots__/caracterisation.statine.txt` et `-indetermine`) vérifié INCHANGÉ (`git diff` vide,
+        pas régénéré) : `signatureVue`/`rendreOptionEnClair` (`caracterisation.test.ts`) ne capturent que
+        `option.intitule`, badge, `reasons`, `calculs`, alertes — jamais `avantages`/`inconvenients`/
+        `effet_attendu`, structurellement hors de portée de ce golden master ; l'absence de diff confirme a
+        fortiori qu'aucune liste d'options ni aucun badge n'a bougé. Cf. `docs/decision/validation/
+        chantier-2026-07-26/sourcage-position-critique.md` (occurrence ST1).
     - date: "2026-07-26"
       auteur: "référent DT2 + Claude Code"
       resume: >-

@@ -39,8 +39,6 @@ Sortie :
   Famille « (repli à plat) » (exclusive: n/a) :
   - [recommandee] Poursuivre le schéma d'insuline en cours et réévaluer
       proposé parce que : default
-  Alertes de nœud :
-    - L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1). [info]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Envisager un GLP-1 (ou une association fixe basale + GLP-1) avant ou avec l'insuline :: à renseigner : situation_insuline, HbA1c_actuelle, HbA1c_cible
     - Initier une insuline basale (en maintenant les antidiabétiques en cours) :: à renseigner : situation_insuline, HbA1c_actuelle, HbA1c_cible
@@ -88,7 +86,6 @@ Sortie :
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
     - iSGLT2 + insuline : maintenir l'iSGLT2 pour le bénéfice cardio-rénal, mais informer du risque d'acidocétose euglycémique — suspendre en cas de jeûne, de chirurgie ou de maladie aiguë intercurrente. [attention]
     - Insuffisance rénale : besoins en insuline réduits et risque d'hypoglycémie majoré (adapter les doses, renforcer la surveillance) ; sulfamide (s'il est encore utilisé) : gliclazide/glimépiride à dose réduite et surveillance rapprochée si DFG 30-44, contre-indiqué si DFG < 30 (convention KDIGO/SFD — cf. nœud prescription, place résiduelle SU/gliptine) ; adapter ou arrêter la metformine selon le DFG. [attention]
-    - L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1). [info]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Envisager un GLP-1 (ou une association fixe basale + GLP-1) avant ou avec l'insuline :: à renseigner : situation_insuline
     - Choisir un analogue basal de 2ᵉ génération (glargine U300 ou degludec) si risque hypoglycémique :: à renseigner : situation_insuline
@@ -135,7 +132,6 @@ Sortie :
     - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
     - Sujet âgé / fragile / à haut risque d'hypoglycémie : cibles de MCG ASSOUPLIES — TIR > 50 %, TBR < 1 %, TAR plus permissif (cohérent avec la cible d'HbA1c relâchée issue du nœud A). [info]
-    - L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1). [info]
 
 ### Profil #3 — 1 critère masqué (ciblé — cité par une `exclusions` du nœud) : TBR_severe
 
@@ -174,7 +170,6 @@ Sortie :
   Alertes de nœud :
     - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
     - Sujet âgé / fragile / à haut risque d'hypoglycémie : cibles de MCG ASSOUPLIES — TIR > 50 %, TBR < 1 %, TAR plus permissif (cohérent avec la cible d'HbA1c relâchée issue du nœud A). [info]
-    - L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1). [info]
 
 ### Profil #4 — 1 critère masqué (ciblé — cité par une `exclusions` du nœud) : CV_glycemique
 
@@ -212,7 +207,6 @@ Sortie :
     - iSGLT2 + insuline : maintenir l'iSGLT2 pour le bénéfice cardio-rénal, mais informer du risque d'acidocétose euglycémique — suspendre en cas de jeûne, de chirurgie ou de maladie aiguë intercurrente. [attention]
     - Insuffisance rénale : besoins en insuline réduits et risque d'hypoglycémie majoré (adapter les doses, renforcer la surveillance) ; sulfamide (s'il est encore utilisé) : gliclazide/glimépiride à dose réduite et surveillance rapprochée si DFG 30-44, contre-indiqué si DFG < 30 (convention KDIGO/SFD — cf. nœud prescription, place résiduelle SU/gliptine) ; adapter ou arrêter la metformine selon le DFG. [attention]
     - Sans MCG : titrer la basale sur la glycémie à jeun (cible ~0,70-1,20 g/L) ; utiliser des profils capillaires 6-7 points (avant/après les 3 repas + coucher) pour guider l'intensification prandiale. [info]
-    - L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1). [info]
 
 ### Profil #5 — 5 critère(s) masqué(s) (masque stratifié) : preference_injection, mcg_disponible, DFG, hypo_severe_recurrente, esperance_vie
 
@@ -253,7 +247,6 @@ Sortie :
     - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
     - Sans MCG : titrer la basale sur la glycémie à jeun (cible ~0,70-1,20 g/L) ; utiliser des profils capillaires 6-7 points (avant/après les 3 repas + coucher) pour guider l'intensification prandiale. [info]
-    - L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1). [info]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Insuline prémélangée — option dégradée, dernier recours :: à renseigner : preference_injection
 
@@ -290,7 +283,6 @@ Sortie :
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
     - iSGLT2 + insuline : maintenir l'iSGLT2 pour le bénéfice cardio-rénal, mais informer du risque d'acidocétose euglycémique — suspendre en cas de jeûne, de chirurgie ou de maladie aiguë intercurrente. [attention]
     - Sujet âgé / fragile / à haut risque d'hypoglycémie : cibles de MCG ASSOUPLIES — TIR > 50 %, TBR < 1 %, TAR plus permissif (cohérent avec la cible d'HbA1c relâchée issue du nœud A). [info]
-    - L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1). [info]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Corriger l'hypoglycémie ou la variabilité (réduire la dose, passer en 2ᵉ génération, relâcher la cible) :: à renseigner : TBR, TBR_severe, CV_glycemique
     - Ne pas sur-titrer la basale — intensifier autrement (GLP-1 puis bolus) :: à renseigner : HbA1c_cible, poids
@@ -330,7 +322,6 @@ Sortie :
     - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
     - iSGLT2 + insuline : maintenir l'iSGLT2 pour le bénéfice cardio-rénal, mais informer du risque d'acidocétose euglycémique — suspendre en cas de jeûne, de chirurgie ou de maladie aiguë intercurrente. [attention]
-    - L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1). [info]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Envisager un GLP-1 (ou une association fixe basale + GLP-1) avant ou avec l'insuline :: à renseigner : situation_insuline, HbA1c_actuelle, HbA1c_cible
     - Initier une insuline basale (en maintenant les antidiabétiques en cours) :: à renseigner : situation_insuline, HbA1c_actuelle, HbA1c_cible
@@ -377,7 +368,6 @@ Sortie :
     - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
     - Insuffisance rénale : besoins en insuline réduits et risque d'hypoglycémie majoré (adapter les doses, renforcer la surveillance) ; sulfamide (s'il est encore utilisé) : gliclazide/glimépiride à dose réduite et surveillance rapprochée si DFG 30-44, contre-indiqué si DFG < 30 (convention KDIGO/SFD — cf. nœud prescription, place résiduelle SU/gliptine) ; adapter ou arrêter la metformine selon le DFG. [attention]
     - Sujet âgé / fragile / à haut risque d'hypoglycémie : cibles de MCG ASSOUPLIES — TIR > 50 %, TBR < 1 %, TAR plus permissif (cohérent avec la cible d'HbA1c relâchée issue du nœud A). [info]
-    - L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1). [info]
 
 ### Profil #9 — 7 critère(s) masqué(s) (masque stratifié) : dose_rapide_actuelle, fragilite, hypo_severe_recurrente, mcg_disponible, TBR, TBR_severe, DFG
 
@@ -412,7 +402,6 @@ Sortie :
   Alertes de nœud :
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
     - Sujet âgé / fragile / à haut risque d'hypoglycémie : cibles de MCG ASSOUPLIES — TIR > 50 %, TBR < 1 %, TAR plus permissif (cohérent avec la cible d'HbA1c relâchée issue du nœud A). [info]
-    - L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1). [info]
   Options écartées (sécurité, R4) :
     - Ne pas sur-titrer la basale — intensifier autrement (GLP-1 puis bolus) :: profil_glycemique contient hypo_nocturne
     - Titrer la basale (augmenter la dose) :: profil_glycemique contient hypo_nocturne
@@ -450,7 +439,6 @@ Sortie :
     - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
     - iSGLT2 + insuline : maintenir l'iSGLT2 pour le bénéfice cardio-rénal, mais informer du risque d'acidocétose euglycémique — suspendre en cas de jeûne, de chirurgie ou de maladie aiguë intercurrente. [attention]
-    - L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1). [info]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Envisager un GLP-1 (ou une association fixe basale + GLP-1) avant ou avec l'insuline :: à renseigner : situation_insuline, HbA1c_cible
     - Initier une insuline basale (en maintenant les antidiabétiques en cours) :: à renseigner : situation_insuline, HbA1c_cible
@@ -497,7 +485,6 @@ Sortie :
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
     - iSGLT2 + insuline : maintenir l'iSGLT2 pour le bénéfice cardio-rénal, mais informer du risque d'acidocétose euglycémique — suspendre en cas de jeûne, de chirurgie ou de maladie aiguë intercurrente. [attention]
     - Sujet âgé / fragile / à haut risque d'hypoglycémie : cibles de MCG ASSOUPLIES — TIR > 50 %, TBR < 1 %, TAR plus permissif (cohérent avec la cible d'HbA1c relâchée issue du nœud A). [info]
-    - L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1). [info]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Envisager un GLP-1 (ou une association fixe basale + GLP-1) avant ou avec l'insuline :: à renseigner : situation_insuline, HbA1c_actuelle, HbA1c_cible
     - Initier une insuline basale (en maintenant les antidiabétiques en cours) :: à renseigner : situation_insuline, HbA1c_actuelle, HbA1c_cible
@@ -542,7 +529,6 @@ Sortie :
   Alertes de nœud :
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
     - Insuffisance rénale : besoins en insuline réduits et risque d'hypoglycémie majoré (adapter les doses, renforcer la surveillance) ; sulfamide (s'il est encore utilisé) : gliclazide/glimépiride à dose réduite et surveillance rapprochée si DFG 30-44, contre-indiqué si DFG < 30 (convention KDIGO/SFD — cf. nœud prescription, place résiduelle SU/gliptine) ; adapter ou arrêter la metformine selon le DFG. [attention]
-    - L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1). [info]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Choisir un analogue basal de 2ᵉ génération (glargine U300 ou degludec) si risque hypoglycémique :: à renseigner : situation_insuline, age, esperance_vie
     - Corriger l'hypoglycémie ou la variabilité (réduire la dose, passer en 2ᵉ génération, relâcher la cible) :: à renseigner : situation_insuline, TBR_severe
@@ -583,7 +569,6 @@ Sortie :
       proposé parce que : default
   Alertes de nœud :
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
-    - L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1). [info]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Initier une insuline basale (en maintenant les antidiabétiques en cours) :: à renseigner : situation_insuline, HbA1c_actuelle
     - Choisir un analogue basal de 2ᵉ génération (glargine U300 ou degludec) si risque hypoglycémique :: à renseigner : situation_insuline, esperance_vie, risque_hypoglycemie_schema
@@ -631,5 +616,4 @@ Sortie :
     - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
     - iSGLT2 + insuline : maintenir l'iSGLT2 pour le bénéfice cardio-rénal, mais informer du risque d'acidocétose euglycémique — suspendre en cas de jeûne, de chirurgie ou de maladie aiguë intercurrente. [attention]
     - Sujet âgé / fragile / à haut risque d'hypoglycémie : cibles de MCG ASSOUPLIES — TIR > 50 %, TBR < 1 %, TAR plus permissif (cohérent avec la cible d'HbA1c relâchée issue du nœud A). [info]
-    - L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1). [info]
 

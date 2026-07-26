@@ -794,3 +794,54 @@ describe('prescription — RT-S1..S4 (red-team clinique 2026-07-26, défauts GRA
     expect(has(t, 'Désintensifier')).toBe(true)
   })
 })
+
+/**
+ * SCISSION SULFAMIDE / GLINIDE (2026-07-26, 5e série) — vignettes de non-régression du correctif d'un
+ * correctif. Le garde-fou HAUTE-1 (`exclusions: DFG < 30`) avait été posé sur une option qui portait les
+ * DEUX classes, alors que leur comportement rénal est OPPOSÉ : contre-indication formelle au RCP pour le
+ * sulfamide, aucune pour le répaglinide (élimination hépatobiliaire ; en insuffisance rénale sévère le
+ * RCP conclut à une réduction de dose, c'est-à-dire au geste même que l'option propose). Preuve :
+ * `docs/decision/validation/chantier-2026-07-26/rcp-glinide-insuffisance-renale.md`.
+ *
+ * Ces deux tests tiennent les DEUX bords du correctif : le geste rendu au glinide, et la
+ * contre-indication maintenue pour le sulfamide. Un futur regroupement des deux options ferait
+ * échouer l'un ou l'autre.
+ */
+describe('prescription — scission sulfamide / glinide en insuffisance rénale (RCP, 5e série)', () => {
+  const REDUC_SU = 'Réduire la posologie du sulfamide ('
+  const REDUC_GLIN = 'Réduire la posologie du glinide'
+
+  it('G1 — glinide SEUL à DFG 25 avec hypoglycémie : la réduction de dose est PROPOSÉE (aucune CI rénale au RCP)', () => {
+    const o = { traitements_en_cours: ['glinide'], DFG: 25, hypoglycemie_recente: true,
+      dose_metformine: 0 } as Partial<Criteria>
+    const t = titles(o)
+    expect(has(t, REDUC_GLIN)).toBe(true)
+    // L'option sulfamide ne doit pas apparaître : ce patient n'en prend pas.
+    expect(has(t, REDUC_SU)).toBe(false)
+    // Le fait de sécurité du RCP (exposition doublée) passe par une alerte d'OPTION, pas par un retrait.
+    const vue = construireVueDecision(node!, calculerCriteresDerives(node!.criteres_entree, { ...BASE, ...o } as Criteria))
+    const carte = vue.familles
+      .flatMap((famille) => famille.groupes.flat())
+      .find((v) => v.option.intitule.includes(REDUC_GLIN))
+    expect(carte?.alertes.some((a) => a.message.includes('exposition'))).toBe(true)
+  })
+
+  it('G2 — sulfamide SEUL à DFG 25 avec hypoglycémie : la réduction reste ÉCARTÉE (CI rénale RCP maintenue)', () => {
+    const o = { traitements_en_cours: ['sulfamide'], DFG: 25, hypoglycemie_recente: true,
+      dose_metformine: 0 } as Partial<Criteria>
+    const t = titles(o)
+    expect(has(t, REDUC_SU)).toBe(false)
+    expect(has(excludedTitles(o), REDUC_SU)).toBe(true)
+    // R4 : l'arrêt prend le relais — le patient n'est jamais laissé sans conduite à tenir.
+    expect(has(t, 'Arrêter le sulfamide')).toBe(true)
+  })
+
+  it('G3 — les DEUX molécules à DFG 25 : le glinide est allégé, le sulfamide arrêté (plus de contradiction)', () => {
+    const o = { traitements_en_cours: ['sulfamide', 'glinide'], DFG: 25, hypoglycemie_recente: true,
+      dose_metformine: 0 } as Partial<Criteria>
+    const t = titles(o)
+    expect(has(t, REDUC_GLIN)).toBe(true)
+    expect(has(t, REDUC_SU)).toBe(false)
+    expect(has(t, 'Arrêter le sulfamide')).toBe(true)
+  })
+})

@@ -2,6 +2,7 @@ import { useDeferredValue, useMemo, useState } from 'react'
 import type { Navigation } from '../../shared/navigation'
 import { AlertList } from '../components/AlertList'
 import { ArgumentPanel } from '../components/ArgumentPanel'
+import { CadrageList } from '../components/CadrageList'
 import { CriteriaForm } from '../components/CriteriaForm'
 import { OptionCard } from '../components/OptionCard'
 import { getNoeudById } from '../content/loadNodes'
@@ -204,6 +205,12 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
       </button>
       <h1 className="decision-node__title">{node.titre}</h1>
       <p className="decision-node__population">{node.population_cible}</p>
+
+      {/* Cadrage (D24) : positions de lecture du nœud, vraies pour tous ses patients. Rendu AVANT le
+          formulaire — donc avant toute saisie — parce qu'elles conditionnent la lecture des options,
+          alors que les alertes (`AlertList`, sous le formulaire) dépendent de ce qui vient d'être saisi.
+          Cette séparation dans la page est la contrepartie visible de la séparation des deux canaux. */}
+      {node.cadrage && <CadrageList cadrage={node.cadrage} />}
 
       {isPlaceholder ? (
         <div className="decision-node__placeholder">

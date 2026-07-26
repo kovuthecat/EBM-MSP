@@ -228,13 +228,14 @@ options:
       - "traitements_en_cours ne_contient_pas insuline_basale"
     priorite: 2
     avantages:
-      - "L'insuline basale du soir associée aux antidiabétiques (oraux et/ou GLP-1) est l'insulinothérapie de choix du DT2 (ebmfrance/Duodecim, niveau B) ; réalisable en soins primaires."
+      - "L'insuline basale du soir associée aux antidiabétiques (oraux et/ou GLP-1) a le meilleur profil de tolérance parmi les schémas testés en essai randomisé (4T, cf. ci-dessous) ; réalisable en soins primaires."
       - "Meilleur profil hypoglycémie / poids que les schémas prandial ou prémélangé (4T : hypo 2,3 vs 12,0 événements/patient/an et poids +1,9 vs +5,7 kg vs prandial à 1 an)."
     inconvenients:
       - "Hypoglycémie (ORIGIN : hypo sévère 1,00 vs 0,31 pour 100 personnes-années) et prise de poids (~+1,6 kg) ; aucun bénéfice sur les événements cardiovasculaires (ORIGIN : MACE HR 1,02)."
       - "Le bénéfice microvasculaire est extrapolé du contrôle glycémique (UKPDS), non démontré par un essai dédié à l'insuline sur critère dur."
     effet_attendu: >-
-      Dose d'initiation = poids × 0,1-0,2 U/kg/j (repli fixe : 10 U le soir — ebmfrance). Titration par
+      Dose d'initiation = poids × 0,1-0,2 U/kg/j (repli fixe : 10 U le soir si le poids n'est pas disponible
+      — repère pragmatique, non issu d'un essai dédié). Titration par
       auto-ajustement : +2 U si la glycémie à jeun est au-dessus de la cible 3 matins de suite (ou +10-20 % par
       paliers si dose > 40 U), à adapter tous les 3 jours ; cible de glycémie à jeun ~0,70-1,20 g/L
       (individualisée). Maintenir metformine ± iSGLT2 ± GLP-1 ; arrêter sulfamide/glinide (voir alerte).
@@ -260,7 +261,7 @@ options:
       - "terrain_fragile == true"
     priorite: 3
     avantages:
-      - "Chez le patient à risque d'hypoglycémie (âgé, fragile, insuffisance rénale, hypoglycémies nocturnes), préférer glargine U300 ou degludec à glargine U100 / détémir, a fortiori à la NPH (ebmfrance niveau B ; SFD 2025 Avis 18 bis)."
+      - "Chez le patient à risque d'hypoglycémie (âgé, fragile, insuffisance rénale, hypoglycémies nocturnes), préférer glargine U300 ou degludec à glargine U100 / détémir, a fortiori à la NPH (réduction démontrée de l'hypoglycémie, voir ci-dessous ; SFD 2025 Avis 18 bis)."
       - "Réduction démontrée de l'hypoglycémie nocturne / symptomatique (SWITCH 2 : RR 0,70 globale, 0,58 nocturne ; EDITION U300 : −31 % nocturne)."
     inconvenients:
       - "Le bénéfice sur l'hypoglycémie SÉVÈRE (critère dur) n'est démontré que pour degludec vs glargine U100 (DEVOTE : RR 0,60, NNT ~59 sur ~2 ans, en population à très haut risque) ; il n'y a PAS de supériorité démontrée d'un analogue de 2ᵉ génération sur l'autre (BRIGHT : équivalence ; CONCLUDE : critère primaire négatif)."
@@ -491,7 +492,7 @@ options:
     avantages:
       - "Uniquement si le patient refuse les injections multiples et a des repas réguliers (ADA 2026) : 1-2 prémélangées/jour, plus simple qu'un basal-bolus."
     inconvenients:
-      - "Non fondé sur les preuves en 1ʳᵉ intention (ebmfrance) : moins souple, plus d'hypoglycémie et de poids (Bertuol : biphasique −0,24 % d'HbA1c seulement ; 4T : le moins performant pour la cible). À ne JAMAIS proposer avant un GLP-1 / une association fixe ou un basal-plus."
+      - "Non fondé sur les preuves en 1ʳᵉ intention : moins souple, plus d'hypoglycémie et de poids (Bertuol : biphasique −0,24 % d'HbA1c seulement ; 4T : le moins performant pour la cible). À ne JAMAIS proposer avant un GLP-1 / une association fixe ou un basal-plus."
     effet_attendu: "Compromis de simplicité pour un patient réticent aux injections multiples, au prix d'un moins bon rapport bénéfice/risque que l'association fixe ou le basal-plus."
     niveau_preuve: faible
   # ═══════════ SITUATION 4 — BASAL-BOLUS COMPLET ═══════════
@@ -619,12 +620,15 @@ alertes:
     message: >-
       Sans MCG : titrer la basale sur la glycémie à jeun (cible ~0,70-1,20 g/L) ; utiliser des profils
       capillaires 6-7 points (avant/après les 3 repas + coucher) pour guider l'intensification prandiale.
-  - quand: "default"
-    niveau: info
-    message: >-
-      L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS
-      de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les
-      hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1).
+# Position de lecture du nœud (D24) — DÉPLACÉE le 2026-07-26 depuis `alertes` où elle était écrite en
+# `quand: "default"`, ce que D21 (interdit n°2) proscrit. Texte inchangé : le défaut était le canal, pas
+# l'énoncé. Ce fait ne dépend d'aucun critère du patient — il dit ce que vaut la preuve pour TOUTE
+# l'insuline, donc comment lire toutes les options ci-dessus.
+cadrage:
+  - >-
+    L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS
+    de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les
+    hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1).
 argumentaire: >
   Quand une insuline devient nécessaire dans le DT2, le schéma de choix est une insuline BASALE ajoutée aux
   antidiabétiques (oraux et/ou GLP-1), le GLP-1 étant préféré comme premier injectable (ADA 2026, SFD 2025) ;
@@ -802,8 +806,45 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Opus"
   statut: brouillon
-  version: "0.10"
+  version: "0.12"
   changelog:
+    - date: "2026-07-26"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        D24 (résorption de la dette I6) : l'alerte de nœud en `quand: "default"` — « l'insuline n'a pas de
+        bénéfice cardiovasculaire démontré, ORIGIN neutre » — est DÉPLACÉE dans le nouveau champ `cadrage`,
+        TEXTE INCHANGÉ. Elle violait D21 (interdit n°2 : une alerte affichée pour tous ne signale plus
+        rien, et dévalue par contagion les alertes conditionnelles rendues à côté d'elle), mais elle était
+        incorrigible tant que `alertes` restait le seul canal : cet énoncé porte sur l'état des preuves du
+        nœud, jamais sur la situation d'un patient — rien n'aurait pu le rendre conditionnel. Aucun effet
+        moteur (le champ n'entre dans aucune sélection d'option) ; à l'écran il passe sous le titre, AVANT
+        le formulaire, avec un traitement volontairement neutre — pas celui d'une alerte.
+    - date: "2026-07-26"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        D23, lot 2 : les 4 occurrences restées dans les `options` (le lot précédent excluait
+        délibérément `options`/`criteres_entree`/`alertes` de son périmètre) sont reformulées — l'argument
+        s'appuie désormais sur la donnée déjà citée dans le même fichier, jamais sur le nom d'une revue.
+        `avantages` de « Initier une insuline basale » : « est l'insulinothérapie de choix du DT2
+        (ebmfrance/Duodecim, niveau B) » → « a le meilleur profil de tolérance parmi les schémas testés en
+        essai randomisé (4T, cf. ci-dessous) », le 4T étant déjà cité dans le bullet suivant de la même
+        option. `effet_attendu` de la même option (repli 10 U) : « — ebmfrance » retiré, remplacé par « si
+        le poids n'est pas disponible — repère pragmatique, non issu d'un essai dédié », reflet sur la carte
+        du statut DONNÉE À FOURNIR déjà acté dans `insuline.argumentaire.md` (§Titration, « position
+        pragmatique usuelle, non validée spécifiquement par un essai identifié ») — aucune donnée inventée,
+        le repli à 10 U n'est pas retiré (reste la même conduite pratique). `avantages` de « Choisir un
+        analogue basal de 2ᵉ génération » : « ebmfrance niveau B » retiré, SFD 2025 Avis 18 bis conservé
+        (recommandation officielle, légitime) ; pointe désormais vers la réduction d'hypoglycémie détaillée
+        au bullet suivant (SWITCH 2, EDITION) et dans les `inconvenients` (DEVOTE). `inconvenients` de
+        l'option prémix : « (ebmfrance) » retiré, la donnée (Bertuol, 4T) portait déjà seule l'argument dans
+        la même phrase. Aucune `conditions`/`exclusions`/`prerequis`/`priorite`/`famille` touchée —
+        comportement du moteur strictement inchangé. Snapshot de caractérisation
+        (`__snapshots__/caracterisation.insuline.txt` et `-indetermine`) vérifié INCHANGÉ (`git diff` vide,
+        pas régénéré) : `signatureVue`/`rendreOptionEnClair` (`caracterisation.test.ts`) ne capturent que
+        `option.intitule`, badge, `reasons`, `calculs`, alertes — jamais `avantages`/`inconvenients`/
+        `effet_attendu`, structurellement hors de portée de ce golden master ; l'absence de diff confirme a
+        fortiori qu'aucune liste d'options ni aucun badge n'a bougé. Cf. `docs/decision/validation/
+        chantier-2026-07-26/sourcage-position-critique.md` (occurrences IN11/IN12/IN13/IN14).
     - date: "2026-07-26"
       auteur: "Claude Code"
       resume: >-

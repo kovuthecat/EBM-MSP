@@ -71,6 +71,11 @@
       "items": { "$ref": "#/definitions/alerte" },
       "description": "Alertes cliniques conditionnelles (DECISIONS.md D15) : messages affiches quand `quand` est vrai, independamment des options selectionnees."
     },
+    "cadrage": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "description": "OPTIONNEL — POSITIONS DE LECTURE du noeud (DECISIONS.md D24) : enonces vrais pour TOUS les patients du noeud, qui disent comment lire l'ensemble de ses options (ex. « l'insuline n'a pas de benefice cardiovasculaire demontre — ORIGIN neutre » ; « la decision se grade sur le risque absolu, pas sur une cible LDL chiffree »). Affiches en tete du noeud, AVANT le formulaire, sans condition. Ce champ existe parce que ces enonces etaient auparavant ecrits comme des `alertes` en `quand: \"default\"`, ce que D21 (interdit n°2) proscrit : une alerte qui s'affiche pour tout le monde ne signale plus rien, elle se confond avec le decor et devalue les alertes reellement conditionnelles a cote desquelles elle apparait. Le probleme n'etait pas le TEXTE mais le CANAL — d'ou un canal propre plutot qu'une exception a l'invariant. Distinction opposable : une alerte porte sur la SITUATION d'un patient (elle a un `quand`, elle peut etre fausse) ; un cadrage porte sur l'ETAT DES PREUVES du noeud (il n'a pas de `quand`, il ne peut pas etre faux pour un patient particulier). Si un enonce peut etre vrai pour un patient et faux pour un autre, il n'a rien a faire ici : c'est une alerte. Aucun effet moteur : `evaluateNode` l'ignore, il n'entre dans aucune selection d'option."
+    },
     "familles": {
       "type": "array",
       "items": { "$ref": "#/definitions/famille" },

@@ -24,8 +24,6 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
 
 Sortie :
   (aucune option applicable — sortie vide)
-  Alertes de nœud :
-    - La décision (traiter / discuter) et l'intensité se gradent sur le RISQUE ABSOLU, pas sur une cible LDL chiffrée : aucun ECR ne valide une valeur cible de LDL (LODESTAR : viser une cible ≡ dose fixe ; VA/DoD 2026 : preuve insuffisante pour le treat-to-target), et le bénéfice est indépendant du LDL de base (HPS). [info]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Discuter la statine (décision partagée) — diabète non compliqué à faible risque absolu :: à renseigner : anciennete_diabete_annees, autres_FDRCV, diabete_complique
 
@@ -48,7 +46,6 @@ Sortie :
       alertes d'option : Ce patient a une maladie cardiovasculaire ÉTABLIE (ASCVD) : il relève de la PRÉVENTION SECONDAIRE, pas du profil « prévention primaire » que décrit cette carte. Il n'atteint ce tier que parce qu'il est dialysé SANS statine en cours — l'option de haute intensité est retirée faute de bénéfice démontré sur critères durs en dialyse (4D, AURORA), PAS parce que son risque cardiovasculaire serait celui d'une prévention primaire. Le dossier de preuve ne TRANCHE PAS la conduite optimale pour un patient dialysé en prévention secondaire non encore traité (ni l'excès d'une haute intensité non prouvée en dialyse, ni le sous-traitement d'un risque cardiovasculaire réel ne sont justifiés par la donnée disponible) : à discuter au cas par cas, en tenant compte de ce statut, plutôt qu'à déduire du tier affiché. [attention]
   Alertes de nœud :
     - Patient en dialyse : le bénéfice d'une statine n'est pas démontré sur les critères durs dans cette population (4D chez le DT2 hémodialysé : critère principal RR 0,92 NS, avec un signal d'AVC fatal ; AURORA : neutre malgré −43 % de LDL). Chez un patient dialysé SANS statine en cours, l'option de haute intensité (prévention secondaire) n'est plus proposée par cet outil — retrait structurel, pas seulement un rappel. Si une statine est DÉJÀ en place, sa poursuite reste raisonnable et les options ci-dessus s'appliquent normalement. En maladie rénale chronique NON dialysée, la statine reste indiquée. [attention]
-    - La décision (traiter / discuter) et l'intensité se gradent sur le RISQUE ABSOLU, pas sur une cible LDL chiffrée : aucun ECR ne valide une valeur cible de LDL (LODESTAR : viser une cible ≡ dose fixe ; VA/DoD 2026 : preuve insuffisante pour le treat-to-target), et le bénéfice est indépendant du LDL de base (HPS). [info]
   Options écartées (sécurité, R4) :
     - Statine de haute intensité — prévention secondaire (maladie athéromateuse établie) :: dialyse == true AND statine_deja_en_place == false
 
@@ -70,7 +67,6 @@ Sortie :
       proposé parce que : default
   Alertes de nœud :
     - Patient en dialyse : le bénéfice d'une statine n'est pas démontré sur les critères durs dans cette population (4D chez le DT2 hémodialysé : critère principal RR 0,92 NS, avec un signal d'AVC fatal ; AURORA : neutre malgré −43 % de LDL). Chez un patient dialysé SANS statine en cours, l'option de haute intensité (prévention secondaire) n'est plus proposée par cet outil — retrait structurel, pas seulement un rappel. Si une statine est DÉJÀ en place, sa poursuite reste raisonnable et les options ci-dessus s'appliquent normalement. En maladie rénale chronique NON dialysée, la statine reste indiquée. [attention]
-    - La décision (traiter / discuter) et l'intensité se gradent sur le RISQUE ABSOLU, pas sur une cible LDL chiffrée : aucun ECR ne valide une valeur cible de LDL (LODESTAR : viser une cible ≡ dose fixe ; VA/DoD 2026 : preuve insuffisante pour le treat-to-target), et le bénéfice est indépendant du LDL de base (HPS). [info]
 
 ### Profil #3 — 4 critère(s) masqué(s) (masque stratifié) : age, statine_deja_en_place, autres_FDRCV, intolerance_statine
 
@@ -90,7 +86,6 @@ Sortie :
       proposé parce que : default
   Alertes de nœud :
     - Patient en dialyse : le bénéfice d'une statine n'est pas démontré sur les critères durs dans cette population (4D chez le DT2 hémodialysé : critère principal RR 0,92 NS, avec un signal d'AVC fatal ; AURORA : neutre malgré −43 % de LDL). Chez un patient dialysé SANS statine en cours, l'option de haute intensité (prévention secondaire) n'est plus proposée par cet outil — retrait structurel, pas seulement un rappel. Si une statine est DÉJÀ en place, sa poursuite reste raisonnable et les options ci-dessus s'appliquent normalement. En maladie rénale chronique NON dialysée, la statine reste indiquée. [attention]
-    - La décision (traiter / discuter) et l'intensité se gradent sur le RISQUE ABSOLU, pas sur une cible LDL chiffrée : aucun ECR ne valide une valeur cible de LDL (LODESTAR : viser une cible ≡ dose fixe ; VA/DoD 2026 : preuve insuffisante pour le treat-to-target), et le bénéfice est indépendant du LDL de base (HPS). [info]
 
 ### Profil #4 — 4 critère(s) masqué(s) (masque stratifié) : ASCVD_etablie, dialyse, diabete_complique, intolerance_statine
 
@@ -110,7 +105,6 @@ Sortie :
       proposé parce que : default
   Alertes de nœud :
     - Patient en dialyse : le bénéfice d'une statine n'est pas démontré sur les critères durs dans cette population (4D chez le DT2 hémodialysé : critère principal RR 0,92 NS, avec un signal d'AVC fatal ; AURORA : neutre malgré −43 % de LDL). Chez un patient dialysé SANS statine en cours, l'option de haute intensité (prévention secondaire) n'est plus proposée par cet outil — retrait structurel, pas seulement un rappel. Si une statine est DÉJÀ en place, sa poursuite reste raisonnable et les options ci-dessus s'appliquent normalement. En maladie rénale chronique NON dialysée, la statine reste indiquée. [attention]
-    - La décision (traiter / discuter) et l'intensité se gradent sur le RISQUE ABSOLU, pas sur une cible LDL chiffrée : aucun ECR ne valide une valeur cible de LDL (LODESTAR : viser une cible ≡ dose fixe ; VA/DoD 2026 : preuve insuffisante pour le treat-to-target), et le bénéfice est indépendant du LDL de base (HPS). [info]
 
 ### Profil #5 — 2 critère(s) masqué(s) (masque stratifié) : intolerance_statine, ASCVD_etablie
 
@@ -132,7 +126,6 @@ Sortie :
   Alertes de nœud :
     - Patient en dialyse : le bénéfice d'une statine n'est pas démontré sur les critères durs dans cette population (4D chez le DT2 hémodialysé : critère principal RR 0,92 NS, avec un signal d'AVC fatal ; AURORA : neutre malgré −43 % de LDL). Chez un patient dialysé SANS statine en cours, l'option de haute intensité (prévention secondaire) n'est plus proposée par cet outil — retrait structurel, pas seulement un rappel. Si une statine est DÉJÀ en place, sa poursuite reste raisonnable et les options ci-dessus s'appliquent normalement. En maladie rénale chronique NON dialysée, la statine reste indiquée. [attention]
     - Intolérance aux statines rapportée : plus de 90 % des symptômes musculaires rapportés sous statine ne sont, en réalité, PAS attribuables à la statine, l'excès réel de risque étant limité à la 1re année de traitement (méta CTT sur données individuelles, 2022). Avant d'écarter la classe entière, un changement de molécule peut être envisagé : pravastatine, rosuvastatine et pitavastatine ont moins d'interactions (CYP3A4) que simvastatine/atorvastatine — utile en cas d'intolérance ou de co-prescription à risque. [attention]
-    - La décision (traiter / discuter) et l'intensité se gradent sur le RISQUE ABSOLU, pas sur une cible LDL chiffrée : aucun ECR ne valide une valeur cible de LDL (LODESTAR : viser une cible ≡ dose fixe ; VA/DoD 2026 : preuve insuffisante pour le treat-to-target), et le bénéfice est indépendant du LDL de base (HPS). [info]
   Options écartées (sécurité, R4) :
     - Statine de haute intensité — prévention secondaire (maladie athéromateuse établie) :: dialyse == true AND statine_deja_en_place == false
 
@@ -153,7 +146,6 @@ Sortie :
   Alertes de nœud :
     - Patient en dialyse : le bénéfice d'une statine n'est pas démontré sur les critères durs dans cette population (4D chez le DT2 hémodialysé : critère principal RR 0,92 NS, avec un signal d'AVC fatal ; AURORA : neutre malgré −43 % de LDL). Chez un patient dialysé SANS statine en cours, l'option de haute intensité (prévention secondaire) n'est plus proposée par cet outil — retrait structurel, pas seulement un rappel. Si une statine est DÉJÀ en place, sa poursuite reste raisonnable et les options ci-dessus s'appliquent normalement. En maladie rénale chronique NON dialysée, la statine reste indiquée. [attention]
     - Intolérance aux statines rapportée : plus de 90 % des symptômes musculaires rapportés sous statine ne sont, en réalité, PAS attribuables à la statine, l'excès réel de risque étant limité à la 1re année de traitement (méta CTT sur données individuelles, 2022). Avant d'écarter la classe entière, un changement de molécule peut être envisagé : pravastatine, rosuvastatine et pitavastatine ont moins d'interactions (CYP3A4) que simvastatine/atorvastatine — utile en cas d'intolérance ou de co-prescription à risque. [attention]
-    - La décision (traiter / discuter) et l'intensité se gradent sur le RISQUE ABSOLU, pas sur une cible LDL chiffrée : aucun ECR ne valide une valeur cible de LDL (LODESTAR : viser une cible ≡ dose fixe ; VA/DoD 2026 : preuve insuffisante pour le treat-to-target), et le bénéfice est indépendant du LDL de base (HPS). [info]
   Options écartées (sécurité, R4) :
     - Statine de haute intensité — prévention secondaire (maladie athéromateuse établie) :: dialyse == true AND statine_deja_en_place == false
   Options EN ATTENTE (indétermination, R7/D20) :
@@ -175,8 +167,6 @@ Sortie :
   Famille « (repli à plat) » (exclusive: n/a) :
   - [recommandee] Statine de haute intensité — prévention secondaire (maladie athéromateuse établie)
       proposé parce que : ASCVD_etablie == true
-  Alertes de nœud :
-    - La décision (traiter / discuter) et l'intensité se gradent sur le RISQUE ABSOLU, pas sur une cible LDL chiffrée : aucun ECR ne valide une valeur cible de LDL (LODESTAR : viser une cible ≡ dose fixe ; VA/DoD 2026 : preuve insuffisante pour le treat-to-target), et le bénéfice est indépendant du LDL de base (HPS). [info]
 
 ### Profil #8 — 3 critère(s) masqué(s) (masque stratifié) : anciennete_diabete_annees, dialyse, ASCVD_etablie
 
@@ -196,7 +186,6 @@ Sortie :
       proposé parce que : ASCVD_etablie == true
   Alertes de nœud :
     - Patient en dialyse : le bénéfice d'une statine n'est pas démontré sur les critères durs dans cette population (4D chez le DT2 hémodialysé : critère principal RR 0,92 NS, avec un signal d'AVC fatal ; AURORA : neutre malgré −43 % de LDL). Chez un patient dialysé SANS statine en cours, l'option de haute intensité (prévention secondaire) n'est plus proposée par cet outil — retrait structurel, pas seulement un rappel. Si une statine est DÉJÀ en place, sa poursuite reste raisonnable et les options ci-dessus s'appliquent normalement. En maladie rénale chronique NON dialysée, la statine reste indiquée. [attention]
-    - La décision (traiter / discuter) et l'intensité se gradent sur le RISQUE ABSOLU, pas sur une cible LDL chiffrée : aucun ECR ne valide une valeur cible de LDL (LODESTAR : viser une cible ≡ dose fixe ; VA/DoD 2026 : preuve insuffisante pour le treat-to-target), et le bénéfice est indépendant du LDL de base (HPS). [info]
 
 ### Profil #9 — 3 critère(s) masqué(s) (masque stratifié) : diabete_complique, intolerance_statine, ASCVD_etablie
 
@@ -216,7 +205,6 @@ Sortie :
       proposé parce que : default
   Alertes de nœud :
     - Intolérance aux statines rapportée : plus de 90 % des symptômes musculaires rapportés sous statine ne sont, en réalité, PAS attribuables à la statine, l'excès réel de risque étant limité à la 1re année de traitement (méta CTT sur données individuelles, 2022). Avant d'écarter la classe entière, un changement de molécule peut être envisagé : pravastatine, rosuvastatine et pitavastatine ont moins d'interactions (CYP3A4) que simvastatine/atorvastatine — utile en cas d'intolérance ou de co-prescription à risque. [attention]
-    - La décision (traiter / discuter) et l'intensité se gradent sur le RISQUE ABSOLU, pas sur une cible LDL chiffrée : aucun ECR ne valide une valeur cible de LDL (LODESTAR : viser une cible ≡ dose fixe ; VA/DoD 2026 : preuve insuffisante pour le treat-to-target), et le bénéfice est indépendant du LDL de base (HPS). [info]
 
 ### Profil #10 — 3 critère(s) masqué(s) (masque stratifié) : anciennete_diabete_annees, statine_deja_en_place, intolerance_statine
 
@@ -234,8 +222,6 @@ Sortie :
   Famille « (repli à plat) » (exclusive: n/a) :
   - [recommandee] Statine de haute intensité — prévention secondaire (maladie athéromateuse établie)
       proposé parce que : ASCVD_etablie == true
-  Alertes de nœud :
-    - La décision (traiter / discuter) et l'intensité se gradent sur le RISQUE ABSOLU, pas sur une cible LDL chiffrée : aucun ECR ne valide une valeur cible de LDL (LODESTAR : viser une cible ≡ dose fixe ; VA/DoD 2026 : preuve insuffisante pour le treat-to-target), et le bénéfice est indépendant du LDL de base (HPS). [info]
 
 ### Profil #11 — 5 critère(s) masqué(s) (masque stratifié) : age, ASCVD_etablie, diabete_complique, autres_FDRCV, statine_deja_en_place
 
@@ -254,7 +240,6 @@ Sortie :
   Alertes de nœud :
     - Patient en dialyse : le bénéfice d'une statine n'est pas démontré sur les critères durs dans cette population (4D chez le DT2 hémodialysé : critère principal RR 0,92 NS, avec un signal d'AVC fatal ; AURORA : neutre malgré −43 % de LDL). Chez un patient dialysé SANS statine en cours, l'option de haute intensité (prévention secondaire) n'est plus proposée par cet outil — retrait structurel, pas seulement un rappel. Si une statine est DÉJÀ en place, sa poursuite reste raisonnable et les options ci-dessus s'appliquent normalement. En maladie rénale chronique NON dialysée, la statine reste indiquée. [attention]
     - Intolérance aux statines rapportée : plus de 90 % des symptômes musculaires rapportés sous statine ne sont, en réalité, PAS attribuables à la statine, l'excès réel de risque étant limité à la 1re année de traitement (méta CTT sur données individuelles, 2022). Avant d'écarter la classe entière, un changement de molécule peut être envisagé : pravastatine, rosuvastatine et pitavastatine ont moins d'interactions (CYP3A4) que simvastatine/atorvastatine — utile en cas d'intolérance ou de co-prescription à risque. [attention]
-    - La décision (traiter / discuter) et l'intensité se gradent sur le RISQUE ABSOLU, pas sur une cible LDL chiffrée : aucun ECR ne valide une valeur cible de LDL (LODESTAR : viser une cible ≡ dose fixe ; VA/DoD 2026 : preuve insuffisante pour le treat-to-target), et le bénéfice est indépendant du LDL de base (HPS). [info]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Discuter la statine (décision partagée) — diabète non compliqué à faible risque absolu :: à renseigner : autres_FDRCV, diabete_complique
 
@@ -277,7 +262,6 @@ Sortie :
   Alertes de nœud :
     - Patient en dialyse : le bénéfice d'une statine n'est pas démontré sur les critères durs dans cette population (4D chez le DT2 hémodialysé : critère principal RR 0,92 NS, avec un signal d'AVC fatal ; AURORA : neutre malgré −43 % de LDL). Chez un patient dialysé SANS statine en cours, l'option de haute intensité (prévention secondaire) n'est plus proposée par cet outil — retrait structurel, pas seulement un rappel. Si une statine est DÉJÀ en place, sa poursuite reste raisonnable et les options ci-dessus s'appliquent normalement. En maladie rénale chronique NON dialysée, la statine reste indiquée. [attention]
     - Intolérance aux statines rapportée : plus de 90 % des symptômes musculaires rapportés sous statine ne sont, en réalité, PAS attribuables à la statine, l'excès réel de risque étant limité à la 1re année de traitement (méta CTT sur données individuelles, 2022). Avant d'écarter la classe entière, un changement de molécule peut être envisagé : pravastatine, rosuvastatine et pitavastatine ont moins d'interactions (CYP3A4) que simvastatine/atorvastatine — utile en cas d'intolérance ou de co-prescription à risque. [attention]
-    - La décision (traiter / discuter) et l'intensité se gradent sur le RISQUE ABSOLU, pas sur une cible LDL chiffrée : aucun ECR ne valide une valeur cible de LDL (LODESTAR : viser une cible ≡ dose fixe ; VA/DoD 2026 : preuve insuffisante pour le treat-to-target), et le bénéfice est indépendant du LDL de base (HPS). [info]
 
 ### Profil #13 — 4 critère(s) masqué(s) (masque stratifié) : intolerance_statine, dialyse, age, statine_deja_en_place
 
@@ -298,7 +282,6 @@ Sortie :
       alertes d'option : Ce patient a une maladie cardiovasculaire ÉTABLIE (ASCVD) : il relève de la PRÉVENTION SECONDAIRE, pas du profil « prévention primaire » que décrit cette carte. Il n'atteint ce tier que parce qu'il est dialysé SANS statine en cours — l'option de haute intensité est retirée faute de bénéfice démontré sur critères durs en dialyse (4D, AURORA), PAS parce que son risque cardiovasculaire serait celui d'une prévention primaire. Le dossier de preuve ne TRANCHE PAS la conduite optimale pour un patient dialysé en prévention secondaire non encore traité (ni l'excès d'une haute intensité non prouvée en dialyse, ni le sous-traitement d'un risque cardiovasculaire réel ne sont justifiés par la donnée disponible) : à discuter au cas par cas, en tenant compte de ce statut, plutôt qu'à déduire du tier affiché. [attention]
   Alertes de nœud :
     - Patient en dialyse : le bénéfice d'une statine n'est pas démontré sur les critères durs dans cette population (4D chez le DT2 hémodialysé : critère principal RR 0,92 NS, avec un signal d'AVC fatal ; AURORA : neutre malgré −43 % de LDL). Chez un patient dialysé SANS statine en cours, l'option de haute intensité (prévention secondaire) n'est plus proposée par cet outil — retrait structurel, pas seulement un rappel. Si une statine est DÉJÀ en place, sa poursuite reste raisonnable et les options ci-dessus s'appliquent normalement. En maladie rénale chronique NON dialysée, la statine reste indiquée. [attention]
-    - La décision (traiter / discuter) et l'intensité se gradent sur le RISQUE ABSOLU, pas sur une cible LDL chiffrée : aucun ECR ne valide une valeur cible de LDL (LODESTAR : viser une cible ≡ dose fixe ; VA/DoD 2026 : preuve insuffisante pour le treat-to-target), et le bénéfice est indépendant du LDL de base (HPS). [info]
   Options écartées (sécurité, R4) :
     - Statine de haute intensité — prévention secondaire (maladie athéromateuse établie) :: dialyse == true AND statine_deja_en_place == false
 
@@ -322,7 +305,6 @@ Sortie :
   Alertes de nœud :
     - Patient en dialyse : le bénéfice d'une statine n'est pas démontré sur les critères durs dans cette population (4D chez le DT2 hémodialysé : critère principal RR 0,92 NS, avec un signal d'AVC fatal ; AURORA : neutre malgré −43 % de LDL). Chez un patient dialysé SANS statine en cours, l'option de haute intensité (prévention secondaire) n'est plus proposée par cet outil — retrait structurel, pas seulement un rappel. Si une statine est DÉJÀ en place, sa poursuite reste raisonnable et les options ci-dessus s'appliquent normalement. En maladie rénale chronique NON dialysée, la statine reste indiquée. [attention]
     - Intolérance aux statines rapportée : plus de 90 % des symptômes musculaires rapportés sous statine ne sont, en réalité, PAS attribuables à la statine, l'excès réel de risque étant limité à la 1re année de traitement (méta CTT sur données individuelles, 2022). Avant d'écarter la classe entière, un changement de molécule peut être envisagé : pravastatine, rosuvastatine et pitavastatine ont moins d'interactions (CYP3A4) que simvastatine/atorvastatine — utile en cas d'intolérance ou de co-prescription à risque. [attention]
-    - La décision (traiter / discuter) et l'intensité se gradent sur le RISQUE ABSOLU, pas sur une cible LDL chiffrée : aucun ECR ne valide une valeur cible de LDL (LODESTAR : viser une cible ≡ dose fixe ; VA/DoD 2026 : preuve insuffisante pour le treat-to-target), et le bénéfice est indépendant du LDL de base (HPS). [info]
   Options écartées (sécurité, R4) :
     - Statine de haute intensité — prévention secondaire (maladie athéromateuse établie) :: dialyse == true AND statine_deja_en_place == false
 

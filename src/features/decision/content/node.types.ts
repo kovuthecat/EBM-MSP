@@ -304,6 +304,22 @@ export interface Noeud {
   /** Alertes cliniques conditionnelles, évaluées indépendamment des options (D15). */
   alertes?: Alerte[]
   /**
+   * POSITIONS DE LECTURE du nœud (DECISIONS.md D24) : énoncés vrais pour TOUS les patients du nœud, qui
+   * disent comment lire l'ensemble de ses options. Affichés en tête, avant le formulaire, sans condition.
+   *
+   * Distinction opposable avec une `Alerte` — ce n'est pas une nuance de style, c'est ce qui décide du
+   * champ à employer : une alerte porte sur la SITUATION d'un patient (elle a un `quand`, elle peut être
+   * fausse pour lui) ; un cadrage porte sur l'ÉTAT DES PREUVES du nœud (pas de `quand`, il ne peut pas
+   * être faux pour un patient particulier). Un énoncé vrai pour certains patients seulement est une
+   * alerte, jamais un cadrage.
+   *
+   * Ce champ existe parce que ces énoncés s'écrivaient auparavant comme des alertes en `quand: "default"`,
+   * que D21 (interdit n°2) proscrit : une alerte affichée pour tout le monde ne signale plus rien et
+   * dévalue les alertes réellement conditionnelles à côté desquelles elle apparaît. Le défaut n'était pas
+   * le texte mais le canal. Aucun effet moteur : `evaluateNode` l'ignore.
+   */
+  cadrage?: string[]
+  /**
    * Familles d'actes cliniques déclarées explicitement (correctif « ordre accidentel / badge
    * multi-natures », 2026-07-25) : ordre d'affichage des sections + `exclusive` (alternatives vs
    * cumulables), référencées par `Option.famille`. Absent → repli intégral sur le rendu à plat

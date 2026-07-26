@@ -771,18 +771,39 @@ options:
       - "Si dénutrition marquée : arrêt et réévaluation nutritionnelle."
     effet_attendu: "non chiffrable"
     niveau_preuve: faible
-  - intitule: "Réduire la posologie du sulfamide / du glinide (tolérance, hypoglycémie légère)"
+  # ---- SCISSION SULFAMIDE / GLINIDE (2026-07-26, 5e série) --------------------------------------------
+  # Ces deux gestes étaient portés par UNE SEULE option (« Réduire la posologie du sulfamide / du
+  # glinide »), ce qui a fait porter au glinide l'exclusion `DFG < 30` destinée au SEUL sulfamide
+  # (garde-fou HAUTE-1 de la 4e série). Question posée par le référent, tranchée sur source primaire —
+  # `docs/decision/validation/chantier-2026-07-26/rcp-glinide-insuffisance-renale.md`. Les deux classes
+  # ont un comportement rénal OPPOSÉ :
+  #   - SULFAMIDE : contre-indication RCP formelle (gliclazide ET glimépiride, rubrique 4.3
+  #     « insuffisance rénale ou hépatique sévère » ; mécanisme en 4.4 : « l'hypoglycémie pouvant être
+  #     prolongée »). Le seuil chiffré « DFG < 30 » reste une convention KDIGO/SFD — le RCP dit
+  #     « sévère » sans valeur, cf. `incertitudes` ;
+  #   - RÉPAGLINIDE (seul glinide commercialisé en France depuis le retrait européen du natéglinide, avril
+  #     2022) : AUCUNE contre-indication rénale en 4.3. Élimination hépatobiliaire (8 % seulement par voie
+  #     rénale) ; en insuffisance rénale sévère (20-39 ml/min) l'exposition double (ASC ×2, rubrique 5.2)
+  #     et le RCP en tire une PRUDENCE POSOLOGIQUE — c'est-à-dire exactement le geste que cette option
+  #     propose, pas ce qui l'interdit.
+  # L'option unique retirait donc au patient sous glinide le geste que son propre RCP recommande. Affiner
+  # l'exclusion sur une option unique (`contient sulfamide AND DFG < 30`) aurait rétabli la contradiction
+  # HAUTE-1 pour un patient sous les DEUX molécules — la liste `traitements_en_cours` l'autorise. D'où la
+  # scission, qui suit d'ailleurs le modèle déjà appliqué au sulfamide (« Arrêter le sulfamide » est une
+  # option distincte). Pas d'option « Arrêter le glinide » en miroir : sans contre-indication RCP, aucun
+  # fondement à un arrêt motivé par le seul DFG (R3 — un arrêt est un geste, il lui faut une indication).
+  - intitule: "Réduire la posologie du sulfamide (tolérance, hypoglycémie légère)"
     # GÉNÉRALISATION position_vs_cible (2026-07-26, 4e série, red-team clinique silences F1) : voir le
     # commentaire de « Désintensifier » plus haut pour la justification complète — même ajout (l'ÉTAT
     # DÉCLARÉ de sur-traitement `sous_objectif` ouvre aussi cet allègement, sans exiger la fragilité, qui
     # ne conditionne que la déprescription de la metformine).
     conditions:
-      - "traitements_en_cours contient sulfamide OR traitements_en_cours contient glinide"
+      - "traitements_en_cours contient sulfamide"
       - "intolerance_traitement == true OR hypoglycemie_recente == true OR position_vs_cible == sous_objectif"
-    # GARDE-FOU AJOUTÉ (2026-07-26, 4e série, red-team clinique sécurité HAUTE-1) : sans cette exclusion,
-    # cette option coexistait avec « Arrêter le sulfamide (DFG < 30) » — deux gestes CONTRADICTOIRES
-    # affichés ensemble sur le même agent (« réduire » suggère de le garder à dose moindre, « arrêter » dit
-    # qu'il est contre-indiqué). Miroir exact du garde-fou déjà en place sur « Réduire la posologie de la
+    # GARDE-FOU (2026-07-26, 4e série, red-team clinique sécurité HAUTE-1) : sans cette exclusion, cette
+    # option coexistait avec « Arrêter le sulfamide (DFG < 30) » — deux gestes CONTRADICTOIRES affichés
+    # ensemble sur le même agent (« réduire » suggère de le garder à dose moindre, « arrêter » dit qu'il
+    # est contre-indiqué). Miroir exact du garde-fou déjà en place sur « Réduire la posologie de la
     # metformine » (ci-dessus) et sur « Remplacer le sulfamide » (`exclusions: DFG < 30`, plus bas).
     exclusions:
       - "DFG < 30"
@@ -792,6 +813,33 @@ options:
       - "Réduire la dose limite l'hypoglycémie tout en gardant l'effet glycémique. Le praticien juge la dose."
     inconvenients:
       - "En sur‑contrôle franc (< 6,5 %) ou hypo/chute chez le fragile : préférer l'allègement/l'arrêt (désintensification). Agent sans bénéfice d'organe : envisager plutôt un switch vers un agent protecteur si le terrain s'y prête."
+    effet_attendu: "non chiffrable"
+    niveau_preuve: faible
+  - intitule: "Réduire la posologie du glinide (tolérance, hypoglycémie légère)"
+    conditions:
+      - "traitements_en_cours contient glinide"
+      - "intolerance_traitement == true OR hypoglycemie_recente == true OR position_vs_cible == sous_objectif"
+    # AUCUNE exclusion rénale, DÉLIBÉRÉMENT (cf. le commentaire de scission ci-dessus) : le RCP du
+    # répaglinide ne porte aucune contre-indication rénale, et le geste qu'il recommande en insuffisance
+    # rénale sévère EST la réduction de dose. L'alerte ci-dessous porte le fait de sécurité (exposition
+    # doublée) sur le canal correct — une alerte d'OPTION, puisqu'elle ne vaut que si ce geste est
+    # effectivement proposé (D21).
+    alertes:
+      - quand: "DFG < 40"
+        niveau: attention
+        message: >-
+          Insuffisance rénale sévère : l'exposition au répaglinide et sa demi-vie DOUBLENT (ASC ×2 mesurée
+          entre 20 et 39 ml/min, RCP rubrique 5.2), et la sensibilité à l'insuline est majorée — réduire la
+          dose et renforcer la surveillance des hypoglycémies. Ce n'est PAS une contre-indication : le RCP
+          n'en porte aucune sur le rein (contrairement au sulfamide), il conclut à la prudence posologique.
+    priorite: 2
+    famille: "Traitement à alléger"
+    avantages:
+      - "Réduire la dose limite l'hypoglycémie tout en gardant l'effet glycémique. Le praticien juge la dose."
+      - "Reste utilisable quand le sulfamide ne l'est plus : élimination hépatobiliaire (8 % seulement par voie rénale), aucune contre-indication rénale au RCP."
+    inconvenients:
+      - "En sur‑contrôle franc (< 6,5 %) ou hypo/chute chez le fragile : préférer l'allègement/l'arrêt (désintensification). Agent sans bénéfice d'organe : envisager plutôt un switch vers un agent protecteur si le terrain s'y prête."
+      - "Prise à chaque repas (observance) ; le RCP ne documente pas le comportement en dessous de 20 ml/min."
     effet_attendu: "non chiffrable"
     niveau_preuve: faible
   # ---- Déprescription de la metformine (arbitrage référent 2026-07-26, 2e série) -----------------------
@@ -855,7 +903,7 @@ options:
     avantages:
       - "Agent glycémique ORAL possible « avec ses limites » (bas rang) : sans hypoglycémie, neutre sur le poids, bien toléré sur le plan digestif — la niche quand on veut éviter l'hypoglycémie sans injection, ou quand iSGLT2 et AR GLP‑1 sont indisponibles (le rang remonte alors). Molécule = SITAGLIPTINE (seule gliptine FR à sécurité CV démontrée, TECOS ; utilisable jusqu'en dialyse à dose réduite). Préférée au sulfamide (ordre HAS/SFD)."
     inconvenients:
-      - "AUCUN bénéfice sur critère dur (4 CVOT neutres) ; efficacité modeste (~0,5‑0,8 % HbA1c). Effets indésirables : pemphigoïde bulleuse (Lee 2020 HR 1,42), arthralgies (FDA), pancréatite (signal méta). Prescrire l'écarte. Ne jamais associer à un AR GLP‑1."
+      - "AUCUN bénéfice sur critère dur (4 CVOT neutres) ; efficacité modeste (~0,5‑0,8 % HbA1c). Effets indésirables : pemphigoïde bulleuse (Lee 2020 HR 1,42), arthralgies (FDA), pancréatite (signal méta). Ne jamais associer à un AR GLP‑1."
     effet_attendu: >-
       Baisse d'HbA1c ~0,5‑0,8 % (substitution) ; aucun bénéfice dur. Face au sulfamide : absence d'hypoglycémie
       et de prise de poids (CAROLINA).
@@ -1082,8 +1130,9 @@ argumentaire: >
   d'infections génito‑urinaires récidivantes. En état catabolique, une insuline d'initiation (transitoire)
   s'impose ; son ajustement fin relève du nœud E. NB EBM : lorsqu'iSGLT2/AR GLP‑1 sont proposés au SEUL titre
   glycémique (sans comorbidité), leur bénéfice attendu est glycémique (absence d'hypoglycémie, poids), PAS le
-  bénéfice d'organe des populations enrichies des CVOT ; Prescrire réserve d'ailleurs la dapagliflozine à
-  l'IC / l'insuffisance rénale (divergence de degré, cf. divergence).
+  bénéfice d'organe des populations enrichies des CVOT (EMPA-REG OUTCOME ; DAPA-CKD, NNT 19/2,4 ans ;
+  EMPEROR-Reduced, NNT 19) — d'où une place plus restreinte pour la dapagliflozine hors indication d'organe
+  (divergence de degré, cf. divergence).
 sources:
   references_primaires:
     - titre: "EMPA-REG OUTCOME (empagliflozine) — mortalité CV, IC"
@@ -1235,23 +1284,67 @@ incertitudes:
   - "classes_a_benefice_indisponibles == true supprime désormais l'introduction d'iSGLT2 / AR GLP-1 / tirzépatide / association et l'intensification glycémique résiduelle (correction S3-S7, M1) : cohérent avec la niche SU/gliptine qui n'existe que lorsque ces classes sont inutilisables."
   - "Repli O11 (« pas de remplaçant protecteur pertinent ») : encodé en ALERTE A9 (2 disjonctions pur-AND, causes IMC<22 / dénutrition sans indication iSGLT2) + rappel en prose dans l'option. Couvre le cas sans indication protectrice ; ne se déclenche pas si un remplaçant serait valide."
   - "Élargir la désintensification au SOCLE (metformine, iSGLT2 sans indication d'organe), au-delà de sulfamide/glinide/insuline : demandé par le référent (recette capture 6, 2026-07-26) — PARTIELLEMENT TRANCHÉ le 2026-07-26 (2e série) pour la METFORMINE SEULE : l'arbitrage référent (« sur-traitement chez une personne fragile et tous les autres agents à bénéfice dur ») est désormais encodé (option « Déprescrire la metformine », critère `metformine_deprescriptible`). Reste NON tranché : la désintensification de l'iSGLT2 sans indication d'organe (aucun seuil/critère référent fourni) ; et le cas d'un patient sur-traité mais qui ne réunit pas les 3 conditions (non fragile, ou un agent sans bénéfice dur — y compris l'insuline, lecture stricte de l'orchestrateur — encore en place) : dans ce cas c'est l'agent sans bénéfice dur qui doit être allégé en premier via les options existantes, pas la metformine. Conséquence sur le profil de la capture 6 (ASCVD établie + sous_objectif + intention déprescrire, sans SU/glinide/insuline en cours) : SI ce profil est aussi `fragilite == true`, il devient désormais éligible à la nouvelle option de déprescription de la metformine (en plus de la carte « Introduire un AR GLP‑1 » déjà affichée, indication transverse légitime, `:342`) ; si `fragilite == false`, son comportement reste inchangé (aucune option de désintensification applicable) — non revérifié sur la vignette exacte de la capture 6, dont le détail de `fragilite` n'est pas reproduit dans ce commentaire (invariant CLAUDE.md 6 : signaler plutôt qu'inventer)."
-  - "GLINIDE SEUL (sans sulfamide) + DFG < 30 : l'exclusion `DFG < 30` ajoutée (4e série, 2026-07-26,
-    red-team sécurité HAUTE-1) à « Réduire la posologie du sulfamide / du glinide » protège contre la
-    contradiction avec « Arrêter le sulfamide » — mais ce nœud n'a PAS d'option « Arrêter le glinide »
-    dédiée (seul le sulfamide en a une). Un patient sous glinide SEUL (aucun sulfamide) à DFG < 30 avec
-    intolérance ou hypoglycémie récente perd donc son seul geste de réduction/allègement ciblé sur cette
-    molécule sans qu'aucun verdict de remplacement ne le couvre (R4 : l'option est visible en `excluded`
-    avec son motif, jamais en silence — mais aucune carte ne propose la conduite à tenir). Le dossier de
-    preuve de ce nœud ne documente pas de seuil rénal spécifique au glinide (contrairement au sulfamide,
-    sourcé `:367`) : signalé plutôt qu'inventé (invariant CLAUDE.md 6), à trancher par le référent
-    (seuil propre au glinide, ou verdict dédié sur le modèle du sulfamide)."
+  - "GLINIDE SEUL (sans sulfamide) + DFG < 30 : RÉSOLU le 2026-07-26 (5e série) — l'option unique
+    « Réduire la posologie du sulfamide / du glinide » a été SCINDÉE en deux, l'exclusion `DFG < 30`
+    ne portant plus que sur la branche sulfamide. La vérification en source primaire
+    (`docs/decision/validation/chantier-2026-07-26/rcp-glinide-insuffisance-renale.md`) établit que le
+    répaglinide n'a AUCUNE contre-indication rénale au RCP (rubrique 4.3), s'élimine à > 90 % par voie
+    hépatobiliaire, et que l'exposition doublée en IRC sévère (ASC ×2 entre 20 et 39 ml/min, rubrique 5.2)
+    justifie une prudence posologique — c'est-à-dire précisément le geste que l'option propose. L'exclusion
+    héritée retirait donc à ce patient le geste que son propre RCP recommande. RÉSIDUELS SIGNALÉS, non
+    comblés : (a) le RCP est SILENCIEUX en dessous de 20 ml/min (dialyse) — l'option reste offerte, sans
+    donnée pour la borner, ce que porte son `inconvenients` ; (b) aucune source de société savante
+    (SFD/HAS) propre au répaglinide en IRC n'a été récupérée — le sourçage repose sur le seul RCP ;
+    (c) le RCP centralisé EMA de Novonorm n'a pas pu être lu (PDF non extractible) : les deux RCP de
+    génériques consultés (specid 66773421) en tiennent lieu, harmonisés par construction réglementaire."
+  - "SEUIL « DFG < 30 » DU SULFAMIDE — convention, pas citation : ni le RCP du gliclazide ni celui du
+    glimépiride ne donnent de valeur chiffrée de DFG ; ils disent « insuffisance rénale sévère » sans la
+    définir. Le seuil de 30 utilisé ici est la convention KDIGO/SFD usuelle (stades G4-G5), une
+    transposition raisonnable et non une invention — signalée pour ce qu'elle est (invariant CLAUDE.md 6).
+    Un sourçage plus dur (grille HAS/SFD explicite) reste à faire si le référent le souhaite."
 veille_liee: []
 meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.22"
+  version: "0.24"
   changelog:
+    - date: "2026-07-26"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        CORRECTION D'UN CORRECTIF (5e série, question du référent, vérifiée sur RCP ANSM/BDPM) : l'option
+        « Réduire la posologie du sulfamide / du glinide » est SCINDÉE en deux options, une par classe.
+        L'exclusion `DFG < 30` posée le matin même (garde-fou HAUTE-1) visait le seul sulfamide mais
+        s'appliquait mécaniquement au glinide, parce qu'une option unique portait les deux classes —
+        effet de bord que le nœud avait lui-même signalé dans ses `incertitudes` le jour de sa création.
+        Or le répaglinide (seul glinide commercialisé en France) n'a AUCUNE contre-indication rénale au
+        RCP : élimination hépatobiliaire, et en IRC sévère une exposition doublée (ASC ×2, 20-39 ml/min)
+        dont le RCP tire une PRUDENCE POSOLOGIQUE — exactement le geste que l'option propose. L'exclusion
+        héritée retirait donc au patient le geste que son RCP recommande. La branche glinide part sans
+        exclusion rénale, avec une alerte d'option `DFG < 40` portant l'exposition doublée. Pas d'option
+        « Arrêter le glinide » : sans contre-indication, aucun fondement à un arrêt sur le seul DFG.
+    - date: "2026-07-26"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        D23, lot 2 : les 2 occurrences explicitement laissées hors périmètre par le lot précédent (cf.
+        entrée D23 ci-dessous, dernier paragraphe) sont reformulées. `inconvenients` de l'option Gliptine
+        (place résiduelle) : « Prescrire l'écarte. » supprimé — la phrase se suffisait déjà à elle-même
+        (4 CVOT neutres, pemphigoïde bulleuse Lee 2020 HR 1,42, arthralgies FDA, signal méta pancréatite,
+        tous déjà cités dans la même phrase). Champ `argumentaire` top-level (toujours non rendu à l'écran,
+        cf. `ArgumentPanel.tsx` — corrigé par cohérence éditoriale) : « Prescrire réserve d'ailleurs la
+        dapagliflozine à l'IC / l'insuffisance rénale » → remplacé par les essais qui bornent le bénéfice
+        d'organe des iSGLT2 à des populations enrichies (EMPA-REG OUTCOME ; DAPA-CKD, NNT 19/2,4 ans ;
+        EMPEROR-Reduced, NNT 19), déjà cités dans `sources.references_primaires` du même fichier — même
+        position clinique (place plus restreinte de la dapagliflozine hors indication d'organe), fondée sur
+        la donnée plutôt que sur le nom de la revue. Aucune `conditions`/`exclusions`/`prerequis`/
+        `priorite`/`famille` touchée — comportement du moteur strictement inchangé. Snapshot de
+        caractérisation (`__snapshots__/caracterisation.prescription.txt` et `-indetermine`) vérifié
+        INCHANGÉ (`git diff` vide, pas régénéré) : `signatureVue`/`rendreOptionEnClair`
+        (`caracterisation.test.ts`) ne capturent que `option.intitule`, badge, `reasons`, `calculs`,
+        alertes — jamais `avantages`/`inconvenients`/`effet_attendu`, et le champ `argumentaire` top-level
+        n'y entre pas non plus (non rendu à l'écran) ; l'absence de diff confirme a fortiori qu'aucune
+        liste d'options ni aucun badge n'a bougé. Cf. `docs/decision/validation/chantier-2026-07-26/
+        sourcage-position-critique.md` (occurrences PR1/PR2).
     - date: "2026-07-26"
       auteur: "référent DT2 + Claude Code"
       resume: >-
