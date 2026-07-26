@@ -1,6 +1,11 @@
 /**
- * Générateur de PROFILS DE CRITÈRES pour le banc d'un nœud (docs/decision/GRAMMAIRE-NOEUD.md,
- * section « Le banc d'un nœud — trois couches »), couches 2 (couverture) et 3 (invariants).
+ * Générateur DYNAMIQUE de PROFILS DE CRITÈRES pour le banc d'un nœud (docs/decision/GRAMMAIRE-NOEUD.md,
+ * section « Le banc d'un nœud — trois couches »), couches 2 (couverture) et 3 (invariants) — ces deux
+ * couches ont besoin d'EXPLORER largement un espace qui bouge avec le contenu, donc de retirer ici, à
+ * chaque exécution. La couche 1 (caractérisation, golden master textuel) a le besoin STRICTEMENT INVERSE
+ * — un patient STABLE d'une exécution à l'autre — et ne consomme donc plus ce générateur directement
+ * depuis `caracterisation.test.ts` : voir la section « CAPTURE D'UNE FIXTURE FIGÉE » en fin de fichier et
+ * la justification de conception complète en tête de `banc/fixtureProfils.ts`.
  *
  * DEPUIS R7 (DECISIONS.md D20, `docs/decision/validation/chantier-2026-07-26/
  * SPEC-valeur-indeterminee.md` §2), ce module produit aussi des profils PARTIELLEMENT renseignés
@@ -252,6 +257,25 @@ function sequenceStratifiee<T>(candidats: readonly T[], count: number, seed: num
 }
 
 /**
+ * Séquence stratifiée INDÉPENDANTE de `count` valeurs pour UN SEUL critère (non `liste` : `sequenceStratifiee`
+ * directe sur son domaine énumérable ; `liste` : sous-ensembles construits par inclusion stratifiée
+ * indépendante par valeur possible — même mécanique que la stratégie 2 de `construireSequences`
+ * ci-dessous, qui l'utilise). Extraite pour être réutilisée par `completerFixtureProfils` (fin de fichier,
+ * banc/fixtureProfils.ts) : ajouter UNE colonne à une fixture déjà figée exige de ne JAMAIS dépendre des
+ * AUTRES critères du nœud — condition que seule cette fonction (par opposition à la stratégie 1, produit
+ * cartésien, qui COUPLE toutes les colonnes énumérables par un seul index combiné) peut garantir.
+ */
+function sequencePourUnCritere(node: Noeud, critere: CritereEntree, count: number, seedBase: number): CriteriaValue[] {
+  const seedCritere = (seedBase ^ hashChaine(critere.nom)) >>> 0
+  if (critere.type === 'liste') {
+    const valeurs = critere.valeurs ?? []
+    const parValeur = valeurs.map((v) => sequenceStratifiee([true, false], count, (seedCritere ^ hashChaine(v)) >>> 0))
+    return Array.from({ length: count }, (_, i) => valeurs.filter((_, vi) => parValeur[vi][i]))
+  }
+  return sequenceStratifiee(domaineEnumerable(node, critere) ?? [], count, seedCritere)
+}
+
+/**
  * Construit, pour chaque critère SAISISSABLE de `node` (à l'exclusion de `omettre`, s'il est fourni),
  * sa séquence de `count` valeurs admissibles (`count` doit déjà être la taille EFFECTIVE, cf.
  * `tailleEffective` — cette fonction ne la recalcule pas côté enveloppe, seulement côté décision de
@@ -288,20 +312,13 @@ function construireSequences(
   } else {
     // Stratégie 2 : séquence stratifiée INDÉPENDANTE par critère (nœud trop riche pour tout énumérer).
     for (const critere of enumerables) {
-      const seedCritere = (seedBase ^ hashChaine(critere.nom)) >>> 0
-      sequences.set(critere.nom, sequenceStratifiee(domaineEnumerable(node, critere) ?? [], count, seedCritere))
+      sequences.set(critere.nom, sequencePourUnCritere(node, critere, count, seedBase))
     }
   }
 
   // Critères `liste` : toujours par séquence d'inclusion stratifiée indépendante par valeur possible.
   for (const critere of listeCriteres) {
-    const seedCritere = (seedBase ^ hashChaine(critere.nom)) >>> 0
-    const valeurs = critere.valeurs ?? []
-    const parValeur = valeurs.map((v) => sequenceStratifiee([true, false], count, (seedCritere ^ hashChaine(v)) >>> 0))
-    const sousEnsembles: string[][] = Array.from({ length: count }, (_, i) =>
-      valeurs.filter((_, vi) => parValeur[vi][i]),
-    )
-    sequences.set(critere.nom, sousEnsembles)
+    sequences.set(critere.nom, sequencePourUnCritere(node, critere, count, seedBase))
   }
 
   return sequences
@@ -325,22 +342,44 @@ export function tailleBanc(node: Noeud): number {
 }
 
 /**
- * Génère des profils de critères VALIDES pour `node`, critères DÉRIVÉS déjà calculés
- * (`calculerCriteresDerives` appliqué avant renvoi — prêts pour `evaluateNode` sans étape
- * supplémentaire, cf. consigne de tâche « Applique calculerCriteresDerives avant toute évaluation »).
- * Déterministe : mêmes `node`/`count`/`seed` ⇒ mêmes profils, dans le même ordre. Le nombre de profils
- * renvoyé peut dépasser `count` (jamais en-deçà) : cf. `tailleEffective`/docstring module.
+ * Génère des profils de critères SAISISSABLES bruts pour `node` — critères DÉRIVÉS PAS encore calculés
+ * (cf. `genererProfils` ci-dessous, qui les ajoute). Déterministe : mêmes `node`/`count`/`seed` ⇒ mêmes
+ * profils, dans le même ordre. Le nombre de profils renvoyé peut dépasser `count` (jamais en-deçà) : cf.
+ * `tailleEffective`/docstring module.
+ *
+ * Réservée à deux appelants : `genererProfils` ci-dessous (usage normal, couches dynamiques couverture/
+ * invariants) et `genererFixtureProfils` (fin de fichier, CAPTURE d'un jeu figé pour
+ * `banc/fixtureProfils.ts`, consommé par `caracterisation.test.ts`) — cette dernière a besoin des
+ * critères BRUTS, jamais dérivés, pour que la fixture figée puisse être relue avec des dérivés recalculés
+ * depuis le contenu COURANT plutôt que gelés au moment de la capture (cf. justification de conception,
+ * tête de `fixtureProfils.ts`).
  */
-export function genererProfils(node: Noeud, count: number, seed = GRAINE_PAR_DEFAUT): Criteria[] {
+export function genererProfilsBruts(node: Noeud, count: number, seed = GRAINE_PAR_DEFAUT): Criteria[] {
   const effectif = tailleEffective(node, count)
   const sequences = construireSequences(node, effectif, seed)
   const profils: Criteria[] = []
   for (let i = 0; i < effectif; i++) {
     const brut: Criteria = {}
     for (const [nom, sequence] of sequences) brut[nom] = sequence[i]
-    profils.push(calculerCriteresDerives(node.criteres_entree, brut))
+    profils.push(brut)
   }
   return profils
+}
+
+/**
+ * Génère des profils de critères VALIDES pour `node`, critères DÉRIVÉS déjà calculés
+ * (`calculerCriteresDerives` appliqué avant renvoi — prêts pour `evaluateNode` sans étape
+ * supplémentaire, cf. consigne de tâche « Applique calculerCriteresDerives avant toute évaluation »).
+ * Déterministe : mêmes `node`/`count`/`seed` ⇒ mêmes profils, dans le même ordre. Le nombre de profils
+ * renvoyé peut dépasser `count` (jamais en-deçà) : cf. `tailleEffective`/docstring module.
+ *
+ * Appelée UNIQUEMENT par les couches dynamiques (`couverture.test.ts`, `invariants.test.ts`,
+ * `genererPairesBooleennes`/`genererProfilsPartiels` ci-dessous en repli) : `caracterisation.test.ts`
+ * (couche 1, golden master) ne l'appelle plus — cf. `banc/fixtureProfils.ts` pour la raison (le tirage
+ * dépend du contenu, donc instable en index d'une exécution à l'autre dès que le contenu change).
+ */
+export function genererProfils(node: Noeud, count: number, seed = GRAINE_PAR_DEFAUT): Criteria[] {
+  return genererProfilsBruts(node, count, seed).map((brut) => calculerCriteresDerives(node.criteres_entree, brut))
 }
 
 /**
@@ -428,8 +467,8 @@ export interface ProfilPartiel {
 
 /**
  * Génère `count` profils PARTIELLEMENT renseignés pour `node` (R7, DECISIONS.md D20). Réutilise `count`
- * profils COMPLETS de `genererProfils` (mêmes valeurs concrètes, mêmes garanties de déterminisme) et
- * retire de `renseignes` un sous-ensemble de critères SAISISSABLES, à graine fixe.
+ * profils COMPLETS (mêmes valeurs concrètes, mêmes garanties de déterminisme) et retire de `renseignes`
+ * un sous-ensemble de critères SAISISSABLES, à graine fixe.
  *
  * DEUX RÉGIMES DE MASQUE, dans cet ordre (les premiers profils sont les plus CIBLÉS, donc les plus
  * lisibles en relecture clinique) :
@@ -446,10 +485,25 @@ export interface ProfilPartiel {
  *    `Math.random`, cf. docstring de tête du module) — simule un formulaire réellement partiel, pas
  *    seulement un champ isolé.
  *
+ * `baseProfils` (optionnel) : profils COMPLETS déjà construits, injectés par l'appelant, plutôt que
+ * générés ici dynamiquement — `caracterisation.test.ts` y passe désormais son jeu FIGÉ
+ * (`banc/fixtureProfils.ts` `profilsFigesPourNoeud`), pour la même raison que sa caractérisation
+ * principale n'appelle plus `genererProfils` directement (cf. tête de `fixtureProfils.ts` : le tirage
+ * dynamique est la source de l'instabilité en index qu'un jeu figé corrige). Absent (repli) :
+ * comportement HISTORIQUE inchangé, génère dynamiquement via `genererProfils` — c'est ce repli
+ * qu'utilisent encore, indirectement ou pas du tout, les autres appelants éventuels de cette fonction
+ * (aucun aujourd'hui en dehors de `caracterisation.test.ts`, cf. couches couverture/invariants qui
+ * n'appellent jamais `genererProfilsPartiels`).
+ *
  * Générique (CLAUDE.md invariant 5 / DECISIONS.md D8) : ne connaît aucun nom de critère par avance, lit
  * tout dynamiquement sur `node`, comme le reste de ce module.
  */
-export function genererProfilsPartiels(node: Noeud, count: number, seed = GRAINE_PAR_DEFAUT): ProfilPartiel[] {
+export function genererProfilsPartiels(
+  node: Noeud,
+  count: number,
+  seed = GRAINE_PAR_DEFAUT,
+  baseProfils?: readonly Criteria[],
+): ProfilPartiel[] {
   const saisissables = node.criteres_entree.filter((c) => c.derive == null)
   const tousLesNoms = saisissables.map((c) => c.nom)
   const exclusions = exclusionsDuNoeud(node)
@@ -457,7 +511,7 @@ export function genererProfilsPartiels(node: Noeud, count: number, seed = GRAINE
     (c) => (c.type === 'nombre' || c.type === 'enum') && critereCiteDans(c, exclusions),
   )
 
-  const base = genererProfils(node, count, seed).slice(0, count)
+  const base = (baseProfils ?? genererProfils(node, count, seed)).slice(0, count)
   const profils: ProfilPartiel[] = []
 
   for (let i = 0; i < base.length; i++) {
@@ -482,4 +536,85 @@ export function genererProfilsPartiels(node: Noeud, count: number, seed = GRAINE
     })
   }
   return profils
+}
+
+// ---------------------------------------------------------------------------------------------------
+// CAPTURE D'UNE FIXTURE FIGÉE — consommée par `banc/fixtureProfils.ts` (lecture) et
+// `banc/geler-profils.maintenance.test.ts` (écriture, désactivé par défaut). Voir la justification de
+// conception complète en tête de `fixtureProfils.ts` : `caracterisation.test.ts` (golden master de
+// couche 1) ne tire PLUS ses profils directement depuis ce module à chaque exécution — le contenu change
+// les valeurs candidates (seuils extraits des règles, cf. tête de fichier ci-dessus), donc le tirage,
+// donc quel PATIENT tombe à quel index. Les fonctions ci-dessous ne changent AUCUN comportement des deux
+// couches dynamiques (couverture, invariants, qui continuent d'appeler `genererProfils`/
+// `genererPairesBooleennes` telles quelles, ci-dessus) — elles ajoutent seulement la mécanique de CAPTURE
+// (bootstrap intégral) et de COMPLÉTION (une colonne à la fois, sans toucher aux autres) d'un jeu figé,
+// réservée au chemin de maintenance explicite.
+// ---------------------------------------------------------------------------------------------------
+
+/**
+ * Forme PERSISTÉE d'un jeu de profils figé (un fichier JSON par nœud, `banc/fixtures/profils.<id>.json`,
+ * versionné comme n'importe quel autre golden master, cf. `banc/fixtureProfils.ts`). `profils` ne
+ * contient QUE les critères SAISISSABLES (jamais les dérivés : ils sont recalculés à la LECTURE depuis le
+ * contenu courant, pour qu'une évolution d'un `derive` reste visible dans le diff de sortie sans jamais
+ * changer l'identité figée du patient) — et peut être PARTIEL vis-à-vis de `Noeud.criteres_entree`
+ * courant : un critère absent de `criteresColonnes` n'a simplement encore reçu aucun tirage figé (cf.
+ * `completerFixtureProfils` ci-dessous).
+ */
+export interface FixtureProfils {
+  /** Id du nœud, pour un contrôle de cohérence au chargement (`banc/fixtureProfils.ts`). */
+  noeudId: string
+  /** Graine ayant servi à la capture d'origine — traçabilité seulement, jamais relue pour recalculer. */
+  graine: number
+  /** Noms des critères SAISISSABLES couverts par un tirage RÉEL (par opposition à un critère apparu dans
+   * le contenu depuis la capture, qui retombe sur sa valeur par défaut jusqu'à complétion explicite). */
+  criteresColonnes: string[]
+  /** Les profils eux-mêmes (critères saisissables bruts uniquement, cf. docstring d'interface). */
+  profils: Criteria[]
+}
+
+/**
+ * Capture un jeu figé COMPLET pour `node` : EXACTEMENT `count` profils bruts (`genererProfilsBruts`,
+ * PUIS `slice(0, count)` — `genererProfilsBruts` peut renvoyer PLUS que `count` si le produit cartésien
+ * des critères énumérables du nœud le dépasse, plancher de couverture exhaustive utile aux couches
+ * dynamiques mais hors de propos pour une fixture de taille FIXE, cf. `tailleEffective`/docstring de tête
+ * du module), toutes les colonnes saisissables du contenu ACTUEL. Réservée au cas « nœud NOUVEAU, aucune
+ * fixture existante » (le seul cas où repartir d'une génération intégrale est correct — il n'y a rien
+ * d'existant à préserver), cf. `geler-profils.maintenance.test.ts`. Fonction PURE : n'écrit rien sur
+ * disque elle-même — l'écriture est la responsabilité de `banc/fixtureProfils.ts` (`ecrireFixtureProfils`).
+ */
+export function genererFixtureProfils(node: Noeud, count: number, seed = GRAINE_PAR_DEFAUT): FixtureProfils {
+  const criteresColonnes = node.criteres_entree.filter((c) => c.derive == null).map((c) => c.nom)
+  const profils = genererProfilsBruts(node, count, seed).slice(0, count)
+  return { noeudId: node.id, graine: seed, criteresColonnes, profils }
+}
+
+/**
+ * LA procédure de mise à jour d'un jeu figé face à un nouveau critère de contenu (cf. justification de
+ * conception, tête de `fixtureProfils.ts`) : ajoute une colonne, tirée déterministiquement et
+ * INDÉPENDAMMENT des autres (`sequencePourUnCritere` ci-dessus), pour chaque critère SAISISSABLE du
+ * `node` ACTUEL absent de `fixture.criteresColonnes` — et RIEN d'autre. Toutes les valeurs déjà figées
+ * (`fixture.profils`) ressortent identiques, clé pour clé, dans le résultat : c'est la propriété qui rend
+ * cette fonction sûre à appeler après CHAQUE évolution de contenu, y compris quand elle ne fait rien
+ * (aucun critère manquant ⇒ renvoie `fixture` telle quelle, MÊME référence). `count` reste celui de la
+ * fixture existante (`fixture.profils.length`) : cette fonction ne change JAMAIS le nombre de profils
+ * figés, seulement leurs colonnes — jamais la stratégie 1 (produit cartésien) de `construireSequences`,
+ * qui COUPLERAIT la nouvelle colonne à toutes les colonnes existantes et invaliderait le jeu entier.
+ */
+export function completerFixtureProfils(node: Noeud, fixture: FixtureProfils, seed = GRAINE_PAR_DEFAUT): FixtureProfils {
+  if (fixture.noeudId !== node.id) {
+    throw new Error(`completerFixtureProfils : fixture du nœud "${fixture.noeudId}" appliquée à "${node.id}".`)
+  }
+  const dejaColonnes = new Set(fixture.criteresColonnes)
+  const manquants = node.criteres_entree.filter((c) => c.derive == null && !dejaColonnes.has(c.nom))
+  if (manquants.length === 0) return fixture
+
+  const count = fixture.profils.length
+  const profils = fixture.profils.map((p) => ({ ...p }))
+  for (const critere of manquants) {
+    const colonne = sequencePourUnCritere(node, critere, count, seed)
+    profils.forEach((p, i) => {
+      p[critere.nom] = colonne[i]
+    })
+  }
+  return { ...fixture, criteresColonnes: [...fixture.criteresColonnes, ...manquants.map((c) => c.nom)], profils }
 }

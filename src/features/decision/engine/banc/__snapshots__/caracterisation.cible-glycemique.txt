@@ -159,184 +159,188 @@ Sortie :
       proposé parce que : esperance_vie == limitee ; comorbidite_grave == true
 
 ## Signatures compactes (toutes les entrées, y compris les profils détaillés ci-dessus)
+#
+# Chaque ligne réaffirme les critères saisis du PATIENT avant sa sortie (formatCriteresCompact) : un
+# diff reste interprétable même hors de la section « en clair » ci-dessus — plus besoin de faire
+# confiance à la position pour savoir de quel patient il s’agit (cf. tête de fichier).
 
-0 :: ¤::Cible ~6,5 % (6,5–7 %)@recommandee«age < 70&anciennete_diabete_annees < 5&esperance_vie == longue&antecedent_cv == false&comorbidite_grave == false&fragilite == false»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»##
-1 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-2 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
-3 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
-4 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-5 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-6 :: ¤::Cible ~6,5 % (6,5–7 %)@recommandee«age < 70&anciennete_diabete_annees < 5&esperance_vie == longue&antecedent_cv == false&comorbidite_grave == false&fragilite == false»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»##
-7 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-8 :: ¤::Cible ~6,5 % (6,5–7 %)@recommandee«age < 70&anciennete_diabete_annees < 5&esperance_vie == longue&antecedent_cv == false&comorbidite_grave == false&fragilite == false»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»##
-9 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
-10 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-11 :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee&antecedent_cv == true»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
-12 :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-13 :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-14 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-15 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-16 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
-17 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-18 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
-19 :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
-20 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-21 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-22 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
-23 :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-24 :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee&antecedent_cv == true»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
-25 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-26 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
-27 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
-28 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-29 :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
-30 :: ¤::Cible ≤ 7 %@recommandee«default»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»|Cible ~6,5 % (6,5–7 %)«anciennete_diabete_annees < 5»##
-31 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-32 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-33 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-34 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-35 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
-36 :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
-37 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-38 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-39 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
-40 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true&comorbidite_grave == true»[]¦‖########
-41 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true&comorbidite_grave == true»[]¦‖########
-42 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-43 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-44 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-45 :: ¤::Cible ≤ 7 %@recommandee«default»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»|Cible ~6,5 % (6,5–7 %)«age < 70»##
-46 :: ¤::Cible ~6,5 % (6,5–7 %)@recommandee«age < 70&anciennete_diabete_annees < 5&esperance_vie == longue&antecedent_cv == false&comorbidite_grave == false&fragilite == false»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»##
-47 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
-48 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
-49 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-50 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-51 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
-52 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-53 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true&comorbidite_grave == true»[]¦‖########
-54 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
-55 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-56 :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
-57 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-58 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-59 :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-60 :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-61 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-62 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-63 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-64 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-65 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-66 :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-67 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-68 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true&comorbidite_grave == true»[]¦‖########
-69 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-70 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
-71 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-72 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
-73 :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-74 :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
-75 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
-76 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-77 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true&comorbidite_grave == true»[]¦‖########
-78 :: ¤::Cible ≤ 7 %@recommandee«default»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»|Cible ~6,5 % (6,5–7 %)«age < 70»##
-79 :: ¤::Cible ≤ 7 %@recommandee«default»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»|Cible ~6,5 % (6,5–7 %)«anciennete_diabete_annees < 5»##
-80 :: ¤::Cible ≤ 7 %@recommandee«default»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»|Cible ~6,5 % (6,5–7 %)«age < 70»##
-81 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
-82 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
-83 :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-84 :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-85 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-86 :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-87 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-88 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-89 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-90 :: ¤::Cible ~6,5 % (6,5–7 %)@recommandee«age < 70&anciennete_diabete_annees < 5&esperance_vie == longue&antecedent_cv == false&comorbidite_grave == false&fragilite == false»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»##
-91 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-92 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-93 :: ¤::Cible ≤ 7 %@recommandee«default»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»|Cible ~6,5 % (6,5–7 %)«age < 70»##
-94 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-95 :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-96 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-97 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-98 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-99 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
-100 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
-101 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
-102 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
-103 :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee&antecedent_cv == true»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
-104 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-105 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-106 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-107 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-108 :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-109 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-110 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-111 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-112 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true&comorbidite_grave == true»[]¦‖########
-113 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-114 :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-115 :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee&antecedent_cv == true»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
-116 :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee&antecedent_cv == true»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
-117 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-118 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-119 :: ¤::Cible ≤ 7 %@recommandee«default»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»|Cible ~6,5 % (6,5–7 %)«anciennete_diabete_annees < 5»##
-120 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-121 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-122 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-123 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-124 :: ¤::Cible ≤ 7 %@recommandee«default»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»|Cible ~6,5 % (6,5–7 %)«age < 70»##
-125 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-126 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-127 :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee&antecedent_cv == true»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
-128 :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-129 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-130 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-131 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true&comorbidite_grave == true»[]¦‖########
-132 :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
-133 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true&comorbidite_grave == true»[]¦‖########
-134 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-135 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true&comorbidite_grave == true»[]¦‖########
-136 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-137 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-138 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-139 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-140 :: ¤::Cible ≤ 7 %@recommandee«default»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»|Cible ~6,5 % (6,5–7 %)«age < 70»##
-141 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-142 :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
-143 :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
-144 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-145 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-146 :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
-147 :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-148 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true&comorbidite_grave == true»[]¦‖########
-149 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-150 :: ¤::Cible ≤ 7 %@recommandee«default»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»|Cible ~6,5 % (6,5–7 %)«anciennete_diabete_annees < 5»##
-151 :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-152 :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-153 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-154 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
-155 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true&comorbidite_grave == true»[]¦‖########
-156 :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee&antecedent_cv == true»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
-157 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-158 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-159 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-160 :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-161 :: ¤::Cible ≤ 7 %@recommandee«default»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»|Cible ~6,5 % (6,5–7 %)«anciennete_diabete_annees < 5»##
-162 :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-163 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true&comorbidite_grave == true»[]¦‖########
-164 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
-165 :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
-166 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
-167 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
-168 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
-169 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-170 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-171 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-172 :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
-173 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-174 :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-175 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-176 :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
-177 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
-178 :: ¤::Cible ≤ 7 %@recommandee«default»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»|Cible ~6,5 % (6,5–7 %)«age < 70»##
-179 :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
+0 :: age=0;anciennete_diabete_annees=0;esperance_vie=longue;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ~6,5 % (6,5–7 %)@recommandee«age < 70&anciennete_diabete_annees < 5&esperance_vie == longue&antecedent_cv == false&comorbidite_grave == false&fragilite == false»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»##
+1 :: age=69;anciennete_diabete_annees=0;esperance_vie=longue;fragilite=true;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+2 :: age=69;anciennete_diabete_annees=60;esperance_vie=limitee;fragilite=true;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
+3 :: age=70;anciennete_diabete_annees=4;esperance_vie=limitee;fragilite=false;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
+4 :: age=71;anciennete_diabete_annees=4;esperance_vie=longue;fragilite=true;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+5 :: age=105;anciennete_diabete_annees=4;esperance_vie=intermediaire;fragilite=false;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+6 :: age=18;anciennete_diabete_annees=4;esperance_vie=longue;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ~6,5 % (6,5–7 %)@recommandee«age < 70&anciennete_diabete_annees < 5&esperance_vie == longue&antecedent_cv == false&comorbidite_grave == false&fragilite == false»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»##
+7 :: age=71;anciennete_diabete_annees=0;esperance_vie=intermediaire;fragilite=false;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+8 :: age=18;anciennete_diabete_annees=0;esperance_vie=longue;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ~6,5 % (6,5–7 %)@recommandee«age < 70&anciennete_diabete_annees < 5&esperance_vie == longue&antecedent_cv == false&comorbidite_grave == false&fragilite == false»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»##
+9 :: age=105;anciennete_diabete_annees=0;esperance_vie=limitee;fragilite=false;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
+10 :: age=71;anciennete_diabete_annees=6;esperance_vie=intermediaire;fragilite=false;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+11 :: age=18;anciennete_diabete_annees=60;esperance_vie=limitee;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee&antecedent_cv == true»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
+12 :: age=69;anciennete_diabete_annees=4;esperance_vie=intermediaire;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+13 :: age=105;anciennete_diabete_annees=0;esperance_vie=longue;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+14 :: age=18;anciennete_diabete_annees=60;esperance_vie=intermediaire;fragilite=true;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+15 :: age=105;anciennete_diabete_annees=6;esperance_vie=intermediaire;fragilite=true;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+16 :: age=71;anciennete_diabete_annees=5;esperance_vie=limitee;fragilite=false;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
+17 :: age=71;anciennete_diabete_annees=6;esperance_vie=longue;fragilite=false;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+18 :: age=71;anciennete_diabete_annees=6;esperance_vie=limitee;fragilite=true;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
+19 :: age=18;anciennete_diabete_annees=0;esperance_vie=limitee;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
+20 :: age=70;anciennete_diabete_annees=60;esperance_vie=longue;fragilite=true;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+21 :: age=18;anciennete_diabete_annees=4;esperance_vie=intermediaire;fragilite=true;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+22 :: age=71;anciennete_diabete_annees=0;esperance_vie=limitee;fragilite=true;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
+23 :: age=71;anciennete_diabete_annees=6;esperance_vie=intermediaire;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+24 :: age=105;anciennete_diabete_annees=60;esperance_vie=limitee;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee&antecedent_cv == true»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
+25 :: age=105;anciennete_diabete_annees=4;esperance_vie=intermediaire;fragilite=true;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+26 :: age=18;anciennete_diabete_annees=60;esperance_vie=limitee;fragilite=false;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
+27 :: age=71;anciennete_diabete_annees=0;esperance_vie=limitee;fragilite=true;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
+28 :: age=105;anciennete_diabete_annees=5;esperance_vie=intermediaire;fragilite=true;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+29 :: age=70;anciennete_diabete_annees=0;esperance_vie=limitee;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
+30 :: age=69;anciennete_diabete_annees=5;esperance_vie=longue;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 7 %@recommandee«default»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»|Cible ~6,5 % (6,5–7 %)«anciennete_diabete_annees < 5»##
+31 :: age=18;anciennete_diabete_annees=5;esperance_vie=longue;fragilite=false;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+32 :: age=71;anciennete_diabete_annees=60;esperance_vie=intermediaire;fragilite=true;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+33 :: age=70;anciennete_diabete_annees=6;esperance_vie=longue;fragilite=true;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+34 :: age=70;anciennete_diabete_annees=0;esperance_vie=longue;fragilite=true;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+35 :: age=70;anciennete_diabete_annees=60;esperance_vie=limitee;fragilite=false;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
+36 :: age=105;anciennete_diabete_annees=5;esperance_vie=limitee;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
+37 :: age=18;anciennete_diabete_annees=0;esperance_vie=intermediaire;fragilite=false;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+38 :: age=105;anciennete_diabete_annees=0;esperance_vie=longue;fragilite=true;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+39 :: age=70;anciennete_diabete_annees=6;esperance_vie=limitee;fragilite=false;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
+40 :: age=69;anciennete_diabete_annees=5;esperance_vie=limitee;fragilite=true;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true&comorbidite_grave == true»[]¦‖########
+41 :: age=18;anciennete_diabete_annees=60;esperance_vie=limitee;fragilite=true;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true&comorbidite_grave == true»[]¦‖########
+42 :: age=70;anciennete_diabete_annees=5;esperance_vie=intermediaire;fragilite=true;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+43 :: age=105;anciennete_diabete_annees=6;esperance_vie=intermediaire;fragilite=true;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+44 :: age=71;anciennete_diabete_annees=6;esperance_vie=intermediaire;fragilite=false;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+45 :: age=70;anciennete_diabete_annees=4;esperance_vie=intermediaire;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 7 %@recommandee«default»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»|Cible ~6,5 % (6,5–7 %)«age < 70»##
+46 :: age=69;anciennete_diabete_annees=4;esperance_vie=longue;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ~6,5 % (6,5–7 %)@recommandee«age < 70&anciennete_diabete_annees < 5&esperance_vie == longue&antecedent_cv == false&comorbidite_grave == false&fragilite == false»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»##
+47 :: age=105;anciennete_diabete_annees=60;esperance_vie=limitee;fragilite=true;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
+48 :: age=70;anciennete_diabete_annees=0;esperance_vie=limitee;fragilite=false;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
+49 :: age=105;anciennete_diabete_annees=60;esperance_vie=intermediaire;fragilite=true;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+50 :: age=18;anciennete_diabete_annees=60;esperance_vie=longue;fragilite=false;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+51 :: age=18;anciennete_diabete_annees=0;esperance_vie=limitee;fragilite=true;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
+52 :: age=105;anciennete_diabete_annees=0;esperance_vie=intermediaire;fragilite=false;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+53 :: age=71;anciennete_diabete_annees=0;esperance_vie=limitee;fragilite=true;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true&comorbidite_grave == true»[]¦‖########
+54 :: age=105;anciennete_diabete_annees=4;esperance_vie=limitee;fragilite=true;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
+55 :: age=69;anciennete_diabete_annees=60;esperance_vie=intermediaire;fragilite=false;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+56 :: age=105;anciennete_diabete_annees=0;esperance_vie=limitee;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
+57 :: age=69;anciennete_diabete_annees=0;esperance_vie=longue;fragilite=true;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+58 :: age=70;anciennete_diabete_annees=6;esperance_vie=longue;fragilite=true;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+59 :: age=71;anciennete_diabete_annees=4;esperance_vie=intermediaire;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+60 :: age=105;anciennete_diabete_annees=6;esperance_vie=longue;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+61 :: age=69;anciennete_diabete_annees=4;esperance_vie=longue;fragilite=false;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+62 :: age=70;anciennete_diabete_annees=0;esperance_vie=intermediaire;fragilite=false;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+63 :: age=71;anciennete_diabete_annees=60;esperance_vie=intermediaire;fragilite=false;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+64 :: age=70;anciennete_diabete_annees=5;esperance_vie=longue;fragilite=true;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+65 :: age=70;anciennete_diabete_annees=6;esperance_vie=longue;fragilite=false;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+66 :: age=69;anciennete_diabete_annees=60;esperance_vie=longue;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+67 :: age=71;anciennete_diabete_annees=6;esperance_vie=longue;fragilite=true;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+68 :: age=70;anciennete_diabete_annees=5;esperance_vie=limitee;fragilite=true;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true&comorbidite_grave == true»[]¦‖########
+69 :: age=69;anciennete_diabete_annees=5;esperance_vie=intermediaire;fragilite=false;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+70 :: age=18;anciennete_diabete_annees=0;esperance_vie=limitee;fragilite=false;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
+71 :: age=71;anciennete_diabete_annees=6;esperance_vie=longue;fragilite=true;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+72 :: age=70;anciennete_diabete_annees=60;esperance_vie=limitee;fragilite=true;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
+73 :: age=69;anciennete_diabete_annees=5;esperance_vie=intermediaire;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+74 :: age=18;anciennete_diabete_annees=4;esperance_vie=limitee;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
+75 :: age=69;anciennete_diabete_annees=6;esperance_vie=limitee;fragilite=true;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
+76 :: age=69;anciennete_diabete_annees=60;esperance_vie=longue;fragilite=false;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+77 :: age=70;anciennete_diabete_annees=5;esperance_vie=limitee;fragilite=true;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true&comorbidite_grave == true»[]¦‖########
+78 :: age=105;anciennete_diabete_annees=6;esperance_vie=longue;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 7 %@recommandee«default»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»|Cible ~6,5 % (6,5–7 %)«age < 70»##
+79 :: age=69;anciennete_diabete_annees=6;esperance_vie=longue;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 7 %@recommandee«default»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»|Cible ~6,5 % (6,5–7 %)«anciennete_diabete_annees < 5»##
+80 :: age=70;anciennete_diabete_annees=0;esperance_vie=intermediaire;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 7 %@recommandee«default»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»|Cible ~6,5 % (6,5–7 %)«age < 70»##
+81 :: age=70;anciennete_diabete_annees=0;esperance_vie=limitee;fragilite=true;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
+82 :: age=70;anciennete_diabete_annees=4;esperance_vie=limitee;fragilite=true;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
+83 :: age=71;anciennete_diabete_annees=0;esperance_vie=intermediaire;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+84 :: age=70;anciennete_diabete_annees=5;esperance_vie=intermediaire;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+85 :: age=18;anciennete_diabete_annees=4;esperance_vie=longue;fragilite=true;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+86 :: age=18;anciennete_diabete_annees=4;esperance_vie=longue;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+87 :: age=70;anciennete_diabete_annees=4;esperance_vie=intermediaire;fragilite=false;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+88 :: age=71;anciennete_diabete_annees=5;esperance_vie=longue;fragilite=false;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+89 :: age=71;anciennete_diabete_annees=0;esperance_vie=intermediaire;fragilite=false;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+90 :: age=69;anciennete_diabete_annees=0;esperance_vie=longue;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ~6,5 % (6,5–7 %)@recommandee«age < 70&anciennete_diabete_annees < 5&esperance_vie == longue&antecedent_cv == false&comorbidite_grave == false&fragilite == false»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»##
+91 :: age=70;anciennete_diabete_annees=60;esperance_vie=longue;fragilite=true;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+92 :: age=105;anciennete_diabete_annees=0;esperance_vie=intermediaire;fragilite=false;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+93 :: age=71;anciennete_diabete_annees=5;esperance_vie=longue;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 7 %@recommandee«default»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»|Cible ~6,5 % (6,5–7 %)«age < 70»##
+94 :: age=70;anciennete_diabete_annees=4;esperance_vie=longue;fragilite=true;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+95 :: age=105;anciennete_diabete_annees=4;esperance_vie=longue;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+96 :: age=105;anciennete_diabete_annees=5;esperance_vie=intermediaire;fragilite=true;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+97 :: age=105;anciennete_diabete_annees=0;esperance_vie=longue;fragilite=true;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+98 :: age=18;anciennete_diabete_annees=0;esperance_vie=longue;fragilite=false;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+99 :: age=18;anciennete_diabete_annees=5;esperance_vie=limitee;fragilite=true;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
+100 :: age=69;anciennete_diabete_annees=0;esperance_vie=limitee;fragilite=false;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
+101 :: age=69;anciennete_diabete_annees=5;esperance_vie=limitee;fragilite=false;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
+102 :: age=105;anciennete_diabete_annees=60;esperance_vie=limitee;fragilite=false;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
+103 :: age=105;anciennete_diabete_annees=4;esperance_vie=limitee;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee&antecedent_cv == true»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
+104 :: age=105;anciennete_diabete_annees=60;esperance_vie=longue;fragilite=true;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+105 :: age=18;anciennete_diabete_annees=0;esperance_vie=longue;fragilite=true;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+106 :: age=18;anciennete_diabete_annees=4;esperance_vie=longue;fragilite=false;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+107 :: age=71;anciennete_diabete_annees=0;esperance_vie=longue;fragilite=true;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+108 :: age=18;anciennete_diabete_annees=6;esperance_vie=intermediaire;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+109 :: age=70;anciennete_diabete_annees=0;esperance_vie=longue;fragilite=true;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+110 :: age=70;anciennete_diabete_annees=0;esperance_vie=intermediaire;fragilite=true;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+111 :: age=18;anciennete_diabete_annees=6;esperance_vie=intermediaire;fragilite=true;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+112 :: age=18;anciennete_diabete_annees=6;esperance_vie=limitee;fragilite=true;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true&comorbidite_grave == true»[]¦‖########
+113 :: age=71;anciennete_diabete_annees=4;esperance_vie=intermediaire;fragilite=true;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+114 :: age=18;anciennete_diabete_annees=4;esperance_vie=intermediaire;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+115 :: age=70;anciennete_diabete_annees=5;esperance_vie=limitee;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee&antecedent_cv == true»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
+116 :: age=18;anciennete_diabete_annees=6;esperance_vie=limitee;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee&antecedent_cv == true»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
+117 :: age=71;anciennete_diabete_annees=60;esperance_vie=intermediaire;fragilite=true;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+118 :: age=18;anciennete_diabete_annees=4;esperance_vie=intermediaire;fragilite=true;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+119 :: age=18;anciennete_diabete_annees=6;esperance_vie=intermediaire;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 7 %@recommandee«default»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»|Cible ~6,5 % (6,5–7 %)«anciennete_diabete_annees < 5»##
+120 :: age=105;anciennete_diabete_annees=0;esperance_vie=intermediaire;fragilite=true;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+121 :: age=71;anciennete_diabete_annees=6;esperance_vie=longue;fragilite=true;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+122 :: age=71;anciennete_diabete_annees=4;esperance_vie=longue;fragilite=false;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+123 :: age=69;anciennete_diabete_annees=4;esperance_vie=intermediaire;fragilite=true;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+124 :: age=70;anciennete_diabete_annees=6;esperance_vie=longue;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 7 %@recommandee«default»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»|Cible ~6,5 % (6,5–7 %)«age < 70»##
+125 :: age=69;anciennete_diabete_annees=6;esperance_vie=intermediaire;fragilite=true;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+126 :: age=69;anciennete_diabete_annees=6;esperance_vie=intermediaire;fragilite=true;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+127 :: age=71;anciennete_diabete_annees=5;esperance_vie=limitee;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee&antecedent_cv == true»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
+128 :: age=69;anciennete_diabete_annees=5;esperance_vie=longue;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+129 :: age=71;anciennete_diabete_annees=6;esperance_vie=longue;fragilite=true;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+130 :: age=105;anciennete_diabete_annees=4;esperance_vie=intermediaire;fragilite=true;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+131 :: age=105;anciennete_diabete_annees=60;esperance_vie=limitee;fragilite=true;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true&comorbidite_grave == true»[]¦‖########
+132 :: age=71;anciennete_diabete_annees=4;esperance_vie=limitee;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
+133 :: age=71;anciennete_diabete_annees=4;esperance_vie=limitee;fragilite=true;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true&comorbidite_grave == true»[]¦‖########
+134 :: age=69;anciennete_diabete_annees=4;esperance_vie=longue;fragilite=true;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+135 :: age=69;anciennete_diabete_annees=5;esperance_vie=limitee;fragilite=true;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true&comorbidite_grave == true»[]¦‖########
+136 :: age=71;anciennete_diabete_annees=5;esperance_vie=intermediaire;fragilite=true;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+137 :: age=71;anciennete_diabete_annees=60;esperance_vie=longue;fragilite=true;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+138 :: age=71;anciennete_diabete_annees=6;esperance_vie=intermediaire;fragilite=true;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+139 :: age=69;anciennete_diabete_annees=60;esperance_vie=longue;fragilite=true;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+140 :: age=70;anciennete_diabete_annees=60;esperance_vie=longue;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 7 %@recommandee«default»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»|Cible ~6,5 % (6,5–7 %)«age < 70»##
+141 :: age=70;anciennete_diabete_annees=5;esperance_vie=intermediaire;fragilite=true;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+142 :: age=71;anciennete_diabete_annees=5;esperance_vie=limitee;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
+143 :: age=18;anciennete_diabete_annees=6;esperance_vie=limitee;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
+144 :: age=70;anciennete_diabete_annees=6;esperance_vie=intermediaire;fragilite=false;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+145 :: age=105;anciennete_diabete_annees=4;esperance_vie=longue;fragilite=true;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+146 :: age=105;anciennete_diabete_annees=6;esperance_vie=limitee;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
+147 :: age=69;anciennete_diabete_annees=0;esperance_vie=longue;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+148 :: age=105;anciennete_diabete_annees=0;esperance_vie=limitee;fragilite=true;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true&comorbidite_grave == true»[]¦‖########
+149 :: age=71;anciennete_diabete_annees=0;esperance_vie=longue;fragilite=false;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+150 :: age=69;anciennete_diabete_annees=6;esperance_vie=intermediaire;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 7 %@recommandee«default»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»|Cible ~6,5 % (6,5–7 %)«anciennete_diabete_annees < 5»##
+151 :: age=71;anciennete_diabete_annees=0;esperance_vie=longue;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+152 :: age=18;anciennete_diabete_annees=0;esperance_vie=longue;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+153 :: age=69;anciennete_diabete_annees=0;esperance_vie=longue;fragilite=true;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+154 :: age=71;anciennete_diabete_annees=60;esperance_vie=limitee;fragilite=true;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
+155 :: age=18;anciennete_diabete_annees=5;esperance_vie=limitee;fragilite=true;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true&comorbidite_grave == true»[]¦‖########
+156 :: age=69;anciennete_diabete_annees=0;esperance_vie=limitee;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee&antecedent_cv == true»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
+157 :: age=70;anciennete_diabete_annees=60;esperance_vie=longue;fragilite=true;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+158 :: age=71;anciennete_diabete_annees=0;esperance_vie=longue;fragilite=true;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+159 :: age=105;anciennete_diabete_annees=60;esperance_vie=longue;fragilite=false;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+160 :: age=18;anciennete_diabete_annees=60;esperance_vie=longue;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+161 :: age=69;anciennete_diabete_annees=5;esperance_vie=intermediaire;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 7 %@recommandee«default»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»|Cible ~6,5 % (6,5–7 %)«anciennete_diabete_annees < 5»##
+162 :: age=71;anciennete_diabete_annees=5;esperance_vie=intermediaire;fragilite=false;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+163 :: age=69;anciennete_diabete_annees=4;esperance_vie=limitee;fragilite=true;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true&comorbidite_grave == true»[]¦‖########
+164 :: age=70;anciennete_diabete_annees=6;esperance_vie=limitee;fragilite=false;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
+165 :: age=70;anciennete_diabete_annees=5;esperance_vie=limitee;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
+166 :: age=18;anciennete_diabete_annees=60;esperance_vie=limitee;fragilite=true;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
+167 :: age=18;anciennete_diabete_annees=4;esperance_vie=limitee;fragilite=true;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&fragilite == true»[]¦‖########
+168 :: age=71;anciennete_diabete_annees=0;esperance_vie=limitee;fragilite=false;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
+169 :: age=71;anciennete_diabete_annees=0;esperance_vie=longue;fragilite=false;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+170 :: age=105;anciennete_diabete_annees=4;esperance_vie=longue;fragilite=true;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+171 :: age=69;anciennete_diabete_annees=5;esperance_vie=longue;fragilite=false;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+172 :: age=71;anciennete_diabete_annees=6;esperance_vie=limitee;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«esperance_vie == limitee»[]¦‖######Cible < 9 %«fragilite == true OR comorbidite_grave == true»##
+173 :: age=70;anciennete_diabete_annees=4;esperance_vie=longue;fragilite=true;antecedent_cv=true;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&comorbidite_grave == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+174 :: age=105;anciennete_diabete_annees=4;esperance_vie=longue;fragilite=false;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible ≤ 8 %@recommandee«comorbidite_grave == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+175 :: age=105;anciennete_diabete_annees=5;esperance_vie=longue;fragilite=true;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+176 :: age=18;anciennete_diabete_annees=4;esperance_vie=longue;fragilite=true;antecedent_cv=true;comorbidite_grave=false :: ¤::Cible ≤ 8 %@recommandee«fragilite == true&antecedent_cv == true»[]¦‖######Cible < 9 %«esperance_vie == limitee»##
+177 :: age=69;anciennete_diabete_annees=60;esperance_vie=limitee;fragilite=false;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########
+178 :: age=105;anciennete_diabete_annees=0;esperance_vie=longue;fragilite=false;antecedent_cv=false;comorbidite_grave=false :: ¤::Cible ≤ 7 %@recommandee«default»[]¦‖######Cible < 9 %«esperance_vie == limitee»|Cible ≤ 8 %«fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true»|Cible ~6,5 % (6,5–7 %)«age < 70»##
+179 :: age=18;anciennete_diabete_annees=6;esperance_vie=limitee;fragilite=false;antecedent_cv=false;comorbidite_grave=true :: ¤::Cible < 9 %@recommandee«esperance_vie == limitee&comorbidite_grave == true»[]¦‖########

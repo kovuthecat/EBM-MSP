@@ -1,0 +1,483 @@
+# Module RHD — nœud ACTIVITÉ PHYSIQUE — BROUILLON v0.1 (2026-07-26), pas encore validé référent.
+# Autorité : docs/decision/validation/chantier-2026-07-26/CONCEPTION-module-rhd.md (structure, décisions
+# référent §4bis) + rhd-collecte-activite-physique.md (grille + bibliothèque de pistes, révisée après
+# red-team) + redteam-collectes-rhd.md.
+#
+# REMPLACE, À TERME, LE VOLET ACTIVITÉ DU NŒUD `rhd` (perte de poids/rémission, en cours de bascule —
+# `rhd.yaml` n'est PAS modifié ici, un agent parallèle y travaille sur ses `sources`). Ce nœud ne traite
+# QUE l'axe activité physique (dont sédentarité, famille de pistes pilote à l'intérieur de ce nœud,
+# décision référent — extractible en nœud distinct plus tard si le volume le justifie) ; l'objectif de
+# perte de poids/rémission reste porté par `rhd`.
+#
+# ⚠ RÉSERVE MAJEURE, confirmée par une passe de preuve dédiée et son red-team (`preuve-activite-physique.md`
+# cité par CONCEPTION-module-rhd.md §3, `H-rhd.md` §3 sous-dossier H3, `rhd-collecte-activite-physique.md`
+# §0/P3) : AUCUNE piste de ce nœud ne porte l'étiquette « bénéfice EBM sur critère dur ». Aucun ECR
+# d'exercice isolé, dans le DT2 établi, ne démontre de bénéfice sur un critère cardiovasculaire ou de
+# mortalité (Look AHEAD : critère CV primaire neutre HR 0,95, essai arrêté pour futilité ; mortalité non
+# réduite ; le bras exercice seul de Da Qing n'est pas significatif). Le seul bénéfice CV dur des mesures
+# hygiéno-diététiques est porté par le régime méditerranéen (nœud sœur `rhd-alimentation`), pas par
+# l'activité physique isolée. Le corpus HAS/PNNS mobilisé ci-dessous enrichit le REGISTRE officiel des
+# pistes, PAS leur niveau de preuve — toutes les options portent donc l'étiquette « recommandation
+# officielle » ou « savoir-faire (non EBM) ».
+#
+# RÈGLE STRUCTURELLE (référent 2026-07-26, CONCEPTION-module-rhd.md §4bis-0/§0, prioritaire) : le nœud
+# SUGGÈRE des pistes pour se rapprocher de la régularité démontrée prédictive (EBM Guidelines/Duodecim,
+# grade A : « l'activité physique régulière prédit un bon résultat à long terme, pas la perte de poids
+# rapide au début ») — il ne propose JAMAIS de cible chiffrée (150 min/sem., 10 000 pas). Conséquences :
+#   1. Le recueil porte sur une FRÉQUENCE/DURÉE DÉCLARÉE en BANDES, jamais une quantité comparée à un
+#      seuil précis.
+#   2. Aucune piste n'affiche de valeur à atteindre : les repères chiffrés officiels (150-300 min/sem.,
+#      2-3 séances d'APA/sem., + 1 000-3 000 pas/sem.) vivent en CONTEXTE (avantages/argumentaire),
+#      jamais dans le geste proposé. La HAS elle-même déconseille le dogme du chiffre pour le pas
+#      quotidien (« proposer d'augmenter progressivement… chaque pas en plus est bénéfique ») — c'est la
+#      meilleure illustration trouvée du principe « mouvement, pas cible », reprise en piste dédiée.
+#   3. Aucun score d'adhérence.
+#   4. Le rang d'une piste (`priorite`) est déclaré : 1 = renforcement positif du patient déjà actif et
+#      rupture de sédentarité (repère le plus bas, le mieux gradé, le plus atteignable) ; au-delà =
+#      activité quotidienne puis pratique structurée (accompagnement, effort de mise en œuvre plus élevé).
+#
+# GARDE-FOUS — DES `exclusions`, PAS DES ALERTES (D21), ancrés HAS DT2 R.19/R.27/R.28 : le verrou
+# « sécurité à l'effort » (`verrou_effort`, dérivé de 4 signes, dont 3 `confirmation_requise: true` —
+# limitation physique connue, symptômes d'ischémie à l'effort, rétinopathie non stabilisée/proliférante,
+# neuropathie périphérique/mal perforant plantaire) bloque UNIQUEMENT la montée d'intensité/pratique
+# structurée (décision de bucketing du référent, CONCEPTION-module-rhd.md §4) ; il laisse passer
+# l'activité quotidienne, les déplacements actifs et la rupture de sédentarité. L'hypoglycémie sous
+# insuline/sulfamide/glinide reste une ALERTE simple, jamais un blocage (arbitrage référent explicite,
+# tranchant le point laissé ouvert par le red-team, finding B-3).
+#
+# SÉDENTARITÉ — seuil de rupture retenu : REPÈRE (pas un seuil administré) « au moins 1 minute par heure »
+# (HAS DT2 R.16, grade C — le plus bas des seuils voisins, le mieux gradé, le plus atteignable ; une
+# source HAS parallèle juge par ailleurs les preuves insuffisantes sur ce chiffre précis, signalé en
+# argumentaire).
+#
+# TERRAIN PARTAGÉ (I4) : `fragilite` et `traitements_en_cours` sont déclarés IDENTIQUES au reste du
+# domaine et au nœud sœur `rhd-alimentation` (mêmes noms, même type, même énumération). `age`/
+# `esperance_vie` NE SONT PAS déclarés ici : aucune règle de ce nœud ne les rend décisifs (R5).
+#
+# PORTÉE VOLONTAIREMENT RÉDUITE vs la collecte (R5, charge de saisie) : S7 (goûts/préférence d'activité)
+# NON repris — la source elle-même le décrit comme une aide à la négociation qui « ne bloque rien »,
+# donc jamais décisif ; la conversation directe en consultation y pourvoit (même traitement que la
+# culture culinaire du nœud sœur `rhd-alimentation`). AA5/AA6 (vécu négatif, peur de se blesser, crainte
+# des moqueries) FUSIONNÉS en un seul critère (`experience_activite_negative`) : les deux alimentaient la
+# même piste unique (5.2), une distinction plus fine n'aurait rien changé au geste proposé. G1
+# (évaluation médicale avant intensité si inactif/FDR CV) et G7 (glycémie avant l'effort, seuil 2,5 g/L)
+# NE SONT PAS des critères d'entrée : ce sont des rappels attachés à l'option « pratique structurée »
+# (alerte d'option), pas des données chroniques à recueillir — G7 est un repère d'auto-surveillance
+# ponctuel du patient, pas une donnée que le praticien saisit dans ce nœud.
+id: rhd-activite-physique
+domaine: diabete-type-2
+module: RHD
+titre: "Activité physique — se rapprocher de la régularité"
+population_cible: >-
+  Adulte DT2, en consultation de médecine générale. Nœud du module RHD (axe activité physique, y compris
+  sédentarité) : recueil bref des habitudes de pratique, de déplacement et de sédentarité, puis pistes
+  concrètes et négociables de rapprochement de la régularité — jamais un objectif chiffré à atteindre,
+  jamais un score d'adhérence. Autonome : évaluable seul, sans prérequis d'un autre nœud (R1). Hors
+  périmètre : objectif de perte de poids et rémission (nœud `rhd`, module en cours de bascule) ; bilan
+  d'aptitude physique détaillé (endurance cardiorespiratoire, force, souplesse — évaluation professionnelle
+  d'un enseignant en activité physique adaptée) ; questionnaire structuré (GPAQ, ONAPS — aucun repris ici).
+selection: multi-options
+argumentaire_exhaustif: "rhd-activite-physique.argumentaire.md"
+familles:
+  - libelle: "Déplacements actifs"
+    exclusive: false
+  - libelle: "Rupture de sédentarité"
+    exclusive: false
+  - libelle: "Activité quotidienne"
+    exclusive: false
+  - libelle: "Pratique structurée"
+    exclusive: false
+  - libelle: "Orientation vers une ressource"
+    exclusive: false
+  - libelle: "Maintien"
+    exclusive: false
+criteres_entree:
+  # ── Terrain partagé (I4 : identique à rhd.yaml/prescription.yaml/insuline.yaml/rhd-alimentation.yaml) ──
+  - nom: fragilite
+    type: bool
+    groupe: Terrain
+  - nom: traitements_en_cours
+    type: liste
+    groupe: Terrain
+    valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, insuline, glinide]
+  # ── Socle — habitudes d'activité physique (S1-S5) ──
+  - nom: frequence_activite_structuree
+    type: enum
+    groupe: Habitudes d'activité physique
+    valeurs: [jamais, une_fois_semaine, deux_a_trois_fois_semaine, quatre_fois_ou_plus_semaine]
+  - nom: duree_seance
+    type: enum
+    groupe: Habitudes d'activité physique
+    valeurs: [moins_10_min, dix_a_trente_min, plus_30_min]
+  - nom: mode_deplacement_courts_trajets
+    type: enum
+    groupe: Habitudes d'activité physique
+    valeurs: [actif_pied_ou_velo, motorise_ou_assis, mixte]
+  - nom: temps_assis_quotidien
+    type: enum
+    groupe: Habitudes d'activité physique
+    valeurs: [moins_4h, quatre_a_huit_h, plus_8h]
+  - nom: rupture_sedentarite_habituelle
+    type: bool
+    groupe: Habitudes d'activité physique
+  # ── Verrou — sécurité à l'effort (S6 + G2/G4/G5, HAS R.19/R.27/R.28). Bloque UNIQUEMENT la pratique
+  #    structurée (décision de bucketing du référent) ; laisse passer déplacements actifs, activité
+  #    quotidienne et rupture de sédentarité. Chaque signe `confirmation_requise` sauf le repère général
+  #    de limitation (déjà posé en 1re ligne du socle, question ouverte et attendue en consultation). ──
+  - nom: limitation_physique_connue
+    type: bool
+    groupe: Sécurité à l'effort
+    confirmation_requise: true
+  - nom: symptomes_ischemie_effort
+    type: bool
+    groupe: Sécurité à l'effort
+    confirmation_requise: true
+  - nom: retinopathie_non_stabilisee_ou_proliferante
+    type: bool
+    groupe: Sécurité à l'effort
+    confirmation_requise: true
+  - nom: neuropathie_ou_mal_perforant_plantaire
+    type: bool
+    groupe: Sécurité à l'effort
+    confirmation_requise: true
+  - nom: verrou_effort
+    type: bool
+    groupe: Sécurité à l'effort
+    derive: >-
+      limitation_physique_connue == true OR symptomes_ischemie_effort == true
+      OR retinopathie_non_stabilisee_ou_proliferante == true OR neuropathie_ou_mal_perforant_plantaire == true
+  # ── Approfondissement (décisifs uniquement, R5) ──
+  - nom: difficulte_acces_activite
+    type: bool
+    groupe: Approfondissement (si besoin)
+  - nom: offre_proximite_connue
+    type: bool
+    groupe: Approfondissement (si besoin)
+  - nom: experience_activite_negative
+    type: bool
+    groupe: Approfondissement (si besoin)
+options:
+  # ═══════════ FAMILLE DÉPLACEMENTS ACTIFS ═══════════
+  - intitule: "Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine"
+    conditions:
+      - "mode_deplacement_courts_trajets == motorise_ou_assis"
+    priorite: 5
+    famille: "Déplacements actifs"
+    avantages:
+      - "Provenance : savoir-faire (non EBM). Rapproche de l'activité intégrée aux déplacements quotidiens, sans passer par une pratique structurée — un trajet à la fois, sans viser l'exhaustivité."
+    inconvenients:
+      - "Extrapolation raisonnée d'un principe général (l'activité dans les déplacements quotidiens compte) plutôt qu'un essai contrôlé testant spécifiquement ce report modal."
+    effet_attendu: "Non chiffrable pour ce geste isolé — contribue au volume d'activité quotidienne."
+    niveau_preuve: faible
+  - intitule: "Pour les courses, préférer plusieurs petits déplacements actifs à un grand trajet motorisé"
+    conditions:
+      - "mode_deplacement_courts_trajets == motorise_ou_assis"
+    priorite: 5
+    famille: "Déplacements actifs"
+    avantages:
+      - "Provenance : recommandation officielle. Multiplie les occasions de bouger dans la semaine plutôt qu'une seule sortie motorisée — repère concret de Santé publique France, cohérent avec l'incitation à la marche, au vélo ou à la trottinette dans les activités quotidiennes."
+    inconvenients:
+      - "Dépend de la proximité réelle des commerces — à négocier selon le contexte du patient."
+    effet_attendu: "Non chiffrable pour ce geste isolé — contribue au volume d'activité quotidienne."
+    niveau_preuve: faible
+  # ═══════════ FAMILLE RUPTURE DE SÉDENTARITÉ ═══════════
+  - intitule: "Se lever et bouger quelques minutes à chaque heure de position assise prolongée"
+    conditions:
+      - "temps_assis_quotidien == quatre_a_huit_h OR temps_assis_quotidien == plus_8h OR rupture_sedentarite_habituelle == false"
+    priorite: 2
+    famille: "Rupture de sédentarité"
+    avantages:
+      - "Provenance : recommandation officielle. Réduit le temps de sédentarité continue — repère HAS DT2 (« au moins une minute toutes les heures », le plus atteignable des seuils voisins, cf. argumentaire pour la nuance de gradation)."
+      - "Formulé à chaque pause ou changement de tâche plutôt qu'en objectif abstrait de « moins s'asseoir »."
+    inconvenients:
+      - "Le chiffre d'une minute par heure est un REPÈRE, pas un seuil validé par un essai contrôlé dédié — une source HAS parallèle juge d'ailleurs les preuves encore insuffisantes sur ce point précis (signalé en argumentaire, sans en changer le statut gradé de la source retenue)."
+    effet_attendu: "Réduit le temps de sédentarité continue ; non chiffrable pour ce geste isolé."
+    niveau_preuve: faible
+  - intitule: "S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant)"
+    conditions:
+      - "temps_assis_quotidien == quatre_a_huit_h OR temps_assis_quotidien == plus_8h OR rupture_sedentarite_habituelle == false"
+    priorite: 3
+    famille: "Rupture de sédentarité"
+    avantages:
+      - "Provenance : recommandation officielle. Donne un déclencheur concret et mémorisable à la rupture de sédentarité, plutôt qu'une intention abstraite — repère de Santé publique France (astuces anti-sédentarité)."
+    inconvenients:
+      - "Formulé initialement pour le télétravail dans la source ; généralisé ici à toute activité assise prolongée (bureau, écrans) — signalé en argumentaire."
+    effet_attendu: "Non chiffrable pour ce geste isolé."
+    niveau_preuve: faible
+  - intitule: "Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants"
+    conditions:
+      - "temps_assis_quotidien == quatre_a_huit_h OR temps_assis_quotidien == plus_8h OR rupture_sedentarite_habituelle == false"
+    priorite: 3
+    famille: "Rupture de sédentarité"
+    avantages:
+      - "Provenance : recommandation officielle. Rattache la rupture de sédentarité à un moment déjà existant (pause café, changement de dossier) plutôt qu'à un nouvel effort à programmer — repère de Santé publique France."
+    inconvenients:
+      - "Extrapolation d'un principe général : aucun essai contrôlé dédié à cette tactique spécifique."
+    effet_attendu: "Non chiffrable pour ce geste isolé."
+    niveau_preuve: faible
+  # ═══════════ FAMILLE ACTIVITÉ QUOTIDIENNE ═══════════
+  - intitule: "Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées)"
+    conditions:
+      - "frequence_activite_structuree == jamais OR frequence_activite_structuree == une_fois_semaine"
+    priorite: 2
+    famille: "Activité quotidienne"
+    avantages:
+      - "Provenance : recommandation officielle. Contribue au volume global d'activité recommandée sans nécessiter de pratique structurée — un guide EBM européen (grade A, triple référence) considère que cela contribue autant qu'une séance planifiée à la gestion du poids et de la dépense énergétique (un critère de SUBSTITUTION, pas un critère cardiovasculaire dur)."
+    inconvenients:
+      - "Le bénéfice porte sur la gestion du poids et de la dépense énergétique, pas sur un critère cardiovasculaire dur (voir la réserve majeure de ce nœud, en tête de fichier)."
+    effet_attendu: "Contribue au volume d'activité quotidienne recommandée ; effet propre non chiffrable."
+    niveau_preuve: modere
+  - intitule: "Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue"
+    conditions:
+      - "duree_seance == moins_10_min"
+    priorite: 3
+    famille: "Activité quotidienne"
+    avantages:
+      - "Provenance : recommandation officielle. Lève l'obstacle « pas le temps » : un guide EBM européen indique que plusieurs périodes courtes d'exercice donnent presque le même bénéfice qu'une période plus longue."
+      - "Cohérent avec le repère officiel : il n'y a pas de volume minimal en dessous duquel il n'y a aucun bénéfice, et une période même inférieure à 10 minutes compte dans le calcul."
+    inconvenients:
+      - "Repère de composition d'un programme, pas un essai contrôlé comparant directement les deux modalités sur un critère dur."
+    effet_attendu: "Non chiffrable pour ce geste isolé — lève un obstacle pratique à la régularité."
+    niveau_preuve: modere
+  - intitule: "Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente"
+    conditions:
+      - "frequence_activite_structuree == jamais OR frequence_activite_structuree == une_fois_semaine"
+    priorite: 2
+    famille: "Activité quotidienne"
+    avantages:
+      - "Provenance : recommandation officielle. C'est la HAS elle-même qui déconseille d'ériger un chiffre de pas quotidien en dogme et invite à proposer une progression graduelle plutôt qu'un total précis (« chaque pas en plus est bénéfique ») — la meilleure illustration trouvée du principe « mouvement, pas cible » retenu par ce module."
+    inconvenients:
+      - "Repère de bonne pratique (guide de connaissances HAS), pas un essai contrôlé randomisant un objectif de pas contre un autre."
+    effet_attendu: "Rapproche du volume de marche quotidienne recommandé, par une progression auto-mesurée sans seuil fixé ; non chiffrable pour ce geste isolé."
+    niveau_preuve: faible
+  # ═══════════ FAMILLE PRATIQUE STRUCTURÉE (verrou sécurité) ═══════════
+  - intitule: "Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel"
+    conditions:
+      - "frequence_activite_structuree == jamais OR frequence_activite_structuree == une_fois_semaine"
+    exclusions:
+      - "verrou_effort == true"
+    priorite: 4
+    famille: "Pratique structurée"
+    alertes:
+      - quand: "default"
+        niveau: info
+        message: >-
+          Une évaluation médicale minimale est recommandée avant de commencer ou d'augmenter une activité
+          physique d'intensité au moins modérée, en particulier si le patient est actuellement inactif ou
+          porteur d'un facteur de risque cardiovasculaire (HAS R.19). Avant l'effort, une glycémie très
+          élevée (seuil de vigilance cité par la HAS : 2,5 g/L) expose à une instabilité glycémique — à
+          vérifier par le patient lui-même, pas une donnée à recueillir dans ce nœud (HAS R.28).
+    avantages:
+      - "Provenance : recommandation officielle. Rapproche de la structure d'un programme recommandé (endurance et renforcement musculaire, encadrement) — une reprise cadrée plutôt qu'une reprise seule et non structurée."
+      - "L'activité physique adaptée est une prise en charge réglementée (article D. 1172-1 du code de la santé publique), dispensée par un professionnel formé."
+    inconvenients:
+      - "Réservée par construction aux patients sans contre-indication à l'effort connue (voir le verrou de sécurité) ; nécessite un accompagnement, donc un délai et une disponibilité de l'offre locale."
+    effet_attendu: >-
+      Rapproche de la structure d'un programme d'activité physique adaptée recommandé (endurance +
+      renforcement musculaire) ; effet propre de ce geste isolé sur un critère dur non démontré (voir la
+      réserve majeure de ce nœud).
+    niveau_preuve: faible
+  - intitule: "Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement)"
+    conditions:
+      - "frequence_activite_structuree == quatre_fois_ou_plus_semaine AND rupture_sedentarite_habituelle == true"
+    priorite: 1
+    famille: "Pratique structurée"
+    avantages:
+      - "Provenance : recommandation officielle. La régularité de l'activité physique est le repère le mieux établi comme prédicteur d'un bon résultat à long terme — mieux que la perte de poids rapide en début de prise en charge (guide EBM européen, grade A)."
+      - "Reformulation en « maintenir/renforcer » plutôt qu'« améliorer » : évite le conseil condescendant à un patient qui fait déjà l'effort — s'il n'associe pas encore endurance et renforcement musculaire, en discuter la diversification."
+    inconvenients:
+      - "Pas de bénéfice cardiovasculaire dur propre à l'exercice à revendiquer (voir la réserve majeure de ce nœud) : le bénéfice mis en avant ici est la régularité elle-même, un facteur prédictif, pas un événement évité."
+    effet_attendu: "Non chiffrable — renforcement positif d'une pratique déjà régulière."
+    niveau_preuve: modere
+  # ═══════════ FAMILLE ORIENTATION VERS UNE RESSOURCE ═══════════
+  - intitule: "Orienter vers une structure d'activité physique adaptée pour un bilan et un accompagnement progressif"
+    conditions:
+      - "limitation_physique_connue == true OR difficulte_acces_activite == true OR offre_proximite_connue == false"
+    priorite:
+      - quand: "limitation_physique_connue == true"
+        rang: 1
+      - quand: "default"
+        rang: 5
+    famille: "Orientation vers une ressource"
+    avantages:
+      - "Provenance : recommandation officielle. Lève l'obstacle d'accès, de compétence ou de sécurité identifié en socle/approfondissement : tout professionnel de santé en contact avec un patient DT2 doit se renseigner sur les structures d'orientation existantes sur son territoire (maison sport-santé, enseignant en activité physique adaptée)."
+    inconvenients:
+      - "Le contenu précis de l'offre locale n'est pas détaillé par ce nœud (aucun annuaire de structures mobilisé ici) ; dépend de la disponibilité réelle de la ressource."
+    effet_attendu: "Non chiffrable — orientation, pas un geste d'activité physique en soi."
+    niveau_preuve: faible
+  - intitule: "Proposer un bilan avec un enseignant en activité physique adaptée avant toute reprise"
+    conditions:
+      - "experience_activite_negative == true"
+    priorite: 2
+    famille: "Orientation vers une ressource"
+    avantages:
+      - "Provenance : recommandation officielle. Sécurise et débloque une reprise freinée par un vécu négatif (expérience difficile, peur de se blesser, crainte du regard des autres), en co-construisant un projet tenant compte des craintes et des capacités exprimées — jamais une prescription d'intensité d'emblée."
+      - "Associer la notion de plaisir et de bien-être à la pratique est un préalable à l'adoption d'habitudes actives durables (guide HAS parcours surpoids-obésité)."
+    inconvenients:
+      - "Nécessite une orientation et un délai avant la reprise effective."
+    effet_attendu: "Non chiffrable — bilan préalable, pas un geste d'activité physique en soi."
+    niveau_preuve: faible
+  # ═══════════ FAMILLE MAINTIEN ═══════════
+  # Volontairement PAS un sentinel `["default"]` : preuve directe (evaluateNode, profil construit à la
+  # main) que la conjonction complète des 8 axes de recueil simultanément favorables existe et doit
+  # recevoir une réponse (patient déjà actif 2-3×/sem, actif dans ses trajets, peu sédentaire, sans
+  # contre-indication ni vécu négatif — proche du profil « B » de la recette), mais qu'un sentinel
+  # `["default"]` échoue à couvrir dans le banc mécanique (couverture.test.ts) : la conjonction est trop
+  # étroite pour l'échantillonnage stratifié indépendant sur 1520 profils. Condition ci-dessous : un
+  # SOUS-ENSEMBLE NÉCESSAIRE et démontré du cas muet complet — `frequence_activite_structuree ==
+  # deux_a_trois_fois_semaine` est la SEULE valeur qui, combinée à `rupture_sedentarite_habituelle ==
+  # true`, laisse à la fois « Intégrer du mouvement… »/« Suivre ses pas » silencieuses (qui exigent jamais/
+  # 1×/sem) ET « Maintenir/diversifier » silencieuse (qui exige 4×/sem ou plus) ET « Se lever et bouger… »
+  # silencieuse (qui exige `rupture_sedentarite_habituelle == false` sur l'un de ses termes) — donc
+  # nécessairement vraie dès que le cas muet complet se produit. Indépendamment plus fréquente (se
+  # déclenche dès que ces deux marqueurs sont favorables, cumulable avec d'autres pistes par ailleurs).
+  - intitule: "Poursuivre les habitudes actuelles et rester attentif à la régularité"
+    conditions:
+      - "frequence_activite_structuree == deux_a_trois_fois_semaine AND rupture_sedentarite_habituelle == true"
+    famille: "Maintien"
+    avantages:
+      - "Provenance : recommandation officielle. Vous pratiquez déjà une activité physique 2 à 3 fois par semaine et rompez déjà régulièrement les périodes assises : la régularité de l'activité physique est le repère le mieux établi comme prédicteur d'un bon résultat à long terme (guide EBM européen, grade A) — la maintenir est déjà la bonne direction."
+    inconvenients:
+      - "Ne signifie pas qu'aucune marge de progression n'existe sur d'autres axes : cette piste peut s'afficher en même temps que d'autres suggestions, elle ne les remplace pas."
+    effet_attendu: "Non chiffrable — renforcement positif d'une situation déjà favorable sur ces deux axes."
+    niveau_preuve: faible
+alertes:
+  - quand: "traitements_en_cours contient insuline OR traitements_en_cours contient sulfamide OR traitements_en_cours contient glinide"
+    niveau: attention
+    message: >-
+      Sous insuline, sulfamide ou glinide, toute augmentation de la dépense énergétique majore le risque
+      d'hypoglycémie À L'EFFORT : signaler le risque au patient (resucrage à disposition, autosurveillance
+      autour de l'effort) — arbitrage référent : alerte simple, pas un blocage des pistes proposées.
+  - quand: "fragilite == true"
+    niveau: attention
+    message: >-
+      Sujet fragile : éviter les activités physiques prolongées par forte chaleur, favoriser l'hydratation
+      même en l'absence de sensation de soif, et éviter les activités de renforcement musculaire de forte
+      intensité en ambiance chaude (HAS, guide des connaissances sur l'activité physique et la sédentarité).
+argumentaire: >
+  Sur l'axe activité physique, aucun essai contrôlé randomisé d'exercice isolé, dans le diabète de type 2
+  établi, ne démontre de bénéfice sur un critère cardiovasculaire ou de mortalité (Look AHEAD : critère
+  cardiovasculaire primaire neutre, HR 0,95, essai arrêté pour futilité ; mortalité toutes causes non
+  réduite ; le bras exercice seul de Da Qing n'atteint pas la significativité) — le seul bénéfice
+  cardiovasculaire DUR des mesures hygiéno-diététiques est porté par le régime méditerranéen (nœud sœur
+  `rhd-alimentation`), pas par l'activité physique isolée. C'est un constat de l'état réel de la preuve sur
+  cet axe, pas une lacune de ce nœud, et il ne doit pas être édulcoré : aucune piste ci-dessous ne porte
+  l'étiquette « bénéfice EBM sur critère dur ». La cible EBM la mieux étayée n'est d'ailleurs pas un chiffre
+  de fréquence ou de durée, mais un principe de prédiction (guide EBM européen, grade A) : l'activité
+  physique RÉGULIÈRE prédit un bon résultat à long terme, davantage que l'intensité ou la perte de poids
+  initiale — c'est cette régularité, plus qu'un volume, que le recueil et les pistes cherchent à faire
+  progresser. Les repères chiffrés officiels (150-300 minutes hebdomadaires d'intensité modérée, sans
+  volume minimal en dessous duquel il n'y aurait aucun bénéfice, fractionnement possible y compris en
+  périodes de moins de 10 minutes ; 2-3 séances d'activité physique adaptée par semaine ; progression de
+  1 000 à 3 000 pas hebdomadaires plutôt qu'un objectif de 10 000 pas érigé en dogme, formule de la HAS
+  elle-même) ne figurent dans aucune piste : ils vivent en contexte, jamais comme cible affichée au
+  patient — la HAS fournit ici la meilleure illustration trouvée du principe « chaque petit pas compte »
+  qui gouverne ce module. Les pistes sont organisées en six familles cumulables : déplacements actifs,
+  rupture de sédentarité (seuil retenu comme repère : au moins une minute toutes les heures, HAS DT2 grade
+  C — le plus bas des seuils voisins, le mieux gradé, le plus atteignable ; une source HAS parallèle
+  internationale juge par ailleurs les preuves encore insuffisantes sur ce chiffre précis, sans changer le
+  statut gradé de la source retenue), activité quotidienne, pratique structurée et orientation vers une
+  ressource. Un verrou de sécurité à l'effort (limitation physique connue, symptômes d'ischémie à l'effort,
+  rétinopathie non stabilisée ou proliférante, neuropathie périphérique ou mal perforant plantaire — HAS
+  R.19/R.27/R.28) bloque uniquement la montée d'intensité et la pratique structurée, jamais les
+  déplacements actifs ni la rupture de sédentarité (décision de bucketing du référent) ; l'hypoglycémie
+  sous insuline, sulfamide ou glinide reste une alerte, jamais un blocage, dès qu'une piste augmente la
+  dépense énergétique.
+sources:
+  references_primaires:
+    - titre: "Look AHEAD — critère cardiovasculaire primaire (intervention intensive sur le mode de vie, neutre, arrêt pour futilité)"
+      annee: 2013
+      type_critere: dur
+      lien: "https://doi.org/10.1056/NEJMoa1212914"
+    - titre: "Lifestyle education in type 2 diabetes (EBM Guidelines/Duodecim — activité physique, point directeur régularité prédictive, grade A)"
+      annee: 2021
+      type_critere: substitution
+      lien: ""
+    - titre: "HAS — Stratégie thérapeutique du patient vivant avec un diabète de type 2 (mai 2024), volet activité physique R.16/R.19/R.24/R.25/R.27/R.28"
+      annee: 2024
+      type_critere: substitution
+      lien: ""
+    - titre: "HAS — Guide des connaissances sur l'activité physique et la sédentarité (juillet 2022) — repères OMS/HAS, principe « chaque pas compte »"
+      annee: 2022
+      type_critere: substitution
+      lien: ""
+    - titre: "HAS — Parcours de soins Surpoids et obésité de l'adulte, Fiche 5 (enseignant en activité physique adaptée)"
+      annee: 2023
+      type_critere: substitution
+      lien: ""
+    - titre: "Santé publique France — « 10 petites astuces anti-sédentarité » (repères concrets de rupture de sédentarité)"
+      annee: 2023
+      type_critere: substitution
+      lien: ""
+  synthese_critique:
+    donnee: >-
+      Aucune revue secondaire indépendante consultée pour ce chantier ne revendique de bénéfice
+      cardiovasculaire dur propre à l'exercice isolé dans le diabète de type 2 établi — position cohérente
+      avec le constat de preuve retenu ici (le bénéfice cardiovasculaire dur des mesures hygiéno-diététiques
+      reste porté par le régime méditerranéen, nœud sœur `rhd-alimentation`, pas par l'activité physique
+      seule). Aucune synthèse dédiée spécifiquement aux gestes d'activité physique de ce nœud n'a été
+      identifiée dans le corpus rassemblé pour ce chantier (signalé plutôt qu'inventé).
+    references:
+      - nom: "Prescrire"
+        detail: "Fiche Diabète de type 2 : situe l'activité physique, avec les mesures diététiques, en 1er choix — sans revendiquer elle-même de bénéfice cardiovasculaire dur propre à l'exercice isolé."
+      - nom: "Médicalement Geek / DragiWebdo"
+        lien: "https://www.medicalement-geek.com/2017/12/dragi-webdo-n163.html"
+        detail: "Ligne éditoriale générale (EBM francophone, anti-sur-traitement) cohérente avec la position de ce nœud, sans source spécifique rattachée à une piste précise de cet axe."
+  reco_officielle:
+    source: >-
+      HAS — Stratégie thérapeutique du DT2 (2024, R.16/R.19/R.24/R.25/R.27/R.28) ; HAS — Guide des
+      connaissances sur l'activité physique et la sédentarité (2022) ; HAS — Parcours surpoids-obésité de
+      l'adulte, Fiche 5 (2023) ; Santé publique France (« 10 petites astuces anti-sédentarité »,
+      « Augmenter l'activité physique », « Réduire le temps passé assis ») ; Lifestyle education in type 2
+      diabetes (EBM Guidelines/Duodecim, gradé selon la section).
+    position: >-
+      Programme d'activité physique adaptée d'endurance et de renforcement musculaire recommandé (2-3
+      séances/semaine, 3 mois renouvelables, grade AE) ; repère de volume hebdomadaire pour la population
+      générale (150-300 minutes d'intensité modérée, sans volume minimal requis pour un bénéfice) ; rupture
+      de la sédentarité encouragée (au moins une minute toutes les heures, grade C) ; orientation
+      systématique vers les structures d'activité physique adaptée du territoire (grade AE).
+    divergence: true
+    explication: >-
+      Les repères officiels (HAS, PNNS) s'expriment en valeurs chiffrées (minutes hebdomadaires, nombre de
+      séances, nombre de pas). Ce nœud choisit délibérément de NE JAMAIS les administrer comme objectif
+      chiffré au patient (décision référent, CONCEPTION-module-rhd.md §4bis-0) — administrer une cible
+      reviendrait à mesurer un écart, donc un score d'adhérence, proscrit par l'invariant « aucun score
+      caché » ; c'est d'ailleurs la HAS elle-même qui met en garde contre le dogme du chiffre pour le
+      nombre de pas quotidien. Seconde divergence, plus profonde : contrairement au discours grand public
+      qui associe volontiers activité physique et bénéfice cardiovasculaire, ce nœud affiche explicitement
+      qu'aucun essai contrôlé d'exercice isolé, dans le DT2 établi, ne démontre ce bénéfice sur un critère
+      dur (Look AHEAD neutre) — les repères officiels mobilisés ici enrichissent le registre des pistes
+      proposées, jamais leur niveau de preuve.
+incertitudes:
+  - "Aucune piste de ce nœud ne porte l'étiquette « bénéfice EBM sur critère dur » — constat de l'état réel de la preuve sur cet axe (Look AHEAD neutre sur le critère cardiovasculaire primaire et sur la mortalité ; aucun ECR d'exercice isolé dans le DT2 établi ne montre de bénéfice sur critère dur), pas une lacune de cette collecte."
+  - "Seuil de rupture de sédentarité : divergence documentée entre 3 sources HAS/institutionnelles pour le même geste (« au moins 1 minute toutes les heures », grade C, DT2, retenu par défaut ; « 4 à 5 minutes toutes les heures et demie », non gradée, fiche métier obésité ; « minimum 1 à 5 minutes », non gradée, avec réserve explicite d'incertitude sur la littérature internationale sous-jacente) — signalé, tranché par le référent en faveur du repère le plus bas et le mieux gradé, pas résolu au sens d'une convergence des sources."
+  - "Le verrou de sécurité à l'effort bloque, par construction, l'ensemble de la famille « pratique structurée » dès qu'un signe est positif — y compris pour une neuropathie/mal perforant plantaire, dont une source HAS précise que la contre-indication porte spécifiquement sur l'activité physique des membres INFÉRIEURS (les activités des membres supérieurs restant permises). Cette nuance n'est PAS modélisée séparément ici (pas de distinction membres supérieurs/inférieurs dans ce nœud) — limite documentée, signalée plutôt que résolue, cohérente avec le point laissé ouvert par la collecte source."
+  - "G1 (évaluation médicale avant intensité si inactif/facteur de risque cardiovasculaire) et G7 (glycémie avant l'effort, seuil de vigilance 2,5 g/L) sont portés par une alerte D'OPTION sur « Envisager un programme d'activité physique adaptée », pas par des critères d'entrée collectés : ce sont des rappels de bonne pratique et d'auto-surveillance ponctuelle, pas des données chroniques du patient."
+  - "L'hypoglycémie sous insuline/sulfamide/glinide reste une alerte simple (jamais un blocage) : arbitrage référent explicite qui tranche le point laissé ouvert par le red-team des collectes (finding B-3) — le mécanisme visé ici (hypoglycémie À L'EFFORT) est cliniquement distinct de celui déjà arbitré côté alimentation (hypoglycémie par restriction des apports), les deux nœuds convergent malgré tout vers le même canal (alerte, pas exclusion)."
+  - "Le plafond d'affichage (2-3 pistes négociables selon ebmfrance) n'est pas appliqué techniquement par le moteur : traité par le rang déclaré (`priorite`) uniquement — un affichage effectivement plafonné demanderait un changement d'écran, hors périmètre de cette tâche, signalé au référent."
+  - "« Poursuivre les habitudes actuelles… » n'est pas un sentinel `default` : sa condition (2-3×/semaine ET rupture de sédentarité déjà habituelle) est un sous-ensemble NÉCESSAIRE, mais pas exactement équivalent, du cas où les 8 axes de recueil sont tous favorables — elle peut donc aussi s'afficher (à raison, cumulée à d'autres pistes) chez un patient favorable sur ces deux seuls axes sans l'être sur tous les autres. Choix assumé, même logique que le nœud sœur `rhd-alimentation`."
+  - "Piste « ressource locale nommée » (ex. maison sport-santé identifiée sur le territoire de la MSP) non encodée, faute d'annuaire de structures dans le corpus documentaire de ce nœud — recoupe le projet `annuaire-msp`, à constituer/valider avant tout encodage de cette piste plus précise."
+veille_liee: []
+meta:
+  date_revue: "2026-07-26"
+  auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
+  statut: brouillon
+  version: "0.1"
+  changelog:
+    - date: "2026-07-26"
+      auteur: "Claude Code (agent dédié)"
+      resume: >-
+        Création initiale (brouillon v0.1) depuis `rhd-collecte-activite-physique.md` (révisée après
+        red-team) + `CONCEPTION-module-rhd.md` §4bis. Nœud dédié à l'axe activité physique du module RHD
+        (dont sédentarité, famille pilote), remplaçant à terme le volet activité de `rhd` (non touché ici).
+        Règle structurelle appliquée (mouvement, jamais cible chiffrée) ; zéro piste EBM-dur (réserve
+        majeure confirmée par la collecte de preuve dédiée). 13 pistes (dont un renforcement positif
+        « Poursuivre les habitudes actuelles… », condition NÉCESSAIRE du cas entièrement silencieux — pas
+        un sentinel `default`, dont la conjonction à 8 axes échappait à l'échantillonnage stratifié du
+        banc mécanique, vérifié par `evaluateNode` direct), 6 familles cumulables, verrou sécurité à
+        l'effort (4 signes, 3 `confirmation_requise`) bloquant uniquement la pratique structurée en
+        `exclusions`, hypoglycémie et déshydratation du sujet fragile en alertes de nœud (arbitrage
+        référent explicite : hypoglycémie = alerte simple, pas blocage). Ajv, tsc, couches
+        couverture/invariants du banc : verts. Couche caractérisation (snapshots golden-master)
+        volontairement NON régénérée (chantier parallèle de refonte du dispositif) — nouveaux snapshots à
+        produire. Validation clinique référent RESTANTE avant `statut: valide`.

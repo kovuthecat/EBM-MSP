@@ -1,0 +1,723 @@
+# CARACTÉRISATION — INDÉTERMINATION (R7, DECISIONS.md D20) — nœud « rhd-alimentation » (Alimentation — se rapprocher du repère méditerranéen)
+#
+# Fichier SÉPARÉ de caracterisation.<id>.txt (profils COMPLETS, ligne de base stable, jamais
+# modifiée par ce lot) : tout profil ci-dessous a un `renseignes` PARTIEL, voire vide — c'est
+# STRUCTURELLEMENT ce que le golden master des profils complets ne peut jamais montrer (cf. tête de
+# fichier ci-dessus). Document de RELECTURE CLINIQUE (référent) : chaque profil est rendu EN CLAIR,
+# jamais seulement en signature ; le registre « en attente » (D20 §2.5) y est lisible avec les
+# critères manquants. Référence : docs/decision/validation/chantier-2026-07-26/
+# SPEC-valeur-indeterminee.md §2.
+# 15 profils au total, TOUS rendus en clair (index 0 = profil VIERGE,
+# renseignes = ∅).
+
+### Profil #0 — VIERGE — buildDefaultCriteria, renseignes = ∅ (cas le plus surveillé du chantier)
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ○ - fragilite = false
+  ○ - traitements_en_cours = []
+  ○ - frequence_boissons_sucrees = jamais
+  ○ - frequence_ultratransformes = jamais
+  ○ - frequence_restauration_rapide = jamais
+  ○ - matiere_grasse_cuisson = beurre_graisses_animales
+  ○ - regularite_repas = reguliers
+  ○ - frequence_grignotage = jamais
+  ○ - acces_alimentation = sans_difficulte
+  ○ - frequence_fruits_a_coque = jamais
+  ○ - frequence_legumineuses = jamais
+  ○ - frequence_poisson = jamais
+  ○ - frequence_viande_rouge_charcuterie = jamais
+  ○ - signe_restriction_puis_craquage = false
+  ○ - signe_manger_cache_ou_culpabilite = false
+  ○ - signe_antecedent_regime_restrictif = false
+  ○ - difficulte_estimation_portions = facile
+  ○ - alimentation_emotionnelle = jamais
+  ○ - consommation_vin = jamais
+
+Sortie :
+  (aucune option applicable — sortie vide)
+  Options EN ATTENTE (indétermination, R7/D20) :
+    - Remplacer une boisson sucrée du quotidien par de l'eau :: à renseigner : frequence_boissons_sucrees
+    - Ne pas remplacer une boisson sucrée par des édulcorants intenses :: à renseigner : frequence_boissons_sucrees
+    - Un repas simple fait maison de plus par semaine :: à renseigner : frequence_ultratransformes
+    - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide
+    - Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre :: à renseigner : matiere_grasse_cuisson
+    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: à renseigner : matiere_grasse_cuisson, frequence_viande_rouge_charcuterie
+    - Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine :: à renseigner : frequence_fruits_a_coque
+    - Ajouter un plat de légumineuses de plus par semaine :: à renseigner : frequence_legumineuses
+    - Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre :: à renseigner : frequence_poisson
+    - Se fixer des repas à des horaires à peu près réguliers :: à renseigner : regularite_repas
+    - Manger sans se presser :: à renseigner : alimentation_emotionnelle
+    - Repérer un moment de grignotage récurrent et lui trouver une alternative :: à renseigner : frequence_grignotage
+    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: à renseigner : difficulte_estimation_portions
+    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: à renseigner : difficulte_estimation_portions
+    - Orienter vers le diététicien de la structure :: à renseigner : acces_alimentation, signe_restriction_puis_craquage, signe_manger_cache_ou_culpabilite, signe_antecedent_regime_restrictif
+    - Continuer ce qui fonctionne déjà :: à renseigner : matiere_grasse_cuisson, frequence_fruits_a_coque
+
+### Profil #1 — 13 critère(s) masqué(s) (masque stratifié) : traitements_en_cours, signe_antecedent_regime_restrictif, consommation_vin, signe_restriction_puis_craquage, frequence_restauration_rapide, signe_manger_cache_ou_culpabilite, difficulte_estimation_portions, alimentation_emotionnelle, frequence_fruits_a_coque, regularite_repas, frequence_boissons_sucrees, matiere_grasse_cuisson, fragilite
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ○ - fragilite = true
+  ○ - traitements_en_cours = [metformine, iSGLT2, tirzepatide, glinide]
+  ○ - frequence_boissons_sucrees = frequent
+  ■ - frequence_ultratransformes = occasionnel
+  ○ - frequence_restauration_rapide = quotidien
+  ○ - matiere_grasse_cuisson = huile_olive_ou_colza
+  ○ - regularite_repas = irreguliers
+  ■ - frequence_grignotage = quotidien
+  ■ - acces_alimentation = quelques_difficultes
+  ○ - frequence_fruits_a_coque = occasionnel
+  ■ - frequence_legumineuses = occasionnel
+  ■ - frequence_poisson = regulier
+  ■ - frequence_viande_rouge_charcuterie = occasionnel
+  ○ - signe_restriction_puis_craquage = false
+  ○ - signe_manger_cache_ou_culpabilite = true
+  ○ - signe_antecedent_regime_restrictif = true
+  ○ - difficulte_estimation_portions = facile
+  ○ - alimentation_emotionnelle = occasionnel
+  ○ - consommation_vin = occasionnel
+
+Sortie :
+  Famille « Fruits à coque, légumineuses, poisson » (exclusive: false) :
+  - [recommandee] Ajouter un plat de légumineuses de plus par semaine
+      proposé parce que : frequence_legumineuses == occasionnel
+  Famille « Orientation » (exclusive: false) :
+  - [recommandee] Orienter vers le diététicien de la structure
+      proposé parce que : verrou_tca == true ; fragilite == true
+  Alertes de nœud :
+    - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
+  Options EN ATTENTE (indétermination, R7/D20) :
+    - Remplacer une boisson sucrée du quotidien par de l'eau :: à renseigner : frequence_boissons_sucrees
+    - Ne pas remplacer une boisson sucrée par des édulcorants intenses :: à renseigner : frequence_boissons_sucrees
+    - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide
+    - Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre :: à renseigner : matiere_grasse_cuisson
+    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: à renseigner : matiere_grasse_cuisson
+    - Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine :: à renseigner : frequence_fruits_a_coque
+    - Se fixer des repas à des horaires à peu près réguliers :: à renseigner : regularite_repas
+    - Manger sans se presser :: à renseigner : alimentation_emotionnelle
+    - Repérer un moment de grignotage récurrent et lui trouver une alternative :: à renseigner : signe_restriction_puis_craquage, signe_manger_cache_ou_culpabilite, signe_antecedent_regime_restrictif
+    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: à renseigner : difficulte_estimation_portions
+    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: à renseigner : difficulte_estimation_portions
+    - Continuer ce qui fonctionne déjà :: à renseigner : matiere_grasse_cuisson, frequence_fruits_a_coque
+
+### Profil #2 — 13 critère(s) masqué(s) (masque stratifié) : regularite_repas, signe_restriction_puis_craquage, frequence_viande_rouge_charcuterie, matiere_grasse_cuisson, frequence_legumineuses, traitements_en_cours, frequence_ultratransformes, frequence_restauration_rapide, difficulte_estimation_portions, signe_antecedent_regime_restrictif, acces_alimentation, alimentation_emotionnelle, frequence_boissons_sucrees
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ■ - fragilite = false
+  ○ - traitements_en_cours = [aGLP1, sulfamide, gliptine, insuline]
+  ○ - frequence_boissons_sucrees = occasionnel
+  ○ - frequence_ultratransformes = frequent
+  ○ - frequence_restauration_rapide = frequent
+  ○ - matiere_grasse_cuisson = beurre_graisses_animales
+  ○ - regularite_repas = reguliers
+  ■ - frequence_grignotage = occasionnel
+  ○ - acces_alimentation = difficultes_importantes
+  ■ - frequence_fruits_a_coque = regulier
+  ○ - frequence_legumineuses = jamais
+  ■ - frequence_poisson = jamais
+  ○ - frequence_viande_rouge_charcuterie = quotidien
+  ○ - signe_restriction_puis_craquage = true
+  ■ - signe_manger_cache_ou_culpabilite = false
+  ○ - signe_antecedent_regime_restrictif = false
+  ○ - difficulte_estimation_portions = ne_sait_pas
+  ○ - alimentation_emotionnelle = frequent
+  ■ - consommation_vin = sept_verres_ou_plus_semaine
+
+Sortie :
+  Famille « Fruits à coque, légumineuses, poisson » (exclusive: false) :
+  - [recommandee] Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre
+      proposé parce que : frequence_poisson == jamais
+  Alertes de nœud :
+    - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
+    - Consommation de vin au niveau ou au-delà du seuil d'adhérence méditerranéenne (≥ 7 verres/semaine, score MEDAS) : ce nœud ne propose jamais l'alcool comme piste — orienter vers le repérage d'un mésusage plutôt que d'encourager cette consommation. Interactions à garder en tête : foie, triglycérides, hypoglycémie sous insulinosécréteur. [attention]
+  Options EN ATTENTE (indétermination, R7/D20) :
+    - Remplacer une boisson sucrée du quotidien par de l'eau :: à renseigner : frequence_boissons_sucrees
+    - Ne pas remplacer une boisson sucrée par des édulcorants intenses :: à renseigner : frequence_boissons_sucrees
+    - Un repas simple fait maison de plus par semaine :: à renseigner : frequence_ultratransformes
+    - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide
+    - Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre :: à renseigner : matiere_grasse_cuisson
+    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: à renseigner : matiere_grasse_cuisson, frequence_viande_rouge_charcuterie
+    - Ajouter un plat de légumineuses de plus par semaine :: à renseigner : frequence_legumineuses
+    - Se fixer des repas à des horaires à peu près réguliers :: à renseigner : regularite_repas
+    - Manger sans se presser :: à renseigner : alimentation_emotionnelle
+    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: à renseigner : difficulte_estimation_portions
+    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: à renseigner : difficulte_estimation_portions
+    - Orienter vers le diététicien de la structure :: à renseigner : acces_alimentation, signe_restriction_puis_craquage, signe_antecedent_regime_restrictif
+    - Continuer ce qui fonctionne déjà :: à renseigner : matiere_grasse_cuisson
+
+### Profil #3 — 9 critère(s) masqué(s) (masque stratifié) : regularite_repas, acces_alimentation, difficulte_estimation_portions, frequence_ultratransformes, frequence_boissons_sucrees, traitements_en_cours, alimentation_emotionnelle, matiere_grasse_cuisson, signe_antecedent_regime_restrictif
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ■ - fragilite = true
+  ○ - traitements_en_cours = [insuline]
+  ○ - frequence_boissons_sucrees = quotidien
+  ○ - frequence_ultratransformes = quotidien
+  ■ - frequence_restauration_rapide = occasionnel
+  ○ - matiere_grasse_cuisson = melange
+  ○ - regularite_repas = irreguliers
+  ■ - frequence_grignotage = frequent
+  ○ - acces_alimentation = sans_difficulte
+  ■ - frequence_fruits_a_coque = jamais
+  ■ - frequence_legumineuses = regulier
+  ■ - frequence_poisson = occasionnel
+  ■ - frequence_viande_rouge_charcuterie = jamais
+  ■ - signe_restriction_puis_craquage = true
+  ■ - signe_manger_cache_ou_culpabilite = false
+  ○ - signe_antecedent_regime_restrictif = true
+  ○ - difficulte_estimation_portions = difficile
+  ○ - alimentation_emotionnelle = jamais
+  ■ - consommation_vin = jamais
+
+Sortie :
+  Famille « Fruits à coque, légumineuses, poisson » (exclusive: false) :
+    -- groupe d'égalité #0 --
+  - [recommandee] Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine
+      proposé parce que : frequence_fruits_a_coque == jamais
+    -- groupe d'égalité #1 --
+  - [recommandee] Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre
+      proposé parce que : frequence_poisson == occasionnel
+  Famille « Orientation » (exclusive: false) :
+  - [recommandee] Orienter vers le diététicien de la structure
+      proposé parce que : verrou_tca == true ; fragilite == true
+  Alertes de nœud :
+    - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
+  Options écartées (sécurité, R4) :
+    - Repérer un moment de grignotage récurrent et lui trouver une alternative :: verrou_tca == true
+  Options EN ATTENTE (indétermination, R7/D20) :
+    - Remplacer une boisson sucrée du quotidien par de l'eau :: à renseigner : frequence_boissons_sucrees
+    - Ne pas remplacer une boisson sucrée par des édulcorants intenses :: à renseigner : frequence_boissons_sucrees
+    - Un repas simple fait maison de plus par semaine :: à renseigner : frequence_ultratransformes
+    - Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre :: à renseigner : matiere_grasse_cuisson
+    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: à renseigner : matiere_grasse_cuisson
+    - Se fixer des repas à des horaires à peu près réguliers :: à renseigner : regularite_repas
+    - Manger sans se presser :: à renseigner : alimentation_emotionnelle
+    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: à renseigner : difficulte_estimation_portions
+    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: à renseigner : difficulte_estimation_portions
+
+### Profil #4 — 9 critère(s) masqué(s) (masque stratifié) : acces_alimentation, consommation_vin, difficulte_estimation_portions, frequence_viande_rouge_charcuterie, frequence_legumineuses, fragilite, signe_manger_cache_ou_culpabilite, matiere_grasse_cuisson, frequence_grignotage
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ○ - fragilite = false
+  ■ - traitements_en_cours = [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, glinide]
+  ■ - frequence_boissons_sucrees = jamais
+  ■ - frequence_ultratransformes = jamais
+  ■ - frequence_restauration_rapide = jamais
+  ○ - matiere_grasse_cuisson = melange
+  ■ - regularite_repas = reguliers
+  ○ - frequence_grignotage = jamais
+  ○ - acces_alimentation = sans_difficulte
+  ■ - frequence_fruits_a_coque = jamais
+  ○ - frequence_legumineuses = occasionnel
+  ■ - frequence_poisson = regulier
+  ○ - frequence_viande_rouge_charcuterie = regulier
+  ■ - signe_restriction_puis_craquage = false
+  ○ - signe_manger_cache_ou_culpabilite = true
+  ■ - signe_antecedent_regime_restrictif = false
+  ○ - difficulte_estimation_portions = facile
+  ■ - alimentation_emotionnelle = frequent
+  ○ - consommation_vin = un_a_six_verres_semaine
+
+Sortie :
+  Famille « Fruits à coque, légumineuses, poisson » (exclusive: false) :
+  - [recommandee] Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine
+      proposé parce que : frequence_fruits_a_coque == jamais
+  Famille « Structure des repas » (exclusive: false) :
+  - [recommandee] Manger sans se presser
+      proposé parce que : alimentation_emotionnelle == frequent
+  Alertes de nœud :
+    - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
+  Options EN ATTENTE (indétermination, R7/D20) :
+    - Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre :: à renseigner : matiere_grasse_cuisson
+    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: à renseigner : matiere_grasse_cuisson, frequence_viande_rouge_charcuterie
+    - Ajouter un plat de légumineuses de plus par semaine :: à renseigner : frequence_legumineuses
+    - Repérer un moment de grignotage récurrent et lui trouver une alternative :: à renseigner : frequence_grignotage
+    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: à renseigner : difficulte_estimation_portions
+    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: à renseigner : difficulte_estimation_portions
+    - Orienter vers le diététicien de la structure :: à renseigner : acces_alimentation, signe_manger_cache_ou_culpabilite
+
+### Profil #5 — 4 critère(s) masqué(s) (masque stratifié) : matiere_grasse_cuisson, frequence_fruits_a_coque, frequence_restauration_rapide, frequence_poisson
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ■ - fragilite = false
+  ■ - traitements_en_cours = [metformine, sulfamide]
+  ■ - frequence_boissons_sucrees = jamais
+  ■ - frequence_ultratransformes = frequent
+  ○ - frequence_restauration_rapide = frequent
+  ○ - matiere_grasse_cuisson = huile_olive_ou_colza
+  ■ - regularite_repas = irreguliers
+  ■ - frequence_grignotage = quotidien
+  ■ - acces_alimentation = quelques_difficultes
+  ○ - frequence_fruits_a_coque = occasionnel
+  ■ - frequence_legumineuses = regulier
+  ○ - frequence_poisson = occasionnel
+  ■ - frequence_viande_rouge_charcuterie = regulier
+  ■ - signe_restriction_puis_craquage = true
+  ■ - signe_manger_cache_ou_culpabilite = false
+  ■ - signe_antecedent_regime_restrictif = true
+  ■ - difficulte_estimation_portions = ne_sait_pas
+  ■ - alimentation_emotionnelle = jamais
+  ■ - consommation_vin = occasionnel
+
+Sortie :
+  Famille « Ultratransformés » (exclusive: false) :
+  - [recommandee] Un repas simple fait maison de plus par semaine
+      proposé parce que : frequence_ultratransformes == frequent
+  Famille « Structure des repas » (exclusive: false) :
+  - [recommandee] Se fixer des repas à des horaires à peu près réguliers
+      proposé parce que : regularite_repas == irreguliers
+  Famille « Orientation » (exclusive: false) :
+  - [recommandee] Orienter vers le diététicien de la structure
+      proposé parce que : verrou_tca == true
+  Alertes de nœud :
+    - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
+  Options écartées (sécurité, R4) :
+    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: verrou_tca == true OR fragilite == true
+    - Repérer un moment de grignotage récurrent et lui trouver une alternative :: verrou_tca == true
+    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: verrou_tca == true OR fragilite == true
+    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: verrou_tca == true OR fragilite == true
+  Options EN ATTENTE (indétermination, R7/D20) :
+    - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide
+    - Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre :: à renseigner : matiere_grasse_cuisson
+    - Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine :: à renseigner : frequence_fruits_a_coque
+    - Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre :: à renseigner : frequence_poisson
+    - Continuer ce qui fonctionne déjà :: à renseigner : matiere_grasse_cuisson, frequence_fruits_a_coque
+
+### Profil #6 — 11 critère(s) masqué(s) (masque stratifié) : signe_restriction_puis_craquage, frequence_ultratransformes, consommation_vin, frequence_legumineuses, difficulte_estimation_portions, frequence_grignotage, frequence_viande_rouge_charcuterie, signe_manger_cache_ou_culpabilite, frequence_poisson, frequence_restauration_rapide, frequence_fruits_a_coque
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ■ - fragilite = true
+  ■ - traitements_en_cours = [iSGLT2, aGLP1, tirzepatide, gliptine, insuline, glinide]
+  ■ - frequence_boissons_sucrees = quotidien
+  ○ - frequence_ultratransformes = occasionnel
+  ○ - frequence_restauration_rapide = jamais
+  ■ - matiere_grasse_cuisson = beurre_graisses_animales
+  ■ - regularite_repas = reguliers
+  ○ - frequence_grignotage = occasionnel
+  ■ - acces_alimentation = difficultes_importantes
+  ○ - frequence_fruits_a_coque = regulier
+  ○ - frequence_legumineuses = jamais
+  ○ - frequence_poisson = jamais
+  ○ - frequence_viande_rouge_charcuterie = quotidien
+  ○ - signe_restriction_puis_craquage = false
+  ○ - signe_manger_cache_ou_culpabilite = true
+  ■ - signe_antecedent_regime_restrictif = false
+  ○ - difficulte_estimation_portions = difficile
+  ■ - alimentation_emotionnelle = occasionnel
+  ○ - consommation_vin = jamais
+
+Sortie :
+  Famille « Boissons » (exclusive: false) :
+    -- groupe d'égalité #0 --
+  - [recommandee] Remplacer une boisson sucrée du quotidien par de l'eau
+      proposé parce que : frequence_boissons_sucrees == quotidien
+    -- groupe d'égalité #1 --
+  - [recommandee] Ne pas remplacer une boisson sucrée par des édulcorants intenses
+      proposé parce que : frequence_boissons_sucrees == quotidien
+  Famille « Matières grasses » (exclusive: false) :
+  - [recommandee] Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre
+      proposé parce que : matiere_grasse_cuisson == beurre_graisses_animales
+  Famille « Orientation » (exclusive: false) :
+  - [recommandee] Orienter vers le diététicien de la structure
+      proposé parce que : acces_alimentation == difficultes_importantes ; verrou_tca == true ; fragilite == true
+  Alertes de nœud :
+    - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
+  Options écartées (sécurité, R4) :
+    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: verrou_tca == true OR fragilite == true
+  Options EN ATTENTE (indétermination, R7/D20) :
+    - Un repas simple fait maison de plus par semaine :: à renseigner : frequence_ultratransformes
+    - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide
+    - Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine :: à renseigner : frequence_fruits_a_coque
+    - Ajouter un plat de légumineuses de plus par semaine :: à renseigner : frequence_legumineuses
+    - Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre :: à renseigner : frequence_poisson
+    - Repérer un moment de grignotage récurrent et lui trouver une alternative :: à renseigner : frequence_grignotage
+    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: à renseigner : difficulte_estimation_portions
+    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: à renseigner : difficulte_estimation_portions
+
+### Profil #7 — 10 critère(s) masqué(s) (masque stratifié) : signe_manger_cache_ou_culpabilite, frequence_boissons_sucrees, matiere_grasse_cuisson, frequence_restauration_rapide, alimentation_emotionnelle, fragilite, frequence_ultratransformes, frequence_viande_rouge_charcuterie, frequence_legumineuses, acces_alimentation
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ○ - fragilite = false
+  ■ - traitements_en_cours = [metformine, iSGLT2, tirzepatide, sulfamide, insuline, glinide]
+  ○ - frequence_boissons_sucrees = occasionnel
+  ○ - frequence_ultratransformes = jamais
+  ○ - frequence_restauration_rapide = occasionnel
+  ○ - matiere_grasse_cuisson = beurre_graisses_animales
+  ■ - regularite_repas = irreguliers
+  ■ - frequence_grignotage = jamais
+  ○ - acces_alimentation = sans_difficulte
+  ■ - frequence_fruits_a_coque = jamais
+  ○ - frequence_legumineuses = regulier
+  ■ - frequence_poisson = regulier
+  ○ - frequence_viande_rouge_charcuterie = occasionnel
+  ■ - signe_restriction_puis_craquage = true
+  ○ - signe_manger_cache_ou_culpabilite = false
+  ■ - signe_antecedent_regime_restrictif = true
+  ■ - difficulte_estimation_portions = facile
+  ○ - alimentation_emotionnelle = jamais
+  ■ - consommation_vin = un_a_six_verres_semaine
+
+Sortie :
+  Famille « Fruits à coque, légumineuses, poisson » (exclusive: false) :
+  - [recommandee] Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine
+      proposé parce que : frequence_fruits_a_coque == jamais
+  Famille « Structure des repas » (exclusive: false) :
+  - [recommandee] Se fixer des repas à des horaires à peu près réguliers
+      proposé parce que : regularite_repas == irreguliers
+  Famille « Orientation » (exclusive: false) :
+  - [recommandee] Orienter vers le diététicien de la structure
+      proposé parce que : verrou_tca == true
+  Alertes de nœud :
+    - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
+  Options EN ATTENTE (indétermination, R7/D20) :
+    - Remplacer une boisson sucrée du quotidien par de l'eau :: à renseigner : frequence_boissons_sucrees
+    - Ne pas remplacer une boisson sucrée par des édulcorants intenses :: à renseigner : frequence_boissons_sucrees
+    - Un repas simple fait maison de plus par semaine :: à renseigner : frequence_ultratransformes
+    - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide
+    - Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre :: à renseigner : matiere_grasse_cuisson
+    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: à renseigner : matiere_grasse_cuisson, frequence_viande_rouge_charcuterie
+    - Ajouter un plat de légumineuses de plus par semaine :: à renseigner : frequence_legumineuses
+    - Manger sans se presser :: à renseigner : alimentation_emotionnelle
+
+### Profil #8 — 6 critère(s) masqué(s) (masque stratifié) : frequence_legumineuses, frequence_grignotage, signe_restriction_puis_craquage, frequence_viande_rouge_charcuterie, regularite_repas, frequence_boissons_sucrees
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ■ - fragilite = true
+  ■ - traitements_en_cours = [aGLP1, gliptine]
+  ○ - frequence_boissons_sucrees = frequent
+  ■ - frequence_ultratransformes = quotidien
+  ■ - frequence_restauration_rapide = quotidien
+  ■ - matiere_grasse_cuisson = huile_olive_ou_colza
+  ○ - regularite_repas = reguliers
+  ○ - frequence_grignotage = frequent
+  ■ - acces_alimentation = quelques_difficultes
+  ■ - frequence_fruits_a_coque = occasionnel
+  ○ - frequence_legumineuses = jamais
+  ■ - frequence_poisson = occasionnel
+  ○ - frequence_viande_rouge_charcuterie = jamais
+  ○ - signe_restriction_puis_craquage = false
+  ■ - signe_manger_cache_ou_culpabilite = true
+  ■ - signe_antecedent_regime_restrictif = false
+  ■ - difficulte_estimation_portions = ne_sait_pas
+  ■ - alimentation_emotionnelle = occasionnel
+  ■ - consommation_vin = sept_verres_ou_plus_semaine
+
+Sortie :
+  Famille « Ultratransformés » (exclusive: false) :
+  - [recommandee] Un repas simple fait maison de plus par semaine
+      proposé parce que : frequence_ultratransformes == quotidien
+  Famille « Restauration rapide » (exclusive: false) :
+  - [recommandee] En restauration rapide, choisir mieux plutôt que s'interdire d'y aller
+      proposé parce que : frequence_restauration_rapide == quotidien
+  Famille « Fruits à coque, légumineuses, poisson » (exclusive: false) :
+    -- groupe d'égalité #0 --
+  - [recommandee] Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine
+      proposé parce que : frequence_fruits_a_coque == occasionnel
+    -- groupe d'égalité #1 --
+  - [recommandee] Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre
+      proposé parce que : frequence_poisson == occasionnel
+  Famille « Orientation » (exclusive: false) :
+  - [recommandee] Orienter vers le diététicien de la structure
+      proposé parce que : verrou_tca == true ; fragilite == true
+  Alertes de nœud :
+    - Consommation de vin au niveau ou au-delà du seuil d'adhérence méditerranéenne (≥ 7 verres/semaine, score MEDAS) : ce nœud ne propose jamais l'alcool comme piste — orienter vers le repérage d'un mésusage plutôt que d'encourager cette consommation. Interactions à garder en tête : foie, triglycérides, hypoglycémie sous insulinosécréteur. [attention]
+  Options écartées (sécurité, R4) :
+    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: verrou_tca == true OR fragilite == true
+    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: verrou_tca == true OR fragilite == true
+  Options EN ATTENTE (indétermination, R7/D20) :
+    - Remplacer une boisson sucrée du quotidien par de l'eau :: à renseigner : frequence_boissons_sucrees
+    - Ne pas remplacer une boisson sucrée par des édulcorants intenses :: à renseigner : frequence_boissons_sucrees
+    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: à renseigner : frequence_viande_rouge_charcuterie
+    - Ajouter un plat de légumineuses de plus par semaine :: à renseigner : frequence_legumineuses
+    - Se fixer des repas à des horaires à peu près réguliers :: à renseigner : regularite_repas
+    - Repérer un moment de grignotage récurrent et lui trouver une alternative :: à renseigner : frequence_grignotage
+
+### Profil #9 — 7 critère(s) masqué(s) (masque stratifié) : frequence_ultratransformes, frequence_legumineuses, frequence_poisson, frequence_restauration_rapide, consommation_vin, traitements_en_cours, frequence_grignotage
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ■ - fragilite = true
+  ○ - traitements_en_cours = [metformine, aGLP1, gliptine, glinide]
+  ■ - frequence_boissons_sucrees = quotidien
+  ○ - frequence_ultratransformes = quotidien
+  ○ - frequence_restauration_rapide = jamais
+  ■ - matiere_grasse_cuisson = melange
+  ■ - regularite_repas = irreguliers
+  ○ - frequence_grignotage = occasionnel
+  ■ - acces_alimentation = difficultes_importantes
+  ■ - frequence_fruits_a_coque = regulier
+  ○ - frequence_legumineuses = occasionnel
+  ○ - frequence_poisson = jamais
+  ■ - frequence_viande_rouge_charcuterie = quotidien
+  ■ - signe_restriction_puis_craquage = false
+  ■ - signe_manger_cache_ou_culpabilite = false
+  ■ - signe_antecedent_regime_restrictif = true
+  ■ - difficulte_estimation_portions = difficile
+  ■ - alimentation_emotionnelle = frequent
+  ○ - consommation_vin = occasionnel
+
+Sortie :
+  Famille « Boissons » (exclusive: false) :
+    -- groupe d'égalité #0 --
+  - [recommandee] Remplacer une boisson sucrée du quotidien par de l'eau
+      proposé parce que : frequence_boissons_sucrees == quotidien
+    -- groupe d'égalité #1 --
+  - [recommandee] Ne pas remplacer une boisson sucrée par des édulcorants intenses
+      proposé parce que : frequence_boissons_sucrees == quotidien
+  Famille « Matières grasses » (exclusive: false) :
+  - [recommandee] Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre
+      proposé parce que : matiere_grasse_cuisson == melange
+  Famille « Structure des repas » (exclusive: false) :
+    -- groupe d'égalité #0 --
+  - [recommandee] Se fixer des repas à des horaires à peu près réguliers
+      proposé parce que : regularite_repas == irreguliers
+    -- groupe d'égalité #1 --
+  - [recommandee] Manger sans se presser
+      proposé parce que : alimentation_emotionnelle == frequent
+  Famille « Orientation » (exclusive: false) :
+  - [recommandee] Orienter vers le diététicien de la structure
+      proposé parce que : acces_alimentation == difficultes_importantes ; verrou_tca == true ; fragilite == true
+  Alertes de nœud :
+    - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
+  Options écartées (sécurité, R4) :
+    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: verrou_tca == true OR fragilite == true
+    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: verrou_tca == true OR fragilite == true
+    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: verrou_tca == true OR fragilite == true
+  Options EN ATTENTE (indétermination, R7/D20) :
+    - Un repas simple fait maison de plus par semaine :: à renseigner : frequence_ultratransformes
+    - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide
+    - Ajouter un plat de légumineuses de plus par semaine :: à renseigner : frequence_legumineuses
+    - Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre :: à renseigner : frequence_poisson
+    - Repérer un moment de grignotage récurrent et lui trouver une alternative :: à renseigner : frequence_grignotage
+
+### Profil #10 — 7 critère(s) masqué(s) (masque stratifié) : consommation_vin, frequence_fruits_a_coque, acces_alimentation, difficulte_estimation_portions, signe_restriction_puis_craquage, regularite_repas, alimentation_emotionnelle
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ■ - fragilite = false
+  ■ - traitements_en_cours = [iSGLT2, tirzepatide, sulfamide, insuline]
+  ■ - frequence_boissons_sucrees = occasionnel
+  ■ - frequence_ultratransformes = frequent
+  ■ - frequence_restauration_rapide = frequent
+  ■ - matiere_grasse_cuisson = huile_olive_ou_colza
+  ○ - regularite_repas = reguliers
+  ■ - frequence_grignotage = jamais
+  ○ - acces_alimentation = quelques_difficultes
+  ○ - frequence_fruits_a_coque = jamais
+  ■ - frequence_legumineuses = occasionnel
+  ■ - frequence_poisson = regulier
+  ■ - frequence_viande_rouge_charcuterie = jamais
+  ○ - signe_restriction_puis_craquage = true
+  ■ - signe_manger_cache_ou_culpabilite = true
+  ■ - signe_antecedent_regime_restrictif = false
+  ○ - difficulte_estimation_portions = difficile
+  ○ - alimentation_emotionnelle = occasionnel
+  ○ - consommation_vin = jamais
+
+Sortie :
+  Famille « Ultratransformés » (exclusive: false) :
+  - [recommandee] Un repas simple fait maison de plus par semaine
+      proposé parce que : frequence_ultratransformes == frequent
+  Famille « Restauration rapide » (exclusive: false) :
+  - [recommandee] En restauration rapide, choisir mieux plutôt que s'interdire d'y aller
+      proposé parce que : frequence_restauration_rapide == frequent
+  Famille « Fruits à coque, légumineuses, poisson » (exclusive: false) :
+  - [recommandee] Ajouter un plat de légumineuses de plus par semaine
+      proposé parce que : frequence_legumineuses == occasionnel
+  Famille « Orientation » (exclusive: false) :
+  - [recommandee] Orienter vers le diététicien de la structure
+      proposé parce que : verrou_tca == true
+  Alertes de nœud :
+    - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
+  Options EN ATTENTE (indétermination, R7/D20) :
+    - Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine :: à renseigner : frequence_fruits_a_coque
+    - Se fixer des repas à des horaires à peu près réguliers :: à renseigner : regularite_repas
+    - Manger sans se presser :: à renseigner : alimentation_emotionnelle
+    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: à renseigner : difficulte_estimation_portions
+    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: à renseigner : difficulte_estimation_portions
+    - Continuer ce qui fonctionne déjà :: à renseigner : frequence_fruits_a_coque
+
+### Profil #11 — 13 critère(s) masqué(s) (masque stratifié) : frequence_fruits_a_coque, traitements_en_cours, alimentation_emotionnelle, matiere_grasse_cuisson, frequence_ultratransformes, difficulte_estimation_portions, consommation_vin, frequence_restauration_rapide, frequence_boissons_sucrees, signe_manger_cache_ou_culpabilite, fragilite, acces_alimentation, signe_antecedent_regime_restrictif
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ○ - fragilite = false
+  ○ - traitements_en_cours = [metformine, iSGLT2, tirzepatide, gliptine, glinide]
+  ○ - frequence_boissons_sucrees = frequent
+  ○ - frequence_ultratransformes = occasionnel
+  ○ - frequence_restauration_rapide = quotidien
+  ○ - matiere_grasse_cuisson = melange
+  ■ - regularite_repas = irreguliers
+  ■ - frequence_grignotage = quotidien
+  ○ - acces_alimentation = difficultes_importantes
+  ○ - frequence_fruits_a_coque = occasionnel
+  ■ - frequence_legumineuses = regulier
+  ■ - frequence_poisson = jamais
+  ■ - frequence_viande_rouge_charcuterie = regulier
+  ■ - signe_restriction_puis_craquage = false
+  ○ - signe_manger_cache_ou_culpabilite = false
+  ○ - signe_antecedent_regime_restrictif = false
+  ○ - difficulte_estimation_portions = facile
+  ○ - alimentation_emotionnelle = frequent
+  ○ - consommation_vin = un_a_six_verres_semaine
+
+Sortie :
+  Famille « Fruits à coque, légumineuses, poisson » (exclusive: false) :
+  - [recommandee] Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre
+      proposé parce que : frequence_poisson == jamais
+  Famille « Structure des repas » (exclusive: false) :
+  - [recommandee] Se fixer des repas à des horaires à peu près réguliers
+      proposé parce que : regularite_repas == irreguliers
+  Alertes de nœud :
+    - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
+  Options EN ATTENTE (indétermination, R7/D20) :
+    - Remplacer une boisson sucrée du quotidien par de l'eau :: à renseigner : frequence_boissons_sucrees
+    - Ne pas remplacer une boisson sucrée par des édulcorants intenses :: à renseigner : frequence_boissons_sucrees
+    - Un repas simple fait maison de plus par semaine :: à renseigner : frequence_ultratransformes
+    - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide
+    - Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre :: à renseigner : matiere_grasse_cuisson
+    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: à renseigner : signe_manger_cache_ou_culpabilite, signe_antecedent_regime_restrictif
+    - Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine :: à renseigner : frequence_fruits_a_coque
+    - Manger sans se presser :: à renseigner : alimentation_emotionnelle
+    - Repérer un moment de grignotage récurrent et lui trouver une alternative :: à renseigner : signe_manger_cache_ou_culpabilite, signe_antecedent_regime_restrictif
+    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: à renseigner : difficulte_estimation_portions
+    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: à renseigner : difficulte_estimation_portions
+    - Orienter vers le diététicien de la structure :: à renseigner : acces_alimentation, signe_manger_cache_ou_culpabilite, signe_antecedent_regime_restrictif
+    - Continuer ce qui fonctionne déjà :: à renseigner : matiere_grasse_cuisson, frequence_fruits_a_coque
+
+### Profil #12 — 12 critère(s) masqué(s) (masque stratifié) : frequence_grignotage, consommation_vin, frequence_restauration_rapide, signe_manger_cache_ou_culpabilite, traitements_en_cours, acces_alimentation, frequence_poisson, fragilite, frequence_legumineuses, difficulte_estimation_portions, alimentation_emotionnelle, signe_antecedent_regime_restrictif
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ○ - fragilite = true
+  ○ - traitements_en_cours = [aGLP1, sulfamide, insuline]
+  ■ - frequence_boissons_sucrees = jamais
+  ■ - frequence_ultratransformes = jamais
+  ○ - frequence_restauration_rapide = occasionnel
+  ■ - matiere_grasse_cuisson = beurre_graisses_animales
+  ■ - regularite_repas = reguliers
+  ○ - frequence_grignotage = frequent
+  ○ - acces_alimentation = sans_difficulte
+  ■ - frequence_fruits_a_coque = regulier
+  ○ - frequence_legumineuses = jamais
+  ○ - frequence_poisson = occasionnel
+  ■ - frequence_viande_rouge_charcuterie = occasionnel
+  ■ - signe_restriction_puis_craquage = true
+  ○ - signe_manger_cache_ou_culpabilite = true
+  ○ - signe_antecedent_regime_restrictif = true
+  ○ - difficulte_estimation_portions = ne_sait_pas
+  ○ - alimentation_emotionnelle = jamais
+  ○ - consommation_vin = sept_verres_ou_plus_semaine
+
+Sortie :
+  Famille « Matières grasses » (exclusive: false) :
+  - [recommandee] Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre
+      proposé parce que : matiere_grasse_cuisson == beurre_graisses_animales
+  Famille « Orientation » (exclusive: false) :
+  - [recommandee] Orienter vers le diététicien de la structure
+      proposé parce que : verrou_tca == true ; fragilite == true
+  Alertes de nœud :
+    - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
+  Options écartées (sécurité, R4) :
+    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: verrou_tca == true OR fragilite == true
+  Options EN ATTENTE (indétermination, R7/D20) :
+    - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide
+    - Ajouter un plat de légumineuses de plus par semaine :: à renseigner : frequence_legumineuses
+    - Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre :: à renseigner : frequence_poisson
+    - Manger sans se presser :: à renseigner : alimentation_emotionnelle
+    - Repérer un moment de grignotage récurrent et lui trouver une alternative :: à renseigner : frequence_grignotage
+    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: à renseigner : difficulte_estimation_portions
+    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: à renseigner : difficulte_estimation_portions
+
+### Profil #13 — 9 critère(s) masqué(s) (masque stratifié) : fragilite, alimentation_emotionnelle, difficulte_estimation_portions, frequence_boissons_sucrees, consommation_vin, signe_manger_cache_ou_culpabilite, regularite_repas, matiere_grasse_cuisson, signe_restriction_puis_craquage
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ○ - fragilite = false
+  ■ - traitements_en_cours = [metformine, aGLP1, tirzepatide, sulfamide, glinide]
+  ○ - frequence_boissons_sucrees = occasionnel
+  ■ - frequence_ultratransformes = quotidien
+  ■ - frequence_restauration_rapide = quotidien
+  ○ - matiere_grasse_cuisson = melange
+  ○ - regularite_repas = reguliers
+  ■ - frequence_grignotage = occasionnel
+  ■ - acces_alimentation = sans_difficulte
+  ■ - frequence_fruits_a_coque = jamais
+  ■ - frequence_legumineuses = jamais
+  ■ - frequence_poisson = jamais
+  ■ - frequence_viande_rouge_charcuterie = quotidien
+  ○ - signe_restriction_puis_craquage = true
+  ○ - signe_manger_cache_ou_culpabilite = true
+  ■ - signe_antecedent_regime_restrictif = false
+  ○ - difficulte_estimation_portions = ne_sait_pas
+  ○ - alimentation_emotionnelle = frequent
+  ○ - consommation_vin = sept_verres_ou_plus_semaine
+
+Sortie :
+  Famille « Ultratransformés » (exclusive: false) :
+  - [recommandee] Un repas simple fait maison de plus par semaine
+      proposé parce que : frequence_ultratransformes == quotidien
+  Famille « Restauration rapide » (exclusive: false) :
+  - [recommandee] En restauration rapide, choisir mieux plutôt que s'interdire d'y aller
+      proposé parce que : frequence_restauration_rapide == quotidien
+  Famille « Fruits à coque, légumineuses, poisson » (exclusive: false) :
+    -- groupe d'égalité #0 --
+  - [recommandee] Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine
+      proposé parce que : frequence_fruits_a_coque == jamais
+    -- groupe d'égalité #1 --
+  - [recommandee] Ajouter un plat de légumineuses de plus par semaine
+      proposé parce que : frequence_legumineuses == jamais
+  - [recommandee] Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre
+      proposé parce que : frequence_poisson == jamais
+  Alertes de nœud :
+    - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
+  Options EN ATTENTE (indétermination, R7/D20) :
+    - Remplacer une boisson sucrée du quotidien par de l'eau :: à renseigner : frequence_boissons_sucrees
+    - Ne pas remplacer une boisson sucrée par des édulcorants intenses :: à renseigner : frequence_boissons_sucrees
+    - Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre :: à renseigner : matiere_grasse_cuisson
+    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: à renseigner : signe_restriction_puis_craquage, signe_manger_cache_ou_culpabilite
+    - Se fixer des repas à des horaires à peu près réguliers :: à renseigner : regularite_repas
+    - Manger sans se presser :: à renseigner : alimentation_emotionnelle
+    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: à renseigner : difficulte_estimation_portions
+    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: à renseigner : difficulte_estimation_portions
+    - Orienter vers le diététicien de la structure :: à renseigner : signe_restriction_puis_craquage, signe_manger_cache_ou_culpabilite
+
+### Profil #14 — 8 critère(s) masqué(s) (masque stratifié) : matiere_grasse_cuisson, consommation_vin, frequence_restauration_rapide, signe_restriction_puis_craquage, traitements_en_cours, frequence_legumineuses, signe_manger_cache_ou_culpabilite, frequence_boissons_sucrees
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ■ - fragilite = true
+  ○ - traitements_en_cours = [iSGLT2, gliptine, insuline]
+  ○ - frequence_boissons_sucrees = quotidien
+  ■ - frequence_ultratransformes = jamais
+  ○ - frequence_restauration_rapide = occasionnel
+  ○ - matiere_grasse_cuisson = huile_olive_ou_colza
+  ■ - regularite_repas = irreguliers
+  ■ - frequence_grignotage = quotidien
+  ■ - acces_alimentation = quelques_difficultes
+  ■ - frequence_fruits_a_coque = regulier
+  ○ - frequence_legumineuses = regulier
+  ■ - frequence_poisson = occasionnel
+  ■ - frequence_viande_rouge_charcuterie = regulier
+  ○ - signe_restriction_puis_craquage = false
+  ○ - signe_manger_cache_ou_culpabilite = false
+  ■ - signe_antecedent_regime_restrictif = true
+  ■ - difficulte_estimation_portions = facile
+  ■ - alimentation_emotionnelle = jamais
+  ○ - consommation_vin = jamais
+
+Sortie :
+  Famille « Fruits à coque, légumineuses, poisson » (exclusive: false) :
+  - [recommandee] Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre
+      proposé parce que : frequence_poisson == occasionnel
+  Famille « Structure des repas » (exclusive: false) :
+  - [recommandee] Se fixer des repas à des horaires à peu près réguliers
+      proposé parce que : regularite_repas == irreguliers
+  Famille « Orientation » (exclusive: false) :
+  - [recommandee] Orienter vers le diététicien de la structure
+      proposé parce que : verrou_tca == true ; fragilite == true
+  Alertes de nœud :
+    - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
+  Options écartées (sécurité, R4) :
+    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: verrou_tca == true OR fragilite == true
+    - Repérer un moment de grignotage récurrent et lui trouver une alternative :: verrou_tca == true
+  Options EN ATTENTE (indétermination, R7/D20) :
+    - Remplacer une boisson sucrée du quotidien par de l'eau :: à renseigner : frequence_boissons_sucrees
+    - Ne pas remplacer une boisson sucrée par des édulcorants intenses :: à renseigner : frequence_boissons_sucrees
+    - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide
+    - Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre :: à renseigner : matiere_grasse_cuisson
+    - Ajouter un plat de légumineuses de plus par semaine :: à renseigner : frequence_legumineuses
+    - Continuer ce qui fonctionne déjà :: à renseigner : matiere_grasse_cuisson
+

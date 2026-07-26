@@ -13,6 +13,18 @@
  * corriger cette cause racine (cf. aussi `docs/decision/GRAMMAIRE-NOEUD.md`, R5 : « un critère qu'on
  * demande doit agir »).
  *
+ * ⚠ PROFILS FIGÉS, PAS RÉGÉNÉRÉS (correctif du 2026-07-26, cf. justification de conception complète en
+ * tête de `fixtureProfils.ts`). `genererProfils` (`profils.ts`) tire ses valeurs candidates DEPUIS LE
+ * CONTENU (seuils des règles) : changer un seuil, ajouter un critère ou une alerte change ce tirage, donc
+ * QUEL PATIENT tombe à quel index — un golden master relu index par index devenait alors illisible (un
+ * ancien profil #1 et un nouveau #2 pouvaient être le même patient ayant permuté). Ce fichier lit
+ * désormais un jeu VERSIONNÉ (`banc/fixtures/profils.<id>.json`, `profilsFigesPourNoeud`) : le patient à
+ * l'index N est désormais LE MÊME quoi que le contenu ait changé entre deux exécutions ; seuls les
+ * critères DÉRIVÉS et la sortie du moteur restent recalculés à chaque lecture. Chaque ligne de signature
+ * compacte réaffirme aussi les critères saisis du patient (`formatCriteresCompact`), pour qu'un diff reste
+ * interprétable SANS avoir à faire confiance à la position — c'est ce qui manquait pour interpréter les
+ * diffs avant ce correctif.
+ *
  * Ce fichier NE JUGE PAS si la sortie actuelle est correcte — il la FIGE telle quelle, nœud par nœud,
  * pour que la refonte à venir puisse être MESURÉE contre un état de référence connu plutôt que contre
  * le souvenir de qui l'a écrite. Le profil VIERGE (`buildDefaultCriteria`, profil n° 0 de chaque
@@ -54,8 +66,9 @@ import type { Criteria, CriteriaValue } from '../conditions.ts'
 import { buildDefaultCriteria } from '../../lib/formLayout.ts'
 import { construireVueDecision, signatureVue } from '../../lib/vueDecision.ts'
 import type { OptionVue, VueDecision } from '../../lib/vueDecision.ts'
-import { genererProfils, genererProfilsPartiels } from './profils.ts'
+import { genererProfilsPartiels } from './profils.ts'
 import type { ProfilPartiel } from './profils.ts'
+import { NB_PROFILS_FIGES, profilsFigesPourNoeud } from './fixtureProfils.ts'
 
 /**
  * Taille du banc de caractérisation : PROFIL VIERGE (index 0) compris — un volume délibérément
@@ -70,8 +83,12 @@ import type { ProfilPartiel } from './profils.ts'
  * que sur un petit nœud : ~4,5 Ko/profil sur `prescription` (23 options), ~2,7 Ko sur `insuline`, contre
  * ~160 o sur `cible-glycemique`. 180 ramène le total mesuré à ~1,9 Mo (marge conservée), en restant
  * proche de la cible qualitative « quelques centaines de profils » de la tâche.
+ *
+ * Valeur SOURCÉE depuis `fixtureProfils.ts` (`NB_PROFILS_FIGES`), pas redéclarée ici : c'est aussi le
+ * nombre de profils que `geler-profils.maintenance.test.ts` capture/complète — les deux fichiers ne
+ * doivent jamais pouvoir diverger silencieusement sur ce nombre (cf. sa docstring).
  */
-const NB_PROFILS_CARACTERISATION = 180
+const NB_PROFILS_CARACTERISATION = NB_PROFILS_FIGES
 
 /**
  * Parmi les `NB_PROFILS_CARACTERISATION` profils, nombre de profils rendus EN CLAIR (critères saisis +
@@ -107,6 +124,23 @@ function rendreCriteresSaisisEnClair(node: Noeud, criteria: Criteria, renseignes
       const marque = renseignes === undefined ? '' : renseignes.has(critere.nom) ? '■ ' : '○ '
       return `  ${marque}- ${critere.nom} = ${formatValeurCritere(criteria[critere.nom])}`
     })
+}
+
+/**
+ * Empreinte compacte, sur UNE ligne, des critères saisis d'un profil — même information que
+ * `rendreCriteresSaisisEnClair` ci-dessus (une paire nom=valeur par critère SAISISSABLE), condensée pour
+ * tenir dans la ligne de signature compacte (`construireContenuCaracterisation` ci-dessous). C'est la
+ * pièce qui manquait pour interpréter un diff de signature SANS dérouler la section « en clair »
+ * (limitée aux `NB_PROFILS_DETAILLES` premiers profils) : avant ce champ, une ligne de signature ne
+ * portait que l'INDEX et la SORTIE — deux profils de contenu différent partageant accidentellement un
+ * index (un jeu qui aurait permuté) étaient alors indiscernables d'un simple changement de comportement,
+ * exactement la confusion qui a motivé le passage à un jeu FIGÉ (cf. tête de fichier, `fixtureProfils.ts`).
+ */
+function formatCriteresCompact(node: Noeud, criteria: Criteria): string {
+  return node.criteres_entree
+    .filter((critere) => critere.derive == null)
+    .map((critere) => `${critere.nom}=${formatValeurCritere(criteria[critere.nom])}`)
+    .join(';')
 }
 
 /** Rendu en clair d'une option affichée (badge, raisons situationnelles, doses, motif de rang, alertes). */
@@ -179,12 +213,12 @@ function rendreProfilEnClair(index: number, node: Noeud, criteria: Criteria, vue
  */
 function construireContenuCaracterisation(node: Noeud): string {
   const profilVierge = buildDefaultCriteria(node.criteres_entree)
-  // `genererProfils` peut renvoyer PLUS que demandé si le produit cartésien des critères énumérables du
-  // nœud le dépasse (plancher de couverture exhaustive, cf. `profils.ts` `tailleEffective`) : `slice`
-  // borne le volume ICI, indépendamment de ce plancher — exigence de tâche « ~300, pas tailleBanc si
-  // celui-ci est beaucoup plus grand ». Déterministe : mêmes premiers éléments à chaque exécution.
-  const profilsGeneres = genererProfils(node, NB_PROFILS_CARACTERISATION - 1).slice(0, NB_PROFILS_CARACTERISATION - 1)
-  const profils: Criteria[] = [profilVierge, ...profilsGeneres]
+  // FIGÉS (cf. fixtureProfils.ts), plus un tirage recalculé au contenu courant à chaque exécution — la
+  // source même de l'instabilité en index (cf. tête de fichier). `profilsFigesPourNoeud` lit
+  // `banc/fixtures/profils.<id>.json`, un jeu VERSIONNÉ, et ne recalcule QUE les critères dérivés (pour
+  // qu'une évolution d'un `derive` reste visible dans le diff sans jamais déplacer un patient d'index).
+  const profilsFiges = profilsFigesPourNoeud(node, NB_PROFILS_CARACTERISATION - 1)
+  const profils: Criteria[] = [profilVierge, ...profilsFiges]
   const vues: VueDecision[] = profils.map((criteria) => construireVueDecision(node, criteria))
 
   const lignes: string[] = [
@@ -205,8 +239,15 @@ function construireContenuCaracterisation(node: Noeud): string {
     lignes.push('')
   })
 
-  lignes.push('## Signatures compactes (toutes les entrées, y compris les profils détaillés ci-dessus)', '')
-  vues.forEach((vue, i) => lignes.push(`${i} :: ${signatureVue(vue)}`))
+  lignes.push(
+    '## Signatures compactes (toutes les entrées, y compris les profils détaillés ci-dessus)',
+    '#',
+    "# Chaque ligne réaffirme les critères saisis du PATIENT avant sa sortie (formatCriteresCompact) : un",
+    "# diff reste interprétable même hors de la section « en clair » ci-dessus — plus besoin de faire",
+    '# confiance à la position pour savoir de quel patient il s’agit (cf. tête de fichier).',
+    '',
+  )
+  profils.forEach((criteria, i) => lignes.push(`${i} :: ${formatCriteresCompact(node, criteria)} :: ${signatureVue(vues[i])}`))
 
   return `${lignes.join('\n')}\n`
 }
@@ -296,12 +337,19 @@ function rendreProfilPartielEnClair(
  * (`buildDefaultCriteria`, `renseignes` VIDE — LE cas le plus surveillé du chantier, cf. tâche : « c'est
  * lui qui doit montrer que `statine` cesse d'afficher... et que `prescription` cesse d'écarter la
  * metformine... »), puis `NB_PROFILS_PARTIELS` profils partiels (`genererProfilsPartiels`), TOUS en clair.
+ *
+ * Base FIGÉE (`profilsFigesPourNoeud`), comme la caractérisation « profils complets » ci-dessus, et pour
+ * la MÊME raison (cf. tête de fichier) : `genererProfilsPartiels` masquait jusqu'ici une partie de
+ * profils tirés dynamiquement par `genererProfils`, donc tout aussi instables en index. Les
+ * `NB_PROFILS_PARTIELS` premiers profils de la fixture servent de base, AVANT que `genererProfilsPartiels`
+ * n'en masque une partie (le masquage lui-même reste recalculé sur le contenu courant, cf. sa docstring).
  */
 function construireContenuCaracterisationIndeterminee(node: Noeud): string {
   const vierge = buildDefaultCriteria(node.criteres_entree)
   const vueVierge = construireVueDecision(node, vierge, new Set())
 
-  const partiels = genererProfilsPartiels(node, NB_PROFILS_PARTIELS)
+  const baseFigee = profilsFigesPourNoeud(node, NB_PROFILS_PARTIELS)
+  const partiels = genererProfilsPartiels(node, NB_PROFILS_PARTIELS, undefined, baseFigee)
 
   const lignes: string[] = [
     `# CARACTÉRISATION — INDÉTERMINATION (R7, DECISIONS.md D20) — nœud « ${node.id} » (${node.titre})`,
