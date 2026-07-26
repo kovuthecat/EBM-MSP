@@ -1,8 +1,11 @@
-# Nœud F « Statine chez le diabétique » — contenu VALIDÉ (2026-07-23).
+# Nœud F « Statine chez le diabétique » — BROUILLON (2026-07-26, en attente de revalidation clinique).
 # Autorité : docs/decision/noeuds/F-statine.md (dossier de preuve : agents A × red-team B (essais + reco) ×
-# OpenEvidence OE-F1→F5, PMID/DOI vérifiés contre source primaire) + .argumentaire.md (niveau 3). VALIDÉ
-# référent (Thibault) + vérifié bi-agents (pipeline étape 8, feu vert : 0 finding HAUTE). Les valeurs cliniques
-# ne se modifient pas hors workflow veille → algorithme (D5).
+# OpenEvidence OE-F1→F5, PMID/DOI vérifiés contre source primaire) §1-8 + .argumentaire.md (niveau 3) ; §9
+# (2026-07-26) porte les arbitrages référent de ce lot (recette in-app 2026-07-25/26). Le nœud avait été
+# VALIDÉ référent (Thibault) + vérifié bi-agents le 2026-07-23 (pipeline étape 8, feu vert : 0 finding
+# HAUTE) ; CE LOT LE REPASSE EN BROUILLON (CLAUDE.md invariants 4/6) — revalidation clinique référent
+# restante avant `statut: valide`. Les valeurs cliniques ne se modifient pas hors workflow veille →
+# algorithme (D5).
 #
 # NŒUD ORDERED-FIRST-MATCH (D11) : sortie UNIQUE, échelle de risque — le patient relève d'UN tier, la 1re
 # option satisfaite dans l'ordre l'emporte, le `default` en dernier. `priorite` ignoré dans ce mode.
@@ -15,42 +18,87 @@
 # FDR = risque faible → décision partagée ; sinon (≥ 1 FDR OU diabète compliqué OU ancienneté ≥ 10 ans) →
 # traiter. Fondement EBM : le bénéfice relatif de la statine est ~constant quel que soit le risque (CTT), donc
 # il n'existe PAS de seuil-EBM ; la population PROUVÉE est celle des ECR (CARDS = 40-75 ans + ≥ 1 FDR ; ASPEN,
-# plus bas risque, est nul). SCORE2-Diabète = AIDE à l'estimation du risque absolu (alerte info, seuils FIXES
-# ESC 2023, validé 40-69 ans), PAS un gate (un seuil % serait un artefact de modèle, pas une donnée d'ECR ;
-# l'ancien encodage â­ge-bandé était une erreur méthodo — red-team). 3 ALERTES (D15) : > 75 ans en prévention
-# primaire = individualiser ; dialyse (bool) = ne pas INITIER ; rappel « risque absolu, pas de cible LDL ».
-# DÉFINITIONS (validées référent 2026-07-23) : `diabete_complique` (bool) = toute atteinte d'organe cible
-# (rétinopathie, néphropathie / albuminurie, neuropathie) OU maladie macrovasculaire non-ASCVD ; `autres_FDRCV`
-# = compte des facteurs de risque CV additionnels (HTA, tabac, dyslipidémie, hérédité CV précoce…). Libellés
-# d'intensité (Table 4 SFE/SFD/NSFA/SFC 2026) : haute = atorva 40-80 / rosuva 10-20 ; modérée = atorva 10-20 /
-# simva 20-40 / prava 40.
+# plus bas risque, est nul). `age` est DÉLIBÉRÉMENT NON DÉCISIF sur cette stratification (référent,
+# 2026-07-26, F-statine §9.4, 2ᵉ série : une règle `age >= 40` proposée par un lot précédent a été REJETÉE —
+# « tout dépend de l'ancienneté du diabète et des atteintes d'organe, on colle à la grille ») ; `age` n'agit
+# QUE via l'alerte > 75 ans ci-dessous — voir le commentaire porté par le critère `age` dans
+# `criteres_entree`, ci-dessous. SCORE2-Diabète = AIDE à l'estimation du risque absolu (seuils FIXES ESC
+# 2023, validé 40-69 ans), PAS un gate (un seuil % serait un artefact de modèle, pas une donnée d'ECR ;
+# l'ancien encodage âge-bandé était une erreur méthodo — red-team) ; depuis le 2026-07-26 (F-statine §9.5,
+# 2ᵉ série), son alerte est CIBLÉE sur le tier « discuter » (seule situation où l'estimation sert, référent)
+# et porte la réserve de validation ESC 2023 — un profil sans critère de grille étant souvent jeune, donc
+# potentiellement hors de la plage 40-69 ans.
+# 5 ALERTES (D15, D21) : > 75 ans en prévention primaire = individualiser ; dialyse = rappel EBM (4D/AURORA
+# neutres) — depuis le 2026-07-26 (D21, F-statine §9.1), l'INITIATION est en outre retirée par une
+# `exclusion` structurelle sur l'option haute intensité (`dialyse == true AND statine_deja_en_place ==
+# false`) plutôt que seulement affirmée par l'alerte (contradiction relevée en recette, cf. changelog) ;
+# intolérance aux statines = rappel EBM (>90 % des symptômes musculaires non attribuables, choix de
+# molécule) ; SCORE2-Diabète = aide ciblée sur le tier « discuter » uniquement, réserve de validation 40-69
+# ans (F-statine §9.5) ; rappel « risque absolu, pas de cible LDL » (alerte `default`, désormais scindée du
+# volet SCORE2 qu'elle portait jusqu'ici).
+# DÉFINITIONS (validées référent 2026-07-23, complétées §9.1 le 2026-07-26) : `diabete_complique` (bool) =
+# toute atteinte d'organe cible (rétinopathie, néphropathie / albuminurie, neuropathie) OU maladie
+# macrovasculaire non-ASCVD — SEUL booléen du domaine porté `confirmation_requise: true` (D20, F-statine
+# §9.2 ; `ASCVD_etablie`/`dialyse` explicitement écartés par le référent) ; `autres_FDRCV` = compte des
+# facteurs de risque CV additionnels (HTA, tabac, dyslipidémie, hérédité CV précoce…) ;
+# `statine_deja_en_place` (bool) = statine déjà prescrite (distingue INITIATION de POURSUITE, F-statine
+# §9.1) ; `intolerance_statine` (bool) = intolérance/effet indésirable sous statine rapporté par le patient.
+# Libellés d'intensité (Table 4 SFE/SFD/NSFA/SFC 2026) : haute = atorva 40-80 / rosuva 10-20 ; modérée =
+# atorva 10-20 / simva 20-40 / prava 40.
 # ⚠ MESSAGES À NE JAMAIS TENIR (dossier §5d) : la statine ne « réduit pas la mortalité toutes causes » en
 # prévention primaire du DT2 (non démontré — événements CV seulement) ; ne pas transformer une cible LDL de
-# guideline en objectif dur ; ne pas initier en dialyse ; le « diabète induit par statine » est SANS OBJET
-# chez un patient déjà diabétique.
+# guideline en objectif dur ; ne pas initier en dialyse (exclusion structurelle sur l'option haute
+# intensité seulement — limite connue sur « discuter »/repli, cf. changelog 2026-07-26) ; le « diabète
+# induit par statine » est SANS OBJET chez un patient déjà diabétique.
 id: statine
 domaine: diabete-type-2
 titre: "Prescrire une statine dans le DT2"
 population_cible: >-
   Adulte DT2, hors DT1 et grossesse (statines contre-indiquées pendant la grossesse). Décision du volet
   lipidique de la prévention cardiovasculaire, indépendante de l'HbA1c et du traitement antidiabétique.
-  Hors périmètre : hypercholestérolémie familiale (prise en charge spécifique) et intensification par
-  ézétimibe / anti-PCSK9 si la cible n'est pas atteinte sous statine maximale tolérée (au-delà de ce nœud).
+  Couvre à la fois l'INITIATION et la POURSUITE d'une statine (`statine_deja_en_place`), ainsi que la
+  situation d'intolérance déclarée (`intolerance_statine`, cf. alerte dédiée) — décision référent
+  2026-07-26, F-statine.md §9.1 (ces deux cas n'étaient auparavant ni couverts, ni déclarés hors
+  périmètre). Hors périmètre : hypercholestérolémie familiale (prise en charge spécifique),
+  intensification par ézétimibe / anti-PCSK9 si la cible n'est pas atteinte sous statine maximale
+  tolérée, et conduite à tenir détaillée en cas d'intolérance CONFIRMÉE (protocole de réintroduction ou
+  de switch de molécule — non documenté par le dossier de preuve, cf. `incertitudes`).
 selection: ordered-first-match
 argumentaire_exhaustif: "statine.argumentaire.md"
 criteres_entree:
+  # `age` est délibérément NON DÉCISIF sur les options et n'agit que via l'alerte « > 75 ans » ci-dessous
+  # (décision référent 2026-07-26, F-statine §9.4, 2ᵉ série). Un lot précédent avait proposé un gate
+  # `age >= 40` : le référent l'a REJETÉ — « tout dépend de l'ancienneté du diabète et des atteintes
+  # d'organe. On colle à la grille. » La stratification traiter/discuter reste gouvernée UNIQUEMENT par
+  # `anciennete_diabete_annees`, `autres_FDRCV` et `diabete_complique` (grille française 2026). NE PAS
+  # câbler `age` dans une condition d'option sans nouvelle décision référent explicite : une future passe
+  # de l'invariant générique R5 (« un critère qu'on demande doit agir ») verrait `age` inerte hors de
+  # l'alerte et serait tentée de le brancher dans une option — ce qui annulerait cette décision référent
+  # sans que personne ne s'en aperçoive. Ce commentaire EST la trace qui doit l'en empêcher.
   - nom: age
     type: nombre
   - nom: ASCVD_etablie
     type: bool
   - nom: anciennete_diabete_annees
     type: nombre
+  # ⚠ Aucune borne de domaine déclarable ici : `critereEntree` (schema/noeud.schema.json) n'a pas de
+  # champ minimum/maximum pour un critère `nombre` — une valeur hors domaine (ex. -1) est aujourd'hui
+  # acceptée par le schéma et peut faire basculer la sortie d'un tier à l'autre (recette 2026-07-26,
+  # défaut 13.4). PAS corrigé dans ce lot (changement de schéma hors périmètre du lot statine) —
+  # signalé à l'orchestrateur.
   - nom: autres_FDRCV
     type: nombre
   - nom: diabete_complique
     type: bool
+    confirmation_requise: true
   - nom: dialyse
     type: bool
+  - nom: statine_deja_en_place
+    type: bool
+    groupe: Statine en cours
+  - nom: intolerance_statine
+    type: bool
+    groupe: Statine en cours
 options:
   - intitule: "Statine de haute intensité — prévention secondaire (maladie athéromateuse établie)"
     conditions:
@@ -71,7 +119,16 @@ options:
     niveau_preuve: eleve
     contre_indications:
       - "Molécules de haute intensité (baisse de LDL ≥ 50 %, SFE/SFD/NSFA/SFC 2026 Table 4) : atorvastatine 40-80 mg ou rosuvastatine 10-20 mg. Prudence d'interaction via le CYP3A4 avec l'atorvastatine (macrolides, azolés, amiodarone, vérapamil/diltiazem, inhibiteurs de protéase) ; préférer la rosuvastatine en cas de co-prescription à risque."
-      - "Ne pas INITIER de statine chez un patient déjà en dialyse (bénéfice non démontré — voir alerte) ; grossesse."
+      - "Ne pas INITIER de statine chez un patient déjà en dialyse sans statine en cours (exclusion structurelle ci-dessous, voir alerte) ; grossesse."
+    # D21 (2026-07-26, F-statine §9.1) : l'alerte dialyse interdisait ce que rien ne retirait — cette
+    # exclusion corrige la contradiction la plus sévère relevée en recette (« ne pas INITIER » affiché à
+    # côté de « Statine de haute intensité »). Bornée à l'INITIATION (`statine_deja_en_place == false`) :
+    # la poursuite d'une statine déjà en place reste possible, conformément au texte même de l'alerte.
+    # PAS étendue aux options « discuter »/repli (invariant générique I2′, `engine/banc/invariants.test.ts`
+    # — jamais de sortie vide quand tout est renseigné ; ce nœud, en `ordered-first-match` à 3 options,
+    # n'a pas de 4e filet derrière le repli) : limite documentée en `incertitudes` et dans le changelog.
+    exclusions:
+      - "dialyse == true AND statine_deja_en_place == false"
   - intitule: "Discuter la statine (décision partagée) — diabète non compliqué à faible risque absolu"
     conditions:
       - "anciennete_diabete_annees < 10"
@@ -106,7 +163,7 @@ options:
     niveau_preuve: modere
     contre_indications:
       - "Molécule d'intensité modérée en 1re intention : atorvastatine 10-20 mg, ou simvastatine 20-40 mg / pravastatine 40 mg (mieux évaluées, moins d'interactions — position EBM). Escalade vers la haute intensité si le risque est très élevé."
-      - "Ne pas INITIER de statine chez un patient déjà en dialyse (voir alerte) ; grossesse."
+      - "En dialyse sans statine en cours, aucun bénéfice n'est démontré sur les critères durs (voir alerte) : discuter au cas par cas l'intérêt d'une initiation à ce stade (ce tier n'a pas d'exclusion structurelle, cf. changelog) ; grossesse contre-indiquée."
 alertes:
   - quand: "age > 75 AND ASCVD_etablie == false"
     niveau: attention
@@ -118,20 +175,42 @@ alertes:
   - quand: "dialyse == true"
     niveau: attention
     message: >-
-      Patient en dialyse : ne pas INITIER une statine — bénéfice non démontré sur les critères durs chez le
-      dialysé (4D chez le DT2 hémodialysé : critère principal RR 0,92 NS, avec un signal d'AVC fatal ;
-      AURORA : neutre malgré −43 % de LDL). Si une statine est déjà en place, sa poursuite est raisonnable.
-      En maladie rénale chronique NON dialysée, la statine reste indiquée (le patient relève des options ci-dessus).
+      Patient en dialyse : le bénéfice d'une statine n'est pas démontré sur les critères durs dans cette
+      population (4D chez le DT2 hémodialysé : critère principal RR 0,92 NS, avec un signal d'AVC fatal ;
+      AURORA : neutre malgré −43 % de LDL). Chez un patient dialysé SANS statine en cours, l'option de haute
+      intensité (prévention secondaire) n'est plus proposée par cet outil — retrait structurel, pas
+      seulement un rappel. Si une statine est DÉJÀ en place, sa poursuite reste raisonnable et les options
+      ci-dessus s'appliquent normalement. En maladie rénale chronique NON dialysée, la statine reste indiquée.
+  - quand: "intolerance_statine == true"
+    niveau: attention
+    message: >-
+      Intolérance aux statines rapportée : plus de 90 % des symptômes musculaires rapportés sous statine ne
+      sont, en réalité, PAS attribuables à la statine, l'excès réel de risque étant limité à la 1re année de
+      traitement (méta CTT sur données individuelles, 2022). Avant d'écarter la classe entière, un
+      changement de molécule peut être envisagé : pravastatine, rosuvastatine et pitavastatine ont moins
+      d'interactions (CYP3A4) que simvastatine/atorvastatine — utile en cas d'intolérance ou de
+      co-prescription à risque.
+  # F-statine §9.5 (2026-07-26, 2ᵉ série) : SCORE2-Diabète n'a d'objet que pour le patient SANS critère de la
+  # grille (tier « discuter » — cf. option 2, mêmes 3 conditions) ; en prévention secondaire (ASCVD_etablie
+  # == true) il est sans objet, d'où le terme explicite `ASCVD_etablie == false` (les alertes ne voient que
+  # les critères, jamais l'option résolue par l'ordered-first-match — un patient ASCVD peut par ailleurs
+  # remplir les 3 autres conditions). Déjà en forme normale disjonctive (le DSL n'a pas de parenthèses, AND
+  # prime sur OR) : ici un unique terme conjonctif, pas de OR nécessaire.
+  - quand: "ASCVD_etablie == false AND anciennete_diabete_annees < 10 AND autres_FDRCV == 0 AND diabete_complique == false"
+    niveau: info
+    message: >-
+      Absence de tout critère de la grille (diabète récent, non compliqué, sans autre facteur de risque
+      cardiovasculaire) : le risque absolu est probablement faible, et l'outil SCORE2-Diabète peut aider à
+      l'objectiver (seuils fixes ESC 2023 : faible < 5 %, modéré 5-<10 %, haut 10-<20 %, très haut ≥ 20 %).
+      Réserve : SCORE2-Diabète n'est validé que 40-69 ans (SCORE2-OP / jugement clinique au-delà) — un
+      profil sans critère de la grille est souvent JEUNE, donc potentiellement hors de la plage de
+      validation de l'outil qu'on lui suggère de calculer.
   - quand: "default"
     niveau: info
     message: >-
       La décision (traiter / discuter) et l'intensité se gradent sur le RISQUE ABSOLU, pas sur une cible LDL
       chiffrée : aucun ECR ne valide une valeur cible de LDL (LODESTAR : viser une cible ≡ dose fixe ; VA/DoD
       2026 : preuve insuffisante pour le treat-to-target), et le bénéfice est indépendant du LDL de base (HPS).
-      Pour estimer le risque absolu chez le diabétique NON compliqué de 40-69 ans, l'outil SCORE2-Diabète est
-      utile (seuils fixes ESC 2023 : faible < 5 %, modéré 5-<10 %, haut 10-<20 %, très haut ≥ 20 %) ; il n'est
-      pas validé chez le diabétique compliqué (d'emblée à haut risque) ni au-delà de 69 ans (SCORE2-OP /
-      jugement clinique).
 argumentaire: >
   La statine est le volet lipidique de la prévention cardiovasculaire du diabétique, à décider indépendamment
   de l'HbA1c. En prévention SECONDAIRE (maladie athéromateuse établie), le bénéfice est fort, sur critères
@@ -150,8 +229,10 @@ argumentaire: >
   assumée : l'intensité est calée sur le niveau de risque, PAS sur une cible LDL chiffrée — aucun ECR ne
   valide une valeur cible (LODESTAR : viser une cible équivaut à une dose fixe), et CARDS/HPS ont démontré le
   bénéfice à dose fixe, indépendamment du LDL de base. Cas particuliers : après 75 ans en prévention primaire,
-  individualiser (preuve faible) ; ne pas initier de statine chez un patient déjà en dialyse (4D, AURORA
-  neutres). Le « diabète induit par statine » est sans objet chez un patient déjà diabétique.
+  individualiser (preuve faible) ; en dialyse SANS statine en cours, l'option de haute intensité n'est plus
+  proposée (4D, AURORA neutres — exclusion structurelle depuis 2026-07-26) ; une statine déjà en place peut
+  raisonnablement être poursuivie. Le « diabète induit par statine » est sans objet chez un patient déjà
+  diabétique.
 sources:
   references_primaires:
     - titre: "CARDS (atorvastatine 10 mg, DT2 prévention primaire) — composite HR 0,63 ; mortalité NS (p=0,059)"
@@ -286,18 +367,83 @@ incertitudes:
   - "Mortalité toutes causes en prévention primaire du DT2 : NON démontrée (essais dédiés au diabète non significatifs ; le signal vient des méta-analyses mixtes primaire + secondaire) — l'outil affiche le bénéfice sur les événements CV, pas sur la survie."
   - "Frontière « discuter / traiter » = jugement de valeur, pas un seuil-EBM : le bénéfice relatif de la statine est ~constant (CTT), seul le bénéfice absolu décroît avec le risque. L'outil place la frontière à l'absence des facteurs d'enrichissement des ECR (CARDS/HPS : ≥ 1 FDR, complication, ancienneté ≥ 10 ans), alignée sur la grille française 2026 (« modéré = DT2 < 10 ans non compliqué »)."
   - "`diabete_complique` (bool) = jugement clinique (atteinte d'organe rétinienne / rénale / neurologique, ou maladie macrovasculaire) ; la grille française 2026 détaille les critères (ACR/DFG, rétinopathie sévère…), non éclatés ici pour rester lisible et EBM."
-  - "SCORE2-Diabète = aide à l'estimation du risque absolu (seuils fixes ESC 2023, validé 40-69 ans), affichée en alerte info, NON encodée comme gate (un seuil % serait un artefact de modèle, pas une donnée d'ECR — l'ancien encodage âge-bandé était une erreur méthodo corrigée)."
+  - "SCORE2-Diabète = aide à l'estimation du risque absolu (seuils fixes ESC 2023, validé 40-69 ans), NON encodée comme gate (un seuil % serait un artefact de modèle, pas une donnée d'ECR — l'ancien encodage âge-bandé était une erreur méthodo corrigée). Depuis 2026-07-26 (F-statine §9.5, 2ᵉ série), son alerte info est CIBLÉE sur le tier « discuter » (`ASCVD_etablie == false AND anciennete_diabete_annees < 10 AND autres_FDRCV == 0 AND diabete_complique == false` — seule situation où le référent juge l'estimation utile) et porte désormais la réserve de validation 40-69 ans, un profil sans critère de grille étant souvent jeune donc potentiellement hors plage. Le rappel générique « pas de cible LDL » (alerte `default`) reste, lui, affiché à tout patient."
   - "Prévention primaire après 75 ans : preuve faible/incertaine (STAREE — qui exclut les diabétiques — et PREVENTABLE en cours) ; modélisée en alerte plutôt qu'en option distincte."
-  - "Exception dialyse modélisée par une alerte sur la variable `dialyse` (bool) — elle ne retire pas l'option (le clinicien juge la poursuite d'une statine déjà en place)."
+  - "Dialyse (2026-07-26, D21, F-statine §9.1) : l'INITIATION est désormais retirée par une `exclusion` structurelle (`dialyse == true AND statine_deja_en_place == false`) sur l'option « haute intensité » — la contradiction la plus sévère relevée en recette. Cette exclusion N'A PAS été étendue aux options « discuter » (bas risque) ni au repli « primaire modérée » : le nœud est en `ordered-first-match` à 3 options sans 4e filet, et l'invariant générique I2′ (jamais de sortie vide quand tout est renseigné, `engine/banc/invariants.test.ts`, hors périmètre de ce lot) interdit d'exclure le repli. Un patient dialysé sans statine en cours et sans ASCVD établie peut donc encore voir s'afficher « discuter » ou « primaire modérée » (contre_indications reformulées en conséquence, pas en impératif absolu) — limite connue, signalée plutôt que masquée (invariant 6), non corrigée dans ce lot (nécessiterait une option dédiée « statine non recommandée » ou une révision de l'invariant générique)."
+  - "Intolérance aux statines (`intolerance_statine`, nouveau critère 2026-07-26, F-statine §9.1) : le dossier de preuve documente la non-attribution de la majorité des symptômes musculaires et la préférence de molécule (moins d'interactions CYP3A4), mais NE couvre PAS de protocole de conduite à tenir (réintroduction, dose alternée, molécule de repli) en cas d'intolérance confirmée — non modélisé, faute de source dans ce dossier (signalé, pas inventé, invariant 6)."
+  - "`autres_FDRCV` (nombre) accepte aujourd'hui des valeurs hors du domaine clinique (ex. -1), ce qui peut faire basculer la sortie d'un tier à l'autre (recette 2026-07-26, défaut 13.4) : le schéma (`schema/noeud.schema.json`, `critereEntree`) ne porte aucun champ minimum/maximum pour un critère `nombre` — non corrigé dans ce lot (changement de schéma hors périmètre), signalé à l'orchestrateur."
+  - "`age` est un critère saisi et délibérément NON DÉCISIF sur les options : il n'intervient dans AUCUNE condition, seulement dans l'alerte `age > 75 AND ASCVD_etablie == false`. TRANCHÉ par le référent le 2026-07-26 (F-statine §9.4, 2ᵉ série) : un lot précédent avait proposé un gate `age >= 40` (recette 2026-07-26, F-statine §9.3) ; le référent l'a REJETÉ — « tout dépend de l'ancienneté du diabète et des atteintes d'organe. On colle à la grille. » Un DT2 de 30 ans avec 2 facteurs de risque est donc traité, À DESSEIN, comme un DT2 de 60 ans avec 2 facteurs de risque : c'est la grille française 2026 (`anciennete_diabete_annees`, `autres_FDRCV`, `diabete_complique`) qui gouverne la stratification, pas l'âge. Ce n'est plus une lacune mais une décision assumée — voir aussi le commentaire porté par le critère `age` dans `criteres_entree`."
   - "Cible LDL en prévention secondaire / très haut risque : évolutive (ECR 2026 de ciblage intensif via ézétimibe / anti-PCSK9) — hors périmètre du nœud statine, à suivre en veille."
   - "Conflits d'intérêt des recommandations officielles (reco française 2026 & homologues internationales cosignées avec les fabricants d'hypolipémiants / anti-PCSK9) : signalés dans reco_officielle ; l'outil pondère l'EBM et les sources critiques indépendantes (Prescrire, Minerva) pour le grain de la décision, surtout sur le versant agressif (cibles, escalade)."
 veille_liee: []
 meta:
-  date_revue: "2026-07-23"
-  auteur: "référent DT2 (Thibault) + Opus"
-  statut: valide
-  version: "1.0"
+  date_revue: "2026-07-26"
+  auteur: "référent DT2 (Thibault) + Claude Code"
+  statut: brouillon
+  version: "1.2"
   changelog:
+    - date: "2026-07-26"
+      auteur: "référent DT2 (Thibault, F-statine.md §9.4/§9.5) + Claude Code"
+      resume: >-
+        Arbitrages référent, 2ᵉ série du 2026-07-26 (F-statine §9.4/§9.5). RESTE EN BROUILLON (v1.2) :
+        revalidation clinique référent toujours en attente (invariant CLAUDE.md 4). (1) Règle d'âge
+        REJETÉE (§9.4) : un lot précédent proposait un gate `age >= 40` sur les options ; le référent l'a
+        écarté (« tout dépend de l'ancienneté du diabète et des atteintes d'organe. On colle à la grille. »)
+        — la stratification traiter/discuter reste gouvernée par `anciennete_diabete_annees`,
+        `autres_FDRCV` et `diabete_complique` seuls. AUCUN changement d'`options` ni de `conditions`. Le
+        caractère délibérément non décisif d'`age` (il n'agit que via l'alerte > 75 ans) est désormais
+        tracé explicitement en commentaire sur le critère `age` (`criteres_entree`) et dans
+        `incertitudes`, pour qu'une future passe de l'invariant générique R5 (« un critère qu'on demande
+        doit agir ») ne le recâble pas par erreur et n'annule pas cette décision sans trace. (2) Alerte
+        SCORE2-Diabète (§9.5) : jusqu'ici portée par l'alerte `default` (affichée à TOUT patient), elle en
+        est extraite en alerte dédiée `ASCVD_etablie == false AND anciennete_diabete_annees < 10 AND
+        autres_FDRCV == 0 AND diabete_complique == false` — CIBLÉE sur le tier « discuter » (seule situation
+        où l'estimation sert, référent : « en l'absence de critère de la grille on pourrait suggérer de
+        calculer le SCORE2-Diabète, mais il serait probablement faible »), forme normale disjonctive à un
+        seul terme conjonctif (le DSL n'a pas de parenthèses, AND prime sur OR). Le terme `ASCVD_etablie ==
+        false` est nécessaire car les alertes ne voient que les critères, jamais l'option résolue par
+        l'ordered-first-match : sans lui, un patient ASCVD par ailleurs récent/non compliqué/sans FDR
+        aurait déclenché à tort une alerte sans objet en prévention secondaire. Réserve de validation
+        ajoutée au message (reprise de `incertitudes`, non inventée) : SCORE2-Diabète n'est validé que
+        40-69 ans, or le profil sans critère de grille est souvent jeune donc potentiellement hors de cette
+        plage. L'alerte `default` restante ne porte plus que le rappel générique « pas de cible LDL »
+        (toujours affiché à tout patient). 5 alertes désormais (au lieu de 4). REFUSÉ / HORS PÉRIMÈTRE :
+        entrée DECISIONS.md dédiée à ces deux arbitrages (périmètre de ce lot limité à statine.yaml +
+        argumentaire + F-statine.md), signalé à l'orchestrateur. Snapshots de caractérisation
+        `engine/banc/__snapshots__/caracterisation{,-indetermine}.statine.txt` NON régénérés (attendu,
+        cf. tâche) : le diff est résumé dans le rapport de tâche, pas appliqué ici.
+    - date: "2026-07-26"
+      auteur: "référent DT2 (Thibault, F-statine.md §9) + Claude Code"
+      resume: >-
+        Arbitrages référent F-statine.md §9 appliqués (recette in-app 2026-07-25/26, DECISIONS.md D20/D21).
+        REPASSE EN BROUILLON (v1.1) : revalidation clinique référent restante avant `statut: valide`
+        (invariant CLAUDE.md 4). (1) Deux nouveaux critères d'entrée `statine_deja_en_place` et
+        `intolerance_statine` (bool, groupe « Statine en cours ») : le nœud couvre désormais l'INITIATION
+        ET la POURSUITE ; `population_cible` mise à jour (ces deux cas n'étaient auparavant ni couverts, ni
+        déclarés hors périmètre, §9.1). (2) `diabete_complique` porte `confirmation_requise: true` (D20) —
+        seul booléen du domaine à ce stade (`ASCVD_etablie`/`dialyse` explicitement écartés par le
+        référent, §9.2). (3) Alerte dialyse (D21) : ajout de `exclusions: ["dialyse == true AND
+        statine_deja_en_place == false"]` sur l'option « haute intensité — prévention secondaire », qui
+        portait la contradiction la plus sévère relevée en recette (« ne pas INITIER » affiché à côté de
+        « Statine de haute intensité »). Alerte + `contre_indications` reformulées en conséquence (ne
+        disent plus « ne pas INITIER » comme impératif redondant avec/contredisant l'exclusion). LIMITE
+        ASSUMÉE ET SIGNALÉE (`incertitudes`) : l'exclusion N'A PAS été étendue aux options « discuter »
+        (bas risque) ni au repli « primaire modérée » — nœud `ordered-first-match` à 3 options sans 4e
+        filet ; l'invariant générique I2′ (jamais de sortie vide quand tout est renseigné,
+        `engine/banc/invariants.test.ts`, non modifiable dans ce lot) interdit d'exclure le repli. Un
+        patient dialysé naïf sans ASCVD établie peut donc encore voir « discuter »/« primaire modérée »
+        s'afficher ; non corrigé (nécessiterait une option dédiée ou une révision d'invariant, hors
+        périmètre). (5) Nouvelle alerte de nœud `intolerance_statine == true`, sourcée (CTT 2022 : >90 %
+        des symptômes musculaires non attribuables ; choix de molécule, moins d'interactions CYP3A4) — la
+        conduite à tenir détaillée (réintroduction, switch de molécule) N'EST PAS documentée par le dossier
+        de preuve : signalée en `incertitudes`, non inventée (invariant 6). REFUSÉ FAUTE DE
+        SOURCE/SCHÉMA : (4) borne de domaine sur `autres_FDRCV` (accepte aujourd'hui -1, recette 13.4) — le
+        schéma (`schema/noeud.schema.json`) ne porte aucun champ minimum/maximum pour un critère `nombre`,
+        modification de schéma hors périmètre de ce lot, signalée à l'orchestrateur. Règle d'âge (CARDS
+        40-75 ans, `age` collecté mais inerte, §9.3) : NON encodée, aucune décision référent sur le gate —
+        proposée hors YAML (rapport de tâche du lot statine, 2026-07-26), cf. invariant 6. Snapshots de
+        caractérisation `engine/banc/__snapshots__/caracterisation{,-indetermine}.statine.txt` NON
+        régénérés (attendu, cf. tâche) : le diff est résumé dans le rapport de tâche, pas appliqué ici.
     - date: "2026-07-23"
       auteur: "référent DT2 (Thibault) + Opus"
       resume: >-

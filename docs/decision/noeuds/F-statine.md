@@ -374,6 +374,134 @@ grille française 2026** (« modéré = DT2 < 10 ans non compliqué → décisio
   red-team du moteur, traçage de profils patients).
 - Validation clinique finale du référent (définition de `diabete_complique`, libellés d'intensité).
 
+## 9. Arbitrages référent — 2ᵉ série (2026-07-26), issus de la recette in-app
+
+Contexte : recette du 2026-07-25/26 (`../validation/recette-2026-07-25-prescription-intensifier.md`,
+capture 13) et inventaires du chantier (`../validation/chantier-2026-07-26/`). Le nœud `statine` s'est
+révélé le plus exposé des cinq — mode `ordered-first-match` (sortie unique, jamais mise en balance) et
+valeurs par défaut convergeant toutes vers le même tier.
+
+### 9.1 — Périmètre élargi : le nœud couvre l'initiation **et** la poursuite
+
+**Décision référent (2026-07-26) : ajouter deux critères d'entrée** — `statine_deja_en_place` et
+`intolerance_statine`.
+
+**Le cas qui l'a imposée.** L'alerte dialyse (`statine.yaml:118`) se termine par « **si une statine est
+déjà en place, sa poursuite est raisonnable** ». Or le nœud n'a **aucun critère** disant si le patient
+est déjà traité : il ne peut donc jamais distinguer les deux situations que sa propre alerte oppose.
+La nuance était structurellement inapplicable.
+
+**Deuxième angle mort fermé** : l'**intolérance / les effets indésirables sous statine** (myalgies) —
+motif d'arrêt le plus fréquent en pratique, cité dans les inconvénients du nœud (myopathie), absent
+des critères d'entrée, et **non déclaré hors périmètre** dans `population_cible` (`:34-38`), qui
+n'exclut explicitement que l'hypercholestérolémie familiale et l'intensification par
+ézétimibe/anti-PCSK9. Ces deux cas n'étaient donc ni couverts ni annoncés.
+
+**Couplage à ne pas casser** : ces deux critères sont un **prérequis** de la correction de la
+contradiction dialyse (D21). Transformer l'alerte dialyse en `exclusion` sans eux **viderait
+entièrement le nœud** (3 options en `ordered-first-match`, dont la 3ᵉ est le repli) — on remplacerait
+une contradiction visible par un mutisme, ce qui est un échange perdant. **Les critères d'abord.**
+
+### 9.2 — `diabete_complique` porte `confirmation_requise`
+
+**Décision référent (2026-07-26) : `diabete_complique` est le seul booléen du nœud — et du domaine à
+ce stade — marqué `confirmation_requise`** (cf. `DECISIONS.md` D20 et
+`../validation/chantier-2026-07-26/SPEC-valeur-indeterminee.md` §2.2). Tant qu'il n'est pas confirmé,
+il vaut `indetermine` et les options qui en dépendent restent **en attente**.
+
+**Raison — deux critères convergents.**
+
+1. *Son « non » demande un acte d'évaluation, pas un rappel.* Le nœud le dit lui-même dans ses
+   `incertitudes` : « `diabete_complique` (bool) = **jugement clinique** (atteinte d'organe rétinienne
+   / rénale / neurologique, ou maladie macrovasculaire) ». Cela ne se présume pas.
+2. *Il casse à lui seul une convergence dangereuse.* Les trois conditions du tier le plus léger
+   (`anciennete < 10`, `autres_FDRCV == 0`, `diabete_complique == false`) sont **toutes satisfaites par
+   les valeurs par défaut** : le profil « diabète récent, sans facteur de risque, non compliqué » est
+   littéralement l'état d'ouverture du formulaire, et il pousse vers la moindre intervention. Le
+   sous-traitement par silence est le plus difficile à remarquer.
+
+**Écartés, et pourquoi** : `ASCVD_etablie` — `anciennete_diabete_annees` et `autres_FDRCV` sont des
+`nombre`, donc déjà indéterminés par D20 ; la convergence est cassée sans lui. `dialyse` — ce serait
+de la friction pour la quasi-totalité des patients afin d'attraper un fait qu'un praticien ne peut pas
+ignorer.
+
+**Corollaire technique** : l'affordance « Rien à signaler » n'apparaît aujourd'hui qu'à partir de
+**2** booléens décisifs dans une section. Un drapeau isolé n'aurait donc aucun moyen d'être confirmé —
+seuil à descendre à 1 en même temps, sous peine de reproduire l'impasse de la capture 1 (un compteur
+qu'on ne peut pas éteindre).
+
+### 9.3 — Reste à corriger sur ce nœud (recette, non encore fait)
+
+- **`age` est collecté et n'apparaît dans aucune condition d'option, seulement dans l'alerte > 75 ans.**
+  L'inventaire du 2026-07-26 l'avait signalé comme une **règle manquante** (un DT2 de 30 ans avec 2 FDR
+  reçoit « Recommandée » sans réserve, alors que l'en-tête du nœud pose que la population prouvée est
+  celle des ECR — CARDS 40-75 ans). **TRANCHÉ depuis, voir §9.4 : ce n'est pas une règle manquante, c'est
+  une décision référent — `age` reste délibérément non décisif.** Ne pas rouvrir sans nouvelle décision.
+- **Pas de garde-fou de domaine** sur `autres_FDRCV` : la saisie accepte **−1**, ce qui bascule la
+  sortie d'un tier à l'autre.
+- **Le délai du bénéfice n'est jamais mis en regard de l'espérance de vie** — « 3-5 ans » s'affiche tel
+  quel à 90 ans. Le nœud n'a pas de critère d'espérance de vie, contrairement aux nœuds A et E.
+- **`dialyse` n'apparaît dans aucune `condition` ni `exclusion`** — uniquement dans l'alerte (cf. 9.1).
+
+**Point correct, à ne pas « corriger »** : chez un patient de 90 ans **avec ASCVD établie**, l'alerte
+> 75 ans ne se déclenche pas — c'est délibéré et conforme à son propre texte (« en prévention
+secondaire, le bénéfice persiste à tout âge »). Le gate `ASCVD_etablie == false` fait exactement ce
+qu'il doit.
+
+### 9.4 — Règle d'âge : REJETÉE, `age` reste délibérément non décisif
+
+**Décision référent (2026-07-26, 2ᵉ série).** §9.3 avait signalé `age` comme un critère collecté mais
+inerte sur les options (seul l'alerte > 75 ans l'utilise) et proposé, à titre d'hypothèse, un gate
+`age >= 40` calé sur la population de CARDS (40-75 ans avec ≥ 1 FDR). **Le référent l'écarte** : « tout
+dépend de l'ancienneté du diabète et des atteintes d'organe. On colle à la grille. »
+
+**Conséquence.** La décision traiter/discuter reste gouvernée **uniquement** par
+`anciennete_diabete_annees`, `autres_FDRCV` et `diabete_complique` — la grille française 2026 (« modéré
+= DT2 < 10 ans non compliqué »). **Aucune condition d'âge n'est ajoutée** à `options` dans ce lot. Un
+DT2 de 30 ans avec 2 facteurs de risque continue, à dessein, de recevoir la même stratification qu'un
+DT2 de 60 ans avec 2 facteurs de risque.
+
+**Ce que ce choix impose de tracer, et pourquoi.** `age` reste, après cette décision, un critère
+**délibérément non décisif** sur les options — il n'agit que via l'alerte `age > 75 AND ASCVD_etablie ==
+false`. C'est exactement la signature que l'invariant générique R5 (« un critère qu'on demande doit
+agir ; sinon on ne le demande pas », `GRAMMAIRE-NOEUD.md`) est conçu pour détecter et faire corriger. Sans
+une trace explicite du caractère **volontaire** de cette inertie, une future passe de R5 verrait un
+critère mort et serait tentée de le câbler dans une condition d'option — ce qui **annulerait cette
+décision référent sans que personne ne s'en aperçoive**. La trace a été posée à deux endroits :
+`statine.yaml` (commentaire au-dessus de `criteres_entree > age`, et entrée `incertitudes` dédiée) et ce
+paragraphe. **Aucun changement de code, de condition ou d'exclusion** n'accompagne cette décision — c'est
+une décision de **ne pas encoder**, purement documentaire.
+
+### 9.5 — SCORE2-Diabète : alerte ciblée sur le tier « discuter », avec sa réserve de validation
+
+**Décision référent (2026-07-26, 2ᵉ série).** « En l'absence de critère de la grille on pourrait
+suggérer de calculer le SCORE2-Diabète, mais il serait probablement faible. » Jusqu'ici, l'alerte info
+SCORE2-Diabète (portée par l'entrée `default` du nœud, cf. §7/§8) se déclenchait pour **tout patient**,
+qu'il soit en prévention secondaire, à traiter d'emblée, ou dans la situation où l'estimation sert
+réellement (absence de tout critère de la grille). Deux corrections appliquées :
+
+1. **Ciblage.** L'alerte SCORE2 est extraite de `default` en une entrée dédiée, dont la condition
+   reprend exactement les trois conditions de l'option « Discuter la statine » (`anciennete_diabete_annees
+   < 10 AND autres_FDRCV == 0 AND diabete_complique == false`), **plus** un terme explicite
+   `ASCVD_etablie == false`. Ce dernier terme est nécessaire : les alertes de nœud évaluent leur `quand`
+   sur les seuls critères, jamais sur l'option effectivement résolue par l'`ordered-first-match` (rappel
+   déjà noté au §7 de `GRAMMAIRE-NOEUD.md`) ; un patient avec ASCVD établie peut, par ailleurs, avoir un
+   diabète récent, non compliqué et sans FDR — sans ce terme, l'alerte SCORE2 se serait déclenchée à tort
+   chez un patient en prévention **secondaire**, où l'estimation du risque n'a pas d'objet (le tier haute
+   intensité y est déjà acquis par `ASCVD_etablie == true`, indépendamment de tout score). Condition
+   écrite en forme normale disjonctive (le DSL n'a pas de parenthèses, `AND` prime sur `OR`) : ici un
+   unique terme conjonctif, aucun `OR` n'est nécessaire.
+2. **Réserve de validation.** Le message ajoute que SCORE2-Diabète n'est validé que **40-69 ans**
+   (formulation déjà présente dans les `incertitudes` du nœud, reprise telle quelle) : un patient qui ne
+   coche aucun critère de la grille (diabète récent, non compliqué, sans FDR) est souvent **plus jeune**
+   que cette plage — l'outil qu'on lui suggère de calculer peut donc être lui-même hors de son propre
+   domaine de validation. Le message le dit explicitement.
+
+**Ce qui reste inchangé.** Le rappel générique « la décision et l'intensité se gradent sur le risque
+absolu, pas sur une cible LDL chiffrée » reste porté par l'entrée `default` et continue de s'afficher
+pour **tout** patient — ce point n'est pas spécifique à SCORE2 et n'avait pas de raison d'être restreint
+au tier « discuter ». Le nœud passe ainsi de 4 à 5 alertes.
+
 ## Annexe — Prompts OpenEvidence (débroussaillage référent, 2ᵉ passe)
 
 5 prompts (OE-F1 à OE-F5) transmis au référent le 2026-07-23, à lancer dans OpenEvidence en parallèle des

@@ -91,10 +91,16 @@ est *prouvé* par ECR dédié est celle de **CARDS** (diabétiques **40-75 ans a
 **HPS** (haut risque) ; **en-deçà** (diabète récent, non compliqué, sans autre FDR), l'ECR dédié **ASPEN est
 nul**. → chez un diabétique **récent (< 10 ans), non compliqué et sans autre facteur de risque**, le bénéfice
 absolu est faible → **décision partagée** plutôt qu'automatisme. Une ancienneté qui s'allonge, une complication
-(atteinte d'organe) ou l'apparition d'un facteur de risque font basculer vers le traitement. **SCORE2-Diabète**
-(aide à l'estimation du risque absolu, seuils fixes ESC 2023, validé 40-69 ans) peut affiner le jugement. La
-reco française 2026 range ce profil en « risque modéré » et fait de l'initiation une **décision partagée** si le
-LDL reste au-dessus de la cible malgré les mesures d'hygiène. Niveau de preuve **faible**.
+(atteinte d'organe) ou l'apparition d'un facteur de risque font basculer vers le traitement — **l'âge
+n'intervient pas dans cette bascule** : décision référent 2026-07-26 (F-statine §9.4, 2ᵉ série), qui écarte un
+gate d'âge proposé un temps (« tout dépend de l'ancienneté du diabète et des atteintes d'organe, on colle à la
+grille »). **SCORE2-Diabète** (aide à l'estimation du risque absolu, seuils fixes ESC 2023) peut affiner le
+jugement dans cette situation précise — c'est d'ailleurs la seule où l'outil suggère de le calculer (alerte
+dédiée depuis 2026-07-26, F-statine §9.5) — avec une réserve : il n'est **validé que 40-69 ans**, et un profil
+sans critère de grille (diabète récent, non compliqué, sans FDR) est souvent **plus jeune**, donc
+potentiellement hors de cette plage. La reco française 2026 range ce profil en « risque modéré » et fait de
+l'initiation une **décision partagée** si le LDL reste au-dessus de la cible malgré les mesures d'hygiène.
+Niveau de preuve **faible**.
 
 ## 4. « Pas de cible LDL dogmatique » — le fondement
 
@@ -131,6 +137,12 @@ global est porté par les **non-dialysés** (sous-groupe dialyse non concluant).
 place**, sa poursuite est raisonnable. En maladie rénale chronique **non dialysée** (stade 3-5), la statine
 reste indiquée.
 
+*(Encodage, 2026-07-26, F-statine.md §9.1 : le nœud distingue désormais l'initiation de la poursuite via le
+critère `statine_deja_en_place` — l'option « haute intensité » n'est plus proposée à un patient dialysé qui
+n'a pas déjà de statine en cours ; la poursuite reste possible. La contradiction entre l'ancienne alerte et
+la carte affichée, relevée en recette, est corrigée pour ce cas ; le tier « discuter »/le repli « intensité
+modérée » restent, eux, hors de cette exclusion — limite documentée dans `incertitudes` du YAML.)*
+
 ## 6. Sécurité
 
 - **« Diabète induit par statine » : sans objet ici.** L'effet diabétogène des statines (Sattar 2010 : OR 1,09
@@ -138,7 +150,10 @@ reste indiquée.
   le non-diabétique. Chez un patient **déjà diabétique**, cet argument **ne s'applique pas**.
 - **Symptômes musculaires** : la méta CTT sur données individuelles 2022 montre un excès réel **seulement la
   1re année** (RR 1,07), nul ensuite, et **> 90 % des symptômes musculaires rapportés ne sont pas attribuables**
-  à la statine (~1 sur 15).
+  à la statine (~1 sur 15). *(Depuis 2026-07-26, ce constat alimente une alerte dédiée du nœud sur le nouveau
+  critère `intolerance_statine` — le dossier ne documente PAS de protocole de conduite à tenir en cas
+  d'intolérance confirmée : réintroduction, dose alternée, molécule de repli. Non modélisé, signalé plutôt
+  qu'inventé.)*
 - **Choix de molécule** : simvastatine et atorvastatine sont métabolisées par le **CYP3A4** (interactions :
   macrolides, azolés, amiodarone, vérapamil/diltiazem, inhibiteurs de protéase, pamplemousse). **Pravastatine,
   rosuvastatine, pitavastatine** ont **moins d'interactions** — à préférer en cas de co-prescription à risque.
@@ -174,7 +189,9 @@ tous les diabétiques.
 ## 8. Incertitudes
 
 - Mortalité toutes causes en prévention primaire du DT2 : **non démontrée**.
-- Seuils du tier « bas risque » (âge 40 vs 50 ; compte de FDR) : proposés, à valider (référent).
+- Seuil du tier « bas risque » : TRANCHÉ 2026-07-26 (F-statine §9.4, 2ᵉ série) — pas de seuil d'âge, la
+  bascule suit uniquement `anciennete_diabete_annees < 10`, `autres_FDRCV == 0` et `diabete_complique ==
+  false` (grille française 2026) ; un gate d'âge proposé un temps a été rejeté par le référent.
 - Prévention primaire > 75 ans : preuve faible (essais en cours).
 - Modélisation de la dialyse : alerte sur DFG < 15 (proxy imparfait ; une variable `dialyse` serait plus
   précise).
