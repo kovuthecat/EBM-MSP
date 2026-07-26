@@ -55,6 +55,24 @@ describe('champEstVisible', () => {
   it('affiche ce même champ dès que la condition devient vraie', () => {
     expect(champEstVisible(CRITERES[1], { ...base(), intention: 'intensifier' })).toBe(true)
   })
+
+  describe('valeur indéterminée (DECISIONS.md D20, SPEC-valeur-indeterminee.md §2, point 5 de la tâche)', () => {
+    it('un `visible_si` INDÉTERMINÉ (critère `enum` dont dépend la visibilité, non renseigné) rend le champ VISIBLE — jamais masqué', () => {
+      // `traitements` (CRITERES[1]) dépend de `intention` (enum). `intention` absent de `renseignes` :
+      // le champ reste affiché plutôt que masqué (et donc potentiellement réinitialisé en silence).
+      expect(champEstVisible(CRITERES[1], base(), new Set())).toBe(true)
+    })
+
+    it('un `visible_si` VRAI reste visible, `renseignes` fourni ou non (aucune régression sur le cas déterminé)', () => {
+      expect(champEstVisible(CRITERES[1], { ...base(), intention: 'intensifier' }, new Set(['intention']))).toBe(
+        true,
+      )
+    })
+
+    it('un `visible_si` FAUX (déterminé) reste masqué : seule l’indétermination bascule vers visible, pas la fausseté', () => {
+      expect(champEstVisible(CRITERES[1], base(), new Set(['intention']))).toBe(false)
+    })
+  })
 })
 
 describe('grouperChamps', () => {
@@ -80,6 +98,14 @@ describe('grouperChamps', () => {
     const groupes = grouperChamps(sansGroupe, { ...base(), intention: 'intensifier' })
     expect(groupes).toHaveLength(1)
     expect(groupes[0].libelle).toBeUndefined()
+  })
+
+  it('D20 : un champ conditionné par un critère `enum` non renseigné reste VISIBLE (indétermination ⇒ visible)', () => {
+    // `intention` (dont dépend `traitements`) absent de `renseignes` : sans D20, `traitements` serait
+    // masqué (comme au 1er test « ordonne les sections… » avec `intention` par défaut = 'initier').
+    const groupes = grouperChamps(CRITERES, base(), new Set())
+    const rendus = groupes.flatMap((g) => g.champs.map((c) => c.nom))
+    expect(rendus).toContain('traitements')
   })
 })
 

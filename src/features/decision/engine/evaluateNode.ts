@@ -36,10 +36,24 @@
  * rien affiché. Les sentinelles `["default"]`/`["toujours"]` portent sur `conditions` uniquement (leur
  * `prerequis` éventuel, lui, reste une expression DSL réelle, évaluée normalement). Optionnel : un nœud
  * qui n'en déclare aucun garde exactement le comportement antérieur.
+ *
+ * VALEUR INDÉTERMINÉE (DECISIONS.md D20, `docs/decision/validation/chantier-2026-07-26/
+ * SPEC-valeur-indeterminee.md` §2) : `evaluateNode` accepte un troisième paramètre optionnel
+ * `renseignes: ReadonlySet<string>` — les noms de critères BRUTS effectivement fournis par le
+ * praticien. Absent ⇒ repli « tout est renseigné », comportement RIGOUREUSEMENT INCHANGÉ (aucune
+ * fonction ternaire ne renvoie jamais `INDETERMINE`) : c'est ce qui permet à la suite existante et aux
+ * bancs de continuer à tourner sans modification. Fourni, `evaluateNode` calcule d'abord l'ensemble
+ * EFFECTIF des critères déterminés (`deriveCritere.ts` `determinesEffectifs` : le `renseignes` brut,
+ * élargi aux `bool`/`liste` sans `confirmation_requise`, et aux critères DÉRIVÉS eux-mêmes déterminés),
+ * puis évalue `conditions`/`prerequis`/`exclusions`/`priorite[].quand`/`alertes[].quand` en TERNAIRE
+ * contre cet ensemble : une option dont l'une de ses `conditions`/`prerequis`/`exclusions` reste
+ * INDÉTERMINÉE part dans le nouveau registre `enAttente` — ni `applicable`, ni `excluded`, ni
+ * `nonRetenues` (Q1/Q2 du référent, §0 de la spec).
  */
-import type { Alerte, Noeud, Option } from '../content/node.types.ts'
-import type { Criteria } from './conditions.ts'
-import { ConditionError, evaluateCondition } from './conditions.ts'
+import type { Alerte, CritereEntree, Noeud, Option } from '../content/node.types.ts'
+import type { Criteria, Ternaire } from './conditions.ts'
+import { ConditionError, INDETERMINE, evaluateCondition } from './conditions.ts'
+import { determinesEffectifs } from './deriveCritere.ts'
 
 /**
  * Résultat de l'évaluation d'un nœud pour un jeu de critères donné.
@@ -84,6 +98,22 @@ export interface EvaluateNodeResult {
    * applicables, soit exclues, ET tous les `prerequis` (de toute option, sentinel comprise) sont vrais.
    */
   nonRetenues: Map<Option, string>
+  /**
+   * Options EN ATTENTE (D20, SPEC-valeur-indeterminee.md §2.4/§2.5, Q1/Q2 référent) : NI `applicable`
+   * NI `excluded` NI `nonRetenues` — l'une de leurs `conditions`, `prerequis` ou `exclusions` reste
+   * INDÉTERMINÉE faute de critère renseigné, le moteur ne peut donc pas se prononcer (ni proposer, ni
+   * écarter). Indexées par les noms de critères PRIMITIFS (jamais un nom dérivé, cf. `criteresManquants`
+   * ci-dessous) à renseigner pour lever l'indétermination — jamais vide pour une entrée présente ici —
+   * afin que l'écran puisse afficher « à renseigner : … » (§2.5). Vide quand `renseignes` est absent
+   * (repli) : cette famille de résultat n'existe alors pas, comme avant ce champ.
+   *
+   * ASYMÉTRIE DÉLIBÉRÉE avec `excluded`/`nonRetenues` (le point le plus sensible du lot, cf. tests
+   * dédiés) : une `exclusion` indéterminée n'est JAMAIS traitée comme fausse (l'option resterait
+   * proposée alors qu'un garde-fou de sécurité n'a pas pu être vérifié) ni comme vraie (elle serait
+   * écartée à tort, perdant une option peut-être indiquée) — elle bascule ICI, dans un état qui n'est ni
+   * l'un ni l'autre.
+   */
+  enAttente: Map<Option, string[]>
   /**
    * Alertes cliniques déclenchées pour ces critères (D15) : rappels/avertissements indépendants de
    * la sélection des options (ex. contrôler la cétonémie, adapter la dose au DFG). Vide si aucune.
@@ -298,60 +328,173 @@ function requireConditions(option: Option): void {
 
 /**
  * Exclusions dures déclenchées d'une option : sous-ensemble de `option.exclusions` (expressions DSL)
- * qui s'évaluent à vrai pour ces critères. Vide si l'option n'a pas d'`exclusions`. Propage
- * `ConditionError` comme le reste du moteur (jamais de faux silencieux, brief §7).
+ * qui s'évaluent à vrai (au sens STRICT, `=== true` — jamais `INDETERMINE`, D20) pour ces critères. Vide
+ * si l'option n'a pas d'`exclusions`. Propage `ConditionError` comme le reste du moteur (jamais de faux
+ * silencieux, brief §7). N'est appelée qu'une fois le VERDICT global des exclusions déjà tranché à
+ * `true` (`classerOption` ci-dessous) : ne reporte donc que les expressions CONFIRMÉES, jamais une
+ * indéterminée qui aurait par ailleurs basculé l'option dans `enAttente`.
  */
-function triggeredExclusions(option: Option, criteria: Criteria): string[] {
+function triggeredExclusions(option: Option, criteria: Criteria, effectifs?: ReadonlySet<string>): string[] {
   if (!option.exclusions || option.exclusions.length === 0) return []
-  return option.exclusions.filter((expr) => evaluateCondition(expr, criteria))
+  return option.exclusions.filter((expr) => evaluateCondition(expr, criteria, effectifs) === true)
 }
 
 /**
- * Première expression de `expressions` qui s'évalue à FAUX, ou `undefined` si toutes sont vraies.
- * Brique commune à `firstFailingCondition` et `firstFailingPrerequisite` ci-dessous : `conditions` et
- * `prerequis` sont évalués EXACTEMENT de la même façon par le moteur (R6, arbitrage indication/
- * prérequis) — seule la restitution à l'écran les distingue (`lib/vueDecision.ts`). Même nombre
+ * Première expression de `expressions` qui s'évalue à FAUX (au sens STRICT), ou `undefined` si aucune ne
+ * l'est. Appelée par `classerOption` ci-dessous une fois le verdict global déjà tranché à `false` — sur
+ * `conditions`+`prerequis` combinés ou `prerequis` seul selon l'option (R6, arbitrage indication/
+ * prérequis) : les deux sont évalués EXACTEMENT de la même façon par le moteur, seule la restitution à
+ * l'écran les distingue (`lib/vueDecision.ts`). Même nombre
  * d'appels à `evaluateCondition` qu'un `.every()` — arrêt au premier échec — mais expose L'EXPRESSION
  * fautive plutôt qu'un simple booléen, sans évaluation supplémentaire (R4, `docs/decision/
  * GRAMMAIRE-NOEUD.md` : « la condition non satisfaite est déjà connue au moment où la boucle s'arrête,
- * il suffit de la retenir »).
+ * il suffit de la retenir »). N'est appelée qu'après un verdict global déjà `false` (`classerOption`) :
+ * il existe forcément une expression strictement fausse à trouver, jamais seulement indéterminée.
  */
-function firstFailingExpression(expressions: string[], criteria: Criteria): string | undefined {
+function firstFailingExpression(
+  expressions: string[],
+  criteria: Criteria,
+  effectifs?: ReadonlySet<string>,
+): string | undefined {
   for (const expression of expressions) {
-    if (!evaluateCondition(expression, criteria)) return expression
+    if (evaluateCondition(expression, criteria, effectifs) === false) return expression
   }
   return undefined
 }
 
 /**
- * Première condition de `option.conditions` OU premier `prerequis` de `option.prerequis` qui s'évalue à
- * FAUX, ou `undefined` si tout est vrai (option applicable sur ses conditions ET ses prérequis, R6). Les
- * deux tableaux sont concaténés puis scannés dans cet ordre — conditions d'abord, comme avant ce champ —
- * de sorte que la première expression fautive rencontrée est celle retenue, qu'elle vienne de l'une ou
- * l'autre liste : `nonRetenues` (R4) ne distingue pas la source, seule compte l'expression qui explique.
- * NE S'UTILISE JAMAIS sur une option sentinelle (`["default"]`/`["toujours"]`) : ces mots ne sont pas des
- * expressions DSL évaluables — `evaluateCondition` lèverait dessus. Pour une sentinelle, cf.
- * `firstFailingPrerequisite`, qui n'évalue que `prerequis`, jamais `conditions`.
+ * Statut TERNAIRE (D20) de `expressions` prises en ET (`conditions`+`prerequis` d'une option, ou
+ * `prerequis` seul pour une sentinelle) : `false` dès qu'UNE expression est fausse (court-circuit —
+ * boucle explicite, PAS `expressions.map(...)` puis `ternaryAll` : un `.map()` évaluerait TOUJOURS
+ * toutes les expressions, y compris celles qu'un contenu réel rend volontairement inatteignables
+ * derrière une condition déjà fausse plus tôt, risquant une `ConditionError` nouvelle sur une expression
+ * jamais réellement rencontrée avant ce chantier — même raison que `evaluateCondition`, `conditions.ts`).
+ * Sinon `INDETERMINE` si au moins une l'est, sinon `true`. `[]` ⇒ `true` (vérité vacante, `.every()`).
  */
-function firstFailingCondition(option: Option, criteria: Criteria): string | undefined {
-  return firstFailingExpression([...option.conditions, ...(option.prerequis ?? [])], criteria)
+function statutToutes(
+  expressions: string[],
+  criteria: Criteria,
+  effectifs: ReadonlySet<string> | undefined,
+): Ternaire {
+  let indetermine = false
+  for (const expression of expressions) {
+    const valeur = evaluateCondition(expression, criteria, effectifs)
+    if (valeur === false) return false
+    if (valeur === INDETERMINE) indetermine = true
+  }
+  return indetermine ? INDETERMINE : true
 }
 
 /**
- * Premier `prerequis` de `option.prerequis` qui s'évalue à FAUX, ou `undefined` si tous sont vrais (ou
- * si l'option n'en porte aucun). Réservée aux options SENTINELLES (`["default"]`/`["toujours"]`, D11/
- * D16) : leur tableau `conditions` n'est pas une expression évaluable, mais un `prerequis` — ajouté par
- * R6 — reste une expression DSL réelle, à évaluer normalement (docstring de tête de ce fichier). Une
- * option ordinaire passe par `firstFailingCondition` (qui couvre déjà `prerequis`).
+ * Statut TERNAIRE (D20) de `expressions` prises en OU (`exclusions` d'une option, Q2 référent) : `true`
+ * dès qu'UNE expression est vraie (court-circuit, même motif que `statutToutes`), sinon `INDETERMINE` si
+ * au moins une l'est, sinon `false`. `[]` ⇒ `false` (comme l'ancien `.some()` sur `[]`).
  */
-function firstFailingPrerequisite(option: Option, criteria: Criteria): string | undefined {
-  return firstFailingExpression(option.prerequis ?? [], criteria)
+function statutUne(
+  expressions: string[],
+  criteria: Criteria,
+  effectifs: ReadonlySet<string> | undefined,
+): Ternaire {
+  let indetermine = false
+  for (const expression of expressions) {
+    const valeur = evaluateCondition(expression, criteria, effectifs)
+    if (valeur === true) return true
+    if (valeur === INDETERMINE) indetermine = true
+  }
+  return indetermine ? INDETERMINE : false
+}
+
+/**
+ * Primitifs référencés (mot entier) par `expression`, parmi `criteres` — un critère DÉRIVÉ référencé est
+ * DÉROULÉ vers les primitifs que SON PROPRE `derive` référence (un seul niveau : ce contenu ne chaîne
+ * jamais un dérivé sur un autre, cf. docstring `deriveCritere.ts` `calculerCriteresDerives`). Utilitaire
+ * de `criteresManquants` ci-dessous — jamais utilisé pour évaluer quoi que ce soit : mécanique de
+ * nommage pour que la liste « à renseigner : … » (D20 §2.5) cite des CHAMPS DE FORMULAIRE réels, jamais
+ * un concept dérivé non saisissable (`lib/formLayout.ts` : « les critères dérivés ne sont jamais rendus »).
+ */
+function primitivesReferencees(expression: string, criteres: CritereEntree[]): string[] {
+  const noms = new Set<string>()
+  for (const critere of criteres) {
+    if (!new RegExp(`\\b${critere.nom}\\b`).test(expression)) continue
+    if (critere.derive == null) {
+      noms.add(critere.nom)
+      continue
+    }
+    for (const autre of criteres) {
+      if (autre.derive == null && new RegExp(`\\b${autre.nom}\\b`).test(critere.derive)) noms.add(autre.nom)
+    }
+  }
+  return [...noms]
+}
+
+/**
+ * Primitifs à renseigner pour lever l'indétermination d'une ou plusieurs expressions DSL (D20 §2.5,
+ * « à renseigner : … ») : parmi les primitifs référencés par `expressions` (dérivés déroulés vers leurs
+ * primitifs, cf. `primitivesReferencees`), ceux qui ne sont PAS dans `effectifs`. Toujours non vide
+ * quand appelée juste après un `statutToutes`/`statutUne` ayant renvoyé `INDETERMINE` sur ces mêmes
+ * `expressions` — c'est justement ce qui a produit ce résultat.
+ */
+function criteresManquants(
+  expressions: string[],
+  criteres: CritereEntree[],
+  effectifs: ReadonlySet<string>,
+): string[] {
+  const referencees = new Set(expressions.flatMap((e) => primitivesReferencees(e, criteres)))
+  return [...referencees].filter((nom) => !effectifs.has(nom))
+}
+
+/**
+ * Classe UNE option (sentinelle `["toujours"]`/`["default"]`, dont seul `prerequis` est une expression
+ * évaluable — cf. appelants ci-dessous —, ou option ordinaire) contre ses `expressionsCondition`
+ * (`conditions`+`prerequis`, ou `prerequis` seul pour une sentinelle) PUIS ses `exclusions` — TOUJOURS
+ * dans cet ordre (R6 : une option non indiquée n'a de toute façon rien à exclure). Mute
+ * `enAttente`/`nonRetenues`/`excluded` selon le verdict (D20, Q1/Q2 référent) ; renvoie `true`
+ * SEULEMENT si l'option est APPLICABLE — la seule issue qui n'est pas déjà entièrement tracée par cette
+ * fonction, à charge de l'appelant de la pousser dans `applicable`/`reasons`.
+ *
+ * ASYMÉTRIE DÉLIBÉRÉE (cf. docstring `EvaluateNodeResult.enAttente`) : `statutToutes` indéterminé (une
+ * `conditions`/un `prerequis` non tranchable) ⇒ `enAttente`, jamais `nonRetenues` (qui affirmerait « non
+ * indiqué ») ni `applicable` (qui affirmerait « indiqué »). `statutUne` (exclusions) indéterminé ⇒
+ * `enAttente` de la MÊME façon, jamais `excluded` (affirmerait la contre-indication) ni un passage sous
+ * silence vers `applicable` (laisserait passer un geste peut-être contre-indiqué, Q2).
+ */
+function classerOption(
+  option: Option,
+  expressionsCondition: string[],
+  criteria: Criteria,
+  effectifs: ReadonlySet<string> | undefined,
+  criteresEntree: CritereEntree[],
+  enAttente: Map<Option, string[]>,
+  nonRetenues: Map<Option, string>,
+  excluded: Map<Option, string[]>,
+): boolean {
+  const statutCond = statutToutes(expressionsCondition, criteria, effectifs)
+  if (statutCond === INDETERMINE) {
+    enAttente.set(option, criteresManquants(expressionsCondition, criteresEntree, effectifs ?? new Set()))
+    return false
+  }
+  if (statutCond === false) {
+    nonRetenues.set(option, firstFailingExpression(expressionsCondition, criteria, effectifs)!)
+    return false
+  }
+  const exclusions = option.exclusions ?? []
+  const statutExcl = statutUne(exclusions, criteria, effectifs)
+  if (statutExcl === INDETERMINE) {
+    enAttente.set(option, criteresManquants(exclusions, criteresEntree, effectifs ?? new Set()))
+    return false
+  }
+  if (statutExcl === true) {
+    excluded.set(option, triggeredExclusions(option, criteria, effectifs))
+    return false
+  }
+  return true
 }
 
 /**
  * Alertes déclenchées parmi une liste `alertes` pour ces critères : celles dont `quand` vaut
- * `"default"` (toujours) ou dont l'expression DSL est vraie. Propage `ConditionError` sur une
- * expression malformée (jamais de faux silencieux, brief §7).
+ * `"default"` (toujours) ou dont l'expression DSL est vraie AU SENS STRICT (`=== true` — jamais
+ * `INDETERMINE`, D20 : « une alerte dont le `quand` est indéterminé ne s'affiche pas », §2.4). Propage
+ * `ConditionError` sur une expression malformée (jamais de faux silencieux, brief §7).
  *
  * Brique commune aux alertes de NŒUD (`Noeud.alertes`, D15 — appelée ci-dessous par `evaluateAlertes`,
  * dans `EvaluateNodeResult.alertes`) et aux alertes d'OPTION (`Option.alertes`, schéma § additions
@@ -361,18 +504,29 @@ function firstFailingPrerequisite(option: Option, criteria: Criteria): string | 
  * jamais l'applicabilité elle-même — alors qu'`evaluateNode` tourne des centaines de fois par frappe via
  * la boucle de perturbation (`engine/relevance.ts`). Exportée pour cette réutilisation plutôt que
  * dupliquée dans `lib/vueDecision.ts`.
+ *
+ * `renseignes` (D20) : ATTENDU DÉJÀ EFFECTIF (fold bool/liste + dérivés déterminés, cf.
+ * `deriveCritere.ts` `determinesEffectifs`) — cette fonction, générique, ne connaît aucun type de
+ * critère et ne peut pas faire ce calcul elle-même. `evaluateAlertes` ci-dessous le passe déjà calculé
+ * (une fois par appel d'`evaluateNode`) ; `lib/vueDecision.ts` (alertes d'option) fait de même.
  */
-export function evaluateAlertesDeListe(alertes: Alerte[] | undefined, criteria: Criteria): Alerte[] {
+export function evaluateAlertesDeListe(
+  alertes: Alerte[] | undefined,
+  criteria: Criteria,
+  renseignes?: ReadonlySet<string>,
+): Alerte[] {
   if (!alertes || alertes.length === 0) return []
-  return alertes.filter((alerte) => alerte.quand === 'default' || evaluateCondition(alerte.quand, criteria))
+  return alertes.filter(
+    (alerte) => alerte.quand === 'default' || evaluateCondition(alerte.quand, criteria, renseignes) === true,
+  )
 }
 
 /**
  * Alertes cliniques déclenchées d'un NŒUD pour ces critères (D15) : indépendant de la sélection des
  * options. Cf. `evaluateAlertesDeListe` pour la sémantique de `quand`.
  */
-function evaluateAlertes(node: Noeud, criteria: Criteria): Alerte[] {
-  return evaluateAlertesDeListe(node.alertes, criteria)
+function evaluateAlertes(node: Noeud, criteria: Criteria, effectifs?: ReadonlySet<string>): Alerte[] {
+  return evaluateAlertesDeListe(node.alertes, criteria, effectifs)
 }
 
 /**
@@ -398,8 +552,13 @@ interface ResolutionRang {
  * boucle ci-dessous connaît déjà `regle.quand` au moment où elle retient le rang, coût nul à le
  * renvoyer. Le repli `"default"` n'a, par construction, aucun motif clinique distinct (c'est l'ABSENCE
  * de toute autre règle qui l'a fait matcher) : `motif` reste `undefined` dans ce cas.
+ *
+ * `effectifs` (D20, SPEC §2.4) : une règle dont `quand` est INDÉTERMINÉ ne matche pas — « un rang n'est
+ * pas un fait clinique », contrairement à `conditions`/`exclusions` — on passe simplement à la règle
+ * suivante (`=== true` strict ci-dessous, ni `false` ni `INDETERMINE` ne matchent). N'affecte jamais
+ * `enAttente` : l'applicabilité de l'option est déjà tranchée avant que son rang soit résolu.
  */
-function resolvePriorite(option: Option, criteria: Criteria): ResolutionRang {
+function resolvePriorite(option: Option, criteria: Criteria, effectifs?: ReadonlySet<string>): ResolutionRang {
   const p = option.priorite
   if (p === undefined) return { rang: Number.POSITIVE_INFINITY }
   if (typeof p === 'number') {
@@ -419,14 +578,14 @@ function resolvePriorite(option: Option, criteria: Criteria): ResolutionRang {
     if (typeof regle?.quand !== 'string') {
       throw new ConditionError(`Option "${option.intitule}" : règle de priorité sans "quand" (chaîne attendue).`)
     }
-    if (regle.quand === 'default' || evaluateCondition(regle.quand, criteria)) {
-      if (!Number.isFinite(regle.rang)) {
-        throw new ConditionError(
-          `Option "${option.intitule}" : règle de priorité (${regle.quand}) sans "rang" fini (${String(regle.rang)}).`,
-        )
-      }
-      return { rang: regle.rang, motif: regle.quand === 'default' ? undefined : regle.quand }
+    const matched = regle.quand === 'default' || evaluateCondition(regle.quand, criteria, effectifs) === true
+    if (!matched) continue
+    if (!Number.isFinite(regle.rang)) {
+      throw new ConditionError(
+        `Option "${option.intitule}" : règle de priorité (${regle.quand}) sans "rang" fini (${String(regle.rang)}).`,
+      )
     }
+    return { rang: regle.rang, motif: regle.quand === 'default' ? undefined : regle.quand }
   }
   return { rang: Number.POSITIVE_INFINITY }
 }
@@ -436,20 +595,33 @@ function resolvePriorite(option: Option, criteria: Criteria): ResolutionRang {
  * avec la liste des conditions satisfaites par option. Propage `ConditionError` (via
  * `evaluateCondition`) sans la capturer : une variable de critère inconnue ou une condition mal
  * formée dans le contenu doit être visible, jamais avalée en silence (brief §7).
+ *
+ * `renseignes` (D20, optionnel) : cf. docstring de tête du fichier. `undefined` ⇒ repli, comportement
+ * inchangé. Fourni : `determinesEffectifs` calcule d'abord l'ensemble effectif une seule fois, ensuite
+ * consommé par toutes les évaluations ternaires ci-dessous (alertes de nœud, `conditions`/`prerequis`/
+ * `exclusions` de chaque option, `priorite[].quand`).
  */
-export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResult {
+export function evaluateNode(node: Noeud, criteria: Criteria, renseignes?: ReadonlySet<string>): EvaluateNodeResult {
+  const effectifs = determinesEffectifs(node.criteres_entree, criteria, renseignes)
+
   // Alertes cliniques (D15) : indépendantes de la sélection des options, calculées dans tous les cas.
-  const alertes = evaluateAlertes(node, criteria)
+  const alertes = evaluateAlertes(node, criteria, effectifs)
 
   // Nœud à sortie unique (D11) : la 1re option applicable dans l'ordre du nœud l'emporte.
   if (node.selection === 'ordered-first-match') {
-    return { ...evaluateOrderedFirstMatch(node, criteria), alertes, rangs: new Map(), rangMotifs: new Map() }
+    return {
+      ...evaluateOrderedFirstMatch(node, criteria, effectifs),
+      alertes,
+      rangs: new Map(),
+      rangMotifs: new Map(),
+    }
   }
 
   const applicable: Option[] = []
   const reasons = new Map<Option, string[]>()
   const excluded = new Map<Option, string[]>()
   const nonRetenues = new Map<Option, string>()
+  const enAttente = new Map<Option, string[]>()
   const defaults: Option[] = []
   let anyNonDefaultApplicable = false
 
@@ -461,58 +633,70 @@ export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResul
     if (isToujoursOption(option)) {
       // Toujours candidate (D16), sans compter comme un non-default « réel » : ne doit pas
       // masquer un éventuel repli `default` par ailleurs. Le sentinel lui-même n'a pas de `prerequis`
-      // à échouer, mais l'option PEUT en porter un (R6) : évalué normalement, AVANT les `exclusions`
-      // (une option retirée par prérequis n'était pas applicable, elle n'a donc rien à exclure).
-      const failingPrereq = firstFailingPrerequisite(option, criteria)
-      if (failingPrereq !== undefined) {
-        nonRetenues.set(option, failingPrereq)
-        continue
+      // à échouer, mais l'option PEUT en porter un (R6) : évalué normalement (via `classerOption`,
+      // `expressionsCondition` = `prerequis` seul, `conditions` n'étant pas une expression évaluable),
+      // AVANT les `exclusions` (une option retirée par prérequis n'était pas applicable, elle n'a donc
+      // rien à exclure). D20 : indéterminé sur l'un ou l'autre → `enAttente`, jamais silencieux.
+      if (
+        classerOption(
+          option,
+          option.prerequis ?? [],
+          criteria,
+          effectifs,
+          node.criteres_entree,
+          enAttente,
+          nonRetenues,
+          excluded,
+        )
+      ) {
+        applicable.push(option)
+        reasons.set(option, [...option.conditions])
       }
-      const triggeredAlways = triggeredExclusions(option, criteria)
-      if (triggeredAlways.length > 0) {
-        excluded.set(option, triggeredAlways)
-        continue
-      }
-      applicable.push(option)
-      reasons.set(option, [...option.conditions])
       continue
     }
     requireConditions(option)
     // R4 : la condition fautive (s'il y en a une) est retenue au passage, sans réévaluation (cf.
-    // docstring `firstFailingCondition`).
-    const failing = firstFailingCondition(option, criteria)
-    if (failing !== undefined) {
-      nonRetenues.set(option, failing)
-      continue
+    // docstring `firstFailingExpression`) ; D20 : une indétermination bascule l'option dans `enAttente`
+    // plutôt que `nonRetenues` (cf. docstring `classerOption`).
+    if (
+      classerOption(
+        option,
+        [...option.conditions, ...(option.prerequis ?? [])],
+        criteria,
+        effectifs,
+        node.criteres_entree,
+        enAttente,
+        nonRetenues,
+        excluded,
+      )
+    ) {
+      anyNonDefaultApplicable = true
+      applicable.push(option)
+      reasons.set(option, [...option.conditions])
     }
-    // Applicable sur ses conditions : une exclusion dure la retire (et la trace dans `excluded`).
-    const triggered = triggeredExclusions(option, criteria)
-    if (triggered.length > 0) {
-      excluded.set(option, triggered)
-      continue
-    }
-    anyNonDefaultApplicable = true
-    applicable.push(option)
-    reasons.set(option, [...option.conditions])
   }
 
   // Le repli ne s'active que si AUCUNE option non-default n'est réellement applicable (une option
-  // exclue ne compte pas). Le repli est lui aussi soumis à ses propres `prerequis` (R6, évalués AVANT
-  // les `exclusions` — mêmes raisons que la branche « toujours » ci-dessus) puis exclusions.
+  // exclue OU en attente ne compte pas — D20 : rester silencieux sur une option ne doit pas priver le
+  // patient d'un repli par ailleurs sûr). Le repli est lui aussi soumis à ses propres `prerequis` (R6,
+  // évalués AVANT les `exclusions` — mêmes raisons que la branche « toujours » ci-dessus) puis exclusions.
   if (!anyNonDefaultApplicable) {
     for (const option of defaults) {
-      const failingPrereq = firstFailingPrerequisite(option, criteria)
-      if (failingPrereq !== undefined) {
-        nonRetenues.set(option, failingPrereq)
-        continue
+      if (
+        classerOption(
+          option,
+          option.prerequis ?? [],
+          criteria,
+          effectifs,
+          node.criteres_entree,
+          enAttente,
+          nonRetenues,
+          excluded,
+        )
+      ) {
+        applicable.push(option)
+        reasons.set(option, [...option.conditions])
       }
-      const triggered = triggeredExclusions(option, criteria)
-      if (triggered.length > 0) {
-        excluded.set(option, triggered)
-        continue
-      }
-      applicable.push(option)
-      reasons.set(option, [...option.conditions])
     }
   }
 
@@ -524,7 +708,7 @@ export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResul
   const rangs = new Map<Option, number>()
   const rangMotifs = new Map<Option, string>()
   for (const option of applicable) {
-    const resolution = resolvePriorite(option, criteria)
+    const resolution = resolvePriorite(option, criteria, effectifs)
     rangs.set(option, resolution.rang)
     if (resolution.motif !== undefined) rangMotifs.set(option, resolution.motif)
   }
@@ -538,7 +722,7 @@ export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResul
     return ra < rb ? -1 : 1
   })
 
-  return { applicable, reasons, excluded, nonRetenues, alertes, rangs, rangMotifs }
+  return { applicable, reasons, excluded, nonRetenues, enAttente, alertes, rangs, rangMotifs }
 }
 
 /**
@@ -551,59 +735,71 @@ export function evaluateNode(node: Noeud, criteria: Criteria): EvaluateNodeResul
  * `nonRetenues` (R4) ne peut tracer que les options VUES avant l'arrêt de la boucle (le 1er match ou
  * l'épuisement du nœud) : une fois une option retenue, les suivantes dans l'ordre du nœud ne sont
  * jamais évaluées — cohérent avec `excluded`, qui a la même limite en OFM.
+ *
+ * D20 (SPEC §2.4) — HALTE sur indéterminé, pas un simple saut : si l'option rencontrée dans l'ordre du
+ * nœud est INDÉTERMINÉE (`conditions`/`prerequis`/`exclusions`), la boucle S'ARRÊTE là plutôt que de
+ * tester l'option suivante. L'ORDRE du nœud FAIT FOI (D11) : sauter une option indéterminée pour en
+ * retenir une plus loin reviendrait à décider qu'elle ne matche pas, ce qui est précisément ce que le
+ * moteur ignore. Le nœud entier devient `enAttente` sur CETTE seule option ; les options suivantes — y
+ * compris le repli — ne sont jamais atteintes, même limite que `nonRetenues`/`excluded` ci-dessus. Ce
+ * choix n'est pas explicitement tranché par la spec (silencieuse sur l'interaction OFM/`enAttente`) —
+ * signalé au rapport de tâche.
  */
 function evaluateOrderedFirstMatch(
   node: Noeud,
   criteria: Criteria,
+  effectifs: ReadonlySet<string> | undefined,
 ): Omit<EvaluateNodeResult, 'alertes' | 'rangs' | 'rangMotifs'> {
   const excluded = new Map<Option, string[]>()
   const nonRetenues = new Map<Option, string>()
+  const enAttente = new Map<Option, string[]>()
+  const vide: EvaluateNodeResult['reasons'] = new Map()
+
   for (const option of node.options) {
     if (isDefaultOption(option)) continue
     requireConditions(option)
-    if (!isToujoursOption(option)) {
-      // Couvre `conditions` ET `prerequis` (R6, cf. docstring `firstFailingCondition`).
-      const failing = firstFailingCondition(option, criteria)
-      if (failing !== undefined) {
-        nonRetenues.set(option, failing)
-        continue
-      }
-    } else {
-      // Sentinel `["toujours"]` : `conditions` n'est pas évaluable, mais un `prerequis` éventuel l'est
-      // (R6) — évalué normalement, avant l'exclusion, comme en `multi-options`.
-      const failingPrereq = firstFailingPrerequisite(option, criteria)
-      if (failingPrereq !== undefined) {
-        nonRetenues.set(option, failingPrereq)
-        continue
-      }
+    const expressionsCondition = isToujoursOption(option) ? option.prerequis ?? [] : [...option.conditions, ...(option.prerequis ?? [])]
+    const applicable = classerOption(
+      option,
+      expressionsCondition,
+      criteria,
+      effectifs,
+      node.criteres_entree,
+      enAttente,
+      nonRetenues,
+      excluded,
+    )
+    if (applicable) {
+      return { applicable: [option], reasons: new Map([[option, [...option.conditions]]]), excluded, nonRetenues, enAttente }
     }
-    // 1re option satisfaite : une exclusion dure la saute (on continue vers la suivante).
-    const triggered = triggeredExclusions(option, criteria)
-    if (triggered.length > 0) {
-      excluded.set(option, triggered)
-      continue
+    if (enAttente.has(option)) {
+      // Halte immédiate (cf. docstring) : les options suivantes, repli compris, ne sont pas évaluées.
+      return { applicable: [], reasons: vide, excluded, nonRetenues, enAttente }
     }
-    return { applicable: [option], reasons: new Map([[option, [...option.conditions]]]), excluded, nonRetenues }
+    // Sinon (non retenue ou exclue) : l'ordre du nœud continue vers l'option suivante.
   }
   const fallback = node.options.find(isDefaultOption)
   if (fallback) {
-    // Repli `["default"]` : idem, seul un `prerequis` propre (R6) peut l'écarter avant l'exclusion.
-    const failingPrereq = firstFailingPrerequisite(fallback, criteria)
-    if (failingPrereq !== undefined) {
-      nonRetenues.set(fallback, failingPrereq)
-      return { applicable: [], reasons: new Map(), excluded, nonRetenues }
-    }
-    const triggered = triggeredExclusions(fallback, criteria)
-    if (triggered.length > 0) {
-      excluded.set(fallback, triggered)
-      return { applicable: [], reasons: new Map(), excluded, nonRetenues }
-    }
-    return {
-      applicable: [fallback],
-      reasons: new Map([[fallback, [...fallback.conditions]]]),
-      excluded,
+    const applicable = classerOption(
+      fallback,
+      fallback.prerequis ?? [],
+      criteria,
+      effectifs,
+      node.criteres_entree,
+      enAttente,
       nonRetenues,
+      excluded,
+    )
+    if (applicable) {
+      return {
+        applicable: [fallback],
+        reasons: new Map([[fallback, [...fallback.conditions]]]),
+        excluded,
+        nonRetenues,
+        enAttente,
+      }
     }
+    return { applicable: [], reasons: vide, excluded, nonRetenues, enAttente }
   }
-  return { applicable: [], reasons: new Map(), excluded, nonRetenues }
+  return { applicable: [], reasons: vide, excluded, nonRetenues, enAttente }
 }

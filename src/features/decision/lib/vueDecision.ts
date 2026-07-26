@@ -46,11 +46,20 @@
  * que le moteur venait précisément d'écarter — une alerte d'OPTION, elle, n'existe que sur un `OptionVue`,
  * donc uniquement pour une option retenue par le moteur. Entre dans `signatureVue` comme les autres
  * dimensions (totalité) : un critère qui ne change QUE l'alerte d'une option doit rester DÉCISIF.
+ *
+ * VALEUR INDÉTERMINÉE (DECISIONS.md D20, SPEC-valeur-indeterminee.md §2) : `construireVueDecision`
+ * accepte un troisième paramètre optionnel `renseignes: ReadonlySet<string>` (noms bruts fournis par le
+ * praticien), transmis à `evaluateNode` (registre `enAttente`, désormais porté par `VueDecision`) et
+ * utilisé ICI pour recalculer l'ensemble EFFECTIF (`engine/deriveCritere.ts` `determinesEffectifs`) —
+ * consommé par `calculsAffiches`/les alertes d'option, exactement pour la même raison que `reasons`
+ * ci-dessus (coût par cycle de rendu, `evaluateNode` ne le fait que pour LUI-MÊME). `enAttente` entre
+ * dans `signatureVue` comme les autres dimensions (totalité) : un critère qui ne change QUE la liste des
+ * options en attente doit rester DÉCISIF pour `engine/relevance.ts`.
  */
 import type { Alerte, Noeud, Option } from '../content/node.types.ts'
 import type { Criteria } from '../engine/conditions.ts'
 import { termesVrais } from '../engine/conditions.ts'
-import { calculerCriteresDerives, evaluerNombre } from '../engine/deriveCritere.ts'
+import { calculerCriteresDerives, determinesEffectifs, evaluerNombre } from '../engine/deriveCritere.ts'
 import { evaluateAlertesDeListe, evaluateNode, groupesParFamille } from '../engine/evaluateNode.ts'
 import { computeBadges, type OptionBadge } from './optionBadges.ts'
 
@@ -136,6 +145,16 @@ export interface OptionNonRetenueVue {
   condition: string
 }
 
+/**
+ * Une option EN ATTENTE (D20, SPEC-valeur-indeterminee.md §2.4/§2.5) : NI proposée NI écartée — l'une de
+ * ses `conditions`/`prerequis`/`exclusions` reste indéterminée. `manquants` = les critères PRIMITIFS à
+ * renseigner pour lever l'indétermination (`EvaluateNodeResult.enAttente`), jamais vide.
+ */
+export interface OptionEnAttenteVue {
+  option: Option
+  manquants: string[]
+}
+
 /** Tout ce que l'écran de décision rend pour un nœud et un jeu de critères donnés. */
 export interface VueDecision {
   familles: FamilleVue[]
@@ -144,15 +163,19 @@ export interface VueDecision {
   ecartees: OptionEcarteeVue[]
   /** R4 — options non retenues faute de condition (explication, à la demande). */
   nonRetenues: OptionNonRetenueVue[]
+  /** D20 — options en attente faute de critère renseigné (ni proposées, ni écartées, §2.5). */
+  enAttente: OptionEnAttenteVue[]
 }
 
 /** Doses calculées d'une option (déplacé depuis `OptionCard.tsx`, comportement inchangé) : n'affiche
- * que celles calculables (une primitive non saisie — ex. poids — donne `null`, la ligne est omise). */
-function calculsAffiches(option: Option, criteria: Criteria): CalculAffiche[] {
+ * que celles calculables (une primitive non saisie — ex. poids — donne `null`, la ligne est omise ;
+ * D20 : idem si un opérande est indéterminé au sens de `renseignes`/`effectifs`, ou si le calcul se
+ * heurte à une division par zéro — jamais de `Infinity`/`NaN` affiché, cf. `evaluerNombre`). */
+function calculsAffiches(option: Option, criteria: Criteria, effectifs?: ReadonlySet<string>): CalculAffiche[] {
   return (option.calculs ?? [])
     .map((calcul) => ({
       libelle: calcul.libelle,
-      valeur: evaluerNombre(calcul.expression, criteria),
+      valeur: evaluerNombre(calcul.expression, criteria, effectifs),
       unite: calcul.unite,
     }))
     .filter((ligne): ligne is CalculAffiche => ligne.valeur != null)
@@ -207,9 +230,17 @@ function raisonsSituationnelles(conditions: string[], criteria: Criteria): strin
  * pour une famille dont `groupesParFamille` a produit AU MOINS DEUX groupes d'égalité (une vraie
  * concurrence de rang), sinon « pourquoi celle-ci d'abord » n'a pas de réponse à donner (R6).
  */
-export function construireVueDecision(node: Noeud, criteria: Criteria): VueDecision {
+export function construireVueDecision(node: Noeud, criteria: Criteria, renseignes?: ReadonlySet<string>): VueDecision {
   const derived = calculerCriteresDerives(node.criteres_entree, criteria)
-  const { applicable, alertes, rangs, rangMotifs, excluded, nonRetenues } = evaluateNode(node, derived)
+  const { applicable, alertes, rangs, rangMotifs, excluded, nonRetenues, enAttente } = evaluateNode(
+    node,
+    derived,
+    renseignes,
+  )
+  // Ensemble EFFECTIF recalculé ICI (D20) : `evaluateNode` fait le même calcul pour SES propres besoins,
+  // mais ne l'expose pas (coût par perturbation, cf. docstring de tête) — `calculsAffiches`/les alertes
+  // d'option en ont besoin À NOUVEAU, une seule fois par cycle de rendu, comme `reasons` ci-dessous.
+  const effectifs = determinesEffectifs(node.criteres_entree, derived, renseignes)
   const famillesBrutes = groupesParFamille(node, applicable, rangs)
   const badges = computeBadges(famillesBrutes)
 
@@ -224,9 +255,9 @@ export function construireVueDecision(node: Noeud, criteria: Criteria): VueDecis
             option,
             badge: badges.get(option) ?? null,
             reasons: raisonsSituationnelles(option.conditions, derived),
-            calculs: calculsAffiches(option, criteria),
+            calculs: calculsAffiches(option, criteria, effectifs),
             motifRang: motifRangPertinent ? rangMotifs.get(option) : undefined,
-            alertes: evaluateAlertesDeListe(option.alertes, derived),
+            alertes: evaluateAlertesDeListe(option.alertes, derived, effectifs),
           }),
         ),
       ),
@@ -241,8 +272,10 @@ export function construireVueDecision(node: Noeud, criteria: Criteria): VueDecis
     option,
     condition,
   }))
+  // D20 : même ordre déterministe que ci-dessus (ordre d'itération de `node.options` dans `evaluateNode`).
+  const enAttenteVue: OptionEnAttenteVue[] = [...enAttente].map(([option, manquants]) => ({ option, manquants }))
 
-  return { familles, alertes, ecartees, nonRetenues: nonRetenuesVue }
+  return { familles, alertes, ecartees, nonRetenues: nonRetenuesVue, enAttente: enAttenteVue }
 }
 
 /**
@@ -289,16 +322,24 @@ function serialiseNonRetenue(nonRetenue: OptionNonRetenueVue): string {
   return `${nonRetenue.option.intitule}«${nonRetenue.condition}»`
 }
 
+/** Sérialisation d'une option en attente (D20) : identité + TOUS les critères manquants (ordre stable,
+ * cf. `criteresManquants`/`primitivesReferencees`, `engine/evaluateNode.ts` — construits sur un `Set`
+ * puis `node.criteres_entree`, donc déterministes pour un même contenu). */
+function serialiseEnAttente(enAttente: OptionEnAttenteVue): string {
+  return `${enAttente.option.intitule}«${enAttente.manquants.join('&')}»`
+}
+
 /**
  * Sérialise une `VueDecision` en chaîne STABLE et TOTALE : deux vues égales produisent la même
  * chaîne, et RIEN du modèle de vue n'est omis (familles, groupes d'égalité, badges, raisons, doses
- * calculées, alertes, options écartées et non retenues — R4) — c'est cette totalité qui garantit
- * qu'aucun critère décisif à l'écran ne peut plus être estompé à tort par `engine/relevance.ts`.
+ * calculées, alertes, options écartées, non retenues et EN ATTENTE — R4/D20) — c'est cette totalité qui
+ * garantit qu'aucun critère décisif à l'écran ne peut plus être estompé à tort par `engine/relevance.ts`.
  */
 export function signatureVue(vue: VueDecision): string {
   const familles = vue.familles.map(serialiseFamille).join('§§')
   const alertes = vue.alertes.map((a) => `${a.message}~${a.niveau ?? ''}`).join('|')
   const ecartees = vue.ecartees.map(serialiseEcartee).join('|')
   const nonRetenues = vue.nonRetenues.map(serialiseNonRetenue).join('|')
-  return `${familles}##${alertes}##${ecartees}##${nonRetenues}`
+  const enAttente = vue.enAttente.map(serialiseEnAttente).join('|')
+  return `${familles}##${alertes}##${ecartees}##${nonRetenues}##${enAttente}`
 }

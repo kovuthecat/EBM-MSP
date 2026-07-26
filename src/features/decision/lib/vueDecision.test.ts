@@ -481,3 +481,51 @@ describe('criteresPertinents — TEST VERROU (alertes d’option) : un critère 
     expect(pertinents.has('w')).toBe(true)
   })
 })
+
+describe('construireVueDecision — `enAttente` (DECISIONS.md D20, SPEC-valeur-indeterminee.md §2.4/§2.5)', () => {
+  it('renseignes absent (repli) : `enAttente` toujours vide, comportement historique inchangé', () => {
+    const a = opt('A', ['DFG < 60'])
+    const node = makeNode([a], [{ nom: 'DFG', type: 'nombre' }])
+    const vue = construireVueDecision(node, { DFG: 45 })
+    expect(vue.enAttente).toEqual([])
+  })
+
+  it("une option en attente porte les critères manquants dans `VueDecision.enAttente`, absente des familles affichées", () => {
+    const a = opt('A', ['DFG < 60'])
+    const node = makeNode([a], [{ nom: 'DFG', type: 'nombre' }])
+    const vue = construireVueDecision(node, { DFG: 45 }, new Set())
+    expect(vue.familles[0].groupes.flat()).toEqual([])
+    expect(vue.enAttente).toEqual([{ option: a, manquants: ['DFG'] }])
+  })
+
+  it('`enAttente` entre dans `signatureVue` (totalité, comme `ecartees`/`nonRetenues`) : un critère qui ne change QUE cette dimension doit rester DÉCISIF', () => {
+    const a = opt('A', ['DFG < 60'])
+    const node = makeNode([a], [{ nom: 'DFG', type: 'nombre' }])
+    const vueRenseigne = construireVueDecision(node, { DFG: 45 }, new Set(['DFG']))
+    const vueEnAttente = construireVueDecision(node, { DFG: 45 }, new Set())
+    expect(signatureVue(vueRenseigne)).not.toBe(signatureVue(vueEnAttente))
+  })
+
+  it("une dose calculée dont l'opérande est indéterminé ne s'affiche pas (D20 point 4, plus de « ≈ 0 »)", () => {
+    const a = opt('Socle', ['toujours'], {
+      calculs: [{ libelle: 'Dose', expression: 'poids * 0.1', unite: 'U' }],
+    })
+    const node = makeNode([a], [{ nom: 'poids', type: 'nombre' }])
+    const vueIndetermine = construireVueDecision(node, { poids: 0 }, new Set())
+    expect(vueIndetermine.familles[0].groupes[0][0].calculs).toEqual([])
+
+    const vueRenseignee = construireVueDecision(node, { poids: 70 }, new Set(['poids']))
+    expect(vueRenseignee.familles[0].groupes[0][0].calculs).toEqual([{ libelle: 'Dose', valeur: 7, unite: 'U' }])
+  })
+
+  it("une alerte d'option dont le `quand` est indéterminé ne s'affiche pas", () => {
+    const alerteOption: Alerte = { quand: 'DFG < 30', message: 'Alerte rénale' }
+    const a = opt('Socle', ['toujours'], { alertes: [alerteOption] })
+    const node = makeNode([a], [{ nom: 'DFG', type: 'nombre' }])
+    const vueIndetermine = construireVueDecision(node, { DFG: 20 }, new Set())
+    expect(vueIndetermine.familles[0].groupes[0][0].alertes).toEqual([])
+
+    const vueRenseignee = construireVueDecision(node, { DFG: 20 }, new Set(['DFG']))
+    expect(vueRenseignee.familles[0].groupes[0][0].alertes).toEqual([alerteOption])
+  })
+})

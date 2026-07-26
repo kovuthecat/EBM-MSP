@@ -24,11 +24,26 @@
  *   appartenance := variable_liste (contient | ne_contient_pas) libellé
  *   arith        := operande [ (+ | - | * | /) operande ]
  *   operande     := nom_de_variable | nombre | true | false | libellé_enum
+ *
+ * ÉVALUATION TERNAIRE (DECISIONS.md D20, SPEC-valeur-indeterminee.md §2) : `evaluerDeriveTernaire`/
+ * `resoudreArithTernaire` sont les pendants ternaires de `evaluerDerive`/`resoudreArith`, avec les
+ * MÊMES deux propagations que `conditions.ts` :
+ * - un OPÉRANDE indéterminé (nom absent de `renseignes`, quand il est fourni) rend indéterminée toute
+ *   comparaison ou expression arithmétique qui le mentionne ;
+ * - une DIVISION dont le dénominateur résout à `0` — QUE `renseignes` soit fourni ou non — rend
+ *   indéterminé, **jamais `Infinity` ni `NaN`** : c'est le défaut réel `dose_basale_actuelle / poids`
+ *   avec `poids` vide (12.4), et c'est pourquoi ce garde-fou n'est PAS conditionné à `renseignes`
+ *   (`evaluerDerive`, le repli 2-arguments, en bénéficie donc aussi — cf. sa docstring).
+ * `evaluerDerive`/`resoudreArith` restent la forme historique (2 arguments, jamais `INDETERMINE` en
+ * sortie) : de simples enveloppes sur leur pendant ternaire avec `renseignes` absent, qui réconcilient
+ * un résultat `INDETERMINE` en un booléen/nombre sûr (repli neutre) — jamais un second calcul.
  */
-import { ConditionError, type Criteria, type CriteriaValue } from './conditions'
+import { ConditionError, INDETERMINE, ternaryAll, ternaryAny, type Criteria, type CriteriaValue, type Ternaire } from './conditions'
 import type { CritereEntree } from '../content/node.types'
 
 type Scalaire = number | boolean | string
+/** Un opérande résolu, ou `INDETERMINE` (D20) — jamais stocké dans un `CriteriaValue`. */
+type ScalaireTernaire = Scalaire | typeof INDETERMINE
 
 const COMPARE_RE = /^(.+?)\s*(==|!=|<=|>=|<|>)\s*(.+)$/
 const ARITH_RE = /^(.+?)\s*([+\-*/])\s*(.+)$/
@@ -44,10 +59,18 @@ function splitMots(expression: string, motCle: 'AND' | 'OR'): string[] {
     .filter((part) => part.length > 0)
 }
 
-/** Résout un opérande atomique : variable (valeur du critère), nombre, booléen, ou libellé d'énumération. */
-function resoudreOperande(token: string, criteria: Criteria): Scalaire {
+/**
+ * Résout un opérande atomique en TERNAIRE : variable (valeur du critère — `INDETERMINE` si `renseignes`
+ * est fourni et ne la contient pas), nombre, booléen, ou libellé d'énumération.
+ */
+function resoudreOperandeTernaire(
+  token: string,
+  criteria: Criteria,
+  renseignes: ReadonlySet<string> | undefined,
+): ScalaireTernaire {
   const t = token.trim()
   if (t in criteria) {
+    if (renseignes !== undefined && !renseignes.has(t)) return INDETERMINE
     const v = criteria[t]
     if (Array.isArray(v)) {
       throw new ConditionError(`Dérivation : le critère liste "${t}" ne peut pas être utilisé dans une expression arithmétique/scalaire.`)
@@ -61,27 +84,55 @@ function resoudreOperande(token: string, criteria: Criteria): Scalaire {
   return t // libellé d'énumération (ex. "limitee")
 }
 
-/** Résout une expression arithmétique simple (un opérateur binaire au plus) ou un opérande. */
-function resoudreArith(expression: string, criteria: Criteria): Scalaire {
+/**
+ * Résout une expression arithmétique simple (un opérateur binaire au plus) ou un opérande, en TERNAIRE.
+ * Un opérande `INDETERMINE` rend l'expression `INDETERMINE`. Une DIVISION dont le dénominateur résout à
+ * `0` rend `INDETERMINE` — TOUJOURS, que `renseignes` soit fourni ou non (D20 : « jamais `Infinity` ni
+ * `NaN` », défaut réel `dose_basale_actuelle / poids` avec `poids` vide/nul, 12.4). Filet de sécurité
+ * final : tout résultat numérique non fini (overflow…) est lui aussi ramené à `INDETERMINE`, jamais
+ * laissé fuiter en `Infinity`/`NaN` vers un appelant.
+ */
+function resoudreArithTernaire(
+  expression: string,
+  criteria: Criteria,
+  renseignes: ReadonlySet<string> | undefined,
+): ScalaireTernaire {
   const m = ARITH_RE.exec(expression.trim())
   if (m) {
-    const gauche = Number(resoudreOperande(m[1], criteria))
-    const droite = Number(resoudreOperande(m[3], criteria))
+    const gaucheR = resoudreOperandeTernaire(m[1], criteria, renseignes)
+    const droiteR = resoudreOperandeTernaire(m[3], criteria, renseignes)
+    if (gaucheR === INDETERMINE || droiteR === INDETERMINE) return INDETERMINE
+    const gauche = Number(gaucheR)
+    const droite = Number(droiteR)
+    let resultat: number
     switch (m[2]) {
       case '+':
-        return gauche + droite
+        resultat = gauche + droite
+        break
       case '-':
-        return gauche - droite
+        resultat = gauche - droite
+        break
       case '*':
-        return gauche * droite
+        resultat = gauche * droite
+        break
       case '/':
-        return gauche / droite
+        if (droite === 0) return INDETERMINE
+        resultat = gauche / droite
+        break
+      default:
+        resultat = NaN
     }
+    return Number.isFinite(resultat) ? resultat : INDETERMINE
   }
-  return resoudreOperande(expression, criteria)
+  return resoudreOperandeTernaire(expression, criteria, renseignes)
 }
 
-function evaluerTerme(terme: string, criteria: Criteria): boolean {
+/** Pendant ternaire de `evaluerTerme` : mêmes formes reconnues, propage `INDETERMINE`. */
+function evaluerTermeTernaire(
+  terme: string,
+  criteria: Criteria,
+  renseignes: ReadonlySet<string> | undefined,
+): Ternaire {
   const trimmed = terme.trim()
 
   // Appartenance à une liste (`contient` / `ne_contient_pas`) : traitée en premier, comme dans
@@ -92,6 +143,7 @@ function evaluerTerme(terme: string, criteria: Criteria): boolean {
     if (!(variable in criteria)) {
       throw new ConditionError(`Dérivation : variable de critère inconnue "${variable}".`)
     }
+    if (renseignes !== undefined && !renseignes.has(variable)) return INDETERMINE
     const actual = criteria[variable]
     if (!Array.isArray(actual)) {
       throw new ConditionError(
@@ -104,8 +156,9 @@ function evaluerTerme(terme: string, criteria: Criteria): boolean {
 
   const c = COMPARE_RE.exec(trimmed)
   if (c) {
-    const gauche = resoudreArith(c[1], criteria)
-    const droite = resoudreArith(c[3], criteria)
+    const gauche = resoudreArithTernaire(c[1], criteria, renseignes)
+    const droite = resoudreArithTernaire(c[3], criteria, renseignes)
+    if (gauche === INDETERMINE || droite === INDETERMINE) return INDETERMINE
     const op = c[2]
     if (typeof gauche === 'number' && typeof droite === 'number') {
       switch (op) {
@@ -129,27 +182,57 @@ function evaluerTerme(terme: string, criteria: Criteria): boolean {
     throw new ConditionError(`Dérivation : opérateur "${op}" non supporté entre valeurs non numériques dans "${terme.trim()}".`)
   }
   // Terme booléen nu (ex. "fragilite").
-  const v = resoudreOperande(terme, criteria)
+  const v = resoudreOperandeTernaire(terme, criteria, renseignes)
+  if (v === INDETERMINE) return INDETERMINE
   if (typeof v === 'boolean') return v
   throw new ConditionError(`Dérivation : terme non booléen "${terme.trim()}" (attendu une comparaison ou un critère booléen).`)
 }
 
-/** Évalue une expression `derive` (booléen). Composition `OR` (union) puis `AND` (intersection). */
-export function evaluerDerive(expression: string, criteria: Criteria): boolean {
+/**
+ * Évalue une expression `derive` en TERNAIRE (D20). Composition `OR` (union) puis `AND` (intersection),
+ * via `ternaryAny`/`ternaryAll` (`conditions.ts`, même table SPEC §2.3 que le DSL `conditions`).
+ * `renseignes` absent ⇒ repli : ne renvoie jamais `INDETERMINE` par indétermination structurelle (mais
+ * PEUT renvoyer `INDETERMINE` par division par zéro, cf. `resoudreArithTernaire` — garde-fou toujours
+ * actif, jamais conditionné à `renseignes`).
+ */
+export function evaluerDeriveTernaire(
+  expression: string,
+  criteria: Criteria,
+  renseignes: ReadonlySet<string> | undefined,
+): Ternaire {
   const orTerms = splitMots(expression, 'OR')
   if (orTerms.length === 0) {
     throw new ConditionError(`Expression de dérivation vide : "${expression}".`)
   }
-  return orTerms.some((orTerm) => splitMots(orTerm, 'AND').every((terme) => evaluerTerme(terme, criteria)))
+  const valeurs = orTerms.map((orTerm) =>
+    ternaryAll(splitMots(orTerm, 'AND').map((terme) => evaluerTermeTernaire(terme, criteria, renseignes))),
+  )
+  return ternaryAny(valeurs)
+}
+
+/**
+ * Évalue une expression `derive` (booléen) — FORME HISTORIQUE (2 arguments), enveloppe de
+ * `evaluerDeriveTernaire` avec `renseignes` absent : ne diffère de son ancienne implémentation directe
+ * QUE par le garde-fou division-par-zéro (D20, désormais toujours actif) — un `INDETERMINE` qui en
+ * résulterait est ramené à `false`, repli neutre qui ne peut jamais être lu comme une AFFIRMATION
+ * positive (jamais de score caché, brief §7) ; c'est le seul cas où ce repli peut apparaître ici, la
+ * seule autre source d'`INDETERMINE` (nom absent de `renseignes`) étant inatteignable avec `renseignes`
+ * absent.
+ */
+export function evaluerDerive(expression: string, criteria: Criteria): boolean {
+  const resultat = evaluerDeriveTernaire(expression, criteria, undefined)
+  return resultat === INDETERMINE ? false : resultat
 }
 
 /**
  * Évalue une expression arithmétique en NOMBRE (câblage P3 : doses calculées `Option.calculs`). Réutilise
  * la grammaire arithmétique (`poids * 0.15`, `dose_basale_actuelle + 2`…). Renvoie `null` si le résultat
- * n'est pas un nombre fini (ex. primitive non encore saisie), pour que l'affichage puisse l'omettre.
+ * n'est pas calculable (primitive non encore saisie, non renseignée — D20 — ou division par zéro), pour
+ * que l'affichage puisse l'omettre (jamais `Infinity`/`NaN` affiché, D20 point 4 : « un calcul dont un
+ * opérande est indéterminé ne s'affiche pas »).
  */
-export function evaluerNombre(expression: string, criteria: Criteria): number | null {
-  const valeur = resoudreArith(expression, criteria)
+export function evaluerNombre(expression: string, criteria: Criteria, renseignes?: ReadonlySet<string>): number | null {
+  const valeur = resoudreArithTernaire(expression, criteria, renseignes)
   return typeof valeur === 'number' && Number.isFinite(valeur) ? valeur : null
 }
 
@@ -157,6 +240,14 @@ export function evaluerNombre(expression: string, criteria: Criteria): number | 
  * Renvoie une copie de `criteria` où chaque critère porteur d'un `derive` est (re)calculé depuis les
  * autres critères. Les critères dérivés dépendent des primitives saisies (pas les uns des autres) :
  * l'évaluation se fait donc contre les valeurs d'entrée, sans dépendance d'ordre.
+ *
+ * Signature INCHANGÉE (2 arguments, D20 § « repli tout est renseigné ») : la richesse ternaire
+ * (indétermination structurelle) est portée par `determinesEffectifs` ci-dessous, PAS ici — cette
+ * fonction reste responsable uniquement de la VALEUR concrète stockée (qui doit rester un
+ * `CriteriaValue` réel, cf. décision de conception actée : `Criteria` ne change pas). Elle bénéficie
+ * malgré tout du garde-fou « jamais Infinity/NaN » via `evaluerDerive` (toujours actif, non conditionné
+ * à `renseignes`, cf. sa docstring) : c'est ce qui fait bouger `banc/caracterisation.test.ts` même sans
+ * qu'aucun appelant ne passe encore `renseignes` (aucun ne le fait dans ce lot, cf. périmètre de tâche).
  */
 export function calculerCriteresDerives(criteres: CritereEntree[], criteria: Criteria): Criteria {
   const resultat: Criteria = { ...criteria }
@@ -166,6 +257,53 @@ export function calculerCriteresDerives(criteres: CritereEntree[], criteria: Cri
     }
   }
   return resultat
+}
+
+/**
+ * Un critère est INDÉTERMINÉ (SPEC §2.2) si son nom n'est pas dans `renseignes` ET que son type ne
+ * défend pas de valeur par défaut opposable : `nombre`/`enum` sont indéterminés dès qu'absents ;
+ * `bool`/`liste` restent déterminés par leur défaut (une réponse clinique réelle), SAUF déclaration
+ * explicite `confirmation_requise: true` par le contenu (réservé aux drapeaux dont le « non » ne peut
+ * pas être présumé sans risque, DECISIONS.md D20).
+ */
+function critereEstDetermine(critere: CritereEntree, renseignes: ReadonlySet<string>): boolean {
+  if (renseignes.has(critere.nom)) return true
+  if (critere.type === 'bool' || critere.type === 'liste') return critere.confirmation_requise !== true
+  return false // nombre / enum non renseigné
+}
+
+/**
+ * Ensemble EFFECTIF des critères DÉTERMINÉS pour l'évaluation ternaire (`conditions.ts` `renseignes`,
+ * `evaluerDeriveTernaire` ci-dessus) — SPEC-valeur-indeterminee.md §2.2/§2.4, DECISIONS.md D20.
+ *
+ * `renseignes` REÇU ici est le `touched` BRUT (noms effectivement fournis par le praticien, `undefined`
+ * ⇒ repli « tout est renseigné », propagé tel quel en `undefined` de sortie — aucune fonction ternaire
+ * en aval ne doit alors rien traiter comme indéterminé, comportement identique à avant ce chantier).
+ * Ce que cette fonction AJOUTE au `touched` brut, pour obtenir l'ensemble réellement consommable par
+ * `evaluateCondition`/`evaluerDeriveTernaire` (qui, eux, ne connaissent aucun `type` de critère,
+ * générique D8) :
+ * 1. les `bool`/`liste` SANS `confirmation_requise` (déterminés par construction, cf.
+ *    `critereEstDetermine`) ;
+ * 2. les critères DÉRIVÉS dont l'expression `derive` s'évalue à un booléen réel (jamais `INDETERMINE`)
+ *    sur les PRIMITIFS déterminés à l'étape 1 — un seul passage suffit, aucun `derive` de ce contenu ne
+ *    référence un autre `derive` (cf. docstring `calculerCriteresDerives` : « pas les uns des autres »).
+ */
+export function determinesEffectifs(
+  criteres: CritereEntree[],
+  criteria: Criteria,
+  renseignes: ReadonlySet<string> | undefined,
+): ReadonlySet<string> | undefined {
+  if (renseignes === undefined) return undefined
+  const primitifs = new Set<string>()
+  for (const critere of criteres) {
+    if (critere.derive == null && critereEstDetermine(critere, renseignes)) primitifs.add(critere.nom)
+  }
+  const effectifs = new Set(primitifs)
+  for (const critere of criteres) {
+    if (critere.derive == null) continue
+    if (evaluerDeriveTernaire(critere.derive, criteria, primitifs) !== INDETERMINE) effectifs.add(critere.nom)
+  }
+  return effectifs
 }
 
 /**

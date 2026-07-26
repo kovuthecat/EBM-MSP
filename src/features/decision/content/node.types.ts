@@ -43,6 +43,18 @@ export interface CritereEntree {
    * garde sa valeur par défaut côté moteur tant que le champ est masqué.
    */
   visible_si?: string
+  /**
+   * Valeur indéterminée (DECISIONS.md D20, `docs/decision/validation/chantier-2026-07-26/
+   * SPEC-valeur-indeterminee.md` §2.2) : réservé aux critères `bool`/`liste` dont le « non »/« aucun »
+   * par défaut NE PEUT PAS être présumé sans risque clinique (ex. une comorbidité qui, non cochée,
+   * pourrait n'avoir simplement pas encore été demandée plutôt qu'activement exclue). Quand `true`, le
+   * critère est traité comme `nombre`/`enum` : indéterminé tant qu'il n'a pas été explicitement
+   * renseigné par le praticien, plutôt que de garder sa valeur par défaut (`false`/`[]`). Absent ou
+   * `false` (repli) → comportement historique inchangé : `bool`/`liste` restent déterminés par défaut
+   * (une case non cochée EST une réponse clinique). Sans effet sur `nombre`/`enum`, déjà toujours
+   * indéterminés tant que non saisis.
+   */
+  confirmation_requise?: boolean
 }
 
 /**

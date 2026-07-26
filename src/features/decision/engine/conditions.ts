@@ -21,6 +21,24 @@
  * `contient` / `ne_contient_pas` (critère multivalué de type `liste`) sont implémentés depuis la
  * réalisation P2 du moteur (DECISIONS.md D13), sans toucher à la composition AND/OR : ils sont
  * détectés avant la comparaison scalaire et n'opèrent que sur une valeur de critère de type tableau.
+ *
+ * ÉVALUATION TERNAIRE (DECISIONS.md D20, `docs/decision/validation/chantier-2026-07-26/
+ * SPEC-valeur-indeterminee.md` §2) : `evaluateCondition`/`evaluateAtomic` acceptent un troisième
+ * paramètre optionnel `renseignes: ReadonlySet<string>` — l'ensemble des noms de critères à traiter
+ * comme DÉTERMINÉS pour cette évaluation. Absent (`undefined`) ⇒ repli « tout est renseigné » :
+ * comportement RIGOUREUSEMENT IDENTIQUE à avant ce champ (aucune fonction ternaire ne renvoie jamais
+ * `INDETERMINE`), condition nécessaire pour que la suite existante et les bancs continuent de tourner
+ * sans réécriture. Une variable absente de `renseignes` (quand il est fourni) rend l'atome qui la cite
+ * `INDETERMINE`, qui se propage dans la composition AND/OR (cf. `ternaryAll`/`ternaryAny` ci-dessous,
+ * table SPEC §2.3).
+ *
+ * `renseignes`, à CE niveau, est déjà l'ensemble EFFECTIF des noms déterminés — pas nécessairement le
+ * `touched` brut de l'écran : `evaluateAtomic` ne connaît pas le TYPE déclaré d'un critère (`nombre` vs
+ * `bool`…), donc pas la règle de détermination par type (SPEC §2.2, `bool`/`liste` restent déterminés
+ * par défaut sauf `confirmation_requise`). C'est aux appelants qui connaissent `CritereEntree[]`
+ * (`engine/deriveCritere.ts` `determinesEffectifs`, consommé par `evaluateNode.ts`/`lib/formLayout.ts`)
+ * de construire ce `renseignes` effectif avant d'atteindre ce module — qui reste, lui, générique et
+ * sans connaissance de type (comme le reste de ce fichier, D8).
  */
 
 /**
@@ -35,6 +53,40 @@ export type Criteria = Record<string, CriteriaValue>
 
 /** Opérateurs de comparaison supportés (brief §11). */
 export type ComparisonOperator = '==' | '!=' | '<=' | '>=' | '<' | '>'
+
+/**
+ * Sentinelle du TROISIÈME état (DECISIONS.md D20) : une évaluation ternaire n'est jamais stockée dans
+ * un `CriteriaValue` (qui ne change pas, cf. décision de conception actée) — uniquement une valeur de
+ * RETOUR d'évaluation, jamais persistée dans `Criteria`.
+ */
+export const INDETERMINE = 'indetermine' as const
+
+/** Résultat d'une évaluation ternaire : vrai, faux, ou `INDETERMINE` (SPEC §2.3). */
+export type Ternaire = boolean | typeof INDETERMINE
+
+/**
+ * Composition ternaire `AND` (SPEC §2.3) : `faux` l'emporte toujours (même sur un `indetermine`
+ * ailleurs dans la conjonction — « faux AND indéterminé = faux »), sinon un `indetermine` l'emporte sur
+ * `vrai`, sinon tout est vrai. Généralisée à N opérandes (`option.conditions`/`prerequis` sont des
+ * tableaux implicitement en ET) ; `[]` ⇒ `true` (vérité vacante, comme l'ancien `.every()`).
+ */
+export function ternaryAll(valeurs: Ternaire[]): Ternaire {
+  if (valeurs.some((v) => v === false)) return false
+  if (valeurs.some((v) => v === INDETERMINE)) return INDETERMINE
+  return true
+}
+
+/**
+ * Composition ternaire `OR` (SPEC §2.3) : `vrai` l'emporte toujours — propriété DÉCISIVE qui limite le
+ * mutisme (§2.3 : « une disjonction dont une branche est vraie reste vraie ») — sinon un `indetermine`
+ * l'emporte sur `faux`, sinon tout est faux. Généralisée à N opérandes (`option.exclusions` : « au
+ * moins une vraie » ; les termes `OR` d'une expression) ; `[]` ⇒ `false` (comme l'ancien `.some()`).
+ */
+export function ternaryAny(valeurs: Ternaire[]): Ternaire {
+  if (valeurs.some((v) => v === true)) return true
+  if (valeurs.some((v) => v === INDETERMINE)) return INDETERMINE
+  return false
+}
 
 /**
  * Erreur explicite levée pour toute condition invalide : variable de critère inconnue, valeur mal
@@ -71,7 +123,7 @@ function splitTopLevel(expression: string, keyword: 'AND' | 'OR'): string[] {
   return parts
 }
 
-function evaluateAtomic(text: string, criteria: Criteria): boolean {
+function evaluateAtomic(text: string, criteria: Criteria, renseignes?: ReadonlySet<string>): Ternaire {
   const trimmed = text.trim()
 
   // Appartenance à une liste (`contient` / `ne_contient_pas`) : traitée en premier, elle est la
@@ -82,6 +134,9 @@ function evaluateAtomic(text: string, criteria: Criteria): boolean {
     if (!(variable in criteria)) {
       throw new ConditionError(`Variable de critère inconnue : "${variable}".`)
     }
+    // Variable de critère inconnue : toujours une erreur, avant toute question de détermination
+    // (D20 ne change rien à cet invariant, brief §7 « aucun score caché »).
+    if (renseignes !== undefined && !renseignes.has(variable)) return INDETERMINE
     const actual = criteria[variable]
     if (!Array.isArray(actual)) {
       throw new ConditionError(
@@ -105,6 +160,7 @@ function evaluateAtomic(text: string, criteria: Criteria): boolean {
   if (!(variable in criteria)) {
     throw new ConditionError(`Variable de critère inconnue : "${variable}".`)
   }
+  if (renseignes !== undefined && !renseignes.has(variable)) return INDETERMINE
   const actual = criteria[variable]
   const value = rawValue.trim()
 
@@ -168,13 +224,44 @@ function evaluateAtomic(text: string, criteria: Criteria): boolean {
  *
  * Ne gère pas le mot-clé spécial `"default"` : c'est `evaluateNode` qui le traite en amont (option
  * de repli), cette fonction ne reçoit que des expressions de comparaison réelles.
+ *
+ * `renseignes` (optionnel, D20) : composition TERNAIRE (`ternaryAll`/`ternaryAny` ci-dessus), pas
+ * simplement `.every()`/`.some()` — un `AND` reste `faux` dès qu'un terme est `faux`, même si un autre
+ * est `indetermine` ; un `OR` reste `vrai` dès qu'un terme est `vrai`. Absent ⇒ repli booléen strict
+ * (comportement identique à avant ce paramètre, cf. docstring de tête du fichier).
  */
-export function evaluateCondition(expression: string, criteria: Criteria): boolean {
+export function evaluateCondition(
+  expression: string,
+  criteria: Criteria,
+  renseignes?: ReadonlySet<string>,
+): Ternaire {
   const orTerms = splitTopLevel(expression, 'OR')
-  return orTerms.some((orTerm) => {
+  // COURT-CIRCUIT explicite (boucles, pas `ternaryAll`/`ternaryAny` sur un tableau déjà évalué) :
+  // essentiel pour ne RIEN changer au comportement historique quand `renseignes` est absent — l'ancien
+  // `orTerms.some(andTerms.every(...))` s'arrêtait au premier terme `OR` PLEINEMENT vrai (jamais
+  // n'évaluait les suivants) et au premier atome `AND` FAUX (jamais les suivants). Une composition
+  // ternaire NAÏVE (`.map()` intégral puis `ternaryAll`/`ternaryAny`) évaluerait TOUJOURS tous les
+  // atomes, y compris ceux qu'un contenu réel laisse volontairement inatteignables derrière un terme
+  // décisif plus tôt — risque de `ConditionError` NOUVELLE sur une expression jamais réellement
+  // rencontrée avant ce chantier.
+  let disjonctionIndeterminee = false
+  for (const orTerm of orTerms) {
     const andTerms = splitTopLevel(orTerm, 'AND')
-    return andTerms.every((atomic) => evaluateAtomic(atomic, criteria))
-  })
+    let conjonctionIndeterminee = false
+    let conjonctionFausse = false
+    for (const atomic of andTerms) {
+      const valeur = evaluateAtomic(atomic, criteria, renseignes)
+      if (valeur === false) {
+        conjonctionFausse = true
+        break // court-circuit AND : `faux` l'emporte, inutile d'évaluer les atomes suivants.
+      }
+      if (valeur === INDETERMINE) conjonctionIndeterminee = true
+    }
+    if (conjonctionFausse) continue
+    if (!conjonctionIndeterminee) return true // conjonction pleinement vraie → court-circuit OR.
+    disjonctionIndeterminee = true
+  }
+  return disjonctionIndeterminee ? INDETERMINE : false
 }
 
 /**
@@ -193,7 +280,15 @@ export function evaluateCondition(expression: string, criteria: Criteria): boole
  * Ne gère PAS les sentinelles `"default"` (D11) / `"toujours"` (D16) : comme `evaluateCondition`, cette
  * fonction ne reçoit que des expressions de comparaison réelles — c'est à l'appelant (`lib/vueDecision.ts`)
  * de les traiter en amont, avant tout appel à `termesVrais`.
+ *
+ * N'accepte pas de `renseignes` (D20) : appelée UNIQUEMENT sur les options déjà `applicable`
+ * (`lib/vueDecision.ts` `raisonsSituationnelles`), dont `evaluateNode` a par construction déjà écarté
+ * toute indétermination (une option indéterminée sur ses `conditions` part dans `enAttente`, jamais
+ * `applicable`) — `evaluateCondition` ne peut donc jamais y renvoyer `INDETERMINE`. Le filtre compare
+ * explicitement `=== true` (et non la troncature booléenne d'avant ce champ) pour rester correct même
+ * si `evaluateCondition` renvoie désormais un type élargi (`Ternaire`, jamais `INDETERMINE` ici en
+ * pratique, mais une chaîne non vide serait sinon vue « vraie » par un simple `if`).
  */
 export function termesVrais(expression: string, criteria: Criteria): string[] {
-  return splitTopLevel(expression, 'OR').filter((terme) => evaluateCondition(terme, criteria))
+  return splitTopLevel(expression, 'OR').filter((terme) => evaluateCondition(terme, criteria) === true)
 }

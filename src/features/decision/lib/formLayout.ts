@@ -14,11 +14,25 @@
  *
  * Ce module ne décide d'AUCUNE sémantique clinique : il n'invente ni intitulé de section, ni ordre, ni
  * règle de visibilité — tout vient du YAML, donc de l'auteur du contenu.
+ *
+ * VALEUR INDÉTERMINÉE (DECISIONS.md D20, `docs/decision/validation/chantier-2026-07-26/
+ * SPEC-valeur-indeterminee.md` §2, point 5 de la tâche) : `champEstVisible` accepte un troisième
+ * paramètre optionnel `renseignes` — un `visible_si` INDÉTERMINÉ rend le champ **VISIBLE**, jamais
+ * masqué. Justification : masquer un champ sur une donnée qu'on ignore encore le réinitialiserait à sa
+ * valeur par défaut (`reinitialiserChampsMasques`), ce qui AFFIRMERAIT une valeur — exactement le défaut
+ * que ce chantier corrige (un champ masqué à tort sur `intention` non renseignée, par exemple, effacerait
+ * silencieusement un `traitements_en_cours` déjà saisi). Mieux vaut montrer un champ qui se révélera
+ * sans objet une fois le champ dont il dépend renseigné, que masquer — et donc potentiellement
+ * réinitialiser — un champ dont on ne sait pas encore s'il l'est. `grouperChamps`/
+ * `reinitialiserChampsMasques`/`champsVisibles` acceptent le même paramètre optionnel et le traduisent,
+ * UNE SEULE FOIS par appel (pas par champ), en ensemble EFFECTIF via `determinesEffectifs`
+ * (`engine/deriveCritere.ts`) avant de le transmettre à `champEstVisible`. Absent (repli) : comportement
+ * RIGOUREUSEMENT INCHANGÉ, comme partout ailleurs dans ce chantier.
  */
 import type { CritereEntree } from '../content/node.types.ts'
 import type { Criteria, CriteriaValue } from '../engine/conditions.ts'
 import { evaluateCondition } from '../engine/conditions.ts'
-import { calculerCriteresDerives } from '../engine/deriveCritere.ts'
+import { calculerCriteresDerives, determinesEffectifs } from '../engine/deriveCritere.ts'
 
 /** Une section du formulaire : un libellé (issu du contenu) et ses champs saisissables visibles. */
 export interface GroupeChamps {
@@ -59,10 +73,20 @@ export function buildDefaultCriteria(criteresEntree: CritereEntree[]): Criteria 
  * évaluée sur les critères DÉRIVÉS inclus (mêmes variables que les règles du moteur). Une expression
  * invalide ne doit pas faire disparaître un champ en silence : on relaie l'erreur (même parti pris que
  * `DecisionNodeScreen` — propager plutôt que masquer un écart contenu/moteur).
+ *
+ * `renseignes` (D20, cf. docstring de tête) : un `visible_si` qui s'évalue à `INDETERMINE` rend le champ
+ * VISIBLE (`!== false`, pas seulement `=== true`) — jamais masqué sur une donnée inconnue. ATTENDU DÉJÀ
+ * EFFECTIF (fold bool/liste + dérivés déterminés) : cette fonction, générique, ne connaît aucun `type`
+ * de critère — c'est aux appelants (`grouperChamps`/`reinitialiserChampsMasques` ci-dessous) de le
+ * calculer, une seule fois par appel plutôt qu'une fois par champ.
  */
-export function champEstVisible(critere: CritereEntree, criteriaDerives: Criteria): boolean {
+export function champEstVisible(
+  critere: CritereEntree,
+  criteriaDerives: Criteria,
+  renseignes?: ReadonlySet<string>,
+): boolean {
   if (critere.visible_si == null) return true
-  return evaluateCondition(critere.visible_si, criteriaDerives)
+  return evaluateCondition(critere.visible_si, criteriaDerives, renseignes) !== false
 }
 
 /**
@@ -70,14 +94,19 @@ export function champEstVisible(critere: CritereEntree, criteriaDerives: Criteri
  * apparition. Les critères dérivés ne sont jamais rendus (calculés, cf. `deriveCritere.ts`) ; un groupe
  * dont tous les champs sont masqués disparaît entièrement.
  */
-export function grouperChamps(criteresEntree: CritereEntree[], criteria: Criteria): GroupeChamps[] {
+export function grouperChamps(
+  criteresEntree: CritereEntree[],
+  criteria: Criteria,
+  renseignes?: ReadonlySet<string>,
+): GroupeChamps[] {
   const derives = calculerCriteresDerives(criteresEntree, criteria)
+  const effectifs = determinesEffectifs(criteresEntree, derives, renseignes)
   const groupes: GroupeChamps[] = []
   const indexParLibelle = new Map<string | undefined, number>()
 
   for (const critere of criteresEntree) {
     if (critere.derive != null) continue
-    if (!champEstVisible(critere, derives)) continue
+    if (!champEstVisible(critere, derives, effectifs)) continue
     const index = indexParLibelle.get(critere.groupe)
     if (index === undefined) {
       indexParLibelle.set(critere.groupe, groupes.length)
@@ -101,6 +130,7 @@ export function grouperChamps(criteresEntree: CritereEntree[], criteria: Criteri
 export function reinitialiserChampsMasques(
   criteresEntree: CritereEntree[],
   criteria: Criteria,
+  renseignes?: ReadonlySet<string>,
 ): { criteria: Criteria; reinitialises: string[] } {
   let courant = criteria
   const reinitialises: string[] = []
@@ -109,9 +139,10 @@ export function reinitialiserChampsMasques(
   // dont les `visible_si` s'entre-déclencheraient.
   for (let tour = 0; tour <= criteresEntree.length; tour += 1) {
     const derives = calculerCriteresDerives(criteresEntree, courant)
+    const effectifs = determinesEffectifs(criteresEntree, derives, renseignes)
     const aReinitialiser = criteresEntree.filter((critere) => {
       if (critere.derive != null) return false
-      if (champEstVisible(critere, derives)) return false
+      if (champEstVisible(critere, derives, effectifs)) return false
       const defaut = valeurParDefaut(critere)
       const actuel = courant[critere.nom]
       return Array.isArray(defaut) || Array.isArray(actuel)
@@ -131,8 +162,12 @@ export function reinitialiserChampsMasques(
 }
 
 /** Noms des champs actuellement rendus à l'écran (saisissables et non masqués). */
-export function champsVisibles(criteresEntree: CritereEntree[], criteria: Criteria): Set<string> {
-  return new Set(grouperChamps(criteresEntree, criteria).flatMap((g) => g.champs.map((c) => c.nom)))
+export function champsVisibles(
+  criteresEntree: CritereEntree[],
+  criteria: Criteria,
+  renseignes?: ReadonlySet<string>,
+): Set<string> {
+  return new Set(grouperChamps(criteresEntree, criteria, renseignes).flatMap((g) => g.champs.map((c) => c.nom)))
 }
 
 /**
