@@ -9,17 +9,20 @@
  * `it.fails` — elle DOIT échouer, et c'est le livrable : elle fige la divergence pour le chantier qui la
  * lèvera, au lieu de figer (à tort) le comportement actuel.
  *
- * Trois décisions référent du 2026-07-26 ne sont PAS encore implémentées dans `insuline.yaml`
- * (cf. `DECISIONS.md` D20/D21 pour le mécanisme `enAttente`/`exclusions` déjà en place par ailleurs, et
- * `docs/decision/validation/recette-2026-07-25-prescription-intensifier.md`, captures 7-10 et 12.1-12.12,
- * pour le constat qui les a fait remonter) :
+ * Trois décisions référent du 2026-07-26 (2ᵉ lot) ont été implémentées dans `insuline.yaml` — les 4
+ * vignettes ci-dessous sont passées d'`it.fails` à `it` en conséquence (cf. `DECISIONS.md` D20/D21 pour le
+ * mécanisme `enAttente`/`exclusions` déjà en place par ailleurs, et `docs/decision/validation/
+ * recette-2026-07-25-prescription-intensifier.md`, captures 7-10 et 12.1-12.12, pour le constat qui les
+ * avait fait remonter ; changelog `insuline.yaml` v0.7 pour le détail de l'implémentation) :
  *  - E-02 — une situation « naïf » ET une « insuline basale » cochée dans les traitements est une
- *    incohérence de SAISIE ; l'outil doit le DIRE (alerte), pas seulement s'abstenir de proposer.
- *  - E-03 — le pivot de la situation « basale seule » doit devenir le PROFIL NOCTURNE (MCG) quand elle
- *    est disponible, la glycémie à jeun (`gaj_a_cible`) n'étant plus que le repli sans MCG.
+ *    incohérence de SAISIE ; une alerte de nœud le DIT désormais, plutôt que de seulement s'abstenir de
+ *    proposer.
+ *  - E-03 — le pivot de la situation « basale seule » devient le PROFIL NOCTURNE (`profil_glycemique`)
+ *    quand `mcg_disponible == true` ; la glycémie à jeun (`gaj_a_cible`) reste le pivot du repli sans MCG.
  *  - E-06 (et le second volet d'E-04) — sécurité (réduire la basale / ne pas sur-titrer) et efficacité
- *    (traitement non insulinique ou ajout d'un bolus) doivent être CUMULABLES ; aujourd'hui seul le
- *    geste de sécurité est proposé et l'HbA1c au-dessus de la cible reste sans réponse.
+ *    (traitement non insulinique ou ajout d'un bolus) sont désormais CUMULABLES : les 2 options
+ *    d'intensification de « basale_plus_bolus » sont réutilisées en « basale seule » sur les 2 signaux
+ *    nommés par le référent (hypoglycémie/variabilité nocturne, sur-basalisation).
  *
  * Ce fichier n'exécute et ne modifie que ce nœud + le moteur RÉEL (`evaluateNode` + `deriveCritere`) ;
  * aucun autre fichier du dépôt n'est touché par cette tâche (trois agents écrivent en parallèle sur
@@ -131,16 +134,15 @@ describe('insuline — E-01 : naïf, HbA1c au-dessus de la cible, pas de GLP-1 e
   })
 })
 
-describe('insuline — décisions référent 2026-07-26 NON implémentées (spécification du travail restant)', () => {
-  it.fails(
-    'E-02 — naïf ET « insuline basale » déjà cochée dans les traitements : incohérence de SAISIE, l\'outil doit le DIRE. ' +
+describe('insuline — décisions référent 2026-07-26 implémentées (E-02/E-03/E-06, cf. changelog insuline.yaml v0.7)', () => {
+  it(
+    'E-02 — naïf ET « insuline basale » déjà cochée dans les traitements : incohérence de SAISIE, l\'outil le DIT. ' +
       'Référent (2026-07-26) : « si il est naïf, il ne peut pas avoir une basale dans son traitement. » ' +
-      'Aujourd\'hui : le prérequis 12.10 (recette 2026-07-25, déjà encodé) fait taire SILENCIEUSEMENT ' +
-      '« Initier une insuline basale » — correct pour l\'absence de l\'option, mais insuffisant : rien ne ' +
-      'signale au praticien que la SAISIE elle-même est contradictoire. Aucune alerte de cohérence ' +
-      'n\'existe dans ce nœud. Chantier : une alerte de nœud sur ' +
-      '`situation_insuline == naif AND traitements_en_cours contient insuline_basale` (canal « alerte de ' +
-      'nœud », D21 — le fait est vrai quel que soit le geste retenu).',
+      'Le prérequis 12.10 (recette 2026-07-25, déjà encodé) fait déjà taire SILENCIEUSEMENT ' +
+      '« Initier une insuline basale » — correct pour l\'absence de l\'option, mais insuffisant seul : ' +
+      'une nouvelle alerte de nœud signale désormais au praticien que la SAISIE elle-même est ' +
+      'contradictoire — `situation_insuline == naif AND traitements_en_cours contient insuline_basale` ' +
+      '(canal « alerte de nœud », D21 — le fait est vrai quel que soit le geste retenu).',
     () => {
       const o = {
         situation_insuline: 'naif',
@@ -155,17 +157,17 @@ describe('insuline — décisions référent 2026-07-26 NON implémentées (spé
     },
   )
 
-  it.fails(
-    'E-03 — le pivot doit être le PROFIL NOCTURNE (MCG), pas la glycémie à jeun. ' +
+  it(
+    'E-03 — le pivot est le PROFIL NOCTURNE (MCG), pas la glycémie à jeun. ' +
       'Référent (2026-07-26, répété 3 fois, dont recette capture 8) : « titrer sur la courbe nocturne, pas ' +
       'la GAJ ; la GAJ est le cas de repli quand il n\'y a pas de MCG, ce qui est maintenant rare. » ' +
-      'Refonte attendue : `mcg_disponible == true` → le profil nocturne gouverne le choix ' +
-      'titrer / ne-pas-titrer ; repli sur la GAJ seulement si `mcg_disponible == false` (cf. ' +
-      '`insuline.yaml`, bloc `incertitudes` « PIVOT gaj_a_cible », NON implémenté). ' +
+      'Refonte implémentée : `mcg_disponible == true` → le profil nocturne (`profil_nocturne_permet_titration` / ' +
+      '`profil_nocturne_a_cible`) gouverne le choix titrer / ne-pas-titrer ; repli sur la GAJ (`gaj_a_cible`) ' +
+      'seulement si `mcg_disponible == false` (cf. `insuline.yaml`, changelog v0.7). ' +
       'Ici : MCG disponible, profil nocturne STABLE (aucune hypo), HbA1c au-dessus de la cible → la ' +
-      'titration devrait être admise sur ce motif nocturne ; mais la GAJ, par ailleurs déclarée « à la ' +
-      'cible », route aujourd\'hui vers « Ne pas sur-titrer » au lieu de « Titrer » — c\'est exactement le ' +
-      'pivot que le référent demande de renverser.',
+      'titration est admise sur ce motif nocturne, alors même que la GAJ, par ailleurs déclarée « à la ' +
+      'cible », aurait routé vers « Ne pas sur-titrer » sous l\'ancien pivot — c\'est exactement le ' +
+      'renversement demandé par le référent.',
     () => {
       const o = {
         situation_insuline: 'basale_seule',
@@ -184,16 +186,16 @@ describe('insuline — décisions référent 2026-07-26 NON implémentées (spé
     },
   )
 
-  it.fails(
-    'E-06 — sécurité ET efficacité doivent être CUMULABLES (défaut recette capture 9, jamais corrigé). ' +
+  it(
+    'E-06 — sécurité ET efficacité sont désormais CUMULABLES (défaut recette capture 9, corrigé 2026-07-26). ' +
       'Référent (2026-07-26) : « oui, action de contrôle glycémique en fonction des autres critères : soit ' +
-      'un traitement non insulinique, soit ajouter un bolus. » Aujourd\'hui, en situation « basale seule », ' +
-      'une hypoglycémie nocturne exclut À LA FOIS « Titrer la basale » ET « Ne pas sur-titrer… » (leurs deux ' +
-      'jeux d\'`exclusions` portent la même clause `profil_glycemique contient hypo_nocturne`) : seul le ' +
-      'geste de sécurité « Corriger l\'hypoglycémie… » reste applicable, et l\'HbA1c (8 % vs cible 7 %) reste ' +
-      'au-dessus de la cible sans AUCUNE réponse. Chantier : ouvrir, aux côtés du geste de sécurité, une ' +
-      'option d\'efficacité cumulable (traitement non insulinique OU ajout d\'un bolus), symétrique à celle ' +
-      'qui existe déjà en situation « basale_plus_bolus ».',
+      'un traitement non insulinique, soit ajouter un bolus. » En situation « basale seule », une ' +
+      'hypoglycémie nocturne continue d\'exclure À LA FOIS « Titrer la basale » ET « Ne pas sur-titrer… » ' +
+      '(leurs deux jeux d\'`exclusions` portent la même clause `profil_glycemique contient hypo_nocturne`) — ' +
+      'mais le geste de sécurité « Corriger l\'hypoglycémie… » n\'est plus seul : une option d\'efficacité ' +
+      'cumulable (traitement non insulinique OU ajout d\'un bolus), réutilisée telle quelle depuis la ' +
+      'situation « basale_plus_bolus », répond désormais à l\'HbA1c (8 % vs cible 7 %) restée au-dessus de ' +
+      'la cible.',
     () => {
       const o = {
         situation_insuline: 'basale_seule',
@@ -234,12 +236,13 @@ describe('insuline — E-04 : sur-basalisation réelle (dose 40 U / poids 70 kg)
     expect(has(titles(o), NE_PAS_SURTITRER)).toBe(true)
   })
 
-  it.fails(
-    'E-04b — la sur-basalisation doit « suggérer d\'autres pistes de contrôle glycémique » (référent ' +
-      '2026-07-26, même décision non implémentée que E-06). Aujourd\'hui, en situation « basale seule », ' +
-      'seule la carte « Ne pas sur-titrer… » est proposée : le levier GLP-1/bolus n\'y figure qu\'en PROSE ' +
-      '(dans `avantages`), jamais comme option distincte et actionnable — contrairement à la situation ' +
-      '« basale_plus_bolus », qui porte une vraie option « Ajouter un GLP-1 / une association fixe ».',
+  it(
+    'E-04b — la sur-basalisation « suggère désormais d\'autres pistes de contrôle glycémique » (référent ' +
+      '2026-07-26, même décision implémentée que E-06). En situation « basale seule », la carte ' +
+      '« Ne pas sur-titrer… » continue de s\'afficher, mais elle n\'est plus seule : le levier GLP-1/bolus, ' +
+      'qui ne figurait qu\'en PROSE (dans `avantages`), est désormais aussi une option distincte et ' +
+      'actionnable — réutilisée depuis la situation « basale_plus_bolus », qui portait déjà « Ajouter un ' +
+      'GLP-1 / une association fixe ».',
     () => {
       const o = {
         situation_insuline: 'basale_seule',

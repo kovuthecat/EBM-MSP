@@ -51,6 +51,11 @@ preuves » — ebmfrance). **Niveau de preuve : modéré à élevé** (essais ro
 > 40 U), adaptation tous les 3 jours ; cible de glycémie à jeun ~0,70-1,20 g/L. Algorithme validé par
 **Treat-to-Target** (PMID 14578243) : ~60 % atteignent la cible.
 
+**Cohérence de saisie (2026-07-26).** Un patient déclaré « naïf d'insuline » ne peut, par définition, avoir
+déjà une insuline basale dans ses traitements en cours — le prérequis qui retire silencieusement l'option
+« Initier une insuline basale » dans ce cas (2026-07-25) est correct mais insuffisant seul : une alerte de
+nœud le dit désormais explicitement au praticien (incohérence situation/traitements déclarés).
+
 ## 2. Choix de la molécule basale — hypoglycémie nocturne (substitut) vs sévère (dur)
 
 Chez le patient à risque d'hypoglycémie (âgé, fragile, insuffisance rénale, hypoglycémies nocturnes),
@@ -75,11 +80,20 @@ bénéfice affiché = hypoglycémie **nocturne**, l'hypoglycémie sévère rése
 
 ## 3. Intensification — GLP-1 / association fixe avant le bolus
 
-Sur une basale insuffisante — glycémie à jeun à la cible mais HbA1c au-dessus (écart post-prandial), **ou**
-sur-basalisation franche (dose/poids > ~0,5 U/kg) même si la glycémie à jeun reste hors cible —, **ne pas
-sur-titrer la basale**. Depuis 2026-07-26, `over_basalisation == true` **exclut** l'option « Titrer la
-basale » et déclenche, à lui seul, ce relais (indépendamment de la glycémie à jeun) : la sur-basalisation
-est en elle-même une raison de ne pas titrer davantage.
+Sur une basale insuffisante — glycémie à jeun (ou, quand la MCG est disponible, profil **nocturne**, cf.
+§5) à la cible mais HbA1c au-dessus (écart post-prandial), **ou** sur-basalisation franche (dose/poids >
+~0,5 U/kg) même si la glycémie à jeun reste hors cible —, **ne pas sur-titrer la basale**. Depuis
+2026-07-26, `over_basalisation == true` **exclut** l'option « Titrer la basale » et déclenche, à lui seul,
+ce relais (indépendamment de la glycémie à jeun) : la sur-basalisation est en elle-même une raison de ne pas
+titrer davantage.
+
+**Cumul sécurité/efficacité en « basale seule » (2026-07-26).** Jusqu'ici, une hypoglycémie/variabilité
+nocturne ou une sur-basalisation ne laissait qu'un geste de sécurité (réduire la dose, temporiser) : l'HbA1c
+au-dessus de la cible restait sans réponse. Les 2 options d'intensification décrites plus bas (GLP-1/
+association fixe, ajout d'un bolus) sont désormais **aussi** applicables en situation « basale seule »
+quand l'un de ces 2 signaux est présent ET que la cible n'est pas atteinte — **cumulables** avec le geste de
+sécurité, jamais une alternative à lui. Contenu clinique réutilisé à l'identique (aucune nouvelle
+justification) ; portée volontairement limitée à ces 2 signaux, cf. incertitudes §9.
 
 | Stratégie (vs basal-bolus) | HbA1c | Hypoglycémie | Poids | Injections |
 | --- | --- | --- | --- | --- |
@@ -142,6 +156,18 @@ interprétation + alertes seulement. *Axe SÉCURITÉ* (TBR, TBR sévère, CV > 3
 **dur** (EBM DEVOTE) → **gate** les recommandations de sécurité (réduire la dose, 2ᵉ génération, relâcher la
 cible, désintensifier). Sans MCG : repli sur la **glycémie à jeun** (titration) et les **profils capillaires
 6-7 points** (intensification).
+
+**Pivot de « basale seule » (E-03, 2026-07-26).** Le référent a répété 3 fois (dont recette capture 8) que
+la glycémie à jeun n'est plus le bon pivot pour décider de titrer une basale — l'aspect **nocturne** de la
+courbe prime, la GAJ n'étant que le cas de repli en l'absence de MCG (« ce qui est maintenant rare »). Le
+moteur lit désormais `profil_glycemique` (et non plus `GAJ`) comme pivot QUAND `mcg_disponible == true` :
+un profil « stable » (rien de notable) ou « phénomène de l'aube » (glycémie qui remonte en fin de nuit)
+admet la titration ; un profil à « excursions post-prandiales » (nuit/jeûne déjà à la cible, l'écart est
+diurne) admet le relais « ne pas sur-titrer ». `gaj_a_cible` reste le pivot du repli SANS MCG, comportement
+inchangé. Point de vigilance appliqué : une liste `profil_glycemique` **vide** (aucune case cochée) n'est
+**pas** un profil « stable » — l'absence de coche ne se lit jamais comme une information rassurante (même
+défaut que D20, corrigé ici sans passer par le mécanisme `confirmation_requise`, qui répond à une saisie
+manquante plutôt qu'à un choix clinique).
 
 **Interprétation → décision (lecture de l'AGP).** TBR élevé / hypo nocturne → ↓ basale, 2ᵉ génération,
 relâcher la cible ; glycémie à jeun / TAR nocturne, phénomène de l'aube → titrer la basale ; glycémie à jeun à
@@ -211,12 +237,18 @@ source généraliste réelle est Joubert 2025, favorable à la MCG). Elles ne so
   NPH non significative ; pas de supériorité inter-2ᵉ-génération.
 - Associations fixes : bénéfice substitutif, aucun CVOT dédié.
 - Câblage formulaire (P3) : dérivés, calcul des doses, tooltips AGP, variable `hypo_severe_recurrente`.
-- **Pivot `gaj_a_cible` (à refondre, hors périmètre — signalé 2 fois par le référent, dont recette
-  capture 8) :** la glycémie à jeun est rarement le critère utilisé en pratique pour la basale ; l'aspect
-  **nocturne** de la courbe (MCG) prime. `gaj_a_cible` reste pourtant le seul pivot départageant « Titrer la
-  basale » de « Ne pas sur-titrer... » en situation « basale seule », y compris quand la MCG est disponible
-  (qui n'y intervient que côté sécurité — exclusions communes aux deux options). Détail versé aux
-  `incertitudes` du fichier YAML.
+- **Pivot nocturne (E-03, implémenté 2026-07-26) :** `profil_nocturne_permet_titration` / `profil_nocturne_a_cible`
+  remplacent `gaj_a_cible` comme pivot de « basale seule » quand `mcg_disponible == true` ; `gaj_a_cible`
+  reste le pivot du repli sans MCG. Non tranché : `hypo_interprandiale` (5ᵉ valeur de `profil_glycemique`)
+  n'alimente aucun des deux nouveaux dérivés (signal ni nocturne ni post-prandial, laissé de côté) ;
+  l'assimilation « phénomène de l'aube → admet la titration » est une lecture clinique standard, non
+  explicitement validée pour ce nouveau dérivé.
+- **Cumul sécurité/efficacité (E-04b/E-06, implémenté 2026-07-26) :** les options d'intensification de
+  « basale_plus_bolus » sont réutilisées en « basale seule », mais seulement sur les 2 signaux nommés par
+  le référent (hypoglycémie/variabilité nocturne, sur-basalisation) — le cas « GAJ/profil nocturne à la
+  cible SEUL » reste sans option d'efficacité dédiée (prose uniquement), non généralisé faute de mandat.
+  Ces 2 options portent leurs `priorite` d'origine (1/2), qui chevauchent en « basale seule » celles, sans
+  rapport clinique, des options de sécurité (le nœud ne déclare pas de `familles`) — signalé, non corrigé.
 - **« Désintensifier / alléger le schéma » (basal-bolus) :** l'alignement sur `terrain_fragile` (2026-07-26)
   a préservé `hypo_severe_recurrente` comme déclencheur indépendant, distinct de ce que décrivait la
   consigne référent (triplet avec `risque_hypoglycemie_schema`, absent ici avant l'alignement) — écart
