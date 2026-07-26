@@ -95,7 +95,7 @@ function estProhibitive(message: string): boolean {
 // Cette liste ne doit grossir que si un nouveau `quand: "default"` apparaît dans une alerte de nœud —
 // jamais pour faire taire une régression sur un nœud qui passait. Elle doit RÉTRÉCIR au fil du lot R8
 // (DECISIONS.md D21, § Conséquences) qui corrige ces trois cas.
-const NOEUDS_AVEC_ALERTE_DEFAULT_CONNUE = new Set<string>(['insuline', 'rhd', 'statine'])
+const NOEUDS_AVEC_ALERTE_DEFAULT_CONNUE = new Set<string>(['insuline', 'statine'])
 
 // ---------------------------------------------------------------------------------------------------
 // Dette connue — I7. Trois nœuds portent au moins une alerte prohibitive sans exclusion correspondante

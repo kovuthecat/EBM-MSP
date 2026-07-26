@@ -46,7 +46,17 @@ export function labelForDomaine(domaine: string): string {
 /** Ordre d'affichage des nœuds par domaine (id du nœud), parcours clinique voulu — pas l'ordre alphabétique
  *  des fichiers dont il dérive par défaut (`loadNodes.ts`). */
 const NODE_ORDER: Record<string, string[]> = {
-  'diabete-type-2': ['rhd', 'cible-glycemique', 'prescription', 'insuline', 'statine'],
+  // Le module RHD ouvre le parcours (mesures hygiéno-diététiques avant la prescription), l'alimentation
+  // avant l'activité — décision référent 2026-07-26. Il remplace l'ancien nœud unique `rhd`, retiré le
+  // même jour : celui-ci rendait la même carte, mot pour mot, à deux patients que tout oppose.
+  'diabete-type-2': [
+    'rhd-alimentation',
+    'rhd-activite-physique',
+    'cible-glycemique',
+    'prescription',
+    'insuline',
+    'statine',
+  ],
 }
 
 /** Trie les nœuds d'un domaine selon `NODE_ORDER` ; nœud non catalogué (futur) placé en fin, ordre de contenu. */

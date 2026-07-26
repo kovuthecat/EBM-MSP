@@ -255,7 +255,7 @@ describe('decisifsAConfirmer — le contenu réel du nœud `prescription`', () =
 
 describe('tous les nœuds du contenu', () => {
   it('déclarent des `visible_si` évaluables sur leurs valeurs par défaut', () => {
-    for (const id of ['cible-glycemique', 'prescription', 'insuline', 'rhd', 'statine']) {
+    for (const id of ['cible-glycemique', 'prescription', 'insuline', 'rhd-alimentation', 'rhd-activite-physique', 'statine']) {
       const node = getNoeudById(id) as Noeud
       expect(node, `nœud ${id} introuvable`).toBeDefined()
       expect(() => grouperChamps(node.criteres_entree, buildDefaultCriteria(node.criteres_entree))).not.toThrow()
