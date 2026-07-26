@@ -36,8 +36,12 @@ interface CriteriaFormProps {
    *
    * Le marqueur VISUEL (bord ambre + mention) ne s'affiche que sur les critères de type `nombre` (tâche 3,
    * recette référent) : une case à cocher non cochée EST une réponse clinique complète (« non » = `false`),
-   * marquer une case comme « à confirmer » suggère à tort qu'il faut la cocher. `decisifsAConfirmer` reste
-   * lui-même générique (tous types confondus) — c'est le RENDU ici qui filtre par type, pas la fonction.
+   * marquer une case comme « à confirmer » suggère à tort qu'il faut la cocher. **Exception (D20 R7,
+   * SPEC-valeur-indeterminee.md §2.2)** : un `bool` `confirmation_requise: true` N'EST PAS une case
+   * ordinaire — son « non » par défaut ne peut PAS être présumé sans risque (ex. `diabete_complique` sur
+   * `statine`), il reste `indetermine` tant qu'il n'est pas explicitement répondu et porte donc le même
+   * marqueur qu'un `nombre`. `decisifsAConfirmer` reste lui-même générique (tous types confondus) — c'est
+   * le RENDU ici qui filtre par type (et par `confirmation_requise`), pas la fonction.
    */
   aConfirmer?: ReadonlySet<string>
   /**
@@ -46,6 +50,17 @@ interface CriteriaFormProps {
    * absent → le bouton de pied de section ne s'affiche pas (rétro‑compatible).
    */
   onConfirmerChamps?: (noms: string[]) => void
+  /**
+   * Un champ `nombre` vient d'être VIDÉ par le praticien (D20 R7, SPEC-valeur-indeterminee.md §2, défauts
+   * de recette 12.2/13.3) : appelé À LA PLACE d'`onChange` quand l'input devient une chaîne vide — DISTINCT
+   * d'un changement de valeur, sinon `Number('') = 0` ET `touched` marqué font enregistrer un « 0 » comme
+   * une réponse confirmée (« 0 facteur de risque »), exactement le défaut constaté en recette. L'appelant
+   * doit faire RESSORTIR `nom` de `touched`/`renseignes` (jamais l'y laisser avec une valeur par défaut) —
+   * cf. `DecisionNodeScreen.tsx` `handleCriteriaEffacer`. Optionnel, repli sans `onEffacer` fourni (ex. un
+   * test qui ne le passe pas) : ancien comportement (`onChange(nom, 0)`, `touched` ajouté quand même) — SEUL
+   * cas où ce défaut peut encore se produire, volontairement, pour ne jamais casser un appelant existant.
+   */
+  onEffacer?: (nom: string) => void
   onChange: (nom: string, value: CriteriaValue) => void
 }
 
@@ -74,18 +89,26 @@ export function CriteriaForm({
   pertinents,
   aConfirmer,
   onConfirmerChamps,
+  onEffacer,
   onChange,
 }: CriteriaFormProps) {
-  const groupes = grouperChamps(criteresEntree, criteriaGroupement ?? criteria)
+  // `touched` fait aussi office de `renseignes` (D20 R7) pour la VISIBILITÉ (`visible_si`) : un champ dont
+  // le `visible_si` porte sur un critère pas encore renseigné doit rester VISIBLE (repli « fail open » de
+  // `champEstVisible`, `lib/formLayout.ts`), jamais masqué sur une donnée qu'on ignore encore — cf.
+  // `criteriaGroupement`/`touched` ci-dessus : même source que partout ailleurs dans cet écran.
+  const groupes = grouperChamps(criteresEntree, criteriaGroupement ?? criteria, touched)
 
   // Estompage (remarque 6) : un critère hors de `pertinents` n'a, pour CE patient, aucun effet sur la reco.
   // Absent (`pertinents` non fourni) → jamais estompé. Un champ déjà `touched` n'est JAMAIS estompé (tâche
   // 6b) : la valeur saisie par le praticien reste pleinement lisible même redevenue non décisive. Générique :
   // aucun nom de critère connu d'avance.
   const estDim = (nom: string) => pertinents != null && !pertinents.has(nom) && !touched.has(nom)
-  // Marqueur visuel restreint aux `nombre` (tâche 3) : seul un défaut `0` n'est jamais une réponse
-  // clinique valide (`bool` faux = « non » ; `enum`/`liste` défaut = valeur déclarée par le contenu).
-  const estAConfirmer = (critere: CritereEntree) => critere.type === 'nombre' && aConfirmer?.has(critere.nom) === true
+  // Marqueur visuel restreint aux `nombre` (tâche 3) — SAUF un `bool` `confirmation_requise` (D20 R7,
+  // cf. docstring `aConfirmer` ci-dessus) : seul un défaut `0`/un booléen non présumable n'est jamais une
+  // réponse clinique valide (`bool` ORDINAIRE faux = « non » ; `enum`/`liste` défaut = valeur du contenu).
+  const estAConfirmer = (critere: CritereEntree) =>
+    aConfirmer?.has(critere.nom) === true &&
+    (critere.type === 'nombre' || (critere.type === 'bool' && critere.confirmation_requise === true))
 
   /** Coche/décoche une valeur dans un critère `liste` (tableau de libellés, D13). */
   const toggleListeValeur = (nom: string, valeur: string, coche: boolean) => {
@@ -112,7 +135,11 @@ export function CriteriaForm({
             checked={Boolean(criteria[critere.nom])}
             onChange={(event) => onChange(critere.nom, event.target.checked)}
           />
-          <span className="criteria-form__checkbox-label">{labelForCritere(critere.nom)}</span>
+          <span className="criteria-form__checkbox-label">
+            {labelForCritere(critere.nom)}
+            {/* `confirmation_requise` seulement (D20 R7) : jamais sur un `bool` ordinaire, cf. `estAConfirmer`. */}
+            {confirmer && <span className="criteria-form__field-todo"> · à confirmer</span>}
+          </span>
         </label>
       )
     }
@@ -176,7 +203,19 @@ export function CriteriaForm({
             placeholder="—"
             // Champ non touché : reste vide (pas de "0" trompeur pris pour une valeur saisie).
             value={touched.has(critere.nom) ? Number(criteria[critere.nom] ?? 0) : ''}
-            onChange={(event) => onChange(critere.nom, Number(event.target.value))}
+            onChange={(event) => {
+              const brut = event.target.value
+              // D20 R7 (défauts de recette 12.2/13.3) : un champ VIDÉ n'est PAS une réponse « 0 » — cf.
+              // docstring `onEffacer` ci-dessus. `event.target.value === ''` couvre le cas normal (touche
+              // Suppr/Retour arrière) ; un état intermédiaire invalide (ex. juste "-") sanitize aussi vers
+              // `''` côté navigateur pour un `<input type="number">` — traité pareil, limite acceptée.
+              if (brut === '') {
+                if (onEffacer) onEffacer(critere.nom)
+                else onChange(critere.nom, 0) // repli rétro-compatible si `onEffacer` n'est pas fourni.
+                return
+              }
+              onChange(critere.nom, Number(brut))
+            }}
           />
         ) : segmente ? (
           <div className="criteria-form__segmented" role="group" aria-label={labelForCritere(critere.nom)}>
@@ -218,15 +257,18 @@ export function CriteriaForm({
         // Pied de section (tâches 4 & 5) : entièrement dérivé du TYPE + de `aConfirmer`, aucun nom de
         // champ ni de section en dur (invariant 5). Deux informations indépendantes, qui peuvent cohabiter :
         //  - les `nombre` décisifs non renseignés (mêmes que le marqueur ambre, tâche 3) → rappel textuel ;
-        //  - les `bool` décisifs non renseignés, au nombre d'AU MOINS 2 → bouton « Rien à signaler » (un
-        //    seul drapeau isolé se coche aussi vite qu'un bouton dédié ; le bouton ne vaut que passé ce seuil).
+        //  - les `bool` décisifs non renseignés → bouton « Rien à signaler ». Seuil À PARTIR DE 1 (D20 R7,
+        //    revu depuis 2 — SPEC-valeur-indeterminee.md §2.2) : un `bool` `confirmation_requise` ISOLÉ
+        //    (ex. `diabete_complique` sur `statine`) reste `indetermine` tant qu'il n'est pas confirmé — sans
+        //    ce bouton, un seul drapeau de ce type n'aurait AUCUN moyen d'être confirmé (le marqueur ambre
+        //    s'allume, mais cocher/décocher la case revient à choisir une valeur, pas à dire « pas demandé »).
         const nombresARenseigner = aConfirmer
           ? groupe.champs.filter((c) => c.type === 'nombre' && aConfirmer.has(c.nom))
           : []
         const boolsAConfirmer = aConfirmer
           ? groupe.champs.filter((c) => c.type === 'bool' && aConfirmer.has(c.nom))
           : []
-        const confirmerBools = boolsAConfirmer.length >= 2 ? onConfirmerChamps : undefined
+        const confirmerBools = boolsAConfirmer.length >= 1 ? onConfirmerChamps : undefined
         const afficherPiedDeSection = nombresARenseigner.length > 0 || confirmerBools != null
 
         return (

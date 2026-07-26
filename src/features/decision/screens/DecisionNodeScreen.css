@@ -117,6 +117,39 @@
   margin-bottom: 0;
 }
 
+/* D20 R7 (SPEC-valeur-indeterminee.md §2.5) — EN ATTENTE : quatrième registre, distinct des trois
+   suivants. Registre AMBRE (mêmes tokens `--c-attention*` que le marqueur « à confirmer » du formulaire
+   et le bandeau « reco provisoire ») : c'est une QUESTION posée au praticien (donnée manquante), jamais
+   une alerte clinique (`AlertList` reste réservée aux faits de sécurité) ni une simple explication muette
+   (`ecartees`/`nonRetenues` ci-dessous, en texte discret) — poussé comme `ecartees`, jamais replié. */
+.decision-node__en-attente {
+  margin: 0 0 20px;
+  padding: 12px 14px;
+  border: 1px solid var(--c-attention-border);
+  background: var(--c-attention-soft);
+  border-radius: var(--radius-md);
+}
+
+.decision-node__en-attente-titre {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--c-attention);
+  margin-bottom: 8px;
+}
+
+.decision-node__en-attente-item {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--c-text);
+  margin: 0 0 4px;
+}
+
+.decision-node__en-attente-item:last-child {
+  margin-bottom: 0;
+}
+
 /* R4 (`docs/decision/GRAMMAIRE-NOEUD.md`) — ÉCARTÉES : information de SÉCURITÉ, toujours affichée mais
    discrète (texte muet, pas de bloc coloré comme `AlertList` — une exclusion n'est pas une alerte à
    part entière, c'est la trace de ce qui a déjà été retiré). */

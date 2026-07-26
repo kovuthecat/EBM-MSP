@@ -9,9 +9,9 @@ import type { Criteria, CriteriaValue } from '../engine/conditions'
 import { criteresPertinents } from '../engine/relevance'
 import { describeReasons } from '../lib/conditionText'
 import { ESPERANCE_VIE_DRIVERS, hasEsperanceVieCritere, suggestEsperanceVie } from '../lib/esperanceVieDefault'
-import { buildDefaultCriteria, decisifsAConfirmer, reinitialiserChampsMasques } from '../lib/formLayout'
+import { buildDefaultCriteria, decisifsAConfirmer, reinitialiserChampsMasques, valeurParDefaut } from '../lib/formLayout'
 import { construireVueDecision } from '../lib/vueDecision'
-import { formatDateRevue, labelForDomaine } from '../lib/labels'
+import { formatDateRevue, labelForCritere, labelForDomaine } from '../lib/labels'
 import './DecisionNodeScreen.css'
 
 interface DecisionNodeScreenProps {
@@ -28,6 +28,16 @@ interface DecisionNodeScreenProps {
  * le moteur sous-jacent (`evaluateNode`) lève une `ConditionError` qui n'est volontairement pas
  * capturée ici — propager l'erreur plutôt que masquer un écart moteur/contenu (S4.md règle "Si
  * bloqué" ; `engine/conditions.ts`).
+ *
+ * VALEUR INDÉTERMINÉE EN VIGUEUR (DECISIONS.md D20, `docs/decision/validation/chantier-2026-07-26/
+ * SPEC-valeur-indeterminee.md` §2) : cet écran est celui qui alimente enfin `renseignes` — le moteur
+ * (`evaluateNode`/`construireVueDecision`) et le calcul de pertinence (`criteresPertinents`) l'acceptaient
+ * déjà en paramètre optionnel, mais aucun appelant ne le fournissait avant ce lot (repli « tout est
+ * renseigné », comportement historique). `touched` (déjà présent, T-009) EST cet ensemble `renseignes` :
+ * un critère « touché » par le praticien EST un critère « renseigné » — cf. `handleCriteriaChange`/
+ * `handleCriteriaEffacer` ci-dessous pour la distinction saisi/vidé/jamais-touché qui rend cette
+ * équivalence vraie (sans elle, vider un champ `nombre` laissait `touched` gonflé d'un « 0 » jamais
+ * répondu, cf. défauts de recette 12.2/13.3).
  */
 export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   const node = nodeId ? getNoeudById(nodeId) : undefined
@@ -61,8 +71,10 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   // la même fonction pure que sérialise `engine/relevance.ts` pour la signature de pertinence.
   const vue = useMemo(() => {
     if (!node) return undefined
-    return construireVueDecision(node, criteria)
-  }, [node, criteria])
+    // `touched` = `renseignes` (D20, cf. docstring de tête) : calculé sur `criteria` IMMÉDIAT, la même
+    // source temporelle que `touched` — les deux avancent ensemble, jamais l'un en retard sur l'autre.
+    return construireVueDecision(node, criteria, touched)
+  }, [node, criteria, touched])
 
   // TEMPORISATION (tâche 6c, recette référent) : `criteresPertinents` perturbe le moteur une fois par
   // critère saisissable (plusieurs évaluations d'`evaluateNode` chacune) — recalculer à CHAQUE frappe sur
@@ -79,8 +91,11 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   // (temporisé) : coût borné mais non négligeable (plusieurs évaluations du moteur déterministe par frappe).
   const pertinents = useMemo(() => {
     if (!node || node.criteres_entree.length === 0 || node.options.length === 0) return undefined
-    return criteresPertinents(node, criteriaDiffere)
-  }, [node, criteriaDiffere])
+    // `touched` = `renseignes` (D20) transmis NON DIFFÉRÉ, comme `decisifsManquants` ci-dessous : seul
+    // `criteria` (via `criteriaDiffere`) est temporisé (cf. commentaire au-dessus), `touched` ne l'est
+    // jamais — sans quoi un champ tout juste répondu resterait vu « indéterminé » un instant de trop.
+    return criteresPertinents(node, criteriaDiffere, touched)
+  }, [node, criteriaDiffere, touched])
 
   // Décisifs encore non confirmés → tant qu'il en reste, la reco est « provisoire » (jamais bloquée).
   // Réclamé et estompé dérivent tous deux de `pertinents` (cf. `decisifsAConfirmer`) : un champ ne peut
@@ -117,13 +132,46 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
       next.esperance_vie = suggestEsperanceVie(next)
     }
 
+    // `renseignes` APRÈS ce changement (D20) : `nom` vient d'être répondu — calculé AVANT
+    // `reinitialiserChampsMasques` pour que la visibilité en cascade voie déjà ce champ comme déterminé
+    // (repli « visible » de `champEstVisible` sur un `visible_si` autrement indéterminé, sinon
+    // inutilement pessimiste pour le champ qu'on vient tout juste de saisir).
+    const renseignesApres = new Set(touched).add(nom)
+
     // Un champ que ce changement vient de MASQUER (`visible_si`) est remis à sa valeur par défaut : une
     // valeur invisible ne doit jamais continuer à piloter la reco (cf. `formLayout.ts`). Il redevient
     // aussi « non renseigné », sinon il passerait pour confirmé s'il réapparaissait plus tard.
-    const { criteria: nettoye, reinitialises } = reinitialiserChampsMasques(node.criteres_entree, next)
+    const { criteria: nettoye, reinitialises } = reinitialiserChampsMasques(node.criteres_entree, next, renseignesApres)
     setCriteria(nettoye)
     setTouched((previous) => {
       const suivant = new Set(previous).add(nom)
+      for (const efface of reinitialises) suivant.delete(efface)
+      return suivant
+    })
+  }
+
+  /**
+   * Champ `nombre` VIDÉ par le praticien (D20 R7, `CriteriaForm.tsx` `onEffacer` — défauts de recette
+   * 12.2/13.3) : DISTINCT de `handleCriteriaChange` — sinon `Number('') = 0` ET `touched` marqué font
+   * enregistrer un « 0 » comme une réponse confirmée (« 0 facteur de risque »), alors que le champ vient
+   * précisément d'être vidé. `nom` RESSORT de `touched` (donc de `renseignes` transmis au moteur, cf.
+   * `vue`/`pertinents` ci-dessus) : il redevient « jamais renseigné », jamais « réponse zéro ». La valeur
+   * stockée retombe sur son défaut générique (`valeurParDefaut`, `lib/formLayout.ts`, même définition que
+   * l'initialisation du formulaire et que la remise à zéro d'un champ masqué) — cohérence, même si sans
+   * effet sur l'évaluation moteur tant que `nom` n'est plus dans `renseignes`.
+   */
+  const handleCriteriaEffacer = (nom: string) => {
+    const critere = node.criteres_entree.find((c) => c.nom === nom)
+    const next = critere ? { ...criteria, [nom]: valeurParDefaut(critere) } : criteria
+
+    const renseignesApres = new Set(touched)
+    renseignesApres.delete(nom)
+
+    const { criteria: nettoye, reinitialises } = reinitialiserChampsMasques(node.criteres_entree, next, renseignesApres)
+    setCriteria(nettoye)
+    setTouched((previous) => {
+      const suivant = new Set(previous)
+      suivant.delete(nom)
       for (const efface of reinitialises) suivant.delete(efface)
       return suivant
     })
@@ -181,6 +229,7 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                 : undefined
             }
             onConfirmerChamps={handleConfirmerChamps}
+            onEffacer={handleCriteriaEffacer}
             onChange={handleCriteriaChange}
           />
 
@@ -260,8 +309,27 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                 )
               })
             })()
-          ) : (
+          ) : vue && vue.enAttente.length > 0 ? null : ( // le bloc EN ATTENTE ci-dessous explique déjà l'état — jamais les deux messages à la fois (D20 R7, tâche 3).
             <p className="decision-node__empty">Aucune option ne correspond à ces critères.</p>
+          )}
+
+          {/* D20 R7 (SPEC-valeur-indeterminee.md §2.5, quatrième registre distinct des trois ci-dessous) —
+              EN ATTENTE : ni proposée ni écartée, un ou plusieurs critères manquent pour trancher. Poussé
+              comme `ecartees` (jamais replié) : c'est une QUESTION posée au praticien, pas une erreur — sur
+              formulaire vierge, c'est ce bloc qui prend le relais du panneau de résultats vide (ci-dessus),
+              plutôt qu'un « Aucune option ne correspond » qui affirmerait à tort une conclusion négative. */}
+          {vue && vue.enAttente.length > 0 && (
+            <div className="decision-node__en-attente">
+              <div className="decision-node__en-attente-titre">
+                En attente — critère{vue.enAttente.length > 1 ? 's' : ''} à renseigner pour trancher
+              </div>
+              {vue.enAttente.map((attente, index) => (
+                <p key={`${index}-${attente.option.intitule}`} className="decision-node__en-attente-item">
+                  <strong>{attente.option.intitule}</strong> — à renseigner :{' '}
+                  {attente.manquants.map(labelForCritere).join(', ')}
+                </p>
+              ))}
+            </div>
           )}
 
           {/* R4 — ÉCARTÉES (sécurité) : l'option était indiquée, une exclusion l'a retirée. Toujours

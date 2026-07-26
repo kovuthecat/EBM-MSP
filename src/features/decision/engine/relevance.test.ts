@@ -3,6 +3,7 @@
  * perturbation identifie bien les critères DÉCISIFS et écarte les critères INERTES pour un patient donné.
  */
 import { describe, expect, it } from 'vitest'
+import type { CritereEntree, Noeud, Option } from '../content/node.types.ts'
 import { getNoeudById } from '../content/loadNodes.ts'
 import { buildDefaultCriteria } from '../lib/formLayout.ts'
 import type { Criteria } from './conditions.ts'
@@ -152,5 +153,96 @@ describe('relevance — champsDecisifsManquants (reco provisoire)', () => {
     const manquants = champsDecisifsManquants(node!, PROFIL, new Set(['ASCVD_etablie']))
     expect(manquants).not.toContain('ASCVD_etablie')
     expect(manquants).toContain('DFG')
+  })
+})
+
+/** Nœud synthétique minimal (même convention que `evaluateNode.indetermine.test.ts`) — le moteur de
+ * pertinence ne connaît aucun nœud/critère par son nom (D8). */
+function opt(intitule: string, conditions: string[], extra: Partial<Option> = {}): Option {
+  return {
+    intitule,
+    conditions,
+    avantages: [],
+    inconvenients: [],
+    effet_attendu: 'non chiffrable',
+    niveau_preuve: 'faible',
+    ...extra,
+  }
+}
+
+function makeNode(options: Option[], criteresEntree: CritereEntree[]): Noeud {
+  return {
+    id: 'noeud-test-pertinence',
+    domaine: 'test',
+    titre: 'Nœud de test',
+    population_cible: 'test',
+    criteres_entree: criteresEntree,
+    options,
+    argumentaire: 'x',
+    sources: {
+      references_primaires: [],
+      medicalement_geek: { synthese: '', lien: '' },
+      prescrire: { synthese: '' },
+      reco_officielle: { source: '', position: '', divergence: false, explication: '' },
+    },
+    incertitudes: [],
+    veille_liee: [],
+    meta: { date_revue: '2026-01-01', auteur: 'test', statut: 'valide', version: '1.0', changelog: [] },
+  }
+}
+
+// D20 R7 — SPEC-valeur-indeterminee.md §2, DECISIONS.md D20 : `criteresPertinents`/`champsDecisifsManquants`
+// doivent désormais REFLÉTER ce qui est réellement affiché (un nœud peut être `enAttente`), pas présumer
+// que toute valeur par défaut est une réponse réelle.
+describe('relevance — renseignes (D20 R7) : simuler la RÉPONSE, pas seulement changer la valeur stockée', () => {
+  const criteres: CritereEntree[] = [{ nom: 'DFG', type: 'nombre' }]
+  const a = opt('A', ['DFG < 60'])
+  const node = makeNode([a], criteres)
+  const criteria: Criteria = { DFG: 0 } // valeur par défaut, jamais saisie
+
+  it('sans `renseignes` (repli) : comportement historique inchangé, DFG déjà vu décisif', () => {
+    expect(criteresPertinents(node, criteria).has('DFG')).toBe(true)
+  })
+
+  it(
+    'avec `renseignes` vide (rien de saisi) : DFG reste vu décisif — SANS la simulation de réponse ' +
+      "(chaque essai ajoute le critère testé à l'ensemble effectif), la perturbation resterait " +
+      'indéterminée quelle que soit la valeur candidate testée (DFG resterait absent des deux mondes ' +
+      "comparés), et DFG serait à tort vu « sans effet » : le mutisme exact que ce lot corrige.",
+    () => {
+      expect(criteresPertinents(node, criteria, new Set()).has('DFG')).toBe(true)
+    },
+  )
+
+  it('la RÉFÉRENCE (avant perturbation) reflète bien l’état réellement affiché : l’option est EN ATTENTE sur `renseignes` vide, pas silencieusement tranchée sur la valeur par défaut', () => {
+    // Sanity check du scénario : sans `renseignes`, DFG=0 est lu comme une vraie réponse (0 < 60 vrai, A
+    // applicable) ; avec `renseignes` vide, DFG est INDÉTERMINÉ, A part dans `enAttente` (comportement du
+    // moteur, testé indépendamment par `evaluateNode.indetermine.test.ts`) — c'est CETTE différence de
+    // référence que `criteresPertinents`/`champsDecisifsManquants` doivent maintenant prendre en compte.
+    expect(evaluateNode(node, criteria).applicable.map((o) => o.intitule)).toEqual(['A'])
+    expect(evaluateNode(node, criteria, new Set()).enAttente.has(a)).toBe(true)
+  })
+})
+
+describe('relevance — champsDecisifsManquants avec `renseignes` explicite (D20 R7, 4e paramètre)', () => {
+  const criteres: CritereEntree[] = [{ nom: 'DFG', type: 'nombre' }]
+  const a = opt('A', ['DFG < 60'])
+  const node = makeNode([a], criteres)
+
+  it('DFG manque à la liste sur un formulaire vierge (`touched`/`renseignes` tous deux vides)', () => {
+    const manquants = champsDecisifsManquants(node, { DFG: 0 }, new Set(), new Set())
+    expect(manquants).toContain('DFG')
+  })
+
+  it('DFG ne manque plus une fois `touched`/`renseignes` mis à jour (le praticien a répondu)', () => {
+    const manquants = champsDecisifsManquants(node, { DFG: 45 }, new Set(['DFG']), new Set(['DFG']))
+    expect(manquants).not.toContain('DFG')
+  })
+
+  it('sans `renseignes` (4e paramètre omis) : comportement historique inchangé (rétro-compatibilité)', () => {
+    // Même appel que la suite existante (`champsDecisifsManquants(node, criteria, touched)`, 3 arguments) :
+    // le repli doit rester identique à avant ce lot, pour ne rien casser des appels déjà en place.
+    const manquants = champsDecisifsManquants(node, { DFG: 0 }, new Set())
+    expect(manquants).toContain('DFG') // DFG=0 < 60 : décisif dès avant ce lot, sans changement de comportement.
   })
 })

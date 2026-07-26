@@ -16,6 +16,39 @@
  * ⚠ Les critères `derive` (cible_atteinte…) sont RECALCULÉS à chaque perturbation
  * (`calculerCriteresDerives`) : sinon un critère saisi qui n'agit QUE via un dérivé serait vu « sans effet ».
  * Les critères dérivés eux‑mêmes ne sont pas perturbables (non saisis) et sont donc ignorés en entrée.
+ *
+ * VALEUR INDÉTERMINÉE (DECISIONS.md D20, `docs/decision/validation/chantier-2026-07-26/
+ * SPEC-valeur-indeterminee.md` §2) : `criteresPertinents`/`champsDecisifsManquants` acceptent désormais un
+ * `renseignes` optionnel, transmis à `signature()` (donc à `construireVueDecision`/`evaluateNode`) pour que
+ * la RÉFÉRENCE (l'état AVANT perturbation) reflète ce qui est réellement affiché — un nœud sur formulaire
+ * vierge peut désormais être « en attente » plutôt que silencieusement évalué sur des zéros/`false` par
+ * défaut. Absent (repli) : comportement RIGOUREUSEMENT INCHANGÉ, comme partout ailleurs dans ce chantier.
+ *
+ * SIMULER LA RÉPONSE, PAS SEULEMENT LA VALEUR : pour CHAQUE critère perturbé, l'essai ajoute ce seul
+ * critère à l'ensemble `renseignes` de la perturbation (`renseignes ∪ {critere.nom}`), jamais les autres
+ * critères encore indéterminés. Sans cet ajout, perturber un critère absent de `renseignes` ne changerait
+ * JAMAIS rien : `evaluateCondition` ignore la valeur littérale d'une variable tant qu'elle n'est pas dans
+ * l'ensemble effectif (`conditions.ts`), donc toute valeur candidate produirait la MÊME signature que la
+ * référence (elle aussi indéterminée sur ce critère) — le critère serait vu « sans effet » et resterait
+ * estompé pour toujours, l'exact mutisme que ce lot corrige. L'essai répond très précisément à la question
+ * que ce module pose : « si le praticien RÉPONDAIT à ce champ, l'affichage bougerait-il ? ».
+ *
+ * LIMITE CONNUE, ASSUMÉE (pas un oubli) : chaque essai ne renseigne qu'UN SEUL critère à la fois — un
+ * critère qui n'est décisif qu'EN CONJONCTION avec un autre critère ÉGALEMENT indéterminé (ex. « DFG < 30
+ * AND age >= 75 » quand ni l'un ni l'autre n'est encore saisi) n'est donc pas détecté comme pertinent tant
+ * que son co-critère reste lui aussi indéterminé — la conjonction reste `indetermine` quelle que soit la
+ * valeur testée pour CE SEUL critère. Une recherche conjointe (plusieurs critères simultanément
+ * indéterminés) résoudrait ce cas mais multiplierait l'espace de perturbation (combinatoire, pas linéaire)
+ * — hors budget de ce lot (le calcul est déjà à ~12 s sur `prescription`, cf. SPEC §2.7). Le registre
+ * `enAttente` d'`evaluateNode` (exact, pas heuristique) reste la source de vérité pour CETTE question :
+ * `VueDecision.enAttente[].manquants` cite TOUJOURS tous les critères manquants d'une option, y compris en
+ * conjonction — c'est lui que l'écran affiche pour le détail exact (`DecisionNodeScreen.tsx`), cette
+ * heuristique de pertinence ne pilotant que l'estompage/le marqueur « à confirmer » du formulaire.
+ *
+ * N'AJOUTE PAS `indetermine` aux valeurs CANDIDATES testées (`valeursCandidates` ci-dessous, inchangée) :
+ * ce serait une question différente (« si ce champ REDEVENAIT indéterminé, l'affichage bougerait-il ? »),
+ * plus chère (un candidat de plus par critère saisissable) et hors périmètre de ce lot — limite documentée,
+ * pas un oubli.
  */
 import type { CritereEntree, Noeud } from '../content/node.types.ts'
 import { construireVueDecision, signatureVue } from '../lib/vueDecision.ts'
@@ -33,8 +66,8 @@ import type { Criteria, CriteriaValue } from './conditions.ts'
  * `docs/decision/GRAMMAIRE-NOEUD.md`). Ne jamais réintroduire ce couplage : toute nouvelle dimension
  * d'affichage se branche dans `construireVueDecision`/`VueDecision`, jamais ici.
  */
-function signature(node: Noeud, criteria: Criteria): string {
-  return signatureVue(construireVueDecision(node, criteria))
+function signature(node: Noeud, criteria: Criteria, renseignes?: ReadonlySet<string>): string {
+  return signatureVue(construireVueDecision(node, criteria, renseignes))
 }
 
 /** Tous les fragments de règle du nœud où un critère peut apparaître (pour en extraire des seuils). */
@@ -93,13 +126,20 @@ function valeursCandidates(node: Noeud, critere: CritereEntree, criteria: Criter
  * patient. Un critère absent du résultat n'a, pour ce patient précis, aucun effet sur la reco → l'UI
  * peut l'estomper. Générique : fonctionne pour n'importe quel nœud.
  */
-export function criteresPertinents(node: Noeud, criteria: Criteria): Set<string> {
-  const reference = signature(node, criteria)
+export function criteresPertinents(
+  node: Noeud,
+  criteria: Criteria,
+  renseignes?: ReadonlySet<string>,
+): Set<string> {
+  const reference = signature(node, criteria, renseignes)
   const pertinents = new Set<string>()
   for (const critere of node.criteres_entree) {
     if (critere.derive != null) continue // dérivé : non saisi, non perturbable directement
+    // Essai = « si CE critère était répondu » (cf. docstring de tête) : ajoute UNIQUEMENT `critere.nom` à
+    // `renseignes`, jamais les autres critères encore indéterminés.
+    const essai = renseignes ? new Set([...renseignes, critere.nom]) : undefined
     for (const candidate of valeursCandidates(node, critere, criteria)) {
-      if (signature(node, { ...criteria, [critere.nom]: candidate }) !== reference) {
+      if (signature(node, { ...criteria, [critere.nom]: candidate }, essai) !== reference) {
         pertinents.add(critere.nom)
         break
       }
@@ -111,11 +151,21 @@ export function criteresPertinents(node: Noeud, criteria: Criteria): Set<string>
 /**
  * Critères DÉCISIFS encore MANQUANTS = pertinents (peuvent changer la reco) ∩ non encore renseignés par
  * le praticien (`touched`). Tant que la liste est non vide, la reco affichée est « provisoire » (remarque 7).
+ *
+ * `renseignes` (D20, optionnel, 4e paramètre) : base ternaire pour `criteresPertinents` — DISTINCT de
+ * `touched`, qui ne sert ICI qu'au filtre final (« déjà répondu, donc plus manquant »). Repli `undefined` :
+ * comportement HISTORIQUE inchangé (`criteresPertinents` évalue en repli « tout est renseigné », comme
+ * avant ce paramètre) — c'est ce qui garde les anciens appels (2/3 arguments) valides à l'identique. En
+ * production, l'appelant (`DecisionNodeScreen.tsx`) passe le MÊME ensemble aux deux (`touched`), puisque
+ * c'est justement ce que ce chantier établit comme équivalence : un critère « touché » EST un critère
+ * « renseigné ». Séparé ici pour ne pas figer cette équivalence dans la signature — un futur appelant
+ * pourrait légitimement vouloir les deux ensembles distincts (ex. un `renseignes` reconstruit après import).
  */
 export function champsDecisifsManquants(
   node: Noeud,
   criteria: Criteria,
   touched: ReadonlySet<string>,
+  renseignes?: ReadonlySet<string>,
 ): string[] {
-  return [...criteresPertinents(node, criteria)].filter((nom) => !touched.has(nom))
+  return [...criteresPertinents(node, criteria, renseignes)].filter((nom) => !touched.has(nom))
 }
