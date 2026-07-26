@@ -24,14 +24,19 @@ const SOUPLE = 'Cible ≤ 8 %'
 const STRICTE = 'Cible ~6,5 % (6,5–7 %)'
 const DEFAUT = 'Cible ≤ 7 %'
 
-/** Critères complets à partir d'un profil « défaut » (le moteur lève sur toute variable manquante). */
+/**
+ * Critères complets à partir d'un profil « défaut » (le moteur lève sur toute variable manquante).
+ * `risque_hypoglycemie_schema` ne fait PLUS partie de `criteres_entree` depuis la révision référent
+ * du 2026-07-26 (retiré du nœud : le risque hypoglycémique est une propriété du schéma thérapeutique,
+ * pas du patient — cf. `cible-glycemique.yaml` meta v2.1 et son changelog) : ce helper ne le porte
+ * donc plus, comme les six critères qui restent listés ci-dessous.
+ */
 function criteria(overrides: Partial<Criteria> = {}): Criteria {
   return {
     age: 60,
     anciennete_diabete_annees: 8,
     esperance_vie: 'intermediaire',
     fragilite: false,
-    risque_hypoglycemie_schema: 'faible',
     antecedent_cv: false,
     comorbidite_grave: false,
     ...overrides,
@@ -71,9 +76,9 @@ describe('evaluateNode — "cible-glycemique" (T-007bis · ordered-first-match, 
     expect(cible(criteria({ fragilite: true }))).toEqual([SOUPLE])
   })
 
-  it('A-01c — le même patient, fragile ET EV LIMITÉE → < 9 % — ⚠ comportement ACTUEL, ce troisième ' +
-    'cran est EN ATTENTE DE CONFIRMATION du référent (≤ 8 % pourrait suffire ici ; cf. ' +
-    'vignettes-existantes-a-valider.md, entrée A-01)', () => {
+  it('A-01c — le même patient, fragile ET EV LIMITÉE → < 9 % — troisième cran CONFIRMÉ par le ' +
+    'référent (2026-07-26, mandat « Trois arbitrages du référent », point 3 : ≤ 8 % ne suffit pas ici, ' +
+    'la mention « en attente de confirmation » est levée)', () => {
     expect(cible(criteria({ fragilite: true, esperance_vie: 'limitee' }))).toEqual([MOINS_CONTRAIGNANTE])
   })
 
@@ -99,12 +104,18 @@ describe('evaluateNode — "cible-glycemique" (T-007bis · ordered-first-match, 
     expect(cible(criteria({ fragilite: true }))).toEqual([SOUPLE])
   })
 
-  it('ancienneté > 10 ans ET risque hypo élevé → ≤ 8 %', () => {
-    expect(cible(criteria({ anciennete_diabete_annees: 15, risque_hypoglycemie_schema: 'eleve' }))).toEqual([SOUPLE])
-  })
-
-  it('risque hypo élevé seul (ancienneté < 10) → défaut ≤ 7 % (pas ≤ 8, pas ~6,5)', () => {
-    expect(cible(criteria({ anciennete_diabete_annees: 5, risque_hypoglycemie_schema: 'eleve' }))).toEqual([DEFAUT])
+  // Les deux tests qui suivaient ici (« ancienneté > 10 ans ET risque hypo élevé → ≤ 8 % » et
+  // « risque hypo élevé seul → défaut ≤ 7 % ») exerçaient `risque_hypoglycemie_schema`, retiré du nœud
+  // par la révision référent du 2026-07-26 (`cible-glycemique.yaml` meta v2.1 : le risque
+  // hypoglycémique est une propriété du SCHÉMA thérapeutique, pas du patient — hors périmètre de ce
+  // nœud). Fusionnés en un seul test ci-dessous, qui verrouille le nouveau comportement plutôt que
+  // l'ancien : l'ancienneté seule (sans le critère hypo, qui n'existe plus) ne déclenche PLUS ≤ 8 % —
+  // choix conservateur documenté dans le changelog et l'argumentaire (le sort de cette branche n'était
+  // pas tranché par le référent, seul le critère `risque_hypoglycemie_schema` l'était).
+  it('ancienneté > 10 ans SEULE (risque hypo retiré du nœud) → défaut ≤ 7 %, pas ≤ 8 % — la branche ' +
+    'qui l’associait à risque_hypoglycemie_schema disparaît avec le critère (choix conservateur, cf. ' +
+    'changelog cible-glycemique.yaml v2.1)', () => {
+    expect(cible(criteria({ anciennete_diabete_annees: 15 }))).toEqual([DEFAUT])
   })
 
   it('fragile ET EV limitée → < 9 % (bande la plus relâchée, évaluée en premier)', () => {
@@ -140,7 +151,6 @@ describe('evaluateNode — "cible-glycemique" (T-007bis · ordered-first-match, 
       age: 52,
       anciennete_diabete_annees: 3,
       fragilite: false,
-      risque_hypoglycemie_schema: 'faible',
       antecedent_cv: false,
       comorbidite_grave: false,
     } as Criteria
@@ -161,15 +171,15 @@ describe('evaluateNode — "cible-glycemique" (T-007bis · ordered-first-match, 
   // numéro.
   // ---------------------------------------------------------------------------------------------
 
-  it('A-14 — 78 ans, fragile, EV limitée, risque hypo ÉLEVÉ (en plus) → < 9 % (le fragile n’est ' +
-    'jamais poussé vers une cible serrée, quel que soit le risque hypo)', () => {
+  it('A-14 — 78 ans, fragile, EV limitée, antécédent CV établi (en plus) → < 9 % (le fragile n’est ' +
+    'jamais poussé vers une cible serrée, quel que soit le reste du profil)', () => {
     expect(
       cible(
         criteria({
           age: 78,
           fragilite: true,
           esperance_vie: 'limitee',
-          risque_hypoglycemie_schema: 'eleve',
+          antecedent_cv: true,
         }),
       ),
     ).toEqual([MOINS_CONTRAIGNANTE])
@@ -180,18 +190,13 @@ describe('evaluateNode — "cible-glycemique" (T-007bis · ordered-first-match, 
   // CARDIOVASCULAIRE établi, à espérance de vie seulement intermédiaire, doit relâcher la cible à
   // ≤ 8 %.
   //
-  // ROUGE AUJOURD'HUI : le moteur rend ≤ 7 % (repli), pas ≤ 8 %. Cause exacte (confirmée par
-  // l'isolement d'`antecedent_cv` en A-19 ci-dessous) : la condition de « Cible ≤ 8 % »
-  // (`content/noeuds/diabete-type-2/cible-glycemique.yaml:41`) ne référence PAS `antecedent_cv` du
-  // tout, et son volet ancienneté exige EN PLUS un risque hypoglycémique élevé
-  // (« anciennete_diabete_annees > 10 AND risque_hypoglycemie_schema == eleve ») — ce patient a un
-  // risque hypo FAIBLE, donc l'ancienneté seule ne déclenche rien. Ce que ça manque précisément : une
-  // clause dans « Cible ≤ 8 % » qui route soit sur `antecedent_cv == true` seul, soit sur
-  // `anciennete_diabete_annees > 10` seul (sans exiger le risque hypo). Chantier qui la lèvera :
-  // révision de contenu du nœud `cible-glycemique` (hors périmètre de ce lot de tests, à planifier
-  // avec le référent — workflow veille → algorithme, `DECISIONS.md` D5).
-  it.fails('A-15 — 68 ans, diabète 15 ans, antécédent CV établi, EV intermédiaire, hypo faible → ' +
-    '≤ 8 % (décision référent 2026-07-26) — ROUGE : le moteur rend ≤ 7 %', () => {
+  // CORRIGÉ (2026-07-26, mandat « Trois arbitrages du référent », point 1) : `antecedent_cv == true`
+  // est désormais un déclencheur à part entière (forme normale disjonctive) de « Cible ≤ 8 % »
+  // (`content/noeuds/diabete-type-2/cible-glycemique.yaml`, changelog v2.1) — jusqu'ici le critère
+  // n'apparaissait qu'en position d'EXCLUSION (`antecedent_cv == false` sur la cible stricte), jamais en
+  // position positive. Cette vignette repasse VERTE (`it`, plus `it.fails`).
+  it('A-15 — 68 ans, diabète 15 ans, antécédent CV établi, EV intermédiaire → ' +
+    '≤ 8 % (décision référent 2026-07-26)', () => {
     expect(
       cible(
         criteria({
@@ -225,70 +230,50 @@ describe('evaluateNode — "cible-glycemique" (T-007bis · ordered-first-match, 
   // attente. Cette vignette repasse donc VERTE — elle ne documente plus un défaut ouvert, elle le
   // reverrouille comme garde-fou de non-régression pour ce nœud précis (vérifié en exécutant
   // réellement le moteur avant d'écrire l'assertion, pas déduit du mandat).
+  //
+  // MISE À JOUR (2026-07-26, révision v2.1) : l'option bloquante reste « Cible ≤ 8 % » (SOUPLE), mais la
+  // liste des champs à renseigner pour lever l'indétermination a RÉTRÉCI de 3 à 1 élément. Vérifié en
+  // exécutant le moteur (pas déduit) : avec `risque_hypoglycemie_schema` retiré du nœud et la branche
+  // `anciennete_diabete_annees > 10 AND …` retirée avec lui (cf. changelog `cible-glycemique.yaml`), la
+  // condition de « Cible ≤ 8 % » ne référence plus ni l'un ni l'autre — seul `esperance_vie` (encore
+  // indéterminé sur formulaire vierge) reste à renseigner pour trancher cette option.
   it('A-17 — formulaire vierge (renseignes = ∅) → aucune cible retenue, « Cible ≤ 8 % » en attente ' +
-    'faute d’ancienneté/EV/risque hypo renseignés', () => {
+    'faute d’espérance de vie renseignée', () => {
     const result = evaluateNode(node!, buildDefaultCriteria(node!.criteres_entree), new Set())
     expect(result.applicable).toEqual([])
     const enAttente = [...result.enAttente.entries()]
     expect(enAttente.map(([option]) => option.intitule)).toEqual([SOUPLE])
-    expect(enAttente[0][1].slice().sort()).toEqual(
-      ['anciennete_diabete_annees', 'esperance_vie', 'risque_hypoglycemie_schema'].sort(),
-    )
+    expect(enAttente[0][1].slice().sort()).toEqual(['esperance_vie'])
   })
 
-  // A-18 (« jeune sous sulfamide ») — vignette-SPÉCIFICATION, pas une régression de contenu existant :
-  // le nœud n'a aujourd'hui aucun moyen de coder ce que cette vignette attend.
-  //
-  // Position référent (2026-07-26, `vignettes-existantes-a-valider.md`) : « quelle raison, sur un
-  // diabète récent chez un sujet jeune, d'avoir un risque d'hypo élevé ? Le risque dépend de la
-  // palette de traitement » — sa décision : ON CHANGE LE TRAITEMENT, ON NE RELÂCHE PAS L'OBJECTIF.
-  // Cliniquement attendu ici : cible ~6,5 % (STRICTE) inchangée ; le risque hypo élevé doit être
-  // adressé en amont (arrêt/switch du traitement en cause), pas en relâchant la cible.
-  //
-  // ROUGE AUJOURD'HUI, et ce n'est PAS un bug de calcul : le nœud n'a ni alerte, ni critère
-  // `traitements_en_cours` (ou équivalent) — rien qui permette de savoir SI le risque hypo déclaré
-  // vient d'un traitement modifiable (sulfamide, insuline) ou d'un terrain intrinsèque. Faute de cette
-  // distinction, `risque_hypoglycemie_schema == eleve` fait échouer la condition
-  // `risque_hypoglycemie_schema == faible` de « Cible ~6,5 % »
-  // (`content/noeuds/diabete-type-2/cible-glycemique.yaml:55`) et le patient retombe sur le repli
-  // ≤ 7 %. Ce qui manque précisément : soit une ALERTE dédiée (« risque hypo élevé chez un patient
-  // jeune/récent : vérifier la palette de traitement avant de relâcher la cible »), soit un critère
-  // `traitements_en_cours` permettant de router différemment selon que le risque est médicamenteux ou
-  // non. Chantier qui la lèvera : révision de contenu du nœud `cible-glycemique` (hors périmètre de ce
-  // lot de tests, à planifier avec le référent).
-  it.fails('A-18 (« jeune sous sulfamide ») — 45 ans, diabète 2 ans, EV longue, non fragile, risque ' +
-    'hypo ÉLEVÉ déclaré → ~6,5 % attendu (on change le traitement, on ne relâche pas l’objectif) — ' +
-    'ROUGE : le moteur rend ≤ 7 %', () => {
-    expect(
-      cible(
-        criteria({
-          age: 45,
-          anciennete_diabete_annees: 2,
-          esperance_vie: 'longue',
-          risque_hypoglycemie_schema: 'eleve',
-        }),
-      ),
-    ).toEqual([STRICTE])
-  })
+  // A-18 (« jeune sous sulfamide ») — SUPPRIMÉE (2026-07-26, mandat « Trois arbitrages du référent »,
+  // point 2). Elle exerçait `risque_hypoglycemie_schema`, un critère que le référent a retiré DU NŒUD
+  // (`cible-glycemique.yaml` meta v2.1) : son raisonnement — « quelle raison, sur un diabète récent chez
+  // un sujet jeune, d'avoir un risque d'hypo élevé ? Le risque dépend de la palette de traitement » —
+  // pose précisément que le risque hypoglycémique est une propriété du SCHÉMA THÉRAPEUTIQUE, pas du
+  // patient, et que ce nœud « cible glycémique » (qui ne collecte aucun traitement) ne peut pas le
+  // représenter. Le critère qu'elle testait n'existe donc plus : la vignette est sans objet, pas
+  // remplacée — aucun cas équivalent ne garde de sens DANS CE NŒUD (la question qu'elle posait, "changer
+  // le traitement plutôt que relâcher la cible", relève d'un nœud de PRESCRIPTION, hors périmètre ici ;
+  // cf. `cible-glycemique.argumentaire.md`, section « Révision 2026-07-26 »).
 
   // Couverture — effet propre d'`antecedent_cv` (signalé par l'audit, section « Couverture » de
   // `vignettes-existantes-a-valider.md` : seule A-05 le manipule, toujours combiné à
   // `comorbidite_grave`, qui suffit seul à expliquer son résultat — l'effet propre n'était démontré
   // nulle part). Paire d'isolement : MÊME PROFIL qu'A-02 (52 ans, diabète 3 ans, EV longue, non
-  // fragile, hypo faible, sans comorbidité grave), `antecedent_cv` seul bascule vrai/faux.
+  // fragile, sans comorbidité grave), `antecedent_cv` seul bascule vrai/faux.
   // - Bras FAUX = A-02 elle-même (ci-dessus, → ~6,5 %) : pas redupliqué ici.
-  // - Bras VRAI = A-19 ci-dessous : → ≤ 7 % (repli), PAS ≤ 8 %.
+  // - Bras VRAI = A-19 ci-dessous : → ≤ 8 %, PAS ~6,5 % ni ≤ 7 %.
   //
-  // VERDICT demandé par le mandat : `antecedent_cv` n'est PAS inerte — le faire basculer à vrai change
-  // bien la sortie (~6,5 % → ≤ 7 %). Mais son SEUL effet est d'EXCLURE la cible stricte
-  // (`cible-glycemique.yaml:53`, « antecedent_cv == false ») ; aucune option ne le référence en
-  // position POSITIVE — aucune route vers ≤ 8 % ne teste `antecedent_cv` (cf. A-15 ci-dessus, qui
-  // montre qu'un antécédent CV établi ne suffit PAS, seul, à atteindre ≤ 8 % avec le contenu actuel).
-  // Ce n'est donc pas un signalement R5 « critère mort » (le critère agit bel et bien) — c'est la
-  // confirmation chiffrée, isolée, du gap déjà rouge en A-15 : `antecedent_cv` retire mais n'apporte
-  // jamais rien.
+  // MISE À JOUR (2026-07-26, mandat « Trois arbitrages du référent », point 1) : avant cette révision,
+  // `antecedent_cv` n'EXCLUAIT que la cible stricte, sans jamais rien apporter en position positive —
+  // c'était précisément le gap révélé par A-15 (alors `it.fails`). Depuis l'ajout d'`antecedent_cv ==
+  // true` comme déclencheur de « Cible ≤ 8 % » (`cible-glycemique.yaml`, changelog v2.1), le faire
+  // basculer à vrai sur ce même profil ne se contente plus d'EXCLURE ~6,5 % : il OUVRE directement
+  // ≤ 8 % (et non plus le repli ≤ 7 %). Cette vignette verrouille donc désormais l'effet POSITIF
+  // isolé du critère, pas seulement son effet d'exclusion.
   it('A-19 — même profil qu’A-02 mais antecedent_cv = TRUE (isolé, sans comorbidite_grave) → ' +
-    '≤ 7 % (repli), pas ~6,5 % — antecedent_cv EXCLUT bien la cible stricte à lui seul', () => {
+    '≤ 8 %, pas ~6,5 % ni ≤ 7 % — antecedent_cv ouvre bien une route positive à lui seul', () => {
     expect(
       cible(
         criteria({
@@ -298,6 +283,6 @@ describe('evaluateNode — "cible-glycemique" (T-007bis · ordered-first-match, 
           antecedent_cv: true,
         }),
       ),
-    ).toEqual([DEFAUT])
+    ).toEqual([SOUPLE])
   })
 })

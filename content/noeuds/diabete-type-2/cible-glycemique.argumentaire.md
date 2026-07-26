@@ -136,12 +136,60 @@ Position **un peu plus prudente** que le ≤ 7 % officiel.
 **Médicalement Geek / DragiWebdo** (EBM francophone) : mêmes bandes d'individualisation, insistance sur
 l'évitement du sur-traitement et la **déprescription si HbA1c < 6,5 %**.
 
+## Révision 2026-07-26 — périmètre du nœud (risque hypoglycémique, antécédent CV, ancienneté)
+
+Trois arbitrages référent ont fait évoluer l'encodage (`cible-glycemique.yaml`, meta v2.1) sans
+toucher à l'argumentaire clinique ci-dessus (ACCORD/ADVANCE/VADT restent la même base de preuve) :
+
+1. **`antecedent_cv` ouvre désormais une route vers ≤ 8 %.** Jusqu'ici le critère ne servait qu'à
+   **exclure** la cible stricte (~6,5 %, condition `antecedent_cv == false`) ; aucune option ne le
+   testait en position positive, alors même que l'argumentaire ci-dessus cite l'antécédent
+   cardiovasculaire comme profil à risque de sur-traitement (ACCORD : ~35 % de maladie CV, surmortalité
+   sous contrôle intensif). Corrigé : `antecedent_cv == true` est un déclencheur supplémentaire de
+   « Cible ≤ 8 % » (union avec fragilité, comorbidité grave, espérance de vie limitée).
+
+2. **`risque_hypoglycemie_schema` SORT du nœud.** Décision référent : le risque hypoglycémique est une
+   propriété du **schéma thérapeutique** (quelle molécule, quelle dose), pas du patient lui-même — un
+   sujet jeune à diabète récent est typiquement sous metformine ou iSGLT2, aucun des deux n'expose à
+   l'hypoglycémie ; un risque hypo élevé chez lui signifie qu'il faut **changer le traitement**, pas
+   **relâcher l'objectif**. Ce nœud « cible glycémique » ne collecte aucun traitement en cours et ne
+   peut donc pas trancher entre les deux lectures — cette distinction relève d'un nœud de
+   **prescription**, hors périmètre ici. Le critère est retiré de `criteres_entree` et des deux options
+   qui le référençaient : le prérequis `risque_hypoglycemie_schema == faible` de « Cible ~6,5 % », et la
+   branche `anciennete_diabete_annees > 10 AND risque_hypoglycemie_schema == eleve` de « Cible ≤ 8 % ».
+   (Le champ reste mentionné comme **contre-indication informative**, texte libre non gatant, sur
+   l'option ~6,5 % — un rappel clinique pour le praticien, distinct du critère algorithmique retiré.)
+
+   **Sort de la branche « ancienneté > 10 ans », NON tranché par le référent** (il a arbitré le critère
+   `risque_hypoglycemie_schema`, pas cette branche qui le co-gardait) : trois lectures étaient possibles
+   — elle disparaît avec le risque hypo ; elle devient un déclencheur autonome (`anciennete > 10` seul
+   ouvre ≤ 8 %) ; elle se recombine autrement (ex. avec `comorbidite_grave`, déjà couvert ailleurs).
+   **Choix appliqué, le plus conservateur : la branche disparaît.** Raisons : (a) la table HAS citée
+   plus haut n'associe « durée > 10 ans » à ≤ 8 % **qu'« avec hypos »**, jamais seule — en retirer le
+   volet hypo sans preuve d'un effet propre de la durée seule aurait outrepassé la source citée ;
+   (b) sur le nœud voisin `statine`, le référent a explicitement rejeté un gate mono-facteur analogue
+   (F-statine §9.4 : « tout dépend de l'ancienneté du diabète ET des atteintes d'organe. On colle à la
+   grille. ») — un principe qui, appliqué ici, désapprouve tout autant l'ancienneté SEULE comme
+   déclencheur. `anciennete_diabete_annees` reste un critère actif du nœud : il continue de verrouiller
+   la borne stricte ~6,5 % (`< 5` ans). **Ce choix est un arbitrage clinique de l'implémentation, pas une
+   décision référent actée : à confirmer ou corriger explicitement.**
+
+   **Conséquence sur les vignettes** : A-18 (« jeune sous sulfamide », `it.fails`) exerçait précisément
+   `risque_hypoglycemie_schema` — critère qui n'existe plus. Retirée de `evaluateNode.test.ts` (aucun cas
+   équivalent trouvé qui garde du sens dans CE nœud : la question qu'elle posait — adapter le traitement
+   plutôt que la cible — relève désormais explicitement d'un nœud de prescription, pas de celui-ci).
+
+3. **A-01c confirmé.** Le patient fragile ET à espérance de vie limitée (troisième cran, < 9 %) n'est
+   plus « en attente de confirmation » : validé par le référent le 2026-07-26.
+
 ## Incertitudes
 
 - Cible optimale exacte (jamais testée en bandes étroites).
 - Mécanisme de la surmortalité ACCORD.
 - Transposabilité à l'ère GLP-1/SGLT2.
 - Valeur du *time-in-range* sur critères durs.
+- Sort définitif de la branche « ancienneté > 10 ans seule » (cf. section « Révision 2026-07-26 »
+  ci-dessus) : retirée par choix conservateur, non explicitement validée par le référent.
 
 ## Sources (liste complète)
 
