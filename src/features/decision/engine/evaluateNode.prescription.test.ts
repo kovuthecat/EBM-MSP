@@ -21,6 +21,14 @@ if (!node) throw new Error('Nœud "prescription" introuvable (content/noeuds/dia
 const BASE: Criteria = {
   traitements_en_cours: [],
   intention: 'optimiser',
+  // GATING DOSE METFORMINE (2026-07-26, 3e série, prescription.yaml) : `dose_metformine` doit exister sur
+  // TOUT profil (sinon `ConditionError` dès qu'un test place le DFG dans l'une des deux bandes RCP tout en
+  // gardant metformine dans `traitements_en_cours`, cf. l'option « Réduire la posologie de la metformine »).
+  // 1000 est un INERTE délibéré (comme `position_vs_cible: a_l_objectif` ci-dessous) : jamais strictement
+  // supérieur à aucun des deux seuils RCP (2000 en bande 45-59, 1000 en bande 30-44) — ne déclenche donc
+  // JAMAIS l'option par accident sur un profil qui ne la teste pas explicitement. Les vignettes qui testent
+  // spécifiquement ce gating (P-39, P-50, P-57, P-58) surchargent `dose_metformine` explicitement.
+  dose_metformine: 1000,
   // R1 (GRAMMAIRE-NOEUD.md) : l'état est désormais DÉCLARÉ, plus déduit de `intention`. `a_l_objectif`
   // est la valeur inerte du profil neutre (cf. commentaire du critère dans prescription.yaml).
   position_vs_cible: 'a_l_objectif',
@@ -531,19 +539,51 @@ describe('prescription — P-38+ (déprescrire la metformine, garde-fou 2026-07-
     expect(idx(t, GLP1)).toBeLessThan(idx(t, 'Sulfamide (gliclazide'))
   })
 
-  it.fails('P-39 — même profil (DFG 58 sous metformine) : la réduction de dose de la metformine ne devrait PAS se proposer sans connaître la dose actuelle (décision référent 2026-07-26, NON IMPLÉMENTÉE)', () => {
+  it('P-39 — même profil (DFG 58 sous metformine), dose de metformine NON surchargée (défaut BASE = 1000, sous tout seuil) : la réduction ne se propose pas (décision référent 2026-07-26, 3e série, IMPLÉMENTÉE)', () => {
     // DÉCISION RÉFÉRENT (2026-07-26, chantier vignettes) : « Metformine présente devrait peut-être
-    // demander de renseigner la dose. » Le critère `dose_metformine` N'EXISTE PAS dans
-    // `content/noeuds/diabete-type-2/prescription.yaml` — l'option « Réduire la posologie de la
-    // metformine » (prescription.yaml:310-323) se déclenche aujourd'hui sur la seule fourchette de DFG
-    // (30-59) ou l'intolérance digestive, SANS jamais savoir quelle dose le patient prend déjà (elle
-    // pourrait déjà être minimale, rendant la « réduction » vide de sens clinique — capture 1, problème 2
-    // du mandat de ce chantier). CE TEST EST LA SPÉCIFICATION du chantier qui l'ajoutera : tant que
-    // `dose_metformine` n'est pas un critère saisi et câblé dans la condition de l'option, le moteur ne
-    // devrait PAS afficher cette option à l'aveugle. Rouge aujourd'hui (assertion clinique attendue, pas
-    // une erreur technique) ; vert une fois le critère ajouté et câblé.
+    // demander de renseigner la dose. » IMPLÉMENTÉ (3e série, prescription.yaml) : nouveau critère
+    // `dose_metformine`, l'option « Réduire la posologie de la metformine » exige désormais que la dose
+    // ACTUELLE dépasse le maximum ajusté au DFG (RCP ANSM), plus la seule fourchette de DFG seule. Ce
+    // profil ne surcharge PAS `dose_metformine` (reste au défaut INERTE de BASE, 1000 — jamais > à aucun
+    // des deux seuils RCP) : en mode « tout est renseigné » (2 arguments, `titles()`), la comparaison est
+    // déterministe et FAUSSE, l'option est donc absente d'`applicable`. P-57 ci-dessous vérifie le second
+    // volet de la spécification référent — dose VRAIMENT non renseignée (indéterminée, D20) ⇒ option EN
+    // ATTENTE, pas seulement absente.
     const o = { traitements_en_cours: ['metformine', 'iSGLT2'], intention: 'intensifier',
       position_vs_cible: 'au_dessus', HbA1c_actuelle: 8, ASCVD_etablie: true, DFG: 58 } as Partial<Criteria>
+    expect(has(titles(o), 'Réduire la posologie de la metformine')).toBe(false)
+  })
+
+  it('P-57 — même profil, dose de metformine VRAIMENT non renseignée (indéterminée, D20) : « Réduire la posologie » EN ATTENTE (« à renseigner : dose_metformine »), jamais affirmée à l’aveugle', () => {
+    // Volet D20 de la décision référent (2026-07-26, 3e série) : « tant que la dose n'est pas renseignée,
+    // le critère est indéterminé, donc l'option passe en attente... C'est exactement le comportement
+    // voulu. » P-39 ci-dessus démontre l'absence en mode « tout est renseigné » (repli 2 arguments) ; ce
+    // test exerce le VRAI chemin d'indétermination (3e argument `renseignes`, comme P-47) : tout le
+    // profil est marqué renseigné SAUF `dose_metformine`, qui reste donc INDÉTERMINÉE bien que le DFG
+    // (58, bande 45-59) et `traitements_en_cours` (contient metformine) soient, eux, parfaitement connus.
+    const o = { traitements_en_cours: ['metformine', 'iSGLT2'], intention: 'intensifier',
+      position_vs_cible: 'au_dessus', HbA1c_actuelle: 8, ASCVD_etablie: true, DFG: 58 } as Partial<Criteria>
+    const criteria = calculerCriteresDerives(node!.criteres_entree, { ...BASE, ...o } as Criteria)
+    const renseignes = new Set(Object.keys(criteria))
+    renseignes.delete('dose_metformine') // LA seule inconnue de ce profil.
+    const res = evaluateNode(node!, criteria, renseignes)
+    const enAttenteEntry = [...res.enAttente.entries()].find(([opt]) =>
+      opt.intitule.includes('Réduire la posologie de la metformine'),
+    )
+    expect(enAttenteEntry).toBeDefined()
+    expect(enAttenteEntry?.[1]).toEqual(['dose_metformine'])
+    expect(has(res.applicable.map((opt) => opt.intitule), 'Réduire la posologie de la metformine')).toBe(false)
+    expect(has([...res.excluded.keys()].map((opt) => opt.intitule), 'Réduire la posologie de la metformine')).toBe(
+      false,
+    )
+  })
+
+  it('P-58 — dose de metformine RENSEIGNÉE mais SOUS le maximum ajusté au DFG (1000 mg/j, DFG 50, bande 45-59 → max 2000) : « Réduire la posologie » ne se déclenche pas (vignette manquante, décision référent 2026-07-26, 3e série)', () => {
+    // Contre-épreuve de P-50 (ci-dessous, dose AU-DESSUS du maximum) : une dose connue et déjà SOUS le
+    // maximum ne justifie aucune réduction — le geste doit rester absent, pas seulement « en attente ».
+    const o = { traitements_en_cours: ['metformine', 'iSGLT2'], intention: 'intensifier',
+      position_vs_cible: 'au_dessus', HbA1c_actuelle: 8, ASCVD_etablie: true, DFG: 50,
+      dose_metformine: 1000 } as Partial<Criteria>
     expect(has(titles(o), 'Réduire la posologie de la metformine')).toBe(false)
   })
 
@@ -652,9 +692,13 @@ describe('prescription — P-48+ (couverture des options jamais exercées par un
     expect(has(titles(o), 'Poursuivre le traitement en cours et réévaluer')).toBe(true)
   })
 
-  it('P-50 — metformine seule, DFG 45 (bande 30-59), aucune autre indication : « Réduire la posologie de la metformine » apparaît', () => {
+  it('P-50 — metformine seule, DFG 45 (bande 45-59, max 2000 mg/j) avec une dose AU-DESSUS du maximum, aucune autre indication : « Réduire la posologie de la metformine » apparaît', () => {
+    // MODIFIÉE (2026-07-26, 3e série, gating dose) : cette option exige désormais que la dose ACTUELLE
+    // dépasse le maximum ajusté au DFG (RCP ANSM) — le seul DFG 45 ne suffit plus. `dose_metformine` doit
+    // donc être explicitement surchargée au-delà de 2000 (le défaut INERTE de BASE, 1000, ne la
+    // déclencherait plus, cf. commentaire de `BASE`) pour que ce profil reste un cas positif.
     const o = { traitements_en_cours: ['metformine'], DFG: 45, position_vs_cible: 'a_l_objectif',
-      HbA1c_actuelle: 7 } as Partial<Criteria>
+      HbA1c_actuelle: 7, dose_metformine: 3000 } as Partial<Criteria>
     expect(has(titles(o), 'Réduire la posologie de la metformine')).toBe(true)
   })
 

@@ -22,7 +22,11 @@
 # dérivé. PALETTE GLYCÉMIQUE
 # (S8) : iSGLT2/AR GLP-1 dispo aussi pour le contrôle glycémique (cible_atteinte==false), la comorbidité
 # PRIORISE ; insuline/SU/gliptine = agents possibles de bas rang ; repli insuline si palette non-insulinique
-# épuisée. `sur_traitement` RETIRÉ.
+# épuisée. `sur_traitement` RETIRÉ. GATING DOSE METFORMINE (2026-07-26, 3e série, chantier vignettes,
+# recette capture 1 problème 2) : nouveau critère `dose_metformine` (visible seulement si metformine en
+# cours) — l'option « Réduire la posologie de la metformine » ne se déclenche plus sur la seule fourchette
+# de DFG : elle exige que la dose ACTUELLE dépasse le maximum ajusté au DFG (RCP ANSM), jamais à l'aveugle
+# sur une dose inconnue (D20 : dose non renseignée ⇒ option EN ATTENTE, pas affirmée).
 id: prescription
 domaine: diabete-type-2
 titre: "Traiter : initier, optimiser, intensifier"
@@ -60,6 +64,19 @@ criteres_entree:
     # vide s'il avait été rempli sous une autre intention — cf. lib/formLayout.ts).
     visible_si: "intention != initier"
     valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, insuline, glinide]
+  - nom: dose_metformine
+    type: nombre
+    groupe: Traitement actuel et contrôle
+    # NOUVEAU CRITÈRE (décision référent, 2026-07-26, 3e série — chantier vignettes, recette capture 1
+    # problème 2) : « Metformine présente devrait peut-être demander de renseigner la dose. » Avant ce
+    # critère, l'option « Réduire la posologie de la metformine » (plus bas) se déclenchait sur la seule
+    # fourchette de DFG, SANS savoir si la dose RÉELLEMENT prescrite dépassait le maximum ajusté — une
+    # dose déjà minimale n'a rien à « réduire ». Visible seulement si la metformine est en cours (même
+    # convention que `nature_intolerance` ci-dessous : la dose d'un traitement absent n'a pas d'objet).
+    # Non renseignée alors que le DFG situe le patient dans l'une des deux bandes RCP (D20) : la condition
+    # de l'option reste INDÉTERMINÉE, elle passe EN ATTENTE (« à renseigner : dose de metformine ») plutôt
+    # que d'affirmer une réduction à l'aveugle — cf. l'option elle-même, plus bas.
+    visible_si: "traitements_en_cours contient metformine"
   - nom: HbA1c_actuelle
     type: nombre
     groupe: Traitement actuel et contrôle
@@ -308,13 +325,22 @@ options:
       Suppression du risque d'acidose lactique en insuffisance rénale sévère (sécurité — RCP/ANSM).
     niveau_preuve: eleve
   - intitule: "Réduire la posologie de la metformine (fonction rénale altérée ou intolérance digestive)"
+    # GATING SUR LA DOSE (décision référent, 2026-07-26, 3e série — recette capture 1, problème 2) : avant
+    # ce lot, cette option se déclenchait sur la seule fourchette de DFG, SANS savoir si la dose ACTUELLE
+    # dépassait le maximum ajusté — une dose déjà sous le maximum n'a rien à « réduire ». Seuils repris
+    # TELS QUELS des alertes rénales de ce même fichier (RCP ANSM, plus bas : DFG 45‑59 → max 2 000 mg/j ;
+    # DFG 30‑44 → max 1 000 mg/j) — aucun seuil inventé. La branche intolérance digestive reste
+    # INDÉPENDANTE de la dose (le geste s'y justifie par l'intolérance elle-même, pas par un excès de dose
+    # vs DFG). Si `dose_metformine` n'est pas renseignée alors que le DFG situe le patient dans l'une des
+    # deux bandes, la comparaison reste INDÉTERMINÉE (D20) : l'option passe EN ATTENTE plutôt que d'être
+    # affirmée à l'aveugle — vérifié par les vignettes P-39/P-57/P-58 du banc.
     conditions:
       - "traitements_en_cours contient metformine"
-      - "DFG >= 30 AND DFG < 60 OR nature_intolerance == digestive"
+      - "DFG >= 45 AND DFG < 60 AND dose_metformine > 2000 OR DFG >= 30 AND DFG < 45 AND dose_metformine > 1000 OR nature_intolerance == digestive"
     priorite: 3
     famille: "À faire d'emblée — sécurité"
     avantages:
-      - "Adapter la dose au DFG (RCP ANSM : 45‑59 → max 2 g/j ; 30‑44 → max 1 g/j), OU réduire en cas d'intolérance digestive (la metformine étant l'agent au bénéfice le plus faible : à réduire/arrêter en priorité si un AR GLP‑1 partage l'intolérance — cf. alerte). Le praticien juge la dose."
+      - "Réduire quand la dose ACTUELLE dépasse le maximum ajusté au DFG (RCP ANSM : 45‑59 → max 2 g/j ; 30‑44 → max 1 g/j), OU en cas d'intolérance digestive (la metformine étant l'agent au bénéfice le plus faible : à réduire/arrêter en priorité si un AR GLP‑1 partage l'intolérance — cf. alerte). Le praticien ajuste la dose exacte."
     inconvenients:
       - "Revoir les facteurs de risque d'acidose lactique ; suspendre en cas de déshydratation, contraste iodé, jeûne. Si l'intolérance persiste malgré la réduction : arrêt (l'intolérance/CI metformine ouvre le remboursement d'une monothérapie AR GLP‑1)."
     effet_attendu: >-
@@ -1115,8 +1141,32 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.18"
+  version: "0.19"
   changelog:
+    - date: "2026-07-26"
+      auteur: "référent DT2 + Claude"
+      resume: >-
+        Troisième série d'arbitrages référent du 2026-07-26 (chantier vignettes, recette capture 1
+        problème 2) : « Réduire la posologie de la metformine » se déclenchait sur la seule fourchette de
+        DFG, sans connaître la dose ACTUELLE du patient — une dose déjà sous le maximum n'a rien à
+        « réduire ». Décision référent : « Metformine présente devrait peut-être demander de renseigner la
+        dose. » Nouveau critère `dose_metformine` (nombre, mg/j), visible seulement si la metformine est en
+        cours (`visible_si: "traitements_en_cours contient metformine"`). Condition de l'option modifiée
+        pour exiger que la dose dépasse le maximum ajusté au DFG — seuils REPRIS TELS QUELS des alertes
+        rénales déjà présentes dans ce fichier (RCP ANSM : DFG 45‑59 → max 2 000 mg/j ; DFG 30‑44 → max
+        1 000 mg/j), aucun seuil inventé. La branche intolérance digestive reste indépendante de la dose.
+        Tant que `dose_metformine` n'est pas renseignée et que le DFG situe le patient dans l'une des deux
+        bandes, la comparaison reste INDÉTERMINÉE (D20) : l'option passe EN ATTENTE (« à renseigner : dose
+        de metformine ») au lieu d'affirmer qu'une réduction s'impose — comportement voulu, vérifié sur le
+        moteur réel. L'alerte rénale metformine (paliers DFG) n'est PAS modifiée : elle reste vraie quel
+        que soit le geste retenu (catégorie A, D21). L'option socle « Metformine — instaurer ou
+        poursuivre » n'est pas affectée (ses propres exclusions `DFG < 30`/`metformine_deprescriptible`
+        sont indépendantes de ce lot). Vignette P-39 (`evaluateNode.prescription.test.ts`) passée de
+        `it.fails` à `it` (spécification désormais implémentée) ; vignettes P-50 (ajout d'une dose
+        explicite dépassant le maximum, seule façon de continuer à déclencher l'option sur ce profil),
+        P-57 et P-58 ajoutées (dose non renseignée → en attente ; dose sous le maximum → pas de
+        déclenchement). STATUT toujours `brouillon` (validation clinique globale du nœud non close par ce
+        lot).
     - date: "2026-07-26"
       auteur: "référent DT2 + Claude"
       resume: >-

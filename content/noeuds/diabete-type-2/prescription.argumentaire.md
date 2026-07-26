@@ -61,6 +61,18 @@ encodé (cf. `incertitudes` du YAML) — pour la **metformine**, voir le lot sui
    rechercher**, avant d'orienter vers un ajustement de schéma (nœud E) ; seuil 3 mmol/L, suspicion de DT1
    et renvoi au nœud E inchangés.
 
+**Ajout 2026‑07‑26, 3e série (arbitrage référent, chantier vignettes — recette capture 1, problème 2)** :
+« Réduire la posologie de la metformine » se déclenchait sur la seule fourchette de DFG, sans connaître la
+dose **ACTUELLE** du patient — impossible de savoir si une réduction s'impose sans elle. Le référent :
+*« Metformine présente devrait peut-être demander de renseigner la dose. »* Nouveau critère
+`dose_metformine` (nombre, mg/j), visible seulement si la metformine est en cours ; l'option n'est
+applicable que si cette dose dépasse le **maximum ajusté au DFG** — seuils repris tels quels des alertes
+rénales déjà présentes (RCP ANSM : 45‑59 → max 2 g/j ; 30‑44 → max 1 g/j). La branche intolérance digestive
+reste indépendante de la dose. Tant que la dose n'est pas renseignée alors que le DFG situe le patient dans
+l'une des deux bandes, l'option passe **en attente** (D20 : « à renseigner : dose de metformine ») plutôt
+que d'affirmer une réduction à l'aveugle. L'alerte rénale (paliers DFG) est inchangée — elle reste vraie
+quel que soit le geste retenu.
+
 Points‑clés :
 
 1. **Hiérarchie de valeur** (importée de B/C) : iSGLT2 et AR GLP‑1 ont un bénéfice d'organe démontré (CVOT vs
