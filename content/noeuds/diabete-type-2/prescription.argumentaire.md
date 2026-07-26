@@ -22,6 +22,45 @@ risque…) restent affichés. Les gestes se combinent — **ajouter / switcher /
 metformine, avec une **palette glycémique** (cf. ci‑dessous), une place résiduelle SU/gliptine et un **gate
 insuline d'initiation** (catabolisme).
 
+**Ajout 2026‑07‑26 (chantier prérequis/I7/intention, non clinique)** : les deux options d'insuline
+(« Insuline d'initiation », « Envisager l'insuline ») excluent désormais explicitement le patient déjà
+sous insuline (alignées sur les 6 autres options d'ajout du nœud). Une nouvelle alerte informative
+(`intention == deprescrire`) explique qu'un ajout affiché malgré une intention de déprescription reflète
+une indication transverse ou un switch, jamais une contradiction — le primer reste **non filtrant**
+(aucune option supprimée). L'élargissement de la désintensification au socle (metformine, iSGLT2 sans
+indication d'organe) reste, pour l'iSGLT2, un **arbitrage clinique non tranché**, volontairement non
+encodé (cf. `incertitudes` du YAML) — pour la **metformine**, voir le lot suivant.
+
+**Ajout 2026‑07‑26, 2e série (arbitrages référent)** : deux décisions cliniques.
+
+1. **Déprescription de la metformine sous 3 conditions cumulatives** — arbitrage resté ouvert depuis la
+   capture 6, tranché par le référent : *« on peut la déprescrire si sur-traitement chez une personne
+   fragile et que les autres agents sont tous des agents à bénéfice dur. »* Encodé via le critère dérivé
+   `metformine_deprescriptible` : (1) sur-traitement = état **déclaré** `position_vs_cible ==
+   sous_objectif` (R1 — jamais l'intention) ; (2) fragilité = drapeau saisi `fragilite == true` ; (3)
+   absence de tout agent sans bénéfice dur en cours (sulfamide, gliptine, glinide **et insuline**).
+   **Lecture stricte sur l'insuline** (interprétation de l'orchestrateur, à confirmer par le référent) :
+   l'insuline n'a pas de bénéfice démontré sur critère dur (ORIGIN neutre) — un patient sur-traité fragile
+   *sous insuline* ne remplit donc pas la 3ᵉ condition et la metformine n'est **pas** déprescrite dans ce
+   cas ; c'est cliniquement cohérent, c'est l'**insuline** qu'on allège d'abord chez ce patient (options
+   « Désintensifier » / « Réduire la posologie de l'insuline », déjà applicables sur ce même profil).
+   ⚠ **Divergence déclarée avec la reco officielle** : la HAS maintient la metformine en socle quelles que
+   soient les comorbidités (badge « Recommandation officielle (France) » sur l'option socle). Proposer sa
+   déprescription s'appuie sur l'**absence de bénéfice démontré vs placebo** (Griffin 2017, Boussageon 2012
+   NS) et un `niveau_preuve` **faible** — c'est une position raisonnée de l'outil sous conditions strictes,
+   **pas** un alignement HAS/SFD/ADA ; déclaré comme tel dans l'option (`inconvenients`) et dans
+   `sources.reco_officielle.explication` du YAML. Garde-fou en miroir : l'option socle « Metformine —
+   instaurer ou poursuivre » exclut désormais `metformine_deprescriptible == true` (même mécanique que son
+   exclusion `DFG < 30`), pour ne jamais afficher « poursuivre » et « déprescrire » côte à côte sur le même
+   agent.
+2. **Alerte cétonémie sous insuline précisée** — le référent valide l'alerte ajoutée le même jour (message
+   d'urgence qui vivait dans les `contre_indications` d'une option depuis exclue du patient déjà sous
+   insuline) avec une précision clinique : *« en pratique, une cétose chez un patient sous insuline est
+   très rare, sauf en cas de rupture thérapeutique. »* Le message désigne désormais la **rupture
+   thérapeutique** (arrêt, oubli, défaut d'administration, panne de pompe) comme la **première chose à
+   rechercher**, avant d'orienter vers un ajustement de schéma (nœud E) ; seuil 3 mmol/L, suspicion de DT1
+   et renvoi au nœud E inchangés.
+
 Points‑clés :
 
 1. **Hiérarchie de valeur** (importée de B/C) : iSGLT2 et AR GLP‑1 ont un bénéfice d'organe démontré (CVOT vs
@@ -110,6 +149,12 @@ ajustement fin de l'insuline (ce nœud recommande l'insuline d'*initiation* ou o
   formulaires propres (même logique).
 - Bénéfice dur du switch lui‑même : indirect (valeur comparée des classes) ; additivité iSGLT2+AR GLP‑1 :
   non démontrée sur critère dur (PRECIDENTD) ; désintensification : preuve faible / accord d'experts.
+- Désintensification du **socle** (2e série, 2026‑07‑26) : **partiellement tranchée** pour la metformine
+  seule, sous les 3 conditions cumulatives ci‑dessus (`metformine_deprescriptible`) — **divergence déclarée**
+  avec la reco officielle (HAS maintient la metformine quelles que soient les comorbidités). Reste **non
+  tranché** : la désintensification de l'iSGLT2 sans indication d'organe, et le cas d'un sur‑traité qui ne
+  réunit pas les 3 conditions (non fragile, ou agent sans bénéfice dur — y compris insuline — encore en
+  place).
 
 ## Sources
 

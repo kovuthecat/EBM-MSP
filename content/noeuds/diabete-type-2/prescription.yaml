@@ -192,6 +192,34 @@ criteres_entree:
     # recette référent (patient IMC 20 sous gliptine + athérome : ajout d'un iSGLT2 en CONSERVANT la
     # gliptine, faute de verdict sur cette dernière).
     derive: "traitements_en_cours contient sulfamide OR traitements_en_cours contient gliptine"
+  - nom: metformine_deprescriptible
+    type: bool
+    # DÉCISION RÉFÉRENT (2026-07-26, 2e série) : arbitrage resté ouvert depuis la capture 6 — « on peut la
+    # déprescrire si sur-traitement chez une personne fragile et que les autres agents sont tous des agents
+    # à bénéfice dur. » Trois conditions CUMULATIVES, encodées ici : (1) sur-traitement = ÉTAT DÉCLARÉ
+    # `position_vs_cible == sous_objectif` (R1 — jamais l'intention, qui n'affirme rien sur la position du
+    # patient) ; (2) fragilité = drapeau SAISI `fragilite == true` (le référent a nommé « fragile », pas
+    # `terrain_fragile` qui est plus large — âge ≥ 75 / espérance de vie limitée / risque hypo élevé sans
+    # fragilité cochée ne suffit pas ici) ; (3) tous les AUTRES agents en cours à bénéfice dur = absence de
+    # sulfamide / gliptine / glinide (cités par le référent) ET d'insuline.
+    # LECTURE STRICTE insuline (interprétation de l'orchestrateur, à confirmer/corriger par le référent) :
+    # l'insuline n'a PAS de bénéfice démontré sur critère dur (ORIGIN neutre, cf. `effet_attendu` de
+    # « Envisager l'insuline » : « aucun bénéfice CV »). Un patient sous insuline ne satisfait donc pas la
+    # condition 3, même si l'énoncé du référent ne citait que sulfamide/gliptine/glinide — la métonymie
+    # de l'énoncé (« les autres agents ») ne fait pas exception pour l'insuline, qui n'a pas plus de
+    # bénéfice dur qu'un sulfamide. Conséquence clinique cohérente : chez un sur-traité fragile SOUS
+    # INSULINE, la metformine n'est pas déprescrite par cette option — c'est l'INSULINE qu'on allège
+    # d'abord (cf. options « Désintensifier » / « Réduire la posologie de l'insuline », déjà applicables
+    # sur ce même profil).
+    # GARDE-FOU AJOUTÉ APRÈS VÉRIFICATION SUR LE BANC (2026-07-26) : `traitements_en_cours contient
+    # metformine` est intégré ICI, dans le dérivé (et pas seulement comme condition de l'option), car ce
+    # dérivé sert AUSSI d'exclusion sur la carte socle « Metformine — instaurer ou poursuivre » (voir plus
+    # bas). Sans ce garde-fou, un patient qui n'est même PAS sous metformine mais qui remplit par ailleurs
+    # les 3 conditions (ex. fragile, sous_objectif, iSGLT2 + tirzépatide seuls) voyait sa carte socle
+    # « instaurer » supprimée à tort — rien à « déprescrire » chez qui n'a jamais eu la molécule. Trouvé en
+    # rejouant le banc de 180 profils (`genererProfils`, profil #121 : iSGLT2+tirzépatide, fragile,
+    # sous_objectif, aucun sulfamide/gliptine/glinide/insuline → carte socle exclue SANS remplacement).
+    derive: "traitements_en_cours contient metformine AND position_vs_cible == sous_objectif AND fragilite == true AND traitements_en_cours ne_contient_pas sulfamide AND traitements_en_cours ne_contient_pas gliptine AND traitements_en_cours ne_contient_pas glinide AND traitements_en_cours ne_contient_pas insuline"
 # `familles` (correctif « ordre accidentel / badge multi-natures », 2026-07-25) : déclaration EXPLICITE
 # des sections du panneau de résultats, présentation pure (aucun effet moteur, cf.
 # schema/noeud.schema.json). L'ORDRE DE CE TABLEAU EST L'ORDRE D'AFFICHAGE — « urgence d'abord » (décision
@@ -218,6 +246,15 @@ options:
   - intitule: "Insuline d'initiation (souvent transitoire — état catabolique)"
     conditions:
       - "HbA1c_actuelle >= 10 AND symptomes_glucotoxicite == true OR cetonemie == true"
+    # PRÉREQUIS AJOUTÉ (2026-07-26, chantier prescription/prérequis) : « d'initiation » suppose un
+    # patient PAS ENCORE sous insuline — aligné sur le même garde-fou que les 6 autres options d'ajout
+    # du nœud (`ne_contient_pas <classe>`, R6). Non observé en recette (capture 4 portait sur « Envisager
+    # l'insuline »), mais même lacune structurelle : rien n'empêchait ce libellé de s'afficher chez un
+    # patient déjà sous insuline en décompensation (inventaire-existant-primer.md, T2). Si l'insuline en
+    # place est insuffisante en catabolisme, l'ajustement relève du nœud E (hors périmètre, cf.
+    # `population_cible`), pas d'une « initiation ».
+    prerequis:
+      - "traitements_en_cours ne_contient_pas insuline"
     priorite: 1
     famille: "À faire d'emblée — sécurité"
     avantages:
@@ -238,6 +275,13 @@ options:
     famille: "Socle du traitement"
     exclusions:
       - "DFG < 30"
+      # GARDE-FOU (2026-07-26, 2e série) : sans cette exclusion, cette carte « instaurer ou poursuivre »
+      # et la nouvelle option « Déprescrire la metformine » (famille « Traitement à alléger », voir
+      # `metformine_deprescriptible` plus haut) s'afficheraient CÔTE À CÔTE sur le même agent —
+      # contradiction directe (« poursuivre » + « déprescrire » la même molécule). Miroir exact du garde-
+      # fou `DFG < 30` déjà en place au-dessus (qui protège symétriquement contre l'option « Arrêter la
+      # metformine »).
+      - "metformine_deprescriptible == true"
     avantages:
       - "Reco officielle française maintenue en 1re intention (coût, recul, tolérance, absence d'hypoglycémie) ; suffit SEULE sans indication d'agent à bénéfice d'organe."
     inconvenients:
@@ -466,6 +510,14 @@ options:
     conditions:
       - "cible_atteinte == false"
       - "traitements_en_cours contient iSGLT2 AND traitements_en_cours contient aGLP1 OR traitements_en_cours contient iSGLT2 AND denutrition == true OR traitements_en_cours contient iSGLT2 AND IMC < 22"
+    # PRÉREQUIS AJOUTÉ (2026-07-26, chantier prescription/prérequis, recette capture 4 : patient déjà
+    # sous insuline ET sulfamide → « Envisager l'insuline » proposée quand même, faute de vérifier
+    # l'absence). Les 6 autres options d'ajout de la famille « Agent à ajouter » se gardent déjà via un
+    # `prerequis` `ne_contient_pas <classe>` (iSGLT2, AR GLP‑1, tirzépatide, association, gliptine,
+    # sulfamide) — celle-ci ne l'avait pas. Si l'insuline en place est mal réglée, l'ajustement relève du
+    # nœud E (hors périmètre, cf. `population_cible`), pas d'un « envisager » qui suppose l'absence.
+    prerequis:
+      - "traitements_en_cours ne_contient_pas insuline"
     priorite: 6
     famille: "Agent à ajouter"
     avantages:
@@ -637,6 +689,33 @@ options:
       - "En sur‑contrôle franc (< 6,5 %) ou hypo/chute chez le fragile : préférer l'allègement/l'arrêt (désintensification). Agent sans bénéfice d'organe : envisager plutôt un switch vers un agent protecteur si le terrain s'y prête."
     effet_attendu: "non chiffrable"
     niveau_preuve: faible
+  # ---- Déprescription de la metformine (arbitrage référent 2026-07-26, 2e série) -----------------------
+  - intitule: "Déprescrire la metformine (sur-traitement chez un patient fragile, tous les autres agents à bénéfice dur)"
+    # DÉCISION RÉFÉRENT (2026-07-26, 2e série) : arbitrage resté ouvert depuis la capture 6. Trois
+    # conditions cumulatives, portées par `metformine_deprescriptible` (voir son commentaire dans
+    # `criteres_entree` pour le détail — notamment la lecture stricte appliquée à l'insuline, une
+    # interprétation de l'orchestrateur à confirmer/corriger par le référent). `contient metformine` est
+    # une précondition structurelle évidente (même convention que les autres options « Arrêter/Réduire la
+    # metformine » ci-dessus), pas une 4e condition clinique.
+    conditions:
+      - "traitements_en_cours contient metformine"
+      - "metformine_deprescriptible == true"
+    priorite: 3
+    famille: "Traitement à alléger"
+    avantages:
+      - "Sur-traitement identifié (objectif dépassé, `sous_objectif`) chez un sujet fragile, alors que tous les autres agents en place (iSGLT2 / AR GLP‑1 / tirzépatide) apportent un bénéfice d'organe démontré et sont à conserver (ADA 13.14d — ne jamais retirer un agent protecteur). La metformine est l'agent au bénéfice le plus faible du traitement en cours (cf. son propre `effet_attendu` ci-dessus) : c'est elle qu'on retire en premier pour désintensifier."
+      - "Réduit la charge médicamenteuse (comprimés, effets digestifs) sans toucher à la protection cardio‑rénale/athéromateuse déjà couverte par les agents conservés."
+    inconvenients:
+      - "⚠ DIVERGENCE DÉCLARÉE avec la reco officielle française (cf. `sources.reco_officielle` du nœud) : la HAS maintient la metformine comme socle quelles que soient les comorbidités, y compris chez le sujet fragile. Cette option s'appuie sur l'ABSENCE de bénéfice démontré sur critère dur contre placebo (Griffin 2017, Boussageon 2012 NS) et un `niveau_preuve` faible pour justifier son retrait dans ce cas précis — c'est une position raisonnée de l'outil sous 3 conditions strictes, pas une reco HAS/SFD/ADA. Ne jamais la présenter comme un consensus officiel."
+      - "Ne s'applique PAS tant qu'un agent SANS bénéfice dur (sulfamide, gliptine, glinide, INSULINE incluse) est encore en place : c'est cet agent-là qu'il faut alléger/switcher/déprescrire en premier (cf. options dédiées) — la metformine, malgré son bénéfice propre faible, reste alors la valeur la plus sûre du traitement à conserver. Cas type : sur-traité fragile SOUS INSULINE → c'est l'insuline qu'on allège d'abord (options « Désintensifier » / « Réduire la posologie de l'insuline »), pas la metformine."
+      - "Réévaluer le contrôle glycémique après l'arrêt ; la protection cardio‑rénale/athéromateuse reste portée par les agents conservés."
+    effet_attendu: >-
+      Simplification thérapeutique sans perte de protection d'organe (portée par les agents conservés, tous
+      à bénéfice dur). Aucun bénéfice sur critère dur perdu par le retrait lui-même : la metformine n'en a
+      pas démontré vs placebo (Griffin 2017, Boussageon 2012 NS).
+    niveau_preuve: faible
+    contre_indications:
+      - "Ne jamais retirer un agent PROTECTEUR (iSGLT2, AR GLP‑1, tirzépatide) à la place de la metformine pour désintensifier. Si un agent sans bénéfice dur (y compris l'insuline) est encore en place, c'est lui qu'on allège en priorité — cette option ne se déclenche d'ailleurs pas dans ce cas (cf. `metformine_deprescriptible`)."
   - intitule: "Reconsidérer un agent protecteur prescrit hors indication ET posant un risque (ex. iSGLT2 sans terrain + infections uro)"
     conditions:
       - "traitements_en_cours contient iSGLT2 AND ASCVD_etablie == false AND insuffisance_cardiaque == false AND DFG >= 60 AND albuminurie == normo AND infections_uro_genitales_recidivantes == true"
@@ -727,6 +806,30 @@ alertes:
       Contrôler la cétonémie capillaire (β‑hydroxybutyrate) : décompensation catabolique possible malgré une
       HbA1c non franchement élevée. ≥ 0,6 mmol/L → insuline d'initiation ; ≥ 3 mmol/L → urgence (insuline +
       hospitalisation).
+  # AJOUT 2026-07-26 (orchestrateur) — COLMATAGE D'UNE RÉGRESSION INTRODUITE LE MÊME JOUR.
+  # Le prérequis `ne_contient_pas insuline` ajouté à « Insuline d'initiation » supprime cette option chez
+  # un patient déjà sous insuline — décision correcte (« initier » n'a pas de sens, l'ajustement relève du
+  # nœud E). Mais le message d'urgence sur la cétonémie vivait dans les `contre_indications` de cette
+  # option : il disparaissait donc avec elle. Un patient cétonémique déjà sous insuline, HbA1c < 10 et sans
+  # symptôme de glucotoxicité, ne recevait plus AUCUN signal — l'alerte ci-dessus ne couvre pas ce cas
+  # (elle dit « CONTRÔLER la cétonémie », ce qui n'a pas de sens quand elle est déjà déclarée positive).
+  # Aucun texte clinique inventé à la création : reprise des `contre_indications` et de l'`effet_attendu`
+  # de l'option « Insuline d'initiation » (cétonémie ≥ 3 mmol/L → urgence ; suspicion de DT1 devant une
+  # cétose).
+  # VALIDÉE PAR LE RÉFÉRENT (2026-07-26, 2e série), AVEC UNE PRÉCISION CLINIQUE : « en pratique, une cétose
+  # chez un patient sous insuline est très rare, sauf en cas de rupture thérapeutique. » Message complété
+  # en conséquence — la RUPTURE THÉRAPEUTIQUE (arrêt, oubli, défaut d'administration, panne de pompe) est
+  # désormais désignée comme la PREMIÈRE chose à rechercher devant ce tableau, avant d'orienter vers un
+  # ajustement de schéma. Reste du message inchangé (seuil 3 mmol/L, suspicion de DT1, renvoi au nœud E).
+  - quand: "cetonemie == true AND traitements_en_cours contient insuline"
+    niveau: attention
+    message: >-
+      État catabolique (cétonémie) chez un patient DÉJÀ sous insuline : rare en pratique — la PREMIÈRE
+      chose à rechercher est une RUPTURE THÉRAPEUTIQUE (arrêt, oubli, défaut d'administration, panne de
+      pompe). Si l'insuline est bien prise et correctement administrée, l'ajustement du schéma est urgent
+      et relève du nœud « Insulinothérapie » (hors périmètre de ce nœud) — ne pas se contenter des agents
+      non insuliniques. Cétonémie ≥ 3 mmol/L → urgence (insuline + hospitalisation). Suspecter un DT1
+      devant une cétose ou un amaigrissement rapide chez un sujet non obèse.
   - quand: "DFG < 60 AND DFG >= 45"
     niveau: attention
     message: >-
@@ -808,6 +911,31 @@ alertes:
     message: >-
       Cohérence : HbA1c < 6,5 % alors que l'intention saisie est « intensifier ». L'objectif est déjà dépassé
       sous agent hypoglycémiant — envisager plutôt une DÉPRESCRIPTION (rebasculer l'intention sur « déprescrire »).
+  # NOUVEAU (2026-07-26, chantier prescription/intention — recette capture 6) : `intention` ne pilotait
+  # jusqu'ici que 3 `visible_si` et un dérivé (`palette_glycemique_ouverte`), jamais un élément de la
+  # SORTIE (capture 6 : « Déprescrire » + sous l'objectif → l'outil propose un ajout d'AR GLP‑1, ASCVD
+  # oblige, et aucune déprescription — le patient n'est ni sous SU/glinide/insuline ni en excès de
+  # metformine/iSGLT2 à ce jeu de critères). Cette alerte fait ENFIN agir `intention` sur la sortie —
+  # mais par « expliquer », pas par « reléguer » : la relégation via `priorite` a été évaluée et écartée
+  # (voir changelog) — dans ce nœud, un geste d'« Agent à ajouter » qui survit à `intention == deprescrire`
+  # provient TOUJOURS d'une indication transverse (organe) ou d'un switch (`remplacement_agent_sans_
+  # benefice`), jamais d'une voie purement glycémique (`palette_glycemique_ouverte` est déjà FERMÉE par
+  # construction pour cette intention, `:179`) : le reléguer par un `priorite` conditionnel n'aurait donc
+  # JAMAIS d'effet observable (options mutuellement exclusives par leurs propres `prerequis`) — un rang
+  # qui ne change jamais rien à l'écran est le piège inverse que R5 signale pour les critères. Le
+  # `quand` NE RECOPIE AUCUNE condition d'option (piège documenté par R2 plus haut, « ce proxy se
+  # retournait contre lui-même ») : il ne teste QUE `intention`, jamais indéterminé, toujours vrai pour
+  # cette seule intention — pas un `quand: "default"` (D21, interdit n°2).
+  - quand: "intention == deprescrire"
+    niveau: info
+    message: >-
+      Intention déclarée : déprescrire. Si un geste d'ajout s'affiche malgré tout ci‑dessous, il reflète
+      une indication transverse (protection cardio‑rénale ou athéromateuse, valable quel que soit le motif
+      de la consultation) ou le remplacement d'un agent sans bénéfice déjà en cours — jamais une
+      contradiction avec l'intention saisie. Si aucun geste de désintensification ne s'affiche, c'est
+      qu'aucun critère saisi ne le déclenche à ce jour (agent hypoglycémiant en cours, sur‑contrôle,
+      hypoglycémie récente chez le fragile) : consultez « Pourquoi pas d'autres options ? » pour le détail
+      des options non retenues sur ce patient.
   - quand: "traitements_en_cours contient insuline AND risque_hypoglycemie_schema == eleve"
     niveau: attention
     message: >-
@@ -964,7 +1092,13 @@ sources:
       durcit pas les gains hypo/poids/HbA1c en bénéfice cardio‑rénal, nomme la molécule quand la protection est
       molécule‑spécifique, et ajoute un gating négatif de terrain (IMC bas/dénutrition/infections uro) absent
       des recos en tant que règle algorithmique. L'association iSGLT2 + AR GLP‑1 = coexistence de deux
-      indications (séquençage), pas synergie prouvée (bénéfice dur additif non démontré).
+      indications (séquençage), pas synergie prouvée (bénéfice dur additif non démontré). (3) DÉPRESCRIPTION
+      METFORMINE (2026-07-26, 2e série, arbitrage référent) : la HAS maintient la metformine comme socle
+      quelles que soient les comorbidités ; l'outil propose désormais sa déprescription sous 3 conditions
+      cumulatives strictes (sur-traitement déclaré + fragilité + tous les autres agents en cours à bénéfice
+      dur démontré, cf. option dédiée et `metformine_deprescriptible`) — appui sur l'absence de bénéfice
+      démontré vs placebo (Griffin 2017, Boussageon 2012 NS), déclaré comme divergence dans l'option
+      elle-même, jamais présenté comme un alignement HAS/SFD/ADA.
 incertitudes:
   - "Seuils de terrain (IMC 22 pour les AR GLP‑1 ; obésité 30 pour le tirzépatide) = repères pragmatiques (décision référent) : la preuve borne la direction, pas le chiffre exact."
   - "Remboursement FR « intolérance/CI metformine → monothérapie AR GLP‑1 » : CONFIRMÉ (formulaire Assurance Maladie dulaglutide/liraglutide, Art. 61 convention médicale, arrêté du 10/01/2025). Le formulaire vise dulaglutide/liraglutide ; sémaglutide/autres = formulaires propres (même logique)."
@@ -975,13 +1109,84 @@ incertitudes:
   - "ARBITRAGE (red-team S3-S7, M3) : obèse (IMC ≥ 30) + dénutrition + sans comorbidité CV/rénale + classes disponibles + au-dessus de la cible → incrétines exclues (dénutrition), intensification glycémique O16 fermée (IMC ≥ 30), place résiduelle fermée (flag non posé) → sortie [socle metformine, poursuivre]. Posture conservatrice défendable chez un dénutri ; si un levier glycémique est requis, poser classes_a_benefice_indisponibles == true (incrétines de fait inutilisables) ouvre la niche SU/gliptine. Comportement laissé tel quel, à confirmer par le référent."
   - "classes_a_benefice_indisponibles == true supprime désormais l'introduction d'iSGLT2 / AR GLP-1 / tirzépatide / association et l'intensification glycémique résiduelle (correction S3-S7, M1) : cohérent avec la niche SU/gliptine qui n'existe que lorsque ces classes sont inutilisables."
   - "Repli O11 (« pas de remplaçant protecteur pertinent ») : encodé en ALERTE A9 (2 disjonctions pur-AND, causes IMC<22 / dénutrition sans indication iSGLT2) + rappel en prose dans l'option. Couvre le cas sans indication protectrice ; ne se déclenche pas si un remplaçant serait valide."
+  - "Élargir la désintensification au SOCLE (metformine, iSGLT2 sans indication d'organe), au-delà de sulfamide/glinide/insuline : demandé par le référent (recette capture 6, 2026-07-26) — PARTIELLEMENT TRANCHÉ le 2026-07-26 (2e série) pour la METFORMINE SEULE : l'arbitrage référent (« sur-traitement chez une personne fragile et tous les autres agents à bénéfice dur ») est désormais encodé (option « Déprescrire la metformine », critère `metformine_deprescriptible`). Reste NON tranché : la désintensification de l'iSGLT2 sans indication d'organe (aucun seuil/critère référent fourni) ; et le cas d'un patient sur-traité mais qui ne réunit pas les 3 conditions (non fragile, ou un agent sans bénéfice dur — y compris l'insuline, lecture stricte de l'orchestrateur — encore en place) : dans ce cas c'est l'agent sans bénéfice dur qui doit être allégé en premier via les options existantes, pas la metformine. Conséquence sur le profil de la capture 6 (ASCVD établie + sous_objectif + intention déprescrire, sans SU/glinide/insuline en cours) : SI ce profil est aussi `fragilite == true`, il devient désormais éligible à la nouvelle option de déprescription de la metformine (en plus de la carte « Introduire un AR GLP‑1 » déjà affichée, indication transverse légitime, `:342`) ; si `fragilite == false`, son comportement reste inchangé (aucune option de désintensification applicable) — non revérifié sur la vignette exacte de la capture 6, dont le détail de `fragilite` n'est pas reproduit dans ce commentaire (invariant CLAUDE.md 6 : signaler plutôt qu'inventer)."
 veille_liee: []
 meta:
-  date_revue: "2026-07-25"
-  auteur: "référent DT2 + Opus"
+  date_revue: "2026-07-26"
+  auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.16"
+  version: "0.18"
   changelog:
+    - date: "2026-07-26"
+      auteur: "référent DT2 + Claude"
+      resume: >-
+        Deuxième série d'arbitrages référent du 2026-07-26. (1) DÉPRESCRIPTION METFORMINE — arbitrage
+        resté ouvert depuis la capture 6, tranché par le référent : « on peut la déprescrire si
+        sur-traitement chez une personne fragile et que les autres agents sont tous des agents à bénéfice
+        dur. » Nouveau critère dérivé `metformine_deprescriptible` (position_vs_cible == sous_objectif AND
+        fragilite == true AND absence de sulfamide/gliptine/glinide/insuline) et nouvelle option
+        « Déprescrire la metformine » (famille « Traitement à alléger », priorite 3). LECTURE STRICTE
+        appliquée à l'insuline (interprétation de l'orchestrateur, commentée dans le YAML, à
+        confirmer/corriger par le référent) : l'insuline n'a pas de bénéfice sur critère dur (ORIGIN
+        neutre) — un patient sous insuline ne satisfait donc pas la 3e condition, la metformine n'est pas
+        déprescrite dans ce cas (c'est l'insuline qu'on allège d'abord). DIVERGENCE avec la reco officielle
+        (HAS maintient la metformine quelles que soient les comorbidités) DÉCLARÉE explicitement dans
+        l'option (`inconvenients`), dans `sources.reco_officielle.explication` et dans l'argumentaire —
+        jamais glissée en douce. Garde-fou ajouté en miroir : exclusion `metformine_deprescriptible == true`
+        sur l'option socle « Metformine — instaurer ou poursuivre » (même mécanique que l'exclusion
+        `DFG < 30` déjà en place), pour empêcher la co-occurrence contradictoire « poursuivre » +
+        « déprescrire » sur la même molécule. (2) ALERTE CÉTONÉMIE SOUS INSULINE — validée par le référent
+        avec une précision clinique : « en pratique, une cétose chez un patient sous insuline est très rare,
+        sauf en cas de rupture thérapeutique. » Message complété : la rupture thérapeutique (arrêt, oubli,
+        défaut d'administration, panne de pompe) est désormais désignée comme la première chose à rechercher
+        ; seuil 3 mmol/L, suspicion de DT1 et renvoi au nœud E inchangés. Commentaire de traçabilité
+        actualisé pour refléter la validation. STATUT toujours `brouillon` (validation clinique globale du
+        nœud non close par ce lot).
+    - date: "2026-07-26"
+      auteur: "référent DT2 + Claude"
+      resume: >-
+        Chantier ciblé « prérequis manquants, I7, primer intention » (docs/decision/validation/
+        chantier-2026-07-26/inventaire-alertes.md et inventaire-existant-primer.md ; recette
+        2026-07-25/26, captures 4 et 6 ; DECISIONS.md D19/D20/D21). TROIS lots. (1) PRÉREQUIS MANQUANTS
+        (recette capture 4) : « Envisager l'insuline » (`:465`) et « Insuline d'initiation » (`:218`)
+        n'excluaient pas le patient déjà sous insuline — seules 2 options d'ajout du nœud sur 8 n'avaient
+        pas ce garde-fou (les 6 autres portent déjà `traitements_en_cours ne_contient_pas <classe>`).
+        Ajout du même `prerequis` (`ne_contient_pas insuline`) aux deux — alignement, aucun changement de
+        conditions/exclusions/priorite. (2) INVARIANT I7 (`banc/invariants-contenu.test.ts`, 4 alertes
+        prohibitives non couvertes par une `exclusion` : fragilité+incrétine `:755`, intolérance
+        digestive `:767`, insuline+sulfamide/glinide `:788`, non-association gliptine+GLP‑1 `:821`) —
+        ANALYSE au cas par cas (D21), AUCUN encodage : les 4 sont des alertes « vraies quel que soit le
+        geste retenu » (catégorie A) — (a) fragilité+incrétine : état déjà en place, la branche
+        symétrique « on va en introduire un » est DÉJÀ portée par les options concernées (R2, `:392`/
+        `:428`) ; (b) intolérance digestive : préférence comparative entre 2 options DÉJÀ affichées et
+        cumulables (metformine vs incrétine), pas une interdiction ; (c) insuline+sulfamide/glinide :
+        rappel de sécurité — chaque combinaison possible du profil est DÉJÀ couverte par une option de
+        correction existante (switch, réduction ou désintensification selon le cas) ; (d) non-association
+        gliptine+GLP‑1 : catégorie A PAR CONSTRUCTION DÉLIBÉRÉE (D19, « garantie d'affichage » — la
+        convertir en `exclusion` sur « Introduire un AR GLP‑1 » RECRÉERAIT le bug R1→R4 : l'option
+        disparaîtrait exactement quand elle sert de destination au switch de la gliptine). Les 4 restent
+        donc en dette I7 documentée (mécanique de l'heuristique, volontairement globale au nœud, cf.
+        son propre commentaire) — c'est l'heuristique qui est trop large ici, pas le contenu. Rien
+        modifié dans `banc/invariants-contenu.test.ts` (hors périmètre de la mission). (3) PRIMER
+        `intention` SUR LA SORTIE (recette capture 6) : nouvelle alerte de nœud `intention == deprescrire`
+        (« expliquer », D21/R4) clarifiant qu'un ajout affiché malgré l'intention déclarée reflète
+        toujours une indication transverse ou un switch, jamais une contradiction — et renvoyant vers
+        « Pourquoi pas d'autres options ? » pour le détail des gestes non retenus. `priorite` conditionnée
+        à `intention` (le second outil suggéré) ÉVALUÉE et ÉCARTÉE : dans ce nœud, toute option de la
+        famille « Agent à ajouter » qui survit à `intention == deprescrire` provient d'une indication
+        d'organe ou de `remplacement_agent_sans_benefice` (jamais de la voie purement glycémique, fermée
+        par construction pour cette intention, `palette_glycemique_ouverte` `:179`) — les options
+        purement glycémiques (résiduelle gliptine/sulfamide, Envisager l'insuline) ne co-occurrent
+        JAMAIS avec une option organe-driven dans la même famille (prérequis mutuellement exclusifs,
+        vérifié par construction) : un `priorite` conditionnel n'y aurait donc AUCUN effet observable
+        (badge « recommandee » = groupe de tête d'une famille exclusive, insensible au rang absolu d'un
+        occupant unique). Ajouter une règle sans effet testable aurait été le même défaut que R5 dénonce
+        pour les critères — non fait, documenté ici (invariant CLAUDE.md 6 : signaler plutôt qu'inventer).
+        Élargissement de la désintensification au socle (metformine/iSGLT2 sans indication d'organe),
+        seul changement qui rendrait la capture 6 non muette sur la désintensification, NON FAIT
+        (arbitrage clinique non tranché, cf. nouvelle ligne `incertitudes`) — hors mission. STATUT
+        toujours `brouillon` — aucune validation clinique de ce lot, changements structurels seulement
+        (garde-fous + alerte informative), aucune valeur clinique modifiée.
     - date: "2026-07-25"
       auteur: "référent DT2 + Opus"
       resume: >-
