@@ -355,3 +355,29 @@ valider par le référent**, notamment le point badge non tranché ci-dessous.
 - [ ] **Aucun changement visuel sur les 4 autres nœuds** (« Cible glycémique », insuline, statine, rhd) :
   aucun ne déclare `famille` sur ses options → repli « famille unique sans libellé », rendu identique à
   avant cette tâche (pas de titre de section supplémentaire, pas de changement de regroupement).
+
+## Cadrage de nœud (D24) + scission sulfamide/glinide (2026-07-26, 5e série)
+
+> Build + typecheck + **498 tests unitaires OK, aucun `expected fail`** ; **visuel à valider par le
+> référent.** Nœuds concernés : `insuline` et `statine` (cadrage), `prescription` (scission).
+
+- [ ] **Bloc de cadrage** sur `insuline` et `statine` : il apparaît **sous le titre du nœud, AVANT le
+  formulaire** — pas sous le formulaire là où sont les alertes. C'est le point de D24 : on le lit avant
+  de saisir quoi que ce soit.
+- [ ] **Il ne ressemble PAS à une alerte** : pas de fond coloré, pas de bordure de vigilance — un simple
+  filet latéral et un texte en gris. Si l'œil le prend pour un avertissement, le correctif a échoué :
+  c'est exactement le défaut qu'il devait supprimer (un avertissement affiché à tout le monde, qui
+  dévalue les vraies alertes juste en dessous).
+- [ ] **Les alertes conditionnelles n'ont pas bougé** : sur `insuline` comme sur `statine`, la zone
+  d'alertes sous le formulaire contient toujours ce qu'elle contenait, moins l'énoncé déplacé. Vérifier
+  qu'elle ne s'est pas vidée à tort (`statine` : l'alerte dialyse doit rester ; `insuline` : les alertes
+  MCG et DFG < 45 doivent rester).
+- [ ] **Lisibilité du cadrage sur mobile / petite largeur** : le filet latéral et l'indentation ne doivent
+  pas écraser le texte ni créer de débordement horizontal.
+- [ ] **Scission sulfamide/glinide** (`prescription`) : profil *glinide seul, DFG 25, hypoglycémie
+  récente* → la carte **« Réduire la posologie du glinide »** est proposée, avec son alerte d'option sur
+  l'exposition doublée ; aucune carte sulfamide. Même profil avec *sulfamide seul* → la réduction est
+  **écartée** (visible avec son motif, R4) et **« Arrêter le sulfamide »** prend le relais.
+- [ ] **Les deux cartes ne se confondent pas** : leurs intitulés ne diffèrent que par le nom de la
+  molécule — vérifier qu'un praticien pressé ne peut pas les lire comme un doublon. Si c'est le cas,
+  c'est un point à corriger en libellé, pas en logique.
