@@ -704,6 +704,174 @@ tenu quatre fois ; elle devient structurelle.
 
 ---
 
+## 2026-07-26 — D20 · Valeur indéterminée : le moteur ne se prononce jamais sur ce qu'il ignore
+
+### Décision
+
+Un critère non renseigné vaut **`indetermine`** — troisième état, distinct de `0`, de `false` et de la
+première valeur d'énumération. Évaluation ternaire (`vrai OR indeterminé` = vrai ; `faux AND
+indeterminé` = faux ; sinon indéterminé). Une option dont une `conditions`, `prerequis` ou
+`exclusions` est indéterminée passe **en attente** : ni proposée, ni écartée. Une alerte, une dose
+calculée ou un critère dérivé indéterminés ne s'affichent pas.
+
+`nombre` et `enum` sont indéterminés tant qu'ils ne sont pas saisis. `bool` et `liste` gardent leur
+défaut (« non », « aucun »), qui EST une réponse clinique — sauf déclaration explicite
+`confirmation_requise` par le contenu, réservée aux drapeaux dont le « non » ne peut pas être présumé
+sans risque.
+
+### Contexte
+
+Recette du 2026-07-25/26. Sur les 5 nœuds, 86 règles mentionnent un critère `nombre`/`enum` ; sur
+valeur par défaut, 56 penchent vers le rassurant et 16 vers l'alarmant. Sur formulaire vierge,
+`cible-glycemique` recommande la cible la plus stricte, `statine` désigne un tier sur trois champs
+vides, et `prescription` **écarte la metformine** — socle du DT2 — sur un `DFG < 30` jamais saisi.
+`touched` existait, mais vivait dans l'écran et ne franchissait pas la frontière du moteur.
+
+### Alternatives envisagées
+
+- **Statu quo + bandeau « reco provisoire »** : le palliatif existant, posé côté interface. Il n'a
+  empêché aucun des cas constatés, et son compteur diverge de son marquage visuel (bandeau comptant
+  tous les types, marqueur ne s'affichant que sur les `nombre`).
+- **Afficher la reco en marquant la carte** « fondée sur une donnée non renseignée » : moins de
+  travail d'interface, mais une reco fausse reste une reco affichée.
+- **Suspendre les garde-fous sur donnée manquante** : écarté explicitement — seul choix du chantier
+  pouvant produire pire que l'existant (geste contre-indiqué proposé sans réserve).
+
+### Raison du choix
+
+L'outil doit cesser d'affirmer ce qu'il ne sait pas, **et dans le sens rassurant et dans le sens
+alarmant** — l'asymétrie constatée (le même vide lu « objectif atteint » ici et « insuffisance
+rénale » là) est le cœur du défaut. Décision référent du 2026-07-26.
+
+### Conséquences
+
+Nouveau registre d'affichage `enAttente`, distinct de `ecartees` (sécurité, R4) et `nonRetenues`
+(explication, R4) ; état d'écran « à renseigner » à concevoir. L'invariant de banc n° 2 (« jamais
+`applicable` vide ») devient faux tel quel et se reformule : *jamais vide lorsque tous les critères
+pertinents sont renseignés*. `touched` remonte de l'écran vers le modèle de critères, avec trois
+statuts (`saisi`, `suggere`, `indetermine`) — une valeur `suggere` (heuristique d'interface non
+sourcée) ne peut plus être citée comme un fait du patient. Coût de perturbation de `relevance.ts`
+accru : R5 à isoler hors suite courante. Spécification complète :
+`docs/decision/validation/chantier-2026-07-26/SPEC-valeur-indeterminee.md`.
+
+### Impact IA
+
+Une propriété testable remplace une discipline de relecture : les invariants I3-I7 du banc rendent
+cette famille de défauts détectable, alors qu'elle était structurellement hors d'atteinte (le banc
+engendre des profils à partir de *valeurs*, « inconnu » n'existait dans aucun espace de test).
+
+---
+
+## 2026-07-26 — D21 · Canal d'un fait de sécurité : exclusion, alerte d'option, ou alerte de nœud
+
+### Décision
+
+- le fait rend un geste **contre-indiqué** → `options[].exclusions`, affichée avec son motif (R4) ;
+- le fait **qualifie** un geste sans l'interdire → `options[].alertes` ;
+- le fait est vrai **quel que soit le geste retenu** → `alertes` de nœud.
+
+Deux interdits : **`priorite` ne porte jamais un fait de sécurité** (rétrograder n'est pas retirer) ;
+**une alerte de nœud n'a jamais `quand: "default"`** (elle s'affiche alors pour tout le monde, donc
+pour personne).
+
+### Contexte
+
+La recette a relevé 6 couples où une alerte interdit ce qu'une carte prescrit — « ne pas INITIER une
+statine » au-dessus de « Statine de haute intensité », « ne pas poursuivre la titration » au-dessus
+de « Titrer la basale, +2 U ». Cause mécanique : les alertes de nœud sont évaluées sur les seuls
+critères, jamais sur ce que le moteur a retenu. Sept lignes `incertitudes` actaient déjà ce choix
+(« modélisé en alerte plutôt qu'en gate ») dans 4 nœuds.
+
+### Raison du choix
+
+Levée d'un malentendu sur D3 : l'invariant interdit les **scores cachés**, pas les **règles**. Une
+`exclusion` sur `dialyse == true`, affichée avec son motif, est l'exact opposé d'un arbitrage caché —
+c'est un arbitrage déclaré, sourcé et rendu à l'écran. Conflater « pas de gating hors EBM dur » avec
+« aucun score caché » avait fait glisser des interdits de sécurité dans un canal sans pouvoir de
+retrait.
+
+### Conséquences
+
+Portée mesurée : sur 35 alertes de nœud, 1 passe en `exclusion`, 4 en alerte d'option, 1 est bloquée
+faute de critère d'entrée. Le canal alerte n'est pas à vider, il est à discipliner. **Couplage à ne
+pas casser** : sur `statine`, transformer l'alerte dialyse en exclusion sans les critères de D22
+viderait le nœud entier (3 options en `ordered-first-match`). Invariant de banc I7 : une alerte au
+libellé prohibitif implique une `exclusion` correspondante.
+
+---
+
+## 2026-07-26 — D22 · Module de nœuds : préambule partagé et primer de levier
+
+### Décision
+
+Un **module** regroupe plusieurs nœuds d'un même domaine et peut porter : un en-tête de cadrage, un
+socle de critères de terrain communs, et un **primer** orientant vers le ou les nœuds pertinents.
+Champ optionnel, générique, piloté par le contenu — aucun nom de module connu du socle (invariant
+CLAUDE.md 5). Premier usage : module **RHD** = nœud *alimentation* + nœud *activité physique*.
+
+### Contexte
+
+La refonte RHD porte le recueil à ~15 items de socle. La charge de saisie est le risque n° 1 déjà
+constaté sur le nœud `insuline`. Par ailleurs `fragilite`, `esperance_vie`, `age` et
+`traitements_en_cours` seraient redéclarés dans chaque nœud — exactement la duplication que
+l'invariant I4 doit interdire.
+
+### Alternatives envisagées
+
+- **Module purement cosmétique** (regroupement dans la liste) : zéro évolution d'architecture, mais
+  le praticien répond deux fois aux mêmes questions de terrain et le même concept est encodé deux fois.
+- **Un nœud unique à deux volets** : impraticable en consultation (15 items d'un bloc).
+
+### Raison du choix
+
+Le module devient une **portée de partage** plutôt qu'un intitulé : 7-8 items par écran au lieu de
+15, terrain posé une fois. Le motif du primer existe déjà dans le projet (`intention` sur
+`prescription`). Décision référent du 2026-07-26.
+
+### Conséquences
+
+**Garde-fou R1** : le préambule est un flux d'écran commun, **jamais** un chaînage obligatoire — chaque
+nœud doit rester évaluable seul, avec ses critères posés directement. Aucun impact sur `evaluateNode`
+ni sur la signature de pertinence. Conception :
+`docs/decision/validation/chantier-2026-07-26/CONCEPTION-module-rhd.md`.
+
+---
+
+## 2026-07-26 — D23 · La position affichée s'appuie sur la donnée publiée, jamais sur la publication
+
+### Décision
+
+Un argument rendu au praticien s'appuie **exclusivement sur les données publiées** (essais,
+méta-analyses) et leurs résultats. Le nom d'une revue secondaire — Prescrire, Médicalement Geek,
+Minerva, ebmfrance — ne constitue **jamais** l'argument. Ces publications restent citables en
+**référence bibliographique**, à côté de la donnée qui, elle, porte l'argument.
+
+### Contexte
+
+Relevé par le référent (2026-07-25) : « Prescrire et Médicalement Geek n'ont aucune valeur probante
+par eux-mêmes — ce sont des publications qui interprètent des données ». Inventaire :
+**56 occurrences** dans les 5 nœuds, dont **30 arguments d'autorité, 28 affichés au praticien**
+(ex. `prescription.yaml:674` « Prescrire l'écarte. » dans les inconvénients d'une option).
+
+### Raison du choix
+
+Un outil d'aide à la décision fondé sur l'EBM ne peut pas substituer une autorité éditoriale à une
+donnée. La distinction est déjà celle que le projet applique partout ailleurs (niveau de preuve,
+critère dur vs substitution).
+
+### Conséquences
+
+Le correctif **ne peut pas être seulement rédactionnel**. `schema/noeud.schema.json` rend
+obligatoires deux blocs nommés d'après des publications (`sources.prescrire`,
+`sources.medicalement_geek`), et `components/ArgumentPanel.tsx` estampille « Prescrire — » /
+« Médicalement Geek — » en préfixe visible quel que soit le texte : reformuler la prose laisserait
+l'attribution à l'écran. Le modèle de données doit donc être réorganisé **par nature de source**, pas
+par titre de publication. Inventaire et reformulations proposées :
+`docs/decision/validation/chantier-2026-07-26/sourcage-position-critique.md`. Cinq occurrences sont
+marquées « DONNÉE À FOURNIR » — l'argument n'y reposait que sur l'autorité de la revue.
+
+---
+
 ## Décisions ouvertes (à trancher avec le comité MSP)
 
 - **Méthode d'authentification veille** : magic link vs e-mail+mot de passe (reco : magic link + liste
