@@ -36,6 +36,20 @@
 # molécule) ; SCORE2-Diabète = aide ciblée sur le tier « discuter » uniquement, réserve de validation 40-69
 # ans (F-statine §9.5) ; rappel « risque absolu, pas de cible LDL » (alerte `default`, désormais scindée du
 # volet SCORE2 qu'elle portait jusqu'ici).
+# 2 ALERTES D'OPTION supplémentaires (D21, schéma § additions) depuis le 2026-07-26 — correctif du finding
+# HAUTE-4 (`docs/decision/validation/chantier-2026-07-26/redteam-clinique-securite.md`) : le nœud est en
+# ORDERED-FIRST-MATCH, donc quand l'exclusion dialyse ci-dessus retire « haute intensité », la boucle
+# continue vers l'option suivante — laquelle ignore tout de l'ASCVD. Un patient dialysé, ASCVD établie, PAS
+# encore sous statine atterrissait donc sur « discuter » (faible risque) ou sur le repli (prévention
+# primaire modérée), présenté à tort comme un patient à faible risque absolu. Corrigé par une alerte PORTÉE
+# PAR CHACUNE de ces deux options (`options[].alertes`, visible UNIQUEMENT quand l'option est réellement
+# applicable — D21 : « le fait qualifie un geste sans l'interdire »), sur
+# `ASCVD_etablie == true AND dialyse == true AND statine_deja_en_place == false` : elle restaure le contexte
+# perdu par l'exclusion SANS toucher aux `conditions` (qui resteraient fausses pour ce cas de toute façon —
+# router ces options sur l'ASCVD les videraient pour les patients réellement à faible risque). Un patient de
+# prévention SECONDAIRE ne doit JAMAIS être présenté comme à faible risque absolu, quel que soit le tier
+# atteint — voir `incertitudes` pour ce que le dossier NE tranche PAS (la conduite optimale pour ce
+# sous-groupe précis).
 # DÉFINITIONS (validées référent 2026-07-23, complétées §9.1 le 2026-07-26) : `diabete_complique` (bool) =
 # toute atteinte d'organe cible (rétinopathie, néphropathie / albuminurie, neuropathie) OU maladie
 # macrovasculaire non-ASCVD — SEUL booléen du domaine porté `confirmation_requise: true` (D20, F-statine
@@ -49,7 +63,9 @@
 # prévention primaire du DT2 (non démontré — événements CV seulement) ; ne pas transformer une cible LDL de
 # guideline en objectif dur ; ne pas initier en dialyse (exclusion structurelle sur l'option haute
 # intensité seulement — limite connue sur « discuter »/repli, cf. changelog 2026-07-26) ; le « diabète
-# induit par statine » est SANS OBJET chez un patient déjà diabétique.
+# induit par statine » est SANS OBJET chez un patient déjà diabétique ; ne JAMAIS présenter un patient ASCVD
+# établie comme « à faible risque absolu » ou « en prévention primaire », quel que soit le tier atteint
+# (HAUTE-4, corrigé le 2026-07-26 par les 2 alertes d'option ci-dessus).
 id: statine
 domaine: diabete-type-2
 titre: "Prescrire une statine dans le DT2"
@@ -150,6 +166,24 @@ options:
       aucune donnée de mortalité. La reco française 2026 classe ce profil « risque modéré » et fait de
       l'initiation une décision partagée si le LDL reste au-dessus de la cible malgré les mesures d'hygiène.
     niveau_preuve: faible
+    # HAUTE-4 (2026-07-26, chantier-2026-07-26/redteam-clinique-securite.md) : cette option n'a AUCUNE
+    # condition portant sur `ASCVD_etablie` — un patient ASCVD établie peut l'atteindre via l'exclusion
+    # dialyse ci-dessus (option « haute intensité »), l'ordered-first-match continuant vers ce tier sans
+    # jamais revoir son statut ASCVD. L'alerte restaure ce contexte, visible SEULEMENT quand cette option
+    # est réellement atteinte pour ce patient (D21, § additions au schéma).
+    alertes:
+      - quand: "ASCVD_etablie == true AND dialyse == true AND statine_deja_en_place == false"
+        niveau: attention
+        message: >-
+          Ce patient a une maladie cardiovasculaire ÉTABLIE (ASCVD) : il relève de la PRÉVENTION
+          SECONDAIRE, pas du profil « faible risque » que décrit cette carte. Il n'atteint ce tier que
+          parce qu'il est dialysé SANS statine en cours — l'option de haute intensité est retirée faute de
+          bénéfice démontré sur critères durs en dialyse (4D, AURORA), PAS parce que son risque
+          cardiovasculaire serait faible. Le dossier de preuve ne TRANCHE PAS la conduite optimale pour un
+          patient dialysé en prévention secondaire non encore traité (ni l'excès d'une haute intensité non
+          prouvée en dialyse, ni le sous-traitement d'un risque cardiovasculaire réel ne sont justifiés par
+          la donnée disponible) : à discuter au cas par cas, en tenant compte de ce statut, plutôt qu'à
+          déduire du tier affiché.
   - intitule: "Statine (prévention primaire, intensité modérée — haute si risque très élevé)"
     conditions:
       - "default"
@@ -170,14 +204,42 @@ options:
     contre_indications:
       - "Molécule d'intensité modérée en 1re intention : atorvastatine 10-20 mg, ou simvastatine 20-40 mg / pravastatine 40 mg (mieux évaluées, moins d'interactions — position EBM). Escalade vers la haute intensité si le risque est très élevé."
       - "En dialyse sans statine en cours, aucun bénéfice n'est démontré sur les critères durs (voir alerte) : discuter au cas par cas l'intérêt d'une initiation à ce stade (ce tier n'a pas d'exclusion structurelle, cf. changelog) ; grossesse contre-indiquée."
+    # HAUTE-4 (2026-07-26, chantier-2026-07-26/redteam-clinique-securite.md) : ce repli n'a, par construction
+    # (`default`), aucune condition sur `ASCVD_etablie` — un patient ASCVD établie peut l'atteindre via
+    # l'exclusion dialyse (option « haute intensité »), l'ordered-first-match continuant jusqu'ici sans
+    # jamais revoir son statut ASCVD. Même alerte que sur l'option « discuter » ci-dessus, pour la même
+    # raison (D21, § additions au schéma) : visible SEULEMENT quand ce repli est réellement atteint pour ce
+    # patient.
+    alertes:
+      - quand: "ASCVD_etablie == true AND dialyse == true AND statine_deja_en_place == false"
+        niveau: attention
+        message: >-
+          Ce patient a une maladie cardiovasculaire ÉTABLIE (ASCVD) : il relève de la PRÉVENTION
+          SECONDAIRE, pas du profil « prévention primaire » que décrit cette carte. Il n'atteint ce tier
+          que parce qu'il est dialysé SANS statine en cours — l'option de haute intensité est retirée
+          faute de bénéfice démontré sur critères durs en dialyse (4D, AURORA), PAS parce que son risque
+          cardiovasculaire serait celui d'une prévention primaire. Le dossier de preuve ne TRANCHE PAS la
+          conduite optimale pour un patient dialysé en prévention secondaire non encore traité (ni l'excès
+          d'une haute intensité non prouvée en dialyse, ni le sous-traitement d'un risque cardiovasculaire
+          réel ne sont justifiés par la donnée disponible) : à discuter au cas par cas, en tenant compte de
+          ce statut, plutôt qu'à déduire du tier affiché.
 alertes:
+  # Libellé corrigé le 2026-07-26 (chantier-2026-07-26/redteam-preuve-statine-sujet-tres-age.md, « Proposition
+  # de libellé corrigé pour l'alerte "> 75 ans" », repris tel quel) : le chiffre « ~2,5 ans » est réel et bien
+  # transcrit depuis la reco française (SFE/SFD/NSFA/SFC 2026, texte intégral vérifié par le red-team), mais
+  # l'ancien libellé le présentait comme une mesure du sujet très âgé alors qu'il provient d'une méta-analyse
+  # portant sur des sujets de 50 à 75 ans (Yourman 2021), extrapolation assumée comme telle par la reco
+  # elle-même. Correctif = DIRE que c'est une extrapolation, pas retirer le chiffre.
   - quand: "age > 75 AND ASCVD_etablie == false"
     niveau: attention
     message: >-
-      Prévention primaire après 75 ans : preuve plus faible et moins directe (méta CTT par âge 2019 ;
-      PROSPER : sous-groupe prévention primaire non significatif, pas de bénéfice de mortalité). Individualiser
-      selon l'espérance de vie, la fragilité et les préférences (délai avant bénéfice estimé ~2,5 ans). En
-      prévention secondaire (ASCVD établie), le bénéfice de la statine persiste à tout âge.
+      Prévention primaire après 75 ans : preuve plus faible et moins directe (méta CTT par âge 2019 ; PROSPER :
+      sous-groupe prévention primaire non significatif, pas de bénéfice de mortalité ; aucun essai randomisé
+      dédié au sujet très âgé — StAREE exclut les diabétiques, PREVENTABLE en cours). Individualiser selon
+      l'espérance de vie, la fragilité et les préférences : le seuil de 2,5 ans avancé par la reco
+      SFE/SFD/NSFA/SFC 2026 est extrapolé d'une méta-analyse portant sur des sujets de 50 à 75 ans, faute de
+      donnée directe après cet âge — à utiliser comme repère, pas comme mesure. En prévention secondaire
+      (ASCVD établie), le bénéfice de la statine persiste à tout âge.
   - quand: "dialyse == true"
     niveau: attention
     message: >-
@@ -379,6 +441,7 @@ incertitudes:
   - "SCORE2-Diabète = aide à l'estimation du risque absolu (seuils fixes ESC 2023, validé 40-69 ans), NON encodée comme gate (un seuil % serait un artefact de modèle, pas une donnée d'ECR — l'ancien encodage âge-bandé était une erreur méthodo corrigée). Depuis 2026-07-26 (F-statine §9.5, 2ᵉ série), son alerte info est CIBLÉE sur le tier « discuter » (`ASCVD_etablie == false AND anciennete_diabete_annees < 10 AND autres_FDRCV == 0 AND diabete_complique == false` — seule situation où le référent juge l'estimation utile) et porte désormais la réserve de validation 40-69 ans, un profil sans critère de grille étant souvent jeune donc potentiellement hors plage. Le rappel générique « pas de cible LDL » (alerte `default`) reste, lui, affiché à tout patient."
   - "Prévention primaire après 75 ans : preuve faible/incertaine (STAREE — qui exclut les diabétiques — et PREVENTABLE en cours) ; modélisée en alerte plutôt qu'en option distincte."
   - "Dialyse (2026-07-26, D21, F-statine §9.1) : l'INITIATION est désormais retirée par une `exclusion` structurelle (`dialyse == true AND statine_deja_en_place == false`) sur l'option « haute intensité » — la contradiction la plus sévère relevée en recette. Cette exclusion N'A PAS été étendue aux options « discuter » (bas risque) ni au repli « primaire modérée » : le nœud est en `ordered-first-match` à 3 options sans 4e filet, et l'invariant générique I2′ (jamais de sortie vide quand tout est renseigné, `engine/banc/invariants.test.ts`, hors périmètre de ce lot) interdit d'exclure le repli. Un patient dialysé sans statine en cours et sans ASCVD établie peut donc encore voir s'afficher « discuter » ou « primaire modérée » (contre_indications reformulées en conséquence, pas en impératif absolu) — limite connue, signalée plutôt que masquée (invariant 6), non corrigée dans ce lot (nécessiterait une option dédiée « statine non recommandée » ou une révision de l'invariant générique)."
+  - "ASCVD établie + dialyse + PAS encore de statine (2026-07-26, red-team HAUTE-4, `chantier-2026-07-26/redteam-clinique-securite.md`) : l'exclusion D21 ci-dessus retire l'option « haute intensité » à ce patient, et l'`ordered-first-match` le route vers « discuter » ou le repli « prévention primaire modérée » — un mislabeling en soi (un patient de prévention SECONDAIRE présenté comme « faible risque »/« prévention primaire »), car ces deux options n'ont aucune condition sur `ASCVD_etablie` et le moteur ne revoit jamais le statut ASCVD une fois l'exclusion passée. Corrigé par une alerte PORTÉE PAR CES DEUX OPTIONS (`options[].alertes`, visible uniquement quand l'option est réellement atteinte, D21 : « le fait qualifie un geste sans l'interdire ») qui restaure le contexte ASCVD. Ce que le correctif NE fait PAS : le dossier de preuve ne tranche PAS la conduite optimale pour ce sous-groupe précis (dialysé, ASCVD établie, jamais traité) — ni l'excès d'une haute intensité non prouvée en dialyse (4D, AURORA neutres) ni le sous-traitement d'un risque de prévention secondaire réel ne sont démontrés par le dossier. L'alerte le dit explicitement et renvoie à une discussion individualisée plutôt que d'inventer une conduite ; non résolu au-delà — une donnée dédiée (essai statine chez le dialysé ASCVD) ou une option distincte trancherait mieux qu'une alerte de qualification."
   - "Intolérance aux statines (`intolerance_statine`, nouveau critère 2026-07-26, F-statine §9.1) : le dossier de preuve documente la non-attribution de la majorité des symptômes musculaires et la préférence de molécule (moins d'interactions CYP3A4), mais NE couvre PAS de protocole de conduite à tenir (réintroduction, dose alternée, molécule de repli) en cas d'intolérance confirmée — non modélisé, faute de source dans ce dossier (signalé, pas inventé, invariant 6)."
   - "`autres_FDRCV` (nombre) accepte aujourd'hui des valeurs hors du domaine clinique (ex. -1), ce qui peut faire basculer la sortie d'un tier à l'autre (recette 2026-07-26, défaut 13.4) : le schéma (`schema/noeud.schema.json`, `critereEntree`) ne porte aucun champ minimum/maximum pour un critère `nombre` — non corrigé dans ce lot (changement de schéma hors périmètre), signalé à l'orchestrateur."
   - "`age` est un critère saisi et délibérément NON DÉCISIF sur les options : il n'intervient dans AUCUNE condition, seulement dans l'alerte `age > 75 AND ASCVD_etablie == false`. TRANCHÉ par le référent le 2026-07-26 (F-statine §9.4, 2ᵉ série) : un lot précédent avait proposé un gate `age >= 40` (recette 2026-07-26, F-statine §9.3) ; le référent l'a REJETÉ — « tout dépend de l'ancienneté du diabète et des atteintes d'organe. On colle à la grille. » Un DT2 de 30 ans avec 2 facteurs de risque est donc traité, À DESSEIN, comme un DT2 de 60 ans avec 2 facteurs de risque : c'est la grille française 2026 (`anciennete_diabete_annees`, `autres_FDRCV`, `diabete_complique`) qui gouverne la stratification, pas l'âge. Ce n'est plus une lacune mais une décision assumée — voir aussi le commentaire porté par le critère `age` dans `criteres_entree`."
@@ -389,8 +452,48 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Claude Code"
   statut: brouillon
-  version: "1.4"
+  version: "1.5"
   changelog:
+    - date: "2026-07-26"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        Correctif d'une RÉGRESSION introduite le jour même par le lot D21 (finding HAUTE-4, red-team
+        clinique, `docs/decision/validation/chantier-2026-07-26/redteam-clinique-securite.md`). Le nœud est
+        en `ordered-first-match` : quand l'exclusion dialyse (`dialyse == true AND statine_deja_en_place ==
+        false`) retire « Statine de haute intensité — prévention secondaire », la boucle continue vers
+        l'option suivante, qui ignore tout de `ASCVD_etablie`. Un patient DIALYSÉ AVEC ASCVD ÉTABLIE, PAS
+        encore sous statine, atterrissait donc sur « Discuter la statine […] à faible risque absolu » ou
+        sur le repli « prévention primaire, intensité modérée » — un patient de prévention SECONDAIRE
+        présenté comme à faible risque, sous-dosé (12,5 % du banc réaliste `statine`, 360/2880 profils).
+        VOIE RETENUE (parmi les deux esquissées par le red-team) : une alerte PORTÉE PAR CHACUNE des deux
+        options atteintes (`options[].alertes`, D21 : « le fait qualifie un geste sans l'interdire »,
+        visible UNIQUEMENT quand l'option est réellement applicable pour ce patient), plutôt qu'un gate
+        `ASCVD_etablie` dans leurs `conditions` (qui les auraient rendues inapplicables aux VRAIS patients
+        à faible risque / prévention primaire du même tier — le nœud n'a pas de 4e filet derrière le repli,
+        I2′) ou qu'une option dédiée « statine non recommandée » (proportion disproportionnée pour un
+        sous-groupe de 12,5 % dont la conduite optimale n'est de toute façon pas tranchée par le dossier).
+        Message : ASCVD établie = prévention secondaire (pas le profil que décrit la carte), l'option de
+        haute intensité a été retirée pour un motif de preuve en dialyse (4D/AURORA) et non de risque
+        absolu, et le dossier NE TRANCHE PAS la conduite optimale pour ce sous-groupe précis — à discuter
+        au cas par cas, pas d'invention d'une conduite au-delà de ce que le dossier établit. Les TROIS
+        propriétés vérifiées ensemble (cf. rapport de tâche) : (1) dialysé SANS statine → pas d'initiation
+        haute intensité (exclusion D21 inchangée) ; (2) dialysé AVEC statine → poursuite offerte
+        (`statine_deja_en_place == true` contourne l'exclusion, inchangé) ; (3) un patient de prévention
+        secondaire n'est plus JAMAIS présenté comme à faible risque absolu, quelle que soit l'option
+        atteinte (nouveau). AUCUN changement de `conditions`/`exclusions` : le routage
+        `applicable`/`excluded`/`nonRetenues` est rigoureusement inchangé (vérifié : F-02/F-03 restent
+        verts tels quels). 2 nouvelles vignettes F-10/F-11 (`evaluateNode.statine.test.ts`, au niveau
+        `construireVueDecision` — une alerte d'option n'existe pas dans `EvaluateNodeResult`, calculée
+        seulement à l'affichage). CORRECTION ANNEXE (même red-team, `redteam-preuve-statine-sujet-tres-age.
+        md`) : libellé de l'alerte « > 75 ans » repris tel que proposé par le red-team (pas réécrit) — le
+        chiffre « ~2,5 ans » est désormais présenté explicitement comme une EXTRAPOLATION d'une
+        méta-analyse portant sur des sujets de 50 à 75 ans (Yourman 2021), reprise telle quelle par la reco
+        SFE/SFD/NSFA/SFC 2026, jamais mesurée directement après 75 ans — le chiffre n'est PAS retiré, sa
+        nature est dite. NE TOUCHE PAS : `age` reste délibérément non décisif sur les options (F-statine
+        §9.4) ; F-07 (82 ans + ASCVD → pas d'alerte > 75 ans) intact, c'est le comportement protégé.
+        REFUSÉ / HORS PÉRIMÈTRE : régénération des snapshots de caractérisation
+        (`engine/banc/__snapshots__/caracterisation{,-indetermine}.statine.txt`), consigne de tâche. RESTE
+        EN BROUILLON : revalidation clinique référent toujours en attente (invariant CLAUDE.md 4).
     - date: "2026-07-26"
       auteur: "référent DT2 + Claude Code"
       resume: >-

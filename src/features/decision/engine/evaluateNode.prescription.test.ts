@@ -734,3 +734,63 @@ describe('prescription — P-48+ (couverture des options jamais exercées par un
     expect(has(titles(o), 'Sulfamide (gliclazide')).toBe(true)
   })
 })
+
+/**
+ * RT-S1 À RT-S4 — chantier 2026-07-26 (4e série), quatre défauts GRAVES trouvés par deux audits red-team
+ * indépendants : `docs/decision/validation/chantier-2026-07-26/redteam-clinique-securite.md` (findings
+ * HAUTE-1, HAUTE-2, HAUTE-3) et `redteam-clinique-silences.md` (finding F1). Chaque vignette reprend LE
+ * PROFIL EXACT du rapport d'audit correspondant (pas une reformulation).
+ */
+describe('prescription — RT-S1..S4 (red-team clinique 2026-07-26, défauts GRAVES corrigés)', () => {
+  it('RT-S1 — sulfamide seul + DFG 25 + intolérance digestive : seule « Arrêter » s’affiche, jamais « Réduire » (redteam-clinique-securite HAUTE-1, 44 % du sous-groupe)', () => {
+    const o = { intention: 'optimiser', traitements_en_cours: ['sulfamide'], dose_metformine: 0,
+      HbA1c_actuelle: 8, position_vs_cible: 'au_dessus', ASCVD_etablie: false, insuffisance_cardiaque: false,
+      DFG: 25, albuminurie: 'normo', IMC: 27, symptomes_glucotoxicite: false, cetonemie: false,
+      hypoglycemie_recente: false, denutrition: false, infections_uro_genitales_recidivantes: false,
+      intolerance_traitement: true, nature_intolerance: 'digestive', age: 68, fragilite: false,
+      esperance_vie: 'intermediaire', risque_hypoglycemie_schema: 'faible', preference_injection: 'indifferent',
+      classes_a_benefice_indisponibles: false } as Partial<Criteria>
+    const t = titles(o)
+    expect(has(t, 'Arrêter le sulfamide')).toBe(true)
+    expect(has(t, 'Réduire la posologie du sulfamide')).toBe(false)
+    expect(has(excludedTitles(o), 'Réduire la posologie du sulfamide')).toBe(true)
+  })
+
+  it('RT-S2 — metformine seule + DFG 25 + intolérance digestive : seule « Arrêter » s’affiche, jamais « Réduire » (redteam-clinique-securite HAUTE-2)', () => {
+    const o = { intention: 'optimiser', traitements_en_cours: ['metformine'], dose_metformine: 500,
+      HbA1c_actuelle: 7.5, position_vs_cible: 'a_l_objectif', ASCVD_etablie: false, insuffisance_cardiaque: false,
+      DFG: 25, albuminurie: 'normo', IMC: 25, symptomes_glucotoxicite: false, cetonemie: false,
+      hypoglycemie_recente: false, denutrition: false, infections_uro_genitales_recidivantes: false,
+      intolerance_traitement: true, nature_intolerance: 'digestive', age: 70, fragilite: false,
+      esperance_vie: 'intermediaire', risque_hypoglycemie_schema: 'faible', preference_injection: 'indifferent',
+      classes_a_benefice_indisponibles: false } as Partial<Criteria>
+    const t = titles(o)
+    expect(has(t, 'Arrêter la metformine')).toBe(true)
+    expect(has(t, 'Réduire la posologie de la metformine')).toBe(false)
+    expect(has(excludedTitles(o), 'Réduire la posologie de la metformine')).toBe(true)
+    expect(has(excludedTitles(o), 'Metformine (socle')).toBe(true)
+  })
+
+  it('RT-S3 — iSGLT2 en place + cétonémie confirmée : « Suspendre l’iSGLT2 » apparaît, alerte cétonémie déclenchée (redteam-clinique-securite HAUTE-3, PRIORITÉ ABSOLUE, 25 % du banc)', () => {
+    const o = { intention: 'optimiser', traitements_en_cours: ['metformine', 'iSGLT2'], dose_metformine: 1500,
+      HbA1c_actuelle: 7.8, position_vs_cible: 'au_dessus', ASCVD_etablie: false, insuffisance_cardiaque: false,
+      DFG: 70, albuminurie: 'normo', IMC: 26, symptomes_glucotoxicite: false, cetonemie: true,
+      hypoglycemie_recente: false, denutrition: false, infections_uro_genitales_recidivantes: false,
+      intolerance_traitement: false, age: 58, fragilite: false, esperance_vie: 'longue',
+      risque_hypoglycemie_schema: 'faible', preference_injection: 'indifferent',
+      classes_a_benefice_indisponibles: false } as Partial<Criteria>
+    const t = titles(o)
+    expect(has(t, "Suspendre l'iSGLT2")).toBe(true)
+    expect(alertMsgs(o).some((m) => m.includes('cétonémie'))).toBe(true)
+  })
+
+  it('RT-S4 — sur-traitement DÉCLARÉ (sous_objectif), insuline seule, non fragile : l’allègement de l’insuline apparaît désormais (redteam-clinique-silences F1)', () => {
+    const o = { intention: 'optimiser', HbA1c_actuelle: 6.5, position_vs_cible: 'sous_objectif',
+      ASCVD_etablie: true, DFG: 46, albuminurie: 'micro', IMC: 23, fragilite: false,
+      hypoglycemie_recente: false, traitements_en_cours: ['metformine', 'insuline'],
+      hba1c_sous_cible: false } as Partial<Criteria>
+    const t = titles(o)
+    expect(has(t, "Réduire la posologie de l'insuline")).toBe(true)
+    expect(has(t, 'Désintensifier')).toBe(true)
+  })
+})

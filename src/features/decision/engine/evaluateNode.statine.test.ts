@@ -22,6 +22,7 @@ import { describe, expect, it } from 'vitest'
 import { getNoeudById } from '../content/loadNodes.ts'
 import { calculerCriteresDerives } from './deriveCritere.ts'
 import { evaluateNode } from './evaluateNode.ts'
+import { construireVueDecision } from '../lib/vueDecision.ts'
 import type { Criteria } from './conditions.ts'
 import type { Option } from '../content/node.types.ts'
 
@@ -216,5 +217,59 @@ describe('statine — F-09 : formulaire vierge, valeur indéterminée (D20)', ()
     // (le repli) n'est JAMAIS atteinte — ni en attente, ni non retenue, ni applicable.
     expect(result.enAttente.has(OPT_MODEREE)).toBe(false)
     expect(result.nonRetenues.has(OPT_MODEREE)).toBe(false)
+  })
+})
+
+describe('statine — F-10/F-11 : alerte ASCVD restaurée sur le tier atteint après l’exclusion dialyse (red-team HAUTE-4, 2026-07-26)', () => {
+  // docs/decision/validation/chantier-2026-07-26/redteam-clinique-securite.md, finding HAUTE-4 : le nœud
+  // est ordered-first-match — quand l'exclusion dialyse (D21) retire « haute intensité », la boucle
+  // continue vers l'option suivante, qui ignore tout de `ASCVD_etablie`. Un patient de prévention
+  // SECONDAIRE (ASCVD établie) atterrissait donc sur une carte « faible risque »/« prévention primaire »
+  // SANS AUCUNE correction à l'écran. Fixé par une alerte PORTÉE PAR L'OPTION (`option.alertes`, D21 :
+  // « le fait qualifie un geste sans l'interdire »), visible UNIQUEMENT quand l'option atteinte l'est
+  // réellement pour ce patient — donc jamais pour les patients qui atteignent la même carte pour de
+  // vraies raisons de bas risque / prévention primaire. `option.alertes` n'existe PAS dans
+  // `EvaluateNodeResult` (coût-par-perturbation, cf. docstring `lib/vueDecision.ts`) : il faut passer par
+  // `construireVueDecision`, modèle de vue de l'écran réel, pour l'observer — même méthode que
+  // `evaluateNode.prescription.test.ts` (F3).
+  const alertesDeLOption = (o: Partial<Criteria>, option: Option) =>
+    construireVueDecision(node!, calculerCriteresDerives(node!.criteres_entree, { ...BASE, ...o } as Criteria))
+      .familles.flatMap((famille) => famille.groupes.flat())
+      .filter((optionVue) => optionVue.option === option)
+      .flatMap((optionVue) => optionVue.alertes)
+
+  it('F-10 — dialysé + ASCVD établie, SANS statine en place (profil F-02) : « Discuter » toujours reçu (routage inchangé), mais qualifié comme prévention SECONDAIRE, pas comme faible risque', () => {
+    const o = { ASCVD_etablie: true, dialyse: true, statine_deja_en_place: false } as Partial<Criteria>
+    const result = evalProfile(o)
+    expect(result.applicable).toEqual([OPT_DISCUTER]) // routage rigoureusement identique à F-02
+    const alertes = alertesDeLOption(o, OPT_DISCUTER)
+    expect(alertes.some((a) => a.message.includes('PRÉVENTION') && a.message.includes('SECONDAIRE'))).toBe(true)
+    expect(alertes.some((a) => a.message.includes('TRANCHE PAS'))).toBe(true)
+  })
+
+  it('F-11 — dialysé + ASCVD établie, AVEC statine en place (profil F-03) : haute intensité MAINTENUE (routage inchangé), et cette option ne porte PAS l’alerte de requalification — elle n’a pas d’objet, le tier est déjà le bon', () => {
+    const o = { ASCVD_etablie: true, dialyse: true, statine_deja_en_place: true } as Partial<Criteria>
+    const result = evalProfile(o)
+    expect(result.applicable).toEqual([OPT_HAUTE]) // routage rigoureusement identique à F-03
+    expect(alertesDeLOption(o, OPT_HAUTE)).toEqual([]) // l'option 1 ne porte pas cette alerte : elle n'existe que sur "Discuter"/le repli
+  })
+
+  it('F-12 — même profil que F-10 mais routé vers le REPLI (« intensité modérée ») : même alerte, portée cette fois par la 3e option', () => {
+    // Profil B de la vignette HAUTE-4 du red-team : mêmes ASCVD/dialyse/statine_deja_en_place que F-10,
+    // mais ancienneté/FDR/complication qui font sortir des 3 conditions de "Discuter" — la boucle continue
+    // jusqu'au repli. Vérifie que la 2e alerte (posée sur l'option 3, pas seulement l'option 2) fonctionne.
+    const o = {
+      ASCVD_etablie: true,
+      dialyse: true,
+      statine_deja_en_place: false,
+      anciennete_diabete_annees: 12,
+      autres_FDRCV: 3,
+      diabete_complique: true,
+    } as Partial<Criteria>
+    const result = evalProfile(o)
+    expect(result.applicable).toEqual([OPT_MODEREE])
+    const alertes = alertesDeLOption(o, OPT_MODEREE)
+    expect(alertes.some((a) => a.message.includes('PRÉVENTION') && a.message.includes('SECONDAIRE'))).toBe(true)
+    expect(alertes.some((a) => a.message.includes('TRANCHE PAS'))).toBe(true)
   })
 })

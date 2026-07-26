@@ -125,10 +125,16 @@ statine, et relève d'un éventuel nœud ultérieur « risque résiduel ».)*
 
 **Sujet > 75 ans en prévention primaire** : preuve plus faible et moins directe. La méta **CTT par âge 2019**
 montre un bénéfice atténué (**RR 0,87 par mmol/L**, p-trend 0,06) et **peu de preuves directes** en prévention
-primaire chez le très âgé ; **PROSPER** : sous-groupe prévention primaire **HR 0,94 (0,77-1,15) NS**, mortalité
-**HR 1,07** (pas de bénéfice). → **individualiser** (espérance de vie, fragilité ; délai avant bénéfice estimé
-~2,5 ans). En prévention secondaire, le bénéfice persiste à tout âge. *(STAREE — qui exclut les diabétiques —
-et PREVENTABLE en cours.)*
+primaire chez le très âgé ; **PROSPER** : sous-groupe prévention primaire **RR 0,94 (0,78-1,14) NS** (borne IC
+corrigée par le red-team du 2026-07-26, `chantier-2026-07-26/redteam-preuve-statine-sujet-tres-age.md`, finding
+M1 — c'est un RR, pas un HR), mortalité **RR 1,07 (0,86-1,35)** (pas de bénéfice) ; **aucun essai randomisé
+dédié au sujet très âgé** (StAREE exclut les diabétiques ; PREVENTABLE en cours). → **individualiser** (espérance
+de vie, fragilité). Le seuil « ~2,5 ans » avancé par la reco SFE/SFD/NSFA/SFC 2026 est une **EXTRAPOLATION**
+(méta Yourman 2021 portant sur des sujets de **50 à 75 ans**, jamais mesurée directement au-delà — confirmé en
+texte intégral par le red-team, qui a aussi vérifié que la reco assume elle-même cette extrapolation dans la
+phrase suivant sa citation) : à utiliser comme repère, pas comme mesure directe du sujet très âgé — d'où la
+reformulation de l'alerte du YAML le 2026-07-26 (dit l'extrapolation, ne retire pas le chiffre). En prévention
+secondaire, le bénéfice persiste à tout âge.
 
 **Dialyse / maladie rénale terminale** : **ne pas INITIER** une statine. **4D** (atorvastatine, DT2
 hémodialysé) : critère principal **RR 0,92 (0,77-1,10) NS**, avec un **signal d'AVC fatal (RR 2,03)** ;
@@ -142,6 +148,19 @@ critère `statine_deja_en_place` — l'option « haute intensité » n'est plus 
 n'a pas déjà de statine en cours ; la poursuite reste possible. La contradiction entre l'ancienne alerte et
 la carte affichée, relevée en recette, est corrigée pour ce cas ; le tier « discuter »/le repli « intensité
 modérée » restent, eux, hors de cette exclusion — limite documentée dans `incertitudes` du YAML.)*
+
+**Cas particulier du cas particulier — dialysé ET en prévention secondaire (ASCVD établie), pas encore sous
+statine** *(2026-07-26, red-team clinique sécurité, finding HAUTE-4,
+`chantier-2026-07-26/redteam-clinique-securite.md`)* : le nœud est en `ordered-first-match` — retirer
+l'option « haute intensité » par l'exclusion ci-dessus fait continuer la boucle vers l'option suivante, qui
+ne regarde jamais `ASCVD_etablie`. Sans correctif, ce patient (12,5 % du banc réaliste du nœud) atterrissait
+sur « Discuter […] à faible risque absolu » ou sur le repli « prévention primaire, intensité modérée » — un
+patient de prévention **secondaire** présenté comme à faible risque et sous-dosé. Corrigé par une alerte
+portée par CHACUNE de ces deux options (visible seulement quand l'option est réellement atteinte pour ce
+patient) qui rappelle son statut ASCVD et dit explicitement ce que le dossier NE tranche PAS : ni l'excès
+d'une haute intensité non prouvée en dialyse, ni le sous-traitement d'un risque cardiovasculaire réel ne
+sont démontrés par 4D/AURORA pour ce sous-groupe précis (dialysé, ASCVD établie, jamais traité) — à discuter
+au cas par cas, pas de conduite inventée au-delà de ce que le dossier établit.
 
 ## 6. Sécurité
 
@@ -201,9 +220,12 @@ tous les diabétiques.
 - Seuil du tier « bas risque » : TRANCHÉ 2026-07-26 (F-statine §9.4, 2ᵉ série) — pas de seuil d'âge, la
   bascule suit uniquement `anciennete_diabete_annees < 10`, `autres_FDRCV == 0` et `diabete_complique ==
   false` (grille française 2026) ; un gate d'âge proposé un temps a été rejeté par le référent.
-- Prévention primaire > 75 ans : preuve faible (essais en cours).
-- Modélisation de la dialyse : alerte sur DFG < 15 (proxy imparfait ; une variable `dialyse` serait plus
-  précise).
+- Prévention primaire > 75 ans : preuve faible (essais en cours ; le seuil « ~2,5 ans » de la reco 2026 est
+  une extrapolation d'une méta 50-75 ans, pas une mesure directe — § 5).
+- Dialyse + ASCVD établie, pas encore de statine (§ 5, red-team HAUTE-4 du 2026-07-26) : la conduite optimale
+  n'est PAS tranchée par ce dossier — ni l'excès d'une haute intensité non prouvée en dialyse (4D, AURORA) ni
+  le sous-traitement d'un risque de prévention secondaire réel ne sont démontrés pour ce sous-groupe précis.
+  Signalé au praticien par une alerte plutôt que résolu par une conduite inventée.
 - Cible LDL en prévention secondaire / très haut risque : évolutive (ECR 2026 par add-on), hors périmètre du
   nœud.
 

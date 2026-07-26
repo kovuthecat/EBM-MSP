@@ -63,9 +63,18 @@ nœud le dit désormais explicitement au praticien (incohérence situation/trait
 
 ## 2. Choix de la molécule basale — hypoglycémie nocturne (substitut) vs sévère (dur)
 
-Chez le patient à risque d'hypoglycémie (âgé, fragile, insuffisance rénale, hypoglycémies nocturnes),
-préférer un **analogue de 2ᵉ génération** (glargine U300 ou degludec) à glargine U100 / détémir, a fortiori à
-la NPH.
+Chez le patient à risque d'hypoglycémie (âgé, fragile, insuffisance rénale, hypoglycémies nocturnes, **ou
+antécédent d'hypoglycémie sévère récurrente — cf. `terrain_fragile`, ci-dessous**), préférer un **analogue
+de 2ᵉ génération** (glargine U300 ou degludec) à glargine U100 / détémir, a fortiori à la NPH.
+
+*Correction 2026-07-26 (4ᵉ lot, F4 red-team « silence et omission »).* L'antécédent d'hypoglycémie sévère
+récurrente (`hypo_severe_recurrente`) — le signal de sécurité le plus direct collecté par ce nœud, un fait
+observé plutôt qu'un drapeau déclaratif de fragilité — n'orientait jusqu'ici jamais ce choix : un patient
+non fragile, non âgé, à espérance de vie longue, dont le SEUL marqueur de risque était cet antécédent,
+recevait la même recommandation qu'un patient sans aucun facteur de risque. Le même signal pilotait
+pourtant déjà, plus loin dans ce nœud, la désintensification du basal-bolus (§4) — même concept de
+sécurité, deux encodages. Fusionné dans le dérivé `terrain_fragile` (arbitrage, cf. `insuline.yaml`
+`incertitudes` — le référent doit pouvoir revoir ce choix).
 
 | Comparaison | Hypo nocturne / symptomatique (substitut) | Hypo SÉVÈRE (dur) |
 | --- | --- | --- |
@@ -100,6 +109,16 @@ quand l'un de ces 2 signaux est présent ET que la cible n'est pas atteinte — 
 sécurité, jamais une alternative à lui. Contenu clinique réutilisé à l'identique (aucune nouvelle
 justification) ; portée volontairement limitée à ces 2 signaux, cf. incertitudes §9.
 
+**Garde-fou d'hypoglycémie en « basale_plus_bolus » (2026-07-26, 4ᵉ lot).** La situation intermédiaire
+(basale + un bolus) ne portait, jusqu'à ce lot, **aucune** `exclusions` sur ses 2 options d'escalade — un
+antécédent d'hypoglycémie sévère récurrente ou un TBR élevé n'empêchait rien. Corrigé sur le modèle de
+« Titrer la basale » : les 2 options d'escalade **excluent** désormais TBR > 4 %, TBR sévère > 1 %, CV >
+36 %, profil nocturne d'hypoglycémie, **et** un antécédent d'hypoglycémie sévère récurrente — ce dernier
+signal, absent des 4 premiers, est le seul qui couvre le patient dont la MCG reste rassurante mais dont
+l'histoire ne l'est pas. Pour que l'exclusion ne se traduise pas par un silence (aucune réponse offerte),
+« Corriger l'hypoglycémie ou la variabilité... » (jusqu'ici propre à « basale seule ») est réutilisée telle
+quelle pour cette situation.
+
 | Stratégie (vs basal-bolus) | HbA1c | Hypoglycémie | Poids | Injections |
 | --- | --- | --- | --- | --- |
 | **IDegLira — DUAL VII** (PMID 29483185, comparateur non plafonné) | non-inférieure (ETD −0,02 %) | **rate ratio 0,11** | **−3,6 kg** | **1 vs ≥ 4** |
@@ -121,14 +140,19 @@ Le basal-bolus est **inclus dans le périmètre du MG** (arbitrage référent §
 (~50/50) et ajuster **à partir des doses actuelles**, guidé par le profil AGP : hypo nocturne → réduire la
 basale ; phénomène de l'aube → augmenter la basale ; excursions post-prandiales → augmenter / avancer le
 bolus ; hypo interprandiale → réduire le bolus. Le **calcul formel des ratios glucides-insuline et du facteur
-de sensibilité n'est pas inclus** (éducation spécialisée).
+de sensibilité n'est pas inclus** (éducation spécialisée). Depuis 2026-07-26 (4ᵉ lot), cette optimisation
+couvre aussi la situation « basale_plus_bolus » une fois ses 2 gestes d'ajout (GLP-1, bolus) épuisés — cette
+situation intermédiaire retombait jusqu'ici sur le seul repli « poursuivre et réévaluer » malgré une cible
+non atteinte.
 
-**Désintensification.** Chez le sujet fragile, à espérance de vie limitée, âgé (≥ 75 ans) ou à risque
-hypoglycémique élevé (`terrain_fragile`, dérivé aligné 2026-07-26 sur celui du nœud A), ou avec
-hypoglycémies sévères récurrentes : relâcher la cible, simplifier le schéma, réduire les doses, envisager un
-GLP-1 pour réduire les besoins — éviter le surtraitement (HAS 2024 R.103 ; SFD 2025 Avis 21). *L'âge seul
-(≥ 75 ans, sans case « fragile » cochée) suffit désormais à déclencher l'allègement — auparavant absent du
-gate, ce qui pouvait priver un octogénaire à l'objectif de toute proposition d'allègement.*
+**Désintensification.** Chez le sujet fragile, à espérance de vie limitée, âgé (≥ 75 ans), à risque
+hypoglycémique élevé, ou avec hypoglycémies sévères récurrentes (`terrain_fragile`, dérivé aligné
+2026-07-26 sur celui du nœud A, **et englobant depuis le 2026-07-26 [4ᵉ lot] l'antécédent d'hypoglycémie
+sévère récurrente** — jusqu'ici ce même signal pilotait la désintensification sans jamais orienter le choix
+de la molécule à l'initiation, cf. § 2) : relâcher la cible, simplifier le schéma, réduire les doses,
+envisager un GLP-1 pour réduire les besoins — éviter le surtraitement (HAS 2024 R.103 ; SFD 2025 Avis 21).
+*L'âge seul (≥ 75 ans, sans case « fragile » cochée) suffit désormais à déclencher l'allègement — auparavant
+absent du gate, ce qui pouvait priver un octogénaire à l'objectif de toute proposition d'allègement.*
 
 **Orientation.** Alerte vers le spécialiste (± pompe / boucle fermée = centres initiateurs, hors initiation
 MG) si le **déséquilibre persiste malgré l'optimisation** ou en **situation particulière** (hypoglycémies
@@ -260,10 +284,26 @@ source généraliste réelle est Joubert 2025, favorable à la MCG). Elles ne so
   cible SEUL » reste sans option d'efficacité dédiée (prose uniquement), non généralisé faute de mandat.
   Ces 2 options portent leurs `priorite` d'origine (1/2), qui chevauchent en « basale seule » celles, sans
   rapport clinique, des options de sécurité (le nœud ne déclare pas de `familles`) — signalé, non corrigé.
-- **« Désintensifier / alléger le schéma » (basal-bolus) :** l'alignement sur `terrain_fragile` (2026-07-26)
-  a préservé `hypo_severe_recurrente` comme déclencheur indépendant, distinct de ce que décrivait la
-  consigne référent (triplet avec `risque_hypoglycemie_schema`, absent ici avant l'alignement) — écart
-  signalé, non tranché.
+  Même chevauchement introduit en sens inverse au 4ᵉ lot (ci-dessous) : « Corriger l'hypoglycémie... » et
+  « Optimiser la répartition du basal-bolus », réutilisées en « basale_plus_bolus », y chevauchent les
+  options d'escalade — même limite, même non-correction assumée.
+- **RÉSOLU 2026-07-26 (4ᵉ lot, F4 red-team « silence et omission »)** — « Désintensifier / alléger le
+  schéma » (basal-bolus) : l'alignement sur `terrain_fragile` (2026-07-26, 2ᵉ lot) avait préservé
+  `hypo_severe_recurrente` comme déclencheur indépendant, en OR littéral, distinct de ce que décrivait la
+  consigne référent d'alors — et jamais lu par « Choisir un analogue basal de 2ᵉ génération » (§2), même
+  concept de sécurité encodé deux fois (invariant I4). Arbitrage tranché : `hypo_severe_recurrente` est
+  désormais **fusionné dans `terrain_fragile`** plutôt que laissé en déclencheur indépendant par option — à
+  confirmer par le référent, deux conséquences : (1) le OR littéral sur « Désintensifier » a été retiré
+  (redondant) ; (2) la population des alertes « cibles MCG assouplies » (§5) s'élargit au même signal.
+- **F2/F3 red-team « silence et omission » (2026-07-26, 4ᵉ lot) — situation « basale_plus_bolus » :**
+  cette situation intermédiaire n'avait ni option de sécurité (401/401 profils à risque du banc sans aucune
+  réponse à une hypoglycémie documentée) ni option de titration/optimisation une fois ses 2 gestes d'ajout
+  épuisés (60/92 profils, cible non atteinte). Corrigé par réutilisation de 2 options déjà écrites pour
+  d'autres situations (§3, §4) et par l'ajout d'`exclusions` aux 2 options d'escalade, sur le modèle de
+  « Titrer la basale ». Point à confirmer par le référent : les `exclusions` ajoutées incluent
+  `hypo_severe_recurrente == true`, en plus des 4 signaux MCG du modèle cité — nécessaire pour couvrir le
+  profil exact du rapport (TBR bas, TBR sévère nul, seul l'antécédent signale le risque), mais c'est une
+  extension de périmètre au-delà du mandat explicite pour ce canal précis.
 
 ## Sources (PMID/DOI vérifiés — red-team B1/B2/B3)
 

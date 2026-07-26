@@ -347,6 +347,16 @@ options:
     conditions:
       - "traitements_en_cours contient metformine"
       - "DFG >= 45 AND DFG < 60 AND dose_metformine > 2000 OR DFG >= 30 AND DFG < 45 AND dose_metformine > 1000 OR nature_intolerance == digestive"
+    # GARDE-FOU AJOUTÉ (2026-07-26, 4e série, red-team clinique sécurité HAUTE-2) : la branche « intolérance
+    # digestive » est la SEULE des trois disjoncts indépendante du DFG — sans cette exclusion, elle
+    # continuait de s'appliquer sous DFG < 30, où la metformine n'est plus « à réduire » mais CONTRE‑
+    # INDIQUÉE (RCP ANSM). Les deux branches « dose vs palier RCP » étaient déjà hors de ce domaine par
+    # construction (bornées à DFG ≥ 30) ; seule la branche intolérance y échappait, produisant deux gestes
+    # CONTRADICTOIRES affichés ensemble : « Arrêter la metformine (DFG < 30) » et « Réduire la posologie ».
+    # Miroir exact du garde-fou déjà en place sur le socle (`:311`) et sur « Arrêter la metformine » elle-
+    # même (structurel, options mutuellement exclusives par construction depuis cet ajout).
+    exclusions:
+      - "DFG < 30"
     priorite: 3
     famille: "À faire d'emblée — sécurité"
     avantages:
@@ -371,6 +381,41 @@ options:
       Suppression du risque d'hypoglycémie sévère par accumulation en insuffisance rénale (sécurité — RCP « IR
       sévère » ; convention KDIGO/SFD).
     niveau_preuve: eleve
+  # ---- Sécurité — acidocétose euglycémique sous iSGLT2 --------------------------------------------------
+  - intitule: "Suspendre l'iSGLT2 (cétonémie confirmée — suspicion d'acidocétose euglycémique)"
+    # AJOUT (2026-07-26, 4e série, red-team clinique sécurité HAUTE-3, PRIORITÉ ABSOLUE DU LOT) : aucune
+    # option de ce nœud ne suspendait l'iSGLT2 chez un patient cétonémique déjà sous cette classe — 25 % du
+    # banc réaliste (traitements_en_cours contient iSGLT2 AND cetonemie == true) ne recevait AUCUN geste sur
+    # l'iSGLT2, ni même une alerte (cf. l'élargissement du `quand` de l'alerte cétonémie ci-dessous).
+    # L'acidocétose euglycémique sous gliflozine (glycémie pouvant rester proche de la normale, ce qui la
+    # rend particulièrement piégeuse) est une complication reconnue (FDA/EMA), déjà nommée dans ce même
+    # fichier comme risque de l'option « Introduire un iSGLT2 » (`:404`, « suspendre si jeûne, chirurgie,
+    # sepsis ») et dans l'alerte de nœud dédiée du nœud `insuline` (« suspendre en cas de jeûne, de
+    # chirurgie ou de maladie aiguë intercurrente », `insuline.yaml:499-503`) — inatteignable depuis CE nœud
+    # et de toute façon jamais conditionnée à une cétonémie CONFIRMÉE (seulement à la présence de l'iSGLT2).
+    # R3/R8 (GRAMMAIRE-NOEUD.md) : le verdict sur une ligne en cours est une OPTION à part (D21 — un fait qui
+    # rend un geste contre-indiqué est une `exclusion` ou, ici, un verdict dédié affiché avec son motif,
+    # jamais une simple alerte qui ne retire rien), sur le modèle déjà en place pour « Arrêter la metformine
+    # (DFG < 30) » / « Arrêter le sulfamide (DFG < 30) » ci-dessus : conditions structurelles seulement
+    # (présence de l'iSGLT2 + cétonémie confirmée), jamais liées à l'atteinte de l'objectif glycémique
+    # (invariant 7 du banc : les garde-fous d'urgence sont orthogonaux à la position vs objectif — un
+    # patient peut être à sa cible, voire en dessous, et en cétose).
+    conditions:
+      - "traitements_en_cours contient iSGLT2"
+      - "cetonemie == true"
+    priorite: 1
+    famille: "À faire d'emblée — sécurité"
+    avantages:
+      - "Une cétonémie confirmée chez un patient déjà sous iSGLT2 est le tableau typique de l'acidocétose euglycémique sous gliflozine (la glycémie peut rester proche de la normale, ce qui retarde le diagnostic si on ne s'appuie que sur elle) : complication reconnue (FDA/EMA). Suspendre l'iSGLT2 sans attendre limite la progression vers l'acidocétose franche."
+    inconvenients:
+      - "Perte temporaire du bénéfice cardio-rénal de l'iSGLT2 pendant la suspension : rechercher la cause (jeûne, chirurgie, maladie aiguë intercurrente, apports glucidiques insuffisants, ou rupture thérapeutique en insuline si le patient en est aussi porteur — cf. alerte dédiée) et réintroduire une fois la cétonémie résolue et la cause traitée."
+    effet_attendu: >-
+      Suppression du facteur aggravant reconnu de l'acidocétose euglycémique (sécurité — pharmacovigilance
+      FDA/EMA). Pas un effet chiffré sur un critère dur ; ne remet pas en cause le bénéfice cardio-rénal
+      habituel de la classe (cf. option « Introduire un iSGLT2 »), suspendu le temps de l'épisode seulement.
+    niveau_preuve: eleve
+    contre_indications:
+      - "Cétonémie ≥ 3 mmol/L → urgence (insuline + hospitalisation), hors périmètre du nœud."
   # ---- Ajout d'un agent protecteur (fix bug 9 : priorités conditionnelles) ------------------------------
   - intitule: "Introduire un iSGLT2 (protection cardio‑rénale et/ou contrôle glycémique)"
     conditions:
@@ -660,8 +705,18 @@ options:
     niveau_preuve: faible
   # ---- Désintensification (porte : hba1c_sous_cible à tout âge, ou hypo récente sur terrain fragile) ----
   - intitule: "Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline"
+    # GÉNÉRALISATION position_vs_cible (2026-07-26, 4e série, red-team clinique silences F1,
+    # GRAMMAIRE-NOEUD.md R1) : `position_vs_cible == sous_objectif` — l'ÉTAT DÉCLARÉ de sur-traitement,
+    # introduit précisément pour capter ce cas sans dépendre du seuil absolu `hba1c_sous_cible` (< 6,5 %,
+    # cf. commentaire du critère `cible_atteinte`) — ne pilotait jusqu'ici QUE la déprescription de la
+    # metformine (`metformine_deprescriptible`). Un sur-traitement DÉCLARÉ sur l'insuline / le sulfamide /
+    # le glinide seuls (sans franchir le seuil absolu) ne déclenchait donc AUCUN allègement — défaut
+    # relevé par l'audit sur un profil ASCVD + DFG 46 + sous_objectif + insuline seule, non fragile.
+    # Ajouté ici SANS exiger la fragilité : elle ne conditionne que la déprescription de la metformine
+    # (dernier agent réputé « sûr » à garder, cf. son propre commentaire), pas l'allègement d'un agent
+    # sans bénéfice dur (sulfamide/glinide/insuline).
     conditions:
-      - "hba1c_sous_cible == true OR hypoglycemie_recente == true AND terrain_fragile == true"
+      - "hba1c_sous_cible == true OR hypoglycemie_recente == true AND terrain_fragile == true OR position_vs_cible == sous_objectif"
       - "traitements_en_cours contient sulfamide OR traitements_en_cours contient glinide OR traitements_en_cours contient insuline"
     priorite: 1
     famille: "Traitement à alléger"
@@ -678,9 +733,12 @@ options:
       - "Ne JAMAIS retirer un iSGLT2 ni un AR GLP‑1 pour désintensifier : bénéfice cardio‑rénal maintenu quelle que soit la glycémie (ADA 13.14d grade A). La désintensification ne cible que sulfamide / glinide / excès d'insuline."
   # ---- Déprescrire par RÉDUCTION de dose (distinct par traitement ; le praticien juge la dose, S8) -------
   - intitule: "Réduire la posologie de l'insuline (sur‑basalisation / hypoglycémie)"
+    # GÉNÉRALISATION position_vs_cible (2026-07-26, 4e série, red-team clinique silences F1) : voir le
+    # commentaire de « Désintensifier » plus haut pour la justification complète — même ajout, même
+    # raison, sans exigence de fragilité.
     conditions:
       - "traitements_en_cours contient insuline"
-      - "hba1c_sous_cible == true OR hypoglycemie_recente == true OR intolerance_traitement == true"
+      - "hba1c_sous_cible == true OR hypoglycemie_recente == true OR intolerance_traitement == true OR position_vs_cible == sous_objectif"
     priorite: 1
     famille: "Traitement à alléger"
     avantages:
@@ -714,9 +772,20 @@ options:
     effet_attendu: "non chiffrable"
     niveau_preuve: faible
   - intitule: "Réduire la posologie du sulfamide / du glinide (tolérance, hypoglycémie légère)"
+    # GÉNÉRALISATION position_vs_cible (2026-07-26, 4e série, red-team clinique silences F1) : voir le
+    # commentaire de « Désintensifier » plus haut pour la justification complète — même ajout (l'ÉTAT
+    # DÉCLARÉ de sur-traitement `sous_objectif` ouvre aussi cet allègement, sans exiger la fragilité, qui
+    # ne conditionne que la déprescription de la metformine).
     conditions:
       - "traitements_en_cours contient sulfamide OR traitements_en_cours contient glinide"
-      - "intolerance_traitement == true OR hypoglycemie_recente == true"
+      - "intolerance_traitement == true OR hypoglycemie_recente == true OR position_vs_cible == sous_objectif"
+    # GARDE-FOU AJOUTÉ (2026-07-26, 4e série, red-team clinique sécurité HAUTE-1) : sans cette exclusion,
+    # cette option coexistait avec « Arrêter le sulfamide (DFG < 30) » — deux gestes CONTRADICTOIRES
+    # affichés ensemble sur le même agent (« réduire » suggère de le garder à dose moindre, « arrêter » dit
+    # qu'il est contre-indiqué). Miroir exact du garde-fou déjà en place sur « Réduire la posologie de la
+    # metformine » (ci-dessus) et sur « Remplacer le sulfamide » (`exclusions: DFG < 30`, plus bas).
+    exclusions:
+      - "DFG < 30"
     priorite: 2
     famille: "Traitement à alléger"
     avantages:
@@ -836,7 +905,12 @@ options:
       protection (qui rouvrirait la prescription).
     niveau_preuve: faible
 alertes:
-  - quand: "HbA1c_actuelle >= 10 OR symptomes_glucotoxicite == true"
+  # ÉLARGIE (2026-07-26, 4e série, red-team clinique sécurité HAUTE-3) : cette alerte ne testait jusqu'ici
+  # que deux PROXYS de décompensation (HbA1c très élevée, symptômes de glucotoxicité) — jamais `cetonemie`
+  # elle-même. Une cétonémie CONFIRMÉE sans ces deux proxys (le tableau typique de l'acidocétose
+  # euglycémique sous iSGLT2, où la glycémie peut rester proche de la normale) ne déclenchait donc AUCUNE
+  # alerte : `alertes: []` sur un profil où le fait le plus grave saisi était `cetonemie == true`.
+  - quand: "HbA1c_actuelle >= 10 OR symptomes_glucotoxicite == true OR cetonemie == true"
     niveau: attention
     message: >-
       Contrôler la cétonémie capillaire (β‑hydroxybutyrate) : décompensation catabolique possible malgré une
@@ -1161,13 +1235,56 @@ incertitudes:
   - "classes_a_benefice_indisponibles == true supprime désormais l'introduction d'iSGLT2 / AR GLP-1 / tirzépatide / association et l'intensification glycémique résiduelle (correction S3-S7, M1) : cohérent avec la niche SU/gliptine qui n'existe que lorsque ces classes sont inutilisables."
   - "Repli O11 (« pas de remplaçant protecteur pertinent ») : encodé en ALERTE A9 (2 disjonctions pur-AND, causes IMC<22 / dénutrition sans indication iSGLT2) + rappel en prose dans l'option. Couvre le cas sans indication protectrice ; ne se déclenche pas si un remplaçant serait valide."
   - "Élargir la désintensification au SOCLE (metformine, iSGLT2 sans indication d'organe), au-delà de sulfamide/glinide/insuline : demandé par le référent (recette capture 6, 2026-07-26) — PARTIELLEMENT TRANCHÉ le 2026-07-26 (2e série) pour la METFORMINE SEULE : l'arbitrage référent (« sur-traitement chez une personne fragile et tous les autres agents à bénéfice dur ») est désormais encodé (option « Déprescrire la metformine », critère `metformine_deprescriptible`). Reste NON tranché : la désintensification de l'iSGLT2 sans indication d'organe (aucun seuil/critère référent fourni) ; et le cas d'un patient sur-traité mais qui ne réunit pas les 3 conditions (non fragile, ou un agent sans bénéfice dur — y compris l'insuline, lecture stricte de l'orchestrateur — encore en place) : dans ce cas c'est l'agent sans bénéfice dur qui doit être allégé en premier via les options existantes, pas la metformine. Conséquence sur le profil de la capture 6 (ASCVD établie + sous_objectif + intention déprescrire, sans SU/glinide/insuline en cours) : SI ce profil est aussi `fragilite == true`, il devient désormais éligible à la nouvelle option de déprescription de la metformine (en plus de la carte « Introduire un AR GLP‑1 » déjà affichée, indication transverse légitime, `:342`) ; si `fragilite == false`, son comportement reste inchangé (aucune option de désintensification applicable) — non revérifié sur la vignette exacte de la capture 6, dont le détail de `fragilite` n'est pas reproduit dans ce commentaire (invariant CLAUDE.md 6 : signaler plutôt qu'inventer)."
+  - "GLINIDE SEUL (sans sulfamide) + DFG < 30 : l'exclusion `DFG < 30` ajoutée (4e série, 2026-07-26,
+    red-team sécurité HAUTE-1) à « Réduire la posologie du sulfamide / du glinide » protège contre la
+    contradiction avec « Arrêter le sulfamide » — mais ce nœud n'a PAS d'option « Arrêter le glinide »
+    dédiée (seul le sulfamide en a une). Un patient sous glinide SEUL (aucun sulfamide) à DFG < 30 avec
+    intolérance ou hypoglycémie récente perd donc son seul geste de réduction/allègement ciblé sur cette
+    molécule sans qu'aucun verdict de remplacement ne le couvre (R4 : l'option est visible en `excluded`
+    avec son motif, jamais en silence — mais aucune carte ne propose la conduite à tenir). Le dossier de
+    preuve de ce nœud ne documente pas de seuil rénal spécifique au glinide (contrairement au sulfamide,
+    sourcé `:367`) : signalé plutôt qu'inventé (invariant CLAUDE.md 6), à trancher par le référent
+    (seuil propre au glinide, ou verdict dédié sur le modèle du sulfamide)."
 veille_liee: []
 meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.21"
+  version: "0.22"
   changelog:
+    - date: "2026-07-26"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        Quatrième série (2026-07-26) : quatre défauts GRAVES trouvés par deux audits red-team indépendants
+        (`docs/decision/validation/chantier-2026-07-26/redteam-clinique-securite.md` findings HAUTE-1/2/3,
+        `redteam-clinique-silences.md` finding F1). (1) SULFAMIDE DFG < 30 (HAUTE-1, 44 % du sous-groupe) :
+        « Arrêter le sulfamide » et « Réduire la posologie du sulfamide / du glinide » s'affichaient
+        ENSEMBLE, contredisant l'alerte de nœud (« Sulfamide aussi CI < 30 ») — `exclusions: ["DFG < 30"]`
+        ajoutée à l'option « Réduire ». (2) METFORMINE DFG < 30 PAR LA BRANCHE DIGESTIVE (HAUTE-2, 3,5 %) :
+        même mécanisme, la branche `nature_intolerance == digestive` de « Réduire la posologie de la
+        metformine » n'était pas bornée au DFG (les deux branches « dose vs palier RCP » l'étaient déjà) —
+        même correctif (`exclusions: ["DFG < 30"]`). (3) iSGLT2 EN PLACE + CÉTONÉMIE (HAUTE-3, PRIORITÉ
+        ABSOLUE, 25 %) : aucune option ne suspendait l'iSGLT2 chez un patient cétonémique déjà sous cette
+        classe (acidocétose euglycémique, FDA/EMA) — nouvelle option « Suspendre l'iSGLT2 (cétonémie
+        confirmée — suspicion d'acidocétose euglycémique) », famille « À faire d'emblée — sécurité »,
+        déclenchée par `traitements_en_cours contient iSGLT2 AND cetonemie == true` (R3/R8, verdict sur une
+        ligne en cours = option dédiée, sur le modèle « Arrêter la metformine/le sulfamide (DFG < 30) »).
+        Alerte de nœud cétonémie élargie (`OR cetonemie == true`) : elle ne testait jusqu'ici que deux
+        proxys (HbA1c ≥ 10, symptômes de glucotoxicité), jamais `cetonemie` elle-même — `alertes: []` sur
+        le profil exact de l'audit avant ce correctif. (4) SUR-TRAITEMENT DÉCLARÉ (`position_vs_cible ==
+        sous_objectif`) NE DÉCLENCHAIT AUCUN ALLÈGEMENT DE L'INSULINE / DU GLINIDE / DU SULFAMIDE (F1,
+        silences) : le critère `position_vs_cible == sous_objectif`, introduit par R1 pour capter le
+        sur-traitement relatif à l'objectif du patient (au-delà du seuil absolu `hba1c_sous_cible`), n'était
+        référencé QUE par `metformine_deprescriptible` — généralisé, SANS exigence de fragilité (réservée à
+        la metformine), aux trois options « Désintensifier : alléger / arrêter le sulfamide, le glinide ou
+        réduire l'insuline », « Réduire la posologie de l'insuline » et « Réduire la posologie du sulfamide
+        / du glinide » (cette dernière déjà touchée par (1) ci-dessus — les deux correctifs cohabitent sans
+        conflit, l'exclusion DFG < 30 s'appliquant quel que soit le disjonct qui a déclenché la condition).
+        Nouvelle ligne `incertitudes` sur le glinide seul + DFG < 30 (aucune option « Arrêter le glinide »
+        dédiée dans ce nœud, contrairement au sulfamide — signalé, non inventé). 4 vignettes ajoutées
+        (`evaluateNode.prescription.test.ts`, RT-S1 à RT-S4) reproduisant le profil exact de chaque audit.
+        Snapshots de caractérisation NON régénérés (diff attendu, à relire par le référent — cf. en-tête de
+        `banc/caracterisation.test.ts`). STATUT toujours `brouillon`.
     - date: "2026-07-26"
       auteur: "référent DT2 + Claude Code"
       resume: >-

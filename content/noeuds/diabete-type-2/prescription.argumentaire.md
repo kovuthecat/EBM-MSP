@@ -61,6 +61,40 @@ encodé (cf. `incertitudes` du YAML) — pour la **metformine**, voir le lot sui
    rechercher**, avant d'orienter vers un ajustement de schéma (nœud E) ; seuil 3 mmol/L, suspicion de DT1
    et renvoi au nœud E inchangés.
 
+**Ajout 2026‑07‑26, 4e série (deux audits red-team indépendants, sécurité + silences)** : quatre défauts
+GRAVES corrigés.
+
+1. **Sulfamide et metformine sous DFG < 30 : deux gestes contradictoires affichés ensemble.** « Arrêter »
+   et « Réduire la posologie » se déclenchaient tous les deux — le premier parce que l'agent est
+   **contre-indiqué** sous ce seuil, le second parce qu'une de ses branches (intolérance digestive pour la
+   metformine ; l'option entière pour le sulfamide/glinide) n'était **pas bornée au DFG**. Corrigé par une
+   `exclusions: ["DFG < 30"]` sur les deux options « Réduire », symétrique de celle déjà en place sur le
+   socle metformine. **44 %** du sous-groupe sulfamide + DFG < 30 sévère était concerné (3,5 % pour la
+   metformine, branche intolérance).
+2. **iSGLT2 en place + cétonémie confirmée : aucune option ne le suspendait (25 % du sous-groupe, priorité
+   absolue du lot).** Une cétonémie positive sous iSGLT2 est le tableau typique de l'**acidocétose
+   euglycémique sous gliflozine** (FDA/EMA), d'autant plus piégeuse que la glycémie peut rester proche de
+   la normale. Le seul rappel du dépôt vivait dans `insuline.yaml`, inatteignable depuis ce nœud, et
+   l'alerte cétonémie de CE nœud ne testait même pas `cetonemie` directement (deux proxys seulement : HbA1c
+   ≥ 10, symptômes de glucotoxicité). Corrigé par une nouvelle option « Suspendre l'iSGLT2 (cétonémie
+   confirmée) », famille sécurité, déclenchée par la seule conjonction iSGLT2-en-cours + cétonémie —
+   structurelle, indépendante de l'objectif glycémique (les garde-fous d'urgence sont orthogonaux à la
+   position vs cible) — et par l'élargissement du `quand` de l'alerte cétonémie à `cetonemie == true`.
+3. **Le sur-traitement DÉCLARÉ (`position_vs_cible == sous_objectif`) ne pilotait aucun allègement de
+   l'insuline, du sulfamide ou du glinide seuls.** Ce critère, introduit par R1 précisément pour capter le
+   sur-traitement relatif à l'objectif du patient (au-delà du seuil absolu `hba1c_sous_cible`), n'était
+   référencé QUE par `metformine_deprescriptible`. Généralisé aux trois options d'allègement restantes
+   (« Désintensifier », « Réduire la posologie de l'insuline », « Réduire la posologie du sulfamide / du
+   glinide »), **sans** exiger la fragilité — celle-ci ne conditionne que la déprescription de la
+   metformine, dernier agent réputé « sûr » à garder.
+
+Détail des profils exacts, des règles en cause et des vignettes ajoutées :
+`docs/decision/validation/chantier-2026-07-26/redteam-clinique-securite.md` (findings 1-3) et
+`redteam-clinique-silences.md` (finding F1). Résiduel signalé, non corrigé faute de source : aucune option
+« Arrêter le glinide » dédiée n'existe dans ce nœud (contrairement au sulfamide) — un patient sous glinide
+**seul** à DFG < 30 perd donc son geste de réduction sans verdict de remplacement (cf. `incertitudes` du
+YAML).
+
 **Ajout 2026‑07‑26, 3e série (arbitrage référent, chantier vignettes — recette capture 1, problème 2)** :
 « Réduire la posologie de la metformine » se déclenchait sur la seule fourchette de DFG, sans connaître la
 dose **ACTUELLE** du patient — impossible de savoir si une réduction s'impose sans elle. Le référent :

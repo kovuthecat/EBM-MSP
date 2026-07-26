@@ -24,6 +24,14 @@
  *    d'intensification de « basale_plus_bolus » sont réutilisées en « basale seule » sur les 2 signaux
  *    nommés par le référent (hypoglycémie/variabilité nocturne, sur-basalisation).
  *
+ * 4ᵉ lot (2026-07-26) — 3 vignettes supplémentaires (blocs `F2`/`F3`/`F4` ci-dessous), correctifs issus du
+ * red-team clinique « silence et omission » (`docs/decision/validation/chantier-2026-07-26/
+ * redteam-clinique-silences.md`), profils EXACTS du rapport. F3 (priorité, situation « basale_plus_bolus »
+ * sans AUCUN garde-fou d'hypoglycémie sur ses options d'escalade), F2 (même situation, silence total une
+ * fois les 2 options d'escalade épuisées malgré une cible non atteinte), F4 (`hypo_severe_recurrente`
+ * absent du choix de la molécule à l'initiation, alors qu'il pilote déjà la désintensification plus loin
+ * dans le même nœud — fusionné dans `terrain_fragile`, cf. changelog `insuline.yaml` v0.10).
+ *
  * Ce fichier n'exécute et ne modifie que ce nœud + le moteur RÉEL (`evaluateNode` + `deriveCritere`) ;
  * aucun autre fichier du dépôt n'est touché par cette tâche (trois agents écrivent en parallèle sur
  * d'autres nœuds).
@@ -339,3 +347,110 @@ describe('insuline — E-09 : formulaire vierge (`renseignes` vide, D20)', () =>
     expect(has(res.applicable.map((opt) => opt.intitule), POURSUIVRE)).toBe(true)
   })
 })
+
+describe(
+  'insuline — F3 (redteam-clinique-silences.md, 2026-07-26, PRIORITÉ) : « basale_plus_bolus », ' +
+    'aucun garde-fou d\'hypoglycémie sur les 2 options d\'escalade — 401/401 profils à risque du banc',
+  () => {
+    it(
+      'profil EXACT du rapport (âge 105, TBR=1 %, TBR sévère=0 %, hypo_severe_recurrente=true, ' +
+        'GLP-1/tirzépatide déjà en place) : « Ajouter un bolus » — seule sortie observée avant ce lot — ' +
+        'est désormais EXCLUE (aucun signal MCG ne la bloquait, seul l\'antécédent le fait) ; ' +
+        '« Ajouter un GLP-1... » restait de toute façon hors jeu (prérequis : tirzépatide déjà en cours) ; ' +
+        '« Corriger l\'hypoglycémie ou la variabilité... », réutilisée pour cette situation (même lot), ' +
+        'reste offerte — l\'exclusion ne se traduit jamais par un silence (R4).',
+      () => {
+        const o = {
+          situation_insuline: 'basale_plus_bolus',
+          age: 105,
+          HbA1c_actuelle: 6.86,
+          HbA1c_cible: 6,
+          fragilite: false,
+          hypo_severe_recurrente: true,
+          TBR: 1,
+          TBR_severe: 0,
+          traitements_en_cours: ['iSGLT2', 'tirzepatide', 'sulfamide'],
+        } as Partial<Criteria>
+        const t = titles(o)
+        const excl = excludedTitles(o)
+        // Escalade bloquée : « Ajouter un bolus » écartée par exclusion (sécurité, R4 — motif tracé) ;
+        // « Ajouter un GLP-1... » jamais candidate (prérequis : tirzépatide déjà en cours).
+        expect(has(excl, AJOUTER_BOLUS)).toBe(true)
+        expect(has(t, AJOUTER_BOLUS)).toBe(false)
+        expect(has(t, AJOUTER_GLP1_BB)).toBe(false)
+        // Ce qui reste offert : le geste de sécurité (réutilisé depuis « basale seule », même lot) et
+        // l'optimisation des doses actuelles (réutilisée depuis « basal_bolus », finding F2 du même lot) —
+        // jamais un silence pur.
+        expect(has(t, CORRIGER_HYPO)).toBe(true)
+        expect(has(t, OPTIMISER_BB)).toBe(true)
+      },
+    )
+  },
+)
+
+describe(
+  'insuline — F2 (redteam-clinique-silences.md, 2026-07-26) : « basale_plus_bolus », GLP-1 ET bolus ' +
+    'déjà en place, cible non atteinte — 60/92 profils du banc réduits au seul repli avant ce lot',
+  () => {
+    it(
+      'profil du rapport (« un patient déjà sous metformine + aGLP1 + insuline basale + insuline rapide, ' +
+        'HbA1c 9 % pour une cible à 7 %, sans hypoglycémie ») : « Optimiser la répartition du ' +
+        'basal-bolus » — réutilisée depuis la situation « basal_bolus » — comble le silence, le repli ' +
+        '« Poursuivre... » ne s\'active plus.',
+      () => {
+        const o = {
+          situation_insuline: 'basale_plus_bolus',
+          traitements_en_cours: ['metformine', 'aGLP1', 'insuline_basale', 'insuline_rapide'],
+          HbA1c_actuelle: 9,
+          HbA1c_cible: 7,
+          TBR: 2,
+          TBR_severe: 0,
+          CV_glycemique: 20,
+          profil_glycemique: ['stable'],
+          hypo_severe_recurrente: false,
+          dose_basale_actuelle: 30,
+          dose_rapide_actuelle: 10,
+          poids: 80,
+        } as Partial<Criteria>
+        const t = titles(o)
+        // Les 2 gestes d'ajout sont bien épuisés (prérequis : classes déjà en cours) — pas rouverts par ce lot.
+        expect(has(t, AJOUTER_GLP1_BB)).toBe(false)
+        expect(has(t, AJOUTER_BOLUS)).toBe(false)
+        // Le silence est comblé : dose totale quotidienne = 30 + 10 = 40 U/j (calcul déjà câblé).
+        expect(has(t, OPTIMISER_BB)).toBe(true)
+        expect(has(t, POURSUIVRE)).toBe(false)
+      },
+    )
+  },
+)
+
+describe(
+  'insuline — F4 (redteam-clinique-silences.md, 2026-07-26) : `hypo_severe_recurrente` absent du choix ' +
+    'de la molécule à l\'initiation — arbitrage I3, fusionné dans `terrain_fragile`',
+  () => {
+    it(
+      'profil EXACT du rapport (naïf, 74 ans, non fragile, EV longue, risque de schéma faible, SEUL ' +
+        'signal = hypo_severe_recurrente) : « Choisir un analogue basal de 2ᵉ génération » devient ' +
+        'applicable — auparavant silencieuse malgré ce signal, alors qu\'il pilotait déjà (en OR littéral) ' +
+        'la désintensification du basal-bolus plus loin dans ce même nœud.',
+      () => {
+        const o = {
+          situation_insuline: 'naif',
+          age: 74,
+          HbA1c_actuelle: 14.27,
+          HbA1c_cible: 8.25,
+          fragilite: false,
+          esperance_vie: 'longue',
+          risque_hypoglycemie_schema: 'faible',
+          hypo_severe_recurrente: true,
+          traitements_en_cours: ['aGLP1', 'sulfamide', 'gliptine'],
+        } as Partial<Criteria>
+        const t = titles(o)
+        expect(has(t, ANALOGUE_2G)).toBe(true)
+        expect(has(t, INITIER_BASALE)).toBe(true)
+        // Déjà sous aGLP1 : cette option reste hors jeu (prérequis), non contestée par cette vignette.
+        expect(has(t, GLP1_NAIF)).toBe(false)
+      },
+    )
+  },
+)
