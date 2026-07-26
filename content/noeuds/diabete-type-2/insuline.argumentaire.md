@@ -75,8 +75,11 @@ bénéfice affiché = hypoglycémie **nocturne**, l'hypoglycémie sévère rése
 
 ## 3. Intensification — GLP-1 / association fixe avant le bolus
 
-Sur une basale insuffisante (glycémie à jeun à la cible mais HbA1c au-dessus = écart post-prandial ;
-« over-basalisation » au-delà de ~0,5 U/kg), **ne pas sur-titrer la basale**.
+Sur une basale insuffisante — glycémie à jeun à la cible mais HbA1c au-dessus (écart post-prandial), **ou**
+sur-basalisation franche (dose/poids > ~0,5 U/kg) même si la glycémie à jeun reste hors cible —, **ne pas
+sur-titrer la basale**. Depuis 2026-07-26, `over_basalisation == true` **exclut** l'option « Titrer la
+basale » et déclenche, à lui seul, ce relais (indépendamment de la glycémie à jeun) : la sur-basalisation
+est en elle-même une raison de ne pas titrer davantage.
 
 | Stratégie (vs basal-bolus) | HbA1c | Hypoglycémie | Poids | Injections |
 | --- | --- | --- | --- | --- |
@@ -101,9 +104,12 @@ basale ; phénomène de l'aube → augmenter la basale ; excursions post-prandia
 bolus ; hypo interprandiale → réduire le bolus. Le **calcul formel des ratios glucides-insuline et du facteur
 de sensibilité n'est pas inclus** (éducation spécialisée).
 
-**Désintensification.** Chez le sujet fragile, à espérance de vie limitée ou avec hypoglycémies sévères :
-relâcher la cible, simplifier le schéma, réduire les doses, envisager un GLP-1 pour réduire les besoins —
-éviter le surtraitement (HAS 2024 R.103 ; SFD 2025 Avis 21).
+**Désintensification.** Chez le sujet fragile, à espérance de vie limitée, âgé (≥ 75 ans) ou à risque
+hypoglycémique élevé (`terrain_fragile`, dérivé aligné 2026-07-26 sur celui du nœud A), ou avec
+hypoglycémies sévères récurrentes : relâcher la cible, simplifier le schéma, réduire les doses, envisager un
+GLP-1 pour réduire les besoins — éviter le surtraitement (HAS 2024 R.103 ; SFD 2025 Avis 21). *L'âge seul
+(≥ 75 ans, sans case « fragile » cochée) suffit désormais à déclencher l'allègement — auparavant absent du
+gate, ce qui pouvait priver un octogénaire à l'objectif de toute proposition d'allègement.*
 
 **Orientation.** Alerte vers le spécialiste (± pompe / boucle fermée = centres initiateurs, hors initiation
 MG) si le **déséquilibre persiste malgré l'optimisation** ou en **situation particulière** (hypoglycémies
@@ -151,7 +157,9 @@ Le nœud aide au **calcul** (pas seulement au conseil) à partir du **poids** et
 - **Diminution** (hypoglycémie) : −2 à −4 U ou −10-20 % de la dose actuelle.
 - **Basal-plus** : ≈ 10 % de la dose basale actuelle (ou 4 U) au repas principal.
 - **Over-basalisation** : repère dose basale / poids > 0,5 U/kg (dérivé `over_basalisation`) → basculer vers
-  GLP-1 / bolus plutôt que monter la basale. *Repère non validé par ECR (`[À VÉRIFIER]`).*
+  GLP-1 / bolus plutôt que monter la basale. *Repère non validé par ECR (`[À VÉRIFIER]`).* Depuis
+  2026-07-26, ce repère non-EBM sert de **gate dur** (exclusion de « Titrer la basale », déclencheur du
+  relais) — arbitrage référent assumé malgré l'absence de validation par essai.
 
 Périmètre : basale → basal-bolus (médecine générale) ; **hors** ratios glucides-insuline / facteur de
 sensibilité formels et pompe / boucle fermée.
@@ -197,11 +205,22 @@ source généraliste réelle est Joubert 2025, favorable à la MCG). Elles ne so
 - MCG : cibles = consensus ; lien TIR-complications observationnel ; bénéfice en DT2 sur substituts, sans
   preuve sur critères durs ni mortalité.
 - Bénéfice microvasculaire de l'insuline = extrapolé du contrôle glycémique, non démontré par un essai dédié.
-- Seuil d'over-basalisation 0,5 U/kg = repère non validé par ECR.
+- Seuil d'over-basalisation 0,5 U/kg = repère non validé par ECR ; sert pourtant, depuis 2026-07-26, de gate
+  dur (exclusion / déclencheur) sur la situation « basale seule ».
 - 2ᵉ génération : hypoglycémie sévère démontrée pour degludec vs glargine U100 seulement ; 1ʳᵉ génération vs
   NPH non significative ; pas de supériorité inter-2ᵉ-génération.
 - Associations fixes : bénéfice substitutif, aucun CVOT dédié.
 - Câblage formulaire (P3) : dérivés, calcul des doses, tooltips AGP, variable `hypo_severe_recurrente`.
+- **Pivot `gaj_a_cible` (à refondre, hors périmètre — signalé 2 fois par le référent, dont recette
+  capture 8) :** la glycémie à jeun est rarement le critère utilisé en pratique pour la basale ; l'aspect
+  **nocturne** de la courbe (MCG) prime. `gaj_a_cible` reste pourtant le seul pivot départageant « Titrer la
+  basale » de « Ne pas sur-titrer... » en situation « basale seule », y compris quand la MCG est disponible
+  (qui n'y intervient que côté sécurité — exclusions communes aux deux options). Détail versé aux
+  `incertitudes` du fichier YAML.
+- **« Désintensifier / alléger le schéma » (basal-bolus) :** l'alignement sur `terrain_fragile` (2026-07-26)
+  a préservé `hypo_severe_recurrente` comme déclencheur indépendant, distinct de ce que décrivait la
+  consigne référent (triplet avec `risque_hypoglycemie_schema`, absent ici avant l'alignement) — écart
+  signalé, non tranché.
 
 ## Sources (PMID/DOI vérifiés — red-team B1/B2/B3)
 
