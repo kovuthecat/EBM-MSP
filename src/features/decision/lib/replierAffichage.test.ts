@@ -1,28 +1,44 @@
 /**
- * Banc du repli d'affichage (`lib/replierAffichage.ts`, dette « plafond d'affichage » levée le 2026-07-27).
+ * Banc du plafond d'affichage (`lib/replierAffichage.ts`, K5 — décision référent du 2026-07-27).
  *
- * L'INVARIANT QUE CE FICHIER PROTÈGE tient en une phrase : **rien ne se perd**. Le repli est la seule
- * pièce de l'écran capable de faire disparaître une option de la vue d'un prescripteur ; chaque test
- * ci-dessous vérifie donc, en plus de son propos, que la réunion des deux partitions redonne l'entrée
- * exactement — même nombre d'options, mêmes intitulés.
+ * L'INVARIANT QUE CE FICHIER PROTÈGE tient en une phrase : **rien ne se perd**. Ce module est la seule
+ * pièce de l'écran capable de faire disparaître une option de la vue d'un prescripteur — et il l'a déjà
+ * fait, sur une carte d'insuline d'initiation chez un patient en état catabolique (cf. la docstring du
+ * module). Chaque test vérifie donc, en plus de son propos, que la réunion des deux partitions redonne
+ * l'entrée exactement.
+ *
+ * Le second bloc rejoue le défaut d'origine et vérifie qu'il ne peut plus se produire — non parce que le
+ * tri a changé, mais parce que la carte de sécurité est désormais PROTÉGÉE par sa déclaration (A3).
  */
-import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { partitionnerAffichage, SEUIL_REPLI } from './replierAffichage.ts'
+import { plafonnerPistes, PLAFOND_PISTES } from './replierAffichage.ts'
 import type { FamilleVue, OptionVue } from './vueDecision.ts'
-import type { Option } from '../content/node.types.ts'
+import type { Option, RoleOption } from '../content/node.types.ts'
 
-/** `OptionVue` minimale : seuls `option.intitule` et `rang` comptent pour la partition. */
-function opt(intitule: string, rang: number | undefined): OptionVue {
+interface Forme {
+  role?: RoleOption
+  rang?: number
+  motifs?: number
+  contreIndications?: string[]
+  alertes?: number
+}
+
+/** `OptionVue` minimale : seuls le rôle, le rang, le nombre de motifs et la charge de sécurité comptent. */
+function opt(intitule: string, forme: Forme = {}): OptionVue {
   return {
-    option: { intitule, conditions: [] } as unknown as Option,
+    option: {
+      intitule,
+      role: forme.role ?? 'geste',
+      conditions: [],
+      contre_indications: forme.contreIndications,
+    } as unknown as Option,
     badge: null,
-    reasons: [],
+    reasons: Array.from({ length: forme.motifs ?? 0 }, (_, i) => `motif ${i}`),
     calculs: [],
     calculsEnAttente: [],
     motifRang: undefined,
-    alertes: [],
-    rang,
+    alertes: Array.from({ length: forme.alertes ?? 0 }, () => ({ quand: 'x', message: 'alerte' })),
+    rang: forme.rang,
   }
 }
 
@@ -35,125 +51,163 @@ const titres = (familles: FamilleVue[]) =>
   familles.flatMap((f) => f.groupes.flat()).map((v) => v.option.intitule)
 
 /** Contrôle systématique : la partition est une PARTITION, pas un filtre. */
-function verifierConservation(entree: FamilleVue[], p: ReturnType<typeof partitionnerAffichage>) {
+function verifierConservation(entree: FamilleVue[], p: ReturnType<typeof plafonnerPistes>) {
   expect([...titres(p.principales), ...titres(p.repliees)].sort()).toEqual(titres(entree).sort())
   expect(p.nbRepliees).toBe(titres(p.repliees).length)
 }
 
-describe('replierAffichage — partitionnerAffichage', () => {
-  it('replie tout ce qui n’est pas au meilleur rang, et compte exactement', () => {
-    const familles = [
-      famille('Boissons', opt('A', 1), opt('B', 3)),
-      famille('Portions', opt('C', 4), opt('D', 1), opt('E', 6)),
-    ]
-    const p = partitionnerAffichage({ familles })
-    expect(titres(p.principales)).toEqual(['A', 'D'])
-    expect(titres(p.repliees).sort()).toEqual(['B', 'C', 'E'])
+/** `n` gestes ordinaires, tous équivalents — le cas le plus fréquent sur les nœuds RHD. */
+function gestes(n: number, motifs = 1): OptionVue[] {
+  return Array.from({ length: n }, (_, i) => opt(`geste ${i}`, { motifs }))
+}
+
+describe('plafonnerPistes — le plafond lui-même', () => {
+  it('ne replie RIEN tant que le plafond n’est pas dépassé (borne exacte)', () => {
+    const familles = [famille('F', ...gestes(PLAFOND_PISTES))]
+    const p = plafonnerPistes(familles.length ? { familles } : { familles })
+    expect(p.nbRepliees).toBe(0)
+    verifierConservation(familles, p)
+  })
+
+  it('replie le surplus dès la première carte au-delà, et compte exactement', () => {
+    const familles = [famille('F', ...gestes(PLAFOND_PISTES + 3))]
+    const p = plafonnerPistes({ familles })
     expect(p.nbRepliees).toBe(3)
+    expect(titres(p.principales)).toHaveLength(PLAFOND_PISTES)
     verifierConservation(familles, p)
   })
 
   it('jette les familles VIDÉES par la partition, des deux côtés', () => {
-    // Sans ce filtre, l'écran afficherait un titre de famille suivi de rien — « Boissons » puis le vide
-    // dans le repli, « Portions » puis le vide au-dessus.
-    // 4 options : le seuil doit être ATTEINT, sinon la partition ne se déclenche pas et le test ne teste
-    // rien (première rédaction de ce test : 3 options, il passait pour la mauvaise raison).
-    const familles = [famille('Boissons', opt('A', 1), opt('D', 1)), famille('Portions', opt('B', 5), opt('C', 5))]
-    const p = partitionnerAffichage({ familles })
-    expect(p.principales.map((f) => f.libelle)).toEqual(['Boissons'])
-    expect(p.repliees.map((f) => f.libelle)).toEqual(['Portions'])
-    verifierConservation(familles, p)
-  })
-
-  it('ne replie RIEN en dessous du seuil, même si les rangs diffèrent', () => {
-    const familles = [famille('Boissons', opt('A', 1), opt('B', 9))]
-    const p = partitionnerAffichage({ familles })
-    expect(p.nbRepliees).toBe(0)
-    expect(titres(p.principales)).toEqual(['A', 'B'])
-    verifierConservation(familles, p)
-  })
-
-  it('replie dès que le seuil est ATTEINT (borne exacte, pas approchée)', () => {
-    const sous = [famille('F', ...Array.from({ length: SEUIL_REPLI - 1 }, (_, i) => opt(`o${i}`, i === 0 ? 1 : 5)))]
-    const au = [famille('F', ...Array.from({ length: SEUIL_REPLI }, (_, i) => opt(`o${i}`, i === 0 ? 1 : 5)))]
-    expect(partitionnerAffichage({ familles: sous }).nbRepliees).toBe(0)
-    expect(partitionnerAffichage({ familles: au }).nbRepliees).toBeGreaterThan(0)
-  })
-
-  it('ne replie RIEN quand toutes les options sont au même rang', () => {
-    // Le contenu les déclare équivalentes : en cacher une partie inventerait une hiérarchie qu'il ne pose pas.
-    const familles = [famille('F', opt('A', 2), opt('B', 2), opt('C', 2), opt('D', 2), opt('E', 2))]
-    const p = partitionnerAffichage({ familles })
-    expect(p.nbRepliees).toBe(0)
-    verifierConservation(familles, p)
-  })
-
-  it('ne replie RIEN quand aucun rang n’est défini (nœud en ordered-first-match, D11)', () => {
-    const familles = [famille(undefined, opt('A', undefined), opt('B', undefined), opt('C', undefined), opt('D', undefined))]
-    const p = partitionnerAffichage({ familles })
-    expect(p.nbRepliees).toBe(0)
-    verifierConservation(familles, p)
-  })
-
-  it('traite une option SANS rang comme prioritaire — le doute ne cache jamais', () => {
-    // Sens sûr : mieux vaut une option de trop visible qu'une option de trop cachée.
-    const familles = [famille('F', opt('A', 1), opt('SANS', undefined), opt('C', 5), opt('D', 5))]
-    const p = partitionnerAffichage({ familles })
-    expect(titres(p.principales)).toEqual(['A', 'SANS'])
-    expect(titres(p.repliees)).toEqual(['C', 'D'])
+    const familles = [famille('A', ...gestes(6)), famille('B', opt('seul', { motifs: 9 }))]
+    const p = plafonnerPistes({ familles })
+    // « seul » a 9 motifs : il reste devant, sa famille survit ; la famille A perd des cartes sans dispa-
+    // raître. Aucune famille vide ne doit subsister d'un côté ou de l'autre.
+    for (const f of [...p.principales, ...p.repliees]) expect(f.groupes.length).toBeGreaterThan(0)
     verifierConservation(familles, p)
   })
 
   it('préserve les groupes d’égalité à l’intérieur d’une famille', () => {
-    // Deux options ex aequo doivent rester dans le MÊME groupe après partition, sinon l'écran perdrait
-    // la mention « à égalité » qui les relie.
-    const familles: FamilleVue[] = [
-      { libelle: 'F', exclusive: false, groupes: [[opt('A', 1), opt('B', 1)], [opt('C', 4)], [opt('D', 4)]] },
-    ]
-    const p = partitionnerAffichage({ familles })
-    expect(p.principales[0].groupes).toEqual([[opt('A', 1), opt('B', 1)]])
-    expect(p.principales[0].groupes[0]).toHaveLength(2)
-    expect(p.nbRepliees).toBe(2)
+    const a = opt('a', { motifs: 5 })
+    const b = opt('b', { motifs: 5 })
+    const familles: FamilleVue[] = [{ libelle: 'F', exclusive: true, groupes: [[a, b], ...gestes(6).map((g) => [g])] }]
+    const p = plafonnerPistes({ familles })
+    expect(p.principales[0].groupes[0].map((v) => v.option.intitule)).toEqual(['a', 'b'])
     verifierConservation(familles, p)
   })
 })
 
-/**
- * NON-RÉGRESSION DE SÉCURITÉ — ajoutée le 2026-07-27 (soir), après qu'une passe adversariale a démontré
- * que le repli livré quelques heures plus tôt CACHAIT une carte de sécurité sur le nœud `prescription`.
- *
- * Ce que le défaut a appris, et que ces tests figent : la recette écrivait « les cartes de sécurité sont
- * toutes au rang 1, donc dépliées par construction ». C'était faux — le socle metformine porte
- * `priorite: 0` avec une condition « toujours ». `Math.min` en faisait le meilleur rang, et tout le reste,
- * y compris le rang 1, passait derrière le bouton.
- *
- * La cause de fond est un glissement de sens : `priorite` a été écrit comme un ordre de TRI (D13/D14),
- * puis utilisé comme une porte d'AFFICHAGE. Rang 0 n'y signifie pas « le plus important » mais « socle ».
- * Aucun contenu du domaine n'avait été relu à cette aune.
- */
-describe('replierAffichage — le piège du rang 0 (défaut avéré du 2026-07-27)', () => {
-  it('reproduit le défaut : un socle au rang 0 replie TOUT le reste, rang 1 de sécurité compris', () => {
-    // Reproduction fidèle de la structure de `prescription` pour un patient en état catabolique :
-    // un socle « toujours » au rang 0, et la réponse de sécurité au rang 1.
-    const familles = [
-      famille('Socle', opt('Metformine — socle du traitement', 0)),
-      famille('À faire d’emblée — sécurité', opt('Insuline d’initiation — état catabolique', 1)),
-      famille('Agent à ajouter', opt('Tirzépatide', 4), opt('Remplacer le sulfamide', 4)),
-    ]
-    const p = partitionnerAffichage({ familles })
-    // Le défaut, tel qu'il était : une seule carte dépliée, la carte de sécurité repliée.
-    expect(titres(p.principales)).toEqual(['Metformine — socle du traitement'])
-    expect(titres(p.repliees)).toContain('Insuline d’initiation — état catabolique')
+describe('plafonnerPistes — ce qui ne peut JAMAIS être replié', () => {
+  it.each([['socle'], ['securite'], ['repli']] as const)(
+    'une option de rôle « %s » reste dépliée, même sans aucun motif satisfait',
+    (role) => {
+      const protegee = opt('protégée', { role, motifs: 0 })
+      const familles = [famille('F', protegee, ...gestes(8, 3))]
+      const p = plafonnerPistes({ familles })
+      expect(titres(p.principales)).toContain('protégée')
+      expect(titres(p.repliees)).not.toContain('protégée')
+      verifierConservation(familles, p)
+    },
+  )
+
+  it('une carte portant une CONTRE-INDICATION reste dépliée, même déclarée « geste »', () => {
+    // Second garde-fou, volontairement redondant avec le rôle : si un futur contenu déclare `geste` une
+    // carte qui porte un fait de sécurité, elle reste visible quand même (D21).
+    const avecCI = opt('avec contre-indication', { motifs: 0, contreIndications: ['DFG < 30'] })
+    const familles = [famille('F', avecCI, ...gestes(8, 3))]
+    const p = plafonnerPistes({ familles })
+    expect(titres(p.repliees)).not.toContain('avec contre-indication')
     verifierConservation(familles, p)
   })
 
-  it('l’écran ne replie plus rien tant que la question de fond n’est pas tranchée', () => {
-    // GARDE-FOU DE PORTÉE. `partitionnerAffichage` reste une fonction correcte et testée — c'est son
-    // USAGE qui était mal fondé. Le repli est donc neutralisé DANS L'ÉCRAN
-    // (`screens/DecisionNodeScreen.tsx`, constante `REPLI_ACTIF`), pas ici.
-    // Ce test lit le source de l'écran : si quelqu'un réactive le repli sans avoir répondu à la question
-    // « quel signal du contenu dit qu'une carte ne peut pas être repliée ? », il tombe.
-    const source = readFileSync('src/features/decision/screens/DecisionNodeScreen.tsx', 'utf-8')
-    expect(source).toContain('const REPLI_ACTIF = false')
+  it('une carte portant une ALERTE D’OPTION active reste dépliée, même déclarée « geste »', () => {
+    const avecAlerte = opt('avec alerte', { motifs: 0, alertes: 1 })
+    const familles = [famille('F', avecAlerte, ...gestes(8, 3))]
+    const p = plafonnerPistes({ familles })
+    expect(titres(p.repliees)).not.toContain('avec alerte')
+    verifierConservation(familles, p)
+  })
+
+  it('ne replie RIEN si AUCUNE carte n’est repliable, même très au-delà du plafond', () => {
+    const familles = [famille('F', ...Array.from({ length: 9 }, (_, i) => opt(`sécurité ${i}`, { role: 'securite' })))]
+    const p = plafonnerPistes({ familles })
+    expect(p.nbRepliees).toBe(0)
+    verifierConservation(familles, p)
+  })
+
+  it('les protégées CONSOMMENT les places : au-delà du plafond, tout le repliable est replié', () => {
+    // 6 cartes de sécurité occupent déjà plus que le plafond — aucune place ne reste pour un geste.
+    const familles = [
+      famille('S', ...Array.from({ length: 6 }, (_, i) => opt(`sécurité ${i}`, { role: 'securite' }))),
+      famille('G', ...gestes(3)),
+    ]
+    const p = plafonnerPistes({ familles })
+    expect(p.nbRepliees).toBe(3)
+    expect(titres(p.principales)).toHaveLength(6) // les 6 protégées, aucune évincée
+    verifierConservation(familles, p)
+  })
+})
+
+describe('plafonnerPistes — l’ordre de sélection, et sa limite assumée', () => {
+  it('garde les cartes qui satisfont le PLUS de motifs (critère référent)', () => {
+    const familles = [
+      famille('F', opt('un motif', { motifs: 1 }), opt('trois motifs', { motifs: 3 }), ...gestes(5, 2)),
+    ]
+    const p = plafonnerPistes({ familles })
+    expect(titres(p.principales)).toContain('trois motifs')
+    expect(titres(p.repliees)).toContain('un motif')
+    verifierConservation(familles, p)
+  })
+
+  it('départage à motifs égaux par le RANG déclaré', () => {
+    const remplissage = Array.from({ length: 5 }, (_, i) => opt(`remplissage ${i}`, { motifs: 2, rang: 2 }))
+    const familles = [
+      famille('F', opt('rang 6', { motifs: 2, rang: 6 }), opt('rang 1', { motifs: 2, rang: 1 }), ...remplissage),
+    ]
+    const p = plafonnerPistes({ familles })
+    expect(titres(p.repliees)).toContain('rang 6')
+    expect(titres(p.principales)).toContain('rang 1')
+    verifierConservation(familles, p)
+  })
+
+  it('une option SANS rang est classée en DERNIER — divergence assumée avec l’ancien module', () => {
+    // L'ancienne partition traitait l'absence de rang comme prioritaire (« le doute ne cache jamais »),
+    // en supposant le cas théorique. Il ne l'est pas : le banc en compte 33 sur `rhd-alimentation` et
+    // 6912 sur `rhd-activite-physique`. Et le MOTEUR, lui, leur donne déjà `+Infinity`
+    // (`groupesParFamille`) : les traiter comme prioritaires à l'affichage contredirait le tri qui a servi
+    // à les grouper. La règle change donc de sens — ce qui n'est acceptable QUE parce que le repli ne
+    // fait plus disparaître de carte de sécurité (rôle + charge de sécurité, tests ci-dessus). C'était
+    // l'inverse quand l'ancienne règle a été écrite.
+    const remplissage = Array.from({ length: 5 }, (_, i) => opt(`remplissage ${i}`, { motifs: 2, rang: 3 }))
+    const familles = [famille('F', opt('sans rang', { motifs: 2 }), ...remplissage)]
+    const p = plafonnerPistes({ familles })
+    expect(titres(p.repliees)).toEqual(['sans rang'])
+    verifierConservation(familles, p)
+  })
+
+  it('à motifs ET rang égaux, coupe dans l’ordre du contenu — arbitraire ASSUMÉ, jamais silencieux', () => {
+    // C'est la limite MESURÉE du critère référent : sur `rhd-alimentation`, 95 % des cartes n'ont qu'un
+    // seul motif satisfait et la frontière à la 5e place n'est nette que dans ~40 % des profils. Le coût
+    // d'un mauvais départage est UN CLIC, jamais une piste invisible — c'est ce que ce test verrouille.
+    const familles = [famille('F', ...gestes(8, 1))]
+    const p = plafonnerPistes({ familles })
+    expect(titres(p.principales)).toEqual(['geste 0', 'geste 1', 'geste 2', 'geste 3', 'geste 4'])
+    expect(titres(p.repliees)).toEqual(['geste 5', 'geste 6', 'geste 7'])
+    verifierConservation(familles, p)
+  })
+})
+
+describe('plafonnerPistes — le défaut du 2026-07-27 ne peut plus se produire', () => {
+  it('un socle au rang 0 ne replie plus la carte de sécurité de rang 1', () => {
+    // REJOUE le contre-exemple exact : 58 ans, metformine + sulfamide, cétonémie confirmée, ASCVD,
+    // insuffisance cardiaque, HbA1c 9. L'ancienne partition par MEILLEUR RANG faisait du socle (rang 0)
+    // le seul rang déplié et repliait « Insuline d'initiation » (rang 1), la réponse de sécurité.
+    // Ce qui protège désormais cette carte n'est pas son rang — c'est sa DÉCLARATION (A3).
+    const socle = opt('Metformine (socle du traitement)', { role: 'socle', rang: 0 })
+    const securite = opt("Insuline d'initiation (état catabolique)", { role: 'securite', rang: 1 })
+    const familles = [famille('Socle', socle), famille('Sécurité', securite), famille('Ajout', ...gestes(6, 1))]
+    const p = plafonnerPistes({ familles })
+    expect(titres(p.principales)).toContain("Insuline d'initiation (état catabolique)")
+    expect(titres(p.principales)).toContain('Metformine (socle du traitement)')
+    verifierConservation(familles, p)
   })
 })

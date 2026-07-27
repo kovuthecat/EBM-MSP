@@ -13,7 +13,7 @@ import { criteresPertinents } from '../engine/relevance'
 import { describeReasons } from '../lib/conditionText'
 import { ESPERANCE_VIE_DRIVERS, hasEsperanceVieCritere, suggestEsperanceVie } from '../lib/esperanceVieDefault'
 import { buildDefaultCriteria, decisifsAConfirmer, reinitialiserChampsMasques, valeurParDefaut } from '../lib/formLayout'
-import { partitionnerAffichage } from '../lib/replierAffichage'
+import { plafonnerPistes, PLAFOND_PISTES } from '../lib/replierAffichage'
 import type { FamilleVue } from '../lib/vueDecision'
 import { construireVueDecision } from '../lib/vueDecision'
 import { formatDateRevue, labelForCritere, labelForDomaine } from '../lib/labels'
@@ -350,37 +350,18 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                   </div>
                 )
               })
-              // DETTE « PLAFOND D'AFFICHAGE » levée ici (décision référent 2026-07-27). La partition est
-              // calculée par `lib/replierAffichage.ts`, testé à part : c'est la seule pièce de cet écran
-              // dont une erreur ferait DISPARAÎTRE une option des yeux d'un prescripteur. Rien n'est
-              // retiré — `principales ∪ repliees` est exactement `vue.familles`, et le bouton porte le
-              // compte exact de ce qu'il cache.
-              // ⚠ REPLI NEUTRALISÉ le 2026-07-27 (soir) — DÉFAUT DE SÉCURITÉ AVÉRÉ, dans mon
-              // implémentation et non dans la décision référent qui l'a demandé.
-              //
-              // CE QUI S'EST PASSÉ. `partitionnerAffichage` déplie le MEILLEUR rang et replie le reste.
-              // J'avais écrit dans la recette : « les cartes de sécurité sont toutes au rang 1, donc
-              // dépliées par construction ». C'est faux : le socle metformine de `prescription` porte
-              // `priorite: 0` avec une condition « toujours », si bien que `Math.min` en fait le meilleur
-              // rang et que TOUT le reste passe derrière le bouton.
-              // Contre-exemple exécuté (58 ans, metformine + sulfamide, cétonémie CONFIRMÉE, ASCVD,
-              // insuffisance cardiaque, HbA1c 9) : l'écran n'affichait QU'UNE carte — « Metformine, socle
-              // du traitement » — et repliait « Insuline d'initiation (état catabolique) », rang 1, qui
-              // est la réponse de sécurité à ce tableau.
-              // La cause de fond dépasse le correctif : `priorite` a été écrit comme un ordre de TRI
-              // (D13/D14) et je l'ai transformé en porte d'AFFICHAGE, sans relire à cette aune un seul
-              // contenu du domaine. Rang 0 n'y veut pas dire « le plus important » mais « socle ».
-              //
-              // POURQUOI NEUTRALISER PLUTÔT QUE RUSER. Ajouter une heuristique non relue sur un chemin
-              // d'affichage de sécurité, le soir, est exactement la manœuvre qui a produit ce défaut.
-              // L'écran revient donc au comportement de ce matin — tout est affiché — qui est strictement
-              // plus sûr. Le module `lib/replierAffichage.ts` et ses tests restent en place, intacts :
-              // la fonction est correcte pour ce qu'elle fait, c'est son USAGE qui était mal fondé.
-              // À rouvrir avec le référent, sur la question de fond : quel signal du contenu dit qu'une
-              // carte ne peut pas être repliée ? (la famille ? une alerte portée ? un champ dédié ?)
-              const REPLI_ACTIF = false
-              const { principales, repliees, nbRepliees } = partitionnerAffichage(vue)
-              if (!REPLI_ACTIF || nbRepliees === 0) return rendreFamilles(vue.familles)
+              // PLAFOND D'AFFICHAGE — K5, décision référent : 5 pistes au maximum. RÉACTIVÉ le 2026-07-27
+              // après avoir été neutralisé le matin même, où il avait caché une carte d'insuline
+              // d'initiation chez un patient en état catabolique. Ce qui a changé n'est pas le réglage
+              // mais le SIGNAL : `lib/replierAffichage.ts` ne replie plus « ce qui n'est pas au meilleur
+              // rang » (le rang 0 du socle faisait alors de tout le reste un surplus) — il ne replie que
+              // ce que le contenu DÉCLARE repliable (`Option.role`, A3), et jamais une carte portant une
+              // contre-indication ou une alerte active. La question laissée ouverte ce soir-là — « quel
+              // signal du contenu dit qu'une carte ne peut pas être repliée ? » — a reçu sa réponse.
+              // Rien n'est retiré : `principales ∪ repliees` est exactement `vue.familles`, et le bouton
+              // porte le compte exact de ce qu'il cache.
+              const { principales, repliees, nbRepliees } = plafonnerPistes(vue)
+              if (nbRepliees === 0) return rendreFamilles(vue.familles)
               return (
                 <>
                   {rendreFamilles(principales)}
@@ -389,9 +370,11 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                       Autres pistes possibles ({nbRepliees})
                     </summary>
                     <p className="decision-node__repli-mention">
-                      Ces pistes sont applicables à ce patient, à un rang moins prioritaire que celles
-                      ci-dessus. Elles ne sont pas écartées — elles sont repliées parce qu'une consultation
-                      ne permet d'en négocier que deux ou trois.
+                      Ces {nbRepliees} pistes s'appliquent à ce patient : elles ne sont pas écartées. Une
+                      consultation ne permet d'en négocier que deux ou trois, l'écran en déplie donc au
+                      plus {PLAFOND_PISTES} — celles qui répondent au plus grand nombre des éléments que
+                      vous avez déclarés (les motifs listés sous chaque carte, « proposé parce que »). Les
+                      gestes de sécurité et le socle ne sont jamais repliés.
                     </p>
                     {rendreFamilles(repliees)}
                   </details>
