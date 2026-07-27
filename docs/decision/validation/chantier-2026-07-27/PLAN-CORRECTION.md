@@ -625,6 +625,81 @@ seule** — ce qui répond en partie, et gratuitement, à la question ouverte n�
 | **Densité du bloc « en attente »** (question ouverte 3) | ergonomie | partiellement réglé par le correctif ci-dessus ; à re-juger sur pièce |
 | **Mesures de densité de carte** (§6 du rapport) | mesure | **débloque A5** : les contre‑indications ne pèsent que 11‑18 % de la hauteur — l'allègement porte donc bien sur l'essentiel du volume, la crainte formulée en arbitrage **n'est pas vérifiée** |
 
+### Seconde recette navigateur — 10 classes de défaut (2026-07-27, nuit)
+
+Source : `PASSAGE-classes-et-invariants-2026-07-27.md`, 12 profils joués à la main sur `def7cc1`.
+Rapport de bonne qualité : il déclare son périmètre, écarte explicitement ce qui touchait au lot en
+cours, et **retire de lui-même** un constat qu'il n'a pas su reproduire. Vérifié sur pièces avant d'en
+faire un plan — voici ce que la vérification change.
+
+#### K8 — deux drapeaux de sécurité sur quatre sont muets (et le rapport est en-dessous de la réalité)
+
+Le rapport dit « les autres n'ont plus d'effet une fois l'un des quatre vrai ». La lecture de
+`rhd-activite-physique.yaml` est plus précise, et plus dure :
+
+| drapeau | a-t-il un effet PROPRE ? |
+| --- | --- |
+| `limitation_physique_connue` | **oui** — condition d'option (`:304`) + alerte (`:306`) |
+| `neuropathie_ou_mal_perforant_plantaire` | **oui** — alerte de nœud dédiée (`:361`), qui restitue ce que le verrou retire |
+| `retinopathie_non_stabilisee_ou_proliferante` | **NON** — n'apparaît que dans le `derive` du verrou |
+| `symptomes_ischemie_effort` | **NON** — idem |
+
+Ce ne sont donc pas quatre drapeaux qui se masquent l'un l'autre : **deux ont leur canal, deux n'en ont
+aucun**. Et le plus grave des quatre — des symptômes d'ischémie à l'effort — est de ceux qui n'en ont
+pas : le patient qui les déclare reçoit le même écran que celui qui déclare une simple limitation, sans
+qu'un mot n'évoque l'exploration cardiologique avant prescription d'activité. Le correctif est donc
+**borné** (deux alertes à écrire), pas une refonte.
+
+#### K2 — l'attente permanente, et ce qu'elle invalide dans MA propre mesure
+
+Confirmé, et c'est le plus handicapant des dix. Les options **« Titrer la basale »** et **« Ne pas
+sur-titrer la basale »** portent les exclusions `TBR > 4`, `TBR_severe > 1`, `CV_glycemique > 36`
+**sans aucun garde `mcg_disponible`** (`insuline.yaml` `:427-429` et `:457-459`). Sans capteur, ces
+trois mesures restent indéterminées à jamais : les deux options centrales de la situation
+« basale seule » ne sont **ni proposées ni écartées**, et la reco reste « provisoire » sans fin.
+C'est le cas ORDINAIRE en médecine générale française.
+
+⚠ **Cela corrige une appréciation que j'ai portée quelques heures plus tôt.** En mesurant le correctif
+du défaut G (lot 1 bis), j'avais relevé 49 couples « renseigner la liste annoncée ne suffit pas, un
+second tour apparaît » et je les avais qualifiés de simple *divulgation progressive*, « aucun risque
+clinique ». Les exemples que j'imprimais alors étaient précisément ceux-ci
+(`reclamait HbA1c_cible -> reste TBR,TBR_severe,CV_glycemique`). Une partie de ces 49 n'est pas un
+second tour : c'est un **cul-de-sac**. Je n'avais pas distingué « il reste des champs à remplir » de
+« il reste des champs que ce patient ne pourra jamais remplir ».
+
+**En revanche, le champ `obtenable_si` proposé par le rapport n'est pas nécessaire** — et c'est la
+principale économie que la vérification apporte. Le nœud sait DÉJÀ écrire la branche « sans MCG » : ses
+`conditions` le font deux fois (`:409`, `:443` — `mcg_disponible == false AND gaj_a_cible == true OR
+mcg_disponible == true AND profil_nocturne_a_cible == true`). Seules les `exclusions` n'ont jamais reçu
+le même traitement. C'est une **omission de contenu**, pas une capacité manquante du schéma.
+
+Reste à trancher, et c'est clinique : sans capteur, l'exclusion de sur-titration doit-elle tomber
+(option proposée, avec une alerte de surveillance) ou se replier sur un autre signal disponible
+(`hypo_severe_recurrente`, profil glycémique) ? Voir la liste de questions ci-dessous.
+
+#### Ce que je retiens des huit autres
+
+- **K1** (option de continuation sans prérequis) : réel, et il **corrobore une dette déjà inscrite** —
+  le repli d'`insuline` « Poursuivre le schéma en cours » ne nomme aucune situation
+  (`comptage-module-insuline.md`). Même classe, deux nœuds : c'est bien R9 qui n'est pas mécanisé.
+- **K3** (aucune validation croisée : `TBR_severe = 95` avec `TBR = 1`) : réel, et le remède profite
+  DEUX fois — à la saisie et au générateur de profils, qui dépense aujourd'hui des tirages sur des
+  états physiologiquement impossibles.
+- **K4** (rang et intention « Déprescrire ») : réel. ⚠ **L'invariant proposé est trop fort tel quel** :
+  le rapport constate lui-même qu'à DFG 26 les cartes « Arrêter » passent en tête, ce qui est le bon
+  comportement. I15 doit donc s'écrire « … sauf si une option de la famille sécurité est applicable »,
+  sans quoi il condamnerait le tri qu'on veut garder.
+- **K5** (10 cartes, 10 « Recommandée ») : réel, et **A5 le soulage sans le résoudre** — des cartes à
+  0,3 écran rendent dix cartes lisibles, elles ne les hiérarchisent pas.
+- **K6, K7, K9, K10** : réels, tous suspendus à une décision clinique. Rien à coder avant.
+
+#### Une inexactitude à corriger dans le rapport, pour que l'historique reste droit
+
+Son §3 écrit que le constat CK de la recette du matin « était faux, le constat a été retiré ». Il ne
+l'était pas : le moteur déclenchait bien à 4 N pendant que deux textes annonçaient 5 N. C'est le
+passage A1+A2, livré ENTRE les deux recettes, qui a aligné les deux. Le rapport observe l'état corrigé
+et en déduit que l'observation initiale était fautive — elle était juste, et elle a servi.
+
 ### Lot 2 — Contenu, un seul passage par fichier
 
 Sérialisé — deux agents ne partagent jamais un fichier (§6), et les lots 2‑3 de la recette touchaient
