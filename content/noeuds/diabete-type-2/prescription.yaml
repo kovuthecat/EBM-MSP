@@ -1533,17 +1533,6 @@ incertitudes:
     glinide/insuline à DFG 30-44. Ces deux zones restent au plancher général de 6,5 %. C'est la lecture
     littérale de la source ; ce n'est pas nécessairement la bonne lecture clinique."
   - "GLIPTINE UTILISABLE SOUS DFG 30 — RÉSOLU le 2026-07-27. Le point de fait est TRANCHÉ : le référent a vérifié, la sitagliptine 25 mg n'est effectivement pas commercialisée en France. La SFD 2025 disait donc vrai, et l'extension de la décision aux trois endroits du nœud (option « Arrêter le sulfamide », option gliptine, alerte « place résiduelle en insuffisance rénale ») était justifiée : sous DFG 30, le nœud nomme la VILDAGLIPTINE 50 mg/j. Ce que la question a fait apparaître au passage et qui reste vrai : le red-team n'avait pas pu ouvrir la BDPM et avait explicitement laissé le point au référent plutôt que de le deviner (invariant 6) — c'est la bonne conduite, et elle a payé. La tension apparente avec la décision du nœud D (« gliptine FR = sitagliptine ») n'en est pas une : celle-là porte sur la CLASSE disponible en France, celle-ci sur le DOSAGE utilisable en rénal sévère."
-    fois, que la forme sitagliptine 25 mg n'est pas commercialisée en France et désigne la vildagliptine
-    50 mg/j. Le red-team n'a pas pu ouvrir la BDPM pour le confirmer (`redteam-seuils-renaux.md` §7.6) et a
-    laissé le point au référent plutôt que de le deviner ; le référent a tranché pour suivre la SFD. Le nœud
-    nomme donc désormais la vildagliptine 50 mg/j sous 30, en TROIS endroits (option « Arrêter le
-    sulfamide », option gliptine, alerte « place résiduelle en insuffisance rénale ») — les deux derniers
-    par extension de la décision, pour ne pas laisser le nœud recommander ailleurs un dosage non
-    dispensable. TENSION SIGNALÉE avec le nœud D (« gliptine FR = sitagliptine », décidé parce que
-    lina/alogliptine ne sont pas commercialisées et saxagliptine en retrait) : cette décision-là portait sur
-    la CLASSE disponible en France, celle-ci sur le DOSAGE utilisable en rénal sévère — elles ne se
-    contredisent pas, mais un lecteur pressé peut le croire. À reverser en bloc si la sitagliptine 25 mg
-    existe bien en officine."
 veille_liee: []
 meta:
   date_revue: "2026-07-26"
