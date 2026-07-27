@@ -373,3 +373,53 @@ describe('CriteriaForm — A7 : repère de départ sur le champ pilote', () => {
     expect(html.split('détermine la suite').length - 1).toBe(1)
   })
 })
+
+/**
+ * K3 — le signalement d'une saisie IMPOSSIBLE, au formulaire (défaut de la seconde recette : `TBR = 1`
+ * avec `TBR sévère = 95` accepté sans un mot, et trois cartes « Recommandée » en sortie).
+ *
+ * Ce que ces tests verrouillent est autant ce que le composant FAIT que ce qu'il NE fait PAS : il affiche
+ * le message et rien d'autre — aucun champ désactivé, aucune valeur corrigée. L'outil ne peut pas savoir
+ * laquelle des deux valeurs est fausse ; le praticien, si.
+ */
+describe('CriteriaForm — contraintes de saisie violées (K3)', () => {
+  const rendre = (violees: { expression: string; message: string }[]) =>
+    renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={CRITERES_LISTE}
+        criteria={buildDefaultCriteria(CRITERES_LISTE)}
+        touched={new Set()}
+        contraintesViolees={violees}
+        onChange={() => {}}
+      />,
+    )
+
+  it('affiche le MESSAGE de chaque contrainte violée, jamais son expression', () => {
+    const html = rendre([
+      { expression: 'TBR_severe <= TBR', message: 'Le temps sous 54 mg/dL est inclus dans le temps sous 70 mg/dL.' },
+    ])
+    expect(html).toContain('Le temps sous 54 mg/dL est inclus dans le temps sous 70 mg/dL.')
+    // L'expression DSL ne dit rien à un praticien : elle ne doit jamais atteindre l'écran.
+    expect(html).not.toContain('TBR_severe')
+  })
+
+  it('n’affiche aucun bloc quand rien n’est violé — et n’en affiche pas non plus par défaut', () => {
+    expect(rendre([])).not.toContain('criteria-form__contraintes')
+    const sansProp = renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={CRITERES_LISTE}
+        criteria={buildDefaultCriteria(CRITERES_LISTE)}
+        touched={new Set()}
+        onChange={() => {}}
+      />,
+    )
+    expect(sansProp).not.toContain('criteria-form__contraintes')
+  })
+
+  it('ne DÉSACTIVE ni ne modifie aucun champ : il signale, il ne tranche pas', () => {
+    const html = rendre([{ expression: 'a <= b', message: 'Contradiction.' }])
+    expect(html).not.toContain('disabled')
+    // Les champs sont rendus normalement, dans le même état que sans contrainte violée.
+    expect(html).toContain('criteria-form__grid')
+  })
+})

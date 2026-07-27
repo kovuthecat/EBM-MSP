@@ -76,6 +76,11 @@
       "items": { "type": "string", "minLength": 1 },
       "description": "OPTIONNEL — POSITIONS DE LECTURE du noeud (DECISIONS.md D24) : enonces vrais pour TOUS les patients du noeud, qui disent comment lire l'ensemble de ses options (ex. « l'insuline n'a pas de benefice cardiovasculaire demontre — ORIGIN neutre » ; « la decision se grade sur le risque absolu, pas sur une cible LDL chiffree »). Affiches en tete du noeud, AVANT le formulaire, sans condition. Ce champ existe parce que ces enonces etaient auparavant ecrits comme des `alertes` en `quand: \"default\"`, ce que D21 (interdit n°2) proscrit : une alerte qui s'affiche pour tout le monde ne signale plus rien, elle se confond avec le decor et devalue les alertes reellement conditionnelles a cote desquelles elle apparait. Le probleme n'etait pas le TEXTE mais le CANAL — d'ou un canal propre plutot qu'une exception a l'invariant. Distinction opposable : une alerte porte sur la SITUATION d'un patient (elle a un `quand`, elle peut etre fausse) ; un cadrage porte sur l'ETAT DES PREUVES du noeud (il n'a pas de `quand`, il ne peut pas etre faux pour un patient particulier). Si un enonce peut etre vrai pour un patient et faux pour un autre, il n'a rien a faire ici : c'est une alerte. Aucun effet moteur : `evaluateNode` l'ignore, il n'entre dans aucune selection d'option."
     },
+    "contraintes": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/contrainte" },
+      "description": "OPTIONNEL — RELATIONS ENTRE CRITERES qui doivent rester VRAIES : une saisie qui en viole une decrit un patient IMPOSSIBLE, pas un patient rare (ex. `TBR_severe <= TBR` — le temps passe sous 54 mg/dL est par definition INCLUS dans le temps passe sous 70). Ajoute le 2026-07-27 (defaut K3 de la seconde recette : `TBR = 1` avec `TBR severe = 95` etait accepte sans un mot, et le noeud en tirait trois cartes « Recommandee » dont un ajout de bolus chez un patient que la saisie decrit comme passant 95 % du temps en hypoglycemie severe). Meme DSL que `conditions` (la comparaison entre DEUX criteres numeriques a ete ajoutee a l'evaluateur pour ce champ). DEUX consommateurs, et c'est le point : (1) le FORMULAIRE signale la contrainte violee au praticien, qui seul peut dire laquelle des deux valeurs est fausse — jamais de correction automatique ni de refus de saisie ; (2) le BANC (`engine/banc/profils.ts`) n'engendre plus de profil qui la viole, faute de quoi il depense ses profils sur des etats impossibles et fige leur sortie absurde dans un golden master. Une contrainte n'a AUCUN effet sur la selection des options : le moteur ne la lit pas."
+    },
     "familles": {
       "type": "array",
       "items": { "$ref": "#/definitions/famille" },
@@ -83,6 +88,23 @@
     }
   },
   "definitions": {
+    "contrainte": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expression", "message"],
+      "properties": {
+        "expression": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Expression DSL (meme grammaire que `conditions`) qui doit rester VRAIE. La comparaison entre deux criteres numeriques (`TBR_severe <= TBR`) est admise ici comme partout ailleurs depuis le 2026-07-27. Une expression INDETERMINEE (un operande pas encore renseigne) n'est jamais consideree violee : tant que le praticien n'a pas donne les deux valeurs, aucune relation entre elles ne peut etre fausse."
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Ce que le praticien lit quand la contrainte est violee. DOIT dire POURQUOI la combinaison est impossible, en langage clinique et sans citer l'expression : l'outil ne peut pas savoir laquelle des deux valeurs est fausse, seul le praticien le sait — le message l'aide a trancher, il ne tranche pas a sa place."
+        }
+      }
+    },
     "famille": {
       "type": "object",
       "additionalProperties": false,

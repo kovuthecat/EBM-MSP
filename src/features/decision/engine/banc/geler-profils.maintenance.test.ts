@@ -44,7 +44,7 @@
  */
 import { describe, expect, it } from 'vitest'
 import { noeuds } from '../../content/loadNodes.ts'
-import { completerFixtureProfils, genererFixtureProfils } from './profils.ts'
+import { completerFixtureProfils, genererFixtureProfils, reparerFixtureProfils } from './profils.ts'
 import {
   NB_PROFILS_FIGES,
   cheminFixture,
@@ -72,11 +72,21 @@ describe.skipIf(!process.env.EBM_FIGER_PROFILS)(
         // valeurs déjà présentes (cf. `completerFixtureProfils`, `profils.ts`).
         const completee = completerFixtureProfils(node, existante)
         const ajoutes = completee.criteresColonnes.filter((nom) => !existante.criteresColonnes.includes(nom))
-        if (ajoutes.length > 0) {
-          ecrireFixtureProfils(completee)
-          console.log(
-            `[geler-profils] "${node.id}" : colonne(s) ajoutée(s) sans toucher aux autres : ${ajoutes.join(', ')}`,
-          )
+        // Cas 3 — RÉPARATION (ajouté le 2026-07-27) : remplace les seuls profils figés qui violent une
+        // `contrainte` du nœud, c'est-à-dire ceux qui décrivent un patient IMPOSSIBLE. Les autres gardent
+        // leur identité (cf. `reparerFixtureProfils`). Ce cas n'existait pas parce que les contraintes
+        // n'existaient pas : un profil figé était réputé valide par construction. Il ne l'est plus dès
+        // qu'un nœud DÉCLARE ce qu'une saisie ne peut pas être — et rien d'autre ne l'aurait rattrapé,
+        // le jeu figé ne passant par aucun filtre.
+        const { fixture: reparee, remplaces } = reparerFixtureProfils(node, completee)
+        if (ajoutes.length > 0 || remplaces > 0) {
+          ecrireFixtureProfils(reparee)
+          const parts: string[] = []
+          if (ajoutes.length > 0) parts.push(`colonne(s) ajoutée(s) : ${ajoutes.join(', ')}`)
+          if (remplaces > 0) {
+            parts.push(`${remplaces}/${reparee.profils.length} profils REMPLACÉS (violaient une contrainte)`)
+          }
+          console.log(`[geler-profils] "${node.id}" : ${parts.join(' ; ')}`)
         } else {
           console.log(`[geler-profils] "${node.id}" : déjà à jour, rien à faire.`)
         }

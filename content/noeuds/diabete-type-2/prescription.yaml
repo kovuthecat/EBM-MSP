@@ -223,6 +223,38 @@ criteres_entree:
   - nom: terrain_cible_assouplie
     type: bool
     derive: "age >= 75 OR fragilite == true OR esperance_vie == limitee"
+  # ─── INDISPONIBILITÉ D'UNE CLASSE PROTECTRICE (2026-07-27, décision référent) ───────────────────────
+  # Ces deux dérivés répondent à une objection du référent sur l'option « Envisager l'insuline » : « je ne
+  # comprends pas pourquoi l'insuline devrait être conditionnée à la PRÉSENCE d'un iSGLT2 — ce dernier peut
+  # être contre-indiqué par le DFG, mais aussi par les infections urinaires. »
+  #
+  # Elle est juste, et le défaut est de forme. La condition d'origine écrivait « la palette non insulinique
+  # est épuisée » par le PROXY « le patient prend déjà un iSGLT2 », qui ne couvre que l'épuisement PAR
+  # OCCUPATION. Une classe indisponible parce qu'elle est CONTRE-INDIQUÉE laissait la condition fausse, donc
+  # l'option muette — alors que c'est le cas où l'insuline manque le plus.
+  #
+  # PÉRIMÈTRE, délibérément étroit : ces dérivés reprennent EXACTEMENT les motifs déjà encodés ailleurs dans
+  # ce nœud (exclusions et alertes des options concernées), aucun motif nouveau. `aglp1_indisponible` garde
+  # ses trois disjonctions d'origine terme pour terme — seul le côté iSGLT2 est généralisé, comme demandé.
+  # RESTE OUVERT, et je ne l'ai pas tranché : la METFORMINE n'entre pas dans ce calcul. Un patient sous
+  # iSGLT2 + AR GLP‑1 mais JAMAIS sous metformine (DFG normal) verra donc « Envisager l'insuline » alors que
+  # la metformine reste sur la table — comportement d'aujourd'hui, conservé tel quel. L'y ajouter changerait
+  # la sortie de profils existants : c'est un arbitrage clinique, pas une correction de forme.
+  - nom: isglt2_indisponible
+    type: bool
+    # Les trois motifs sont ceux du nœud : déjà en cours (prérequis de l'option iSGLT2) ; DFG < 20 (son
+    # exclusion) ; infections génito-urinaires récidivantes (son alerte d'option, « ne pas initier /
+    # envisager l'arrêt ; risque de gangrène de Fournier »). Le garde `DFG > 0` est indispensable — le
+    # défaut d'un nombre non saisi est 0, et `DFG < 20` seul serait vrai pour tout DFG non renseigné.
+    derive: "traitements_en_cours contient iSGLT2 OR DFG > 0 AND DFG < 20 OR infections_uro_genitales_recidivantes == true"
+  - nom: aglp1_indisponible
+    type: bool
+    # Reprise TERME POUR TERME des trois disjonctions que portait l'ancienne condition d'« Envisager
+    # l'insuline » (déjà sous AR GLP‑1 ; dénutrition ; IMC < 22 — les deux derniers étant le garde-fou
+    # terrain de l'option AR GLP‑1). `IMC < 22` reste NON gardé, exactement comme dans l'exclusion d'origine
+    # et comme partout où ce nœud lit l'IMC : le changer ici déplacerait des profils sans rapport avec
+    # l'objection traitée.
+    derive: "traitements_en_cours contient aGLP1 OR denutrition == true OR IMC < 22"
   - nom: palette_glycemique_ouverte
     type: bool
     # Séquençage (décision référent S8) : la palette glycémique PURE (ajout d'un 2e agent sans indication de
@@ -284,6 +316,29 @@ criteres_entree:
 # un libellé clinique en dur. Confine aussi les égalités de `priorite` À L'INTÉRIEUR d'une même famille
 # (`groupesParFamille`) : deux gestes de familles différentes au même rang ne sont plus jamais présentés
 # comme un choix exclusif alors qu'ils se cumulent.
+#
+# ─────────────────────────────────────────────────────────────────────────────────────────────────────
+# CONTRAINTES DE SAISIE (champ ajouté au schéma le 2026-07-27). Celle-ci n'est pas un arbitrage clinique :
+# elle recopie ce que le nœud DÉCLARE DÉJÀ de lui-même. `traitements_en_cours` porte
+# `visible_si: "intention != initier"`, avec ce commentaire — « INITIER = patient naïf PAR DÉFINITION : la
+# question n'a pas d'objet, le champ est masqué (et remis à vide s'il avait été rempli sous une autre
+# intention) ». Le formulaire ne peut donc PAS produire cette combinaison ; seul le générateur du banc le
+# pouvait, parce qu'il tire chaque critère sans regarder `visible_si`.
+#
+# CE QUE ÇA A COÛTÉ, mesuré : sur les 5 profils que l'invariant I2′ signalait encore comme « écran vide »
+# après l'ouverture rénale de l'AR GLP‑1, TROIS étaient de cette forme — « je souhaite initier » chez un
+# patient déclaré sous insuline rapide, sous iSGLT2 + tirzépatide, ou sous gliptine. Aucun n'est un patient.
+#
+# Neuf termes plutôt qu'un test de liste vide : le DSL n'a pas d'opérateur « est vide », et l'énumération
+# a l'avantage d'être auditable ligne à ligne. Précédence : AND lie plus fort que OR, la disjonction de
+# tête couvre donc bien toute la conjonction qui suit.
+contraintes:
+  - expression: "intention != initier OR traitements_en_cours ne_contient_pas metformine AND traitements_en_cours ne_contient_pas iSGLT2 AND traitements_en_cours ne_contient_pas aGLP1 AND traitements_en_cours ne_contient_pas tirzepatide AND traitements_en_cours ne_contient_pas sulfamide AND traitements_en_cours ne_contient_pas gliptine AND traitements_en_cours ne_contient_pas insuline_basale AND traitements_en_cours ne_contient_pas insuline_rapide AND traitements_en_cours ne_contient_pas glinide"
+    message: >-
+      L'intention « initier » suppose un patient naïf de tout traitement médicamenteux : elle est
+      contradictoire avec un traitement déjà déclaré en cours. Choisir plutôt « intensifier » ou
+      « optimiser », ou vider la liste des traitements en cours.
+# ─────────────────────────────────────────────────────────────────────────────────────────────────────
 familles:
   - libelle: "À faire d'emblée — sécurité"
     exclusive: false
@@ -535,8 +590,21 @@ options:
     # seulement l'association) mais par l'affichage : dès qu'une gliptine est en cours, le verdict dédié
     # (option « Remplacer la gliptine », plus bas) se déclenche systématiquement (R3) et porte l'alerte de
     # non-association (cf. `alertes`) — l'AR GLP‑1 ne peut donc jamais apparaître sans son contexte de switch.
+    # TERME RÉNAL AJOUTÉ le 2026-07-27 (décision référent). L'AR GLP‑1 n'a AUCUNE exclusion rénale — ni ici
+    # (`IMC < 22`, dénutrition, glucotoxicité, cétonémie), ni dans son RCP. Pourtant il n'était pas
+    # proposable au patient qui en a le plus besoin : diabète nouvellement diagnostiqué, DFG < 20,
+    # au-dessus de l'objectif, sans athérome ni obésité. Aucun des quatre termes d'origine n'y est vrai —
+    # `palette_glycemique_ouverte` exige « NETTEMENT au-dessus » à l'initiation, et
+    # `remplacement_agent_sans_benefice` exige un sulfamide ou une gliptine en cours, qu'un patient naïf n'a
+    # pas. Les six profils muets du banc (cf. I15/I2′) étaient exactement ceux-là.
+    #
+    # Le seuil retenu est 30 et non 20, et c'est la métformine qui le fixe : sous 30 le SOCLE disparaît
+    # (contre-indication RCP ANSM), donc une classe à bénéfice doit pouvoir prendre le relais. Entre 20 et
+    # 29 l'iSGLT2 s'applique déjà par son indication rénale — l'AR GLP‑1 vient à côté, pas à sa place.
+    # ⚠ Ce seuil est le point arbitrable de cette règle : 20 le limiterait au seul trou constaté.
+    # Garde `DFG > 0` obligatoire (défaut d'un nombre non saisi = 0, cf. `hba1c_sous_cible`).
     conditions:
-      - "ASCVD_etablie == true OR IMC >= 30 OR palette_glycemique_ouverte == true OR remplacement_agent_sans_benefice == true"
+      - "ASCVD_etablie == true OR IMC >= 30 OR palette_glycemique_ouverte == true OR remplacement_agent_sans_benefice == true OR DFG > 0 AND DFG < 30 AND cible_atteinte == false"
     # R6 : garde-fous de cohérence (ne pas déjà prendre la classe visée / une classe concurrente ;
     # niche non ouverte) — jamais montrés comme justification (cf. option iSGLT2 ci-dessus).
     prerequis:
@@ -666,9 +734,16 @@ options:
       Additivité glycémique/pondérale acquise (DURATION‑8) ; bénéfice dur additif non confirmé par un ECR dédié.
     niveau_preuve: faible
   - intitule: "Envisager l'insuline (palette non‑insulinique épuisée — ajustement fin → nœud E)"
+    # CONDITION GÉNÉRALISÉE le 2026-07-27 (objection du référent, cf. `isglt2_indisponible` en tête de
+    # fichier). Elle s'écrivait :
+    #   iSGLT2 en cours AND aGLP1 en cours  OR  iSGLT2 en cours AND dénutrition  OR  iSGLT2 en cours AND IMC<22
+    # soit, en facteur : « iSGLT2 EN COURS » AND « AR GLP‑1 indisponible ». Le premier facteur ne couvrait
+    # que l'épuisement par OCCUPATION ; un iSGLT2 CONTRE-INDIQUÉ (DFG < 20, infections génito-urinaires
+    # récidivantes) laissait la condition fausse. Réécrite avec le facteur généralisé, elle est un SURENSEMBLE
+    # STRICT de l'ancienne : les trois cas d'origine restent tous vrais.
     conditions:
       - "cible_atteinte == false"
-      - "traitements_en_cours contient iSGLT2 AND traitements_en_cours contient aGLP1 OR traitements_en_cours contient iSGLT2 AND denutrition == true OR traitements_en_cours contient iSGLT2 AND IMC < 22"
+      - "isglt2_indisponible == true AND aglp1_indisponible == true"
     # PRÉREQUIS AJOUTÉ (2026-07-26, chantier prescription/prérequis, recette capture 4 : patient déjà
     # sous insuline ET sulfamide → « Envisager l'insuline » proposée quand même, faute de vérifier
     # l'absence). Les 6 autres options d'ajout de la famille « Agent à ajouter » se gardent déjà via un
@@ -1075,9 +1150,55 @@ options:
     contre_indications:
       - "CONTRE‑INDIQUÉ si DFG < 30. Déconseillé chez le sujet à risque d'hypoglycémie élevé (âgé fragile, IR, alimentation irrégulière) : préférer la gliptine. Molécule : gliclazide MR ou glimépiride, jamais le glibenclamide."
   # ---- Repli ------------------------------------------------------------------------------------------
+  # CARTE ÉCRITE le 2026-07-27 SUR ÉNONCÉ DU RÉFÉRENT, mot pour mot : « un patient naïf sous son objectif
+  # ne nécessite pas de traitement, seulement des RHD. » Elle comble le dernier trou que le prérequis
+  # d'I15 avait découvert sur ce nœud — deux profils du banc, patient réellement naïf et déjà à/sous son
+  # objectif, où plus aucune option ne s'appliquait et où l'écran restait VIDE.
+  #
+  # C'est le PENDANT, côté initiation, du repli « Poursuivre le traitement en cours » ci-dessous : les deux
+  # sont des `default` à `prerequis` complémentaires (`intention == initier` ici, `intention != initier`
+  # là), donc jamais applicables ensemble et couvrant à eux deux toutes les intentions.
+  #
+  # POURQUOI UN `default` ET NON UNE OPTION À CONDITIONS. Un repli ne s'active que si AUCUNE option non-
+  # default ne s'applique (`evaluateNode`). Cette carte ne peut donc jamais s'afficher à côté d'une
+  # indication de PROTECTION cardio-rénale — qui, elle, ne dépend pas de la position vs objectif. Écrite
+  # avec des `conditions` réelles, elle aurait dit « aucun traitement nécessaire » en face d'une carte
+  # proposant un iSGLT2 pour une albuminurie : deux affirmations contradictoires sur le même écran.
+  #
+  # `cible_atteinte == true` en prérequis (et non seulement `intention == initier`) : c'est l'énoncé du
+  # référent, et sans lui la carte affirmerait « pas de traitement » à un patient naïf AU-DESSUS de son
+  # objectif chez qui tout serait par ailleurs bloqué — un écran silencieux vaut mieux qu'une carte fausse.
+  - intitule: "Aucun traitement médicamenteux — mesures hygiéno‑diététiques seules, réévaluer"
+    conditions:
+      - "default"
+    prerequis:
+      - "intention == initier"
+      - "cible_atteinte == true"
+    famille: "Aucun geste — surveiller"
+    avantages:
+      - "Patient naïf déjà à son objectif ou en dessous : aucun agent hypoglycémiant n'est indiqué à ce stade. Les mesures hygiéno‑diététiques (alimentation, activité physique) constituent le traitement — cf. les nœuds RHD du domaine."
+    inconvenients:
+      - "Réévaluer l'HbA1c et l'objectif individualisé à 3‑6 mois : une dérive au‑dessus de l'objectif rouvre l'indication d'un traitement médicamenteux. Une indication de PROTECTION cardio‑rénale (insuffisance cardiaque, maladie rénale, athérome) s'apprécie indépendamment de la glycémie et ferait apparaître d'autres cartes."
+    effet_attendu: >-
+      Aucun traitement médicamenteux instauré. Surveillance du contrôle glycémique et de l'objectif
+      individualisé.
+    niveau_preuve: faible
   - intitule: "Poursuivre le traitement en cours et réévaluer"
     conditions:
       - "default"
+    # PRÉREQUIS POSÉ le 2026-07-27, après trois obstacles levés dans l'ordre (R9 / invariant I15 : un repli
+    # qui propose de CONTINUER doit dire à quelle condition — ici, qu'un traitement existe). Tranché par le
+    # référent le 2026-07-26, il avait dû être retiré le jour même : il faisait échouer I2′ sur 6 profils
+    # où plus aucune option ne subsistait. Ce trou PRÉEXISTAIT, masqué par ce repli qui proposait de
+    # « poursuivre » un traitement inexistant ; le prérequis n'a fait que le découvrir. Ce qui l'a comblé :
+    #   6 → 5  ouverture rénale de l'option AR GLP‑1 (cf. son commentaire) ;
+    #   5 → 2  contrainte de saisie « initier ⇒ patient naïf » (en tête de fichier) — trois profils
+    #          déclaraient un traitement en cours sous l'intention « initier », que le formulaire ne peut
+    #          pas produire (`visible_si`) et que seul le générateur du banc fabriquait ;
+    #   2 → 0  carte « Aucun traitement médicamenteux — MHD seules » (ci-dessus), écrite sur énoncé du
+    #          référent, pour le patient naïf déjà à son objectif.
+    prerequis:
+      - "intention != initier"
     famille: "Aucun geste — surveiller"
     avantages:
       - "Aucun geste d'ajout, d'optimisation ni de désintensification n'est indiqué : objectif atteint sans agent iatrogène à optimiser ni indication de protection non couverte. Poursuivre et réévaluer à 3‑6 mois (HAS R.47)."
@@ -1159,11 +1280,20 @@ alertes:
     niveau: attention
     message: >-
       Metformine : dose maximale 1 000 mg/j, initiation ≤ 500 mg si DFG 30‑44 (RCP ANSM).
+  # AUCUNE ALERTE RÉNALE DISTINCTE n'a été créée (décision référent 2026-07-27 : « l'alerte individuelle
+  # est-elle nécessaire ? elle est présente dans chaque classe »). C'est juste : chaque option porte déjà
+  # ses propres `contre_indications` rénales, et une alerte de nœud qui les recopie ne fait que les répéter
+  # hors de leur contexte. Seule la QUEUE de ce message a été corrigée : « en dessous, relais par une autre
+  # classe (nœud E) » routait vers l'INSULINOTHÉRAPIE un patient chez qui un AR GLP‑1 convient — le nœud E
+  # est le nœud insuline. Le DFG restreint les agents à ÉLIMINATION RÉNALE ; il ne dit rien de la puissance
+  # glycémique d'une classe, et ni l'AR GLP‑1 ni l'insuline n'ont de contre-indication rénale.
   - quand: "DFG < 30"
     niveau: attention
     message: >-
-      Metformine CONTRE‑INDIQUÉE si DFG < 30 (RCP ANSM) : arrêter. Un iSGLT2 reste initiable jusqu'à DFG ≥ 20
-      (indication rénale) ; en dessous, relais par une autre classe (nœud E). Sulfamide aussi CI < 30.
+      Metformine CONTRE‑INDIQUÉE si DFG < 30 (RCP ANSM) : arrêter ; sulfamide aussi. Un iSGLT2 reste
+      initiable jusqu'à DFG ≥ 20 (indication rénale). Ces limites portent sur l'ÉLIMINATION RÉNALE des
+      agents, pas sur leur efficacité glycémique : l'AR GLP‑1 et l'insuline n'ont pas de contre‑indication
+      liée au DFG et restent utilisables en dessous de 20.
   # R2 (docs/decision/GRAMMAIRE-NOEUD.md) — DÉCOUPÉE le 2026-07-25 (arbitrage référent). Cette alerte
   # confondait deux faits sous un même `quand` : le patient est DÉJÀ sous incrétine (fait observé) et le
   # moteur est SUR LE POINT d'en proposer un. La seconde branche s'écrivait `ASCVD_etablie == true OR
@@ -1587,8 +1717,33 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.29"
+  version: "0.30"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        INSUFFISANCE RÉNALE SÉVÈRE À L'INITIATION — le trou que le prérequis d'I15 avait découvert est
+        comblé, et le prérequis posé. (1) L'option AR GLP‑1 reçoit un TERME RÉNAL
+        (`DFG > 0 AND DFG < 30 AND cible_atteinte == false`) : elle n'a AUCUNE exclusion rénale, ni ici
+        ni au RCP, mais aucun de ses quatre termes d'ouverture n'était vrai pour un DT2 nouvellement
+        diagnostiqué à DFG 15 au-dessus de son objectif — vérifié sur le profil exact, qui recevait le
+        repli « Poursuivre le traitement en cours » pour un patient sans traitement. Seuil fixé à 30 par
+        la metformine (sous 30 le socle disparaît, une classe à bénéfice doit prendre le relais).
+        (2) L'option « Envisager l'insuline » ne dépend plus de la PRÉSENCE d'un iSGLT2 — objection du
+        référent : « il peut être contre-indiqué par le DFG, mais aussi par les infections urinaires ».
+        Deux dérivés (`isglt2_indisponible`, `aglp1_indisponible`) expriment l'indisponibilité au lieu de
+        la seule occupation ; SURENSEMBLE STRICT de l'ancienne condition (47 → 134 profils sur 1840).
+        (3) Nouvelle carte « Aucun traitement médicamenteux — mesures hygiéno‑diététiques seules », sur
+        énoncé du référent (« un patient naïf sous son objectif ne nécessite pas de traitement, seulement
+        des RHD ») : repli à prérequis complémentaire de celui de « Poursuivre le traitement en cours »,
+        donc jamais affiché à côté d'une indication de protection cardio‑rénale. (4) CONTRAINTE DE SAISIE
+        « initier ⇒ patient naïf », qui ne fait que recopier le `visible_si` déjà déclaré par
+        `traitements_en_cours` : elle retire du banc trois profils que le formulaire ne peut pas produire.
+        (5) Le prérequis `intention != initier` du repli est POSÉ (R9/I15) — profils muets 6 → 0.
+        (6) L'alerte DFG < 30 ne route plus vers le nœud E (insulinothérapie) un patient chez qui un
+        AR GLP‑1 convient : elle dit désormais que ces limites portent sur l'ÉLIMINATION RÉNALE, pas sur
+        l'efficacité glycémique. Aucune alerte rénale distincte créée (décision référent : « elle est
+        présente dans chaque classe »).
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

@@ -360,4 +360,36 @@ export interface Noeud {
    * historique (voir `Option.famille`, `engine/evaluateNode.ts` `groupesParFamille`).
    */
   familles?: Famille[]
+  /**
+   * RELATIONS ENTRE CRITÈRES qui doivent rester vraies : une saisie qui en viole une décrit un patient
+   * **impossible**, pas un patient rare. Ajouté le 2026-07-27 (défaut K3 de la seconde recette :
+   * `TBR = 1` avec `TBR sévère = 95` était accepté sans un mot, et le nœud en tirait trois cartes
+   * « Recommandée » dont un ajout de bolus, chez un patient que la saisie décrit comme passant 95 % du
+   * temps en hypoglycémie sévère).
+   *
+   * Même DSL que `conditions` — la comparaison entre deux critères numériques (`TBR_severe <= TBR`) a
+   * été ajoutée à `engine/conditions.ts` pour ce champ, en extension pure d'un chemin qui n'existait
+   * qu'en erreur.
+   *
+   * DEUX CONSOMMATEURS, et c'est le point : le FORMULAIRE signale la contrainte violée (jamais de
+   * correction automatique — le praticien seul sait laquelle des deux valeurs est fausse), et le BANC
+   * (`engine/banc/profils.ts`) cesse d'engendrer des profils qui la violent. Sans le second, le banc
+   * dépense ses profils sur des états impossibles et fige leur sortie absurde dans un golden master.
+   *
+   * AUCUN effet sur la sélection : `evaluateNode` ne lit pas ce champ.
+   */
+  contraintes?: Contrainte[]
+}
+
+/**
+ * Une RELATION ENTRE CRITÈRES qui doit rester vraie (`Noeud.contraintes`). Porte son `message` plutôt que
+ * de laisser l'écran afficher son expression : « TBR_severe <= TBR » ne dit rien à un praticien, et le
+ * signalement doit expliquer POURQUOI la combinaison est impossible pour qu'il puisse choisir laquelle des
+ * deux valeurs corriger. L'outil ne le sait pas — il signale, il ne tranche pas.
+ */
+export interface Contrainte {
+  /** Expression DSL qui doit rester VRAIE. Indéterminée (opérande non renseigné) ⇒ jamais violée. */
+  expression: string
+  /** Ce que le praticien lit quand elle est violée. En langage clinique, sans citer l'expression. */
+  message: string
 }

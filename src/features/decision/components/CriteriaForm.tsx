@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import type { CritereEntree } from '../content/node.types'
+import type { Contrainte, CritereEntree } from '../content/node.types'
 import type { Criteria, CriteriaValue } from '../engine/conditions'
 import { criteresPilotes, grouperChamps } from '../lib/formLayout'
 import { describeEnumValue, labelForCritere, labelForEnumValue } from '../lib/labels'
@@ -62,6 +62,19 @@ interface CriteriaFormProps {
    * cas où ce défaut peut encore se produire, volontairement, pour ne jamais casser un appelant existant.
    */
   onEffacer?: (nom: string) => void
+  /**
+   * CONTRAINTES DE SAISIE VIOLÉES (`Noeud.contraintes`, `engine/contraintes.ts`) — défaut K3 de la seconde
+   * recette. Calculées par l'appelant et passées ici : ce composant reste sans connaissance du nœud.
+   *
+   * Rendues EN TÊTE DU FORMULAIRE, et non sur un champ : une contrainte relie deux critères qui vivent
+   * souvent dans deux sections différentes (« situation » et « traitements en cours »), l'accrocher à l'un
+   * des deux désignerait arbitrairement un coupable — alors que l'outil ne peut pas savoir lequel des deux
+   * est faux. En tête, le message est vu avant qu'on ne fasse défiler, et il nomme la contradiction sans
+   * la trancher.
+   *
+   * Ni blocage ni correction automatique : le praticien continue de saisir dans l'ordre qu'il veut.
+   */
+  contraintesViolees?: readonly Contrainte[]
   onChange: (nom: string, value: CriteriaValue) => void
 }
 
@@ -91,6 +104,7 @@ export function CriteriaForm({
   aConfirmer,
   onConfirmerChamps,
   onEffacer,
+  contraintesViolees,
   onChange,
 }: CriteriaFormProps) {
   // `touched` fait aussi office de `renseignes` (D20 R7) pour la VISIBILITÉ (`visible_si`) : un champ dont
@@ -321,6 +335,15 @@ export function CriteriaForm({
 
   return (
     <div className="criteria-form">
+      {contraintesViolees != null && contraintesViolees.length > 0 && (
+        <div className="criteria-form__contraintes" role="alert">
+          {contraintesViolees.map((contrainte) => (
+            <p key={contrainte.expression} className="criteria-form__contrainte">
+              {contrainte.message}
+            </p>
+          ))}
+        </div>
+      )}
       {groupes.map((groupe, index) => {
         // Pied de section (tâches 4 & 5) : entièrement dérivé du TYPE + de `aConfirmer`, aucun nom de
         // champ ni de section en dur (invariant 5). Deux informations indépendantes, qui peuvent cohabiter :

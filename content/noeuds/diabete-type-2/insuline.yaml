@@ -232,6 +232,38 @@ criteres_entree:
 # véritables alternatives à choisir (« Initier une basale » et « Choisir un analogue de 2ᵉ génération »
 # sont un geste et sa modalité, pas deux routes concurrentes). Marquer une famille `exclusive: true`
 # ferait afficher « en choisir un », ce qui serait faux ici. À reconfirmer visuellement par le référent.
+#
+# ─────────────────────────────────────────────────────────────────────────────────────────────────────
+# CONTRAINTES DE SAISIE (champ ajouté au schéma le 2026-07-27 — défaut K3 de la seconde recette).
+# Relations entre critères qui décrivent un patient IMPOSSIBLE quand elles sont fausses. Signalées au
+# praticien dans le formulaire ; jamais corrigées à sa place (l'outil ne peut pas savoir laquelle des deux
+# valeurs est fausse). Aucun effet sur la sélection des options — `evaluateNode` ne les lit pas.
+# Les deux portent leur garde `situation_insuline` comme n'importe quelle règle lisant un critère à
+# `visible_si` (R8/I10) : un champ que le formulaire ne montre pas ne peut pas être en contradiction.
+contraintes:
+  # K3, tel que la recette l'a reproduit : `TBR = 1` · `TBR sévère = 95` accepté sans un mot, d'où trois
+  # cartes « Recommandée » dont « Ajouter un bolus au repas principal » — chez un patient que la saisie
+  # décrit comme passant 95 % du temps en hypoglycémie SÉVÈRE.
+  - expression: "situation_insuline == naif OR TBR_severe <= TBR"
+    message: >-
+      Le temps passé sous 54 mg/dL (TBR sévère) est par définition INCLUS dans le temps passé sous
+      70 mg/dL (TBR) : il ne peut pas lui être supérieur. Vérifier laquelle des deux valeurs est erronée.
+  # MIGRÉE DEPUIS `alertes` le 2026-07-27. C'était déjà une incohérence de SAISIE, et elle était écrite
+  # comme une alerte faute d'un canal pour le dire — le commentaire de l'ancienne alerte le notait
+  # lui-même (« c'est une incohérence de SAISIE (situation vs traitements déclarés), pas une observation
+  # clinique sur le patient »). Le canal existe désormais : elle se lit dans le formulaire, à côté des deux
+  # champs qui se contredisent, plutôt que dans le panneau de résultats à côté de conduites cliniques.
+  # CONSÉQUENCE MESURÉE, et c'est ce qui débloque le prérequis d'I15 : les 7 profils sur 1760 que
+  # l'invariant I2′ signalait comme « écran vide » étaient TOUS de cette forme (naïf + insuline cochée).
+  # Le banc ne les engendre plus, parce qu'ils ne décrivent aucun patient.
+  # Précédence : AND lie plus fort que OR, donc ceci se lit bien
+  # `situation_insuline != naif OR (ne_contient_pas basale AND ne_contient_pas rapide)`.
+  - expression: "situation_insuline != naif OR traitements_en_cours ne_contient_pas insuline_basale AND traitements_en_cours ne_contient_pas insuline_rapide"
+    message: >-
+      La situation « naïf d'insuline » et une insuline déjà cochée dans les traitements en cours sont
+      contradictoires : un patient naïf n'est, par définition, pas déjà sous insuline. Vérifier la
+      situation renseignée ou la liste des traitements en cours.
+# ─────────────────────────────────────────────────────────────────────────────────────────────────────
 familles:
   - libelle: "Sécurité — à corriger d'abord"
     exclusive: false
@@ -701,6 +733,16 @@ options:
     famille: "Aucun geste — surveiller"
     conditions:
       - "default"
+    # PRÉREQUIS POSÉ le 2026-07-27 (R9 / invariant I15 : un repli qui propose de CONTINUER doit dire à
+    # quelle condition). Tranché par le référent dès le 2026-07-26, il avait dû être RETIRÉ le jour même :
+    # il faisait échouer I2′ (« jamais aucune option quand tout est renseigné ») sur 7 profils du banc — et
+    # retirer un repli, c'est retirer le filet. Diagnostic alors posé et vérifié : ces 7 profils étaient
+    # TOUS des saisies incohérentes (naïf + insuline déjà cochée), c'est-à-dire des artefacts du générateur,
+    # qui tire chaque critère indépendamment — jamais des patients. Ils ne sont plus engendrés depuis que
+    # cette combinaison est déclarée en `contraintes` (en tête de fichier), et le prérequis se pose donc
+    # sans rien casser : « poursuivre le schéma en cours » suppose qu'un schéma existe.
+    prerequis:
+      - "situation_insuline != naif"
     avantages:
       - "Aucun ajustement n'est indiqué : objectif atteint, sans hypoglycémie ni variabilité justifiant une correction et sans levier d'intensification à mobiliser. Poursuivre le schéma et réévaluer à 3-6 mois."
     inconvenients:
@@ -710,19 +752,13 @@ options:
       sécurité.
     niveau_preuve: faible
 alertes:
-  # E-02 (2026-07-26). Référent : « si il est naïf, il ne peut pas avoir une basale dans son traitement —
-  # c'est une erreur du praticien. » Le prérequis 12.10 (recette 2026-07-25) fait déjà TAIRE
-  # silencieusement « Initier une insuline basale » quand ce cas se présente (`traitements_en_cours
-  # ne_contient_pas insuline_basale`, correct et inchangé) — mais rien ne le DISAIT au praticien. Alerte de
-  # NŒUD (D15, jamais liée à une option retenue) : le fait est vrai quel que soit le geste par ailleurs
-  # affiché, c'est une incohérence de SAISIE (situation vs traitements déclarés), pas une observation
-  # clinique sur le patient.
-  - quand: "situation_insuline == naif AND traitements_en_cours contient insuline_basale"
-    niveau: attention
-    message: >-
-      Incohérence de saisie : la situation « naïf d'insuline » et une insuline basale déjà cochée dans les
-      traitements en cours sont contradictoires — un patient naïf ne peut pas être déjà sous insuline basale.
-      Vérifier la situation renseignée ou la liste des traitements en cours.
+  # E-02 (2026-07-26) A MIGRÉ VERS `contraintes` le 2026-07-27 — voir le bloc `contraintes` en tête de
+  # fichier. Référent : « si il est naïf, il ne peut pas avoir une basale dans son traitement — c'est une
+  # erreur du praticien. » Elle disait déjà d'elle-même être « une incohérence de SAISIE (situation vs
+  # traitements déclarés), pas une observation clinique sur le patient » : elle vivait ici faute d'un canal
+  # pour le dire. Le canal existe, et le message se lit désormais dans le FORMULAIRE, à côté des deux champs
+  # qui se contredisent — pas dans le panneau de résultats, entre des conduites cliniques. Portée ÉLARGIE au
+  # passage : elle ne couvrait que `insuline_basale`, la contrainte couvre aussi `insuline_rapide`.
   - quand: "hypo_severe_recurrente == true OR situation_insuline != naif AND CV_glycemique > 36 OR situation_insuline != naif AND TBR_severe > 1"
     niveau: attention
     message: >-
@@ -979,8 +1015,25 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Opus"
   statut: brouillon
-  version: "0.18"
+  version: "0.19"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        CONTRAINTES DE SAISIE (nouveau champ de schéma) + prérequis de repli enfin posé. (1) Le nœud
+        déclare désormais deux relations entre critères qui doivent rester vraies : `TBR_severe <= TBR`
+        (le temps sous 54 mg/dL est INCLUS dans le temps sous 70 — la seconde recette navigateur avait
+        saisi TBR 1 % / TBR sévère 95 % et obtenu trois cartes « Recommandée », dont un ajout de bolus
+        chez un patient décrit comme passant 95 % du temps en hypoglycémie sévère), et « naïf d'insuline
+        vs insuline déjà cochée ». (2) La SECONDE a MIGRÉ depuis `alertes` : elle disait elle-même être
+        « une incohérence de SAISIE, pas une observation clinique sur le patient » et vivait dans le
+        panneau de résultats faute d'un canal pour le dire. Elle s'affiche désormais dans le FORMULAIRE,
+        à côté des deux champs qui se contredisent ; sa portée est élargie de `insuline_basale` seule à
+        `insuline_basale` OU `insuline_rapide`. (3) Le prérequis `situation_insuline != naif` du repli
+        « Poursuivre le schéma d'insuline en cours » (R9/I15, tranché le 2026-07-26 puis retiré le jour
+        même) est POSÉ : les 7 profils du banc qui faisaient échouer l'invariant I2′ étaient tous des
+        saisies impossibles, que le générateur n'engendre plus. Aucune revendication clinique nouvelle ;
+        aucun changement pour un patient dont la saisie est cohérente.
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

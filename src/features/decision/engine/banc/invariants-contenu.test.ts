@@ -24,6 +24,9 @@
 import { describe, expect, it } from 'vitest'
 import { noeuds } from '../../content/loadNodes.ts'
 import { fragmentsDuNoeud } from '../expressionsNoeud.ts'
+import { contraintesViolees } from '../contraintes.ts'
+import { calculerCriteresDerives } from '../deriveCritere.ts'
+import { genererProfils, genererProfilsBruts, tailleBanc } from './profils.ts'
 import type { CritereEntree, Option } from '../../content/node.types.ts'
 
 // ---------------------------------------------------------------------------------------------------
@@ -802,20 +805,27 @@ function normalise(texte: string): string {
  * nouvellement diagnostiqué avec un DFG < 30 ?
  */
 const CONTINUATIONS_SANS_PREREQUIS_CONNUES: Record<string, Record<string, string>> = {
-  prescription: {
-    'Poursuivre le traitement en cours et réévaluer':
-      'K1 — prérequis `intention != initier` TRANCHÉ par le référent mais NON POSÉ : il fait échouer I2′ ' +
-      'sur 6 profils (initiation + DFG < 30), où plus aucune option ne subsiste. QUESTION AU RÉFÉRENT : ' +
-      'quelle conduite pour un DT2 nouvellement diagnostiqué en insuffisance rénale sévère ? Une fois ' +
-      'cette option écrite, le prérequis se pose sans rien casser.',
-  },
-  insuline: {
-    "Poursuivre le schéma d'insuline en cours et réévaluer":
-      'Même situation : prérequis `situation_insuline != naif` tranché mais non posé. Les 7 profils que ' +
-      'I2′ signale sont tous des saisies INCOHÉRENTES (naïf + insuline déjà cochée), déjà couvertes par ' +
-      "une alerte du nœud. QUESTION AU RÉFÉRENT : accepte-t-on un écran sans option pour une saisie " +
-      'contradictoire — l’alerte suffit-elle — ou faut-il un repli propre à ce cas ?',
-  },
+  // `prescription` A ÉTÉ RETIRÉ le 2026-07-27 — DETTE ENTIÈREMENT RÉSORBÉE, la table est vide et
+  // l'invariant s'applique désormais sans exception aux six nœuds.
+  //
+  // Le chemin mérite d'être noté, parce qu'il contredit la façon dont la dette avait été formulée la
+  // veille (« il faut une conduite pour le DT2 nouvellement diagnostiqué en insuffisance rénale sévère »,
+  // au singulier). Il a fallu TROIS correctifs de natures différentes, et aucun n'aurait suffi seul :
+  //   6 → 5  CONTENU — l'AR GLP‑1 n'avait aucun terme d'ouverture par le rein, alors qu'il n'a aucune
+  //          exclusion rénale. Le patient à DFG 15 au-dessus de l'objectif ne recevait rien.
+  //   5 → 2  BANC — trois profils déclaraient un traitement en cours sous l'intention « initier ». Le
+  //          formulaire ne peut pas les produire (`visible_si`) ; le générateur, si. `Noeud.contraintes`.
+  //   2 → 0  CONTENU, sur énoncé du référent — « un patient naïf sous son objectif ne nécessite pas de
+  //          traitement, seulement des RHD ». La carte manquait, tout simplement.
+  // Diagnostiquer « le contenu a un trou » là où deux tiers du signal venait d'un artefact d'instrument
+  // aurait fait écrire des règles cliniques pour couvrir des patients qui n'existent pas.
+  // `insuline` A ÉTÉ RETIRÉ le 2026-07-27 — DETTE RÉSORBÉE, et la façon dont elle l'a été mérite d'être
+  // notée. Le prérequis ne pouvait pas être posé parce que 7 profils du banc perdaient leur dernière
+  // option ; ces 7 profils étaient des saisies impossibles (naïf + insuline déjà cochée), c'est-à-dire des
+  // artefacts d'un générateur qui tire chaque critère indépendamment. La réponse n'était donc ni « poser
+  // le prérequis et accepter un écran vide » ni « renoncer au prérequis », mais **cesser d'engendrer des
+  // patients qui n'existent pas** : `Noeud.contraintes` (schéma, 2026-07-27). Le prérequis se pose depuis
+  // sans qu'aucun invariant ne bronche.
 }
 
 describe('I15 — une option de REPLI qui propose de CONTINUER déclare un `prerequis` (mécanise R9)', () => {
@@ -835,4 +845,42 @@ describe('I15 — une option de REPLI qui propose de CONTINUER déclare un `prer
     expect(sansPrerequis.filter((intitule) => connus[intitule] == null)).toEqual([])
     expect(Object.keys(connus).filter((intitule) => !sansPrerequis.includes(intitule))).toEqual([])
   })
+})
+
+/**
+ * I16 — une `contrainte` déclarée est VIOLABLE, et le banc ne la viole jamais.
+ *
+ * Les deux moitiés répondent à deux façons opposées de se tromper, et aucune ne suffit seule.
+ *
+ * 1. **VIOLABLE.** Une contrainte qu'aucun profil ne peut enfreindre est morte : soit son expression est
+ *    mal écrite (une garde trop large la rend vraie partout), soit elle décrit une relation qui ne
+ *    pouvait de toute façon pas être fausse. Dans les deux cas elle donne l'illusion d'un garde-fou. La
+ *    violabilité se mesure sur les profils BRUTS (`genererProfilsBruts`, avant filtrage) — c'est la seule
+ *    façon de voir ce que le filtre retire.
+ * 2. **JAMAIS VIOLÉE dans le banc.** C'est le bout utile : le contrat de `genererProfils`. Un jour où
+ *    quelqu'un ajoutera un chemin de génération qui court-circuite le filtre (comme `genererProfilsBruts`
+ *    le fait légitimement ici), cette moitié le dira.
+ *
+ * Ni nœud ni critère nommé (D8) : la table `contraintes` est lue sur le contenu.
+ */
+describe('I16 — toute `contrainte` est violable, et le banc filtré ne la viole jamais', () => {
+  it.each(noeuds.filter((n) => (n.contraintes ?? []).length > 0).map((n) => [n.id, n] as const))(
+    'nœud %s',
+    (_id, node) => {
+      const taille = tailleBanc(node)
+
+      // (1) Violable — sur le tirage BRUT, celui que le filtre n'a pas encore vu.
+      const bruts = genererProfilsBruts(node, taille).map((p) => calculerCriteresDerives(node.criteres_entree, p))
+      const jamaisViolees = (node.contraintes ?? [])
+        .filter((c) => !bruts.some((profil) => contraintesViolees(node, profil).includes(c)))
+        .map((c) => `contrainte jamais violable sur ${bruts.length} profils bruts : "${c.expression}"`)
+      expect(jamaisViolees).toEqual([])
+
+      // (2) Le banc, lui, n'en viole aucune.
+      const violations = genererProfils(node, taille)
+        .flatMap((profil) => contraintesViolees(node, profil))
+        .map((c) => c.expression)
+      expect([...new Set(violations)]).toEqual([])
+    },
+  )
 })

@@ -221,3 +221,26 @@
   font-weight: 600;
   cursor: pointer;
 }
+
+/* CONTRAINTES DE SAISIE VIOLÉES (K3, 2026-07-27) — en tête du formulaire, avant toute section.
+   Traitées comme un fait de SÉCURITÉ (mêmes jetons que les alertes « attention ») et non comme une
+   validation discrète : la recette a montré qu'une saisie impossible ressortait en trois cartes
+   « Recommandée » sans qu'aucun signe ne l'accompagne. Ni bord rouge d'erreur de formulaire, ni champ
+   bloqué — l'outil ne sait pas laquelle des deux valeurs est fausse, il le dit et laisse corriger. */
+.criteria-form__contraintes {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--c-attention-border);
+  border-left-width: 3px;
+  border-radius: var(--radius-md);
+  background: var(--c-attention-soft);
+}
+
+.criteria-form__contrainte {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--c-attention);
+}

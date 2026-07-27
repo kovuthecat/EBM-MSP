@@ -8,6 +8,7 @@ import { OptionCard } from '../components/OptionCard'
 import { getModuleDuNoeud } from '../content/loadModules'
 import { getNoeudById } from '../content/loadNodes'
 import type { Criteria, CriteriaValue } from '../engine/conditions'
+import { contraintesViolees } from '../engine/contraintes'
 import { criteresPertinents } from '../engine/relevance'
 import { describeReasons } from '../lib/conditionText'
 import { ESPERANCE_VIE_DRIVERS, hasEsperanceVieCritere, suggestEsperanceVie } from '../lib/esperanceVieDefault'
@@ -103,6 +104,16 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
     // jamais — sans quoi un champ tout juste répondu resterait vu « indéterminé » un instant de trop.
     return criteresPertinents(node, criteriaDiffere, touched)
   }, [node, criteriaDiffere, touched])
+
+  // CONTRAINTES DE SAISIE violées (K3, `engine/contraintes.ts`). Sur `criteria` IMMÉDIAT et non
+  // `criteriaDiffere` : c'est un signalement d'erreur de frappe, il doit disparaître dès que le praticien
+  // corrige — un message qui reste affiché une seconde après la correction se lit comme un refus.
+  // `touched` fait office de `renseignes` : une contrainte dont un opérande n'est pas encore saisi n'est
+  // jamais « violée » (cf. `contraintesViolees`), sans quoi elle s'allumerait sur un formulaire vierge.
+  const violations = useMemo(
+    () => (node ? contraintesViolees(node, criteria, touched) : []),
+    [node, criteria, touched],
+  )
 
   // Décisifs encore non confirmés → tant qu'il en reste, la reco est « provisoire » (jamais bloquée).
   // Réclamé et estompé dérivent tous deux de `pertinents` (cf. `decisifsAConfirmer`) : un champ ne peut
@@ -256,6 +267,7 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
             }
             onConfirmerChamps={handleConfirmerChamps}
             onEffacer={handleCriteriaEffacer}
+            contraintesViolees={violations}
             onChange={handleCriteriaChange}
           />
 

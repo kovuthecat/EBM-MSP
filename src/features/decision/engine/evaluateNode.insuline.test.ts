@@ -40,6 +40,7 @@ import { describe, expect, it } from 'vitest'
 import { getNoeudById } from '../content/loadNodes.ts'
 import { calculerCriteresDerives } from './deriveCritere.ts'
 import { evaluateNode } from './evaluateNode.ts'
+import { contraintesViolees } from './contraintes.ts'
 import type { Criteria } from './conditions.ts'
 
 const node = getNoeudById('insuline')
@@ -116,6 +117,9 @@ function evalProfileTernaire(overrides: Partial<Criteria>, nonRenseignes: string
 const titles = (o: Partial<Criteria>) => evalProfile(o).applicable.map((opt) => opt.intitule)
 const excludedTitles = (o: Partial<Criteria>) => [...evalProfile(o).excluded.keys()].map((opt) => opt.intitule)
 const alertMsgs = (o: Partial<Criteria>) => evalProfile(o).alertes.map((a) => a.message)
+/** Contraintes de SAISIE violées par un profil (canal `Noeud.contraintes`, distinct des alertes). */
+const violations = (o: Partial<Criteria>) =>
+  contraintesViolees(node!, calculerCriteresDerives(node!.criteres_entree, { ...BASE, ...o } as Criteria))
 const has = (list: string[], sub: string) => list.some((t) => t.includes(sub))
 
 // Intitulés exacts (substrings sans apostrophe ni exposant, pour éviter tout piège de codage de
@@ -150,25 +154,37 @@ describe('insuline — E-01 : naïf, HbA1c au-dessus de la cible, pas de GLP-1 e
 })
 
 describe('insuline — décisions référent 2026-07-26 implémentées (E-02/E-03/E-06, cf. changelog insuline.yaml v0.7)', () => {
-  it(
-    'E-02 — naïf ET « insuline basale » déjà cochée dans les traitements : incohérence de SAISIE, l\'outil le DIT. ' +
+  it.each([['insuline_basale'], ['insuline_rapide']])(
+    'E-02 — naïf ET « %s » déjà cochée dans les traitements : incohérence de SAISIE, l\'outil le DIT. ' +
       'Référent (2026-07-26) : « si il est naïf, il ne peut pas avoir une basale dans son traitement. » ' +
-      'Le prérequis 12.10 (recette 2026-07-25, déjà encodé) fait déjà taire SILENCIEUSEMENT ' +
-      '« Initier une insuline basale » — correct pour l\'absence de l\'option, mais insuffisant seul : ' +
-      'une nouvelle alerte de nœud signale désormais au praticien que la SAISIE elle-même est ' +
-      'contradictoire — `situation_insuline == naif AND traitements_en_cours contient insuline_basale` ' +
-      '(canal « alerte de nœud », D21 — le fait est vrai quel que soit le geste retenu).',
-    () => {
+      'Le prérequis 12.10 (recette 2026-07-25) fait déjà taire SILENCIEUSEMENT « Initier une insuline ' +
+      'basale » — correct pour l\'absence de l\'option, mais insuffisant seul : le praticien doit être ' +
+      'averti que sa SAISIE est contradictoire. ' +
+      'CANAL CHANGÉ le 2026-07-27 : ce fait vivait dans une alerte de nœud faute de mieux — son propre ' +
+      'commentaire disait « c\'est une incohérence de SAISIE, pas une observation clinique sur le ' +
+      'patient ». Il est désormais porté par `Noeud.contraintes`, donc affiché DANS LE FORMULAIRE, à côté ' +
+      'des deux champs qui se contredisent, plutôt que dans le panneau de résultats entre des conduites ' +
+      'cliniques. Portée élargie au passage : l\'alerte ne couvrait que `insuline_basale` — d\'où les deux ' +
+      'cas de ce test.',
+    (traitement) => {
       const o = {
         situation_insuline: 'naif',
-        traitements_en_cours: ['insuline_basale'],
+        traitements_en_cours: [traitement],
         HbA1c_actuelle: 9,
         HbA1c_cible: 7,
       } as Partial<Criteria>
-      // Déjà correct (12.10, 2026-07-25) : l'option ne se propose plus.
-      expect(has(titles(o), INITIER_BASALE)).toBe(false)
-      // Manquant : aucune alerte ne nomme l'incohérence de saisie elle-même.
-      expect(alertMsgs(o).some((m) => /incohéren/i.test(m))).toBe(true)
+      // Le fait est dit — et il nomme la contradiction, sans laisser deviner laquelle des deux valeurs
+      // corriger (l'outil ne peut pas le savoir). VRAI DES DEUX CÔTÉS, c'est l'élargissement de portée.
+      const violees = violations(o)
+      expect(violees).toHaveLength(1)
+      expect(violees[0].message).toMatch(/contradictoires/i)
+
+      // L'OPTION, elle, ne se comporte pas pareil selon l'insuline cochée, et c'est CORRECT — vérifié
+      // plutôt que supposé au moment d'élargir ce test. Sous BASALE : « Initier une insuline basale » se
+      // tait (prérequis 12.10, 2026-07-25) — on n'initie pas ce qui est déjà là. Sous RAPIDE seule : elle
+      // reste proposée, et c'est un geste légitime (un patient sous bolus sans basale peut en recevoir
+      // une) ; ce qui cloche dans ce profil est la déclaration « naïf », que la contrainte dit déjà.
+      expect(has(titles(o), INITIER_BASALE)).toBe(traitement === 'insuline_rapide')
     },
   )
 

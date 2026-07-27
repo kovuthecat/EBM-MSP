@@ -58,9 +58,18 @@ import type { Noeud } from '../content/node.types.ts'
  *   l'extraction pour une raison plus forte encore : ses littéraux sont des COEFFICIENTS, pas des
  *   seuils. Les verser dans le domaine d'un critère y injecterait des valeurs qui ne correspondent à
  *   aucune frontière — la famille de défaut déjà corrigée le 26/07 par les bornes `min`/`max`.
+ * - `saisie` — expression booléenne portant sur la COHÉRENCE DE LA SAISIE (`contraintes[].expression`,
+ *   ajouté le 2026-07-27), pas sur la conduite à tenir. Évaluée par le formulaire et par le générateur
+ *   du banc, **jamais par `evaluateNode`** : une contrainte violée ne retire aucune option et n'en ajoute
+ *   aucune. C'est pourquoi elle ne peut pas être classée `decision` — `reglesDeDecision` sert de
+ *   définition à « ce qui décide », et y verser une contrainte ferait extraire ses littéraux comme des
+ *   frontières cliniques alors qu'ils n'en sont pas. Limite connue et assumée : une contrainte dont la
+ *   frontière serait un littéral (plutôt qu'une relation entre deux critères, sa forme normale) ne verrait
+ *   pas ce littéral entrer dans le domaine de tirage du banc. L'invariant de violabilité
+ *   (`banc/invariants-contenu.test.ts`) le rattrape en exigeant qu'un profil au moins la viole.
  * - `inerte` — ne porte aucune expression.
  */
-export type NatureChamp = 'decision' | 'affichage' | 'arithmetique' | 'inerte'
+export type NatureChamp = 'decision' | 'affichage' | 'arithmetique' | 'saisie' | 'inerte'
 
 /**
  * CLASSIFICATION EXHAUSTIVE des propriétés de `schema/noeud.schema.json`, par définition. Tenue à jour
@@ -94,6 +103,11 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
     alertes: 'inerte', // conteneur : cf. `alerte`
     cadrage: 'inerte', // D24 : prose inconditionnelle, sans `quand` — c'est sa définition même
     familles: 'inerte',
+    contraintes: 'inerte', // conteneur : cf. `contrainte`
+  },
+  contrainte: {
+    expression: 'saisie', // cf. `NatureChamp` : cohérence de la saisie, jamais lue par `evaluateNode`
+    message: 'inerte',
   },
   option: {
     intitule: 'inerte',
@@ -186,6 +200,7 @@ export function fragmentsDuNoeud(node: Noeud): FragmentExpression[] {
   })
 
   ;(node.alertes ?? []).forEach((alerte, i) => pousser(alerte.quand, 'decision', `alertes[${i}].quand`))
+  ;(node.contraintes ?? []).forEach((c, i) => pousser(c.expression, 'saisie', `contraintes[${i}].expression`))
 
   node.criteres_entree.forEach((critere, i) => {
     if (critere.derive) pousser(critere.derive, 'decision', `criteres_entree[${i}].derive`)

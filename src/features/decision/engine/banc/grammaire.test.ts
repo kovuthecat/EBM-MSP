@@ -129,6 +129,7 @@ const MARQUEURS = {
   derive: 'MARQUEUR_derive == 7',
   visibleSi: 'MARQUEUR_visible_si == 8',
   calcul: 'MARQUEUR_calcul * 9',
+  contrainte: 'MARQUEUR_contrainte <= 10',
 } as const
 
 function noeudSynthetique(): Noeud {
@@ -157,6 +158,7 @@ function noeudSynthetique(): Noeud {
       },
     ],
     alertes: [{ quand: MARQUEURS.alerteNoeud, message: 'marqueur' }],
+    contraintes: [{ expression: MARQUEURS.contrainte, message: 'marqueur' }],
     argumentaire: '',
     sources: {
       references_primaires: [],
@@ -174,7 +176,7 @@ describe('G2 — le collecteur visite tous les emplacements porteurs d’express
     const fragments = fragmentsDuNoeud(noeudSynthetique())
     const parExpression = new Map(fragments.map((f) => [f.expression, f]))
 
-    const attendu: Array<[string, 'decision' | 'affichage' | 'arithmetique']> = [
+    const attendu: Array<[string, 'decision' | 'affichage' | 'arithmetique' | 'saisie']> = [
       [MARQUEURS.conditions, 'decision'],
       [MARQUEURS.prerequis, 'decision'],
       [MARQUEURS.exclusions, 'decision'],
@@ -186,6 +188,11 @@ describe('G2 — le collecteur visite tous les emplacements porteurs d’express
       [MARQUEURS.derive, 'decision'],
       [MARQUEURS.visibleSi, 'affichage'],
       [MARQUEURS.calcul, 'arithmetique'],
+      // `saisie` et non `decision` : une contrainte est une expression, mais aucune décision ne la lit
+      // (cf. `NatureChamp`). C'est précisément la distinction que cette ligne verrouille — la classer
+      // `decision` ferait entrer ses littéraux dans les domaines de tirage comme s'ils étaient des
+      // frontières cliniques.
+      [MARQUEURS.contrainte, 'saisie'],
     ]
 
     const violations: string[] = []
@@ -211,11 +218,12 @@ describe('G2 — le collecteur visite tous les emplacements porteurs d’express
         if (nature !== 'inerte') porteurs.push(`${definition}.${champ}`)
       }
     }
-    // 8 emplacements de schéma pour 9 marqueurs : `alerte.quand` est la MÊME définition de schéma,
+    // 9 emplacements de schéma pour 10 marqueurs : `alerte.quand` est la MÊME définition de schéma,
     // exercée à deux endroits (nœud et option) — c'est précisément la confusion qui a produit le défaut.
     expect(porteurs.sort()).toEqual(
       [
         'alerte.quand',
+        'contrainte.expression',
         'critereEntree.derive',
         'critereEntree.visible_si',
         'option.calculs',

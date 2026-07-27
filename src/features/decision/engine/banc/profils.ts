@@ -72,6 +72,7 @@
 import type { Criteria, CriteriaValue } from '../conditions.ts'
 import type { CritereEntree, Noeud } from '../../content/node.types.ts'
 import { calculerCriteresDerives } from '../deriveCritere.ts'
+import { respecteContraintes } from '../contraintes.ts'
 import { reglesDeDecision } from '../expressionsNoeud.ts'
 
 /**
@@ -499,7 +500,42 @@ export function genererProfilsBruts(node: Noeud, count: number, seed = GRAINE_PA
  * dépend du contenu, donc instable en index d'une exécution à l'autre dès que le contenu change).
  */
 export function genererProfils(node: Noeud, count: number, seed = GRAINE_PAR_DEFAUT): Criteria[] {
-  return genererProfilsBruts(node, count, seed).map((brut) => calculerCriteresDerives(node.criteres_entree, brut))
+  const complets = genererProfilsBruts(node, count, seed).map((brut) =>
+    calculerCriteresDerives(node.criteres_entree, brut),
+  )
+  if ((node.contraintes ?? []).length === 0) return complets
+  return filtrerParContraintes(node, complets, seed)
+}
+
+/**
+ * Facteur de SUR-GÉNÉRATION quand un nœud déclare des `contraintes` : le tirage étant indépendant critère
+ * par critère, une relation comme `TBR_severe <= TBR` élimine environ la moitié des profils, et le banc
+ * rétrécirait d'autant. On regénère donc plus large, puis on tronque à la taille demandée.
+ *
+ * CE QUI REND CETTE MANŒUVRE SÛRE, et ce n'est pas un détail : les séquences de ce module sont **stables
+ * en préfixe**. `sequenceStratifiee` comme la stratégie 1 empilent des blocs mélangés jusqu'à atteindre la
+ * taille demandée, puis tronquent — les `n` premières valeurs d'une séquence de `3n` sont donc EXACTEMENT
+ * les `n` valeurs d'une séquence de `n`, à graine égale. Sur-générer n'échange aucun profil contre un
+ * autre : cela en ajoute à la suite. Le banc filtré est donc le banc d'origine amputé de ses profils
+ * impossibles, complété par les suivants — et non un tirage différent.
+ */
+const FACTEUR_SURGENERATION = 3
+
+/**
+ * Retire les profils qui violent une contrainte de `node`, en complétant par sur-génération pour tenir la
+ * taille demandée. Si la sur-génération ne suffit pas (contraintes très restrictives), on renvoie ce qu'on
+ * a : un banc plus court est un défaut visible (couverture qui décroche), là où un banc peuplé d'états
+ * impossibles est un faux vert.
+ */
+function filtrerParContraintes(node: Noeud, complets: Criteria[], seed: number): Criteria[] {
+  const cible = complets.length
+  const retenus = complets.filter((profil) => respecteContraintes(node, profil))
+  if (retenus.length >= cible) return retenus.slice(0, cible)
+
+  const large = genererProfilsBruts(node, cible * FACTEUR_SURGENERATION, seed)
+    .map((brut) => calculerCriteresDerives(node.criteres_entree, brut))
+    .filter((profil) => respecteContraintes(node, profil))
+  return large.slice(0, cible)
 }
 
 /**
@@ -536,7 +572,11 @@ export function genererPairesBooleennes(
       aFaux: calculerCriteresDerives(node.criteres_entree, { ...brut, [critere]: false }),
     })
   }
-  return paires
+  // Une paire dont un membre décrit un patient IMPOSSIBLE ne prouve rien : la comparaison « toutes choses
+  // égales par ailleurs » suppose que les deux côtés soient des patients. Filtrée sans sur-génération —
+  // ces bancs servent à comparer, pas à couvrir, et une paire de moins ne crée pas de trou de couverture.
+  if ((node.contraintes ?? []).length === 0) return paires
+  return paires.filter((paire) => respecteContraintes(node, paire.aVrai) && respecteContraintes(node, paire.aFaux))
 }
 
 // ---------------------------------------------------------------------------------------------------
@@ -704,7 +744,12 @@ export interface FixtureProfils {
  */
 export function genererFixtureProfils(node: Noeud, count: number, seed = GRAINE_PAR_DEFAUT): FixtureProfils {
   const criteresColonnes = node.criteres_entree.filter((c) => c.derive == null).map((c) => c.nom)
-  const profils = genererProfilsBruts(node, count, seed).slice(0, count)
+  // Les `contraintes` s'appliquent AUSSI au bootstrap d'un nœud neuf (2026-07-27) : figer d'emblée des
+  // patients impossibles reviendrait à créer la dette que `reparerFixtureProfils` existe pour solder.
+  const surgenere = (node.contraintes ?? []).length > 0 ? count * FACTEUR_SURGENERATION : count
+  const profils = genererProfilsBruts(node, surgenere, seed)
+    .filter((brut) => respecteContraintes(node, calculerCriteresDerives(node.criteres_entree, brut)))
+    .slice(0, count)
   return { noeudId: node.id, graine: seed, criteresColonnes, profils }
 }
 
@@ -720,6 +765,56 @@ export function genererFixtureProfils(node: Noeud, count: number, seed = GRAINE_
  * figés, seulement leurs colonnes — jamais la stratégie 1 (produit cartésien) de `construireSequences`,
  * qui COUPLERAIT la nouvelle colonne à toutes les colonnes existantes et invaliderait le jeu entier.
  */
+/**
+ * RÉPARE une fixture figée en ne remplaçant QUE les profils qui violent une `contrainte` du nœud
+ * (2026-07-27, second temps du correctif K3). Les profils conformes ressortent à leur INDEX, inchangés
+ * clé pour clé.
+ *
+ * POURQUOI, et pourquoi seulement ceux-là. Le filtrage de `genererProfils` ne protège que les couches
+ * DYNAMIQUES ; `caracterisation.test.ts` lit un jeu FIGÉ, qui ne passe par aucun filtre. Mesuré le
+ * 2026-07-27, une fois les contraintes déclarées : **84 des 179 profils figés d'`insuline` (47 %) et 44
+ * des 179 de `prescription` (25 %) décrivent des patients impossibles.** Le golden master — celui-là même
+ * qui sert de support à la relecture clinique — en documentait donc près d'un sur deux. Un cas l'a rendu
+ * visible : un profil « naïf d'insuline » avec une insuline déjà cochée a PERDU sa dernière option (le
+ * prérequis de repli venait d'être posé) et se serait affiché comme un ÉCRAN VIDE pour un patient qui ne
+ * peut pas exister — une fausse alerte, exactement le contraire de ce qu'un golden master doit produire.
+ *
+ * REMPLACER SEULEMENT LES FAUTIFS, et non tout régénérer, est la même règle que celle qui gouverne
+ * `completerFixtureProfils` (cf. la docstring de `geler-profils.maintenance.test.ts` : « ne régénère
+ * jamais une colonne déjà figée ») : on ne touche pas à ce qui est bon. 95 patients d'`insuline` et 135 de
+ * `prescription` gardent ainsi leur identité, et le diff du golden master reste lisible — il se limite aux
+ * profils qui devaient changer.
+ *
+ * Les remplaçants sont tirés du MÊME flux déterministe, sur-généré puis filtré, et consommés dans l'ordre :
+ * à graine égale, la réparation est reproductible.
+ */
+export function reparerFixtureProfils(
+  node: Noeud,
+  fixture: FixtureProfils,
+  seed = GRAINE_PAR_DEFAUT,
+): { fixture: FixtureProfils; remplaces: number } {
+  if ((node.contraintes ?? []).length === 0) return { fixture, remplaces: 0 }
+  const estConforme = (brut: Criteria) =>
+    respecteContraintes(node, calculerCriteresDerives(node.criteres_entree, brut))
+
+  const fautifs = fixture.profils.filter((p) => !estConforme(p)).length
+  if (fautifs === 0) return { fixture, remplaces: 0 }
+
+  // Réserve de remplaçants : le même tirage, sur-généré, dont on retire ce qui est déjà figé à
+  // l'identique n'a pas lieu d'être — un doublon éventuel reste un patient POSSIBLE, donc acceptable.
+  const reserve = genererProfilsBruts(node, fixture.profils.length * FACTEUR_SURGENERATION, seed).filter(estConforme)
+  if (reserve.length < fautifs) {
+    throw new Error(
+      `reparerFixtureProfils : ${fautifs} profils à remplacer sur "${node.id}", ` +
+        `seulement ${reserve.length} remplaçants conformes engendrés.`,
+    )
+  }
+
+  let curseur = 0
+  const profils = fixture.profils.map((p) => (estConforme(p) ? p : reserve[curseur++]))
+  return { fixture: { ...fixture, profils }, remplaces: fautifs }
+}
+
 export function completerFixtureProfils(node: Noeud, fixture: FixtureProfils, seed = GRAINE_PAR_DEFAUT): FixtureProfils {
   if (fixture.noeudId !== node.id) {
     throw new Error(`completerFixtureProfils : fixture du nœud "${fixture.noeudId}" appliquée à "${node.id}".`)

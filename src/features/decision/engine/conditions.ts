@@ -174,9 +174,36 @@ function evaluateAtomic(text: string, criteria: Criteria, renseignes?: ReadonlyS
   }
 
   if (typeof actual === 'number') {
-    const parsed = Number(value)
+    let parsed = Number(value)
     if (Number.isNaN(parsed)) {
-      throw new ConditionError(`Valeur numérique invalide pour "${variable}" : "${value}".`)
+      // COMPARAISON ENTRE DEUX CRITÈRES (ajoutée le 2026-07-27, mécanisme `contraintes` / K3). Le membre
+      // droit n'est pas un littéral numérique : il peut nommer un AUTRE critère numérique. C'est la seule
+      // façon d'exprimer une relation entre deux saisies — `TBR_severe <= TBR` (le temps sous 54 mg/dL est
+      // inclus dans le temps sous 70), qu'aucune comparaison à un seuil fixe ne peut dire.
+      //
+      // EXTENSION PURE : ce chemin n'existait qu'en ERREUR (`Valeur numérique invalide`). Aucune expression
+      // qui s'évaluait s'évalue autrement — un littéral numérique est traité exactement comme avant, et un
+      // membre droit qui ne nomme aucun critère numérique lève toujours, avec un message plus précis.
+      //
+      // AUCUNE AMBIGUÏTÉ AVEC UN LIBELLÉ D'ÉNUMÉRATION (`situation_insuline == naif`) : on n'arrive ici que
+      // si le critère de GAUCHE porte une valeur numérique, ce qu'un critère `enum` n'est jamais.
+      if (!(value in criteria)) {
+        throw new ConditionError(
+          `Valeur numérique invalide pour "${variable}" : "${value}" ` +
+            `(ni un nombre, ni le nom d'un critère de ce nœud).`,
+        )
+      }
+      // Un critère non renseigné rend l'atome indéterminé, qu'il soit à gauche ou à droite (D20/R7) :
+      // sans quoi une contrainte se prononcerait sur une valeur que le praticien n'a pas encore donnée.
+      if (renseignes !== undefined && !renseignes.has(value)) return INDETERMINE
+      const droite = criteria[value]
+      if (typeof droite !== 'number') {
+        throw new ConditionError(
+          `Comparaison entre critères invalide : "${variable} ${operator} ${value}" — ` +
+            `"${value}" n'est pas un critère numérique.`,
+        )
+      }
+      parsed = droite
     }
     switch (operator) {
       case '==':
