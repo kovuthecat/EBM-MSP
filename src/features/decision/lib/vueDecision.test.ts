@@ -7,7 +7,8 @@
  * l'ancienne `signature()` de `engine/relevance.ts` ignorait (doses calculées).
  */
 import { describe, expect, it } from 'vitest'
-import type { Alerte, Noeud, Option } from '../content/node.types.ts'
+import type { Alerte, CritereEntree, Noeud, Option } from '../content/node.types.ts'
+import { evaluateNode } from '../engine/evaluateNode.ts'
 import { criteresPertinents } from '../engine/relevance.ts'
 import { construireVueDecision, signatureVue } from './vueDecision.ts'
 
@@ -574,5 +575,68 @@ describe('construireVueDecision — `enAttente` (DECISIONS.md D20, SPEC-valeur-i
 
     const vueRenseignee = construireVueDecision(node, { DFG: 20 }, new Set(['DFG']))
     expect(vueRenseignee.familles[0].groupes[0][0].alertes).toEqual([alerteOption])
+  })
+})
+
+/**
+ * Défaut I (recette navigateur du 2026-07-27) — « pourquoi pas d'autres options » pollué par le
+ * hors-périmètre. Sur `prescription`, un patient voyait 18,7 lignes en moyenne, dont 60 % de la forme
+ * « Traitements en cours comprend Sulfamide / Gliptine / Insuline… » chez quelqu'un qui n'en prend aucun.
+ *
+ * Le nettoyage vit dans la VUE et non dans le moteur : `EvaluateNodeResult.nonRetenues` reste exhaustif
+ * (R4, et des vignettes référent en dépendent). Ces tests vérifient les deux traitements — remplacer
+ * quand c'est possible, retirer sinon — et le fait que le moteur, lui, n'a pas bougé.
+ */
+describe('construireVueDecision — « pourquoi pas » nettoyé des constats de périmètre (défaut I)', () => {
+  const CRITERES: CritereEntree[] = [
+    { nom: 'traitements', type: 'liste', valeurs: ['sulfamide', 'gliptine'] },
+    { nom: 'ascvd', type: 'bool' },
+  ]
+
+  const noeudAvec = (options: Option[]): Noeud => makeNode(options, CRITERES)
+
+  it('RETIRE la ligne quand toutes les conditions fausses sont des tests de présence', () => {
+    const horsSujet = opt('Remplacer le sulfamide', ['traitements contient sulfamide'])
+    const vue = construireVueDecision(noeudAvec([horsSujet, opt('repli', ['default'])]), {
+      traitements: [],
+      ascvd: false,
+    })
+    expect(vue.nonRetenues.map((n) => n.option.intitule)).not.toContain('Remplacer le sulfamide')
+  })
+
+  it('REMPLACE par une condition plus parlante quand il en existe une', () => {
+    // Le moteur retient la PREMIÈRE fausse (R4) — ici le test de présence. La vue montre l'autre.
+    const deuxConditions = opt('Introduire un iSGLT2', ['traitements contient gliptine', 'ascvd == true'])
+    const noeud = noeudAvec([deuxConditions, opt('repli', ['default'])])
+    const criteria = { traitements: [], ascvd: false }
+    expect(evaluateNode(noeud, criteria).nonRetenues.get(deuxConditions)).toBe('traitements contient gliptine')
+    const vue = construireVueDecision(noeud, criteria)
+    expect(vue.nonRetenues.find((n) => n.option === deuxConditions)?.condition).toBe('ascvd == true')
+  })
+
+  it('ne touche PAS à une condition clinique ordinaire', () => {
+    const clinique = opt('Statine', ['ascvd == true'])
+    const vue = construireVueDecision(noeudAvec([clinique, opt('repli', ['default'])]), {
+      traitements: [],
+      ascvd: false,
+    })
+    expect(vue.nonRetenues.find((n) => n.option === clinique)?.condition).toBe('ascvd == true')
+  })
+
+  it('un `ne_contient_pas` faux est aussi un constat de périmètre — « vous prenez déjà cette classe »', () => {
+    const dejaPris = opt('Introduire une gliptine', ['traitements ne_contient_pas gliptine'])
+    const vue = construireVueDecision(noeudAvec([dejaPris, opt('repli', ['default'])]), {
+      traitements: ['gliptine'],
+      ascvd: false,
+    })
+    expect(vue.nonRetenues.map((n) => n.option.intitule)).not.toContain('Introduire une gliptine')
+  })
+
+  it('le MOTEUR reste exhaustif — le nettoyage est une décision d’affichage, pas de sélection', () => {
+    const horsSujet = opt('Remplacer le sulfamide', ['traitements contient sulfamide'])
+    const noeud = noeudAvec([horsSujet, opt('repli', ['default'])])
+    const criteria = { traitements: [], ascvd: false }
+    // R4 : toute option non retenue a un motif ENREGISTRÉ, même si l'écran ne le montre pas.
+    expect(evaluateNode(noeud, criteria).nonRetenues.get(horsSujet)).toBe('traitements contient sulfamide')
   })
 })

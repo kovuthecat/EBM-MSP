@@ -58,7 +58,7 @@
  */
 import type { Alerte, CritereEntree, Noeud, Option } from '../content/node.types.ts'
 import type { Criteria } from '../engine/conditions.ts'
-import { termesVrais } from '../engine/conditions.ts'
+import { evaluateCondition, termesVrais } from '../engine/conditions.ts'
 import { calculerCriteresDerives, determinesEffectifs, evaluerNombre } from '../engine/deriveCritere.ts'
 import { evaluateAlertesDeListe, evaluateNode, groupesParFamille } from '../engine/evaluateNode.ts'
 import { computeBadges, type OptionBadge } from './optionBadges.ts'
@@ -279,6 +279,68 @@ function raisonsSituationnelles(conditions: string[], criteria: Criteria): strin
 }
 
 /**
+ * Une expression est-elle un TEST DE PÉRIMÈTRE — « ce patient prend-il déjà telle classe ? » — plutôt
+ * qu'une indication clinique ? Vrai quand TOUS ses termes `OR` sont des tests d'appartenance
+ * (`contient` / `ne_contient_pas`) sur un critère de type `liste`.
+ *
+ * GÉNÉRIQUE PAR LE TYPE (invariant CLAUDE.md 5) : aucun nom de critère ni de classe en dur. C'est le
+ * `type: liste` déclaré par le contenu qui décide, pas une liste de noms tenue à jour à la main.
+ */
+function estTestDePerimetre(expression: string, listes: ReadonlySet<string>): boolean {
+  const termes = expression.split(/\s+OR\s+/).flatMap((t) => t.split(/\s+AND\s+/))
+  if (termes.length === 0) return false
+  return termes.every((terme) => {
+    const m = /^\s*(\w+)\s+(contient|ne_contient_pas)\s+/.exec(terme)
+    return m != null && listes.has(m[1])
+  })
+}
+
+/**
+ * Le « pourquoi pas d'autres options », NETTOYÉ de ses constats de périmètre (défaut I de la recette
+ * navigateur du 2026-07-27).
+ *
+ * LE DÉFAUT, MESURÉ. Sur `prescription`, un patient voyait **18,7 lignes en moyenne**, dont 60 % de la
+ * forme « Traitements en cours comprend Sulfamide / Gliptine / Insuline… » — chez quelqu'un qui n'en
+ * prend aucun. Ce n'est pas une explication clinique : c'est un constat de périmètre. Les cinq autres
+ * nœuds n'en produisent aucune (0 %), ce qui confirme que le défaut tient à une forme d'écriture et non
+ * au mécanisme.
+ *
+ * DEUX TRAITEMENTS, dans cet ordre, et le premier compte autant que le second :
+ *  1. si l'option a une AUTRE condition fausse qui n'est pas un test de périmètre, c'est celle-là qu'on
+ *     montre. Le moteur retient la PREMIÈRE expression fausse (R4) ; ce n'est pas forcément la plus
+ *     parlante. On ne supprime donc pas une ligne, on l'améliore ;
+ *  2. si toutes les conditions fausses sont des tests de périmètre, la ligne est RETIRÉE : l'option est
+ *     hors sujet pour ce patient, et le dire n'apprend rien.
+ *
+ * POURQUOI ICI ET NON DANS LE MOTEUR. `EvaluateNodeResult.nonRetenues` reste EXHAUSTIF — R4 veut que
+ * toute option non retenue ait un motif enregistré, et des vignettes référent en dépendent
+ * explicitement (y compris pour les `prerequis` faux). C'est une décision d'AFFICHAGE : le moteur dit
+ * pourquoi, la vue décide de ce qui mérite d'être lu. La même frontière que `reasons` situationnelles.
+ */
+function nettoyerNonRetenues(
+  node: Noeud,
+  nonRetenues: ReadonlyMap<Option, string>,
+  criteria: Criteria,
+): OptionNonRetenueVue[] {
+  const listes = new Set(node.criteres_entree.filter((c) => c.type === 'liste').map((c) => c.nom))
+  const vues: OptionNonRetenueVue[] = []
+  for (const [option, condition] of nonRetenues) {
+    if (!estTestDePerimetre(condition, listes)) {
+      vues.push({ option, condition })
+      continue
+    }
+    // (1) chercher une condition fausse plus parlante — jamais dans `prerequis` (R6 : un garde-fou de
+    // cohérence n'est pas une justification montrable).
+    const meilleure = option.conditions.find(
+      (c) => c !== 'default' && c !== 'toujours' && !estTestDePerimetre(c, listes) && evaluateCondition(c, criteria) === false,
+    )
+    // (2) sinon, retirer la ligne.
+    if (meilleure != null) vues.push({ option, condition: meilleure })
+  }
+  return vues
+}
+
+/**
  * Construit le modèle de vue complet d'un nœud pour un jeu de critères. Recalcule les critères
  * dérivés en entrée (`calculerCriteresDerives`) avant d'évaluer le nœud — comme le faisait
  * `relevance.ts` — puis regroupe par famille (`groupesParFamille`) et calcule les badges
@@ -337,10 +399,7 @@ export function construireVueDecision(node: Noeud, criteria: Criteria, renseigne
   // `node.options` dans `evaluateNode` (les deux Map sont peuplées dans cet ordre) — déterministe,
   // stable d'un appel à l'autre pour un même contenu.
   const ecartees: OptionEcarteeVue[] = [...excluded].map(([option, motifs]) => ({ option, motifs }))
-  const nonRetenuesVue: OptionNonRetenueVue[] = [...nonRetenues].map(([option, condition]) => ({
-    option,
-    condition,
-  }))
+  const nonRetenuesVue = nettoyerNonRetenues(node, nonRetenues, derived)
   // D20 : même ordre déterministe que ci-dessus (ordre d'itération de `node.options` dans `evaluateNode`).
   const enAttenteVue: OptionEnAttenteVue[] = [...enAttente].map(([option, manquants]) => ({ option, manquants }))
 
