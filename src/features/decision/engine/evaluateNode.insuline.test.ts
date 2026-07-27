@@ -234,7 +234,15 @@ describe('insuline — décisions référent 2026-07-26 implémentées (E-02/E-0
 })
 
 describe('insuline — E-04 : sur-basalisation réelle (dose 40 U / poids 70 kg), GAJ hors cible', () => {
-  it('E-04a — « Titrer la basale » EXCLUE, « Ne pas sur-titrer… » proposée [DÉJÀ CORRIGÉ, arbitrage référent 2026-07-26, D21 2ᵉ série]', () => {
+  // ATTENTE RÉVISÉE le 2026-07-27 (arbitrage référent, après collecte + red-team). Cette vignette
+  // exigeait que « Titrer la basale » soit ÉCARTÉE au-dessus de 0,5 U/kg. Le seuil ne porte plus cette
+  // exclusion : issu d'un post-hoc non pré-spécifié, retiré des Standards ADA en 2025 (maintenu par
+  // l'AACE), jamais testé comme règle de décision, et coupant au milieu de la plage de doses d'entretien
+  // réellement atteintes à la cible (0,34-0,78 U/kg). Les DEUX cartes coexistent désormais et le rang
+  // hiérarchise : le praticien voit la lecture « titrer » et la lecture « intensifier autrement », et
+  // arbitre — ce qu'il est le seul à pouvoir faire chez un patient dont la nuit reste hors cible (ici
+  // GAJ 1,5 g/L). Le geste alternatif reste poussé, ce qui était l'objet réel du correctif de la veille.
+  it('E-04a — « Titrer la basale » et « Ne pas sur-titrer… » coexistent (exclusion retirée le 2026-07-27)', () => {
     const o = {
       situation_insuline: 'basale_seule',
       poids: 70,
@@ -247,7 +255,9 @@ describe('insuline — E-04 : sur-basalisation réelle (dose 40 U / poids 70 kg)
       CV_glycemique: 20,
       profil_glycemique: ['stable'],
     } as Partial<Criteria>
-    expect(has(excludedTitles(o), TITRER)).toBe(true)
+    expect(has(titles(o), TITRER)).toBe(true)
+    expect(has(excludedTitles(o), TITRER)).toBe(false)
+    // Le point qui compte cliniquement n'a pas changé : l'alternative est POUSSÉE, pas laissée en prose.
     expect(has(titles(o), NE_PAS_SURTITRER)).toBe(true)
   })
 
@@ -277,7 +287,14 @@ describe('insuline — E-04 : sur-basalisation réelle (dose 40 U / poids 70 kg)
 })
 
 describe('insuline — E-05 : même sur-basalisation qu\'E-04, mais poids NON renseigné (D20)', () => {
-  it('« Titrer la basale » passe EN ATTENTE (« à renseigner : poids »), pas écartée à tort', () => {
+  // ATTENTE RÉVISÉE le 2026-07-27, en même temps qu'E-04a : `over_basalisation` n'étant plus une
+  // exclusion de « Titrer la basale », un poids non renseigné ne met plus CETTE option en attente. Le
+  // mécanisme D20 qu'elle démontrait reste vérifié, mais sur l'option qui dépend RÉELLEMENT du poids —
+  // « Ne pas sur-titrer… », dont `over_basalisation` est le déclencheur. La vignette gagne au change :
+  // elle vérifie désormais les deux bords à la fois, l'option retenue en attente ET celle qui ne doit
+  // plus l'être. Le défaut qu'elle protégeait à l'origine (écarter une option sur une exclusion qu'on ne
+  // peut pas trancher) reste couvert.
+  it('un poids non renseigné met « Ne pas sur-titrer… » EN ATTENTE, et ne retient plus « Titrer la basale »', () => {
     const o = {
       situation_insuline: 'basale_seule',
       dose_basale_actuelle: 40,
@@ -292,13 +309,17 @@ describe('insuline — E-05 : même sur-basalisation qu\'E-04, mais poids NON re
     } as Partial<Criteria>
     const res = evalProfileTernaire(o, ['poids'])
     const optTitrer = node!.options.find((opt) => opt.intitule.includes(TITRER))!
+    const optNePasSurtitrer = node!.options.find((opt) => opt.intitule.includes(NE_PAS_SURTITRER))!
 
-    expect(res.enAttente.has(optTitrer)).toBe(true)
-    expect(res.enAttente.get(optTitrer)).toEqual(['poids'])
-    // Ni écartée (excluded) à tort par une exclusion qu'on ne peut pas trancher...
-    expect([...res.excluded.keys()].map((opt) => opt.intitule)).not.toContain(optTitrer.intitule)
-    // ... ni recommandée en silence non plus.
-    expect(res.applicable.map((opt) => opt.intitule)).not.toContain(optTitrer.intitule)
+    // L'option qui DÉPEND du poids est retenue en attente, avec le critère à renseigner nommé —
+    // ni écartée à tort sur une condition qu'on ne peut pas trancher, ni proposée en silence.
+    expect(res.enAttente.get(optNePasSurtitrer)).toEqual(['poids'])
+    expect(res.applicable.map((o2) => o2.intitule)).not.toContain(optNePasSurtitrer.intitule)
+    expect([...res.excluded.keys()].map((o2) => o2.intitule)).not.toContain(optNePasSurtitrer.intitule)
+
+    // L'option qui n'en dépend plus n'est plus retenue en otage par un poids manquant.
+    expect(res.enAttente.has(optTitrer)).toBe(false)
+    expect([...res.excluded.keys()].map((o2) => o2.intitule)).not.toContain(optTitrer.intitule)
   })
 })
 
