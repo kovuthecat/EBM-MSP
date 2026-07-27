@@ -79,17 +79,36 @@ criteres_entree:
   - nom: risque_hypoglycemie_schema
     type: enum
     valeurs: [faible, eleve]
+  # DEUX dérivés de terrain, volontairement DISTINCTS (arbitrage référent 2026-07-27). Ce ne sont pas
+  # deux encodages d'un même concept (ce que I4 interdit) mais deux concepts que la fusion confondait :
+  #   - `terrain_fragile` = « ce patient est exposé à l'hypoglycémie » → pilote le CHOIX DU TRAITEMENT
+  #     (analogue de 2ᵉ génération, désintensification) ;
+  #   - `terrain_cible_assouplie` = « ce patient a peu à gagner d'un contrôle strict » → pilote la CIBLE.
+  # Principe référent, énoncé le 2026-07-27 : « la cible doit être assouplie en fonction des comorbidités
+  # et de l'impact supposé des complications à long terme. Des hypos sévères appellent à une OPTIMISATION
+  # DU TRAITEMENT, pas à un assouplissement des cibles. » C'est le même principe qui lui avait déjà fait
+  # retirer `risque_hypoglycemie_schema` du nœud A (cible glycémique) : un risque hypoglycémique est une
+  # propriété du SCHÉMA, qu'on corrige — jamais une raison de renoncer au contrôle.
   - nom: terrain_fragile
     type: bool
     # I3/F4 (redteam-clinique-silences.md, 2026-07-26, 4ᵉ lot) : `hypo_severe_recurrente` ajouté ici.
-    # Arbitrage référent À CONFIRMER : le signal était déjà décisif plus loin dans le nœud (déclencheur
-    # indépendant de « Désintensifier / alléger le schéma »), mais jamais lu par « Choisir un analogue
-    # basal de 2ᵉ génération » — même concept de sécurité, deux encodages (invariant I4). Choix retenu :
-    # FUSION dans ce dérivé plutôt qu'un 2ᵉ déclencheur indépendant sur chaque option consommatrice,
-    # pour qu'un futur consommateur de `terrain_fragile` hérite automatiquement du signal, sans risque de
-    # ré-diverger comme ici. Conséquence : élargit aussi la population des alertes MCG « cibles
-    # assouplies » (ci-dessous) à un patient dont le seul signal est cet antécédent.
+    # CONFIRMÉ par le référent le 2026-07-27 POUR CET USAGE (choix du traitement) : le signal était déjà
+    # décisif plus loin dans le nœud (déclencheur indépendant de « Désintensifier / alléger le schéma »),
+    # mais jamais lu par « Choisir un analogue basal de 2ᵉ génération » — même concept de sécurité, deux
+    # encodages (invariant I4). Fusion conservée ici, mais son effet de bord sur les CIBLES MCG a été
+    # écarté par le référent : celles-ci lisent désormais `terrain_cible_assouplie` (ci-dessous).
+    # ⚠ NOMMAGE : ce dérivé désigne en réalité un RISQUE HYPOGLYCÉMIQUE, pas une « fragilité » au sens
+    # gériatrique — le nom est trompeur depuis qu'il porte les deux signaux d'hypoglycémie. Renommage
+    # (`risque_hypoglycemique_eleve`) signalé au référent, non fait : sans gain clinique immédiat.
     derive: "fragilite OR esperance_vie == limitee OR age >= 75 OR risque_hypoglycemie_schema == eleve OR hypo_severe_recurrente == true"
+  - nom: terrain_cible_assouplie
+    type: bool
+    # Terrain qui justifie de RELÂCHER LA CIBLE : âge, fragilité, horizon de vie — c'est-à-dire un
+    # bénéfice attendu du contrôle strict amoindri par les comorbidités et l'horizon. EXCLUT délibérément
+    # les deux signaux d'hypoglycémie (`risque_hypoglycemie_schema`, `hypo_severe_recurrente`) : ils
+    # appellent une correction du traitement, pas une cible plus permissive. C'est le miroir exact des
+    # déclencheurs de relaxation du nœud A, dont ce nœud doit rester cohérent (cf. incertitudes).
+    derive: "fragilite OR esperance_vie == limitee OR age >= 75"
   - nom: hypo_severe_recurrente
     type: bool
   - nom: symptomes_glucotoxicite
@@ -131,8 +150,18 @@ criteres_entree:
     visible_si: "situation_insuline != naif"
   - nom: profil_glycemique
     type: liste
-    valeurs: [hypo_nocturne, phenomene_aube, excursions_postprandiales, hypo_interprandiale, stable]
+    # `hypo_interprandiale` A ÉTÉ RETIRÉ de cette liste le 2026-07-27 (arbitrage référent) et promu en
+    # critère PROPRE, ci-dessous. Motif clinique : une hypoglycémie interprandiale accuse le BOLUS (dose
+    # trop importante par rapport au repas), pas la basale — elle n'a donc de sens que dans un schéma qui
+    # comporte un bolus. Or `visible_si` porte sur un champ entier : impossible de masquer UNE valeur
+    # d'une liste dont les quatre autres restent pertinentes en « basale seule ». D'où la scission.
+    valeurs: [hypo_nocturne, phenomene_aube, excursions_postprandiales, stable]
     visible_si: "situation_insuline != naif"
+  - nom: hypo_interprandiale
+    type: bool
+    # Ne se recueille QUE là où le geste correspondant existe (R5 : un critère qu'on demande doit agir).
+    # En « basale seule » ou chez le naïf, il n'y a pas de bolus à réduire : la question n'est pas posée.
+    visible_si: "situation_insuline == basale_plus_bolus OR situation_insuline == basal_bolus"
   - nom: GAJ
     type: nombre
     min: 0.4
@@ -163,8 +192,9 @@ criteres_entree:
     type: bool
     # Vrai si le profil montre des excursions POST-PRANDIALES : la nuit/le jeûne sont déjà à la cible,
     # l'écart d'HbA1c est diurne — monter la basale n'aiderait pas (même rationale que `gaj_a_cible ==
-    # true` côté GAJ). Volontairement restreint à cette seule valeur : `hypo_interprandiale` n'est PAS un
-    # signal nocturne et n'implique rien sur la GAJ/le pivot (non tranché par le référent, laissé de côté).
+    # true` côté GAJ). `hypo_interprandiale` n'entre PAS ici : TRANCHÉ le 2026-07-27 — ce signal accuse le
+    # bolus, il ne dit rien de la nuit ni du pivot de titration de la basale (il est devenu un critère
+    # propre, ci-dessus, qui ouvre l'optimisation de la répartition basal/bolus).
     derive: "profil_glycemique contient excursions_postprandiales"
   - nom: poids
     type: nombre
@@ -280,16 +310,16 @@ options:
     # (ci-dessous, même lot) portent désormais des `exclusions` sur ces mêmes signaux : sans ce relais,
     # l'exclusion aurait converti le défaut en silence (renvoyant au seul repli « Poursuivre... », dont le
     # texte affirme à tort « sans hypoglycémie » — R4/incertitudes).
-    # 2ᵉ item en forme normale disjonctive (DSL sans parenthèses, AND prime sur OR) : les 4 signaux MCG
-    # restent EXACTEMENT ceux de « basale_seule » (comportement rigoureusement inchangé pour cette
-    # situation) ; `hypo_severe_recurrente == true` ne s'ajoute QUE pour « basale_plus_bolus » (dernier
-    # terme, conjonction avec la situation) — c'est le seul signal qui déclenche cette option sur le
-    # profil exact du rapport (TBR=1, TBR_severe=0 : les 4 signaux MCG n'y suffisent pas). Choix référent
-    # À CONFIRMER (invariant 6) : `hypo_severe_recurrente` n'a volontairement PAS été ajouté au même titre
-    # pour « basale_seule » — prudence de portée, hors mandat de ce lot, cf. incertitudes.
+    # `hypo_severe_recurrente` GÉNÉRALISÉ le 2026-07-27 (arbitrage référent) : il était conjoint à
+    # `situation_insuline == basale_plus_bolus`, donc muet en « basale seule ». Motif du référent : un
+    # antécédent d'hypoglycémie sévère récurrente est une propriété DU PATIENT, pas du schéma — il n'y a
+    # aucune raison qu'il ouvre un geste correctif sous basale + bolus et se taise sous basale seule. La
+    # restriction d'origine était une prudence de portée prise sans mandat, jamais un choix clinique.
+    # (En basal-bolus, le relais est assuré par « Désintensifier / alléger le schéma », qui lit
+    # `terrain_fragile` — lequel inclut ce même signal : les trois situations sont donc couvertes.)
     conditions:
       - "situation_insuline == basale_seule OR situation_insuline == basale_plus_bolus"
-      - "TBR > 4 OR TBR_severe > 1 OR CV_glycemique > 36 OR profil_glycemique contient hypo_nocturne OR situation_insuline == basale_plus_bolus AND hypo_severe_recurrente == true"
+      - "TBR > 4 OR TBR_severe > 1 OR CV_glycemique > 36 OR profil_glycemique contient hypo_nocturne OR hypo_severe_recurrente == true"
     priorite: 1
     avantages:
       - "Sécurité prioritaire : l'hypoglycémie est le critère DUR qui pilote le schéma. Réduire la basale de −2 à −4 U (ou −10-20 % de la dose actuelle), envisager un analogue de 2ᵉ génération, relâcher la cible."
@@ -541,9 +571,15 @@ options:
     # option sur l'inapplicabilité d'une autre. Sans conséquence clinique pour le patient (options
     # cumulables, principe déjà établi E-04b/E-06 de ce nœud) ; cf. incertitudes pour le chevauchement de
     # `priorite` que cela introduit avec les options d'escalade réutilisées.
+    # `hypo_interprandiale` AJOUTÉ le 2026-07-27 (arbitrage référent) : c'est LE geste que ce signal
+    # appelle — une hypoglycémie entre les repas accuse un bolus trop important par rapport au repas, et
+    # cette option porte déjà la conduite correspondante dans ses `avantages` (« hypo interprandiale →
+    # réduire le bolus »). Le signal ne bloque volontairement PAS la titration de la basale : si l'hypo
+    # est post-bolus, la basale n'est pas en cause — l'assimiler à `hypo_nocturne` aurait fait renoncer à
+    # une titration parfois nécessaire.
     conditions:
       - "situation_insuline == basal_bolus OR situation_insuline == basale_plus_bolus"
-      - "cible_atteinte == false OR TBR > 4 OR TBR_severe > 1 OR CV_glycemique > 36 OR profil_glycemique contient hypo_nocturne"
+      - "cible_atteinte == false OR TBR > 4 OR TBR_severe > 1 OR CV_glycemique > 36 OR profil_glycemique contient hypo_nocturne OR hypo_interprandiale == true"
     priorite: 2
     avantages:
       - "Prise en charge du basal-bolus par le médecin généraliste : équilibrer basal/bolus (~50/50) et ajuster à partir des doses actuelles, guidé par le profil AGP — hypo nocturne → réduire la basale ; phénomène de l'aube → augmenter la basale ; excursions post-prandiales → augmenter le bolus / avancer le timing ; hypo interprandiale → réduire le bolus."
@@ -600,16 +636,21 @@ alertes:
       renforcer la surveillance) ; sulfamide (s'il est encore utilisé) : gliclazide/glimépiride à dose réduite
       et surveillance rapprochée si DFG 30-44, contre-indiqué si DFG < 30 (convention KDIGO/SFD — cf. nœud
       prescription, place résiduelle SU/gliptine) ; adapter ou arrêter la metformine selon le DFG.
-  - quand: "mcg_disponible == true AND terrain_fragile == false"
+  # Ces deux alertes lisent `terrain_cible_assouplie` (et NON `terrain_fragile`) depuis le 2026-07-27 :
+  # un risque hypoglycémique appelle une correction du traitement, pas une cible plus permissive — cf. le
+  # commentaire des deux dérivés dans `criteres_entree`. Conséquence concrète : un patient de 55 ans, non
+  # fragile, dont le seul signal est un antécédent d'hypoglycémie sévère, garde les cibles STANDARD et
+  # reçoit par ailleurs le geste correctif (« Corriger l'hypoglycémie… », généralisé le même jour).
+  - quand: "mcg_disponible == true AND terrain_cible_assouplie == false"
     niveau: info
     message: >-
       Cibles de MCG standard (consensus international Battelino 2019 — repères d'interprétation, PAS un critère
       dur validé sur les complications) : temps dans la cible (TIR) > 70 %, temps en hypoglycémie (TBR) < 4 %
       et < 1 % (< 54 mg/dL), temps au-dessus (TAR) < 25 % et < 5 % (> 250 mg/dL), coefficient de variation ≤ 36 %.
-  - quand: "mcg_disponible == true AND terrain_fragile == true"
+  - quand: "mcg_disponible == true AND terrain_cible_assouplie == true"
     niveau: info
     message: >-
-      Sujet âgé / fragile / à haut risque d'hypoglycémie : cibles de MCG ASSOUPLIES — TIR > 50 %, TBR < 1 %,
+      Sujet âgé / fragile / à espérance de vie limitée : cibles de MCG ASSOUPLIES — TIR > 50 %, TBR < 1 %,
       TAR plus permissif (cohérent avec la cible d'HbA1c relâchée issue du nœud A).
   - quand: "mcg_disponible == false AND situation_insuline != naif"
     # Garde-fou T4/P1 (chantier visible_si) : `mcg_disponible` est masqué (donc remis à `false`, sa valeur
@@ -793,10 +834,10 @@ incertitudes:
   - "MCG : les cibles (TIR > 70 %, etc.) sont un consensus d'experts (Battelino 2019), pas un critère dur ; le lien TIR-complications est observationnel (Beck, ré-analyse du DCCT en DT1 ; Lu, cohorte T2D) ; le bénéfice de la MCG en DT2 porte sur des substituts (HbA1c, TIR), sans preuve sur les complications dures ni la mortalité (Jancev)."
   - "Bénéfice microvasculaire de l'insuline = extrapolé du contrôle glycémique (UKPDS), non démontré par un essai dédié à l'insuline sur critère dur."
   - "Seuil d'over-basalisation de 0,5 U/kg = repère (SFD / Médicalement Geek), non validé par un essai — à confirmer ; modélisé, depuis 2026-07-26, comme EXCLUSION dure de « Titrer la basale » et déclencheur (avec `gaj_a_cible`) de « Ne pas sur-titrer... » — un repère non-EBM sert donc maintenant de gate, arbitrage référent assumé (auparavant : simple alerte d'option D21)."
-  - "PIVOT nocturne (E-03, implémenté 2026-07-26) : le référent a dit 3 fois (dont recette capture 8) que la GAJ n'est plus le bon pivot de « basale seule » — l'aspect NOCTURNE de la courbe prime, la GAJ n'étant qu'un repli sans MCG. Fait : `profil_nocturne_permet_titration` (« stable » ou « phénomène de l'aube ») et `profil_nocturne_a_cible` (« excursions post-prandiales ») remplacent `gaj_a_cible` comme pivot QUAND `mcg_disponible == true` ; `gaj_a_cible` reste le pivot du repli sans MCG, inchangé. Reste NON tranché par le référent : (1) `hypo_interprandiale` (5ᵉ valeur de `profil_glycemique`) n'alimente aucun des deux nouveaux dérivés — signal ni nocturne ni franchement post-prandial, laissé de côté faute de mandat ; (2) l'assimilation « phénomène de l'aube → titrer la basale » est une lecture clinique standard (cf. §5 de l'argumentaire, « phénomène de l'aube → augmenter la basale » déjà énoncé pour le basal-bolus) mais n'a pas été explicitement validée pour ce nouveau dérivé — à confirmer."
+  - "PIVOT nocturne (E-03, implémenté 2026-07-26) : le référent a dit 3 fois (dont recette capture 8) que la GAJ n'est plus le bon pivot de « basale seule » — l'aspect NOCTURNE de la courbe prime, la GAJ n'étant qu'un repli sans MCG. Fait : `profil_nocturne_permet_titration` (« stable » ou « phénomène de l'aube ») et `profil_nocturne_a_cible` (« excursions post-prandiales ») remplacent `gaj_a_cible` comme pivot QUAND `mcg_disponible == true` ; `gaj_a_cible` reste le pivot du repli sans MCG, inchangé. TRANCHÉ par le référent le 2026-07-27, les deux points : (1) `hypo_interprandiale` ne rejoint AUCUN des deux dérivés nocturnes — il accuse le BOLUS (dose trop importante par rapport au repas), pas la basale. Il a été SORTI de la liste `profil_glycemique` et promu en critère propre, recueilli seulement dans les schémas comportant un bolus (`visible_si`), et il ouvre « Optimiser la répartition du basal-bolus » — l'option qui portait déjà « hypo interprandiale → réduire le bolus » dans son texte. Il ne bloque délibérément pas la titration de la basale : si l'hypoglycémie est post-bolus, la basale n'est pas en cause. (2) L'assimilation « phénomène de l'aube → titrer la basale » est CONFIRMÉE (lecture clinique standard, déjà énoncée dans l'argumentaire pour le basal-bolus) : aucun changement de code, l'incertitude est levée."
   - "Cumul sécurité/efficacité en « basale seule » (E-04b/E-06, implémenté 2026-07-26) : les 2 options d'intensification de la situation « basale_plus_bolus » (GLP-1/association fixe, ajout d'un bolus) sont désormais réutilisées en « basale seule », déclenchées par les 2 signaux nommés par le référent (hypoglycémie/variabilité nocturne, sur-basalisation). Volontairement NON généralisé au cas « GAJ/profil nocturne déjà à la cible sans autre signal » (`gaj_a_cible == true` seul ou son équivalent MCG) : ce cas reste sans option d'efficacité dédiée, seulement la prose de « Ne pas sur-titrer... » — un gap de même nature, non nommé par le référent, non testé, laissé pour un futur lot plutôt que tranché sans mandat. Autre point non tranché : ces 2 options portent leurs `priorite` d'origine (1 et 2, hérités de « basale_plus_bolus ») ; en « basale seule », ces rangs chevauchent ceux, sans rapport, de « Corriger l'hypoglycémie » (1) et « Ne pas sur-titrer » (2) — le nœud ne déclare pas de `familles`, donc ce chevauchement peut regrouper « à égalité » des gestes de nature différente (sécurité vs efficacité) à l'affichage ; signalé, non corrigé (changement de structure hors périmètre de ce lot). MÊME chevauchement introduit en sens inverse le 2026-07-26 (4ᵉ lot, I1/I2) : « Corriger l'hypoglycémie... » (priorite 1) et « Optimiser la répartition du basal-bolus » (priorite 2) sont désormais réutilisées en « basale_plus_bolus », où elles chevauchent « Ajouter un GLP-1... » (priorite 1) et « Ajouter un bolus... » (priorite 2) — même limite structurelle, même non-correction assumée."
-  - "I1/I2 (redteam-clinique-silences.md F2/F3, 2026-07-26, 4ᵉ lot) : « basale_plus_bolus » avait ZÉRO option de sécurité (401/401 profils à risque du banc) et ZÉRO option d'efficacité une fois les 2 gestes d'ajout épuisés (60/92 profils cible non atteinte). Corrigé par RÉUTILISATION de 2 options déjà écrites pour d'autres situations (« Corriger l'hypoglycémie... », « Optimiser la répartition du basal-bolus ») + `exclusions` sur les 2 options d'escalade, modèle « Titrer la basale ». Deux points à confirmer par le référent (invariant 6) : (1) les `exclusions` ajoutées incluent `hypo_severe_recurrente == true`, un 5ᵉ signal au-delà des 4 cités dans la consigne (TBR/TBR_severe/CV_glycemique/profil nocturne) — nécessaire pour couvrir le profil exact du rapport F3 (TBR=1, TBR_severe=0, où seul cet antécédent signale le risque), mais c'est une extension du périmètre décidée sans mandat explicite pour CE signal précis dans CE canal ; (2) `hypo_severe_recurrente` n'a volontairement PAS été ajouté au déclencheur de « Corriger l'hypoglycémie... » pour la situation « basale_seule » (portée gardée strictement à « basale_plus_bolus », prudence de portée) — à généraliser ou non selon la même logique que (1)."
-  - "RÉSOLU 2026-07-26 (4ᵉ lot, I3/F4) : « Désintensifier / alléger le schéma » (basal-bolus) portait `hypo_severe_recurrente == true` en OR littéral, jamais lu par « Choisir un analogue basal de 2ᵉ génération » (naïf) — même concept de sécurité, deux encodages (invariant I4, cité nommément pour ce nœud dans `docs/decision/CONSTRUIRE-UN-MODULE.md`). Arbitrage retenu (les deux étaient possibles, cf. mission) : FUSION dans `terrain_fragile` plutôt qu'un 2nd déclencheur indépendant par option — un futur consommateur de `terrain_fragile` hérite désormais automatiquement du signal. Le OR littéral sur « Désintensifier » est retiré (redondant). À CONFIRMER par le référent : la fusion élargit aussi la population des 2 alertes « cibles MCG » (ligne ~530 et suivante) à un patient dont le SEUL signal est cet antécédent — un effet de bord non distinctement demandé, mais cohérent avec le principe déjà appliqué (`risque_hypoglycemie_schema == eleve` y était déjà inclus)."
+  - "I1/I2 (redteam-clinique-silences.md F2/F3, 2026-07-26, 4ᵉ lot) : « basale_plus_bolus » avait ZÉRO option de sécurité (401/401 profils à risque du banc) et ZÉRO option d'efficacité une fois les 2 gestes d'ajout épuisés (60/92 profils cible non atteinte). Corrigé par RÉUTILISATION de 2 options déjà écrites pour d'autres situations (« Corriger l'hypoglycémie... », « Optimiser la répartition du basal-bolus ») + `exclusions` sur les 2 options d'escalade, modèle « Titrer la basale ». TRANCHÉ par le référent le 2026-07-27 : GÉNÉRALISATION. `hypo_severe_recurrente` déclenche désormais « Corriger l'hypoglycémie... » dans TOUTES les situations où cette option existe (« basale_seule » comme « basale_plus_bolus »), la conjonction avec la situation ayant été retirée. Motif du référent : un antécédent d'hypoglycémie sévère récurrente est une propriété DU PATIENT, pas du schéma — il n'y a aucune raison qu'il ouvre un geste correctif sous un schéma et se taise sous l'autre. La restriction d'origine était une prudence de portée, jamais un choix clinique. Le point (1) — ce même signal en 5ᵉ terme des `exclusions` d'escalade — est validé par la même décision. Vignette A27-1 : basale seule, MCG rassurante, cet antécédent pour seul signal → le geste correctif apparaît. NB : ce gain n'est visible dans AUCUN des 180 profils gelés (le générateur cumule volontiers plusieurs signaux d'hypoglycémie ; le cas du signal isolé n'y figure pas), d'où la vignette."
+  - "RÉSOLU 2026-07-26 (4ᵉ lot, I3/F4) : « Désintensifier / alléger le schéma » (basal-bolus) portait `hypo_severe_recurrente == true` en OR littéral, jamais lu par « Choisir un analogue basal de 2ᵉ génération » (naïf) — même concept de sécurité, deux encodages (invariant I4, cité nommément pour ce nœud dans `docs/decision/CONSTRUIRE-UN-MODULE.md`). Arbitrage retenu (les deux étaient possibles, cf. mission) : FUSION dans `terrain_fragile` plutôt qu'un 2nd déclencheur indépendant par option — un futur consommateur de `terrain_fragile` hérite désormais automatiquement du signal. Le OR littéral sur « Désintensifier » est retiré (redondant). TRANCHÉ par le référent le 2026-07-27, et l'effet de bord est REFUSÉ : la fusion reste valable pour le CHOIX DU TRAITEMENT (analogue de 2ᵉ génération, désintensification), mais elle ne doit pas toucher les CIBLES. Principe énoncé par le référent : « la cible doit être assouplie en fonction des comorbidités et de l'impact supposé des complications à long terme ; des hypoglycémies sévères appellent une OPTIMISATION DU TRAITEMENT, pas un assouplissement des cibles » — le même principe qui lui avait fait retirer `risque_hypoglycemie_schema` du nœud A. Les 2 alertes « cibles MCG » lisent donc désormais un dérivé DISTINCT, `terrain_cible_assouplie` (âge / fragilité / espérance de vie, sans aucun signal d'hypoglycémie). Ce ne sont pas deux encodages d'un même concept (I4) mais deux concepts que la fusion confondait. Vignettes A27-3 / A27-3b : à 55 ans le même antécédent laisse les cibles STANDARD, à 82 ans elles sont assouplies — par l'âge, pas par l'hypoglycémie."
   - "2ᵉ génération : hypoglycémie SÉVÈRE démontrée pour degludec vs glargine U100 seulement (DEVOTE) ; pour la 1ʳᵉ génération vs NPH, elle n'est pas significative (Cochrane 2020) ; pas de supériorité d'un analogue de 2ᵉ génération sur l'autre (BRIGHT, CONCLUDE)."
   - "Associations fixes (IDegLira, iGlarLixi) : bénéfice substitutif, aucun essai de morbi-mortalité cardiovasculaire dédié."
   - "Câblage formulaire (P3) : dérivés cible_atteinte / gaj_a_cible / over_basalisation / terrain_fragile, calcul des doses (poids + doses actuelles), tooltips de lecture de l'AGP par profil, et la variable hypo_severe_recurrente restent à câbler."
@@ -806,8 +847,26 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Opus"
   statut: brouillon
-  version: "0.12"
+  version: "0.13"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        Trois arbitrages référent, session « régler les incertitudes ». (1) `hypo_interprandiale` SORTI de la
+        liste `profil_glycemique` et promu en critère propre, recueilli seulement dans les schémas avec bolus
+        (`visible_si`) : ce signal accuse le BOLUS, pas la basale — il ouvre « Optimiser la répartition du
+        basal-bolus » et ne bloque délibérément pas la titration. Motif structurel de la scission : `visible_si`
+        porte sur un champ entier, on ne peut pas masquer une seule valeur d'une liste dont les autres restent
+        pertinentes en basale seule. (2) `hypo_severe_recurrente` GÉNÉRALISÉ à toutes les situations pour
+        « Corriger l'hypoglycémie » (la conjonction avec le schéma est retirée) : c'est une propriété du
+        patient, pas du schéma. (3) SCISSION de `terrain_fragile` en deux dérivés — les alertes de cibles MCG
+        lisent désormais `terrain_cible_assouplie` (âge/fragilité/horizon, SANS signal d'hypoglycémie), parce
+        qu'« une hypo sévère appelle une optimisation du traitement, pas un assouplissement des cibles ». Ce ne
+        sont pas deux encodages d'un concept (I4) mais deux concepts que la fusion confondait. 4 vignettes
+        (A27-1 à A27-3b). Golden master : AUCUNE liste d'options modifiée sur les 180 profils — seules des
+        justifications s'enrichissent ; les gains cliniques réels ne sont visibles que par les vignettes, le
+        générateur ne produisant pas le cas du signal isolé. Profils gelés complétés (colonne
+        `hypo_interprandiale`, valeurs existantes inchangées).
     - date: "2026-07-26"
       auteur: "référent DT2 + Claude Code"
       resume: >-

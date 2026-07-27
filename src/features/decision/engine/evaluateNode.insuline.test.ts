@@ -71,12 +71,19 @@ const BASE: Criteria = {
   TBR_severe: 0,
   CV_glycemique: 20,
   profil_glycemique: ['stable'],
+  // Critère propre depuis le 2026-07-27 (arbitrage référent) : une hypo interprandiale accuse le BOLUS,
+  // elle n'est donc recueillie que dans les schémas qui en comportent un. Valeur inerte ici.
+  hypo_interprandiale: false,
   GAJ: 1.0,
   poids: 75,
   dose_basale_actuelle: 20,
   dose_rapide_actuelle: 5,
   cible_atteinte: true,
   terrain_fragile: false,
+  // Terrain justifiant une CIBLE relâchée — distinct de `terrain_fragile` (risque hypoglycémique)
+  // depuis le 2026-07-27 : une hypo sévère appelle une correction du traitement, pas une cible plus
+  // permissive (principe référent, déjà appliqué au nœud A).
+  terrain_cible_assouplie: false,
   gaj_a_cible: true,
   over_basalisation: false,
 }
@@ -454,3 +461,77 @@ describe(
     )
   },
 )
+
+/**
+ * ARBITRAGES RÉFÉRENT DU 2026-07-27 — trois décisions, trois vignettes. Aucune n'est visible dans le
+ * golden master : les 180 profils gelés n'en contiennent pas la combinaison exacte (le générateur
+ * cumule volontiers plusieurs signaux d'hypoglycémie à la fois, alors que ces vignettes testent
+ * précisément le cas où UN SEUL est présent). C'est la démonstration, sur un cas réel, de ce que le
+ * banc de caractérisation ne peut pas montrer — et donc de ce à quoi servent les vignettes.
+ */
+describe('insuline — arbitrages référent du 2026-07-27', () => {
+  // `CORRIGER_HYPO` / `OPTIMISER_BB` sont déjà déclarés en tête de fichier — réutilisés tels quels.
+  it(
+    'A27-1 — basale SEULE, antécédent d\'hypo sévère récurrente pour SEUL signal (MCG rassurante) : ' +
+      'le geste correctif est proposé (généralisation référent — le signal est une propriété du patient, ' +
+      'pas du schéma)',
+    () => {
+      const o = {
+        situation_insuline: 'basale_seule',
+        hypo_severe_recurrente: true,
+        // Les 4 signaux MCG sont explicitement RASSURANTS : sans la généralisation, aucun d'eux ne
+        // déclenchait l'option, et ce patient restait sans réponse sous basale seule.
+        mcg_disponible: true, TBR: 1, TBR_severe: 0, CV_glycemique: 20,
+        profil_glycemique: ['stable'],
+      } as Partial<Criteria>
+      expect(has(titles(o), CORRIGER_HYPO)).toBe(true)
+    },
+  )
+
+  it(
+    'A27-2 — hypo INTERPRANDIALE sous basal-bolus : ouvre l\'optimisation de la répartition ' +
+      '(le bolus est en cause), et ne bloque PAS la titration de la basale',
+    () => {
+      const o = {
+        situation_insuline: 'basal_bolus',
+        hypo_interprandiale: true,
+        // Tout le reste est rassurant, y compris la cible : seule l'hypo interprandiale parle.
+        cible_atteinte: true, mcg_disponible: true, TBR: 1, TBR_severe: 0, CV_glycemique: 20,
+        profil_glycemique: ['stable'],
+      } as Partial<Criteria>
+      expect(has(titles(o), OPTIMISER_BB)).toBe(true)
+    },
+  )
+
+  it(
+    'A27-3 — hypo sévère récurrente SANS terrain gériatrique : cibles de MCG STANDARD, jamais assouplies ' +
+      '(« une hypo sévère appelle une optimisation du traitement, pas un assouplissement des cibles »)',
+    () => {
+      const o = {
+        situation_insuline: 'basale_seule',
+        age: 55, fragilite: false, esperance_vie: 'longue',
+        hypo_severe_recurrente: true,
+        mcg_disponible: true,
+      } as Partial<Criteria>
+      const messages = alertMsgs(o)
+      expect(messages.some((m) => m.includes('Cibles de MCG standard'))).toBe(true)
+      expect(messages.some((m) => m.includes('ASSOUPLIES'))).toBe(false)
+    },
+  )
+
+  it(
+    'A27-3b — le MÊME antécédent chez un sujet âgé : cibles assouplies, cette fois à raison ' +
+      '(c\'est l\'âge qui les relâche, pas l\'hypoglycémie)',
+    () => {
+      const o = {
+        situation_insuline: 'basale_seule',
+        age: 82, fragilite: false, esperance_vie: 'longue',
+        hypo_severe_recurrente: true,
+        mcg_disponible: true,
+      } as Partial<Criteria>
+      const messages = alertMsgs(o)
+      expect(messages.some((m) => m.includes('ASSOUPLIES'))).toBe(true)
+      expect(messages.some((m) => m.includes('Cibles de MCG standard'))).toBe(false)
+    },
+  )
+})

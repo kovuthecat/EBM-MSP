@@ -166,15 +166,26 @@ incertitudes:
     `statine`, un gate mono-facteur comparable (« tout dépend de l'ancienneté du diabète ET des
     atteintes d'organe. On colle à la grille. », F-statine §9.4). `anciennete_diabete_annees` reste un
     critère actif du nœud (il gate la borne stricte ~6,5 % via `< 5`), simplement plus comme
-    déclencheur autonome du cran ≤ 8 %. À RECONFIRMER par le référent : cf. `argumentaire`, section
-    « Révision 2026-07-26 ».
+    déclencheur autonome du cran ≤ 8 %. RECONFIRMÉ par le référent le 2026-07-27 : l'ancienneté SEULE ne
+    relâche pas la cible. Le choix conservateur devient donc une décision assumée, sur le motif déjà
+    invoqué pour la statine — « tout dépend de l'ancienneté du diabète ET des atteintes d'organe, on
+    colle à la grille » — et cohérent avec la HAS, qui ne mentionne l'ancienneté qu'associée aux
+    hypoglycémies, jamais isolée. Aucun changement de code : l'incertitude est levée telle quelle.
 veille_liee: []
 meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude Code"
   statut: valide
-  version: "2.3"
+  version: "2.4"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        RECONFIRMATION référent (aucun changement de code) : une ancienneté de diabète > 10 ans SEULE ne
+        relâche pas la cible à ≤ 8 %. Le retrait conservateur du 2026-07-26 devient une décision assumée —
+        même motif que pour la statine (« tout dépend de l'ancienneté ET des atteintes d'organe, on colle à la
+        grille »), et cohérent avec la HAS qui ne cite l'ancienneté qu'associée aux hypoglycémies. Incertitude
+        levée.
     - date: "2026-07-26"
       auteur: "référent DT2 + Claude Code"
       resume: >-
