@@ -50,6 +50,7 @@ Sortie :
     - Repérer un moment de grignotage récurrent et lui trouver une alternative :: à renseigner : frequence_grignotage
     - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
     - Orienter vers le diététicien de la structure :: à renseigner : acces_alimentation, signe_restriction_puis_craquage, signe_manger_cache_ou_culpabilite, signe_antecedent_regime_restrictif
+    - Proposer aussi un avis spécialisé en trouble du comportement alimentaire :: à renseigner : signe_restriction_puis_craquage, signe_manger_cache_ou_culpabilite, signe_antecedent_regime_restrictif
     - Continuer ce qui fonctionne déjà :: à renseigner : matiere_grasse_cuisson, frequence_fruits_a_coque
 
 ### Profil #1 — 13 critère(s) masqué(s) (masque stratifié) : traitements_en_cours, signe_antecedent_regime_restrictif, consommation_vin, signe_restriction_puis_craquage, frequence_restauration_rapide, signe_manger_cache_ou_culpabilite, difficulte_estimation_portions, alimentation_emotionnelle, frequence_fruits_a_coque, regularite_repas, frequence_boissons_sucrees, matiere_grasse_cuisson, fragilite
@@ -95,6 +96,7 @@ Sortie :
     - Manger sans se presser :: à renseigner : alimentation_emotionnelle
     - Repérer un moment de grignotage récurrent et lui trouver une alternative :: à renseigner : signe_restriction_puis_craquage, signe_manger_cache_ou_culpabilite, signe_antecedent_regime_restrictif
     - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
+    - Proposer aussi un avis spécialisé en trouble du comportement alimentaire :: à renseigner : signe_restriction_puis_craquage, signe_manger_cache_ou_culpabilite, signe_antecedent_regime_restrictif
     - Continuer ce qui fonctionne déjà :: à renseigner : matiere_grasse_cuisson, frequence_fruits_a_coque
 
 ### Profil #2 — 13 critère(s) masqué(s) (masque stratifié) : regularite_repas, signe_restriction_puis_craquage, frequence_viande_rouge_charcuterie, matiere_grasse_cuisson, frequence_legumineuses, traitements_en_cours, frequence_ultratransformes, frequence_restauration_rapide, difficulte_estimation_portions, signe_antecedent_regime_restrictif, acces_alimentation, alimentation_emotionnelle, frequence_boissons_sucrees
@@ -139,6 +141,7 @@ Sortie :
     - Manger sans se presser :: à renseigner : alimentation_emotionnelle
     - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
     - Orienter vers le diététicien de la structure :: à renseigner : acces_alimentation, signe_restriction_puis_craquage, signe_antecedent_regime_restrictif
+    - Proposer aussi un avis spécialisé en trouble du comportement alimentaire :: à renseigner : signe_restriction_puis_craquage, signe_antecedent_regime_restrictif
     - Continuer ce qui fonctionne déjà :: à renseigner : matiere_grasse_cuisson
 
 ### Profil #3 — 9 critère(s) masqué(s) (masque stratifié) : regularite_repas, acces_alimentation, difficulte_estimation_portions, frequence_ultratransformes, frequence_boissons_sucrees, traitements_en_cours, alimentation_emotionnelle, matiere_grasse_cuisson, signe_antecedent_regime_restrictif
@@ -175,6 +178,8 @@ Sortie :
   Famille « Orientation » (exclusive: false) :
   - [recommandee] Orienter vers le diététicien de la structure
       proposé parce que : verrou_tca == true ; fragilite == true
+  - [recommandee] Proposer aussi un avis spécialisé en trouble du comportement alimentaire
+      proposé parce que : verrou_tca == true
   Alertes de nœud :
     - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
   Options écartées (sécurité, R4) :
@@ -228,6 +233,7 @@ Sortie :
     - Repérer un moment de grignotage récurrent et lui trouver une alternative :: à renseigner : frequence_grignotage
     - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
     - Orienter vers le diététicien de la structure :: à renseigner : acces_alimentation, signe_manger_cache_ou_culpabilite
+    - Proposer aussi un avis spécialisé en trouble du comportement alimentaire :: à renseigner : signe_manger_cache_ou_culpabilite
 
 ### Profil #5 — 4 critère(s) masqué(s) (masque stratifié) : matiere_grasse_cuisson, frequence_fruits_a_coque, frequence_restauration_rapide, frequence_poisson
 
@@ -261,6 +267,8 @@ Sortie :
       proposé parce que : regularite_repas == irreguliers
   Famille « Orientation » (exclusive: false) :
   - [recommandee] Orienter vers le diététicien de la structure
+      proposé parce que : verrou_tca == true
+  - [recommandee] Proposer aussi un avis spécialisé en trouble du comportement alimentaire
       proposé parce que : verrou_tca == true
   Alertes de nœud :
     - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
@@ -324,6 +332,7 @@ Sortie :
     - Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre :: à renseigner : frequence_poisson
     - Repérer un moment de grignotage récurrent et lui trouver une alternative :: à renseigner : frequence_grignotage
     - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
+    - Proposer aussi un avis spécialisé en trouble du comportement alimentaire :: à renseigner : signe_restriction_puis_craquage, signe_manger_cache_ou_culpabilite
 
 ### Profil #7 — 10 critère(s) masqué(s) (masque stratifié) : signe_manger_cache_ou_culpabilite, frequence_boissons_sucrees, matiere_grasse_cuisson, frequence_restauration_rapide, alimentation_emotionnelle, fragilite, frequence_ultratransformes, frequence_viande_rouge_charcuterie, frequence_legumineuses, acces_alimentation
 
@@ -357,6 +366,8 @@ Sortie :
       proposé parce que : regularite_repas == irreguliers
   Famille « Orientation » (exclusive: false) :
   - [recommandee] Orienter vers le diététicien de la structure
+      proposé parce que : verrou_tca == true
+  - [recommandee] Proposer aussi un avis spécialisé en trouble du comportement alimentaire
       proposé parce que : verrou_tca == true
   Alertes de nœud :
     - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
@@ -410,6 +421,8 @@ Sortie :
   Famille « Orientation » (exclusive: false) :
   - [recommandee] Orienter vers le diététicien de la structure
       proposé parce que : verrou_tca == true ; fragilite == true
+  - [recommandee] Proposer aussi un avis spécialisé en trouble du comportement alimentaire
+      proposé parce que : verrou_tca == true
   Alertes de nœud :
     - Consommation de vin au niveau ou au-delà du seuil d'adhérence méditerranéenne (≥ 7 verres/semaine, score MEDAS) : ce nœud ne propose jamais l'alcool comme piste — orienter vers le repérage d'un mésusage plutôt que d'encourager cette consommation. Interactions à garder en tête : foie, triglycérides, hypoglycémie sous insulinosécréteur. [attention]
   Options écartées (sécurité, R4) :
@@ -466,6 +479,8 @@ Sortie :
   Famille « Orientation » (exclusive: false) :
   - [recommandee] Orienter vers le diététicien de la structure
       proposé parce que : acces_alimentation == difficultes_importantes ; verrou_tca == true ; fragilite == true
+  - [recommandee] Proposer aussi un avis spécialisé en trouble du comportement alimentaire
+      proposé parce que : verrou_tca == true
   Alertes de nœud :
     - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
   Options écartées (sécurité, R4) :
@@ -513,6 +528,8 @@ Sortie :
       proposé parce que : frequence_legumineuses == occasionnel
   Famille « Orientation » (exclusive: false) :
   - [recommandee] Orienter vers le diététicien de la structure
+      proposé parce que : verrou_tca == true
+  - [recommandee] Proposer aussi un avis spécialisé en trouble du comportement alimentaire
       proposé parce que : verrou_tca == true
   Alertes de nœud :
     - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
@@ -567,6 +584,7 @@ Sortie :
     - Repérer un moment de grignotage récurrent et lui trouver une alternative :: à renseigner : signe_manger_cache_ou_culpabilite, signe_antecedent_regime_restrictif
     - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
     - Orienter vers le diététicien de la structure :: à renseigner : acces_alimentation, signe_manger_cache_ou_culpabilite, signe_antecedent_regime_restrictif
+    - Proposer aussi un avis spécialisé en trouble du comportement alimentaire :: à renseigner : signe_manger_cache_ou_culpabilite, signe_antecedent_regime_restrictif
     - Continuer ce qui fonctionne déjà :: à renseigner : matiere_grasse_cuisson, frequence_fruits_a_coque
 
 ### Profil #12 — 12 critère(s) masqué(s) (masque stratifié) : frequence_grignotage, consommation_vin, frequence_restauration_rapide, signe_manger_cache_ou_culpabilite, traitements_en_cours, acces_alimentation, frequence_poisson, fragilite, frequence_legumineuses, difficulte_estimation_portions, alimentation_emotionnelle, signe_antecedent_regime_restrictif
@@ -599,6 +617,8 @@ Sortie :
   Famille « Orientation » (exclusive: false) :
   - [recommandee] Orienter vers le diététicien de la structure
       proposé parce que : verrou_tca == true ; fragilite == true
+  - [recommandee] Proposer aussi un avis spécialisé en trouble du comportement alimentaire
+      proposé parce que : verrou_tca == true
   Alertes de nœud :
     - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
   Options écartées (sécurité, R4) :
@@ -661,6 +681,7 @@ Sortie :
     - Manger sans se presser :: à renseigner : alimentation_emotionnelle
     - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
     - Orienter vers le diététicien de la structure :: à renseigner : signe_restriction_puis_craquage, signe_manger_cache_ou_culpabilite
+    - Proposer aussi un avis spécialisé en trouble du comportement alimentaire :: à renseigner : signe_restriction_puis_craquage, signe_manger_cache_ou_culpabilite
 
 ### Profil #14 — 8 critère(s) masqué(s) (masque stratifié) : matiere_grasse_cuisson, consommation_vin, frequence_restauration_rapide, signe_restriction_puis_craquage, traitements_en_cours, frequence_legumineuses, signe_manger_cache_ou_culpabilite, frequence_boissons_sucrees
 
@@ -695,6 +716,8 @@ Sortie :
   Famille « Orientation » (exclusive: false) :
   - [recommandee] Orienter vers le diététicien de la structure
       proposé parce que : verrou_tca == true ; fragilite == true
+  - [recommandee] Proposer aussi un avis spécialisé en trouble du comportement alimentaire
+      proposé parce que : verrou_tca == true
   Alertes de nœud :
     - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
   Options écartées (sécurité, R4) :

@@ -18,8 +18,10 @@
 # (initier/intensifier/optimiser/deprescrire), organise le flux et la saisie (visible_si) sans jamais
 # affirmer un état. RECÂBLAGE R1 (2026-07-25, docs/decision/GRAMMAIRE-NOEUD.md) : `cible_atteinte`
 # redevient dérivé de l'ÉTAT DÉCLARÉ `position_vs_cible` (plus de l'intention — cf. commentaires des
-# critères ci-dessous). `hba1c_sous_cible` = drapeau SAISI < 6,5 % (garde-fou absolu). `terrain_fragile`
-# dérivé. PALETTE GLYCÉMIQUE
+# critères ci-dessous). `hba1c_sous_cible` = garde-fou absolu dérivé de l'HbA1c saisie, plancher 6,5 % —
+# porté à 7 % si DFG < 30 sous glinide ou insuline depuis le 2026-07-27 (SFD 2025 Avis n° 12).
+# `terrain_cible_assouplie` dérivé (ex-`terrain_fragile`, SCINDÉ le 2026-07-27 : le terrain gériatrique
+# d'un côté, `risque_hypoglycemie_schema` de l'autre — dette I4, cf. le critère). PALETTE GLYCÉMIQUE
 # (S8) : iSGLT2/AR GLP-1 dispo aussi pour le contrôle glycémique (cible_atteinte==false), la comorbidité
 # PRIORISE ; insuline/SU/gliptine = agents possibles de bas rang ; repli insuline si palette non-insulinique
 # épuisée. `sur_traitement` RETIRÉ. GATING DOSE METFORMINE (2026-07-26, 3e série, chantier vignettes,
@@ -179,10 +181,23 @@ criteres_entree:
     groupe: Terrain et préférences
   - nom: hba1c_sous_cible
     type: bool
-    # DÉRIVÉ de l'HbA1c saisie (garde-fou ABSOLU < 6,5 %, indépendant de la cible du nœud A). Le garde `> 0`
+    # DÉRIVÉ de l'HbA1c saisie (garde-fou ABSOLU, indépendant de la cible du nœud A). Le garde `> 0`
     # évite le faux positif quand l'HbA1c n'est pas encore saisie (défaut 0). Un défaut « false » d'un drapeau
     # manuel n'était PAS sûr pour un garde-fou (patient à 6,0 % non coché → pas de déprescription — vérif S8).
-    derive: "HbA1c_actuelle > 0 AND HbA1c_actuelle < 6.5"
+    #
+    # PLANCHER CONDITIONNEL (décision référent 2026-07-27, 6e série ; source : SFD 2025, Avis n° 12,
+    # Méd Mal Métab 2025;19(8):630-662, verbatim relu par le red-team `chantier-2026-07-27/
+    # redteam-seuils-renaux.md` §1.1) : « Chez les patients vivant avec un DT2 et présentant une IRC sévère
+    # (DFG entre 15 et 29) ou terminale (DFG < 15), on visera une HbA1c cible ≤ 8 %, avec une limite
+    # INFÉRIEURE de 7 % en cas de traitement par GLINIDE ou INSULINE (SU contre-indiqués), pour minimiser le
+    # risque hypoglycémique. » Le plancher unique à 6,5 % laissait donc passer un patient à DFG 25 sous
+    # répaglinide et HbA1c 6,8 % — dans la zone que la SFD interdit, sans déclencher aucun garde-fou
+    # numérique (finding MOYENNE-4(b) du red-team). Il n'était rattrapé que si le praticien déclarait
+    # lui-même `position_vs_cible == sous_objectif`.
+    # Écrit en forme normale disjonctive (AND lie plus fort que OR — même idiome que `palette_glycemique_
+    # ouverte` ci-dessous). Le garde `DFG > 0` est indispensable : le défaut d'un nombre non saisi est 0, et
+    # `DFG < 30` seul serait VRAI pour tout patient dont le DFG n'est pas renseigné.
+    derive: "HbA1c_actuelle > 0 AND HbA1c_actuelle < 6.5 OR HbA1c_actuelle > 0 AND HbA1c_actuelle < 7 AND DFG > 0 AND DFG < 30 AND traitements_en_cours contient glinide OR HbA1c_actuelle > 0 AND HbA1c_actuelle < 7 AND DFG > 0 AND DFG < 30 AND traitements_en_cours contient insuline"
   - nom: cible_atteinte
     type: bool
     # R1 (GRAMMAIRE-NOEUD.md) : dérivé de l'ÉTAT déclaré (`position_vs_cible`), plus de l'intention.
@@ -191,9 +206,23 @@ criteres_entree:
     # rien. `sous_objectif` le capte ici (cible « atteinte » au sens large : à l'objectif ou en dessous,
     # donc rien à intensifier). `hba1c_sous_cible` reste INCHANGÉ, garde-fou dur indépendant.
     derive: "position_vs_cible == a_l_objectif OR position_vs_cible == sous_objectif"
-  - nom: terrain_fragile
+  # SCISSION de l'ex-`terrain_fragile` (décision référent 2026-07-27, 6e série — dette I4 « un concept, un
+  # encodage », restée ouverte depuis le 2026-07-27 sur le nœud `insuline`). L'ancien dérivé agrégeait
+  # QUATRE choses de deux natures différentes sous un seul nom :
+  #   - un TERRAIN (âge ≥ 75 / fragilité / espérance de vie limitée) = « ce patient a peu à gagner d'un
+  #     contrôle strict » ;
+  #   - un RISQUE lié au SCHÉMA (`risque_hypoglycemie_schema == eleve`) = « ce traitement expose à l'hypo ».
+  # Le nœud `insuline` a fait la même scission le 2026-07-27 ; `terrain_cible_assouplie` porte ici EXACTEMENT
+  # la même définition que là-bas (age >= 75 OR fragilite OR esperance_vie == limitee) — c'est le point de la
+  # scission : le même concept ne peut pas s'appeler pareil et se dériver autrement d'un nœud à l'autre.
+  # Aucun invariant PAR NŒUD ne pouvait détecter cette divergence : la vérification est restée manuelle.
+  # ZÉRO CHANGEMENT DE COMPORTEMENT : `risque_hypoglycemie_schema` garde ses deux consommateurs directs
+  # (alertes de nœud, plus bas) et le seul consommateur de l'ex-`terrain_fragile` — l'option
+  # « Désintensifier » — reconstruit la disjonction d'origine terme à terme (A AND (B OR C) ≡ A AND B OR
+  # A AND C), en rendant visibles les deux motifs distincts qui la déclenchent.
+  - nom: terrain_cible_assouplie
     type: bool
-    derive: "age >= 75 OR fragilite == true OR esperance_vie == limitee OR risque_hypoglycemie_schema == eleve"
+    derive: "age >= 75 OR fragilite == true OR esperance_vie == limitee"
   - nom: palette_glycemique_ouverte
     type: bool
     # Séquençage (décision référent S8) : la palette glycémique PURE (ajout d'un 2e agent sans indication de
@@ -373,13 +402,23 @@ options:
       - "DFG < 30"
     priorite: 1
     famille: "À faire d'emblée — sécurité"
+    # ATTRIBUTION CORRIGÉE le 2026-07-27 (6e série). Le seuil de 30 était attribué à une « convention
+    # KDIGO/SFD ». Vérification en source primaire (`chantier-2026-07-27/preuve-seuils-renaux-su-glinide.md`,
+    # confirmée et renforcée par `redteam-seuils-renaux.md` §2.4) : la KDIGO 2022 ne porte AUCUN chiffre sur
+    # les sulfamides — sa seule phrase les reliant au DFG est qualitative (« sulfonylureas that are
+    # long-acting or cleared by the kidney should be avoided at low eGFRs », réf. 349 = une revue), et sa
+    # Figure 23 ne chiffre que la metformine et l'iSGLT2. Ce n'est donc PAS une convention KDIGO.
+    # C'est en revanche une CITATION de la SFD, stable sur deux éditions : Tableau I note 2 (« Les sulfamides
+    # hypoglycémiants sont contre-indiqués en cas d'IRC sévère ou terminale ») + note 1 (stade 4 = 15-29,
+    # stade 5 = < 15) + Avis n° 12, qui attache « (SU contre-indiqués) » aux plages chiffrées dans la MÊME
+    # phrase. Le seuil n'est plus une convention : c'est une citation.
     avantages:
-      - "Sulfamide CONTRE‑INDIQUÉ en insuffisance rénale sévère (DFG < 30, convention KDIGO/SFD) : risque d'hypoglycémie sévère et prolongée par accumulation. Arrêter (symétrie avec l'arrêt de la metformine)."
+      - "Sulfamide CONTRE‑INDIQUÉ en insuffisance rénale sévère (DFG < 30) : risque d'hypoglycémie sévère et prolongée par accumulation. Arrêter (symétrie avec l'arrêt de la metformine). Seuil CITÉ par la SFD (prise de position 2023 et 2025, Tableau I notes 1-2 + Avis n° 12), non déduit."
     inconvenients:
-      - "Réévaluer le contrôle glycémique ; en rénal sévère, l'insuline devient souvent le pivot (± sitagliptine à dose adaptée au DFG)."
+      - "Réévaluer le contrôle glycémique ; en rénal sévère, l'insuline devient souvent le pivot (± vildagliptine 50 mg/j — voir l'option gliptine pour la molécule utilisable à ce stade)."
     effet_attendu: >-
       Suppression du risque d'hypoglycémie sévère par accumulation en insuffisance rénale (sécurité — RCP « IR
-      sévère » ; convention KDIGO/SFD).
+      sévère » ; seuil cité par la SFD 2023/2025).
     niveau_preuve: eleve
   # ---- Sécurité — acidocétose euglycémique sous iSGLT2 --------------------------------------------------
   - intitule: "Suspendre l'iSGLT2 (cétonémie confirmée — suspicion d'acidocétose euglycémique)"
@@ -716,7 +755,11 @@ options:
     # (dernier agent réputé « sûr » à garder, cf. son propre commentaire), pas l'allègement d'un agent
     # sans bénéfice dur (sulfamide/glinide/insuline).
     conditions:
-      - "hba1c_sous_cible == true OR hypoglycemie_recente == true AND terrain_fragile == true OR position_vs_cible == sous_objectif"
+      # SCISSION I4 (2026-07-27, 6e série) : l'ex-`terrain_fragile` valait
+      # `terrain_cible_assouplie OR risque_hypoglycemie_schema == eleve`. La disjonction est reconstruite ici
+      # terme à terme — même valeur de vérité, deux motifs désormais lisibles séparément : le terrain
+      # gériatrique d'un côté, le schéma hypoglycémiant de l'autre.
+      - "hba1c_sous_cible == true OR hypoglycemie_recente == true AND terrain_cible_assouplie == true OR hypoglycemie_recente == true AND risque_hypoglycemie_schema == eleve OR position_vs_cible == sous_objectif"
       - "traitements_en_cours contient sulfamide OR traitements_en_cours contient glinide OR traitements_en_cours contient insuline"
     priorite: 1
     famille: "Traitement à alléger"
@@ -901,15 +944,30 @@ options:
         rang: 5
     famille: "Agent à ajouter"
     avantages:
-      - "Agent glycémique ORAL possible « avec ses limites » (bas rang) : sans hypoglycémie, neutre sur le poids, bien toléré sur le plan digestif — la niche quand on veut éviter l'hypoglycémie sans injection, ou quand iSGLT2 et AR GLP‑1 sont indisponibles (le rang remonte alors). Molécule = SITAGLIPTINE (seule gliptine FR à sécurité CV démontrée, TECOS ; utilisable jusqu'en dialyse à dose réduite). Préférée au sulfamide (ordre HAS/SFD)."
+      - "Agent glycémique ORAL possible « avec ses limites » (bas rang) : sans hypoglycémie, neutre sur le poids, bien toléré sur le plan digestif — la niche quand on veut éviter l'hypoglycémie sans injection, ou quand iSGLT2 et AR GLP‑1 sont indisponibles (le rang remonte alors). Molécule = SITAGLIPTINE (seule gliptine FR à sécurité CV démontrée, TECOS) jusqu'à DFG ≥ 30 ; en dessous, voir la molécule ci‑dessous. Préférée au sulfamide (ordre HAS/SFD)."
     inconvenients:
       - "AUCUN bénéfice sur critère dur (4 CVOT neutres) ; efficacité modeste (~0,5‑0,8 % HbA1c). Effets indésirables : pemphigoïde bulleuse (Lee 2020 HR 1,42), arthralgies (FDA), pancréatite (signal méta). Ne jamais associer à un AR GLP‑1."
     effet_attendu: >-
       Baisse d'HbA1c ~0,5‑0,8 % (substitution) ; aucun bénéfice dur. Face au sulfamide : absence d'hypoglycémie
       et de prise de poids (CAROLINA).
     niveau_preuve: modere
+    # DISPONIBILITÉ FR EN RÉNAL SÉVÈRE — corrigé le 2026-07-27 (6e série, décision référent). Le nœud
+    # écrivait « sitagliptine 25 mg si DFG < 30, dialyse incluse ». Or la SFD 2025 (Avis n° 12 bis, verbatim
+    # relu par `chantier-2026-07-27/redteam-seuils-renaux.md` §1.2) écrit, DEUX fois, que la forme
+    # sitagliptine 25 mg n'est PAS commercialisée en France, et désigne à sa place la vildagliptine 50 mg/j :
+    # « Au stade d'IRC terminale (DFG < 15), parmi les molécules commercialisées en France, seuls l'insuline,
+    # le répaglinide […], la vildagliptine à la dose de 50 mg/j et la sitagliptine à la dose de 25 mg/j
+    # (forme non commercialisée en France) peuvent être utilisés. »
+    # Le red-team N'A PAS pu vérifier ce point sur la BDPM (§7.6) et l'a explicitement laissé au référent
+    # plutôt que de le deviner (invariant 6) ; le référent a tranché pour suivre la SFD à la lettre.
+    # ⚠ Cette décision portait sur l'option « Arrêter le sulfamide » ; je l'ai ÉTENDUE ici et à l'alerte
+    # « place résiduelle en insuffisance rénale », qui portaient la même affirmation — laisser le nœud
+    # recommander ailleurs un dosage non dispensable aurait été se contredire. À reverser en bloc si la
+    # sitagliptine 25 mg existe bien en officine.
+    # Le RANG et les CONDITIONS de l'option sont INCHANGÉS : la gliptine reste offerte sous 30, seule la
+    # molécule nommée change. Pas d'exclusion rénale ajoutée (aucune n'est portée par la source).
     contre_indications:
-      - "SITAGLIPTINE (dose au DFG : 100 mg si ≥ 45 ; 50 mg si 30‑44 ; 25 mg si < 30, dialyse incluse). Ne pas utiliser saxagliptine (IC + retrait FR) ni lina/alogliptine (non commercialisées FR). Éruption bulleuse → évoquer pemphigoïde, arrêter."
+      - "SITAGLIPTINE (dose au DFG : 100 mg si ≥ 45 ; 50 mg si 30‑44). En dessous de 30 (dialyse incluse), la SFD 2025 nomme la VILDAGLIPTINE 50 mg/j : la forme sitagliptine 25 mg n'est pas commercialisée en France. Ne pas utiliser saxagliptine (IC + retrait FR) ni lina/alogliptine (non commercialisées FR). Éruption bulleuse → évoquer pemphigoïde, arrêter."
   - intitule: "Sulfamide (gliclazide MR ou glimépiride) — option glycémique de bas rang, derrière la gliptine"
     conditions:
       - "classes_a_benefice_indisponibles == true OR palette_glycemique_ouverte == true"
@@ -923,6 +981,23 @@ options:
       - "DFG < 30"
       - "symptomes_glucotoxicite == true"
       - "cetonemie == true"
+      # SUJET ÂGÉ (décision référent 2026-07-27, 6e série ; source : SFD 2025, Tableau I note 6, verbatim
+      # relu par le red-team `chantier-2026-07-27/redteam-seuils-renaux.md` MOYENNE-4(a)) : « Il est
+      # recommandé d'éviter de prescrire un sulfamide ou un glinide chez les sujets âgés "fragiles" et de
+      # NE JAMAIS les utiliser chez les sujets âgés "dépendants". » DURCISSEMENT par rapport à l'édition
+      # 2023, qui écrivait « il est préférable d'éviter » pour les deux catégories.
+      # La prohibition n'existait jusqu'ici qu'en PROSE (`contre_indications` ci-dessous, « Déconseillé chez
+      # le sujet à risque d'hypoglycémie élevé »), c'est-à-dire à un cran plus faible que « ne jamais » : un
+      # écart de garde-fou directement documenté par la source décisive du nœud.
+      # SUR-BLOCAGE ASSUMÉ (arbitrage référent explicite) : le nœud n'a PAS de catégorie « dépendant » —
+      # `fragilite` est un booléen. Créer un statut gériatrique à trois valeurs aurait collé au texte à la
+      # lettre, mais obligeait à reprendre tous les dérivés qui consomment `fragilite`. Le référent a
+      # tranché pour l'exclusion sur le booléen existant : elle bloque donc AUSSI le sujet « fragile », que
+      # la SFD dit seulement d'éviter. Choix délibéré, du côté sûr d'un garde-fou d'hypoglycémie.
+      # Le GLINIDE, visé par la même phrase de la SFD, n'a pas d'option d'AJOUT dans ce nœud (aucune option
+      # ne le prescrit) : rien à exclure de ce côté. Les options qui le RÉDUISENT ou l'ARRÊTENT restent
+      # ouvertes — R3 : arrêter un traitement est une OPTION, jamais une exclusion.
+      - "fragilite == true"
     priorite:
       - quand: "classes_a_benefice_indisponibles == true"
         rang: 3
@@ -1059,9 +1134,10 @@ alertes:
   - quand: "classes_a_benefice_indisponibles == true AND DFG < 45"
     niveau: attention
     message: >-
-      Place résiduelle en insuffisance rénale : sitagliptine à dose réduite (50 mg si DFG 30‑44 ; 25 mg si
-      < 30, dialyse incluse). Sulfamide gliclazide/glimépiride à dose réduite mais CONTRE‑INDIQUÉ < 30 ;
-      jamais de glibenclamide.
+      Place résiduelle en insuffisance rénale : sitagliptine à dose réduite (50 mg si DFG 30‑44). En dessous
+      de 30 (dialyse incluse), la SFD 2025 nomme la vildagliptine 50 mg/j — la forme sitagliptine 25 mg
+      n'est pas commercialisée en France. Sulfamide gliclazide/glimépiride à dose réduite mais
+      CONTRE‑INDIQUÉ < 30 ; jamais de glibenclamide.
   - quand: "traitements_en_cours contient insuline AND traitements_en_cours contient sulfamide OR traitements_en_cours contient insuline AND traitements_en_cours contient glinide"
     niveau: attention
     message: >-
@@ -1307,24 +1383,114 @@ incertitudes:
     répaglinide n'a AUCUNE contre-indication rénale au RCP (rubrique 4.3), s'élimine à > 90 % par voie
     hépatobiliaire, et que l'exposition doublée en IRC sévère (ASC ×2 entre 20 et 39 ml/min, rubrique 5.2)
     justifie une prudence posologique — c'est-à-dire précisément le geste que l'option propose. L'exclusion
-    héritée retirait donc à ce patient le geste que son propre RCP recommande. RÉSIDUELS SIGNALÉS, non
-    comblés : (a) le RCP est SILENCIEUX en dessous de 20 ml/min (dialyse) — l'option reste offerte, sans
-    donnée pour la borner, ce que porte son `inconvenients` ; (b) aucune source de société savante
-    (SFD/HAS) propre au répaglinide en IRC n'a été récupérée — le sourçage repose sur le seul RCP ;
-    (c) le RCP centralisé EMA de Novonorm n'a pas pu être lu (PDF non extractible) : les deux RCP de
-    génériques consultés (specid 66773421) en tiennent lieu, harmonisés par construction réglementaire."
-  - "SEUIL « DFG < 30 » DU SULFAMIDE — convention, pas citation : ni le RCP du gliclazide ni celui du
-    glimépiride ne donnent de valeur chiffrée de DFG ; ils disent « insuffisance rénale sévère » sans la
-    définir. Le seuil de 30 utilisé ici est la convention KDIGO/SFD usuelle (stades G4-G5), une
-    transposition raisonnable et non une invention — signalée pour ce qu'elle est (invariant CLAUDE.md 6).
-    Un sourçage plus dur (grille HAS/SFD explicite) reste à faire si le référent le souhaite."
+    héritée retirait donc à ce patient le geste que son propre RCP recommande.
+    ÉTAT DES TROIS RÉSIDUELS au 2026-07-27 (6e série, collecte + red-team adversarial) :
+    (b) CLOS — deux sources françaises de rang recommandation nomment le répaglinide : SFD 2025 Avis n° 12
+    bis (liste fermée des molécules utilisables sous DFG 15, répaglinide nommément) et HAS 2024 R.78
+    (grade C, « répaglinide (demi-vie courte) et en raison de sa « non-CI » en cas de maladie rénale »). Le
+    sourçage ne repose plus sur le seul RCP. (À noter : OpenEvidence affirmait qu'aucun texte français ne
+    traitait le sujet — c'était faux, deux fois ; le red-team a tranché en rouvrant les PDF.)
+    (c) CLOS — le RCP centralisé EMA de Novonorm a été extrait sans difficulté par le red-team : rubrique
+    4.3, cinq contre-indications, AUCUNE rénale ; rubriques 4.2 et 5.2 identiques aux génériques consultés.
+    (a) MAINTENU, REDESCENDU D'UN CRAN — et surtout PAS clos, contrairement à ce que la collecte proposait.
+    Elle voulait le clore au motif qu'une PK spécifique de l'hémodialysé existerait (Marbury 2000, bras
+    n = 6 avec dosage du dialysat : « hemodialysis did not significantly affect repaglinide clearance »).
+    Le red-team a montré que ce bras est en DOSE UNIQUE ×2 avec washout : il établit que l'hémodialyse
+    n'épure pas le répaglinide, PAS qu'une prise prandiale répétée soit sûre chez le dialysé — deux
+    affirmations différentes. Il a de plus relevé la phrase que la collecte omettait, dans le même résumé :
+    « the elimination rate constant in the group with severe renal impairment decreased after 1 week of
+    treatment » (signal d'accumulation en administration répétée), et le fait que l'étiquetage FDA NIE
+    positivement l'existence de toute étude sous CrCl 20 ou en hémodialyse.
+    Formulation juste : l'option est SOUTENUE PAR UNE RECOMMANDATION (SFD, sous 15) mais SANS donnée
+    pharmacocinétique d'état d'équilibre en dialyse, et avec un signal d'accumulation en IR sévère. Pas de
+    borne inférieure à poser dans le nœud ; c'est la prudence posologique qui reste le geste, et elle est
+    déjà ce que l'option propose."
+  - "SEUIL « DFG < 30 » DU SULFAMIDE — RÉSOLU le 2026-07-27 (6e série) : ce n'est plus une convention,
+    c'est une CITATION. L'entrée disait vrai sur les RCP (ni le gliclazide ni le glimépiride ne chiffrent
+    l'« insuffisance rénale sévère ») mais attribuait le seuil de 30 à une « convention KDIGO/SFD ».
+    Vérification en source primaire, puis re-vérification adversariale indépendante
+    (`chantier-2026-07-27/preuve-seuils-renaux-su-glinide.md` et `redteam-seuils-renaux.md`) :
+    — la KDIGO 2022 ne porte AUCUN chiffre sur les sulfamides (recherche exhaustive sur les 9 dénominations
+    de molécules ; sa Figure 23 ne chiffre que metformine et iSGLT2). L'attribution KDIGO était fausse et a
+    été retirée du nœud (option « Arrêter le sulfamide »).
+    — la SFD, elle, porte le chiffre et la contre-indication DANS LA MÊME PHRASE, sur deux éditions (2023
+    et 2025) : Tableau I note 1 (stade 4 = 15-29, stade 5 = < 15) + note 2 (« Les sulfamides hypoglycémiants
+    sont contre-indiqués en cas d'IRC sévère ou terminale ») + Avis n° 12 (« DFG entre 15 et 29 […] ou
+    terminale (DFG < 15) […] (SU contre-indiqués) »). Il n'y a aucune déduction à faire.
+    — la HAS 2024 ne nomme JAMAIS un sulfamide individuel (0 occurrence de `clazide|piride|clamide|pizide`
+    dans ses 17 249 lignes) et ne porte aucun seuil de DFG pour la classe ; le guide HAS parcours MRC non
+    plus (il se récuse explicitement sur le glycémique). Le négatif HAS est complet et fermé.
+    RESTE NON ENCODÉ, délibérément : la DISTINCTION entre molécules (gliclazide métabolisé en métabolites
+    inactifs vs glimépiride produisant un métabolite M1 actif qui s'accumule) est réelle et portée par au
+    moins deux sociétés savantes ÉTRANGÈRES — Endocrine Society 2019 (glimépiride « should not be used with
+    an eGFR < 30 », recommandation graduée 1|⊕⊕OO, PMID 30903688) et Société suisse d'endocrinologie et de
+    diabétologie 2012 (gliclazide seul jusqu'à 40, glimépiride contre-indiqué < 60). Aucune source
+    FRANÇAISE de rang recommandation ne la porte, et les seuils étrangers (40 / 60) contrediraient les RCP
+    français. Décision maintenue : ne pas l'encoder. Motif rectifié : « aucune source FRANÇAISE », et non
+    « aucune source » — la collecte avait écrit la seconde formulation, qui est fausse."
+  - "SUJET ÂGÉ « DÉPENDANT » — SUR-BLOCAGE ASSUMÉ (décision référent 2026-07-27, 6e série). La SFD 2025
+    distingue deux crans : « éviter » chez le sujet âgé FRAGILE, « ne JAMAIS utiliser » chez le sujet âgé
+    DÉPENDANT (Tableau I note 6 ; durcissement par rapport à 2023, qui écrivait « préférable d'éviter » pour
+    les deux). Le nœud n'a pas de catégorie « dépendant » : `fragilite` est un booléen. Le référent a
+    tranché pour poser l'exclusion sur ce booléen plutôt que de créer un statut gériatrique à trois valeurs
+    (qui aurait obligé à reprendre tous les dérivés consommant `fragilite`). Conséquence assumée : le
+    sulfamide est désormais RETIRÉ chez le sujet fragile, alors que la source dit seulement de l'éviter.
+    Sur-blocage délibéré, du côté sûr d'un garde-fou d'hypoglycémie. Si un statut gériatrique à trois
+    valeurs est créé un jour (ici ou ailleurs dans le domaine), cette exclusion doit être resserrée sur
+    `dépendant` et le cran « fragile » redescendu en alerte."
+  - "PLANCHER D'HbA1c CONDITIONNEL — le garde-fou `hba1c_sous_cible` vaut désormais 7 % (et non 6,5 %)
+    quand DFG < 30 ET glinide ou insuline en cours, conformément à la SFD 2025 Avis n° 12. NON TRANCHÉ, et
+    signalé plutôt que deviné : la SFD attache ce plancher au couple « IRC sévère + glinide/insuline » ;
+    elle ne dit rien du patient à DFG < 30 sous un AUTRE agent hypoglycémiant, ni du patient sous
+    glinide/insuline à DFG 30-44. Ces deux zones restent au plancher général de 6,5 %. C'est la lecture
+    littérale de la source ; ce n'est pas nécessairement la bonne lecture clinique."
+  - "GLIPTINE UTILISABLE SOUS DFG 30 — POINT DE FAIT NON VÉRIFIÉ EN BASE OFFICIELLE. La SFD 2025 écrit, deux
+    fois, que la forme sitagliptine 25 mg n'est pas commercialisée en France et désigne la vildagliptine
+    50 mg/j. Le red-team n'a pas pu ouvrir la BDPM pour le confirmer (`redteam-seuils-renaux.md` §7.6) et a
+    laissé le point au référent plutôt que de le deviner ; le référent a tranché pour suivre la SFD. Le nœud
+    nomme donc désormais la vildagliptine 50 mg/j sous 30, en TROIS endroits (option « Arrêter le
+    sulfamide », option gliptine, alerte « place résiduelle en insuffisance rénale ») — les deux derniers
+    par extension de la décision, pour ne pas laisser le nœud recommander ailleurs un dosage non
+    dispensable. TENSION SIGNALÉE avec le nœud D (« gliptine FR = sitagliptine », décidé parce que
+    lina/alogliptine ne sont pas commercialisées et saxagliptine en retrait) : cette décision-là portait sur
+    la CLASSE disponible en France, celle-ci sur le DOSAGE utilisable en rénal sévère — elles ne se
+    contredisent pas, mais un lecteur pressé peut le croire. À reverser en bloc si la sitagliptine 25 mg
+    existe bien en officine."
 veille_liee: []
 meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.27"
+  version: "0.28"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        LOT « SEUILS RÉNAUX » — 4 arbitrages référent, après collecte de preuve et red-team adversarial
+        (`docs/decision/validation/chantier-2026-07-27/preuve-seuils-renaux-su-glinide.md` et
+        `redteam-seuils-renaux.md`, 0 finding HAUTE sur la collecte, 4 MOYENNE).
+        (1) GARDE-FOU SUJET ÂGÉ : la SFD 2025 a durci sa note 6 de « préférable d'éviter » à « ne JAMAIS
+        utiliser chez les sujets âgés dépendants » ; la prohibition n'existait ici qu'en prose. Exclusion
+        `fragilite == true` posée sur l'option « Sulfamide » (sur-blocage assumé, le nœud n'ayant pas de
+        catégorie « dépendant » — cf. `incertitudes`). Le glinide, visé par la même phrase, n'a pas
+        d'option d'ajout : rien à exclure.
+        (2) PLANCHER D'HbA1c : `hba1c_sous_cible` devient conditionnel — 7 % si DFG < 30 sous glinide ou
+        insuline (SFD Avis n° 12), 6,5 % sinon. Un patient à DFG 25 sous répaglinide et HbA1c 6,8 % était
+        dans la zone que la SFD interdit et ne déclenchait aucun garde-fou numérique.
+        (3) DISPONIBILITÉ FR : « sitagliptine 25 mg » remplacée par « vildagliptine 50 mg/j » sous DFG 30,
+        en 3 endroits (la SFD écrit deux fois que la forme 25 mg n'est pas commercialisée en France).
+        Rang et conditions de l'option gliptine INCHANGÉS — seule la molécule nommée change.
+        (4) ATTRIBUTION : le seuil de 30 du sulfamide n'est plus présenté comme une « convention
+        KDIGO/SFD ». La KDIGO 2022 ne porte aucun chiffre sur les sulfamides (vérifié deux fois, dont
+        Figure 23) ; la SFD, elle, le cite dans la même phrase que la contre-indication, sur deux éditions.
+        AUSSI — dette I4 : `terrain_fragile` scindé en `terrain_cible_assouplie` (terrain gériatrique,
+        définition désormais IDENTIQUE à celle du nœud `insuline`) et `risque_hypoglycemie_schema` (déjà
+        consommé directement par deux alertes). L'option « Désintensifier » reconstruit la disjonction
+        d'origine terme à terme : zéro changement de comportement, deux motifs enfin lisibles séparément.
+        Deux résiduels du glinide CLOS (sources françaises de rang recommandation trouvées ; RCP EMA lu) ;
+        le troisième MAINTENU et redescendu d'un cran — la collecte voulait le clore sur une lecture
+        sélective de Marbury 2000 (bras dialyse en dose unique, sans donnée d'état d'équilibre) que le
+        red-team a corrigée.
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

@@ -431,3 +431,51 @@ valider par le référent**, notamment le point badge non tranché ci-dessous.
 - [ ] **`prescription` — position « au-dessus » + intention « optimiser »** : l'outil propose toujours
   socle + poursuite, mais une alerte dit maintenant pourquoi et indique l'issue (« déclarer intensifier »).
   Vérifier que le ton n'est pas culpabilisant — c'est une explication, pas un reproche de saisie.
+
+## Arbitrages référent — 3ᵉ lot : preuve + red-team (2026-07-27)
+
+> Build + typecheck + **532 tests OK** ; **visuel à valider par le référent.**
+>
+> Ce lot applique 8 arbitrages pris après une collecte de preuve puis une re-vérification adversariale
+> (`docs/decision/validation/chantier-2026-07-27/`). Trois nœuds touchés : `statine`, `prescription`,
+> `rhd-alimentation`.
+
+### `statine` — le point le plus lourd du lot
+
+- [ ] **Patient avec ASCVD établie + intolérance déclarée « avérée »** : l'écran ne doit plus proposer
+      « atorvastatine 40-80 mg », mais la carte « Statine indisponible — alternatives hypolipémiantes ».
+      C'est le cœur du lot : jusqu'ici l'outil prescrivait un médicament que le dossier du patient
+      déclare impossible, avec une simple alerte à côté.
+- [ ] **Le même patient, mais intolérance « rapportée »** : l'écran doit au contraire proposer la
+      statine, avec l'alerte de réintroduction. Vérifier que la différence entre les deux écrans se lit
+      immédiatement — c'est toute la valeur du passage de 2 à 3 valeurs.
+- [ ] **La carte terminale** : son ton est-il utilisable en consultation ? Elle porte beaucoup
+      d'information (ézétimibe, acide bempédoïque, anti-PCSK9, remboursement, divergence France/ESC).
+      Si elle est illisible en situation, c'est le signe qu'il faut la scinder — dites-le.
+- [ ] **Nouveau champ « CK > 5 N »** dans le groupe « Statine en cours » : il n'apparaît QUE si vous
+      déclarez qu'aucune statine n'est en place. Vérifier que le libellé est clair sur ce qu'il demande
+      (CK avant initiation, pas sous traitement) et que sa présence ne surcharge pas le formulaire.
+- [ ] **Point à trancher à l'usage** : la carte terminale s'affiche aussi pour un patient dont la seule
+      anomalie est un CK élevé, avec une alerte disant que la conduite est d'abord diagnostique. Est-ce
+      le bon geste, ou faudrait-il une carte distincte « explorer avant de conclure » ?
+
+### `prescription`
+
+- [ ] **Sujet déclaré fragile, palette glycémique ouverte** : le sulfamide doit avoir disparu des
+      propositions et apparaître dans les options écartées, avec son motif. ⚠ Sur-blocage assumé : la
+      SFD dit « éviter » chez le fragile et « ne jamais » chez le dépendant, et le nœud n'a pas de
+      catégorie « dépendant ». Si le blocage vous paraît trop large en consultation, c'est le signal
+      qu'il faut créer un statut gériatrique à trois valeurs.
+- [ ] **Patient à DFG 25 sous répaglinide, HbA1c 6,8 %** : la désintensification doit désormais être
+      proposée (plancher SFD à 7 %). Contre-épreuve à faire : le même patient à DFG 50 ne doit RIEN
+      déclencher à 6,8 %.
+- [ ] **La vildagliptine remplace la sitagliptine sous DFG 30**, en trois endroits. ⚠ **Point de fait à
+      confirmer par vous** : la SFD écrit que la forme sitagliptine 25 mg n'est pas commercialisée en
+      France. Le red-team n'a pas pu ouvrir la BDPM. Si le dosage existe bien en officine, ces trois
+      libellés sont à reverser en bloc.
+
+### `rhd-alimentation`
+
+- [ ] **Patient avec un signe d'appel TCA** : deux cartes d'orientation doivent maintenant coexister —
+      le diététicien ET l'avis spécialisé en TCA. Vérifier qu'elles se lisent comme complémentaires
+      (c'est ce qu'écrit la HAS) et non comme deux options concurrentes entre lesquelles choisir.

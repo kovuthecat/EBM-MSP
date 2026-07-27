@@ -193,6 +193,27 @@ allège aussi le budget, qui est une contrainte réelle du projet.
 - **toute collecte de contenu clinique a sa passe adversariale** — la règle a payé ;
 - **pas de nouvelle collecte** tant que les findings de la précédente ne sont pas intégrés.
 
+**Une collecte qui trouve un défaut chez nous est aussi suspecte qu'une collecte qui n'en trouve aucun.**
+Le 2026-07-27, quatre collectes ont été red-teamées le même jour. **Trois des quatre sur-accusaient le
+contenu existant** — et le red-team a rétabli le nœud à chaque fois :
+
+| Ce que la collecte affirmait | Ce que le red-team a établi |
+|---|---|
+| « Notre incertitude TCA est fausse au sens littéral » | Elle était **exacte** : elle portait sur le corpus local, qui ne contient effectivement aucun des deux documents invoqués. Le défaut n'était pas la fausseté mais l'étroitesse. |
+| « La reco française écrit sur un médicament qu'elle croit indisponible ; c'est dépassé, il est remboursé depuis février 2025 » | Le remboursement date du **12 décembre 2025**, soit après la clôture bibliographique de la reco. **La reco avait raison, la collecte se trompait de dix mois.** |
+| « Le seuil de sur-basalisation majore l'hypoglycémie : affirmation démontrablement fausse » | Lecture sélective : la source porte une analyse intra-patient qui va dans l'autre sens. La phrase du nœud devait être **gardée**. |
+
+Le mécanisme est structurel, pas accidentel : un agent de collecte est missionné pour *trouver* quelque
+chose, et le contenu existant est la cible la plus commode. D'où la règle : **aucune correction issue
+d'une collecte n'entre dans `content/**` avant sa passe adversariale**, y compris — surtout — quand elle
+prend la forme flatteuse d'« un défaut trouvé chez vous ». Et quand une collecte accuse le nœud, la passe
+adversariale doit recevoir cette accusation comme sa cible prioritaire.
+
+**Corollaire pour le compte rendu au référent** : ce qui lui est rapporté entre les deux passes est
+provisoire, et doit être présenté comme tel. Trois affirmations relayées ce jour-là ont dû être reprises
+devant lui. Mieux vaut annoncer « la collecte affirme X, le red-team n'a pas encore rendu » que d'avoir à
+se corriger.
+
 **Porte de sortie P4** : chaque décision exigée par une vignette est adossée à une source vérifiée en
 primaire, et la passe adversariale est close.
 
@@ -498,6 +519,36 @@ signature, ils sont donc hors de portée de l'instantané par construction).
 demandé « glinide sous 30 de DFG, quelle est la question ? Il faut vérifier la RCP », le réflexe naturel
 était d'expliquer le correctif. La RCP a donné tort au correctif. Un garde-fou de sécurité mis en doute
 par le clinicien se re-source, il ne se défend pas.
+
+**Un garde-fou qu'aucun profil ne franchit est un garde-fou non testé** — et le golden master ne le dira
+pas, puisque rien n'y change. L'exclusion « sulfamide chez le sujet fragile » n'a modifié la sortie
+d'AUCUN des 180 profils du banc : les seuls profils fragiles qui atteignaient l'option en étaient déjà
+retirés par le seuil rénal. Le lot semblait donc sans effet alors qu'il ajoutait une vraie
+contre-indication. La conclusion n'est pas « le golden master suffit » mais : *tout garde-fou ajouté
+appelle une vignette qui le franchit explicitement, et une contre-épreuve qui ne le franchit pas.*
+
+**Un garde-fou peut aussi être INATTEIGNABLE — et l'écrire quand même est pire que ne rien écrire.** Sur
+`statine`, des `exclusions` posées sur l'option de repli n'ont jamais pu se déclencher : en
+`ordered-first-match`, l'option qui la précédait captait déjà exactement ces patients. L'invariant de
+couverture du banc (« chaque option porteuse d'`exclusions` est exclue pour au moins un profil ») l'a
+signalé immédiatement. Sans lui, le fichier aurait porté une protection décorative que personne n'aurait
+relue. **Quand un ordre porte une garantie de sécurité — et non plus seulement une hiérarchie clinique —
+il faut l'écrire à l'endroit qu'un futur remaniement casserait**, c'est-à-dire dans l'option qu'on croit
+protégée, pas seulement dans celle qui protège.
+
+**`visible_si` est de l'ergonomie, pas de la correction.** Il n'est lu que par la couche formulaire ; le
+moteur ne le connaît pas. Un critère dont la portée clinique est conditionnelle (« CK avant initiation »)
+doit porter cette condition **dans chaque expression qui le lit**, pas seulement dans son `visible_si` —
+sans quoi une valeur saisie puis rendue invisible continue d'agir. La redondance entre les deux est
+voulue : l'une sert la saisie, l'autre le raisonnement.
+
+**Changer le TYPE d'un critère n'est pas ajouter un critère.** La procédure de gel des profils du banc
+sait *compléter* une fixture (nouvelle colonne, colonnes existantes intactes) ; elle ne sait pas
+*convertir* une colonne dont le type a changé — un `bool` figé reste `true`/`false` face à une
+énumération, et le moteur lève une erreur qui ressemble à un bug de contenu. Le geste correct est de
+retirer à la main la seule colonne concernée, puis de relancer la procédure : elle la retire à neuf comme
+une colonne manquante, et les autres ressortent identiques — ce qui se **vérifie valeur par valeur**, pas
+sur la foi du diff.
 
 ---
 

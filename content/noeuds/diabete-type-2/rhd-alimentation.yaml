@@ -384,6 +384,29 @@ options:
       - "Dépend de la disponibilité réelle de la ressource dans la structure ; le contenu précis de l'accompagnement diététique n'est pas détaillé par ce nœud."
     effet_attendu: "Non chiffrable — orientation, pas un geste alimentaire en soi."
     niveau_preuve: faible
+  # AJOUTÉE le 2026-07-27 (décision référent, 6e série). Le red-team du dossier « repérage TCA » a relevé,
+  # dans un PDF que la collecte avait pourtant ouvert (`docs/decision/sources/guide HAS._parcours_
+  # surpoids-obesite_de_ladulte.pdf`, §3.6 p. 43), une phrase qui n'avait pas été reprise :
+  # « Une orientation, selon le tableau clinique, vers un PSYCHOLOGUE ou un PSYCHIATRE spécialiste des TCA
+  # peut être nécessaire pour explorer plus avant la situation et proposer une approche thérapeutique
+  # EN COMPLÉMENT d'un accompagnement par un diététicien. »
+  # Or la seule orientation que `verrou_tca == true` déclenchait était le diététicien. « En complément »,
+  # pas « à la place » : cette option COEXISTE avec la précédente, elle ne la remplace pas — d'où le même
+  # rang 1 et une condition volontairement plus étroite (le verrou TCA seul, sans `fragilite` ni
+  # `acces_alimentation`, qui n'appellent pas un avis spécialisé en TCA).
+  - intitule: "Proposer aussi un avis spécialisé en trouble du comportement alimentaire"
+    conditions:
+      - "verrou_tca == true"
+    priorite: 1
+    famille: "Orientation"
+    avantages:
+      - "La HAS écrit que l'orientation vers un psychologue ou un psychiatre spécialiste des TCA peut être nécessaire, EN COMPLÉMENT de l'accompagnement diététique et non à sa place (guide parcours surpoids-obésité de l'adulte, §3.6) — le repérage d'un signe d'appel n'appelle pas seulement un travail sur le contenu de l'assiette."
+      - "Le rôle du médecin généraliste s'arrête au repérage et à l'orientation : ni le diagnostic ni le traitement d'un trouble du comportement alimentaire ne se posent en consultation de médecine générale."
+    inconvenients:
+      - "Le verrou qui déclenche cette orientation reformule 3 signes d'appel HAS ; sa sensibilité et sa spécificité sont INCONNUES, aucune étude ne l'ayant évalué. Un signe positif ouvre une orientation, il ne pose aucun diagnostic — et son absence ne garantit rien."
+      - "Dépend entièrement de la disponibilité d'un professionnel formé aux TCA, ressource rare et souvent éloignée ; à proposer sans en faire une condition de la suite de la prise en charge alimentaire."
+    effet_attendu: "Non chiffrable — orientation, pas un geste alimentaire en soi."
+    niveau_preuve: faible
   # ═══════════ FAMILLE MAINTIEN ═══════════
   # Volontairement PAS un sentinel `["default"]` : un repli n'aurait de chance réelle de se déclencher
   # que si les 13 autres axes de recueil sont TOUS simultanément favorables — une conjonction si étroite
@@ -526,7 +549,9 @@ sources:
 incertitudes:
   - "L'étiquette « bénéfice EBM sur critère dur » du régime méditerranéen (PREDIMED, CORDIOPREV) porte sur le motif alimentaire supplémenté dans son ensemble, jamais sur une piste isolée de ce nœud (décision référent) — y compris l'huile d'olive et les fruits à coque, les deux composants réellement randomisés."
   - "Aucune version française validée du MEDAS n'a été identifiée (recherche documentée, cible-mediterraneenne-medas.md §4) : l'instrument sert ici uniquement de cadre de définition des axes recueillis (S9-S12, A12), jamais d'instrument administré ou scoré — ce qui rend l'absence de validation linguistique sans conséquence pour cet usage."
-  - "Le verrou de repérage (S8) reformule 3 signes d'appel HAS (encadré 11), ce n'est PAS un instrument de repérage TCA validé (SCOFF, EDE-Q…) : aucun n'a été trouvé dans les sources locales. Un résultat négatif ne garantit pas l'absence de TCA ; un résultat positif ne le confirme pas — il ouvre une orientation, pas un verdict."
+  - "Le verrou de repérage (S8) reformule 3 signes d'appel HAS (encadré 11), ce n'est PAS un instrument de repérage TCA validé. Un résultat négatif ne garantit pas l'absence de TCA ; un résultat positif ne le confirme pas — il ouvre une orientation, pas un verdict. ENRICHI le 2026-07-27 (6e série) : la formulation d'origine (« aucun instrument n'a été trouvé dans les sources locales ») était EXACTE — le red-team a vérifié que le corpus local ne contient effectivement ni la RBP anorexie 2010 ni la fiche boulimie 2019 — mais trop étroite pour être informative. Ce que la littérature contient réellement : le SCOFF-F EXISTE, il est validé en français et la HAS le nomme dans DEUX recommandations. Le référent a néanmoins maintenu le verrou, pour quatre motifs qui tiennent : (1) le SCOFF est MAL FORMÉ pour ce patient — ses items visent les vomissements provoqués, la perte de poids récente de plus de 6 kg et la conviction d'être gros quand l'entourage vous trouve trop mince ; chez un adulte DT2 en surpoids dont le TCA attendu est l'hyperphagie boulimique, au moins un item est INVERSÉ (la perte de poids y est un objectif thérapeutique, pas un signe d'alerte), et Kutz 2020 documente précisément cette perte de sensibilité dans l'hyperphagie boulimique, chez les hommes et en recrutement communautaire — les trois conditions de ce nœud ; (2) ses validations françaises (Garcia 2010, 2011) ne portent que sur des FEMMES JEUNES ; (3) l'unique outil français traitant explicitement la catégorie hyperphagique (Expali™, Tavolacci 2019) n'a jamais été évalué CONTRE DES TÉMOINS SANS TCA — ses auteurs demandent eux-mêmes une validation en médecine générale ; (4) le seul instrument français validé chez l'adulte obèse des deux sexes contre un entretien diagnostique (Binge Eating Scale française, Brunault 2016 : Se 75 %, Sp 88,4 %, VPP 37,5 % sur n = 47) fait SEIZE items — incompatible avec le socle de 2-3 minutes que vise ce nœud."
+  - "PERFORMANCE DU VERROU TCA : INCONNUE, et c'est une raison de prudence dans les DEUX sens. Le verrou est un OU logique de 3 signes larges, chacun `confirmation_requise: true` ; il ouvre ou ferme des options, c'est donc fonctionnellement un test — mais aucune étude ne l'a évalué, et rien ne permet d'affirmer que sa spécificité vaut mieux que celle du SCOFF-F. Le dossier de collecte refusait le SCOFF-F au motif que ses défauts sont MESURÉS, tout en conservant une alternative dont les défauts ne le sont pas : le red-team a relevé l'asymétrie et elle est retenue ici. Pour mémoire, la VPP attendue du SCOFF-F dans cette population n'est pas « ≈ 20 % » comme l'écrivait la collecte, mais comprise entre ≈ 21 % (performances poolées de Kutz 2020) et ≈ 38 % (Botella 2013, méta-analyse que la collecte n'avait pas cherchée) — soit entre un vrai positif sur cinq et près de deux sur cinq. Et sa VPN de ≈ 99 % reflète surtout la faible prévalence : à 5 % de prévalence, la probabilité pré-test de ne PAS avoir de trouble est déjà de 95 %, le gain d'un test négatif est de 4 points. Ne pas s'en servir pour « lever » la prudence."
+  - "DIVERGENCE DE RECOMMANDATIONS sur le repérage lui-même, portée ici faute d'un champ dédié dans le schéma (`sources.reco_officielle.divergence` est un booléen qui qualifie la position de l'OUTIL, pas un conflit entre deux institutions). La HAS 2019 écrit : « Rechercher SYSTÉMATIQUEMENT une hyperphagie boulimique en cas de situation de surpoids ou d'obésité. » L'USPSTF 2022 conclut à l'inverse que « les preuves actuelles sont INSUFFISANTES pour évaluer la balance bénéfices-risques du dépistage des troubles du comportement alimentaire chez l'adolescent et l'adulte » (I statement, chez les personnes sans signes ni symptômes). Le nœud se tient de fait entre les deux : il ne dépiste pas systématiquement, mais il pose trois signes d'appel à toute personne concernée. Ce positionnement n'a PAS été arbitré explicitement par le référent — il résulte de la construction du nœud. À trancher si le module RHD est repris. Réserve de périmètre à connaître au passage : le patient de ce nœud — adulte DT2 d'âge moyen ou avancé, en surpoids — n'appartient à la population cible DÉCLARÉE d'aucun des deux documents HAS invoqués (RBP 2010 : enfants, adolescents et jeunes adultes, anorexie mentale ; fiche 2019 : jeunes, en particulier adolescentes et jeunes femmes)."
   - "TRANCHÉ le 2026-07-27 (référent) : la piste de PESÉE est SUPPRIMÉE — « trop contraignant et difficile en consultation de médecine générale ». Cela résout aussi la tension de source qui était consignée ici : le rapport SFD situait la pesée chez les patients pratiquant un comptage précis (insulinothérapie fonctionnelle) et sa généralisation au DT2 tout-venant n'était pas soutenue. La famille « Portions » ne conserve qu'une piste, recentrée sur les PROPORTIONS DANS L'ASSIETTE. RÉSIDUEL ASSUMÉ : aucune proportion chiffrée n'est affirmée (pas de « moitié de légumes, quart de féculents ») — le dossier de preuve de ce nœud ne source aucun ratio, et l'inventer irait contre l'invariant 6. Le repère reste donc qualitatif : la place RELATIVE des composantes. Si le référent veut un ratio explicite, il faudra le sourcer (guides Manger-Bouger / HAS déjà au dossier du module, non dépouillés sur ce point précis)."
   - "Le plafond d'affichage (2-3 pistes négociables selon ebmfrance) n'est pas appliqué techniquement par le moteur : traité par le rang déclaré (`priorite`) uniquement. Un affichage effectivement plafonné demanderait un changement d'écran, hors périmètre de cette tâche — signalé au référent."
   - "Mal perforant plantaire, rétinopathie et autres contre-indications à l'EFFORT (verrou du nœud sœur `rhd-activite-physique`) n'ont aucune portée ici : ce nœud ne collecte que des critères alimentaires."
@@ -537,8 +562,32 @@ meta:
   date_revue: "2026-07-26"
   auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
   statut: brouillon
-  version: "0.2"
+  version: "0.3"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        LOT « REPÉRAGE TCA » — 2 arbitrages référent, après collecte de preuve
+        (`docs/decision/validation/chantier-2026-07-27/preuve-repérage-tca.md`) et red-team adversarial
+        (`redteam-repérage-tca.md`).
+        (1) VERROU MAINTENU, PROSE ENRICHIE. La collecte affirmait que l'incertitude du nœud était « fausse
+        au sens littéral » ; le red-team a établi qu'elle ne l'était PAS — elle portait sur le corpus local,
+        et le corpus local ne contient effectivement aucun des deux documents HAS invoqués. Le défaut
+        n'était pas d'être faux mais d'être trop étroit : l'entrée dit désormais ce que la littérature
+        contient réellement (SCOFF-F, Expali™, Binge Eating Scale française) et POURQUOI le verrou reste
+        préféré malgré cela — au premier rang, le fait qu'un item du SCOFF est INVERSÉ chez ce patient (la
+        perte de poids récente y est un signe d'alerte, alors qu'ici c'est un objectif thérapeutique).
+        Deux motifs de la collecte ont en revanche été ÉCARTÉS parce que le red-team les a démolis : la VPP
+        « ≈ 20 % » est en réalité comprise entre 21 et 38 % selon la méta-analyse retenue (une seconde
+        existait, non cherchée), et le « 4 patients bloqués à tort sur 5 » confondait positifs et patients
+        — la proportion réelle est d'environ 16 %, soit une surestimation d'un facteur 5. Deux entrées
+        `incertitudes` ajoutées : la performance du verrou est INCONNUE (raison de prudence des deux côtés,
+        pas un argument pour le statu quo), et la divergence HAS 2019 (« rechercher systématiquement ») vs
+        USPSTF 2022 (« preuves insuffisantes ») est désormais portée au lieu d'être arbitrée en silence.
+        (2) OPTION D'ORIENTATION AJOUTÉE. Le verrou ne déclenchait qu'une orientation vers le diététicien,
+        alors que le guide HAS surpoids-obésité — PDF déjà présent au dépôt — écrit qu'une orientation vers
+        un psychologue ou un psychiatre spécialiste des TCA peut être nécessaire EN COMPLÉMENT. La nouvelle
+        option coexiste avec la précédente (même rang), sur une condition plus étroite : le verrou TCA seul.
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

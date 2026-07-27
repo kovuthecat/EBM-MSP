@@ -52,7 +52,7 @@ const PROFIL: Criteria = {
   preference_injection: 'indifferent',
   classes_a_benefice_indisponibles: false,
   cible_atteinte: false,
-  terrain_fragile: false,
+  terrain_cible_assouplie: false,
 }
 
 describe('relevance — criteresPertinents', () => {
@@ -65,15 +65,16 @@ describe('relevance — criteresPertinents', () => {
     expect(pertinents.has('traitements_en_cours')).toBe(true) // pilote tout
   })
 
-  it('exclut un critère inerte pour ce patient (esperance_vie : ne pilote que terrain_fragile, non consommé ici)', () => {
-    // Profil optimiser + ASCVD, metformine seule, non fragile : `esperance_vie` ne pilote que `terrain_fragile`,
-    // que rien ne consomme (pas de SU/glinide/insuline pour O13, pas fragile pour l'alerte) → inerte.
+  it('exclut un critère inerte pour ce patient (esperance_vie : ne pilote que terrain_cible_assouplie, non consommé ici)', () => {
+    // Profil optimiser + ASCVD, metformine seule, non fragile : `esperance_vie` ne pilote que
+    // `terrain_cible_assouplie` (ex-`terrain_fragile`, scindé le 2026-07-27), que rien ne consomme ici
+    // (pas de SU/glinide/insuline pour O13, pas fragile pour l'alerte) → inerte.
     expect(pertinents.has('esperance_vie')).toBe(false)
   })
 
   it("n'inclut jamais un critère dérivé (non saisissable)", () => {
     expect(pertinents.has('cible_atteinte')).toBe(false)
-    expect(pertinents.has('terrain_fragile')).toBe(false)
+    expect(pertinents.has('terrain_cible_assouplie')).toBe(false)
     expect(pertinents.has('hba1c_sous_cible')).toBe(false) // dérivé de HbA1c_actuelle (S8)
   })
 })

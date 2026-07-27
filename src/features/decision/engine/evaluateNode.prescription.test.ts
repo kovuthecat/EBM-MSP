@@ -53,7 +53,7 @@ const BASE: Criteria = {
   preference_injection: 'indifferent',
   classes_a_benefice_indisponibles: false,
   cible_atteinte: true,
-  terrain_fragile: false,
+  terrain_cible_assouplie: false,
 }
 
 function evalProfile(overrides: Partial<Criteria>) {
@@ -494,8 +494,9 @@ describe('prescription — R3 (remplacement_agent_sans_benefice, GRAMMAIRE-NOEUD
     // RENFORCÉE (drapeau ASSERTION FAIBLE, docs/decision/validation/chantier-2026-07-26/
     // vignettes-existantes-a-valider.md, P-37) : l'assertion d'origine ne vérifiait QUE l'absence du
     // switch, jamais ce qui s'affiche à la place. Ce profil (terrain par défaut : 60 ans, non fragile, EV
-    // longue, risque hypo faible) ne remplit PAS `terrain_fragile` (`age >= 75 OR fragilite OR EV limitée
-    // OR risque hypo élevé`, prescription.yaml:169) — la branche « hypoglycémie récente + terrain fragile
+    // longue, risque hypo faible) ne remplit ni `terrain_cible_assouplie` (`age >= 75 OR fragilite OR EV
+    // limitée`) ni `risque_hypoglycemie_schema == eleve` — les deux branches issues de la scission du
+    // 2026-07-27 de l'ex-`terrain_fragile`. La branche « hypoglycémie récente + terrain fragile
     // → Désintensifier » (prescription.yaml:628) NE se déclenche donc PAS non plus ici (voir R3-4-fragile
     // ci-dessous pour la contre-épreuve positive sur terrain fragile). Le patient obtient en réalité
     // l'option de réduction de dose (conditions remplies : sulfamide présent + hypoglycémie récente,
@@ -843,5 +844,87 @@ describe('prescription — scission sulfamide / glinide en insuffisance rénale 
     expect(has(t, REDUC_GLIN)).toBe(true)
     expect(has(t, REDUC_SU)).toBe(false)
     expect(has(t, 'Arrêter le sulfamide')).toBe(true)
+  })
+})
+
+/**
+ * Lot « seuils rénaux » du 2026-07-27 (6e série). Arbitrages référent pris après collecte de preuve
+ * (`docs/decision/validation/chantier-2026-07-27/preuve-seuils-renaux-su-glinide.md`) puis red-team
+ * adversarial (`redteam-seuils-renaux.md`).
+ *
+ * POURQUOI CES VIGNETTES EXISTENT. Le golden master (`banc/caracterisation.test.ts`) ne bouge que sur UN
+ * profil pour ce lot : le plancher d'HbA1c. L'exclusion `fragilite == true` du sulfamide, elle, ne mord sur
+ * AUCUN profil du banc — les deux profils fragiles qui atteignaient l'option en étaient déjà exclus par
+ * `DFG < 30`, si bien que le garde-fou ajouté n'y change aucune sortie. Un garde-fou qu'aucun profil ne
+ * franchit est un garde-fou non testé : ces vignettes le franchissent explicitement.
+ */
+describe('prescription — lot seuils rénaux du 2026-07-27 (garde-fou gériatrique, plancher d’HbA1c)', () => {
+  const SULFAMIDE = 'Sulfamide (gliclazide MR ou glimépiride)'
+  const DESINTENSIFIER = 'Désintensifier : alléger'
+
+  // Profil qui ATTEINT réellement l'option sulfamide : palette glycémique ouverte (intensifier + au-dessus
+  // de l'objectif), rein normal, aucun signal catabolique. Sans quoi on testerait une exclusion sur une
+  // option déjà écartée pour un autre motif — l'erreur exacte que le golden master rendait invisible.
+  const PORTE_SULFAMIDE = {
+    intention: 'intensifier', position_vs_cible: 'au_dessus', cible_atteinte: false,
+    traitements_en_cours: ['metformine'], dose_metformine: 1000, DFG: 80, HbA1c_actuelle: 8.5,
+  } as Partial<Criteria>
+
+  it('R6-1 — sujet NON fragile, porte ouverte : le sulfamide est bien proposé (contre-épreuve)', () => {
+    expect(has(titles({ ...PORTE_SULFAMIDE, fragilite: false }), SULFAMIDE)).toBe(true)
+  })
+
+  it('R6-2 — sujet FRAGILE : le sulfamide est RETIRÉ, pas seulement déconseillé (SFD 2025, note 6)', () => {
+    const o = { ...PORTE_SULFAMIDE, fragilite: true }
+    expect(has(titles(o), SULFAMIDE)).toBe(false)
+    // R4 : le retrait doit être VISIBLE et motivé, jamais un silence.
+    expect(has(excludedTitles(o), SULFAMIDE)).toBe(true)
+  })
+
+  it('R6-3 — sujet fragile : la GLIPTINE reste offerte (la SFD ne vise que sulfamide et glinide)', () => {
+    // Garde-fou de non-régression : le sur-blocage assumé par le référent porte sur UNE classe. Si une
+    // future passe étend l'exclusion `fragilite` à la gliptine, ce test le signale — la gliptine est
+    // précisément le repli que la SFD recommande chez ce patient (« préférer la gliptine »).
+    expect(has(titles({ ...PORTE_SULFAMIDE, fragilite: true }), 'Gliptine (sitagliptine)')).toBe(true)
+  })
+
+  // ---- Plancher d'HbA1c conditionnel (SFD 2025, Avis n° 12) --------------------------------------------
+  // « IRC sévère (DFG 15-29) ou terminale (< 15) : cible ≤ 8 %, avec une limite INFÉRIEURE de 7 % en cas de
+  // traitement par glinide ou insuline. » Le plancher unique à 6,5 % laissait passer toute la bande
+  // 6,5-7 % — c'est-à-dire exactement la zone que la SFD interdit.
+  it('R6-4 — DFG 25 sous répaglinide, HbA1c 6,8 % : la désintensification est PROPOSÉE (plancher à 7 %)', () => {
+    const o = { traitements_en_cours: ['glinide'], DFG: 25, HbA1c_actuelle: 6.8,
+      dose_metformine: 0 } as Partial<Criteria>
+    expect(has(titles(o), DESINTENSIFIER)).toBe(true)
+  })
+
+  it('R6-5 — même patient à DFG 50 : plancher général de 6,5 %, rien ne se déclenche à 6,8 %', () => {
+    // Contre-épreuve indispensable : sans elle, R6-4 passerait aussi si le plancher avait été relevé à 7 %
+    // POUR TOUT LE MONDE — ce que la source ne dit pas.
+    const o = { traitements_en_cours: ['glinide'], DFG: 50, HbA1c_actuelle: 6.8,
+      dose_metformine: 0 } as Partial<Criteria>
+    expect(has(titles(o), DESINTENSIFIER)).toBe(false)
+  })
+
+  it('R6-6 — DFG 25 sous METFORMINE seule, HbA1c 6,8 % : plancher général (la SFD ne vise que glinide/insuline)', () => {
+    // Seconde contre-épreuve, sur l'autre moitié de la condition. Cette zone reste au plancher de 6,5 %,
+    // et c'est une lecture littérale de la source signalée en `incertitudes` — pas une évidence clinique.
+    const o = { traitements_en_cours: ['metformine'], DFG: 25, HbA1c_actuelle: 6.8,
+      dose_metformine: 500 } as Partial<Criteria>
+    expect(has(titles(o), DESINTENSIFIER)).toBe(false)
+  })
+
+  it('R6-7 — DFG 25 sous insuline, HbA1c 6,8 % : la désintensification est PROPOSÉE (2e branche du plancher)', () => {
+    const o = { traitements_en_cours: ['insuline'], DFG: 25, HbA1c_actuelle: 6.8,
+      dose_metformine: 0 } as Partial<Criteria>
+    expect(has(titles(o), DESINTENSIFIER)).toBe(true)
+  })
+
+  it('R6-8 — DFG non renseigné (0) sous glinide, HbA1c 6,8 % : le plancher rénal ne se déclenche PAS', () => {
+    // Le garde `DFG > 0` du dérivé. Sans lui, `DFG < 30` serait VRAI pour tout patient dont le DFG n'est
+    // pas saisi (défaut 0 des nombres) et le plancher de 7 % s'appliquerait à toute la population.
+    const o = { traitements_en_cours: ['glinide'], DFG: 0, HbA1c_actuelle: 6.8,
+      dose_metformine: 0 } as Partial<Criteria>
+    expect(has(titles(o), DESINTENSIFIER)).toBe(false)
   })
 })

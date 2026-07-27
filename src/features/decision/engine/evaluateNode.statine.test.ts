@@ -51,7 +51,12 @@ const BASE: Criteria = {
   diabete_complique: false,
   dialyse: false,
   statine_deja_en_place: false,
-  intolerance_statine: false,
+  // ENUM depuis le 2026-07-27 (3 valeurs : non / rapportee / averee), plus un booléen. `CK_sup_5N` est le
+  // second critère ajouté par le même lot ; comme `BASE` est écrit à la main et ne dérive pas de
+  // `buildDefaultCriteria`, tout critère nouveau doit y être ajouté explicitement, sous peine de
+  // `ConditionError: Variable de critère inconnue` dès qu'une option le lit.
+  intolerance_statine: 'non',
+  CK_sup_5N: false,
 }
 
 function evalProfile(overrides: Partial<Criteria>, renseignes?: ReadonlySet<string>) {
@@ -169,8 +174,8 @@ describe('statine — F-05/F-08 : alertes (D15)', () => {
   })
 
   it('F-08 — intolérance à la statine déclarée : l’alerte intolérance se déclenche', () => {
-    const o = { intolerance_statine: true } as Partial<Criteria>
-    expect(alertMsgs(o).some((m) => m.includes('Intolérance aux statines rapportée'))).toBe(true)
+    const o = { intolerance_statine: 'rapportee' } as Partial<Criteria>
+    expect(alertMsgs(o).some((m) => m.includes('Intolérance aux statines RAPPORTÉE'))).toBe(true)
   })
 })
 
@@ -191,7 +196,11 @@ describe('statine — F-09 : formulaire vierge, valeur indéterminée (D20)', ()
       diabete_complique: false,
       dialyse: false,
       statine_deja_en_place: false,
-      intolerance_statine: false,
+      // PLACEHOLDERS depuis le 2026-07-27 : `intolerance_statine` est passé de `bool` à `enum`, il est donc
+      // désormais INDÉTERMINÉ sur formulaire vierge (D20 : seuls les `bool` gardent un défaut « non »
+      // cliniquement lisible). `CK_sup_5N` reste un bool, donc déterminé à false.
+      intolerance_statine: 'non',
+      CK_sup_5N: false,
     }
     const result = evaluateNode(node!, vierge, new Set())
 
@@ -271,5 +280,120 @@ describe('statine — F-10/F-11 : alerte ASCVD restaurée sur le tier atteint ap
     const alertes = alertesDeLOption(o, OPT_MODEREE)
     expect(alertes.some((a) => a.message.includes('PRÉVENTION') && a.message.includes('SECONDAIRE'))).toBe(true)
     expect(alertes.some((a) => a.message.includes('TRANCHE PAS'))).toBe(true)
+  })
+})
+
+/**
+ * Lot « intolérance aux statines » du 2026-07-27 (6e série). Arbitrages référent pris après collecte de
+ * preuve (`docs/decision/validation/chantier-2026-07-27/preuve-intolerance-statine.md`) puis red-team
+ * adversarial (`redteam-intolerance-statine.md`, 5 findings HAUTE sur la collecte).
+ *
+ * CE QUE CES VIGNETTES VERROUILLENT. Le nœud avait, sur l'intolérance, exactement le défaut que D21 existe
+ * pour interdire et qui avait déjà été corrigé ici six semaines plus tôt sur la dialyse : une carte
+ * PRESCRIVANT une statine de haute intensité à un patient dont le dossier déclare qu'il ne peut pas en
+ * prendre, contredite par une seule alerte. Une alerte qualifie un geste ; elle ne le retire pas.
+ */
+const OPT_TERMINALE = node.options.find((o) => o.intitule.includes('Statine indisponible'))
+if (!OPT_TERMINALE) throw new Error('Option terminale « Statine indisponible » introuvable.')
+
+// Même helper que celui du bloc F-10/F-12, redéclaré ici : celui-là est local à son `describe`.
+const alertesDeCetteOption = (o: Partial<Criteria>, option: Option) =>
+  construireVueDecision(node!, calculerCriteresDerives(node!.criteres_entree, { ...BASE, ...o } as Criteria))
+    .familles.flatMap((famille) => famille.groupes.flat())
+    .filter((optionVue) => optionVue.option === option)
+    .flatMap((optionVue) => optionVue.alertes)
+
+describe('statine — F-13/F-19 : intolérance avérée et garde-fou CK (D21, lot 2026-07-27)', () => {
+  it('F-13 — intolérance RAPPORTÉE + ASCVD : la haute intensité reste PROPOSÉE (le doute ne retire rien)', () => {
+    // Le cœur de la distinction à 3 valeurs. Une intolérance seulement rapportée n'est pas une
+    // contre-indication : la conduite est la réintroduction en aveugle, pas le renoncement.
+    const o = { ASCVD_etablie: true, intolerance_statine: 'rapportee' } as Partial<Criteria>
+    const result = evalProfile(o)
+    expect(result.applicable).toEqual([OPT_HAUTE])
+    expect(result.excluded.has(OPT_HAUTE)).toBe(false)
+  })
+
+  it('F-14 — intolérance AVÉRÉE + ASCVD : la haute intensité est RETIRÉE, et la carte terminale la relaie', () => {
+    const o = { ASCVD_etablie: true, intolerance_statine: 'averee' } as Partial<Criteria>
+    const result = evalProfile(o)
+    // Retirée AVEC son motif (R4 : jamais un silence).
+    expect(result.excluded.get(OPT_HAUTE)).toContain('intolerance_statine == averee')
+    // Et le patient n'est pas laissé sans conduite à tenir : la terminale est la sortie retenue.
+    expect(result.applicable).toEqual([OPT_TERMINALE])
+  })
+
+  it('F-15 — intolérance avérée + ASCVD : la carte terminale REQUALIFIE le patient en prévention secondaire', () => {
+    // Sans cette alerte, la carte terminale ne dirait rien du risque absolu du patient — or c'est
+    // précisément le sous-groupe où le NNT de l'abaissement du LDL est le plus bas.
+    const o = { ASCVD_etablie: true, intolerance_statine: 'averee' } as Partial<Criteria>
+    const alertes = alertesDeCetteOption(o, OPT_TERMINALE)
+    expect(alertes.some((a) => a.message.includes('SECONDAIRE'))).toBe(true)
+    // L'alerte CK, elle, n'a pas d'objet sur cette voie d'accès : elle ne doit PAS s'afficher.
+    expect(alertes.some((a) => a.message.includes('5 fois la normale'))).toBe(false)
+  })
+
+  it('F-16 — intolérance avérée SANS ASCVD (profil « discuter ») : « Discuter » aussi est retirée', () => {
+    // Le red-team avait relevé que retirer la seule option de haute intensité aurait fait tomber le patient
+    // sur « Discuter » — c'est-à-dire lui proposer, en repli, une statine qu'il ne peut pas davantage
+    // prendre, tout en le présentant comme à faible risque. Les deux options portent donc l'exclusion.
+    const o = { intolerance_statine: 'averee' } as Partial<Criteria> // BASE = profil du tier « Discuter »
+    const result = evalProfile(o)
+    expect(result.excluded.get(OPT_DISCUTER)).toContain('intolerance_statine == averee')
+    expect(result.applicable).toEqual([OPT_TERMINALE])
+  })
+
+  it('F-17 — intolérance avérée sur un profil de REPLI : le repli n’est jamais atteint (la terminale le précède)', () => {
+    // C'est ici que se joue la garantie décrite dans le commentaire du repli : celui-ci ne porte AUCUNE
+    // exclusion, il est protégé par la seule POSITION de l'option terminale devant lui. Si un jour on
+    // déplaçait la terminale après le repli, ce test tomberait — et c'est tout son objet.
+    const o = {
+      intolerance_statine: 'averee',
+      anciennete_diabete_annees: 12, autres_FDRCV: 3, diabete_complique: true,
+    } as Partial<Criteria>
+    const result = evalProfile(o)
+    expect(result.applicable).toEqual([OPT_TERMINALE])
+    expect(result.applicable).not.toContain(OPT_MODEREE)
+  })
+
+  it('F-18 — CK > 5 N avant initiation : seconde voie d’accès à la terminale, avec son alerte propre', () => {
+    // La seule phrase de la reco française employant le mot « contre-indication ». Voie DISTINCTE de
+    // l'intolérance : la conduite y est d'abord diagnostique, ce que dit l'alerte dédiée.
+    const o = { ASCVD_etablie: true, CK_sup_5N: true } as Partial<Criteria>
+    const result = evalProfile(o)
+    expect(result.excluded.get(OPT_HAUTE)).toContain('CK_sup_5N == true AND statine_deja_en_place == false')
+    expect(result.applicable).toEqual([OPT_TERMINALE])
+    expect(alertesDeCetteOption(o, OPT_TERMINALE).some((a) => a.message.includes('5 fois la normale'))).toBe(true)
+  })
+
+  it('F-19 — CK > 5 N chez un patient DÉJÀ sous statine : aucun retrait, MÊME si la case est cochée', () => {
+    // Le point que ce test protège vraiment. `visible_si: statine_deja_en_place == false` masque le champ
+    // dans le formulaire — mais `visible_si` n'est lu QUE par la couche formulaire, jamais par le moteur.
+    // La vignette pose donc délibérément `CK_sup_5N: true` avec une statine en place : c'est la situation
+    // d'un praticien qui coche la case, puis déclare la statine en cours. Si la portée « avant initiation »
+    // ne vivait que dans le `visible_si`, ce patient serait ici retiré à tort de son option. Elle est donc
+    // écrite AUSSI dans l'expression (`AND statine_deja_en_place == false`), et c'est ce que ce test vérifie.
+    const o = { ASCVD_etablie: true, statine_deja_en_place: true, CK_sup_5N: true } as Partial<Criteria>
+    const result = evalProfile(o)
+    expect(result.applicable).toEqual([OPT_HAUTE])
+    expect(result.excluded.has(OPT_HAUTE)).toBe(false)
+  })
+
+  it('F-20 — la carte terminale ne revendique JAMAIS un bénéfice de mortalité (garde-fou de rédaction)', () => {
+    // Dans CLEAR Outcomes, les estimations ponctuelles de mortalité sont DÉFAVORABLES (décès CV HR 1,04 ;
+    // toutes causes HR 1,03). La collecte proposait des libellés qui gommaient ce point ; le red-team l'a
+    // relevé. Ce test protège la rédaction, pas le moteur.
+    // Les `avantages` — la colonne que le prescripteur lit en premier — ne doivent porter AUCUNE mention
+    // de mortalité, ni pour la revendiquer ni pour la nuancer : ce n'est pas là que se traite le point.
+    // « morbi-mortalité » est retiré avant le test : c'est le NOM d'une catégorie d'essai (« essai de
+    // morbi-mortalité »), pas une revendication d'effet. Ce qui est interdit ici, c'est de parler du
+    // critère mortalité lui-même dans la colonne des bénéfices.
+    const bénéfices = (OPT_TERMINALE.avantages ?? []).join(' ').replace(/morbi-mortalité/gi, '')
+    expect(/mortalit[ée]/i.test(bénéfices)).toBe(false)
+    // L'`effet_attendu` doit la mentionner, mais UNIQUEMENT pour la nier.
+    expect(OPT_TERMINALE.effet_attendu ?? '').toMatch(/Mortalité\s*:\s*NON démontrée/)
+    // Et les chiffres défavorables doivent être écrits, pas seulement résumés en « neutre ».
+    const contre = (OPT_TERMINALE.inconvenients ?? []).join(' ')
+    expect(contre).toContain('HR 1,04')
+    expect(contre).toContain('HR 1,03')
   })
 })

@@ -336,6 +336,30 @@ recensés un par un, avec leur motif, plutôt que dispensés en bloc.
 > nœud en `ordered-first-match` — sur `statine`, l'exclusion dialyse sans les critères
 > `statine_deja_en_place` / `intolerance_statine` supprimerait les 3 options sans repli. Le canal de
 > sortie se change **après** avoir donné au nœud de quoi dire autre chose.
+>
+> **La suite, et sa forme générale** (2026-07-27, `statine` v1.8). Quand l'intolérance avérée a dû, à son
+> tour, retirer les options de statine, la solution n'a pas été de renoncer : c'est **une option terminale
+> placée juste avant le repli** qui donne au nœud de quoi dire autre chose. Trois conséquences à
+> connaître avant d'en écrire une :
+>
+> - **Ne pas exclure le repli.** L'instinct est de poser la même `exclusion` sur le `default` ; elle est
+>   **inatteignable**, l'option terminale ayant déjà gagné pour exactement ces patients. L'invariant de
+>   couverture du banc le signale, mais autant ne pas l'écrire : un garde-fou décoratif se relit comme une
+>   protection réelle.
+> - **C'est l'ORDRE qui protège, et ça se documente dans l'option protégée.** Déplacer la terminale, ou
+>   restreindre ses `conditions`, rouvre la faille sans qu'aucune `exclusion` n'ait bougé — un
+>   remaniement parfaitement innocent en apparence.
+> - **Les conditions de la terminale et les exclusions qu'elle relaie doivent rester exactement
+>   complémentaires.** Toucher à l'une sans l'autre casse I2′ (jamais de sortie vide) dans un sens, ou
+>   rend la terminale inatteignable dans l'autre.
+
+**`visible_si` ne porte jamais un fait de sécurité.** Il n'est lu que par la couche formulaire
+(`lib/formLayout.ts`) ; le moteur l'ignore. Un critère dont la portée est conditionnelle — `CK_sup_5N` ne
+vaut qu'avant initiation — doit répéter cette condition **dans chaque expression qui le lit**
+(`CK_sup_5N == true AND statine_deja_en_place == false`), et pas seulement dans son `visible_si`. Sinon
+une valeur saisie puis masquée continue d'agir : le praticien coche la case, déclare ensuite la statine en
+cours, et son patient est retiré d'une option à laquelle il a droit. La redondance est **voulue** : le
+`visible_si` sert la saisie, le terme conjonctif sert le raisonnement.
 
 ---
 

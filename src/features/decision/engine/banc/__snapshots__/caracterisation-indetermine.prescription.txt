@@ -102,6 +102,7 @@ Sortie :
     - Metformine (socle du traitement) — instaurer ou poursuivre :: à renseigner : DFG
     - Arrêter la metformine (DFG < 30 — contre‑indication rénale) :: à renseigner : DFG
     - Réduire la posologie de la metformine (fonction rénale altérée ou intolérance digestive) :: à renseigner : DFG
+    - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : DFG
 
 ### Profil #2 — 1 critère masqué (ciblé — cité par une `exclusions` du nœud) : IMC
 
@@ -189,7 +190,7 @@ Sortie :
   Famille « Traitement à alléger » (exclusive: false) :
     -- groupe d'égalité #0 --
   - [recommandee] Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline
-      proposé parce que : hba1c_sous_cible == true ; hypoglycemie_recente == true AND terrain_fragile == true ; traitements_en_cours contient insuline
+      proposé parce que : hba1c_sous_cible == true ; hypoglycemie_recente == true AND terrain_cible_assouplie == true ; hypoglycemie_recente == true AND risque_hypoglycemie_schema == eleve ; traitements_en_cours contient insuline
   - [recommandee] Réduire la posologie de l'insuline (sur‑basalisation / hypoglycémie)
       proposé parce que : traitements_en_cours contient insuline ; hba1c_sous_cible == true ; hypoglycemie_recente == true ; intolerance_traitement == true
     -- groupe d'égalité #1 --
@@ -300,7 +301,7 @@ Sortie :
   Famille « Traitement à alléger » (exclusive: false) :
     -- groupe d'égalité #0 --
   - [recommandee] Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline
-      proposé parce que : hypoglycemie_recente == true AND terrain_fragile == true ; position_vs_cible == sous_objectif ; traitements_en_cours contient sulfamide
+      proposé parce que : hypoglycemie_recente == true AND terrain_cible_assouplie == true ; position_vs_cible == sous_objectif ; traitements_en_cours contient sulfamide
     -- groupe d'égalité #1 --
   - [recommandee] Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer
       proposé parce que : intolerance_traitement == true
@@ -415,8 +416,8 @@ Sortie :
     - Arrêter la metformine (DFG < 30 — contre‑indication rénale) :: à renseigner : DFG
     - Réduire la posologie de la metformine (fonction rénale altérée ou intolérance digestive) :: à renseigner : dose_metformine, DFG
     - Arrêter le sulfamide (DFG < 30 — contre‑indication rénale) :: à renseigner : DFG
-    - Remplacer le sulfamide (moins d'hypoglycémie, moins de poids, plus de bénéfice) :: à renseigner : HbA1c_actuelle
-    - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : position_vs_cible, HbA1c_actuelle
+    - Remplacer le sulfamide (moins d'hypoglycémie, moins de poids, plus de bénéfice) :: à renseigner : HbA1c_actuelle, DFG
+    - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : position_vs_cible, HbA1c_actuelle, DFG
     - Réduire la posologie du sulfamide (tolérance, hypoglycémie légère) :: à renseigner : DFG
 
 ### Profil #8 — 7 critère(s) masqué(s) (masque stratifié) : age, fragilite, denutrition, IMC, hypoglycemie_recente, insuffisance_cardiaque, HbA1c_actuelle
@@ -454,11 +455,11 @@ Sortie :
     - Metformine CONTRE‑INDIQUÉE si DFG < 30 (RCP ANSM) : arrêter. Un iSGLT2 reste initiable jusqu'à DFG ≥ 20 (indication rénale) ; en dessous, relais par une autre classe (nœud E). Sulfamide aussi CI < 30. [attention]
     - Sujet fragile déjà sous incrétine (AR GLP‑1 / tirzépatide) : surveiller le poids et l'état nutritionnel (risque de sarcopénie / anorexie). En cas de dénutrition ou d'IMC bas, réévaluer l'indication — réduire la posologie ou arrêter. [attention]
     - Risque d'hypoglycémie élevé + place résiduelle : DÉCONSEILLER le sulfamide, préférer la gliptine (sitagliptine, sans hypoglycémie). Si un SU est retenu : gliclazide MR à dose basse, jamais le glibenclamide, avec éducation à l'hypoglycémie. [attention]
-    - Place résiduelle en insuffisance rénale : sitagliptine à dose réduite (50 mg si DFG 30‑44 ; 25 mg si < 30, dialyse incluse). Sulfamide gliclazide/glimépiride à dose réduite mais CONTRE‑INDIQUÉ < 30 ; jamais de glibenclamide. [attention]
+    - Place résiduelle en insuffisance rénale : sitagliptine à dose réduite (50 mg si DFG 30‑44). En dessous de 30 (dialyse incluse), la SFD 2025 nomme la vildagliptine 50 mg/j — la forme sitagliptine 25 mg n'est pas commercialisée en France. Sulfamide gliclazide/glimépiride à dose réduite mais CONTRE‑INDIQUÉ < 30 ; jamais de glibenclamide. [attention]
     - Non-association incrétine : si un AR GLP‑1 ou le tirzépatide est introduit, la gliptine doit être ARRÊTÉE — même voie incrétine, aucun bénéfice additif (Nauck 2017 ; ADA §9 ; KDIGO PP4.2.3 ; HAS R.80). Ne jamais les associer. [attention]
   Options écartées (sécurité, R4) :
     - Metformine (socle du traitement) — instaurer ou poursuivre :: DFG < 30
-    - Sulfamide (gliclazide MR ou glimépiride) — option glycémique de bas rang, derrière la gliptine :: DFG < 30
+    - Sulfamide (gliclazide MR ou glimépiride) — option glycémique de bas rang, derrière la gliptine :: DFG < 30 ; fragilite == true
 
 ### Profil #9 — 8 critère(s) masqué(s) (masque stratifié) : IMC, insuffisance_cardiaque, denutrition, intolerance_traitement, age, infections_uro_genitales_recidivantes, traitements_en_cours, hypoglycemie_recente
 
@@ -499,7 +500,7 @@ Sortie :
   Famille « Traitement à alléger » (exclusive: false) :
     -- groupe d'égalité #0 --
   - [recommandee] Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline
-      proposé parce que : hypoglycemie_recente == true AND terrain_fragile == true ; traitements_en_cours contient glinide
+      proposé parce que : hypoglycemie_recente == true AND terrain_cible_assouplie == true ; traitements_en_cours contient glinide
     -- groupe d'égalité #1 --
   - [recommandee] Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer
       proposé parce que : intolerance_traitement == true
@@ -513,13 +514,13 @@ Sortie :
     - Metformine CONTRE‑INDIQUÉE si DFG < 30 (RCP ANSM) : arrêter. Un iSGLT2 reste initiable jusqu'à DFG ≥ 20 (indication rénale) ; en dessous, relais par une autre classe (nœud E). Sulfamide aussi CI < 30. [attention]
     - Sujet fragile déjà sous incrétine (AR GLP‑1 / tirzépatide) : surveiller le poids et l'état nutritionnel (risque de sarcopénie / anorexie). En cas de dénutrition ou d'IMC bas, réévaluer l'indication — réduire la posologie ou arrêter. [attention]
     - iSGLT2 (en cours ou indiqué par la comorbidité) + infections génito‑urinaires récidivantes : réévaluer l'indication (ne pas initier / envisager l'arrêt) ; risque de gangrène de Fournier. Préférer une autre classe si une protection est requise. [attention]
-    - Place résiduelle en insuffisance rénale : sitagliptine à dose réduite (50 mg si DFG 30‑44 ; 25 mg si < 30, dialyse incluse). Sulfamide gliclazide/glimépiride à dose réduite mais CONTRE‑INDIQUÉ < 30 ; jamais de glibenclamide. [attention]
+    - Place résiduelle en insuffisance rénale : sitagliptine à dose réduite (50 mg si DFG 30‑44). En dessous de 30 (dialyse incluse), la SFD 2025 nomme la vildagliptine 50 mg/j — la forme sitagliptine 25 mg n'est pas commercialisée en France. Sulfamide gliclazide/glimépiride à dose réduite mais CONTRE‑INDIQUÉ < 30 ; jamais de glibenclamide. [attention]
     - Refus des injections : privilégier une alternative ORALE (sémaglutide oral, iSGLT2, iDPP4) — les options injectables (AR GLP‑1 injectable, tirzépatide, association) sont reléguées en dernier. Si aucune alternative non injectable adaptée n'existe alors qu'un bénéfice cardio‑rénal prouvé est requis, un injectable reste à discuter avec le patient (le refus ne doit pas priver d'un traitement à bénéfice démontré). [attention]
     - Cohérence : HbA1c ≥ 9 % alors que le patient est déclaré à l'objectif ou en dessous. Aucune cible individualisée ne dépasse 9 % (la bande la plus large est « < 9 % », réservée au sujet âgé dépendant) — vérifier l'objectif retenu : une INTENSIFICATION est probablement indiquée. [attention]
     - Non-association incrétine : si un AR GLP‑1 ou le tirzépatide est introduit, la gliptine doit être ARRÊTÉE — même voie incrétine, aucun bénéfice additif (Nauck 2017 ; ADA §9 ; KDIGO PP4.2.3 ; HAS R.80). Ne jamais les associer. [attention]
   Options écartées (sécurité, R4) :
     - Metformine (socle du traitement) — instaurer ou poursuivre :: DFG < 30
-    - Sulfamide (gliclazide MR ou glimépiride) — option glycémique de bas rang, derrière la gliptine :: DFG < 30 ; cetonemie == true
+    - Sulfamide (gliclazide MR ou glimépiride) — option glycémique de bas rang, derrière la gliptine :: DFG < 30 ; cetonemie == true ; fragilite == true
 
 ### Profil #10 — 8 critère(s) masqué(s) (masque stratifié) : intention, esperance_vie, classes_a_benefice_indisponibles, infections_uro_genitales_recidivantes, DFG, albuminurie, risque_hypoglycemie_schema, cetonemie
 
@@ -613,7 +614,7 @@ Sortie :
     - Non-association incrétine : si un AR GLP‑1 ou le tirzépatide est introduit, la gliptine doit être ARRÊTÉE — même voie incrétine, aucun bénéfice additif (Nauck 2017 ; ADA §9 ; KDIGO PP4.2.3 ; HAS R.80). Ne jamais les associer. [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Insuline d'initiation (souvent transitoire — état catabolique) :: à renseigner : HbA1c_actuelle
-    - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : position_vs_cible, HbA1c_actuelle, age, risque_hypoglycemie_schema
+    - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : position_vs_cible, risque_hypoglycemie_schema, HbA1c_actuelle, age
     - Sulfamide (gliclazide MR ou glimépiride) — option glycémique de bas rang, derrière la gliptine :: à renseigner : intention, position_vs_cible
 
 ### Profil #12 — 14 critère(s) masqué(s) (masque stratifié) : preference_injection, classes_a_benefice_indisponibles, nature_intolerance, ASCVD_etablie, traitements_en_cours, IMC, infections_uro_genitales_recidivantes, DFG, dose_metformine, fragilite, symptomes_glucotoxicite, intention, denutrition, risque_hypoglycemie_schema
@@ -647,7 +648,7 @@ Sortie :
   Famille « Traitement à alléger » (exclusive: false) :
     -- groupe d'égalité #0 --
   - [recommandee] Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline
-      proposé parce que : hba1c_sous_cible == true ; hypoglycemie_recente == true AND terrain_fragile == true ; position_vs_cible == sous_objectif ; traitements_en_cours contient sulfamide ; traitements_en_cours contient insuline
+      proposé parce que : hba1c_sous_cible == true ; hypoglycemie_recente == true AND terrain_cible_assouplie == true ; position_vs_cible == sous_objectif ; traitements_en_cours contient sulfamide ; traitements_en_cours contient insuline
   - [recommandee] Réduire la posologie de l'insuline (sur‑basalisation / hypoglycémie)
       proposé parce que : traitements_en_cours contient insuline ; hba1c_sous_cible == true ; hypoglycemie_recente == true ; position_vs_cible == sous_objectif
     -- groupe d'égalité #1 --
@@ -713,7 +714,7 @@ Sortie :
     - Introduire un iSGLT2 (protection cardio‑rénale et/ou contrôle glycémique) :: symptomes_glucotoxicite == true ; cetonemie == true
   Options EN ATTENTE (indétermination, R7/D20) :
     - Réduire la posologie de la metformine (fonction rénale altérée ou intolérance digestive) :: à renseigner : nature_intolerance
-    - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : position_vs_cible, age, risque_hypoglycemie_schema
+    - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : position_vs_cible, risque_hypoglycemie_schema, age
 
 ### Profil #14 — 10 critère(s) masqué(s) (masque stratifié) : insuffisance_cardiaque, dose_metformine, nature_intolerance, risque_hypoglycemie_schema, DFG, infections_uro_genitales_recidivantes, esperance_vie, preference_injection, traitements_en_cours, ASCVD_etablie
 
