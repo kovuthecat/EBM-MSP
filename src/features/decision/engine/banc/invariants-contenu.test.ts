@@ -622,3 +622,88 @@ describe('I8 — adossement bibliographique des options (générique, tous nœud
     expect(violations).toEqual([])
   })
 })
+
+
+// ═══════════════════════════════════════════════════════════════════════════════════════════════════
+// I14 — LA VOIX PROPRE D'UN DRAPEAU
+// ═══════════════════════════════════════════════════════════════════════════════════════════════════
+
+/**
+ * I14 — **un drapeau booléen qui n'agit qu'à travers le `derive` d'un autre critère n'a pas de voix
+ * propre** : le patient qui le déclare reçoit exactement le même écran que celui qui déclare n'importe
+ * lequel de ses voisins du même dérivé.
+ *
+ * LE CAS RÉEL (recette navigateur du 2026-07-27, classe K8). Sur `rhd-activite-physique`, quatre
+ * drapeaux de sécurité alimentent `verrou_effort` en OU. Deux ont bien leur canal propre
+ * (`limitation_physique_connue` conditionne une option, `neuropathie_ou_mal_perforant_plantaire` porte
+ * une alerte de nœud dédiée qui restitue ce que le verrou retire). Les deux autres —
+ * `symptomes_ischemie_effort` et `retinopathie_non_stabilisee_ou_proliferante` — n'apparaissent NULLE
+ * PART ailleurs que dans ce `derive`. Un patient qui déclare des symptômes d'ischémie à l'effort reçoit
+ * donc le même écran qu'un patient qui déclare une simple limitation, sans qu'un mot n'évoque
+ * l'exploration cardiologique avant de prescrire de l'activité physique.
+ *
+ * POURQUOI PAS I13. `banc/discernabilite.test.ts` mesure la discernabilité par comparaison appariée, et
+ * ces deux drapeaux y sont VERTS — à juste titre : sur un profil où les trois autres sont faux, les
+ * retourner change bel et bien l'écran. La propriété manquante n'est donc pas « ce drapeau agit » mais
+ * « ce drapeau a une voix qui LUI est propre », et elle se lit dans le contenu seul, sans profil ni
+ * tirage. Les deux invariants sont complémentaires et aucun ne remplace l'autre.
+ *
+ * CE QUE L'INVARIANT NE TRANCHE PAS. Qu'un drapeau doive ou non avoir sa voix propre est une décision
+ * CLINIQUE. L'invariant rend la question visible et opposable, il n'y répond pas : chaque entrée de la
+ * dette ci-dessous porte la question posée au référent, et le test échoue AUSSI quand une entrée devient
+ * périmée — la dette ne peut pas se fossiliser.
+ *
+ * DÉLIBÉRÉMENT SANS MOTEUR, comme le reste de ce fichier : `fragmentsDuNoeud` visite toutes les
+ * expressions du nœud avec leur `chemin`, il suffit de distinguer celles qui vivent dans un `derive` des
+ * autres. Aucun tirage, donc un verdict exact et non une fréquence.
+ */
+const DRAPEAUX_SANS_VOIX_PROPRE_CONNUS: Record<string, Record<string, string>> = {
+  'rhd-activite-physique': {
+    symptomes_ischemie_effort:
+      "K8 (recette navigateur 2026-07-27). QUESTION AU RÉFÉRENT : des symptômes d'ischémie à l'effort " +
+      "appellent-ils une conduite propre — avis cardiologique avant toute prescription d'activité — " +
+      "plutôt que le seul retrait de la famille « pratique structurée » ? C'est le plus grave des quatre " +
+      "drapeaux du verrou, et le seul, avec la rétinopathie, à n'avoir aucun canal.",
+    retinopathie_non_stabilisee_ou_proliferante:
+      "K8 (recette navigateur 2026-07-27). QUESTION AU RÉFÉRENT : une rétinopathie non stabilisée ou " +
+      "proliférante appelle-t-elle une restriction propre (manœuvre de Valsalva, efforts en résistance, " +
+      "intensité élevée) plutôt que le retrait global ? La dissymétrie avec les deux autres drapeaux du " +
+      "même verrou, qui ont leur canal, est dans le contenu et non dans le moteur.",
+  },
+  'rhd-alimentation': {
+    signe_restriction_puis_craquage:
+      "Trouvé PAR CET INVARIANT, hors recette. QUESTION AU RÉFÉRENT : les trois signes de trouble du " +
+      "comportement alimentaire sont cliniquement distincts — restriction suivie de craquage, manger " +
+      "caché ou culpabilité, antécédent de régime restrictif — mais produisent aujourd'hui le même " +
+      "écran. Le premier évoque un trouble ACTIF, le troisième un antécédent : faut-il les distinguer ?",
+    signe_manger_cache_ou_culpabilite: 'Idem — voir `signe_restriction_puis_craquage`.',
+    signe_antecedent_regime_restrictif: 'Idem — voir `signe_restriction_puis_craquage`.',
+  },
+  insuline: {
+    fragilite:
+      "Trouvé PAR CET INVARIANT, hors recette. `fragilite` n'agit qu'à travers le dérivé de cible " +
+      "assouplie. QUESTION AU RÉFÉRENT : l'écran doit-il DIRE que la cible est assouplie PARCE QUE le " +
+      "patient est fragile ? Le nœud `prescription`, lui, porte bien une alerte sur ce terrain.",
+  },
+}
+
+describe('I14 — un drapeau qui n’agit qu’à travers un `derive` n’a pas de voix propre', () => {
+  it.each(noeuds.map((node) => [node.id, node] as const))('nœud %s', (id, node) => {
+    const connus = DRAPEAUX_SANS_VOIX_PROPRE_CONNUS[id] ?? {}
+    const fragments = fragmentsDuNoeud(node)
+    const sansVoix: string[] = []
+
+    for (const critere of node.criteres_entree) {
+      if (critere.type !== 'bool' || critere.derive != null) continue
+      const cite = new RegExp(`\\b${critere.nom}\\b`)
+      const citations = fragments.filter((fragment) => cite.test(fragment.expression))
+      // Jamais cité du tout : c'est un critère MORT, et c'est R5 (`couverture.test.ts`) qui le dit —
+      // pas cet invariant-ci, qui parlerait alors d'un défaut qu'un autre test nomme déjà mieux.
+      if (citations.length === 0) continue
+      if (citations.every((fragment) => fragment.chemin.includes('derive'))) sansVoix.push(critere.nom)
+    }
+
+    expect(sansVoix.filter((nom) => connus[nom] == null)).toEqual([])
+    expect(Object.keys(connus).filter((nom) => !sansVoix.includes(nom))).toEqual([])
+  })
+})
