@@ -115,6 +115,17 @@ export interface OptionVue {
    * (elle vit dans `VueDecision.ecartees`/`nonRetenues`, qui ne portent pas d'alertes).
    */
   alertes: Alerte[]
+  /**
+   * Rang RÉSOLU de cette option pour ce patient (`EvaluateNodeResult.rangs`), exposé depuis le 2026-07-27
+   * pour le repli d'affichage de l'écran (dette « plafond d'affichage », `rhd-alimentation` et
+   * `rhd-activite-physique`). `undefined` quand l'option n'a pas de `priorite` — cas des nœuds en
+   * `ordered-first-match`, où le rang n'a aucun sens (D11 : `priorite` y est ignoré).
+   *
+   * L'écran s'en sert pour DÉPLIER le meilleur rang et REPLIER le reste, jamais pour retirer quoi que ce
+   * soit : le contenu de `familles` est identique avec ou sans repli, seule sa présentation change. Le
+   * moteur ne connaît pas cette notion — c'est bien une décision d'affichage, et elle doit le rester.
+   */
+  rang: number | undefined
 }
 
 /** Une section de l'écran : une famille clinique (ou le repli à plat, `libelle: undefined`). */
@@ -258,6 +269,7 @@ export function construireVueDecision(node: Noeud, criteria: Criteria, renseigne
             calculs: calculsAffiches(option, criteria, effectifs),
             motifRang: motifRangPertinent ? rangMotifs.get(option) : undefined,
             alertes: evaluateAlertesDeListe(option.alertes, derived, effectifs),
+            rang: rangs.get(option),
           }),
         ),
       ),

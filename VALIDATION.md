@@ -479,3 +479,25 @@ valider par le référent**, notamment le point badge non tranché ci-dessous.
 - [ ] **Patient avec un signe d'appel TCA** : deux cartes d'orientation doivent maintenant coexister —
       le diététicien ET l'avis spécialisé en TCA. Vérifier qu'elles se lisent comme complémentaires
       (c'est ce qu'écrit la HAS) et non comme deux options concurrentes entre lesquelles choisir.
+
+## Repli d'affichage + reprise du nœud alimentation (2026-07-27, 4ᵉ lot)
+
+> Build + typecheck + **540 tests OK** ; **visuel à valider par le référent.**
+
+- [ ] **Le repli, sur `rhd-alimentation` avec un patient qui déclenche beaucoup de pistes** : les pistes
+      du meilleur rang restent dépliées, les autres passent sous « Autres pistes possibles (N) ». Le
+      point à juger : le bouton se voit-il assez ? Un praticien doit comprendre qu'il reste des pistes,
+      pas croire que l'écran est complet.
+- [ ] **Le seuil de 4 options** : en dessous, rien n'est replié. Vérifier sur un patient peu chargé que
+      l'écran ne montre pas un bouton « Autres pistes possibles (1) », qui serait ridicule.
+- [ ] **`prescription` et `insuline` sont aussi concernés** — le repli est générique, il ne connaît aucun
+      nœud par son nom. À vérifier en priorité : qu'aucune carte de SÉCURITÉ ne se retrouve repliée.
+      Elles sont toutes au rang 1, donc dépliées par construction, mais c'est le point qui coûterait le
+      plus cher s'il était faux.
+- [ ] **`statine` ne doit RIEN replier** (nœud à sortie unique, `priorite` ignoré). Contre-épreuve.
+- [ ] **La piste viande/charcuterie** : « Réduire la charcuterie et la viande rouge (porc, bœuf, veau,
+      mouton, agneau, abats) ». Le fromage a disparu, le chiffre aussi, la volaille aussi. Vérifier que
+      l'intitulé se négocie en une phrase et qu'il ne se lit pas comme une interdiction.
+- [ ] **Patient avec un signe d'appel TCA** : il reçoit désormais les mêmes pistes que les autres, PLUS
+      ses deux orientations (diététicien, avis spécialisé). Le point à juger : cet écran vous paraît-il
+      cliniquement juste, ou manque-t-il une mise en garde maintenant que plus rien n'est bloqué ?

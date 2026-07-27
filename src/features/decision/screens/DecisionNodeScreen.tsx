@@ -12,6 +12,8 @@ import { criteresPertinents } from '../engine/relevance'
 import { describeReasons } from '../lib/conditionText'
 import { ESPERANCE_VIE_DRIVERS, hasEsperanceVieCritere, suggestEsperanceVie } from '../lib/esperanceVieDefault'
 import { buildDefaultCriteria, decisifsAConfirmer, reinitialiserChampsMasques, valeurParDefaut } from '../lib/formLayout'
+import { partitionnerAffichage } from '../lib/replierAffichage'
+import type { FamilleVue } from '../lib/vueDecision'
 import { construireVueDecision } from '../lib/vueDecision'
 import { formatDateRevue, labelForCritere, labelForDomaine } from '../lib/labels'
 import './DecisionNodeScreen.css'
@@ -284,7 +286,10 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
               // 2026-07-25) et les doses calculées sont déjà résolus dans `vue` — l'écran ne calcule plus
               // rien, il assemble.
               let cle = 0
-              return vue.familles.map((famille, indexFamille) => {
+              // Extrait en fonction le 2026-07-27 (repli d'affichage) : le même rendu sert maintenant DEUX
+              // fois — les pistes du meilleur rang, puis celles repliées derrière le bouton. Le corps est
+              // rigoureusement inchangé ; seule la source des familles devient un paramètre.
+              const rendreFamilles = (familles: FamilleVue[]) => familles.map((famille, indexFamille) => {
                 const sectionsGroupes = famille.groupes.map((groupe) => {
                   const cartes = groupe.map((optionVue) => (
                     <OptionCard
@@ -332,6 +337,29 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                   </div>
                 )
               })
+              // DETTE « PLAFOND D'AFFICHAGE » levée ici (décision référent 2026-07-27). La partition est
+              // calculée par `lib/replierAffichage.ts`, testé à part : c'est la seule pièce de cet écran
+              // dont une erreur ferait DISPARAÎTRE une option des yeux d'un prescripteur. Rien n'est
+              // retiré — `principales ∪ repliees` est exactement `vue.familles`, et le bouton porte le
+              // compte exact de ce qu'il cache.
+              const { principales, repliees, nbRepliees } = partitionnerAffichage(vue)
+              if (nbRepliees === 0) return rendreFamilles(principales)
+              return (
+                <>
+                  {rendreFamilles(principales)}
+                  <details className="decision-node__repli">
+                    <summary className="decision-node__repli-resume">
+                      Autres pistes possibles ({nbRepliees})
+                    </summary>
+                    <p className="decision-node__repli-mention">
+                      Ces pistes sont applicables à ce patient, à un rang moins prioritaire que celles
+                      ci-dessus. Elles ne sont pas écartées — elles sont repliées parce qu'une consultation
+                      ne permet d'en négocier que deux ou trois.
+                    </p>
+                    {rendreFamilles(repliees)}
+                  </details>
+                </>
+              )
             })()
           ) : vue && vue.enAttente.length > 0 ? null : ( // le bloc EN ATTENTE ci-dessous explique déjà l'état — jamais les deux messages à la fois (D20 R7, tâche 3).
             <p className="decision-node__empty">Aucune option ne correspond à ces critères.</p>

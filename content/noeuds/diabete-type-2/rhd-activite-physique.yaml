@@ -472,7 +472,7 @@ incertitudes:
   - "Le verrou de sécurité à l'effort bloque, par construction, l'ensemble de la famille « pratique structurée » dès qu'un signe est positif — y compris pour une neuropathie/mal perforant plantaire, dont une source HAS précise que la contre-indication porte spécifiquement sur l'activité physique des membres INFÉRIEURS (les activités des membres supérieurs restant permises). TRANCHÉ le 2026-07-27 (référent) : garder le blocage, mais RESTITUER l'information par une alerte de nœud dédiée (`neuropathie_ou_mal_perforant_plantaire == true`), qui nomme ce qui reste possible — activités des membres supérieurs, travail en décharge — et invite à orienter vers une pratique adaptée plutôt qu'à conclure à l'absence d'activité possible. La distinction membres supérieurs/inférieurs n'est toujours PAS modélisée dans les options (le nœud ne recueille pas de quoi qualifier chaque piste par segment corporel, et le faire coûterait un critère de plus pour une situation peu fréquente) : le choix est donc de dire, plutôt que de filtrer. Alerte de NŒUD et non d'option, délibérément — une alerte d'option ne serait jamais rendue, l'option étant précisément exclue."
   - "G1 (évaluation médicale avant intensité si inactif/facteur de risque cardiovasculaire) et G7 (glycémie avant l'effort, seuil de vigilance 2,5 g/L) sont portés par une alerte D'OPTION sur « Envisager un programme d'activité physique adaptée », pas par des critères d'entrée collectés : ce sont des rappels de bonne pratique et d'auto-surveillance ponctuelle, pas des données chroniques du patient."
   - "L'hypoglycémie sous insuline/sulfamide/glinide reste une alerte simple (jamais un blocage) : arbitrage référent explicite qui tranche le point laissé ouvert par le red-team des collectes (finding B-3) — le mécanisme visé ici (hypoglycémie À L'EFFORT) est cliniquement distinct de celui déjà arbitré côté alimentation (hypoglycémie par restriction des apports), les deux nœuds convergent malgré tout vers le même canal (alerte, pas exclusion)."
-  - "Le plafond d'affichage (2-3 pistes négociables selon ebmfrance) n'est pas appliqué techniquement par le moteur : traité par le rang déclaré (`priorite`) uniquement — un affichage effectivement plafonné demanderait un changement d'écran, hors périmètre de cette tâche, signalé au référent."
+  - "PLAFOND D'AFFICHAGE — RÉSOLU le 2026-07-27 (décision référent). La dette était consignée à l'identique dans les DEUX nœuds RHD : le rang (`priorite`) était déclaré dans le contenu mais l'écran affichait tout à plat, si bien que le rang n'était jamais vu. L'écran REPLIE désormais les pistes au-delà du meilleur rang derrière un bouton « Autres pistes possibles (N) » (`lib/replierAffichage.ts`, testé à part). CE QUE CE N'EST PAS : un plafond. Rien n'est retiré ni filtré — la partition conserve exactement les options d'entrée, le bouton porte leur nombre exact, et un clic les rend. Trois cas ne replient délibérément rien : moins de 4 options applicables (écran non encombré), aucun rang défini (nœud en `ordered-first-match`, où `priorite` est ignoré par D11), et toutes les options au même rang (le contenu les déclare équivalentes ; en cacher une partie inventerait une hiérarchie qu'il ne pose pas). Une option sans rang est traitée comme prioritaire : le doute ne cache jamais."
   - "« Poursuivre les habitudes actuelles… » n'est pas un sentinel `default` : sa condition (2-3×/semaine ET rupture de sédentarité déjà habituelle) est un sous-ensemble NÉCESSAIRE, mais pas exactement équivalent, du cas où les 8 axes de recueil sont tous favorables — elle peut donc aussi s'afficher (à raison, cumulée à d'autres pistes) chez un patient favorable sur ces deux seuls axes sans l'être sur tous les autres. Choix assumé, même logique que le nœud sœur `rhd-alimentation`."
   - "TRANCHÉ le 2026-07-27 (référent) : PAS de nommage de structures dans le contenu clinique. La piste GÉNÉRIQUE existe déjà (« Orienter vers une structure d'activité physique adaptée… », déclenchée par une limitation physique, une difficulté d'accès ou une offre de proximité inconnue) et suffit — le praticien connaît son secteur. Aucun code n'a donc été nécessaire. Décision de fond : nommer des structures figerait dans un nœud clinique des données qui vieillissent et créerait une dépendance à `annuaire-msp` ; si un annuaire arrive, il sera consommé par l'écran, jamais recopié dans le contenu."
 veille_liee: []
@@ -480,8 +480,19 @@ meta:
   date_revue: "2026-07-26"
   auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
   statut: brouillon
-  version: "0.3"
+  version: "0.4"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        PLAFOND D'AFFICHAGE — dette technique levée (décision référent). Elle était consignée à l'identique
+        dans les deux nœuds RHD : le rang (`priorite`) était déclaré dans le contenu mais l'écran affichait
+        tout à plat, si bien que le rang n'était jamais vu. L'écran replie désormais les pistes au-delà du
+        meilleur rang derrière un bouton « Autres pistes possibles (N) » (`lib/replierAffichage.ts`, 8
+        tests dédiés). Ce n'est PAS un plafond : rien n'est retiré ni filtré, le bouton porte le compte
+        exact et un clic rend les pistes. Aucun changement de contenu clinique sur ce nœud, aucun
+        changement de comportement du moteur — le golden master est inchangé, ce qui est la preuve
+        attendue pour un lot purement d'affichage.
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

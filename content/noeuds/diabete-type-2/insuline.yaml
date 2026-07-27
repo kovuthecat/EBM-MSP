@@ -906,15 +906,24 @@ incertitudes:
   - "RÉSOLU 2026-07-26 (4ᵉ lot, I3/F4) : « Désintensifier / alléger le schéma » (basal-bolus) portait `hypo_severe_recurrente == true` en OR littéral, jamais lu par « Choisir un analogue basal de 2ᵉ génération » (naïf) — même concept de sécurité, deux encodages (invariant I4, cité nommément pour ce nœud dans `docs/decision/CONSTRUIRE-UN-MODULE.md`). Arbitrage retenu (les deux étaient possibles, cf. mission) : FUSION dans `risque_hypoglycemique_eleve` plutôt qu'un 2nd déclencheur indépendant par option — un futur consommateur de `risque_hypoglycemique_eleve` hérite désormais automatiquement du signal. Le OR littéral sur « Désintensifier » est retiré (redondant). TRANCHÉ par le référent le 2026-07-27, et l'effet de bord est REFUSÉ : la fusion reste valable pour le CHOIX DU TRAITEMENT (analogue de 2ᵉ génération, désintensification), mais elle ne doit pas toucher les CIBLES. Principe énoncé par le référent : « la cible doit être assouplie en fonction des comorbidités et de l'impact supposé des complications à long terme ; des hypoglycémies sévères appellent une OPTIMISATION DU TRAITEMENT, pas un assouplissement des cibles » — le même principe qui lui avait fait retirer `risque_hypoglycemie_schema` du nœud A. Les 2 alertes « cibles MCG » lisent donc désormais un dérivé DISTINCT, `terrain_cible_assouplie` (âge / fragilité / espérance de vie, sans aucun signal d'hypoglycémie). Ce ne sont pas deux encodages d'un même concept (I4) mais deux concepts que la fusion confondait. Vignettes A27-3 / A27-3b : à 55 ans le même antécédent laisse les cibles STANDARD, à 82 ans elles sont assouplies — par l'âge, pas par l'hypoglycémie."
   - "2ᵉ génération : hypoglycémie SÉVÈRE démontrée pour degludec vs glargine U100 seulement (DEVOTE) ; pour la 1ʳᵉ génération vs NPH, elle n'est pas significative (Cochrane 2020) ; pas de supériorité d'un analogue de 2ᵉ génération sur l'autre (BRIGHT, CONCLUDE)."
   - "Associations fixes (IDegLira, iGlarLixi) : bénéfice substitutif, aucun essai de morbi-mortalité cardiovasculaire dédié."
-  - "Câblage formulaire (P3) : dérivés cible_atteinte / gaj_a_cible / over_basalisation / risque_hypoglycemique_eleve, calcul des doses (poids + doses actuelles), tooltips de lecture de l'AGP par profil, et la variable hypo_severe_recurrente restent à câbler."
+  - "Câblage formulaire — ENTRÉE PÉRIMÉE, corrigée le 2026-07-27. Elle annonçait que les dérivés (`cible_atteinte`, `gaj_a_cible`, `over_basalisation`, `risque_hypoglycemique_eleve`), les tooltips AGP et `hypo_severe_recurrente` « restent à câbler » : tout cela a été fait le 2026-07-24 (câblage GÉNÉRIQUE via le champ `derive` + `engine/deriveCritere.ts`, nombres optionnels via `criteresReferences`, tooltips AGP), et l'entrée n'a jamais été purgée. Elle décrivait donc un défaut corrigé comme s'il subsistait — le cas exact que `docs/decision/CONSTRUIRE-UN-MODULE.md` §5 nomme « une entrée périmée est pire qu'absente ». RESTE RÉELLEMENT OUVERT, et rien d'autre : l'AFFICHAGE du nombre de dose calculé (le moteur le calcule, l'écran ne le rend pas encore) — P3+."
   - "Intégration inter-nœuds : HbA1c_cible provient du nœud A et risque_hypoglycemique_eleve reprend ses déclencheurs de relaxation — cohérence à maintenir."
 veille_liee: []
 meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Opus"
   statut: brouillon
-  version: "0.16"
+  version: "0.17"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        ENTRÉE `incertitudes` PÉRIMÉE, purgée. Elle annonçait que les dérivés, les tooltips AGP et
+        `hypo_severe_recurrente` « restent à câbler » — tout cela avait été fait le 2026-07-24, et
+        l'entrée n'avait jamais été reprise. Elle décrivait donc un défaut corrigé comme s'il subsistait,
+        le cas exact que CONSTRUIRE-UN-MODULE.md §5 nomme « une entrée périmée est pire qu'absente ».
+        Reste réellement ouvert, et rien d'autre : l'AFFICHAGE du nombre de dose calculé (le moteur le
+        calcule déjà). Aucun changement de contenu clinique ni de comportement.
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

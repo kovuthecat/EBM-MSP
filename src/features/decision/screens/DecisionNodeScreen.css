@@ -235,3 +235,28 @@
   border-top: 1px solid var(--c-pill-track);
   padding-top: 16px;
 }
+
+/* REPLI D'AFFICHAGE (2026-07-27, décision référent) — « Autres pistes possibles (N) ».
+   Volontairement DISCRET mais jamais effacé : un praticien doit voir du premier coup d'œil qu'il reste
+   des pistes, et combien. Le `<details>` natif porte l'accessibilité (clavier, lecteur d'écran,
+   Ctrl+F du navigateur qui déplie automatiquement) sans une ligne de JavaScript. */
+.decision-node__repli {
+  margin-top: 1.25rem;
+  border-top: 1px solid var(--border, #d8dce3);
+  padding-top: 0.75rem;
+}
+.decision-node__repli-resume {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-muted, #4a5568);
+  padding: 0.35rem 0;
+  list-style: revert;
+}
+.decision-node__repli-resume:hover {
+  color: var(--text, #1a202c);
+}
+.decision-node__repli-mention {
+  margin: 0.5rem 0 1rem;
+  font-size: 0.875rem;
+  color: var(--text-muted, #4a5568);
+}

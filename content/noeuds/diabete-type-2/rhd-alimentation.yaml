@@ -31,11 +31,19 @@
 # GARDE-FOUS CLINIQUES — DES `exclusions`, PAS DES ALERTES (D21) :
 #   - verrou TCA / restriction cognitive (`verrou_tca`, dérivé de 3 signes HAS encadré 11, chacun
 #     `confirmation_requise: true` — un « non » présumé serait le vide lu dans le sens rassurant que R7/D20
-#     proscrit) : bloque les pistes de réduction et de quantification (M2, T4, P1', P2') ; laisse passer
-#     les substitutions qualitatives et la régularité des repas (T1, T2 — la HAS les cite elle-même comme
-#     mesure d'accompagnement du TCA).
+#     proscrit) : depuis le 2026-07-27, il N'EST PLUS UN BLOCAGE — c'est un DÉCLENCHEUR D'ORIENTATION.
+#     Décision référent, sur un principe qui recadre tout le nœud : « dans le cadre des RHD en médecine
+#     générale on ne propose pas de restriction calorique, en tout cas pas chiffrée ; on propose des
+#     modifications d'habitudes alimentaires, jamais de régime. » Si le nœud ne propose aucune restriction,
+#     un verrou anti-restriction n'a plus d'objet — et de fait, les trois exclusions qu'il portait
+#     bloquaient une substitution (grignotage), un repère qualitatif (proportions, reliquat de la piste de
+#     pesée supprimée la veille) et un geste chiffré qui a été réécrit sans chiffre (viande/charcuterie).
+#     Il conditionne désormais les DEUX options d'orientation, et rien d'autre.
 #   - dénutrition/sarcopénie (`fragilite`, réutilisé du domaine — HAS R.37 : un IMC élevé n'exclut pas une
-#     dénutrition) : bloque les mêmes pistes restrictives, indépendamment du TCA.
+#     dénutrition) : SEUL garde-fou bloquant qui subsiste sur les pistes alimentaires. Motif NUTRITIONNEL et
+#     non comportemental — réduire la viande retire une source de protéines, déplacer la part relative de
+#     l'assiette vers les légumes réduit l'apport énergétique. Les deux garde-fous étaient jusqu'ici réunis
+#     dans la même ligne d'exclusion ; ils n'ont jamais eu la même raison d'être.
 #   - hypoglycémie sous insuline/sulfamide/glinide (`traitements_en_cours`, réutilisé) : ALERTE de nœud
 #     (pas un blocage — arbitrage référent), vraie quel que soit le geste retenu (R8).
 #
@@ -71,8 +79,11 @@ population_cible: >-
   motif alimentaire méditerranéen — jamais un objectif chiffré à atteindre, jamais un score d'adhérence.
   Autonome : évaluable seul, sans prérequis d'un autre nœud (R1). Hors périmètre : objectif de perte de
   poids et rémission (aucun nœud ne les porte à ce jour) ; prescription diététique détaillée
-  (orientation vers le diététicien de la structure) ; instrument de repérage TCA validé (aucun trouvé dans
-  les sources locales — le verrou ci-dessous reformule les signes d'appel HAS, ce n'est pas un score).
+  (orientation vers le diététicien de la structure) ; instrument de repérage TCA validé (le verrou ci-dessous
+  reformule les signes d'appel HAS, ce n'est pas un score — il ORIENTE, il ne bloque plus aucune piste
+  depuis le 2026-07-27). AUCUNE RESTRICTION, chiffrée ou non : ce nœud modifie des habitudes, il ne
+  prescrit pas de régime (principe référent, 2026-07-27). Les repères sont ceux de Santé publique France /
+  Manger-Bouger — trois directions, « Augmenter », « Aller vers », « Réduire », jamais une quantité.
 selection: multi-options
 argumentaire_exhaustif: "rhd-alimentation.argumentaire.md"
 familles:
@@ -83,6 +94,10 @@ familles:
   - libelle: "Restauration rapide"
     exclusive: false
   - libelle: "Matières grasses"
+    exclusive: false
+  # AJOUTÉE le 2026-07-27 : la piste viande/charcuterie était rangée en « Matières grasses » du temps où
+  # elle portait aussi sur le fromage et le beurre. Réécrite sur Manger-Bouger, elle n'y a plus sa place.
+  - libelle: "Viande et charcuterie"
     exclusive: false
   - libelle: "Fruits à coque, légumineuses, poisson"
     exclusive: false
@@ -156,19 +171,28 @@ criteres_entree:
   #    (même famille de défaut que `diabete_complique` sur le nœud statine). ──
   - nom: signe_restriction_puis_craquage
     type: bool
-    groupe: Repérage — avant une piste de réduction ou de pesée
+    groupe: Repérage — signes d’appel et orientation
     confirmation_requise: true
   - nom: signe_manger_cache_ou_culpabilite
     type: bool
-    groupe: Repérage — avant une piste de réduction ou de pesée
+    groupe: Repérage — signes d’appel et orientation
     confirmation_requise: true
   - nom: signe_antecedent_regime_restrictif
     type: bool
-    groupe: Repérage — avant une piste de réduction ou de pesée
+    groupe: Repérage — signes d’appel et orientation
     confirmation_requise: true
+  # CHANGEMENT DE RÔLE le 2026-07-27 (décision référent) : ce dérivé ne porte plus AUCUNE `exclusion`.
+  # Il ne bloque plus rien — il DÉCLENCHE les deux options d'orientation (diététicien, avis spécialisé TCA).
+  # Motif : le nœud ne propose aucune restriction, donc un verrou anti-restriction n'a plus d'objet. Voir
+  # l'en-tête du fichier pour le principe complet.
+  # CE QUE CELA NE VEUT PAS DIRE : le repérage n'est pas dévalué, il est REPLACÉ à sa vraie fonction. Sa
+  # performance reste inconnue (aucune étude ne l'a évalué), ce qui était un argument gênant tant qu'il
+  # servait de test bloquant — un blocage binaire fondé sur une spécificité inconnue. En déclencheur
+  # d'orientation, l'asymétrie coûte beaucoup moins cher : un faux positif propose une orientation de plus,
+  # là où il retirait auparavant des pistes au patient.
   - nom: verrou_tca
     type: bool
-    groupe: Repérage — avant une piste de réduction ou de pesée
+    groupe: Repérage — signes d’appel et orientation
     derive: >-
       signe_restriction_puis_craquage == true OR signe_manger_cache_ou_culpabilite == true
       OR signe_antecedent_regime_restrictif == true
@@ -253,18 +277,46 @@ options:
       Rapproche du motif méditerranéen testé dans son ensemble par PREDIMED et CORDIOPREV (voir l'en-tête
       du module) ; effet propre de ce geste isolé non chiffrable.
     niveau_preuve: faible
-  - intitule: "Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille"
+  # RÉÉCRITE le 2026-07-27 (décision référent, 7e série) — sur objection clinique directe : « préférer la
+  # volaille à la charcuterie et au fromage me semble mélanger des choses bien différentes. Peut-être
+  # peut-on baser les recommandations sur celles de Manger-Bouger. »
+  # L'affiche Santé publique France / Manger-Bouger versée au dossier
+  # (`docs/decision/sources/4DDK001_…_reco chaque petit pas compte_E2_VDEF.pdf`) lui donne raison, noir sur
+  # blanc : elle range en colonne « RÉDUIRE ↘ » deux lignes distinctes — « La charcuterie » et « La viande :
+  # porc, bœuf, veau, mouton, agneau, abats » — tandis que le fromage relève des PRODUITS LAITIERS, rangés
+  # en colonne « ALLER VERS ↗ » sous la formule « une consommation suffisante mais limitée ». Ce ne sont
+  # pas seulement deux aliments différents : ce sont deux DIRECTIONS différentes. L'ancien intitulé les
+  # fusionnait sous un même geste de réduction chiffré.
+  # TROIS CHANGEMENTS, tous alignés sur cette source :
+  #   1. le FROMAGE sort de la piste (mauvaise colonne) ;
+  #   2. « diviser par deux » disparaît — Manger-Bouger n'énonce jamais de quantité, seulement une
+  #      direction. C'est aussi la règle structurelle du nœud (« jamais de cible chiffrée ») et le principe
+  #      posé par le référent : en médecine générale on modifie des habitudes, on ne prescrit pas de régime ;
+  #   3. « préférer la volaille » disparaît aussi : l'affiche ne la recommande PAS — elle se contente de ne
+  #      pas la faire figurer dans la liste à réduire. Absence d'une liste ≠ recommandation positive.
+  # Le déclencheur `matiere_grasse_cuisson == beurre_graisses_animales` est également RETIRÉ : il datait de
+  # l'époque où la piste portait sur les graisses saturées en général (fromage + beurre inclus). Le beurre
+  # de cuisson reste traité par sa propre piste (huile d'olive), et `matiere_grasse_cuisson` garde donc ses
+  # consommateurs (R5).
+  - intitule: "Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats)"
     conditions:
-      - "matiere_grasse_cuisson == beurre_graisses_animales OR frequence_viande_rouge_charcuterie == regulier OR frequence_viande_rouge_charcuterie == quotidien"
+      - "frequence_viande_rouge_charcuterie == regulier OR frequence_viande_rouge_charcuterie == quotidien"
     priorite: 4
-    famille: "Matières grasses"
+    famille: "Viande et charcuterie"
+    # `verrou_tca` RETIRÉ le 2026-07-27 (décision référent) — voir le commentaire du critère `verrou_tca`.
+    # `fragilite` MAINTENU, et ce n'est pas un oubli : chez un patient dénutri ou fragile, réduire la
+    # viande et la charcuterie retire une source de protéines. C'est un motif nutritionnel, sans rapport
+    # avec le trouble du comportement alimentaire — les deux garde-fous étaient réunis dans la même ligne,
+    # ils n'avaient pas la même raison d'être.
     exclusions:
-      - "verrou_tca == true OR fragilite == true"
+      - "fragilite == true"
     avantages:
-      - "Provenance : recommandation officielle. Réduit les graisses saturées et la viande transformée, dans le sens du motif méditerranéen (peu de viande rouge/charcuterie, préférence pour la volaille) — objectif concret d'un guide EBM européen."
+      - "Provenance : recommandation officielle. Santé publique France / Manger-Bouger range la charcuterie et la viande (porc, bœuf, veau, mouton, agneau, abats) dans la colonne « Réduire », et le motif méditerranéen va dans le même sens : peu de viande rouge, peu de viande transformée."
+      - "Une DIRECTION, pas une quantité : aucune portion à peser, aucune fraction à respecter — « chaque petit pas compte » est le cadre même de l'affiche dont ce repère est tiré."
     inconvenients:
-      - "C'est un geste de RÉDUCTION explicite en quantité : à ne jamais proposer isolément en cas de repérage positif de trouble du comportement alimentaire ou de dénutrition/fragilité (voir l'écarté correspondant)."
-    effet_attendu: "Réduit les graisses saturées et la viande transformée ; non chiffrable pour ce geste isolé."
+      - "Effet propre de ce geste isolé non démontré séparément du motif alimentaire complet."
+      - "Écarté en cas de fragilité ou de dénutrition : la viande reste alors un apport protéique à préserver (voir l'écarté correspondant)."
+    effet_attendu: "Réduit la viande transformée et les graisses saturées ; non chiffrable pour ce geste isolé."
     niveau_preuve: faible
   # ═══════════ FAMILLE FRUITS À COQUE, LÉGUMINEUSES, POISSON ═══════════
   - intitule: "Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine"
@@ -334,8 +386,10 @@ options:
       - "frequence_grignotage == frequent OR frequence_grignotage == quotidien"
     priorite: 4
     famille: "Structure des repas"
-    exclusions:
-      - "verrou_tca == true"
+    # `verrou_tca` RETIRÉ le 2026-07-27 (décision référent) : trouver une ALTERNATIVE à un moment de
+    # grignotage est une substitution, pas une restriction — rien n'y est retiré ni chiffré. Le verrou
+    # bloquait ici un geste qui n'entre pas dans ce qu'il existe pour empêcher.
+    exclusions: []
     avantages:
       - "Provenance : savoir-faire diététique (non EBM). Rejoint la structuration des repas visée par le motif méditerranéen (repas réguliers plutôt que prises dispersées) — repère partagé par la HAS et par un guide EBM européen."
       - "Propose une alternative (fruit, eau, activité) ou un repas structuré à l'heure du grignotage, plutôt qu'une interdiction."
@@ -355,13 +409,19 @@ options:
       - "difficulte_estimation_portions == difficile OR difficulte_estimation_portions == ne_sait_pas"
     priorite: 6
     famille: "Portions"
+    # `verrou_tca` RETIRÉ le 2026-07-27 (décision référent). C'était un RELIQUAT : ce blocage existait pour
+    # la piste de PESÉE des féculents, supprimée la veille (2026-07-26). La piste a été réécrite en repère
+    # qualitatif, l'exclusion est restée — et son propre `inconvenients` continuait de la décrire comme
+    # « un geste de quantification », description de la piste disparue, plus de celle-ci.
+    # `fragilite` MAINTENU : chez un patient dénutri, déplacer la part relative de l'assiette vers les
+    # légumes réduit l'apport énergétique. Motif nutritionnel, sans rapport avec le trouble alimentaire.
     exclusions:
-      - "verrou_tca == true OR fragilite == true"
+      - "fragilite == true"
     avantages:
       - "Provenance : savoir-faire diététique (non EBM). Raisonner en PART RELATIVE de l'assiette — la place des légumes par rapport à celle des féculents et de l'aliment protidique — plutôt qu'en grammes : praticable à chaque repas, sans matériel, sans calcul, et transposable au restaurant comme à la cantine."
       - "Se négocie en une phrase et se vérifie d'un coup d'œil à la consultation suivante, ce qu'une consigne de pesée ne permet pas."
     inconvenients:
-      - "Geste de quantification malgré tout : bloqué en cas de repérage positif de trouble du comportement alimentaire ou de fragilité/dénutrition (même verrou que les autres pistes de réduction)."
+      - "Écarté en cas de fragilité ou de dénutrition : déplacer la part relative de l'assiette vers les légumes réduit l'apport énergétique, ce qui n'est pas souhaitable sur ce terrain."
       - "Aucune proportion CHIFFRÉE n'est affirmée ici : le dossier de preuve de ce nœud ne source aucun ratio précis (cf. incertitudes). Le repère est qualitatif — la place respective des composantes, pas une fraction à respecter."
     effet_attendu: "Non chiffrable — aide à l'estimation des quantités, pas un effet métabolique direct."
     niveau_preuve: faible
@@ -549,11 +609,11 @@ sources:
 incertitudes:
   - "L'étiquette « bénéfice EBM sur critère dur » du régime méditerranéen (PREDIMED, CORDIOPREV) porte sur le motif alimentaire supplémenté dans son ensemble, jamais sur une piste isolée de ce nœud (décision référent) — y compris l'huile d'olive et les fruits à coque, les deux composants réellement randomisés."
   - "Aucune version française validée du MEDAS n'a été identifiée (recherche documentée, cible-mediterraneenne-medas.md §4) : l'instrument sert ici uniquement de cadre de définition des axes recueillis (S9-S12, A12), jamais d'instrument administré ou scoré — ce qui rend l'absence de validation linguistique sans conséquence pour cet usage."
-  - "Le verrou de repérage (S8) reformule 3 signes d'appel HAS (encadré 11), ce n'est PAS un instrument de repérage TCA validé. Un résultat négatif ne garantit pas l'absence de TCA ; un résultat positif ne le confirme pas — il ouvre une orientation, pas un verdict. ENRICHI le 2026-07-27 (6e série) : la formulation d'origine (« aucun instrument n'a été trouvé dans les sources locales ») était EXACTE — le red-team a vérifié que le corpus local ne contient effectivement ni la RBP anorexie 2010 ni la fiche boulimie 2019 — mais trop étroite pour être informative. Ce que la littérature contient réellement : le SCOFF-F EXISTE, il est validé en français et la HAS le nomme dans DEUX recommandations. Le référent a néanmoins maintenu le verrou, pour quatre motifs qui tiennent : (1) le SCOFF est MAL FORMÉ pour ce patient — ses items visent les vomissements provoqués, la perte de poids récente de plus de 6 kg et la conviction d'être gros quand l'entourage vous trouve trop mince ; chez un adulte DT2 en surpoids dont le TCA attendu est l'hyperphagie boulimique, au moins un item est INVERSÉ (la perte de poids y est un objectif thérapeutique, pas un signe d'alerte), et Kutz 2020 documente précisément cette perte de sensibilité dans l'hyperphagie boulimique, chez les hommes et en recrutement communautaire — les trois conditions de ce nœud ; (2) ses validations françaises (Garcia 2010, 2011) ne portent que sur des FEMMES JEUNES ; (3) l'unique outil français traitant explicitement la catégorie hyperphagique (Expali™, Tavolacci 2019) n'a jamais été évalué CONTRE DES TÉMOINS SANS TCA — ses auteurs demandent eux-mêmes une validation en médecine générale ; (4) le seul instrument français validé chez l'adulte obèse des deux sexes contre un entretien diagnostique (Binge Eating Scale française, Brunault 2016 : Se 75 %, Sp 88,4 %, VPP 37,5 % sur n = 47) fait SEIZE items — incompatible avec le socle de 2-3 minutes que vise ce nœud."
-  - "PERFORMANCE DU VERROU TCA : INCONNUE, et c'est une raison de prudence dans les DEUX sens. Le verrou est un OU logique de 3 signes larges, chacun `confirmation_requise: true` ; il ouvre ou ferme des options, c'est donc fonctionnellement un test — mais aucune étude ne l'a évalué, et rien ne permet d'affirmer que sa spécificité vaut mieux que celle du SCOFF-F. Le dossier de collecte refusait le SCOFF-F au motif que ses défauts sont MESURÉS, tout en conservant une alternative dont les défauts ne le sont pas : le red-team a relevé l'asymétrie et elle est retenue ici. Pour mémoire, la VPP attendue du SCOFF-F dans cette population n'est pas « ≈ 20 % » comme l'écrivait la collecte, mais comprise entre ≈ 21 % (performances poolées de Kutz 2020) et ≈ 38 % (Botella 2013, méta-analyse que la collecte n'avait pas cherchée) — soit entre un vrai positif sur cinq et près de deux sur cinq. Et sa VPN de ≈ 99 % reflète surtout la faible prévalence : à 5 % de prévalence, la probabilité pré-test de ne PAS avoir de trouble est déjà de 95 %, le gain d'un test négatif est de 4 points. Ne pas s'en servir pour « lever » la prudence."
-  - "DIVERGENCE DE RECOMMANDATIONS sur le repérage lui-même, portée ici faute d'un champ dédié dans le schéma (`sources.reco_officielle.divergence` est un booléen qui qualifie la position de l'OUTIL, pas un conflit entre deux institutions). La HAS 2019 écrit : « Rechercher SYSTÉMATIQUEMENT une hyperphagie boulimique en cas de situation de surpoids ou d'obésité. » L'USPSTF 2022 conclut à l'inverse que « les preuves actuelles sont INSUFFISANTES pour évaluer la balance bénéfices-risques du dépistage des troubles du comportement alimentaire chez l'adolescent et l'adulte » (I statement, chez les personnes sans signes ni symptômes). Le nœud se tient de fait entre les deux : il ne dépiste pas systématiquement, mais il pose trois signes d'appel à toute personne concernée. Ce positionnement n'a PAS été arbitré explicitement par le référent — il résulte de la construction du nœud. À trancher si le module RHD est repris. Réserve de périmètre à connaître au passage : le patient de ce nœud — adulte DT2 d'âge moyen ou avancé, en surpoids — n'appartient à la population cible DÉCLARÉE d'aucun des deux documents HAS invoqués (RBP 2010 : enfants, adolescents et jeunes adultes, anorexie mentale ; fiche 2019 : jeunes, en particulier adolescentes et jeunes femmes)."
+  - "CHANGEMENT DE RÔLE DU VERROU TCA — 2026-07-27, décision référent, sur un principe qui recadre tout le nœud : « dans le cadre des RHD en médecine générale on ne propose pas de restriction calorique, en tout cas pas chiffrée ; on propose des modifications d'habitudes alimentaires, jamais de régime. » Conséquence directe : un verrou qui existe pour empêcher qu'on demande une restriction à un patient à risque de TCA n'a plus d'objet dans un nœud qui n'en propose aucune. Les TROIS exclusions qu'il portait sont retirées, et l'inventaire de ce qu'elles bloquaient réellement montre qu'aucune n'était à sa place : (a) « repérer un moment de grignotage et lui trouver une ALTERNATIVE » est une substitution, rien n'y est retiré ni chiffré ; (b) « se repérer aux proportions dans l'assiette » est un RELIQUAT — ce blocage protégeait de la piste de PESÉE supprimée la veille, et son propre `inconvenients` continuait de décrire une piste qui n'existait plus ; (c) la piste viande/charcuterie était bien un geste chiffré (« diviser par deux »), mais elle a été RÉÉCRITE sans chiffre sur les repères de Santé publique France / Manger-Bouger. Le verrou conditionne désormais les deux options d'ORIENTATION, et rien d'autre. Ce qu'il reste vrai d'en dire : il reformule 3 signes d'appel HAS, ce n'est pas un instrument validé — un résultat négatif ne garantit rien, un positif ne confirme rien."
+  - "PERFORMANCE DU VERROU TCA : TOUJOURS INCONNUE — mais l'enjeu a changé de nature le 2026-07-27. Aucune étude n'a évalué ce OU logique de 3 signes larges ; rien ne permet d'affirmer que sa spécificité vaut mieux que celle du SCOFF-F. Tant qu'il servait de TEST BLOQUANT, c'était un vrai problème : un blocage binaire fondé sur une spécificité inconnue, et le dossier de collecte refusait le SCOFF-F au motif que ses défauts sont MESURÉS tout en conservant une alternative dont les défauts ne le sont pas (asymétrie relevée par le red-team). En DÉCLENCHEUR D'ORIENTATION, la même incertitude coûte beaucoup moins cher : un faux positif propose une orientation de plus, là où il retirait auparavant des pistes au patient. L'incertitude demeure, sa conséquence a été réduite. Pour mémoire, chiffres corrigés par le red-team : la VPP attendue du SCOFF-F dans cette population n'est pas « ≈ 20 % » comme l'écrivait la collecte mais comprise entre ≈ 21 % (Kutz 2020) et ≈ 38 % (Botella 2013, méta-analyse non cherchée par la collecte) ; et sa VPN de ≈ 99 % reflète surtout la faible prévalence — à 5 % de prévalence la probabilité pré-test est déjà de 95 %, le gain d'un test négatif est de 4 points. Ne pas s'en servir pour « lever » la prudence."
+  - "DIVERGENCE DE RECOMMANDATIONS sur le repérage lui-même, portée ici faute d'un champ dédié dans le schéma (`sources.reco_officielle.divergence` est un booléen qui qualifie la position de l'OUTIL, pas un conflit entre deux institutions). La HAS 2019 : « Rechercher SYSTÉMATIQUEMENT une hyperphagie boulimique en cas de situation de surpoids ou d'obésité. » L'USPSTF 2022, à l'inverse : « les preuves actuelles sont INSUFFISANTES pour évaluer la balance bénéfices-risques du dépistage des troubles du comportement alimentaire chez l'adolescent et l'adulte » (I statement, chez les personnes sans signes ni symptômes). Le nœud se tient entre les deux — il ne dépiste pas systématiquement, mais pose trois signes d'appel. CE POSITIONNEMENT N'EST TOUJOURS PAS ARBITRÉ EXPLICITEMENT et reste, à ce jour, un résultat de construction. Le lot du 2026-07-27 en réduit toutefois l'enjeu : le repérage ne FERME plus aucune piste, il ouvre seulement des orientations, ce qui rapproche le nœud de la position USPSTF (pas de dépistage à conséquence) sans renoncer à ce que demande la HAS (chercher, chez ces patients-là). Réserve de périmètre à connaître : le patient de ce nœud — adulte DT2 d'âge moyen ou avancé, en surpoids — n'appartient à la population cible DÉCLARÉE d'aucun des deux documents HAS invoqués (RBP 2010 : enfants, adolescents et jeunes adultes, anorexie mentale ; fiche 2019 : jeunes, en particulier adolescentes et jeunes femmes)."
   - "TRANCHÉ le 2026-07-27 (référent) : la piste de PESÉE est SUPPRIMÉE — « trop contraignant et difficile en consultation de médecine générale ». Cela résout aussi la tension de source qui était consignée ici : le rapport SFD situait la pesée chez les patients pratiquant un comptage précis (insulinothérapie fonctionnelle) et sa généralisation au DT2 tout-venant n'était pas soutenue. La famille « Portions » ne conserve qu'une piste, recentrée sur les PROPORTIONS DANS L'ASSIETTE. RÉSIDUEL ASSUMÉ : aucune proportion chiffrée n'est affirmée (pas de « moitié de légumes, quart de féculents ») — le dossier de preuve de ce nœud ne source aucun ratio, et l'inventer irait contre l'invariant 6. Le repère reste donc qualitatif : la place RELATIVE des composantes. Si le référent veut un ratio explicite, il faudra le sourcer (guides Manger-Bouger / HAS déjà au dossier du module, non dépouillés sur ce point précis)."
-  - "Le plafond d'affichage (2-3 pistes négociables selon ebmfrance) n'est pas appliqué techniquement par le moteur : traité par le rang déclaré (`priorite`) uniquement. Un affichage effectivement plafonné demanderait un changement d'écran, hors périmètre de cette tâche — signalé au référent."
+  - "PLAFOND D'AFFICHAGE — RÉSOLU le 2026-07-27 (décision référent). La dette était consignée à l'identique dans les DEUX nœuds RHD : le rang (`priorite`) était déclaré dans le contenu mais l'écran affichait tout à plat, si bien que le rang n'était jamais vu. L'écran REPLIE désormais les pistes au-delà du meilleur rang derrière un bouton « Autres pistes possibles (N) » (`lib/replierAffichage.ts`, testé à part). CE QUE CE N'EST PAS : un plafond. Rien n'est retiré ni filtré — la partition conserve exactement les options d'entrée, le bouton porte leur nombre exact, et un clic les rend. Trois cas ne replient délibérément rien : moins de 4 options applicables (écran non encombré), aucun rang défini (nœud en `ordered-first-match`, où `priorite` est ignoré par D11), et toutes les options au même rang (le contenu les déclare équivalentes ; en cacher une partie inventerait une hiérarchie qu'il ne pose pas). Une option sans rang est traitée comme prioritaire : le doute ne cache jamais."
   - "Mal perforant plantaire, rétinopathie et autres contre-indications à l'EFFORT (verrou du nœud sœur `rhd-activite-physique`) n'ont aucune portée ici : ce nœud ne collecte que des critères alimentaires."
   - "« Continuer ce qui fonctionne déjà » n'est pas un sentinel `default` : sa condition (huile d'olive ET fruits à coque réguliers) est un sous-ensemble NÉCESSAIRE, mais pas exactement équivalent, du cas où les 13 axes de recueil sont tous favorables — elle peut donc aussi s'afficher (à raison, cumulée à d'autres pistes) chez un patient favorable sur ces deux seuls axes sans l'être sur tous les autres. Choix assumé : couvrir à coup sûr le cas muet complet plutôt que viser une équivalence stricte impossible à exprimer dans le DSL sans sentinel réellement atteignable."
   - "Le rapprochement entre `alimentation_emotionnelle` (déclencheur de « Manger sans se presser ») et la tachyphagie citée par la source pour cette même piste est une extrapolation raisonnée (les deux notions sont voisines mais non identiques dans le corpus) — signalé, pas inventé."
@@ -562,8 +622,41 @@ meta:
   date_revue: "2026-07-26"
   auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
   statut: brouillon
-  version: "0.3"
+  version: "0.4"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        LE VERROU TCA CESSE DE BLOQUER, ET LA PISTE VIANDE EST RÉÉCRITE SUR MANGER-BOUGER — décision
+        référent, prise sur un principe qui recadre tout le nœud : « dans le cadre des RHD en médecine
+        générale on ne propose pas de restriction calorique, en tout cas pas chiffrée ; on propose des
+        modifications d'habitudes alimentaires, jamais de régime. »
+        (1) LES TROIS EXCLUSIONS `verrou_tca` SONT RETIRÉES. Un verrou anti-restriction n'a pas d'objet
+        dans un nœud qui ne propose aucune restriction — et l'inventaire de ce qu'il bloquait le confirme :
+        une substitution (grignotage), un repère qualitatif (proportions dans l'assiette — RELIQUAT du
+        blocage de la piste de PESÉE supprimée la veille, dont l'`inconvenients` décrivait encore une piste
+        disparue), et un seul geste réellement chiffré, réécrit par ce même lot. Le verrou conditionne
+        désormais les deux options d'ORIENTATION, et rien d'autre. `fragilite` est MAINTENU partout où il
+        était : c'est un motif nutritionnel (protéines, apport énergétique), pas comportemental — les deux
+        garde-fous étaient réunis dans la même ligne d'exclusion sans avoir la même raison d'être.
+        (2) « Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille »
+        devient « Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats) ».
+        Objection clinique du référent : cet intitulé « mélange des choses bien différentes ». L'affiche
+        Santé publique France / Manger-Bouger versée au dossier lui donne raison noir sur blanc — la
+        charcuterie et la viande sont DEUX lignes de la colonne « Réduire », tandis que le fromage relève
+        des produits laitiers, rangés en « Aller vers » sous « une consommation suffisante mais limitée ».
+        Deux directions opposées dans un même geste. Trois retraits : le fromage (mauvaise colonne), le
+        chiffre (Manger-Bouger n'énonce jamais de quantité), et « préférer la volaille » (l'affiche ne la
+        recommande pas — elle se contente de ne pas la faire figurer dans la liste à réduire ; absence
+        d'une liste n'est pas une recommandation positive). Nouvelle famille « Viande et charcuterie » :
+        la piste n'a plus sa place en « Matières grasses ».
+        (3) PLAFOND D'AFFICHAGE — dette levée (voir `incertitudes`) : l'écran replie les pistes au-delà du
+        meilleur rang derrière « Autres pistes possibles (N) ». Rien n'est retiré ni filtré.
+        IMPACT GOLDEN MASTER : 124 profils sur 180 changent — 77 gagnent la piste grignotage, 58 la piste
+        proportions, 41 la piste viande/charcuterie ; aucune option perdue en dehors de celle qui est
+        renommée. Total d'options applicables 1366 → 1533. Mesure cross-validée par comptage brut après
+        que les DEUX premiers instruments se soient trompés (découpage sur la virgule du nouvel intitulé,
+        puis alternation de séparateurs incomplète qui perdait 15 occurrences d'une option inchangée).
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

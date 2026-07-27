@@ -41,7 +41,7 @@ Sortie :
     - Un repas simple fait maison de plus par semaine :: à renseigner : frequence_ultratransformes
     - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide
     - Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre :: à renseigner : matiere_grasse_cuisson
-    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: à renseigner : matiere_grasse_cuisson, frequence_viande_rouge_charcuterie
+    - Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats) :: à renseigner : frequence_viande_rouge_charcuterie
     - Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine :: à renseigner : frequence_fruits_a_coque
     - Ajouter un plat de légumineuses de plus par semaine :: à renseigner : frequence_legumineuses
     - Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre :: à renseigner : frequence_poisson
@@ -80,6 +80,9 @@ Sortie :
   Famille « Fruits à coque, légumineuses, poisson » (exclusive: false) :
   - [recommandee] Ajouter un plat de légumineuses de plus par semaine
       proposé parce que : frequence_legumineuses == occasionnel
+  Famille « Structure des repas » (exclusive: false) :
+  - [recommandee] Repérer un moment de grignotage récurrent et lui trouver une alternative
+      proposé parce que : frequence_grignotage == quotidien
   Famille « Orientation » (exclusive: false) :
   - [recommandee] Orienter vers le diététicien de la structure
       proposé parce que : verrou_tca == true ; fragilite == true
@@ -90,11 +93,9 @@ Sortie :
     - Ne pas remplacer une boisson sucrée par des édulcorants intenses :: à renseigner : frequence_boissons_sucrees
     - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide
     - Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre :: à renseigner : matiere_grasse_cuisson
-    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: à renseigner : matiere_grasse_cuisson
     - Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine :: à renseigner : frequence_fruits_a_coque
     - Se fixer des repas à des horaires à peu près réguliers :: à renseigner : regularite_repas
     - Manger sans se presser :: à renseigner : alimentation_emotionnelle
-    - Repérer un moment de grignotage récurrent et lui trouver une alternative :: à renseigner : signe_restriction_puis_craquage, signe_manger_cache_ou_culpabilite, signe_antecedent_regime_restrictif
     - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
     - Proposer aussi un avis spécialisé en trouble du comportement alimentaire :: à renseigner : signe_restriction_puis_craquage, signe_manger_cache_ou_culpabilite, signe_antecedent_regime_restrictif
     - Continuer ce qui fonctionne déjà :: à renseigner : matiere_grasse_cuisson, frequence_fruits_a_coque
@@ -135,7 +136,7 @@ Sortie :
     - Un repas simple fait maison de plus par semaine :: à renseigner : frequence_ultratransformes
     - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide
     - Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre :: à renseigner : matiere_grasse_cuisson
-    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: à renseigner : matiere_grasse_cuisson, frequence_viande_rouge_charcuterie
+    - Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats) :: à renseigner : frequence_viande_rouge_charcuterie
     - Ajouter un plat de légumineuses de plus par semaine :: à renseigner : frequence_legumineuses
     - Se fixer des repas à des horaires à peu près réguliers :: à renseigner : regularite_repas
     - Manger sans se presser :: à renseigner : alimentation_emotionnelle
@@ -175,6 +176,9 @@ Sortie :
     -- groupe d'égalité #1 --
   - [recommandee] Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre
       proposé parce que : frequence_poisson == occasionnel
+  Famille « Structure des repas » (exclusive: false) :
+  - [recommandee] Repérer un moment de grignotage récurrent et lui trouver une alternative
+      proposé parce que : frequence_grignotage == frequent
   Famille « Orientation » (exclusive: false) :
   - [recommandee] Orienter vers le diététicien de la structure
       proposé parce que : verrou_tca == true ; fragilite == true
@@ -182,14 +186,11 @@ Sortie :
       proposé parce que : verrou_tca == true
   Alertes de nœud :
     - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
-  Options écartées (sécurité, R4) :
-    - Repérer un moment de grignotage récurrent et lui trouver une alternative :: verrou_tca == true
   Options EN ATTENTE (indétermination, R7/D20) :
     - Remplacer une boisson sucrée du quotidien par de l'eau :: à renseigner : frequence_boissons_sucrees
     - Ne pas remplacer une boisson sucrée par des édulcorants intenses :: à renseigner : frequence_boissons_sucrees
     - Un repas simple fait maison de plus par semaine :: à renseigner : frequence_ultratransformes
     - Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre :: à renseigner : matiere_grasse_cuisson
-    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: à renseigner : matiere_grasse_cuisson
     - Se fixer des repas à des horaires à peu près réguliers :: à renseigner : regularite_repas
     - Manger sans se presser :: à renseigner : alimentation_emotionnelle
     - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
@@ -228,7 +229,7 @@ Sortie :
     - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre :: à renseigner : matiere_grasse_cuisson
-    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: à renseigner : matiere_grasse_cuisson, frequence_viande_rouge_charcuterie
+    - Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats) :: à renseigner : frequence_viande_rouge_charcuterie
     - Ajouter un plat de légumineuses de plus par semaine :: à renseigner : frequence_legumineuses
     - Repérer un moment de grignotage récurrent et lui trouver une alternative :: à renseigner : frequence_grignotage
     - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
@@ -262,9 +263,17 @@ Sortie :
   Famille « Ultratransformés » (exclusive: false) :
   - [recommandee] Un repas simple fait maison de plus par semaine
       proposé parce que : frequence_ultratransformes == frequent
+  Famille « Viande et charcuterie » (exclusive: false) :
+  - [recommandee] Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats)
+      proposé parce que : frequence_viande_rouge_charcuterie == regulier
   Famille « Structure des repas » (exclusive: false) :
   - [recommandee] Se fixer des repas à des horaires à peu près réguliers
       proposé parce que : regularite_repas == irreguliers
+  - [recommandee] Repérer un moment de grignotage récurrent et lui trouver une alternative
+      proposé parce que : frequence_grignotage == quotidien
+  Famille « Portions » (exclusive: false) :
+  - [recommandee] Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées
+      proposé parce que : difficulte_estimation_portions == ne_sait_pas
   Famille « Orientation » (exclusive: false) :
   - [recommandee] Orienter vers le diététicien de la structure
       proposé parce que : verrou_tca == true
@@ -272,10 +281,6 @@ Sortie :
       proposé parce que : verrou_tca == true
   Alertes de nœud :
     - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
-  Options écartées (sécurité, R4) :
-    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: verrou_tca == true OR fragilite == true
-    - Repérer un moment de grignotage récurrent et lui trouver une alternative :: verrou_tca == true
-    - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: verrou_tca == true OR fragilite == true
   Options EN ATTENTE (indétermination, R7/D20) :
     - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide
     - Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre :: à renseigner : matiere_grasse_cuisson
@@ -322,11 +327,10 @@ Sortie :
       proposé parce que : acces_alimentation == difficultes_importantes ; verrou_tca == true ; fragilite == true
   Alertes de nœud :
     - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
-  Options écartées (sécurité, R4) :
-    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: verrou_tca == true OR fragilite == true
   Options EN ATTENTE (indétermination, R7/D20) :
     - Un repas simple fait maison de plus par semaine :: à renseigner : frequence_ultratransformes
     - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide
+    - Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats) :: à renseigner : frequence_viande_rouge_charcuterie
     - Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine :: à renseigner : frequence_fruits_a_coque
     - Ajouter un plat de légumineuses de plus par semaine :: à renseigner : frequence_legumineuses
     - Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre :: à renseigner : frequence_poisson
@@ -377,7 +381,7 @@ Sortie :
     - Un repas simple fait maison de plus par semaine :: à renseigner : frequence_ultratransformes
     - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide
     - Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre :: à renseigner : matiere_grasse_cuisson
-    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: à renseigner : matiere_grasse_cuisson, frequence_viande_rouge_charcuterie
+    - Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats) :: à renseigner : frequence_viande_rouge_charcuterie
     - Ajouter un plat de légumineuses de plus par semaine :: à renseigner : frequence_legumineuses
     - Manger sans se presser :: à renseigner : alimentation_emotionnelle
 
@@ -426,11 +430,11 @@ Sortie :
   Alertes de nœud :
     - Consommation de vin au niveau ou au-delà du seuil d'adhérence méditerranéenne (≥ 7 verres/semaine, score MEDAS) : ce nœud ne propose jamais l'alcool comme piste — orienter vers le repérage d'un mésusage plutôt que d'encourager cette consommation. Interactions à garder en tête : foie, triglycérides, hypoglycémie sous insulinosécréteur. [attention]
   Options écartées (sécurité, R4) :
-    - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: verrou_tca == true OR fragilite == true
+    - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: fragilite == true
   Options EN ATTENTE (indétermination, R7/D20) :
     - Remplacer une boisson sucrée du quotidien par de l'eau :: à renseigner : frequence_boissons_sucrees
     - Ne pas remplacer une boisson sucrée par des édulcorants intenses :: à renseigner : frequence_boissons_sucrees
-    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: à renseigner : frequence_viande_rouge_charcuterie
+    - Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats) :: à renseigner : frequence_viande_rouge_charcuterie
     - Ajouter un plat de légumineuses de plus par semaine :: à renseigner : frequence_legumineuses
     - Se fixer des repas à des horaires à peu près réguliers :: à renseigner : regularite_repas
     - Repérer un moment de grignotage récurrent et lui trouver une alternative :: à renseigner : frequence_grignotage
@@ -484,8 +488,8 @@ Sortie :
   Alertes de nœud :
     - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
   Options écartées (sécurité, R4) :
-    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: verrou_tca == true OR fragilite == true
-    - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: verrou_tca == true OR fragilite == true
+    - Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats) :: fragilite == true
+    - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: fragilite == true
   Options EN ATTENTE (indétermination, R7/D20) :
     - Un repas simple fait maison de plus par semaine :: à renseigner : frequence_ultratransformes
     - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide
@@ -564,12 +568,17 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - consommation_vin = un_a_six_verres_semaine
 
 Sortie :
+  Famille « Viande et charcuterie » (exclusive: false) :
+  - [recommandee] Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats)
+      proposé parce que : frequence_viande_rouge_charcuterie == regulier
   Famille « Fruits à coque, légumineuses, poisson » (exclusive: false) :
   - [recommandee] Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre
       proposé parce que : frequence_poisson == jamais
   Famille « Structure des repas » (exclusive: false) :
   - [recommandee] Se fixer des repas à des horaires à peu près réguliers
       proposé parce que : regularite_repas == irreguliers
+  - [recommandee] Repérer un moment de grignotage récurrent et lui trouver une alternative
+      proposé parce que : frequence_grignotage == quotidien
   Alertes de nœud :
     - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
@@ -578,10 +587,8 @@ Sortie :
     - Un repas simple fait maison de plus par semaine :: à renseigner : frequence_ultratransformes
     - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide
     - Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre :: à renseigner : matiere_grasse_cuisson
-    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: à renseigner : signe_manger_cache_ou_culpabilite, signe_antecedent_regime_restrictif
     - Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine :: à renseigner : frequence_fruits_a_coque
     - Manger sans se presser :: à renseigner : alimentation_emotionnelle
-    - Repérer un moment de grignotage récurrent et lui trouver une alternative :: à renseigner : signe_manger_cache_ou_culpabilite, signe_antecedent_regime_restrictif
     - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
     - Orienter vers le diététicien de la structure :: à renseigner : acces_alimentation, signe_manger_cache_ou_culpabilite, signe_antecedent_regime_restrictif
     - Proposer aussi un avis spécialisé en trouble du comportement alimentaire :: à renseigner : signe_manger_cache_ou_culpabilite, signe_antecedent_regime_restrictif
@@ -621,8 +628,6 @@ Sortie :
       proposé parce que : verrou_tca == true
   Alertes de nœud :
     - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
-  Options écartées (sécurité, R4) :
-    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: verrou_tca == true OR fragilite == true
   Options EN ATTENTE (indétermination, R7/D20) :
     - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide
     - Ajouter un plat de légumineuses de plus par semaine :: à renseigner : frequence_legumineuses
@@ -661,6 +666,9 @@ Sortie :
   Famille « Restauration rapide » (exclusive: false) :
   - [recommandee] En restauration rapide, choisir mieux plutôt que s'interdire d'y aller
       proposé parce que : frequence_restauration_rapide == quotidien
+  Famille « Viande et charcuterie » (exclusive: false) :
+  - [recommandee] Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats)
+      proposé parce que : frequence_viande_rouge_charcuterie == quotidien
   Famille « Fruits à coque, légumineuses, poisson » (exclusive: false) :
     -- groupe d'égalité #0 --
   - [recommandee] Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine
@@ -676,7 +684,6 @@ Sortie :
     - Remplacer une boisson sucrée du quotidien par de l'eau :: à renseigner : frequence_boissons_sucrees
     - Ne pas remplacer une boisson sucrée par des édulcorants intenses :: à renseigner : frequence_boissons_sucrees
     - Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre :: à renseigner : matiere_grasse_cuisson
-    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: à renseigner : signe_restriction_puis_craquage, signe_manger_cache_ou_culpabilite
     - Se fixer des repas à des horaires à peu près réguliers :: à renseigner : regularite_repas
     - Manger sans se presser :: à renseigner : alimentation_emotionnelle
     - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
@@ -713,6 +720,8 @@ Sortie :
   Famille « Structure des repas » (exclusive: false) :
   - [recommandee] Se fixer des repas à des horaires à peu près réguliers
       proposé parce que : regularite_repas == irreguliers
+  - [recommandee] Repérer un moment de grignotage récurrent et lui trouver une alternative
+      proposé parce que : frequence_grignotage == quotidien
   Famille « Orientation » (exclusive: false) :
   - [recommandee] Orienter vers le diététicien de la structure
       proposé parce que : verrou_tca == true ; fragilite == true
@@ -721,8 +730,7 @@ Sortie :
   Alertes de nœud :
     - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
   Options écartées (sécurité, R4) :
-    - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: verrou_tca == true OR fragilite == true
-    - Repérer un moment de grignotage récurrent et lui trouver une alternative :: verrou_tca == true
+    - Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats) :: fragilite == true
   Options EN ATTENTE (indétermination, R7/D20) :
     - Remplacer une boisson sucrée du quotidien par de l'eau :: à renseigner : frequence_boissons_sucrees
     - Ne pas remplacer une boisson sucrée par des édulcorants intenses :: à renseigner : frequence_boissons_sucrees
