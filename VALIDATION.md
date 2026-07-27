@@ -649,3 +649,23 @@ conduite**. C'est la sous‑prescription corrigée.
 - [ ] **A9 — lecteur d'écran.** Les boutons segmentés portent `aria-pressed`. À vérifier avec un
       lecteur d'écran : la valeur retenue est annoncée, et aucune ne l'est tant que rien n'est cliqué.
       Aucun changement visuel attendu.
+
+## A7 — repère de départ (2026-07-27, soir)
+
+Le champ dont la réponse commande l'affichage des autres porte un **liseré bleu en haut** et la
+mention **« · détermine la suite »**, tant qu'il n'a pas reçu sa réponse. Entièrement dérivé du
+contenu : est pilote tout critère qu'un autre cite dans son `visible_si`. Détecté sans un seul nom en
+dur — `intention` sur `Traiter…`, `situation_insuline` sur `insuline`, `intolerance_statine` sur
+`statine`.
+
+- [ ] **`insuline` vierge** : « Situation d'insulinothérapie » doit se distinguer des 32 autres champs.
+      Le repère disparaît dès qu'une situation est cliquée.
+- [ ] **`Traiter…` vierge** : idem sur « Intention thérapeutique ». Une fois répondu, « Traitements en
+      cours » apparaît et porte à son tour le repère (il commande d'autres champs).
+- [ ] **`statine` vierge** : « Intolérance aux statines » est marqué — c'est le champ dont l'absence de
+      réponse fait halter le nœud depuis le passage A1+A2. À juger : cela suffit-il à corriger le point
+      d'ergonomie signalé plus haut (l'écran ouvre sur « Débuter la statine à dose plus faible ») ?
+- [ ] **Deux registres de couleur** : bleu = « commencez par là », ambre = « il manque une réponse ».
+      Un champ peut porter les deux. À juger : se distinguent-ils bien ?
+- [ ] **`cible-glycemique` et les deux nœuds RHD** n'ont aucun `visible_si` : aucun repère ne doit
+      apparaître, l'écran est inchangé.

@@ -14,6 +14,7 @@ import {
   buildDefaultCriteria,
   champEstVisible,
   champsVisibles,
+  criteresPilotes,
   decisifsAConfirmer,
   grouperChamps,
   reinitialiserChampsMasques,
@@ -266,5 +267,59 @@ describe('tous les nœuds du contenu', () => {
       expect(node, `nœud ${id} introuvable`).toBeDefined()
       expect(() => grouperChamps(node.criteres_entree, buildDefaultCriteria(node.criteres_entree))).not.toThrow()
     }
+  })
+})
+
+
+/**
+ * A7 — repère de départ (arbitrage référent, 2026-07-27 soir). Un formulaire long est « entièrement
+ * neutre, rien ne désigne le premier champ à remplir » (recette visuelle) alors que ce champ existe et
+ * décide de la moitié de l'écran. `criteresPilotes` le désigne SANS aucun nom en dur : est pilote tout
+ * critère qu'un autre cite dans son `visible_si`.
+ */
+describe('criteresPilotes — A7, repère de départ dérivé du contenu', () => {
+  it('désigne le critère cité par le `visible_si` d’un autre', () => {
+    const criteres: CritereEntree[] = [
+      { nom: 'intention', type: 'enum', valeurs: ['initier', 'optimiser'], groupe: 'G' },
+      { nom: 'traitements', type: 'liste', valeurs: ['a', 'b'], groupe: 'G', visible_si: 'intention != initier' },
+      { nom: 'age', type: 'nombre', groupe: 'G' },
+    ]
+    expect([...criteresPilotes(criteres)]).toEqual(['intention'])
+  })
+
+  it('n’est pas piloté par un critère qui se cite lui-même — il faudrait déjà l’avoir répondu', () => {
+    const criteres: CritereEntree[] = [
+      { nom: 'ck', type: 'nombre', groupe: 'G', visible_si: 'ck > 0' },
+    ]
+    expect(criteresPilotes(criteres).size).toBe(0)
+  })
+
+  it('ne cite jamais un critère DÉRIVÉ : il n’est pas saisissable, donc pas un point de départ', () => {
+    const criteres: CritereEntree[] = [
+      { nom: 'a', type: 'nombre', groupe: 'G' },
+      { nom: 'seuil_atteint', type: 'bool', groupe: 'G', derive: 'a > 5' },
+      { nom: 'suite', type: 'nombre', groupe: 'G', visible_si: 'seuil_atteint == true' },
+    ]
+    // `seuil_atteint` est cité, mais il est dérivé : c'est `a` qu'il faut répondre. Ni l'un ni l'autre
+    // n'est renvoyé — `seuil_atteint` parce qu'il n'est pas saisissable, `a` parce qu'aucun `visible_si`
+    // ne le cite directement. Le repère ne PRÉTEND pas dérouler la chaîne : il désigne ce que le contenu
+    // nomme, ni plus (limite assumée, cf. docstring).
+    expect(criteresPilotes(criteres).has('seuil_atteint')).toBe(false)
+  })
+
+  it('sur le contenu réel, désigne exactement les champs que la recette visuelle a nommés', () => {
+    const insuline = getNoeudById('insuline')
+    const prescription = getNoeudById('prescription')
+    if (!insuline || !prescription) throw new Error('nœuds introuvables')
+    expect(criteresPilotes(insuline.criteres_entree).has('situation_insuline')).toBe(true)
+    expect(criteresPilotes(prescription.criteres_entree).has('intention')).toBe(true)
+  })
+
+  it('un nœud sans aucun `visible_si` n’a pas de pilote — et rien ne s’affiche différemment', () => {
+    const criteres: CritereEntree[] = [
+      { nom: 'a', type: 'nombre', groupe: 'G' },
+      { nom: 'b', type: 'bool', groupe: 'G' },
+    ]
+    expect(criteresPilotes(criteres).size).toBe(0)
   })
 })

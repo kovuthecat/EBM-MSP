@@ -1,6 +1,7 @@
+import { useMemo } from 'react'
 import type { CritereEntree } from '../content/node.types'
 import type { Criteria, CriteriaValue } from '../engine/conditions'
-import { grouperChamps } from '../lib/formLayout'
+import { criteresPilotes, grouperChamps } from '../lib/formLayout'
 import { describeEnumValue, labelForCritere, labelForEnumValue } from '../lib/labels'
 import './CriteriaForm.css'
 
@@ -98,6 +99,12 @@ export function CriteriaForm({
   // `criteriaGroupement`/`touched` ci-dessus : même source que partout ailleurs dans cet écran.
   const groupes = grouperChamps(criteresEntree, criteriaGroupement ?? criteria, touched)
 
+  // A7 (arbitrage référent, 2026-07-27 soir) : REPÈRE DE DÉPART. Propriété structurelle du nœud, donc
+  // calculée une fois — `criteresPilotes` ne lit ni `criteria` ni `touched` (cf. sa docstring).
+  // Le repère ne s'affiche que tant que le pilote n'est pas répondu : une fois la réponse donnée, il n'y
+  // a plus lieu d'y envoyer le praticien, et le champ redevient un champ comme les autres.
+  const pilotes = useMemo(() => criteresPilotes(criteresEntree), [criteresEntree])
+
   // Estompage (remarque 6) : un critère hors de `pertinents` n'a, pour CE patient, aucun effet sur la reco.
   // Absent (`pertinents` non fourni) → jamais estompé. Un champ déjà `touched` n'est JAMAIS estompé (tâche
   // 6b) : la valeur saisie par le praticien reste pleinement lisible même redevenue non décisive. Générique :
@@ -124,6 +131,9 @@ export function CriteriaForm({
   // est mesuré dans `docs/decision/validation/chantier-2026-07-27/mesure-densite-marqueurs.md`.
   const estAConfirmer = (critere: CritereEntree) => aConfirmer?.has(critere.nom) === true
 
+  /** Ce champ commande-t-il l'affichage d'autres champs, et attend-il encore sa réponse ? (A7) */
+  const estPilote = (critere: CritereEntree) => pilotes.has(critere.nom) && !touched.has(critere.nom)
+
   /** Coche/décoche une valeur dans un critère `liste` (tableau de libellés, D13). */
   const toggleListeValeur = (nom: string, valeur: string, coche: boolean) => {
     const actuel = Array.isArray(criteria[nom]) ? (criteria[nom] as string[]) : []
@@ -134,6 +144,7 @@ export function CriteriaForm({
   const renderChamp = (critere: CritereEntree) => {
     const dim = estDim(critere.nom)
     const confirmer = estAConfirmer(critere)
+    const pilote = estPilote(critere)
     const valeurs = critere.valeurs ?? []
 
     if (critere.type === 'bool') {
@@ -143,6 +154,7 @@ export function CriteriaForm({
           className="criteria-form__field criteria-form__field--flag"
           data-dim={dim || undefined}
           data-confirmer={confirmer || undefined}
+          data-pilote={pilote || undefined}
         >
           <input
             type="checkbox"
@@ -151,6 +163,7 @@ export function CriteriaForm({
           />
           <span className="criteria-form__checkbox-label">
             {labelForCritere(critere.nom)}
+            {pilote && <span className="criteria-form__field-pilote"> · détermine la suite</span>}
             {/* `confirmation_requise` seulement (D20 R7) : jamais sur un `bool` ordinaire, cf. `estAConfirmer`. */}
             {confirmer && <span className="criteria-form__field-todo"> · à confirmer</span>}
           </span>
@@ -166,9 +179,11 @@ export function CriteriaForm({
           className="criteria-form__field criteria-form__field--wide"
           data-dim={dim || undefined}
           data-confirmer={confirmer || undefined}
+          data-pilote={pilote || undefined}
         >
           <div className="criteria-form__field-label">
             {labelForCritere(critere.nom)}
+            {pilote && <span className="criteria-form__field-pilote"> · détermine la suite</span>}
             {confirmer && <span className="criteria-form__field-todo"> · à confirmer</span>}
           </div>
           <div className="criteria-form__chips">
@@ -203,9 +218,11 @@ export function CriteriaForm({
         className={segmente ? 'criteria-form__field criteria-form__field--wide' : 'criteria-form__field'}
         data-dim={dim || undefined}
         data-confirmer={confirmer || undefined}
+        data-pilote={pilote || undefined}
       >
         <div className="criteria-form__field-label">
           {labelForCritere(critere.nom)}
+          {pilote && <span className="criteria-form__field-pilote"> · détermine la suite</span>}
           {dim && <span className="criteria-form__field-note"> · sans effet sur la reco actuelle</span>}
           {confirmer && <span className="criteria-form__field-todo"> · à confirmer</span>}
         </div>

@@ -85,6 +85,28 @@
   color: var(--c-attention);
 }
 
+/* A7 — REPÈRE DE DÉPART (arbitrage référent 2026-07-27). Un champ dont la réponse commande l'affichage
+   d'autres champs, tant qu'il n'a pas reçu sa réponse. La recette visuelle constatait qu'un formulaire
+   long est « entièrement neutre, rien ne désigne le premier champ à remplir » — alors que sur `insuline`
+   et `prescription` ce champ existe et décide de la moitié de l'écran.
+
+   REGISTRE DÉLIBÉRÉMENT DISTINCT DE L'AMBRE. L'ambre dit « il manque une réponse » et s'applique à
+   beaucoup de champs (jusqu'à 95 % sur un formulaire vierge depuis A8) ; le bleu de décision dit
+   « commencez par là » et ne s'applique qu'à un ou deux. Les confondre reviendrait à noyer le second
+   dans le premier — c'est exactement le défaut que A8 vient d'assumer par ailleurs. Un champ peut
+   porter les deux : le bord gauche reste ambre (il manque bien une réponse), le liseré supérieur
+   marque le départ. */
+.criteria-form__field[data-pilote] {
+  box-shadow: inset 0 2px 0 0 var(--c-accent-decision);
+  border-radius: 4px;
+}
+
+.criteria-form__field-pilote {
+  font-weight: 600;
+  font-style: normal;
+  color: var(--c-accent-decision);
+}
+
 .criteria-form__input {
   width: 100%;
   padding: 9px 12px;

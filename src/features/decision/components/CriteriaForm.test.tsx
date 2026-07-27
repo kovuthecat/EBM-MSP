@@ -332,3 +332,44 @@ describe('CriteriaForm — un `nombre` non `touched` affiche toujours un champ V
     expect(html).toContain('value="0"')
   })
 })
+
+
+/**
+ * A7 — le repère de départ, rendu. `criteresPilotes` (testé dans `lib/formLayout.test.ts`) désigne le
+ * champ ; ici on vérifie qu'il est bien RENDU, et qu'il disparaît une fois répondu — une fois la réponse
+ * donnée, il n'y a plus lieu d'y envoyer le praticien.
+ */
+describe('CriteriaForm — A7 : repère de départ sur le champ pilote', () => {
+  const CRITERES: CritereEntree[] = [
+    { nom: 'intention', type: 'enum', valeurs: ['initier', 'optimiser'], groupe: 'Section' },
+    { nom: 'traitements_en_cours', type: 'liste', valeurs: ['metformine'], groupe: 'Section', visible_si: 'intention != initier' },
+  ]
+
+  const rendre = (touched: ReadonlySet<string>) =>
+    renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={CRITERES}
+        criteria={buildDefaultCriteria(CRITERES)}
+        touched={touched}
+        onChange={() => {}}
+      />,
+    )
+
+  it('marque le champ pilote tant qu’il n’est pas répondu', () => {
+    const html = rendre(new Set())
+    expect(html).toContain('data-pilote="true"')
+    expect(html).toContain('détermine la suite')
+  })
+
+  it('retire le repère dès que le pilote est répondu', () => {
+    const html = rendre(new Set(['intention']))
+    expect(html).not.toContain('data-pilote')
+    expect(html).not.toContain('détermine la suite')
+  })
+
+  it('ne marque QUE le pilote, pas les champs qu’il commande', () => {
+    const html = rendre(new Set())
+    // Un seul repère à l'écran : le signal perdrait tout son sens s'il était porté par plusieurs champs.
+    expect(html.split('détermine la suite').length - 1).toBe(1)
+  })
+})

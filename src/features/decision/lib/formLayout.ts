@@ -161,6 +161,45 @@ export function reinitialiserChampsMasques(
   return { criteria: courant, reinitialises }
 }
 
+/**
+ * Critères PILOTES : ceux dont la réponse commande l'affichage d'autres champs — autrement dit ceux
+ * qu'un autre critère cite dans son `visible_si`.
+ *
+ * A7 (arbitrage référent, 2026-07-27 soir). La recette visuelle relevait qu'un formulaire `insuline`
+ * vierge affiche le bloc MCG entier — TBR, coefficient de variation, dose de basale — avant que le
+ * praticien ait dit si le patient prend de l'insuline. Le référent a maintenu R7 (« ne rien cacher tant
+ * qu'on ne sait pas ») et tranché que le vrai grief était ailleurs : **rien ne désigne le champ qui
+ * commande tous les autres.** Il est en haut de l'écran, mais ni mis en avant, ni distingué des trente
+ * autres — sur `insuline` comme sur `prescription`, ce champ existe pourtant et décide de la moitié du
+ * formulaire.
+ *
+ * ENTIÈREMENT DÉRIVÉ DU CONTENU (CLAUDE.md invariant 5 / D8) : aucun nom en dur. `situation_insuline` et
+ * `intention` se désignent d'eux-mêmes parce que d'autres critères les citent ; un domaine futur qui
+ * déclare un `visible_si` obtiendra le même traitement sans que cette fonction change. Un nœud sans
+ * aucun `visible_si` n'a simplement pas de pilote, et rien ne s'affiche différemment.
+ *
+ * Ne dépend NI de `criteria` NI de `renseignes` : c'est une propriété STRUCTURELLE du nœud, stable pour
+ * toute la session. L'appelant décide quand la montrer (`CriteriaForm` : tant que le pilote n'est pas
+ * répondu — une fois répondu, il n'y a plus lieu d'y envoyer le praticien).
+ */
+export function criteresPilotes(criteresEntree: CritereEntree[]): Set<string> {
+  const saisissables = criteresEntree.filter((critere) => critere.derive == null)
+  const pilotes = new Set<string>()
+  for (const critere of criteresEntree) {
+    if (!critere.visible_si) continue
+    for (const candidat of saisissables) {
+      // Mot entier : sans `\b`, `age` matcherait `anciennete_diabete_annees`.
+      if (new RegExp(`\\b${candidat.nom}\\b`).test(critere.visible_si)) pilotes.add(candidat.nom)
+    }
+  }
+  // Un critère qui se cite lui-même dans son propre `visible_si` ne pilote rien : il ne peut pas être le
+  // point de départ, puisqu'il faudrait déjà l'avoir répondu pour qu'il s'affiche.
+  for (const critere of criteresEntree) {
+    if (critere.visible_si && new RegExp(`\\b${critere.nom}\\b`).test(critere.visible_si)) pilotes.delete(critere.nom)
+  }
+  return pilotes
+}
+
 /** Noms des champs actuellement rendus à l'écran (saisissables et non masqués). */
 export function champsVisibles(
   criteresEntree: CritereEntree[],
