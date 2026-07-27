@@ -227,6 +227,9 @@ options:
       - "Le bénéfice porte sur la gestion du poids et de la dépense énergétique, pas sur un critère cardiovasculaire dur (voir la réserve majeure de ce nœud, en tête de fichier)."
     effet_attendu: "Contribue au volume d'activité quotidienne recommandée ; effet propre non chiffrable."
     niveau_preuve: modere
+    references:
+      - has-guide-ap
+      - spf-antisedentarite
   - intitule: "Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue"
     conditions:
       - "duree_seance == moins_10_min"
@@ -239,6 +242,9 @@ options:
       - "Repère de composition d'un programme, pas un essai contrôlé comparant directement les deux modalités sur un critère dur."
     effet_attendu: "Non chiffrable pour ce geste isolé — lève un obstacle pratique à la régularité."
     niveau_preuve: modere
+    references:
+      - has-guide-ap
+      - duodecim-ap
   - intitule: "Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente"
     conditions:
       - "frequence_activite_structuree == jamais OR frequence_activite_structuree == une_fois_semaine"
@@ -289,6 +295,9 @@ options:
       - "Pas de bénéfice cardiovasculaire dur propre à l'exercice à revendiquer (voir la réserve majeure de ce nœud) : le bénéfice mis en avant ici est la régularité elle-même, un facteur prédictif, pas un événement évité."
     effet_attendu: "Non chiffrable — renforcement positif d'une pratique déjà régulière."
     niveau_preuve: modere
+    references:
+      - has-dt2-ap
+      - duodecim-ap
   # ═══════════ FAMILLE ORIENTATION VERS UNE RESSOURCE ═══════════
   - intitule: "Orienter vers une structure d'activité physique adaptée pour un bilan et un accompagnement progressif"
     conditions:
@@ -403,27 +412,33 @@ argumentaire: >
   dépense énergétique.
 sources:
   references_primaires:
-    - titre: "Look AHEAD — critère cardiovasculaire primaire (intervention intensive sur le mode de vie, neutre, arrêt pour futilité)"
+    - id: look-ahead
+      titre: "Look AHEAD — critère cardiovasculaire primaire (intervention intensive sur le mode de vie, neutre, arrêt pour futilité)"
       annee: 2013
       type_critere: dur
       lien: "https://doi.org/10.1056/NEJMoa1212914"
-    - titre: "Lifestyle education in type 2 diabetes (EBM Guidelines/Duodecim — activité physique, point directeur régularité prédictive, grade A)"
+    - id: duodecim-ap
+      titre: "Lifestyle education in type 2 diabetes (EBM Guidelines/Duodecim — activité physique, point directeur régularité prédictive, grade A)"
       annee: 2021
       type_critere: substitution
       lien: ""
-    - titre: "HAS — Stratégie thérapeutique du patient vivant avec un diabète de type 2 (mai 2024), volet activité physique R.16/R.19/R.24/R.25/R.27/R.28"
+    - id: has-dt2-ap
+      titre: "HAS — Stratégie thérapeutique du patient vivant avec un diabète de type 2 (mai 2024), volet activité physique R.16/R.19/R.24/R.25/R.27/R.28"
       annee: 2024
       type_critere: substitution
       lien: ""
-    - titre: "HAS — Guide des connaissances sur l'activité physique et la sédentarité (juillet 2022) — repères OMS/HAS, principe « chaque pas compte »"
+    - id: has-guide-ap
+      titre: "HAS — Guide des connaissances sur l'activité physique et la sédentarité (juillet 2022) — repères OMS/HAS, principe « chaque pas compte »"
       annee: 2022
       type_critere: substitution
       lien: ""
-    - titre: "HAS — Parcours de soins Surpoids et obésité de l'adulte, Fiche 5 (enseignant en activité physique adaptée)"
+    - id: has-obesite-ap
+      titre: "HAS — Parcours de soins Surpoids et obésité de l'adulte, Fiche 5 (enseignant en activité physique adaptée)"
       annee: 2023
       type_critere: substitution
       lien: ""
-    - titre: "Santé publique France — « 10 petites astuces anti-sédentarité » (repères concrets de rupture de sédentarité)"
+    - id: spf-antisedentarite
+      titre: "Santé publique France — « 10 petites astuces anti-sédentarité » (repères concrets de rupture de sédentarité)"
       annee: 2023
       type_critere: substitution
       lien: ""
@@ -480,8 +495,20 @@ meta:
   date_revue: "2026-07-26"
   auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
   statut: brouillon
-  version: "0.4"
+  version: "0.5"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        LOT « BASE CONSOLIDÉE » — question du référent : « toutes les nouvelles données cherchées ont-elles
+        été intégrées, avec leur niveau de preuve, dans la base consolidée ? » Réponse vérifiée : NON. Une
+        vingtaine d'essais portaient des chiffres AFFICHÉS dans les options sans figurer dans
+        `sources.references_primaires`. Rien ne pouvait le signaler — aucun invariant ne reliait une option
+        à ses sources. Nouveau champ `id` sur les références, nouveau champ `references` sur les options,
+        et invariant I8 (a : ids uniques ; b : tout id cité existe ; c : une option en preuve modérée ou
+        élevée déclare au moins une référence).
+        SUR CE NŒUD : les 6 références reçoivent un id, les 3 options en preuve modérée sont adossées.
+        Aucun changement de comportement.
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

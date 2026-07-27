@@ -234,3 +234,121 @@ describe.each(noeuds.map((node) => [node.id, node] as const))('banc — invarian
     expect(violations).toEqual([])
   })
 })
+
+// =====================================================================================================
+// I8 — UNE OPTION QUI REVENDIQUE UN NIVEAU DE PREUVE DOIT DIRE DE QUOI ELLE LE TIRE.
+//
+// POURQUOI CET INVARIANT EXISTE. Le 2026-07-27, le référent a posé la question : « toutes les nouvelles
+// données cherchées ont-elles été intégrées dans la base consolidée ? » Elles ne l'étaient pas. Une
+// vingtaine d'essais — CLEAR Outcomes, Kraut, Aebi, SAMSON, StatinWISE, GAUSS-3, le parcours NHS, la SFD
+// 2025, l'Endocrine Society… — portaient des chiffres AFFICHÉS dans les options (NNT, HR, réductions
+// absolues) sans jamais figurer dans `sources.references_primaires`. Une carte affichait un NNT dérivé de
+// CLEAR Outcomes alors que le nœud ne citait CLEAR Outcomes nulle part.
+//
+// CE QUI A LAISSÉ PASSER ÇA : rien ne reliait une option à ses sources. Le banc vérifiait les exclusions,
+// les alertes, les rangs, la non-vacuité — jamais l'adossement bibliographique. Le décrochage a duré deux
+// jours sans être visible, et il était antérieur : la scission glinide/sulfamide du 2026-07-26 n'avait pas
+// atteint la bibliographie non plus.
+//
+// TROIS PROPRIÉTÉS, la troisième étant celle qui mord :
+//  - I8a : les `id` de références sont UNIQUES dans un nœud (sinon `references` devient ambigu) ;
+//  - I8b : tout id cité par une option EXISTE dans `sources.references_primaires` du même nœud ;
+//  - I8c : toute option dont le `niveau_preuve` est `modere` ou `eleve` DÉCLARE au moins une référence.
+//
+// PÉRIMÈTRE ASSUMÉ DE I8c : `faible` en est dispensé — un accord d'experts ou un savoir-faire
+// diététique n'a, par définition, pas d'essai à citer. Ce que I8c ne vérifie PAS non plus : que la
+// référence citée soit la BONNE. Aucun test ne peut le faire ; c'est le travail de la relecture clinique
+// et de la passe adversariale. I8 garantit seulement qu'une revendication de preuve est ADOSSÉE, ce qui
+// est la condition pour que cette relecture soit possible.
+// =====================================================================================================
+describe('I8 — adossement bibliographique des options (générique, tous nœuds)', () => {
+  it('I8a — les ids de références sont uniques dans chaque nœud', () => {
+    const violations: string[] = []
+    for (const node of noeuds) {
+      const vus = new Map<string, number>()
+      for (const ref of node.sources?.references_primaires ?? []) {
+        if (!ref.id) continue
+        vus.set(ref.id, (vus.get(ref.id) ?? 0) + 1)
+      }
+      for (const [id, n] of vus) {
+        if (n > 1) violations.push(`nœud "${node.id}" :: id de référence "${id}" déclaré ${n} fois`)
+      }
+    }
+    expect(violations).toEqual([])
+  })
+
+  it('I8b — toute référence citée par une option existe dans la bibliographie du nœud', () => {
+    const violations: string[] = []
+    for (const node of noeuds) {
+      const connus = new Set((node.sources?.references_primaires ?? []).map((r) => r.id).filter(Boolean))
+      for (const option of node.options) {
+        for (const id of option.references ?? []) {
+          if (!connus.has(id)) {
+            violations.push(
+              `nœud "${node.id}" :: option "${option.intitule}" cite la référence "${id}", ` +
+                `absente de sources.references_primaires (ids connus : ${[...connus].join(', ') || 'aucun'})`,
+            )
+          }
+        }
+      }
+    }
+    expect(violations).toEqual([])
+  })
+
+  /**
+   * DETTE NOMMÉE, au plus fin — une entrée par couple (nœud, option), jamais une dispense de nœud entier
+   * (même doctrine que `ALERTES_PROHIBITIVES_HORS_PERIMETRE` ci-dessus).
+   *
+   * CE QUE CETTE LISTE DIT VRAIMENT, et c'est une trouvaille de l'invariant lui-même : ces options
+   * revendiquent un niveau de preuve `eleve` ou `modere` dont le fondement n'est PAS expérimental mais
+   * RÉGLEMENTAIRE (RCP ANSM, contre-indication de société savante) ou tiré d'un accord d'experts. Aucun
+   * essai de `references_primaires` ne les porte, et il aurait été facile — et malhonnête — de leur
+   * accrocher l'essai le plus voisin pour faire passer le test au vert. Une citation fabriquée dans ce
+   * champ créerait exactement la fausse confiance que l'invariant existe pour empêcher.
+   *
+   * LA VRAIE QUESTION, À TRANCHER PAR LE RÉFÉRENT : `niveau_preuve` doit-il refléter la certitude de la
+   * PREUVE (auquel cas une contre-indication de RCP n'est ni `eleve` ni `modere` au sens GRADE, et ces
+   * options sont mal étiquetées), ou la force de la RECOMMANDATION (auquel cas l'étiquette est juste et
+   * c'est le champ `references` qui a besoin d'accueillir autre chose que des essais) ? Tant que ce n'est
+   * pas tranché, chaque cas est nommé ici avec son fondement réel.
+   */
+  const OPTIONS_A_FONDEMENT_NON_EXPERIMENTAL = new Map<string, string>([
+    [
+      'prescription :: Arrêter la metformine (DFG < 30 — contre‑indication rénale)',
+      'Contre-indication du RCP ANSM (risque d’acidose lactique par accumulation). Aucun ECR n’a randomisé l’arrêt de la metformine sous 30 — et aucun ne le fera.',
+    ],
+    [
+      'prescription :: Réduire la posologie de la metformine (fonction rénale altérée ou intolérance digestive)',
+      'Paliers posologiques du RCP ANSM (max 2 g/j si DFG 45-59 ; 1 g/j si 30-44). Norme réglementaire, pas résultat d’essai.',
+    ],
+    [
+      'prescription :: Arrêter le sulfamide (DFG < 30 — contre‑indication rénale)',
+      'Contre-indication CITÉE par la SFD (prise de position 2023 et 2025, Tableau I note 2 + Avis n° 12) — vérifiée en source primaire le 2026-07-27. C’est une recommandation, donc sa place est `reco_officielle`, pas `references_primaires` : le schéma n’accepte dans ce champ que des références portant un `type_critere` (dur/mixte/substitution), ce qu’un texte normatif n’a pas.',
+    ],
+    [
+      "prescription :: Suspendre l'iSGLT2 (cétonémie confirmée — suspicion d'acidocétose euglycémique)",
+      'Garde-fou de sécurité (acidocétose euglycémique), porté par les RCP et les alertes d’agence. Aucun essai ne randomise la suspension.',
+    ],
+    [
+      'insuline :: Désintensifier / alléger le schéma',
+      'Accord d’experts (ADA §13, HAS R.103, SFD Avis 5 bis). L’ECR de déprescription du sujet âgé (Grant) est versé dans le nœud `prescription`, pas ici — un futur lot pourrait l’y ajouter et lever cette entrée.',
+    ],
+  ])
+
+  it('I8c — une option en preuve modérée ou élevée déclare au moins une référence', () => {
+    const violations: string[] = []
+    for (const node of noeuds) {
+      for (const option of node.options) {
+        const revendique = option.niveau_preuve === 'modere' || option.niveau_preuve === 'eleve'
+        if (OPTIONS_A_FONDEMENT_NON_EXPERIMENTAL.has(`${node.id} :: ${option.intitule}`)) continue
+        if (revendique && (option.references ?? []).length === 0) {
+          violations.push(
+            `nœud "${node.id}" :: option "${option.intitule}" déclare niveau_preuve="${option.niveau_preuve}" ` +
+              `sans aucune référence — de quoi tire-t-elle ce niveau ?`,
+          )
+        }
+      }
+    }
+    expect(violations).toEqual([])
+  })
+})

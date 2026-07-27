@@ -118,6 +118,17 @@ export interface Option {
   delai_benefice?: string
   niveau_preuve: NiveauPreuve
   /**
+   * Ids des références de `sources.references_primaires` qui PORTENT les revendications de cette option
+   * (son `effet_attendu`, les chiffres de ses `avantages`/`inconvenients`). Ajouté le 2026-07-27.
+   *
+   * MOTIF, et il vaut d'être retenu : rien ne reliait une option à ses sources, et le décrochage est passé
+   * inaperçu deux jours. Des options affichaient un NNT tiré d'un essai que le nœud n'avait jamais versé
+   * dans sa bibliographie. L'invariant I8c l'exige désormais pour toute option en preuve `modere` ou
+   * `eleve` : revendiquer un niveau de preuve oblige à dire d'où il vient. Une option en preuve `faible`
+   * peut s'en passer (accord d'experts, savoir-faire) mais gagne à en porter si une référence existe.
+   */
+  references?: string[]
+  /**
    * Règles d'affichage : expressions booléennes sur les `criteres_entree`, ou `['default']` (repli,
    * seulement si aucune autre option ne s'applique), ou `['toujours']` (systématiquement applicable,
    * ex. socle metformine — D16), soumise à ses `exclusions`.
@@ -192,6 +203,14 @@ export interface Option {
 }
 
 export interface ReferencePrimaire {
+  /**
+   * Identifiant court et stable, unique DANS le nœud (`clear-outcomes`, `cards`…). Ajouté le 2026-07-27
+   * pour rendre une référence CITABLE depuis une option (`Option.references`). Facultatif au schéma —
+   * mais requis de fait pour toute référence qu'une option adosse, l'invariant I8b du banc vérifiant que
+   * chaque id cité existe. À choisir de façon à survivre à une reformulation du titre : c'est le titre
+   * qui bouge, jamais l'id.
+   */
+  id?: string
   titre: string
   annee: number
   lien: string

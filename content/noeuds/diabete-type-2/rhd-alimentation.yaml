@@ -226,6 +226,10 @@ options:
       chiffrable — le repère méditerranéen testé (motif entier, pas la boisson seule) est décrit dans
       l'en-tête du module.
     niveau_preuve: modere
+    references:
+      - spf-50-astuces
+      - has-dt2-nutrition
+      - duodecim-alim
   - intitule: "Ne pas remplacer une boisson sucrée par des édulcorants intenses"
     conditions:
       - "frequence_boissons_sucrees == frequent OR frequence_boissons_sucrees == quotidien"
@@ -262,6 +266,9 @@ options:
       - "N'agit pas sur la fréquence elle-même : si la restauration rapide est liée à une contrainte de temps ou de travail plutôt qu'à un choix, en parler avant de proposer une piste alimentaire évite une piste mal ajustée."
     effet_attendu: "Réduit la densité énergétique du repas ; non chiffrable pour ce geste isolé."
     niveau_preuve: modere
+    references:
+      - duodecim-alim
+      - has-obesite-alim
   # ═══════════ FAMILLE MATIÈRES GRASSES ═══════════
   - intitule: "Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre"
     conditions:
@@ -318,6 +325,9 @@ options:
       - "Écarté en cas de fragilité ou de dénutrition : la viande reste alors un apport protéique à préserver (voir l'écarté correspondant)."
     effet_attendu: "Réduit la viande transformée et les graisses saturées ; non chiffrable pour ce geste isolé."
     niveau_preuve: faible
+    references:
+      - manger-bouger-affiche
+      - has-dt2-nutrition
   # ═══════════ FAMILLE FRUITS À COQUE, LÉGUMINEUSES, POISSON ═══════════
   - intitule: "Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine"
     conditions:
@@ -531,42 +541,60 @@ argumentaire: >
   d'hypoglycémie si les apports baissent (alerte, pas un blocage).
 sources:
   references_primaires:
-    - titre: "PREDIMED (régime méditerranéen, composite cardiovasculaire majeur — republication après correction méthodologique)"
+    - id: predimed
+      titre: "PREDIMED (régime méditerranéen, composite cardiovasculaire majeur — republication après correction méthodologique)"
       annee: 2018
       type_critere: dur
       lien: "https://doi.org/10.1056/NEJMoa1800389"
-    - titre: "CORDIOPREV (régime méditerranéen, composite cardiovasculaire majeur — prévention secondaire, ~50 % DT2)"
+    - id: cordioprev
+      titre: "CORDIOPREV (régime méditerranéen, composite cardiovasculaire majeur — prévention secondaire, ~50 % DT2)"
       annee: 2022
       type_critere: dur
       lien: "https://doi.org/10.1016/S0140-6736(22)00122-2"
-    - titre: "MEDAS — Schröder et al., validation de l'instrument d'adhérence méditerranéenne à 14 items utilisé dans PREDIMED"
+    - id: medas-schroder
+      titre: "MEDAS — Schröder et al., validation de l'instrument d'adhérence méditerranéenne à 14 items utilisé dans PREDIMED"
       annee: 2011
       type_critere: substitution
       lien: "https://doi.org/10.3945/jn.110.135566"
-    - titre: "MEDAS — Martínez-González et al., tableau des 14 items (reproduction en accès libre, PREDIMED)"
+    - id: medas-martinez
+      titre: "MEDAS — Martínez-González et al., tableau des 14 items (reproduction en accès libre, PREDIMED)"
       annee: 2012
       type_critere: substitution
       lien: "https://doi.org/10.1371/journal.pone.0043134"
-    - titre: "Lifestyle education in type 2 diabetes (EBM Guidelines/Duodecim — objectifs concrets alimentation, gradés A/B selon la section)"
+    - id: duodecim-alim
+      titre: "Lifestyle education in type 2 diabetes (EBM Guidelines/Duodecim — objectifs concrets alimentation, gradés A/B selon la section)"
       annee: 2021
       type_critere: substitution
       lien: ""
-    - titre: "HAS — Stratégie thérapeutique du patient vivant avec un diabète de type 2 (mai 2024), volet nutrition R.30-R.38"
+    - id: has-dt2-nutrition
+      titre: "HAS — Stratégie thérapeutique du patient vivant avec un diabète de type 2 (mai 2024), volet nutrition R.30-R.38"
       annee: 2024
       type_critere: substitution
       lien: ""
-    - titre: "HAS — Parcours de soins Surpoids et obésité de l'adulte (repérage des habitudes alimentaires §3.5.2, repérage TCA encadré 11, Fiche 4)"
+    - id: has-obesite-alim
+      titre: "HAS — Parcours de soins Surpoids et obésité de l'adulte (repérage des habitudes alimentaires §3.5.2, repérage TCA encadré 11, Fiche 4)"
       annee: 2023
       type_critere: substitution
       lien: ""
-    - titre: "Santé publique France/PNNS — « 50 petites astuces pour manger mieux et bouger plus » (repères chiffrés population générale)"
+    - id: spf-50-astuces
+      titre: "Santé publique France/PNNS — « 50 petites astuces pour manger mieux et bouger plus » (repères chiffrés population générale)"
       annee: 2023
       type_critere: substitution
       lien: ""
-    - titre: "SFD — Regard nouveau sur les glucides (rapport groupe de travail paramédical + AFDN, degré de transformation NOVA, estimation des portions)"
+    - id: sfd-glucides
+      titre: "SFD — Regard nouveau sur les glucides (rapport groupe de travail paramédical + AFDN, degré de transformation NOVA, estimation des portions)"
       annee: 2016
       type_critere: substitution
       lien: ""
+    # ── VERSÉE le 2026-07-27 ─────────────────────────────────────────────────────────────────────────
+    # Source de la réécriture de la piste viande/charcuterie (décision référent du 2026-07-27). C'est elle
+    # qui établit que la charcuterie et la viande relèvent de « Réduire » tandis que le fromage, produit
+    # laitier, relève d'« Aller vers » — deux DIRECTIONS différentes, que l'ancien intitulé fusionnait.
+    - id: manger-bouger-affiche
+      titre: "Santé publique France / Manger-Bouger — « Pour un mode de vie plus équilibré, chaque petit pas compte » (DT05-177-24A). Trois colonnes de DIRECTIONS, sans aucune quantité : Augmenter (fruits et légumes, légumes secs, fruits à coque, fait maison, activité physique) · Aller vers (céréales complètes, poissons gras et maigres, huiles de colza/noix/olive, produits laitiers en consommation suffisante mais limitée, saison et local, bio) · Réduire (produits sucrés et boissons sucrées, produits salés, CHARCUTERIE, VIANDE — porc, bœuf, veau, mouton, agneau, abats —, Nutri-Score D et E, temps assis)"
+      annee: 2024
+      type_critere: substitution
+      lien: "docs/decision/sources/4DDK001_400x600_50PC_AFF_reco chaque petit pas compte_E2_VDEF.pdf"
   synthese_critique:
     donnee: >-
       Le repère huile d'olive/eau comme éléments du motif méditerranéen, et un signal de prudence
@@ -622,8 +650,21 @@ meta:
   date_revue: "2026-07-26"
   auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
   statut: brouillon
-  version: "0.4"
+  version: "0.5"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        LOT « BASE CONSOLIDÉE » — question du référent : « toutes les nouvelles données cherchées ont-elles
+        été intégrées, avec leur niveau de preuve, dans la base consolidée ? » Réponse vérifiée : NON. Une
+        vingtaine d'essais portaient des chiffres AFFICHÉS dans les options sans figurer dans
+        `sources.references_primaires`. Rien ne pouvait le signaler — aucun invariant ne reliait une option
+        à ses sources. Nouveau champ `id` sur les références, nouveau champ `references` sur les options,
+        et invariant I8 (a : ids uniques ; b : tout id cité existe ; c : une option en preuve modérée ou
+        élevée déclare au moins une référence).
+        SUR CE NŒUD : l'affiche Santé publique France / Manger-Bouger est versée — c'est elle qui porte la
+        réécriture de la piste viande/charcuterie décidée le jour même, et elle n'y figurait pas. 3 options
+        adossées. Aucun changement de comportement.
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

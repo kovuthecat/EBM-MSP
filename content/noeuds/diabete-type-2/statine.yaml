@@ -245,6 +245,13 @@ options:
       chiffres NON comparables entre eux (dénominateurs et définitions différents) et à ne pas présenter
       comme « le » taux de reprise.
     niveau_preuve: faible
+    references:
+      - kraut-2023
+      - aebi-2025
+      - samson
+      - statinwise
+      - gauss-3
+      - ctt-symptomes-musculaires
     alertes:
       # Les deux bandes hautes du parcours. D21 : ces faits QUALIFIENT le geste proposé (l'interruption)
       # sans le remplacer — c'est la même interruption, avec un examen de plus ou une urgence en plus.
@@ -280,6 +287,16 @@ options:
     # R2 : extrait de l'`effet_attendu` ci-dessus (« NNT ~12-20 sur 5-6 ans »), non recalculé.
     delai_benefice: "5-6 ans"
     niveau_preuve: eleve
+    references:
+      - ctt-diabete
+      - ctt-more-vs-less
+      - care
+      - lipid
+      - quatre-s
+      - tnt
+      - prove-it
+      - quatre-d
+      - aurora
     contre_indications:
       - "Molécules de haute intensité (baisse de LDL ≥ 50 %, SFE/SFD/NSFA/SFC 2026 Table 4) : atorvastatine 40-80 mg ou rosuvastatine 10-20 mg. Prudence d'interaction via le CYP3A4 avec l'atorvastatine (macrolides, azolés, amiodarone, vérapamil/diltiazem, inhibiteurs de protéase) ; préférer la rosuvastatine en cas de co-prescription à risque."
       - "Ne pas INITIER de statine chez un patient déjà en dialyse sans statine en cours (exclusion structurelle ci-dessous, voir alerte) ; grossesse."
@@ -324,6 +341,10 @@ options:
       aucune donnée de mortalité. La reco française 2026 classe ce profil « risque modéré » et fait de
       l'initiation une décision partagée si le LDL reste au-dessus de la cible malgré les mesures d'hygiène.
     niveau_preuve: faible
+    references:
+      - cards
+      - aspen
+      - ctt-bas-risque
     # HAUTE-4 (2026-07-26, chantier-2026-07-26/redteam-clinique-securite.md) : cette option n'a AUCUNE
     # condition portant sur `ASCVD_etablie` — un patient ASCVD établie peut l'atteindre via l'exclusion
     # dialyse ci-dessus (option « haute intensité »), l'ordered-first-match continuant vers ce tier sans
@@ -379,6 +400,15 @@ options:
     # R2 : repris du suivi médian publié de CLEAR Outcomes (40,6 mois), non recalculé.
     delai_benefice: "3-4 ans"
     niveau_preuve: modere
+    references:
+      - clear-outcomes
+      - clear-diabete
+      - clear-primaire
+      - improve-it-diabete
+      - ewtopia-75
+      - fourier-diabete
+      - odyssey-outcomes-diabete
+      - odyssey-alternative
     contre_indications:
       - "SÉQUENCE FRANÇAISE, telle que l'écrit la recommandation 2026 : statine → ézétimibe (2e ligne) → anti-PCSK9 (3e ligne) → acide bempédoïque, qualifié de « traitement de dernier recours ». ⚠ Cette place de dernier recours est une phrase de TEXTE COURANT, non graduée : la table des recommandations graduées de la reco ne contient AUCUNE recommandation sur l'acide bempédoïque — ni classe, ni niveau."
       - "DIVERGENCE ASSUMÉE, à connaître : l'ESC 2025 recommande l'acide bempédoïque en CLASSE I / niveau B chez le patient qui ne peut pas prendre de statine, et l'ESC 2024 en classe I / niveau B en association à l'ézétimibe chez l'intolérant. Les deux sociétés lisent le même essai et en tirent une place différente. La reco française rapporte pourtant CLEAR fidèlement (« −13 % de MACE, −23 % d'IDM, sans effet sur l'AVC ni la mortalité ») : la divergence porte sur la place accordée, pas sur la lecture des chiffres."
@@ -435,6 +465,13 @@ options:
     # R2 : extrait de l'`effet_attendu` ci-dessus (« NNT ~22-37 sur 3-5 ans »), non recalculé.
     delai_benefice: "3-5 ans"
     niveau_preuve: modere
+    references:
+      - cards
+      - hps
+      - ctt-diabete
+      - aspen
+      - lodestar
+      - ctt-bas-risque
     contre_indications:
       - "Molécule d'intensité modérée en 1re intention : atorvastatine 10-20 mg, ou simvastatine 20-40 mg / pravastatine 40 mg (mieux évaluées, moins d'interactions — position EBM). Escalade vers la haute intensité si le risque est très élevé."
       - "En dialyse sans statine en cours, aucun bénéfice n'est démontré sur les critères durs (voir alerte) : discuter au cas par cas l'intérêt d'une initiation à ce stade (ce tier n'a pas d'exclusion structurelle, cf. changelog) ; grossesse contre-indiquée."
@@ -549,82 +586,172 @@ argumentaire: >
   diabétique.
 sources:
   references_primaires:
-    - titre: "CARDS (atorvastatine 10 mg, DT2 prévention primaire) — composite HR 0,63 ; mortalité NS (p=0,059)"
+    - id: cards
+      titre: ", DT2 prévention primaire) — composite HR 0,63 ; mortalité NS (p=0,059)"
       annee: 2004
       type_critere: dur
       lien: "https://doi.org/10.1016/S0140-6736(04)16895-5"
-    - titre: "HPS — sous-groupe diabète (simvastatine 40 mg) : −22 % ; sous-groupe prévention primaire −33 %"
+    - id: hps
+      titre: " (simvastatine 40 mg) : −22 % ; sous-groupe prévention primaire −33 %"
       annee: 2003
       type_critere: dur
       lien: "https://doi.org/10.1016/S0140-6736(03)13636-7"
-    - titre: "CTT — méta sur données individuelles, sous-groupe diabète (18 686 diabétiques) : RR 0,79 par mmol/L"
+    - id: ctt-diabete
+      titre: ", sous-groupe diabète (18 686 diabétiques) : RR 0,79 par mmol/L"
       annee: 2008
       type_critere: dur
       lien: "https://doi.org/10.1016/S0140-6736(08)60104-X"
-    - titre: "CTT — more vs less intensive (méta) : −15 % d'événements vasculaires majeurs supplémentaires"
+    - id: ctt-more-vs-less
+      titre: " (méta) : −15 % d'événements vasculaires majeurs supplémentaires"
       annee: 2010
       type_critere: dur
       lien: "https://doi.org/10.1016/S0140-6736(10)61350-5"
-    - titre: "CARE — sous-groupe diabète (pravastatine 40 mg, post-IDM) : −25 %, NNT ~12/5 ans"
+    - id: care
+      titre: " (pravastatine 40 mg, post-IDM) : −25 %, NNT ~12/5 ans"
       annee: 1998
       type_critere: dur
       lien: "https://doi.org/10.1161/01.CIR.98.23.2513"
-    - titre: "LIPID — sous-groupe diabète (pravastatine 40 mg) : NNT 18/6 ans ; critère 1aire du sous-groupe NS (p=0,11)"
+    - id: lipid
+      titre: " (pravastatine 40 mg) : NNT 18/6 ans ; critère 1aire du sous-groupe NS (p=0,11)"
       annee: 2003
       type_critere: dur
       lien: "https://pubmed.ncbi.nlm.nih.gov/14514569/"
-    - titre: "4S — sous-groupe diabète (simvastatine, n=202) : événements coronaires RR 0,45"
+    - id: quatre-s
+      titre: " (simvastatine, n=202) : événements coronaires RR 0,45"
       annee: 1997
       type_critere: dur
       lien: "https://doi.org/10.2337/diacare.20.4.614"
-    - titre: "TNT — sous-groupe diabète (atorvastatine 80 vs 10) : HR 0,75, NNT ~24/4,9 ans (intensité)"
+    - id: tnt
+      titre: " (atorvastatine 80 vs 10) : HR 0,75, NNT ~24/4,9 ans (intensité)"
       annee: 2006
       type_critere: dur
       lien: "https://doi.org/10.2337/dc05-2465"
-    - titre: "PROVE-IT TIMI 22 — sous-groupe diabète (atorva 80 vs prava 40) : HR 0,75 (IC95 non publié)"
+    - id: prove-it
+      titre: " — sous-groupe diabète (atorva 80 vs prava 40) : HR 0,75 (IC95 non publié)"
       annee: 2006
       type_critere: dur
       lien: "https://doi.org/10.1093/eurheartj/ehl220"
-    - titre: "ASPEN (atorvastatine 10 mg, DT2) — composite HR 0,90 NS ; prévention primaire HR 0,97 (nul)"
+    - id: aspen
+      titre: ", DT2) — composite HR 0,90 NS ; prévention primaire HR 0,97 (nul)"
       annee: 2006
       type_critere: mixte
       lien: "https://doi.org/10.2337/dc05-2415"
-    - titre: "ASCOT-LLA — sous-groupe diabète : critère coronaire dur NS (HR 0,84) ; composite élargi HR 0,77 (spin)"
+    - id: ascot-lla
+      titre: " — sous-groupe diabète : critère coronaire dur NS (HR 0,84) ; composite élargi HR 0,77 (spin)"
       annee: 2005
       type_critere: dur
       lien: "https://doi.org/10.2337/diacare.28.5.1151"
-    - titre: "Chang — méta restreinte aux essais dédiés diabète : composite CV OR 0,817 NS (p=0,086)"
+    - id: chang
+      titre: " aux essais dédiés diabète : composite CV OR 0,817 NS (p=0,086)"
       annee: 2013
       type_critere: dur
       lien: "https://pubmed.ncbi.nlm.nih.gov/24380090/"
-    - titre: "LODESTAR (treat-to-target vs dose fixe haute intensité) : NON-INFÉRIORITÉ — pas de supériorité d'une cible"
+    - id: lodestar
+      titre: " (treat-to-target vs dose fixe haute intensité) : NON-INFÉRIORITÉ — pas de supériorité d'une cible"
       annee: 2023
       type_critere: dur
       lien: "https://doi.org/10.1001/jama.2023.2487"
-    - titre: "CTT — efficacité et sécurité chez le sujet âgé (méta par âge) : bénéfice atténué et incertain > 75 ans en primaire"
+    - id: ctt-age
+      titre: " (méta par âge) : bénéfice atténué et incertain > 75 ans en primaire"
       annee: 2019
       type_critere: dur
       lien: "https://pubmed.ncbi.nlm.nih.gov/30712900/"
-    - titre: "CTT — bénéfice même à bas risque cardiovasculaire (méta, 27 essais) : bénéfice absolu petit à bas risque"
+    - id: ctt-bas-risque
+      titre: " cardiovasculaire (méta, 27 essais) : bénéfice absolu petit à bas risque"
       annee: 2012
       type_critere: dur
       lien: "https://pubmed.ncbi.nlm.nih.gov/22607822/"
-    - titre: "PROSPER (pravastatine, 70-82 ans) — bénéfice porté par la prévention secondaire ; sous-groupe primaire NS"
+    - id: prosper
+      titre: " (pravastatine, 70-82 ans) — bénéfice porté par la prévention secondaire ; sous-groupe primaire NS"
       annee: 2002
       type_critere: dur
       lien: "https://pubmed.ncbi.nlm.nih.gov/12457784/"
-    - titre: "4D (atorvastatine, DT2 en hémodialyse) : critère principal RR 0,92 NS ; signal AVC fatal RR 2,03"
+    - id: quatre-d
+      titre: " : critère principal RR 0,92 NS ; signal AVC fatal RR 2,03"
       annee: 2005
       type_critere: dur
       lien: "https://pubmed.ncbi.nlm.nih.gov/16034009/"
-    - titre: "AURORA (rosuvastatine, hémodialyse) : critère principal HR 0,96 NS malgré −43 % de LDL"
+    - id: aurora
+      titre: " (rosuvastatine, hémodialyse) : critère principal HR 0,96 NS malgré −43 % de LDL"
       annee: 2009
       type_critere: dur
       lien: "https://pubmed.ncbi.nlm.nih.gov/19332456/"
-    - titre: "CTT — symptômes musculaires (méta sur données individuelles) : > 90 % non attribuables à la statine"
+    - id: ctt-symptomes-musculaires
+      titre: " (méta sur données individuelles) : > 90 % non attribuables à la statine"
       annee: 2022
       type_critere: substitution
       lien: "https://pubmed.ncbi.nlm.nih.gov/36049498/"
+    # ── VERSÉES le 2026-07-27 ────────────────────────────────────────────────────────────────────────
+    # Ces treize essais portaient déjà, depuis les lots du 2026-07-27, des chiffres AFFICHÉS dans les
+    # options du nœud (NNT, HR, réductions absolues) — sans jamais figurer dans cette bibliographie. Le
+    # référent l'a relevé : « toutes les nouvelles données cherchées ont-elles été intégrées ? » Elles ne
+    # l'étaient pas. Tous les identifiants ci-dessous ont été vérifiés en source primaire par le red-team
+    # du 2026-07-27 (`chantier-2026-07-27/redteam-intolerance-statine.md`, 26/26 PMID conformes).
+    - id: clear-outcomes
+      titre: "CLEAR Outcomes (acide bempédoïque, intolérance aux statines déclarative, n=13 970) — composite HR 0,87 (0,79-0,96) ; IDM HR 0,77 ; AVC HR 0,85 NS ; décès CV HR 1,04 et toutes causes HR 1,03, tous deux NON significatifs et de point estimé DÉFAVORABLE"
+      annee: 2023
+      type_critere: dur
+      lien: "https://pubmed.ncbi.nlm.nih.gov/36876740/"
+    - id: clear-diabete
+      titre: "CLEAR Outcomes — sous-groupe diabète (n=6 373, 45,6 %) : HR 0,83 (0,72-0,95), réduction ABSOLUE 2,4 % publiée ; p d'interaction 0,42"
+      annee: 2024
+      type_critere: dur
+      lien: "https://pubmed.ncbi.nlm.nih.gov/38061370/"
+    - id: clear-primaire
+      titre: "CLEAR Outcomes — strate prévention primaire (n=4 206) : ARR 2,3 % et NNT 43, seul NNT réellement PUBLIÉ du dossier ; décès CV HR 0,61 et toutes causes HR 0,73 (signal fragile, non revendiqué)"
+      annee: 2023
+      type_critere: dur
+      lien: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10336623/"
+    - id: improve-it-diabete
+      titre: "IMPROVE-IT — sous-groupe diabète (n=4 933, 27 %) : HR 0,85 (0,78-0,94), 5,5 % en absolu à 7 ans, p d'interaction 0,02. ⚠ ADD-ON chez des patients TOLÉRANT leur statine — non transposable tel quel à l'intolérant"
+      annee: 2018
+      type_critere: dur
+      lien: "https://pubmed.ncbi.nlm.nih.gov/29263150/"
+    - id: ewtopia-75
+      titre: "EWTOPIA 75 (ézétimibe seul, Japonais ≥ 75 ans) — HR 0,66 (0,50-0,86) mais essai OUVERT, comparateur = conseils diététiques, composite tiré par la revascularisation, neutre sur AVC et mortalité"
+      annee: 2019
+      type_critere: dur
+      lien: "https://pubmed.ncbi.nlm.nih.gov/31434507/"
+    - id: fourier-diabete
+      titre: "FOURIER — sous-groupe diabète : HR 0,83 (0,75-0,93), RRA 2,7 % (0,7-4,8) estimée à 3 ans, suivi médian 2,2 ans. Mené SOUS statine, pas chez l'intolérant"
+      annee: 2017
+      type_critere: dur
+      lien: "https://pubmed.ncbi.nlm.nih.gov/28927706/"
+    - id: odyssey-outcomes-diabete
+      titre: "ODYSSEY OUTCOMES — sous-groupe diabète : RRA 2,3 % (0,4-4,2) vs 1,2 % en prédiabète et normoglycémie. Aucun HR propre à la strate diabète n'est publié — ne pas en inventer un. Mené SOUS statine"
+      annee: 2019
+      type_critere: dur
+      lien: "https://pubmed.ncbi.nlm.nih.gov/31272931/"
+    - id: odyssey-alternative
+      titre: "ODYSSEY ALTERNATIVE (alirocumab chez l'intolérant avéré, n=361) — LDL −45,0 % vs −14,6 % ; événements musculo-squelettiques HR 0,61 (0,38-0,99). Critère principal = LDL à 24 semaines : AUCUN critère dur"
+      annee: 2015
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/26687696/"
+    - id: kraut-2023
+      titre: "Kraut — méta de réintroductions EN AVEUGLE chez des patients étiquetés intolérants : intolérance 36 % vs 26 %, RR 1,40 (1,23-1,60), NNH 10 (chiffre publié) ; MAIS score symptomatique NON différent, DM 1,08 (−1,51 à 3,67). Environ un tiers réellement intolérants à la statine, un quart au PLACEBO"
+      annee: 2023
+      type_critere: substitution
+      lien: "https://pmc.ncbi.nlm.nih.gov/articles/PMC10735036/"
+    - id: aebi-2025
+      titre: "Aebi — méta (13 ECR, 1 868 participants) : symptômes musculaires OR 1,19 (0,86-1,64) NON significatif, mais ARRÊT du traitement OR 1,48 (1,03-2,12) significatif. C'est l'arrêt qui est en excès, pas le symptôme"
+      annee: 2025
+      type_critere: substitution
+      lien: "https://pmc.ncbi.nlm.nih.gov/articles/PMC12698018/"
+    - id: samson
+      titre: "SAMSON (n-of-1 en aveugle, financement British Heart Foundation / NIHR — non industriel) : ratio nocebo 0,90, sans intervalle de confiance publié ; 30/60 (50 %) avaient repris une statine à 6 mois"
+      annee: 2020
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/33196154/"
+    - id: statinwise
+      titre: "StatinWISE (série de n-of-1, financement NIHR HTA — non industriel) : différence de score de douleur −0,11 (−0,36 à 0,14) p=0,40 ; deux tiers (74/113) ont repris une statine"
+      annee: 2021
+      type_critere: substitution
+      lien: "https://pmc.ncbi.nlm.nih.gov/articles/PMC7903384/"
+    - id: gauss-3
+      titre: "GAUSS-3 phase A (rechallenge croisé en double aveugle, n=491, FINANCÉ PAR AMGEN) : 42,6 % symptomatiques sous atorvastatine seule MAIS 26,5 % sous placebo seul — excès net ≈ 16 points. Chaque traitement n'est donné QU'UNE fois : rien n'y est « reproductible »"
+      annee: 2016
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/27039291/"
   synthese_critique:
     donnee: >-
       Décision fondée sur le risque absolu, pas sur une cible LDL chiffrée : aucun essai n'a randomisé
@@ -650,6 +777,16 @@ sources:
       (Eur Heart J 2023;44:2544). NB (vérifié sur les PDF locaux) : ni la HAS 2024 « Stratégie thérapeutique du
       DT2 » ni la prise de position SFD 2025 (hyperglycémie) ne traitent de la statine ; la reco HAS 2017
       dyslipidémies est supplantée par la reco française 2026.
+      AJOUTÉ le 2026-07-27, volet INTOLÉRANCE : NHS England / AAC Clinical Subgroup, « Statin Intolerance
+      Pathway » (janvier 2022, avalisé par NICE en décembre 2021, rattaché à CG181 — remplacée par NG238
+      en décembre 2023 — date de révision janvier 2024 DÉPASSÉE ; copie locale
+      `docs/decision/sources/statin-intolerance-pathway.pdf`, et NG238 lui-même dans `NICE 2023.pdf`).
+      ⚠ CORRECTION D'ATTRIBUTION : ce parcours n'est PAS dans NG238, NICE ne fait que l'héberger — la
+      collecte du 2026-07-27 le lui attribuait à tort. HAS, Commission de la transparence, avis NILEMDO
+      180 mg (acide bempédoïque), adopté le 12/02/2025 : SMR important dans un périmètre restreint,
+      insuffisant ailleurs, ASMR V ; remboursement effectif au 12/12/2025 (arrêté du 09/12/2025, JORF).
+      ESC/EAS 2025 (focused update) : acide bempédoïque en classe I / niveau B chez le patient qui ne peut
+      pas prendre de statine — position DIVERGENTE de la française, cf. `incertitudes`.
     position: >-
       Le diabétique est stratifié — jamais « bas risque » — en risque MODÉRÉ (DT2 < 10 ans non compliqué),
       ÉLEVÉ ou TRÈS ÉLEVÉ selon une grille de facteurs cliniques (durée, complications micro/macrovasculaires,
@@ -704,8 +841,25 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Claude Code"
   statut: brouillon
-  version: "1.9"
+  version: "1.10"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        LOT « BASE CONSOLIDÉE » — question du référent : « toutes les nouvelles données cherchées ont-elles
+        été intégrées, avec leur niveau de preuve, dans la base consolidée ? » Réponse vérifiée : NON. Une
+        vingtaine d'essais portaient des chiffres AFFICHÉS dans les options sans figurer dans
+        `sources.references_primaires`. Rien ne pouvait le signaler — aucun invariant ne reliait une option
+        à ses sources. Nouveau champ `id` sur les références, nouveau champ `references` sur les options,
+        et invariant I8 (a : ids uniques ; b : tout id cité existe ; c : une option en preuve modérée ou
+        élevée déclare au moins une référence).
+        SUR CE NŒUD : 13 essais versés (CLEAR Outcomes et ses deux sous-groupes, IMPROVE-IT diabète,
+        EWTOPIA 75, FOURIER et ODYSSEY diabète, ODYSSEY ALTERNATIVE, Kraut, Aebi, SAMSON, StatinWISE,
+        GAUSS-3), tous vérifiés en source primaire par le red-team (26/26 PMID conformes). Les 5 options
+        sont adossées. `reco_officielle` reçoit le parcours NHS (avec sa réserve de date et la correction
+        d'attribution : il n'est PAS dans NG238), l'avis HAS NILEMDO et la position ESC 2025 divergente.
+        Aucun changement de comportement : le golden master est inchangé, ce qui est la preuve attendue
+        d'un lot bibliographique.
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

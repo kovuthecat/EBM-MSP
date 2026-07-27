@@ -492,6 +492,11 @@ options:
     # R2 : extrait de l'`effet_attendu` ci-dessus (« NNT ~19‑31 / 16‑26 mois »), non recalculé.
     delai_benefice: "16-26 mois"
     niveau_preuve: eleve
+    references:
+      - empa-reg
+      - dapa-ckd
+      - credence
+      - emperor-reduced
     contre_indications:
       - "Ne pas initier si DFG < 20 (poursuivre jusqu'à la dialyse si déjà en cours — KDIGO 2024)."
       - "Infections génito‑urinaires récidivantes ; antécédent de gangrène de Fournier ; prudence si artériopathie évoluée / amputation (signal canagliflozine)."
@@ -545,6 +550,10 @@ options:
     # uniforme de la classe.
     delai_benefice: "2 ans (sémaglutide) à 5,4 ans (dulaglutide, population surtout en prévention primaire)"
     niveau_preuve: modere
+    references:
+      - leader
+      - rewind
+      - flow
     contre_indications:
       - "Antécédent de pancréatite ; antécédent personnel/familial de cancer médullaire de la thyroïde ou NEM2."
       - "Refus des injections : préférer le sémaglutide oral ou une autre classe. Rétinopathie proliférante non stabilisée : prudence."
@@ -585,6 +594,8 @@ options:
     effet_attendu: >-
       Non‑infériorité au dulaglutide sur le MACE‑3 (HR 0,92 [0,83‑1,01]) ; composite rénal 0,77 [0,68‑0,88].
     niveau_preuve: modere
+    references:
+      - surpass-cvot
     contre_indications:
       - "Antécédent de pancréatite ; cancer médullaire de la thyroïde / NEM2 ; refus des injections ; dénutrition."
     # R2 — même alerte que sur l'option AR GLP‑1 : l'ancienne alerte de nœud couvrait les DEUX incrétines
@@ -687,6 +698,10 @@ options:
       progression rénale HR ~0,56‑0,76 ; AR GLP‑1 : événements athéromateux, surtout l'AVC). Gain propre
       au retrait de la gliptine : aucun sur critère dur.
     niveau_preuve: modere
+    references:
+      - tecos
+      - pioneer-3
+      - tran-kramer
     contre_indications:
       - "Ne pas maintenir la gliptine en association avec un AR GLP‑1 : la remplacer. Les contre-indications propres au remplaçant retenu s'appliquent (voir l'option correspondante)."
   - intitule: "Arrêter la gliptine redondante (association gliptine + AR GLP‑1 / tirzépatide déjà en place)"
@@ -702,6 +717,8 @@ options:
     effet_attendu: >-
       Simplification sans perte d'efficacité (Nauck 2017 : +78 % GLP‑1 intact sans effet glycémique additionnel).
     niveau_preuve: modere
+    references:
+      - nauck
   # R3 (docs/decision/GRAMMAIRE-NOEUD.md) : le verdict sur le sulfamide (agent sans bénéfice dur) se
   # déclenche désormais sur la SEULE présence de la ligne — la comorbidité (IC/rein/ASCVD/IMC/hypo
   # schéma/cible non atteinte) a migré vers le CHOIX du remplaçant (indications/priorités des options
@@ -726,6 +743,11 @@ options:
       Hypo sévère 0,45 → 0,07 / 100 p‑a (CAROLINA, NNT 45) ; poids ~−1,5 à −4 kg ; bénéfice d'organe = iSGLT2 /
       AR GLP‑1 choisi.
     niveau_preuve: modere
+    references:
+      - carolina
+      - grade
+      - tosca-it
+      - simpson
     contre_indications:
       - "En sur‑contrôle (hba1c_sous_cible) ou après hypoglycémie/chute récente : il s'agit de DÉSINTENSIFIER (retirer sans remplacer) — cette option ne se déclenche pas. Si un SU doit être conservé : gliclazide/glimépiride, jamais le glibenclamide."
   # ---- Intolérance (porte : réduction OU switch) -------------------------------------------------------
@@ -951,6 +973,11 @@ options:
       Baisse d'HbA1c ~0,5‑0,8 % (substitution) ; aucun bénéfice dur. Face au sulfamide : absence d'hypoglycémie
       et de prise de poids (CAROLINA).
     niveau_preuve: modere
+    references:
+      - tecos
+      - savor-timi-53
+      - lee-pemphigoide
+      - carolina
     # DISPONIBILITÉ FR EN RÉNAL SÉVÈRE — corrigé le 2026-07-27 (6e série, décision référent). Le nœud
     # écrivait « sitagliptine 25 mg si DFG < 30, dialyse incluse ». Or la SFD 2025 (Avis n° 12 bis, verbatim
     # relu par `chantier-2026-07-27/redteam-seuils-renaux.md` §1.2) écrit, DEUX fois, que la forme
@@ -1012,6 +1039,11 @@ options:
       Baisse d'HbA1c ~1‑1,5 % (substitution) ; aucun bénéfice dur. Gain glycémique contre risque d'hypoglycémie
       (34‑42 % de toute hypo sous SU) et prise de poids.
     niveau_preuve: modere
+    references:
+      - carolina
+      - tosca-it
+      - grade
+      - simpson
     contre_indications:
       - "CONTRE‑INDIQUÉ si DFG < 30. Déconseillé chez le sujet à risque d'hypoglycémie élevé (âgé fragile, IR, alimentation irrégulière) : préférer la gliptine. Molécule : gliclazide MR ou glimépiride, jamais le glibenclamide."
   # ---- Repli ------------------------------------------------------------------------------------------
@@ -1227,90 +1259,132 @@ argumentaire: >
   (divergence de degré, cf. divergence).
 sources:
   references_primaires:
-    - titre: "EMPA-REG OUTCOME (empagliflozine) — mortalité CV, IC"
+    - id: empa-reg
+      titre: "EMPA-REG OUTCOME (empagliflozine) — mortalité CV, IC"
       annee: 2015
       type_critere: dur
       lien: "https://doi.org/10.1056/NEJMoa1504720"
-    - titre: "DAPA-CKD (dapagliflozine, MRC) — NNT 19 / 2,4 ans"
+    - id: dapa-ckd
+      titre: "DAPA-CKD (dapagliflozine, MRC) — NNT 19 / 2,4 ans"
       annee: 2020
       type_critere: dur
       lien: "https://doi.org/10.1056/NEJMoa2024816"
-    - titre: "CREDENCE (canagliflozine, néphropathie)"
+    - id: credence
+      titre: "CREDENCE (canagliflozine, néphropathie)"
       annee: 2019
       type_critere: dur
       lien: "https://doi.org/10.1056/NEJMoa1811744"
-    - titre: "EMPEROR-Reduced (empagliflozine, IC FE réduite) — NNT 19"
+    - id: emperor-reduced
+      titre: "EMPEROR-Reduced (empagliflozine, IC FE réduite) — NNT 19"
       annee: 2020
       type_critere: dur
       lien: "https://doi.org/10.1056/NEJMoa2022190"
-    - titre: "LEADER (liraglutide) — mortalité CV"
+    - id: leader
+      titre: "LEADER (liraglutide) — mortalité CV"
       annee: 2016
       type_critere: dur
       lien: "https://doi.org/10.1056/NEJMoa1603827"
-    - titre: "REWIND (dulaglutide) — AVC"
+    - id: rewind
+      titre: "REWIND (dulaglutide) — AVC"
       annee: 2019
       type_critere: dur
       lien: "https://doi.org/10.1016/S0140-6736(19)31149-3"
-    - titre: "FLOW (sémaglutide, maladie rénale) — 1er critère rénal dur AR GLP-1"
+    - id: flow
+      titre: "FLOW (sémaglutide, maladie rénale) — 1er critère rénal dur AR GLP-1"
       annee: 2024
       type_critere: dur
       lien: "https://doi.org/10.1056/NEJMoa2403347"
-    - titre: "SURPASS-CVOT (tirzépatide vs dulaglutide) — non-infériorité"
+    - id: surpass-cvot
+      titre: "SURPASS-CVOT (tirzépatide vs dulaglutide) — non-infériorité"
       annee: 2025
       type_critere: dur
       lien: "https://pubmed.ncbi.nlm.nih.gov/41406444/"
-    - titre: "CAROLINA (linagliptine vs glimépiride) — neutralité CV du SU, hypo NNT 45"
+    - id: carolina
+      titre: "CAROLINA (linagliptine vs glimépiride) — neutralité CV du SU, hypo NNT 45"
       annee: 2019
       type_critere: mixte
       lien: "https://doi.org/10.1001/jama.2019.13772"
-    - titre: "GRADE (glimépiride/sitagliptine/liraglutide/glargine) — durabilité, hypo, poids"
+    - id: grade
+      titre: "GRADE (glimépiride/sitagliptine/liraglutide/glargine) — durabilité, hypo, poids"
       annee: 2022
       type_critere: substitution
       lien: "https://doi.org/10.1056/NEJMoa2200433"
-    - titre: "TOSCA.IT (sulfamide vs pioglitazone) — neutralité CV, hypo 34 % vs 10 %"
+    - id: tosca-it
+      titre: "TOSCA.IT (sulfamide vs pioglitazone) — neutralité CV, hypo 34 % vs 10 %"
       annee: 2017
       type_critere: dur
       lien: "https://doi.org/10.1016/S2213-8587(17)30317-0"
-    - titre: "Simpson (méta-réseau) — gliclazide RR 0,65 vs glibenclamide (mortalité)"
+    - id: simpson
+      titre: "Simpson (méta-réseau) — gliclazide RR 0,65 vs glibenclamide (mortalité)"
       annee: 2015
       type_critere: dur
       lien: "https://pubmed.ncbi.nlm.nih.gov/25466239/"
-    - titre: "Nauck (sitagliptine + liraglutide) — pas de bénéfice additif : non-association"
+    - id: nauck
+      titre: "Nauck (sitagliptine + liraglutide) — pas de bénéfice additif : non-association"
       annee: 2017
       type_critere: substitution
       lien: "https://doi.org/10.1111/dom.12802"
-    - titre: "PIONEER-3 (séma oral vs sitagliptine) — supériorité HbA1c/poids"
+    - id: pioneer-3
+      titre: "PIONEER-3 (séma oral vs sitagliptine) — supériorité HbA1c/poids"
       annee: 2019
       type_critere: substitution
       lien: "https://doi.org/10.1001/jama.2019.2942"
-    - titre: "Tran/Kramer (méta switch iDPP4 → AR GLP-1) — −0,69 % HbA1c, −2,25 kg"
+    - id: tran-kramer
+      titre: "Tran/Kramer (méta switch iDPP4 → AR GLP-1) — −0,69 % HbA1c, −2,25 kg"
       annee: 2018
       type_critere: substitution
       lien: "https://pubmed.ncbi.nlm.nih.gov/29364587/"
-    - titre: "TECOS (sitagliptine vs placebo) — MACE neutre, IC neutre (HR 1,00)"
+    - id: tecos
+      titre: "TECOS (sitagliptine vs placebo) — MACE neutre, IC neutre (HR 1,00)"
       annee: 2015
       type_critere: dur
       lien: "https://doi.org/10.1056/NEJMoa1501352"
-    - titre: "SAVOR-TIMI 53 (saxagliptine) — signal IC (HR 1,27)"
+    - id: savor-timi-53
+      titre: "SAVOR-TIMI 53 (saxagliptine) — signal IC (HR 1,27)"
       annee: 2013
       type_critere: dur
       lien: "https://doi.org/10.1056/NEJMoa1307684"
-    - titre: "Lee (gliptine vs SU) — pemphigoïde bulleuse HR 1,42"
+    - id: lee-pemphigoide
+      titre: "Lee (gliptine vs SU) — pemphigoïde bulleuse HR 1,42"
       annee: 2020
       type_critere: dur
       lien: "https://doi.org/10.1001/jamadermatol.2020.2158"
-    - titre: "HYPOAGE / Christiaens — l'HbA1c seule prédit mal l'hypoglycémie (CGM, âgé)"
+    - id: hypoage
+      titre: "HYPOAGE / Christiaens — l'HbA1c seule prédit mal l'hypoglycémie (CGM, âgé)"
       annee: 2025
       type_critere: substitution
       lien: "https://doi.org/10.2337/dc24-1058"
-    - titre: "Grant — déprescription chez le sujet âgé : sûre (ECR)"
+    - id: grant
+      titre: "Grant — déprescription chez le sujet âgé : sûre (ECR)"
       annee: 2025
       type_critere: mixte
       lien: "https://pubmed.ncbi.nlm.nih.gov/40549370/"
-    - titre: "Griffin (méta metformine vs placebo — aucun critère dur significatif)"
+    - id: griffin-metformine
+      titre: "Griffin (méta metformine vs placebo — aucun critère dur significatif)"
       annee: 2017
       type_critere: dur
       lien: "https://doi.org/10.1007/s00125-017-4337-9"
+    # ── VERSÉES le 2026-07-27 ────────────────────────────────────────────────────────────────────────
+    # Les trois études du dossier « répaglinide en insuffisance rénale » (scission glinide/sulfamide du
+    # 2026-07-26, puis collecte + red-team du 2026-07-27). Elles portaient déjà l'argumentaire de l'option
+    # de réduction du glinide sans figurer dans cette bibliographie. Identités vérifiées une à une par le
+    # red-team (`chantier-2026-07-27/redteam-seuils-renaux.md` §2.6-2.7 : PMID, DOI, revue, volume, pages
+    # et population concordants).
+    - id: schumacher-2001
+      titre: "Schumacher — PK du répaglinide en insuffisance rénale, dose unique puis 2 mg ×3/j pendant 5 jours (n=34) : c'est L'ÉTUDE DE LA RUBRIQUE 5.2 du RCP (exposition ASC ×2 entre 20 et 39 ml/min), identifiée par le red-team"
+      annee: 2001
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/11417447/"
+    - id: marbury-2000
+      titre: "Marbury — PK du répaglinide, bras hémodialysé (n=6) avec dosage du dialysat : « hemodialysis did not significantly affect repaglinide clearance ». ⚠ DOSE UNIQUE ×2 avec washout : établit que l'hémodialyse n'épure pas le répaglinide, PAS qu'une prise prandiale répétée soit sûre chez le dialysé"
+      annee: 2000
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/10668848/"
+    - id: hasslacher-2003
+      titre: "Hasslacher — répaglinide en insuffisance rénale (n=281) : signal de sécurité clinique, p=0,074 sous répaglinide contre p=0,007 en run-in. ⚠ Bornes de clairance NON publiées et texte intégral inaccessible : citable pour le SIGNAL, jamais pour fonder un seuil"
+      annee: 2003
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/12610054/"
   synthese_critique:
     donnee: >-
       Sur socle metformine, quand l'objectif n'est pas atteint : ajouter un AR GLP‑1 (sémaglutide ou
@@ -1338,7 +1412,21 @@ sources:
       - nom: "Prescrire"
         detail: "Résumé sous droit d'auteur ; réf. Rev Prescrire 2023;43(478):595-605 ; synthèses docs/decision/sources/prescrire-dt2.md."
   reco_officielle:
-    source: "HAS 2024 (Stratégie thérapeutique DT2, R.45‑R.105) ; SFD 2025 (Med Mal Metab 2025;19:630‑662, Avis 3/5/5bis/6/11‑15) ; ADA Standards of Care 2026 ; KDIGO 2022 ; RCP metformine/iSGLT2/incrétines (ANSM)"
+    source: >-
+      HAS 2024 (Stratégie thérapeutique DT2, R.45‑R.105) ; SFD 2025 (Med Mal Metab 2025;19:630‑662, Avis
+      3/5/5bis/6/11‑15) ; ADA Standards of Care 2026 ; KDIGO 2022 ; RCP metformine/iSGLT2/incrétines (ANSM)
+      AJOUTÉ le 2026-07-27, volet RÉNAL (collecte + red-team, sources primaires rouvertes une à une) : SFD,
+      prise de position 2025 (Méd Mal Métab 2025;19(8):630-662, DOI 10.1016/j.mmm.2025.10.002) — Tableau I
+      notes 1-2, note 6, Avis n° 12 et n° 12 bis : c'est ELLE, et non la KDIGO, qui porte le seuil de 30 des
+      sulfamides, le plancher d'HbA1c de 7 % sous glinide ou insuline en IRC sévère, le « ne jamais utiliser »
+      chez le sujet âgé dépendant, et la liste fermée des molécules utilisables sous DFG 15 (dont le
+      répaglinide, et la vildagliptine 50 mg/j — la sitagliptine 25 mg n'étant pas commercialisée en France,
+      VÉRIFIÉ par le référent le 2026-07-27). HAS 2024, R.78 (grade C) : nomme le répaglinide pour sa demi-vie
+      courte et sa « non-CI » en maladie rénale. ⚠ KDIGO 2022 : NE PORTE AUCUN chiffre sur les sulfamides
+      (vérifié deux fois, dont la Figure 23) — l'attribution « convention KDIGO » a été retirée du nœud.
+      Endocrine Society 2019 (PMID 30903688) : porte bien des seuils chiffrés par molécule (glimépiride < 30,
+      glyburide < 60), ÉCARTÉE délibérément — source non française, périmètre ≥ 65 ans, gliclazide absent, et
+      ses seuils contrediraient les RCP français.
     position: >-
       Sur socle metformine + mode de vie : en cas de maladie CV établie, IC ou MRC, prescrire d'emblée un
       iSGLT2 ou un AR GLP‑1 (ou tirzépatide) à bénéfice prouvé, quel que soit l'HbA1c ; en obésité (IMC ≥ 30),
@@ -1444,7 +1532,7 @@ incertitudes:
     elle ne dit rien du patient à DFG < 30 sous un AUTRE agent hypoglycémiant, ni du patient sous
     glinide/insuline à DFG 30-44. Ces deux zones restent au plancher général de 6,5 %. C'est la lecture
     littérale de la source ; ce n'est pas nécessairement la bonne lecture clinique."
-  - "GLIPTINE UTILISABLE SOUS DFG 30 — POINT DE FAIT NON VÉRIFIÉ EN BASE OFFICIELLE. La SFD 2025 écrit, deux
+  - "GLIPTINE UTILISABLE SOUS DFG 30 — RÉSOLU le 2026-07-27. Le point de fait est TRANCHÉ : le référent a vérifié, la sitagliptine 25 mg n'est effectivement pas commercialisée en France. La SFD 2025 disait donc vrai, et l'extension de la décision aux trois endroits du nœud (option « Arrêter le sulfamide », option gliptine, alerte « place résiduelle en insuffisance rénale ») était justifiée : sous DFG 30, le nœud nomme la VILDAGLIPTINE 50 mg/j. Ce que la question a fait apparaître au passage et qui reste vrai : le red-team n'avait pas pu ouvrir la BDPM et avait explicitement laissé le point au référent plutôt que de le deviner (invariant 6) — c'est la bonne conduite, et elle a payé. La tension apparente avec la décision du nœud D (« gliptine FR = sitagliptine ») n'en est pas une : celle-là porte sur la CLASSE disponible en France, celle-ci sur le DOSAGE utilisable en rénal sévère."
     fois, que la forme sitagliptine 25 mg n'est pas commercialisée en France et désigne la vildagliptine
     50 mg/j. Le red-team n'a pas pu ouvrir la BDPM pour le confirmer (`redteam-seuils-renaux.md` §7.6) et a
     laissé le point au référent plutôt que de le deviner ; le référent a tranché pour suivre la SFD. Le nœud
@@ -1461,8 +1549,26 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.28"
+  version: "0.29"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        LOT « BASE CONSOLIDÉE » — question du référent : « toutes les nouvelles données cherchées ont-elles
+        été intégrées, avec leur niveau de preuve, dans la base consolidée ? » Réponse vérifiée : NON. Une
+        vingtaine d'essais portaient des chiffres AFFICHÉS dans les options sans figurer dans
+        `sources.references_primaires`. Rien ne pouvait le signaler — aucun invariant ne reliait une option
+        à ses sources. Nouveau champ `id` sur les références, nouveau champ `references` sur les options,
+        et invariant I8 (a : ids uniques ; b : tout id cité existe ; c : une option en preuve modérée ou
+        élevée déclare au moins une référence).
+        SUR CE NŒUD : 3 études PK du dossier glinide versées (Schumacher 2001 — identifiée par le red-team
+        comme L'étude de la rubrique 5.2 du RCP —, Marbury 2000 et Hasslacher 2003, chacune avec la limite
+        qui interdit d'en tirer un seuil). 8 options adossées. `reco_officielle` reçoit la SFD 2025
+        (Tableau I, Avis n° 12 et 12 bis), la HAS R.78, le négatif KDIGO et l'Endocrine Society 2019
+        explicitement écartée avec son motif. 4 options restent sans référence et c'est DOCUMENTÉ : leur
+        fondement est réglementaire (RCP ANSM, contre-indication de société savante), pas expérimental —
+        aucun essai ne les porte, et leur en accrocher un aurait fabriqué une fausse confiance.
+        Aucun changement de comportement.
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-
