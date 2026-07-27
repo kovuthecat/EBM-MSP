@@ -69,9 +69,20 @@ Ce que la passe doit livrer :
 **Décision : 5 pistes maximum.** Aujourd'hui `rhd-alimentation` en sort **10, toutes badgées
 « Recommandée »**.
 
-⚠ **Ce plafond ne peut pas être appliqué seul.** Il suppose de savoir laquelle des dix passe devant,
-donc un rang clinique sur chaque option — ce que **A3** (déclarer le rôle d'une option) apporte. Le
-plafond est donc **suspendu à A3**, et c'est la raison pour laquelle A3 vient en tête du lot 3.
+**Critère de sélection, précisé par le référent** : *« garder ceux qui répondent le mieux aux critères
+sélectionnés ».*
+
+Cela **lève la dépendance à A3** que j'avais annoncée. Le moteur calcule déjà, pour chaque option, quels
+termes de sa condition sont VRAIS pour ce patient (`engine/conditions.ts` `termesVrais`) — c'est ce qui
+alimente la ligne « Proposé parce que ». Classer sur ce compte ne demande aucun rôle d'option : la
+matière est déjà là, et elle est déjà affichée.
+
+⚠ **TENSION AVEC L'INVARIANT 2, à ne pas laisser passer sous silence.** « Filtrage par règles booléennes
+transparentes, **aucun score caché**, jamais de ML » (CLAUDE.md invariant 2 / D3). Un comptage de
+signaux satisfaits EST un score. Il reste compatible à une condition : qu'il soit **affiché et
+explicable**, pas appliqué en coulisse — par exemple « cette piste répond à 3 des signaux que vous avez
+déclarés ». C'est ainsi qu'il sera câblé ; un classement muet sur un compte invisible serait
+exactement ce que l'invariant interdit.
 
 ## 4. K6 — et une conséquence d'architecture à connaître
 
@@ -97,9 +108,17 @@ décision tenable :
 3. cela reste **en mémoire de session**, donc compatible avec l'invariant 1 (aucune persistance, aucun
    réseau).
 
-**Reste à trancher avant câblage** : est-ce bien un chaînage acceptable au sens de R1, ou faut-il
-d'abord réviser la règle ? Je ne le fais pas de moi-même — c'est le garde-fou que le dépôt a posé
-explicitement, et le contourner sans le dire serait exactement ce que ce chantier corrige ailleurs.
+**TRANCHÉ par le référent** : *« on peut garder une persistance par session. Un reload de la page reset
+tout. »*
+
+Le périmètre est donc posé, et il coïncide exactement avec ce que l'invariant 1 autorise : état en
+mémoire, aucune écriture disque, aucun réseau, et remise à zéro complète au rechargement. Le chaînage
+reste interdit au sens où le dépôt l'entendait — aucune CONCLUSION du moteur ne circule d'un nœud à
+l'autre, seule une valeur saisie par le praticien, et elle est pré-remplie sans être imposée.
+
+Reste à cadrer au câblage : quelles valeurs circulent (la cible d'HbA1c au minimum), et comment l'écran
+signale qu'un champ a été pré-rempli plutôt que saisi — sans quoi on retomberait sur le défaut A du
+lot 1, un champ qui paraît répondu sans l'être.
 
 ## 5. Lot 3 — les trois, dans cet ordre
 
