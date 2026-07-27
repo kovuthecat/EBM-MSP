@@ -42,6 +42,11 @@ import { genererProfils, tailleBanc } from './profils.ts'
 const PROFILS = 40
 const DELAI_MS = 120_000
 
+/** Rendus maximum par OPTION (et non par profil) — cf. le commentaire dans la boucle. Trois suffisent :
+ * les profils successifs font varier ce que l'option porte réellement, et le défaut visé est le même sur
+ * toutes ses cartes. */
+const RENDUS_PAR_OPTION = 3
+
 /** Première moitié du HTML d'une carte : tout ce qui précède le dépli. Une carte sans dépli renvoie
  * tout son HTML (il n'y a rien à avaler). */
 function socle(html: string): string {
@@ -65,6 +70,7 @@ describe('I12 — le dépli d’une carte n’avale jamais un fait de sécurité
     (_id, node) => {
     const manquements: string[] = []
     const optionsVues = new Set<string>()
+    const rendus = new Map<string, number>()
 
     for (const criteria of genererProfils(node, Math.min(PROFILS, tailleBanc(node)))) {
       const derives = calculerCriteresDerives(node.criteres_entree, criteria)
@@ -74,6 +80,18 @@ describe('I12 — le dépli d’une carte n’avale jamais un fait de sécurité
         for (const groupe of famille.groupes) {
           for (const optionVue of groupe) {
             optionsVues.add(optionVue.option.intitule)
+            // COÛT — corrigé après incident. La première rédaction rendait CHAQUE carte de CHAQUE
+            // profil : des milliers de `renderToStaticMarkup` par nœud, la suite complète passée de
+            // 35 s à 535 s, et un worker Vitest tué en cours de route (« Worker exited unexpectedly »,
+            // 3 tests silencieusement perdus). Un test qui fait tomber le banc ne protège rien.
+            //
+            // Ce qui est vérifié ici est STRUCTUREL — un bloc du socle passé dans le dépli est le même
+            // pour toutes les cartes d'une option. Il suffit donc de rendre chaque option quelques fois,
+            // le temps que les profils lui aient fait porter ses différents contenus (contre-indications,
+            // alertes, doses), pas une fois par profil.
+            const vues = rendus.get(optionVue.option.intitule) ?? 0
+            if (vues >= RENDUS_PAR_OPTION) continue
+            rendus.set(optionVue.option.intitule, vues + 1)
             const html = renderToStaticMarkup(
               <OptionCard
                 option={optionVue.option}
