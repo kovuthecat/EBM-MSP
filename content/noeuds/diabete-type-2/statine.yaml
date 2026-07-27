@@ -261,7 +261,7 @@ options:
   # weeks » : c'est pourquoi ces options n'ont qu'un seuil d'entrée et deux alertes qui les qualifient
   # au-delà, plutôt que des options empilées.
   - intitule: "Interrompre la statine 4 à 6 semaines et réévaluer (CK au-dessus de 5 fois la normale)"
-    role: geste
+    role: securite
     conditions:
       - "intolerance_statine == rapportee AND CK_x_normale > 5 AND statine_deja_en_place == true"
     avantages:
@@ -317,7 +317,7 @@ options:
   # française (ézétimibe → anti-PCSK9 → acide bempédoïque) doit toucher les deux. C'est le prix explicite
   # de l'arbitrage Q3, préféré au renvoi.
   - intitule: "Interrompre la statine — la classe reste indisponible (intolérance avérée, CK au-dessus de 5 fois la normale)"
-    role: geste
+    role: securite
     conditions:
       - "intolerance_statine == averee AND CK_x_normale > 5 AND statine_deja_en_place == true"
     avantages:
@@ -519,7 +519,7 @@ options:
   # déclare ce point hors périmètre depuis l'origine). Elle nomme ce que les sources françaises nomment, dans
   # l'ordre où elles le nomment, avec le niveau de preuve de chacune.
   - intitule: "Statine indisponible (intolérance avérée ou contre-indication) — alternatives hypolipémiantes"
-    role: geste
+    role: securite
     conditions:
       - "intolerance_statine == averee OR intolerance_statine != non AND CK_x_normale > 5 AND statine_deja_en_place == false"
     avantages:
@@ -1016,8 +1016,21 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Claude Code"
   statut: brouillon
-  version: "1.12"
+  version: "1.13"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        A3, suite — TROIS options passent de `geste` à `securite` sur décision du référent. Le passage
+        mécanique de la veille n'avait marqué `securite` que les options appartenant à une famille que le
+        nœud déclare comme telle ; `statine` ne déclarant AUCUNE famille, aucune de ses options n'avait été
+        promue, y compris des actes de sécurité. Signalé plutôt que deviné, puis tranché : « Interrompre la
+        statine 4 à 6 semaines et réévaluer », « Interrompre la statine — la classe reste indisponible » et
+        « Statine indisponible (intolérance avérée ou contre-indication) » sont des actes de SÉCURITÉ. Elles
+        ne peuvent donc plus être repliées ni plafonnées (K5). « Débuter la statine à dose plus faible »
+        reste `geste` : c'est un choix de prescription modulé par un signal de sécurité, pas un acte de
+        sécurité. AUCUN effet d'affichage aujourd'hui — ce nœud est en `ordered-first-match` et ne rend
+        qu'une carte ; la déclaration protège l'avenir, elle ne change pas le présent.
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-
