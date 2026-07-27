@@ -72,6 +72,7 @@
 import type { Criteria, CriteriaValue } from '../conditions.ts'
 import type { CritereEntree, Noeud } from '../../content/node.types.ts'
 import { calculerCriteresDerives } from '../deriveCritere.ts'
+import { reglesDeDecision } from '../expressionsNoeud.ts'
 
 /**
  * PRNG mulberry32 : rapide, déterministe, qualité suffisante pour un banc de test (aucun besoin
@@ -105,17 +106,18 @@ function hashChaine(s: string): number {
 /** Graine par défaut du banc — fixe, arbitraire, jamais recalculée à l'exécution. */
 const GRAINE_PAR_DEFAUT = 20260725
 
-/** Tous les fragments de règle DU NŒUD où un critère peut apparaître (mécanique, aucun nom connu). */
+/**
+ * Tous les fragments de règle DU NŒUD où un critère peut apparaître (mécanique, aucun nom connu).
+ *
+ * DÉLÉGUÉ à `engine/expressionsNoeud.ts` depuis le 2026-07-27 (cause racine S1). Ce fichier portait sa
+ * propre copie, qui omettait `option.prerequis` ET `option.alertes[].quand` — cette seconde omission est
+ * la cause DIRECTE de la « bande CK 10-50 jamais couverte » diagnostiquée ici même comme un aléa de
+ * tirage : ce n'en était pas un. Les seuils de ces deux alertes n'entraient dans le domaine d'aucun
+ * critère, donc aucun profil ne pouvait les franchir, et le trou de sécurité qu'ils gardaient est resté
+ * figé en vert dans le golden master.
+ */
 function reglesDuNoeud(node: Noeud): string[] {
-  const regles: string[] = []
-  for (const option of node.options) {
-    regles.push(...option.conditions)
-    if (option.exclusions) regles.push(...option.exclusions)
-    if (Array.isArray(option.priorite)) regles.push(...option.priorite.map((regle) => regle.quand))
-  }
-  for (const alerte of node.alertes ?? []) regles.push(alerte.quand)
-  for (const critere of node.criteres_entree) if (critere.derive) regles.push(critere.derive)
-  return regles
+  return reglesDeDecision(node)
 }
 
 /**
@@ -187,9 +189,38 @@ function domaineEnumerable(node: Noeud, critere: CritereEntree): CriteriaValue[]
   return null // 'liste'
 }
 
-/** Au-delà de cette taille, le produit cartésien des critères énumérables n'est plus énuméré en entier
- * (coût prohibitif) : repli sur l'échantillonnage stratifié seul (stratégie 2, cf. docstring module). */
-const PLAFOND_ENUMERATION_EXHAUSTIVE = 20000
+/**
+ * Au-delà de cette taille, le produit cartésien des critères énumérables n'est plus énuméré en entier
+ * (coût prohibitif) : repli sur l'échantillonnage stratifié seul (stratégie 2, cf. docstring module).
+ *
+ * **RELEVÉ DE 20 000 À 60 000 le 2026-07-27**, sur mesure et non au jugé. Deux nœuds se trouvaient
+ * JUSTE au-dessus de l'ancien plafond et perdaient donc la garantie de couverture exhaustive pour
+ * quelques milliers de combinaisons :
+ *
+ * | nœud | produit cartésien | régime à 20 000 | régime à 60 000 |
+ * |---|---|---|---|
+ * | `cible-glycemique` | 600 | 1 | 1 |
+ * | `statine` | **47 520** | 2 | **1** |
+ * | `rhd-activite-physique` | **55 296** | 2 | **1** |
+ * | `rhd-alimentation` | 2,9 × 10⁸ | 2 | 2 |
+ * | `insuline` | 8,6 × 10¹¹ | 2 | 2 |
+ * | `prescription` | 1,3 × 10¹² | 2 | 2 |
+ *
+ * La frontière est nette : trois nœuds sont hors d'atteinte de plusieurs ordres de grandeur (aucun
+ * plafond réaliste ne les ramènera), deux étaient à un facteur 2-3 près. Coût mesuré du relèvement sur
+ * la suite complète : **7,6 s → 22,7 s**. Cher en proportion, dérisoire en absolu, et payé pour
+ * transformer une couverture PROBABLE en couverture PROUVÉE sur deux nœuds — dont `statine`, où le
+ * défaut qui a motivé la mesure était une alerte de sécurité (ASCVD + dialyse sans statine, HAUTE-4)
+ * ajoutée la veille et déjà décrochée.
+ *
+ * CE QUI A RENDU LE DÉFAUT INVISIBLE, et qui compte plus que le chiffre : `statine` était en stratégie 1
+ * jusqu'à ce que le critère `CK_x_normale` lui soit ajouté, le matin même. Onze valeurs candidates de
+ * plus ont multiplié le produit par 11 et fait franchir le plafond — **en silence**. Aucun test ne
+ * pouvait le dire, puisque la stratégie n'était exposée nulle part. C'est pour cela que `regimeDeBanc`
+ * existe désormais et que `banc/grammaire.test.ts` exige de DÉCLARER tout nœud en stratégie 2 : le jour
+ * où un nœud repassera la frontière, ce sera une décision, pas un accident.
+ */
+const PLAFOND_ENUMERATION_EXHAUSTIVE = 60000
 
 /**
  * Taille EFFECTIVE du banc pour `node` (hors critère `omettre`, le cas échéant) à une taille demandée
@@ -197,6 +228,42 @@ const PLAFOND_ENUMERATION_EXHAUSTIVE = 20000
  * (garantit une couverture EXHAUSTIVE de toute conjonction) ; sinon `count` est inchangé.
  */
 function tailleEffective(node: Noeud, count: number, omettre?: string): number {
+  const { strategie, produitEnumerable } = regimeDeBanc(node, count, omettre)
+  return strategie === 1 ? Math.max(count, produitEnumerable) : count
+}
+
+/**
+ * RÉGIME du banc pour `node` — quelle des deux stratégies de combinaison s'applique, et sur quel produit
+ * cartésien. **Exposé le 2026-07-27**, et c'est un livrable en soi, pas un utilitaire de confort.
+ *
+ * POURQUOI. Les deux stratégies n'offrent PAS la même garantie :
+ *  - stratégie 1 (produit cartésien énuméré) : **toute conjonction** de critères énumérables apparaît au
+ *    moins une fois. La couverture est un THÉORÈME.
+ *  - stratégie 2 (échantillonnage stratifié) : chaque VALEUR apparaît souvent, mais une conjonction
+ *    étroite de `m` clauses n'apparaît qu'avec probabilité ~∏(1/kᵢ). La couverture devient une
+ *    PROBABILITÉ.
+ *
+ * Le basculement de l'une à l'autre se fait **en silence**, dès que le produit franchit
+ * `PLAFOND_ENUMERATION_EXHAUSTIVE` — c'est-à-dire dès qu'on ajoute un critère, ou même seulement des
+ * valeurs candidates à un critère existant. Constaté le 2026-07-27 : l'ajout du critère `CK_x_normale`
+ * à `statine` (le matin même) a fait passer ce nœud de la stratégie 1 à la stratégie 2 sans qu'aucun
+ * test ne le signale. Une alerte de sécurité ajoutée la veille pour fermer un défaut de red-team
+ * (ASCVD + dialyse sans statine) a cessé d'être couverte — non parce que le contenu avait changé, mais
+ * parce que l'instrument avait changé de précision à l'insu de tout le monde.
+ *
+ * Un banc dont la garantie se dégrade sans le dire apprend à faire confiance à un vert qui ne vaut plus
+ * ce qu'il valait. `banc/grammaire.test.ts` en fait donc une DÉCLARATION : un nœud en stratégie 2 doit
+ * être nommé et motivé, jamais y tomber par accident.
+ */
+export interface RegimeDeBanc {
+  strategie: 1 | 2
+  /** Produit cartésien des domaines énumérables (critères `liste` exclus), plafonné à l'arrêt du calcul. */
+  produitEnumerable: number
+  /** Nombre de profils réellement engendrés à `count` demandé. */
+  taille: number
+}
+
+export function regimeDeBanc(node: Noeud, count: number, omettre?: string): RegimeDeBanc {
   let produit = 1
   let auMoinsUnEnumerable = false
   for (const critere of node.criteres_entree) {
@@ -205,9 +272,12 @@ function tailleEffective(node: Noeud, count: number, omettre?: string): number {
     if (domaine === null) continue // 'liste' : hors produit cartésien
     auMoinsUnEnumerable = true
     produit *= Math.max(1, domaine.length)
-    if (produit > PLAFOND_ENUMERATION_EXHAUSTIVE) return count
+    if (produit > PLAFOND_ENUMERATION_EXHAUSTIVE) {
+      return { strategie: 2, produitEnumerable: produit, taille: count }
+    }
   }
-  return auMoinsUnEnumerable ? Math.max(count, produit) : count
+  if (!auMoinsUnEnumerable) return { strategie: 2, produitEnumerable: 0, taille: count }
+  return { strategie: 1, produitEnumerable: produit, taille: Math.max(count, produit) }
 }
 
 /** Mélange (Fisher-Yates) une copie de `valeurs` avec le PRNG fourni ; ne mute pas l'original. */
@@ -267,12 +337,62 @@ function sequenceStratifiee<T>(candidats: readonly T[], count: number, seed: num
  */
 function sequencePourUnCritere(node: Noeud, critere: CritereEntree, count: number, seedBase: number): CriteriaValue[] {
   const seedCritere = (seedBase ^ hashChaine(critere.nom)) >>> 0
-  if (critere.type === 'liste') {
-    const valeurs = critere.valeurs ?? []
-    const parValeur = valeurs.map((v) => sequenceStratifiee([true, false], count, (seedCritere ^ hashChaine(v)) >>> 0))
-    return Array.from({ length: count }, (_, i) => valeurs.filter((_, vi) => parValeur[vi][i]))
-  }
+  if (critere.type === 'liste') return sousEnsemblesStratifies(critere, count, seedCritere)
   return sequenceStratifiee(domaineEnumerable(node, critere) ?? [], count, seedCritere)
+}
+
+/**
+ * Sous-ensembles d'un critère `liste`, stratifiés PAR CARDINALITÉ (correctif du 2026-07-27).
+ *
+ * CE QUI ÉTAIT FAIT AVANT, et pourquoi c'était biaisé. Chaque valeur possible recevait sa propre
+ * séquence d'inclusion booléenne stratifiée, indépendante des autres — soit, en pratique, `n` tirages à
+ * pile ou face. Chaque valeur apparaissait bien ~50 % du temps (la propriété visée, et elle est
+ * conservée ci-dessous), mais la LOI DES CARDINALITÉS qui en résultait était binomiale : sur un critère
+ * à `n` valeurs, la liste VIDE ne sortait qu'une fois sur 2ⁿ.
+ *
+ * POURQUOI C'EST UN DÉFAUT, et pas une simple curiosité statistique. L'idiome du dépôt pour « le patient
+ * ne prend pas déjà cette classe » est un `prerequis` en `ne_contient_pas`, répété une fois par classe
+ * (R6). Une option gardée par 4 clauses de ce type exigeait donc un événement à 2⁻⁴, et une option
+ * exigeant la liste entièrement vide un événement à 2⁻ⁿ. **Le coût croît avec le nombre de valeurs
+ * DÉCLARÉES**, qui n'a aucun rapport clinique avec la rareté du profil : ajouter une 9ᵉ molécule au
+ * catalogue divisait par deux la probabilité d'engendrer un patient « naïf de tout », alors que ce
+ * patient est banal en consultation.
+ *
+ * MESURÉ sur `prescription` avant correctif : `traitements_en_cours` déclare 8 valeurs, la liste vide
+ * sortait **11 fois sur 1840** profils, et seuls **126** profils (6,8 %) ne contenaient aucune des 4
+ * classes que l'option « Association iSGLT2 + AR GLP‑1 » exige absentes. Cette option est passée de
+ * « couverte » à « jamais applicable » sur un simple changement de graine effective — sa couverture
+ * tenait au hasard, pas au banc. Vérifié dans l'autre sens : un profil construit À LA MAIN la rend
+ * applicable, donc le contenu n'était pas en cause.
+ *
+ * CE QUI EST FAIT MAINTENANT : la CARDINALITÉ du sous-ensemble est elle-même tirée dans une séquence
+ * stratifiée sur `[0, 1, …, n]` — chaque taille reçoit ~`count / (n+1)` profils, la liste vide comme la
+ * liste pleine. Les valeurs retenues sont ensuite choisies par un mélange déterministe propre au profil,
+ * puis remises dans l'ordre DÉCLARÉ (lisibilité des messages d'échec ; `contient` ne teste que
+ * l'appartenance, l'ordre ne change aucune évaluation).
+ *
+ * PROPRIÉTÉ CONSERVÉE, et c'est ce qui rend le correctif sûr : la fréquence marginale de chaque valeur
+ * reste ~50 % (espérance de cardinalité = n/2, choix uniforme parmi les valeurs ⇒ chaque valeur sort
+ * n/2 ÷ n = 1 fois sur 2). Le banc ne perd donc rien de la couverture par valeur qu'il avait ; il gagne
+ * les cardinalités extrêmes, qui étaient exponentiellement rares.
+ *
+ * INDÉPENDANCE PRÉSERVÉE vis-à-vis des autres critères (condition non négociable, cf. docstring de
+ * `sequencePourUnCritere` : `completerFixtureProfils` ajoute UNE colonne sans toucher aux autres) : tout
+ * est dérivé de `seedCritere` et de l'indice du profil, jamais des valeurs d'un autre critère.
+ */
+function sousEnsemblesStratifies(critere: CritereEntree, count: number, seedCritere: number): CriteriaValue[] {
+  const valeurs = critere.valeurs ?? []
+  if (valeurs.length === 0) return Array.from({ length: count }, () => [])
+  const cardinalites = sequenceStratifiee(
+    Array.from({ length: valeurs.length + 1 }, (_, k) => k),
+    count,
+    (seedCritere ^ hashChaine('__cardinalite__')) >>> 0,
+  )
+  return cardinalites.map((card, i) => {
+    const rng = mulberry32((seedCritere ^ hashChaine(`__sousensemble_${i}__`)) >>> 0)
+    const retenues = new Set(melanger(valeurs, rng).slice(0, card))
+    return valeurs.filter((v) => retenues.has(v)) // ordre DÉCLARÉ, pas l'ordre du mélange
+  })
 }
 
 /**

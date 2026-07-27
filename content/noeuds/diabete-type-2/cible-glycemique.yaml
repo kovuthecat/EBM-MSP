@@ -91,35 +91,43 @@ argumentaire: >
   de l'HbA1c peut aggraver une rétinopathie préexistante.
 sources:
   references_primaires:
-    - titre: "ACCORD"
+    - id: accord
+      titre: "ACCORD"
       annee: 2008
       type_critere: dur
       lien: "https://doi.org/10.1056/NEJMoa0802743"
-    - titre: "ADVANCE (+ ADVANCE-ON 2014)"
+    - id: advance
+      titre: "ADVANCE (+ ADVANCE-ON 2014)"
       annee: 2008
       type_critere: mixte
       lien: "https://doi.org/10.1056/NEJMoa0802987"
-    - titre: "VADT (+ suivi 15 ans, 2019)"
+    - id: vadt
+      titre: "VADT (+ suivi 15 ans, 2019)"
       annee: 2009
       type_critere: dur
       lien: "https://doi.org/10.1056/NEJMoa0808431"
-    - titre: "UKPDS 80 (effet legacy)"
+    - id: ukpds-80
+      titre: "UKPDS 80 (effet legacy)"
       annee: 2008
       type_critere: mixte
       lien: "https://doi.org/10.1056/NEJMoa0806470"
-    - titre: "UKPDS 35 — Stratton (épidémiologique)"
+    - id: ukpds-35-stratton
+      titre: "UKPDS 35 — Stratton (épidémiologique)"
       annee: 2000
       type_critere: substitution
       lien: "https://doi.org/10.1136/bmj.321.7258.405"
-    - titre: "Turnbull / CONTROL (méta-analyse sur données individuelles)"
+    - id: turnbull-control
+      titre: "Turnbull / CONTROL (méta-analyse sur données individuelles)"
       annee: 2009
       type_critere: dur
       lien: "https://doi.org/10.1007/s00125-009-1470-0"
-    - titre: "Boussageon (méta-analyse BMJ)"
+    - id: boussageon
+      titre: "Boussageon (méta-analyse BMJ)"
       annee: 2011
       type_critere: dur
       lien: "https://doi.org/10.1136/bmj.d4169"
-    - titre: "Cochrane (Hemmingsen) — RETIRÉE 2015 (COI non déclaré) ; résultats non invalidés"
+    - id: cochrane-hemmingsen
+      titre: "Cochrane (Hemmingsen) — RETIRÉE 2015 (COI non déclaré) ; résultats non invalidés"
       annee: 2013
       type_critere: dur
       lien: "https://doi.org/10.1002/14651858.CD008143.pub3"

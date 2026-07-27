@@ -205,12 +205,17 @@ export interface Option {
 export interface ReferencePrimaire {
   /**
    * Identifiant court et stable, unique DANS le nœud (`clear-outcomes`, `cards`…). Ajouté le 2026-07-27
-   * pour rendre une référence CITABLE depuis une option (`Option.references`). Facultatif au schéma —
-   * mais requis de fait pour toute référence qu'une option adosse, l'invariant I8b du banc vérifiant que
-   * chaque id cité existe. À choisir de façon à survivre à une reformulation du titre : c'est le titre
-   * qui bouge, jamais l'id.
+   * pour rendre une référence CITABLE depuis une option (`Option.references`). À choisir de façon à
+   * survivre à une reformulation du titre : c'est le titre qui bouge, jamais l'id.
+   *
+   * **OBLIGATOIRE depuis le 2026-07-27 (soir)**, alors qu'il avait été introduit facultatif le matin
+   * même. Motif, relevé par la passe adversariale transverse : facultatif, il rendait l'invariant I8
+   * CONTOURNABLE — une référence sans id ne pouvait être citée par aucune option, donc aucune option ne
+   * pouvait manquer de la citer, donc I8c passait au vert sans rien garantir. Le nœud
+   * `cible-glycemique` échappait ainsi INTÉGRALEMENT à I8 : ses 8 références étaient toutes sans id.
+   * Un invariant qu'on désactive en omettant un champ facultatif n'est pas un invariant.
    */
-  id?: string
+  id: string
   titre: string
   annee: number
   lien: string

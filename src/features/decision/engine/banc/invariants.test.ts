@@ -87,6 +87,20 @@ function intitules(node: Noeud, profil: Criteria): string[] {
  */
 const NOEUDS_AVEC_SORTIE_VIDE_CONNUE = new Set<string>([])
 
+/**
+ * Délai par test, relevé du défaut vitest (5 000 ms) le 2026-07-27. NON un contournement d'un test lent :
+ * la conséquence directe et voulue du relèvement de `PLAFOND_ENUMERATION_EXHAUSTIVE` (20 000 → 60 000,
+ * cf. `banc/profils.ts`), qui a rendu la couverture EXHAUSTIVE à `statine` (47 520 profils) et
+ * `rhd-activite-physique` (55 296) là où elles étaient échantillonnées sur 720 et 1 120. Les invariants
+ * ci-dessous parcourent donc 50 fois plus de patients qu'avant — c'est le prix de la garantie, et il est
+ * payé une fois par exécution, pas par test.
+ *
+ * Mesuré après relèvement : 24 tests, 25,8 s au total. Le filet est dimensionné très au-dessus pour ne
+ * jamais rendre un verdict DÉPENDANT DE LA CHARGE MACHINE — un test dont le résultat varie avec la
+ * machine apprend à ignorer le rouge (même raison que le budget de `couverture.test.ts`, R5).
+ */
+const DELAI_BANC_MS = 120_000
+
 describe.each(noeuds.map((node) => [node.id, node] as const))('banc — invariants génériques · nœud %s', (_id, node) => {
   const profils = genererProfils(node, tailleBanc(node))
 
@@ -102,7 +116,7 @@ describe.each(noeuds.map((node) => [node.id, node] as const))('banc — invarian
       }
     })
     expect(violations).toEqual([])
-  })
+  }, DELAI_BANC_MS)
 
   /**
    * I2′ (reformulation actée le 2026-07-26, DECISIONS.md D20, `docs/decision/validation/
@@ -139,6 +153,7 @@ describe.each(noeuds.map((node) => [node.id, node] as const))('banc — invarian
       })
       expect(profilsMuets).toEqual([])
     },
+    DELAI_BANC_MS,
   )
 })
 
@@ -288,7 +303,7 @@ describe('banc — invariants spécifiques au domaine DT2 (nœud prescription, v
       if (gliptineRecommandee && glp1Recommande) violations.push(`profil #${i}`)
     })
     expect(violations).toEqual([])
-  })
+  }, DELAI_BANC_MS)
 
   it('3b — gliptine + (AR GLP-1 OU tirzépatide) déjà en place ⇒ un geste correctif est applicable', () => {
     const violations: string[] = []
@@ -301,7 +316,7 @@ describe('banc — invariants spécifiques au domaine DT2 (nœud prescription, v
       if (!t.some((x) => x.includes(ARRET_GLIPTINE_REDONDANTE))) violations.push(`profil #${i}`)
     })
     expect(violations).toEqual([])
-  })
+  }, DELAI_BANC_MS)
 
   it('4 — jamais de sulfamide (place résiduelle) proposé si DFG < 30', () => {
     const violations: string[] = []
@@ -312,7 +327,7 @@ describe('banc — invariants spécifiques au domaine DT2 (nœud prescription, v
       if (t.some((x) => x.includes(SULFAMIDE_PLACE_RESIDUELLE))) violations.push(`profil #${i} (DFG=${dfg})`)
     })
     expect(violations).toEqual([])
-  })
+  }, DELAI_BANC_MS)
 
   // DETTE REFERMÉE (2026-07-25, levée du verrou gliptine) : le profil « IMC < 22 + gliptine + athérome »
   // introduisait un iSGLT2 (bénéfice d'organe, indiqué par ASCVD_etablie) SANS qu'aucun verdict sur la
@@ -342,6 +357,7 @@ describe('banc — invariants spécifiques au domaine DT2 (nœud prescription, v
       })
       expect(violations).toEqual([])
     },
+    DELAI_BANC_MS,
   )
 
   it('6 — à `fragilite` près (toutes choses égales par ailleurs), fragilite=true ne produit jamais PLUS d’options « Agent à ajouter » que fragilite=false', () => {
@@ -355,7 +371,7 @@ describe('banc — invariants spécifiques au domaine DT2 (nœud prescription, v
       if (nbVrai > nbFaux) violations.push(`paire #${i} : fragilite=true -> ${nbVrai} options, fragilite=false -> ${nbFaux}`)
     })
     expect(violations).toEqual([])
-  })
+  }, DELAI_BANC_MS)
 
   // PARTIELLEMENT corrigé le 2026-07-25 (arbitrage référent, tâche F) : la place résiduelle gliptine/
   // sulfamide se déclenchait aussi via `classes_a_benefice_indisponibles == true`, un booléen SAISI
@@ -391,5 +407,6 @@ describe('banc — invariants spécifiques au domaine DT2 (nœud prescription, v
       })
       expect(violations).toEqual([])
     },
+    DELAI_BANC_MS,
   )
 })

@@ -53,6 +53,7 @@
 import type { CritereEntree, Noeud } from '../content/node.types.ts'
 import { construireVueDecision, signatureVue } from '../lib/vueDecision.ts'
 import type { Criteria, CriteriaValue } from './conditions.ts'
+import { reglesDeDecision } from './expressionsNoeud.ts'
 
 /**
  * Signature de ce qui est affiché pour un jeu de critères, via le modèle de vue UNIQUE
@@ -70,23 +71,17 @@ function signature(node: Noeud, criteria: Criteria, renseignes?: ReadonlySet<str
   return signatureVue(construireVueDecision(node, criteria, renseignes))
 }
 
-/** Tous les fragments de règle du nœud où un critère peut apparaître (pour en extraire des seuils). */
+/**
+ * Tous les fragments de règle du nœud où un critère peut apparaître (pour en extraire des seuils).
+ *
+ * DÉLÉGUÉ à `engine/expressionsNoeud.ts` depuis le 2026-07-27 (cause racine S1) : ce fichier portait
+ * auparavant sa PROPRE copie de cette fonction, homonyme de celle de `engine/banc/profils.ts` et
+ * différente d'elle — celle-ci lisait `option.prerequis`, l'autre non, et **aucune des deux** ne lisait
+ * `option.alertes[].quand`. Le collecteur commun est désormais la seule définition, gardée par
+ * `banc/grammaire.test.ts`.
+ */
 function reglesDuNoeud(node: Noeud): string[] {
-  const regles: string[] = []
-  for (const option of node.options) {
-    regles.push(...option.conditions)
-    // `prerequis` (R6, GRAMMAIRE-NOEUD.md § arbitrage indication/prérequis) est évalué EXACTEMENT
-    // comme `conditions` par le moteur : un seuil numérique qui n'existerait que dans un `prerequis`
-    // doit être trouvé ici au même titre, sous peine de sous-échantillonner ses valeurs candidates
-    // (`valeursCandidates`) et de manquer un critère pourtant décisif (R5). Aucun contenu actuel n'a
-    // de `prerequis` numérique — extension par cohérence, pas un correctif d'un défaut observé.
-    if (option.prerequis) regles.push(...option.prerequis)
-    if (option.exclusions) regles.push(...option.exclusions)
-    if (Array.isArray(option.priorite)) regles.push(...option.priorite.map((r) => r.quand))
-  }
-  for (const alerte of node.alertes ?? []) regles.push(alerte.quand)
-  for (const critere of node.criteres_entree) if (critere.derive) regles.push(critere.derive)
-  return regles
+  return reglesDeDecision(node)
 }
 
 /**

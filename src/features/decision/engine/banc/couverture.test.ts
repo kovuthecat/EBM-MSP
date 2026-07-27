@@ -12,7 +12,7 @@
 import { describe, expect, it } from 'vitest'
 import { noeuds } from '../../content/loadNodes.ts'
 import { evaluateCondition } from '../conditions.ts'
-import { evaluateNode } from '../evaluateNode.ts'
+import { evaluateAlertesDeListe, evaluateNode } from '../evaluateNode.ts'
 import { criteresPertinents } from '../relevance.ts'
 import { genererProfils, tailleBanc } from './profils.ts'
 
@@ -52,6 +52,16 @@ const NOEUDS_AVEC_CRITERES_MORTS_CONNUS = new Set<string>([])
  */
 const NOEUDS_AVEC_OPTION_INATTEIGNABLE_PAR_LE_GENERATEUR = new Set<string>([])
 
+/**
+ * Délai par test, relevé du défaut vitest (5 000 ms) le 2026-07-27 — même constante et même raison que
+ * dans `banc/invariants.test.ts`. Conséquence VOULUE du relèvement de
+ * `PLAFOND_ENUMERATION_EXHAUSTIVE` (20 000 → 60 000, cf. `banc/profils.ts`) : `statine` et
+ * `rhd-activite-physique` sont repassés en couverture EXHAUSTIVE, donc de 720 et 1 120 profils à 47 520
+ * et 55 296. Le budget de R5 plus bas reste distinct : il est dimensionné pour son propre cas d'ÉCHEC,
+ * qui doit parcourir tout le banc en réévaluant la pertinence par perturbation.
+ */
+const DELAI_BANC_MS = 120_000
+
 describe.each(noeuds.map((node) => [node.id, node] as const))('banc — couverture · nœud %s', (_id, node) => {
   const profils = genererProfils(node, tailleBanc(node))
 
@@ -62,7 +72,7 @@ describe.each(noeuds.map((node) => [node.id, node] as const))('banc — couvertu
       for (const option of evaluateNode(node, profil).applicable) jamaisApplicable.delete(option.intitule)
     }
     expect([...jamaisApplicable]).toEqual([])
-  })
+  }, DELAI_BANC_MS)
 
   it('chaque option porteuse d’`exclusions` est EXCLUE pour au moins un profil', () => {
     const optionsAvecExclusions = node.options.filter((option) => (option.exclusions?.length ?? 0) > 0)
@@ -71,7 +81,7 @@ describe.each(noeuds.map((node) => [node.id, node] as const))('banc — couvertu
       for (const option of evaluateNode(node, profil).excluded.keys()) jamaisExclue.delete(option.intitule)
     }
     expect([...jamaisExclue]).toEqual([])
-  })
+  }, DELAI_BANC_MS)
 
   it('chaque EXPRESSION d’`exclusions` est déclenchée (vraie) pour au moins un profil', () => {
     const nonDeclenchees = new Set<string>()
@@ -86,7 +96,7 @@ describe.each(noeuds.map((node) => [node.id, node] as const))('banc — couvertu
       }
     }
     expect([...nonDeclenchees]).toEqual([])
-  })
+  }, DELAI_BANC_MS)
 
   it('chaque règle de `priorite` CONDITIONNELLE matche pour au moins un profil', () => {
     const nonAtteintes = new Set<string>()
@@ -109,7 +119,7 @@ describe.each(noeuds.map((node) => [node.id, node] as const))('banc — couvertu
       }
     }
     expect([...nonAtteintes]).toEqual([])
-  })
+  }, DELAI_BANC_MS)
 
   it('chaque ALERTE du nœud se déclenche pour au moins un profil', () => {
     const nonDeclenchees = new Set<string>()
@@ -121,7 +131,61 @@ describe.each(noeuds.map((node) => [node.id, node] as const))('banc — couvertu
       for (const alerte of evaluateNode(node, profil).alertes) nonDeclenchees.delete(alerte.message)
     }
     expect([...nonDeclenchees]).toEqual([])
-  })
+  }, DELAI_BANC_MS)
+
+  /**
+   * AJOUTÉ le 2026-07-27 (chantier, cause racine S2). Le banc exigeait la couverture des `exclusions`,
+   * des `priorite` conditionnelles et des alertes de NŒUD — **jamais celle des alertes d'OPTION**, alors
+   * que D21 en fait un canal de sécurité à part entière. Un canal sans obligation de couverture est un
+   * canal dont on n'apprendra jamais qu'il est mort : c'est très exactement ce qui s'est produit, un
+   * golden master ayant figé 11 profils portant un trou de sécurité, en vert.
+   *
+   * L'exigence est la BONNE (celle qui a un sens clinique), pas la plus facile : une alerte d'option
+   * n'est RENDUE que si son option est applicable (`lib/vueDecision.ts`). On vérifie donc qu'elle est
+   * réellement AFFICHÉE au moins une fois — `quand` vrai ET option applicable — et non que son
+   * expression peut être vraie dans le vide.
+   */
+  it('chaque alerte d’OPTION est AFFICHÉE pour au moins un profil (quand vrai ET option applicable)', () => {
+    const jamaisAffichee = new Set<string>()
+    for (const option of node.options) {
+      for (const alerte of option.alertes ?? []) {
+        jamaisAffichee.add(`${option.intitule} :: alerte quand "${alerte.quand}"`)
+      }
+    }
+    for (const profil of profils) {
+      for (const option of evaluateNode(node, profil).applicable) {
+        for (const alerte of evaluateAlertesDeListe(option.alertes, profil)) {
+          jamaisAffichee.delete(`${option.intitule} :: alerte quand "${alerte.quand}"`)
+        }
+      }
+    }
+    expect([...jamaisAffichee]).toEqual([])
+  }, DELAI_BANC_MS)
+
+  /**
+   * AJOUTÉ le 2026-07-27 (S2), symétrique exact de la règle sur les `exclusions` juste au-dessus. Un
+   * `prerequis` est un garde-fou (R6) : évalué comme une condition, il RETIRE l'option quand il est faux.
+   * Un garde-fou qui n'est jamais faux sur tout le banc ne garde rien — il est mort, ou mal câblé.
+   *
+   * Sens de l'assertion, à ne pas inverser : on exige que le prérequis soit **FAUX** au moins une fois
+   * (le cas où il mord), là où pour une `exclusions` on exige qu'elle soit **VRAIE** au moins une fois.
+   * Les deux disent la même chose — « ce garde-fou retire réellement quelque chose » — dans les deux
+   * polarités que le contenu utilise.
+   */
+  it('chaque expression de `prerequis` est FAUSSE (mord) pour au moins un profil', () => {
+    const jamaisFausses = new Set<string>()
+    for (const option of node.options) {
+      for (const expr of option.prerequis ?? []) jamaisFausses.add(`${option.intitule} :: prerequis "${expr}"`)
+    }
+    for (const profil of profils) {
+      for (const option of node.options) {
+        for (const expr of option.prerequis ?? []) {
+          if (evaluateCondition(expr, profil) === false) jamaisFausses.delete(`${option.intitule} :: prerequis "${expr}"`)
+        }
+      }
+    }
+    expect([...jamaisFausses]).toEqual([])
+  }, DELAI_BANC_MS)
 
   // Timeout relevé (défaut vitest 5000ms) : `criteresPertinents` réévalue le nœud par PERTURBATION
   // (une évaluation par valeur candidate de chaque critère, cf. engine/relevance.ts) — coûteux mais pur

@@ -23,7 +23,7 @@
  */
 import { describe, expect, it } from 'vitest'
 import { noeuds } from '../../content/loadNodes.ts'
-import type { Option } from '../../content/node.types.ts'
+import type { CritereEntree, Option } from '../../content/node.types.ts'
 
 // ---------------------------------------------------------------------------------------------------
 // Tokenizer local, minimal : extrait les noms de VARIABLES cités dans une expression `quand`/`exclusions`
@@ -229,6 +229,153 @@ describe.each(noeuds.map((node) => [node.id, node] as const))('banc — invarian
             `{${[...criteresAlerte].join(', ')}} :: options du nœud, aucune protégée sur ces critères : ` +
             optionsDuNoeud,
         )
+      }
+    }
+    expect(violations).toEqual([])
+  })
+})
+
+// =====================================================================================================
+// I9 — UNE ALERTE NE PEUT PAS ANNONCER UN SEUIL AUTRE QUE CELUI QUI LA DÉCLENCHE.
+//
+// POURQUOI CET INVARIANT EXISTE. Le 2026-07-27, la passe adversariale `statine` a relevé qu'une alerte
+// dont le déclencheur était `CK_x_normale > 4` annonçait dans son texte « au-delà de 5 fois la normale ».
+// Deux vignettes exécutables assertaient de surcroît sur la chaîne « 5 fois la normale » : le texte faux
+// était VERROUILLÉ par des tests, et un correctif du seuil les aurait fait échouer sans que personne
+// comprenne pourquoi.
+//
+// C'est la forme la plus dangereuse du défaut de duplication, parce qu'elle se lit comme une prose
+// anodine : le praticien lit un seuil, le moteur en applique un autre, et les deux sont dans le même
+// bloc de six lignes.
+//
+// PÉRIMÈTRE, ET COMMENT IL A ÉTÉ FIXÉ — par la mesure, pas au jugé. La première rédaction examinait
+// tout nombre introduit par une tournure comparative (« au-delà de », « supérieur à », « > », « en
+// dessous de »). Exécutée sur le contenu réel : **12 violations, dont 1 seule vraie**. Les onze autres
+// étaient des messages qui citent LÉGITIMEMENT un seuil qui n'est pas le leur — une posologie
+// (« initiation ≤ 500 mg » sous un déclencheur en DFG), une cible de MCG (« TIR > 70 % » sous un
+// déclencheur sans nombre), un seuil voisin d'un autre critère (« iSGLT2 initiable jusqu'à DFG ≥ 20 »
+// sous `DFG < 30`), un pourcentage de risque SCORE2, une cétonémie en mmol/L. Un test à 92 % de faux
+// positifs n'aurait pas protégé le contenu : il aurait appris à ignorer le rouge — le défaut nommé dans
+// ce fichier même à propos des budgets de temps.
+//
+// La cause de ces faux positifs est identifiable : **rien ne dit à quelle GRANDEUR se rapporte un
+// nombre du message.** « 500 » et « 30 » ont la même forme ; seul le lecteur sait que l'un est des
+// milligrammes et l'autre un DFG. Tant qu'un critère ne déclare pas son unité, aucun test ne peut faire
+// cette distinction.
+//
+// D'où le périmètre retenu : les tournures dont l'unité est **portée par la tournure elle-même** —
+// « N fois la normale », « N fois la limite supérieure ». Elles ne peuvent désigner qu'un critère
+// exprimé en multiples de la normale, donc le critère du déclencheur. Zéro faux positif mesuré, et le
+// défaut qui a motivé l'invariant est attrapé.
+//
+// FAUX NÉGATIFS ASSUMÉS, et ils sont larges : tout écart annoncé dans une autre unité passe au travers.
+// La forme générale demande une déclaration d'unité sur les critères `nombre` (candidate pour un lot
+// ultérieur) ; l'écrire au jugé sans cette déclaration produirait le test à 92 % de bruit mesuré
+// ci-dessus. Comme pour I7 : mieux vaut manquer un cas que dévaluer le rouge.
+// =====================================================================================================
+
+/**
+ * Tournures qui ANNONCENT un seuil DANS L'UNITÉ DU CRITÈRE TESTÉ. Le nombre précède la tournure. Cf. le
+ * commentaire ci-dessus pour les tournures écartées après mesure, et pourquoi.
+ */
+const ANNONCES_DE_SEUIL: RegExp[] = [
+  /(\d+(?:[.,]\d+)?)\s*fois la normale/gi,
+  /(\d+(?:[.,]\d+)?)\s*fois la limite/gi,
+  /(\d+(?:[.,]\d+)?)\s*N\b(?!\s*[a-zà-ÿ])/g, // « 4 N », notation courte des multiples de la normale
+]
+
+/** Nombres ANNONCÉS comme seuils par un message (cf. `ANNONCES_DE_SEUIL`), virgule décimale normalisée. */
+function seuilsAnnonces(message: string): number[] {
+  const nombres = new Set<number>()
+  for (const motif of ANNONCES_DE_SEUIL) {
+    for (const match of message.matchAll(motif)) {
+      const n = Number(match[1].replace(',', '.'))
+      if (Number.isFinite(n)) nombres.add(n)
+    }
+  }
+  return [...nombres]
+}
+
+/**
+ * Littéraux numériques sur lesquels l'alerte se déclenche RÉELLEMENT — ceux de son `quand`, PLUS ceux
+ * des expressions `derive` des critères qu'il cite.
+ *
+ * Le déroulement des dérivés n'est pas un raffinement : sans lui, une alerte déclenchée sur
+ * `hba1c_sous_cible == true` paraîtrait n'avoir aucun seuil, alors que le 6,5 qu'elle annonce est
+ * exactement celui que son dérivé encode. Même mécanique que `primitivesReferencees`
+ * (`engine/evaluateNode.ts`) : un seul niveau, ce contenu ne chaîne jamais un dérivé sur un autre.
+ */
+function seuilsDuDeclencheur(quand: string, criteres: CritereEntree[]): number[] {
+  const litteraux = (expression: string) =>
+    (expression.match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number).filter(Number.isFinite)
+  const seuils = new Set(litteraux(quand))
+  for (const critere of criteres) {
+    if (!critere.derive) continue
+    if (!new RegExp(`\\b${critere.nom}\\b`).test(quand)) continue
+    for (const n of litteraux(critere.derive)) seuils.add(n)
+  }
+  return [...seuils]
+}
+
+/**
+ * Écarts annoncé/déclenché CONNUS. Clé = `${node.id} :: ${quand}`, même convention que
+ * `ALERTES_PROHIBITIVES_HORS_PERIMETRE` ci-dessus (le `quand` est la partie stable ; une reformulation
+ * du message ne doit pas faire expirer l'exception en silence, un changement de déclencheur doit la
+ * faire réexaminer).
+ *
+ * **AUTO-EXPIRANTE** : le test échoue aussi quand une entrée n'est PLUS justifiée, et réclame son
+ * retrait. Une dette qui ne signale pas sa propre résorption devient du papier peint — le défaut nommé
+ * plus haut à propos de `NOEUDS_AVEC_ALERTE_PROHIBITIVE_NON_COUVERTE_CONNUE`.
+ */
+const ALERTES_A_SEUIL_ANNONCE_DIFFERENT = new Map<string, string>([
+  [
+    'statine :: CK_x_normale > 4 AND statine_deja_en_place == false',
+    "DÉFAUT AVÉRÉ, pas une divergence légitime — c'est le cas qui a motivé I9. Le message annonce " +
+      '« 5 fois la normale » sous un déclencheur à 4. Non corrigé ICI parce que le nombre juste est ' +
+      "précisément l'objet d'un arbitrage rendu le 2026-07-27 : le référent a aligné la bande basse du " +
+      'nœud sur NICE NG238 (seuil 5 N avec re-dosage à 7 jours, « rassurer » sous traitement en deçà, ' +
+      '« débuter à dose plus faible » entre 4 et 5 à l’initiation). Le corriger isolément — passer le ' +
+      "seul déclencheur de 4 à 5 — laisserait le nœud dans un état intermédiaire incohérent, l'option " +
+      "« Interrompre » se déclenchant encore à 4. À reprendre EN UN SEUL PASSAGE au lot 2 du " +
+      '`PLAN-CORRECTION.md`, avec la scission de l’option « Interrompre » (2ᵉ arbitrage du même jour) et ' +
+      'la réécriture des vignettes F‑15/F‑18, qui assertent aujourd’hui sur la chaîne fausse.',
+  ],
+])
+
+describe('I9 — le seuil annoncé par une alerte est celui qui la déclenche (générique, tous nœuds)', () => {
+  it('aucune alerte n’annonce un seuil absent de son propre déclencheur', () => {
+    const violations: string[] = []
+    for (const node of noeuds) {
+      // Alertes de NŒUD et alertes d'OPTION : même défaut possible des deux côtés, même définition de
+      // schéma (`#alerte`) — les traiter ensemble, jamais l'une sans l'autre.
+      const toutes: Array<{ ou: string; alerte: { quand: string; message: string } }> = [
+        ...(node.alertes ?? []).map((alerte) => ({ ou: 'alerte de nœud', alerte })),
+        ...node.options.flatMap((option) =>
+          (option.alertes ?? []).map((alerte) => ({ ou: `option "${option.intitule}"`, alerte })),
+        ),
+      ]
+      for (const { ou, alerte } of toutes) {
+        if (alerte.quand === 'default') continue // aucun seuil à respecter
+        const declencheurs = seuilsDuDeclencheur(alerte.quand, node.criteres_entree)
+        const orphelins = seuilsAnnonces(alerte.message).filter((n) => !declencheurs.includes(n))
+        const cle = `${node.id} :: ${alerte.quand}`
+        if (ALERTES_A_SEUIL_ANNONCE_DIFFERENT.has(cle)) {
+          // Auto-expiration : une dette résorbée doit réclamer son propre retrait.
+          if (orphelins.length === 0) {
+            violations.push(
+              `nœud "${node.id}" :: ${ou} :: quand="${alerte.quand}" n'annonce PLUS de seuil orphelin : ` +
+                `retirer son entrée de ALERTES_A_SEUIL_ANNONCE_DIFFERENT (dette résorbée).`,
+            )
+          }
+          continue
+        }
+        if (orphelins.length > 0) {
+          violations.push(
+            `nœud "${node.id}" :: ${ou} :: quand="${alerte.quand}" annonce le(s) seuil(s) ` +
+              `${orphelins.join(', ')} que son déclencheur ne contient pas (seuils réels : ` +
+              `${declencheurs.join(', ') || 'aucun'}) :: message : "${tronque(alerte.message)}"`,
+          )
+        }
       }
     }
     expect(violations).toEqual([])

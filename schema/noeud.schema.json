@@ -271,7 +271,7 @@
     "referencePrimaire": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["titre", "annee", "lien", "type_critere"],
+      "required": ["id", "titre", "annee", "lien", "type_critere"],
       "properties": {
         "id": {
           "type": "string",

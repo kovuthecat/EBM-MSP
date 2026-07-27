@@ -526,7 +526,70 @@ lignes changées mais **combien de profils gagnent ou perdent une option, et les
 
 ---
 
-# 5. Hors périmètre de ce document
+# 5. Question systémique — `insuline` doit-il devenir un MODULE ?
+
+*Soulevée par le référent le 2026-07-27, en clôture de recette : « beaucoup de corrections sur le module
+d'insuline, cela nécessite peut-être une réflexion plus systémique ? »*
+
+## Le constat, chiffré
+
+Sur les 16 points de cette recette : **10 concernent `insuline`**, 4 `prescription`, 2 sont transverses.
+La densité n'est pas du bruit.
+
+## Le diagnostic n'est pas « le contenu insuline est mauvais »
+
+`insuline` est le nœud qui **met à l'épreuve chaque mécanisme en premier** :
+
+| mécanisme | `insuline` est… | défaut révélé |
+|---|---|---|
+| `calculs` (doses chiffrées) | le **seul** nœud à en porter | J |
+| une `liste` qui **route** la décision | le seul | **C** (sortie cliniquement fausse) |
+| une classe à **deux sous-agents** (basale / rapide) | le seul | **E** |
+| une **dimension instrumentale** (MCG vs capillaire) dédoublant chaque règle de titration | le seul | — |
+| **4 sous-situations** partageant le même espace de rangs `priorite` | le seul | (collisions déjà corrigées par les familles, 27/07) |
+| ~25 critères, 7 dérivés | le plus lourd, de loin | A2, F, M |
+
+Ses défauts mesurent donc **la couverture du modèle**, pas la qualité du contenu clinique — reconfirmation
+indépendante du constat de `CONSTRUIRE-UN-MODULE.md` §0.
+
+## La question qui mérite d'être rouverte
+
+> L'arbitrage **§8-1 « UN SEUL NŒUD »** (`docs/decision/noeuds/E-insuline.md`) a été rendu le
+> **2026-07-24**. Le mécanisme de **module (D22)** — primer d'orientation + cadrage partagé, plusieurs
+> nœuds d'un domaine — n'a été décidé que le **2026-07-26** et réalisé le **2026-07-27**.
+> **La décision a été prise dans un monde où les modules n'existaient pas.**
+
+`situation_insuline` *est déjà* un primer d'orientation qui ne dit pas son nom : il route vers 4 blocs, et
+le contenu reconnaît lui-même que « les rangs `priorite` 1‑2‑3 sont **réutilisés** par les quatre blocs de
+situation » ([`insuline.yaml:225-229`](../../../../content/noeuds/diabete-type-2/insuline.yaml)).
+
+| ce qu'un module de 4 nœuds ferait tomber | ce qu'il coûterait |
+|---|---|
+| Collisions de rang entre situations (aujourd'hui rattrapées par les `familles`) | **Critères partagés redéclarés 4 fois** (`age`, `poids`, `fragilite`, `traitements_en_cours`) — le problème I4 que le « socle de critères partagé » de D22 devait résoudre et qui n'a **délibérément pas été livré** (il casse le garde-fou R1 sur le chaînage) |
+| 8 `visible_si` qui n'existent que pour masquer le bloc MCG au naïf | Options **partagées** entre situations (« Corriger l'hypoglycémie » couvre basale seule *et* basale-plus-bolus) : à dupliquer ou à extraire |
+| Une bonne part de la surface du défaut **A** (le choix devient une navigation, pas un critère qu'on peut ne pas répondre) | Re-vérification complète (pistes A et B du §P6) + régénération des fixtures du banc |
+| La charge de saisie par écran — motivation d'origine de D22 | |
+
+## Séquencement — deux garde-fous
+
+1. **`CONSTRUIRE-UN-MODULE.md` §6.4** : *« les corrections systémiques passent avant le contenu — un
+   module encodé sur un moteur non corrigé est de la dette »*. Les **lots 1 et 2** (défauts A, B, C, D, G)
+   se font **de toute façon**, quelle que soit l'issue de cette question.
+2. **§4bis** : *« deux des défauts les plus graves de la dernière journée venaient de nos propres
+   correctifs du matin »*. Ne pas restructurer sous pression de recette.
+
+## Recommandation
+
+Livrer les lots 1‑2, **puis instruire la question sur pièces** : un comptage de ce que la scission ferait
+réellement tomber (règles, `visible_si`, exclusions devenues inutiles) et de ce qu'elle dupliquerait
+(critères, options). Trancher avant ce comptage serait décider à l'aveugle, dans un sens comme dans
+l'autre.
+
+**Statut : ouvert, non arbitré.**
+
+---
+
+# 6. Hors périmètre de ce document
 
 - Aucune **erreur EBM** relevée pendant cette recette — le contenu clinique n'est pas en cause.
 - La **validation clinique** de `prescription.yaml` (encore `brouillon` v0.9) et d'`insuline.yaml` reste
