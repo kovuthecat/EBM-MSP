@@ -57,7 +57,7 @@ Ce que la passe doit livrer :
 
 | # | décision | ce que ça engage |
 | --- | --- | --- |
-| **I15** | Prérequis sur les deux replis : `intention != initier` (`prescription`), `situation_insuline != naif` (`insuline`) | contenu, deux expressions ; ferme les deux cas vus à l'écran. Limite connue et acceptée : un patient « optimiser » sans aucun traitement coché passerait encore |
+| **I15** | ⚠ Prérequis tranchés mais **NON POSÉS** — voir §7 | ils font échouer I2′ : retirer un repli, c'est retirer le filet |
 | **TCA** | Fusionner les trois signes en **un seul critère**, et **ajouter un champ `aide` au schéma** pour ne pas perdre les trois items de l'encadré 11 HAS | schéma + rendu + contenu. Le champ `aide` est générique et répond aussi au constat de recette sur les libellés RHD bruts. `rhd-alimentation` perd deux champs sur les 26 les plus denses du domaine |
 | **S7** | Aligner `traitements_en_cours` sur le **vocabulaire fin** : `insuline_basale` / `insuline_rapide` dans les quatre nœuds | contenu, trois nœuds à reprendre. Supprime la divergence qui rendait toute règle « contient insuline » structurellement fausse dans `insuline` |
 | **K10** | **Réécrire l'alerte DFG.** Substance donnée par le référent : *« le DFG peut contre-indiquer des agents à élimination rénale, il ne porte pas sur leur aspect glycémique — l'insuline n'a par exemple aucune contre-indication sur le DFG »* | contenu, une alerte. La distinction ne tiendra plus au seul mot « glycémique » au milieu de cinq lignes |
@@ -111,6 +111,33 @@ explicitement, et le contourner sans le dire serait exactement ce que ce chantie
    schéma générique qui servira tout domaine futur.
 3. **I — la pollution du « pourquoi pas d'autres options ».** Purement ergonomique, mais c'est ce que le
    praticien lit quand il cherche pourquoi une piste n'apparaît pas.
+
+## 7. I15 — le prérequis a découvert un trou, et je ne l'ai pas posé
+
+Les deux prérequis ont été écrits, la suite les a refusés, et le motif vaut d'être connu : l'invariant
+**I2′** (« jamais `applicable` VIDE quand tous les critères sont renseignés ») échoue sur les deux nœuds.
+Retirer un repli, c'est retirer le filet.
+
+Mesuré avant de renoncer :
+
+- **`prescription` — 6 profils sur 1840**, tous de la même forme : `intention == initier`, aucun
+  traitement en cours, **DFG entre 3 et 29**. La metformine est exclue sous 30, plus aucune autre option
+  ne s'applique. **Le nœud n'a aucune conduite pour un diabète nouvellement diagnostiqué en
+  insuffisance rénale sévère.** Ce trou PRÉEXISTAIT, masqué par un repli absurde qui proposait de
+  « poursuivre » un traitement inexistant. Le prérequis n'a fait que le découvrir.
+- **`insuline` — 7 profils sur 1760**, tous des saisies INCOHÉRENTES : situation « naïf » avec de
+  l'insuline déjà cochée. Le nœud porte déjà une alerte pour ce cas. Artefacts du générateur.
+
+**Décision prise sans vous, et je la signale** : ne pas livrer d'écran vide. Un repli qui dit une chose
+fausse est moins grave qu'un écran qui ne dit rien — le second est un cul-de-sac en consultation. Les
+deux prérequis attendent donc, en dette déclarée avec ce motif.
+
+**Deux questions rouvertes** :
+
+1. que propose-t-on à un DT2 nouvellement diagnostiqué avec un **DFG < 30** ? Une fois cette option
+   écrite, le prérequis de `prescription` se pose sans rien casser ;
+2. pour `insuline`, accepte-t-on un écran sans option devant une saisie contradictoire — l'alerte
+   d'incohérence suffit-elle — ou faut-il un repli propre à ce cas ?
 
 ## 6. Ce qui reste ouvert, et ne dépend de personne
 

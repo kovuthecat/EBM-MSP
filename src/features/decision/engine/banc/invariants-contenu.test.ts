@@ -776,23 +776,45 @@ function normalise(texte: string): string {
  * Le sentinel `toujours` en est aussi exclu, mais pour une autre raison : « Metformine — instaurer ou
  * poursuivre » annonce les DEUX gestes et vaut donc dans les deux cas (cf. `VERBES_D_INSTAURATION`).
  */
+/**
+ * ⚠ DETTE MAINTENUE, ET LE MOTIF A CHANGÉ le 2026-07-27 (nuit).
+ *
+ * Le référent avait tranché les deux prérequis (`intention != initier` sur `prescription`,
+ * `situation_insuline != naif` sur `insuline`). **Ils ont été posés, et immédiatement retirés** : avec
+ * eux, l'invariant **I2′** (« jamais `applicable` VIDE quand tous les critères sont renseignés »)
+ * échoue sur les deux nœuds. Retirer un repli, c'est retirer le filet.
+ *
+ * MESURÉ AVANT DE RENONCER, et c'est le résultat qui compte :
+ *
+ * - `prescription` — **6 profils sur 1840**, tous de la même forme : `intention == initier`, aucun
+ *   traitement en cours, **DFG entre 3 et 29**. La metformine (socle) est exclue sous 30, et plus
+ *   aucune autre option ne s'applique. Autrement dit : **le nœud n'a AUCUNE conduite pour un diabète
+ *   nouvellement diagnostiqué en insuffisance rénale sévère.** Ce trou ne vient pas du prérequis — il
+ *   préexistait, MASQUÉ par un repli absurde qui proposait de « poursuivre » un traitement inexistant.
+ *   Le prérequis n'a fait que le découvrir.
+ * - `insuline` — **7 profils sur 1760**, tous INCOHÉRENTS : situation « naïf » alors que
+ *   `traitements_en_cours` contient déjà `insuline_basale` ou `insuline_rapide`. Le nœud porte déjà une
+ *   alerte pour cette saisie contradictoire. Ce sont des artefacts du générateur, pas des patients.
+ *
+ * DÉCISION : ne pas livrer un écran vide. Un repli qui dit une chose fausse est moins grave qu'un écran
+ * qui ne dit rien — le second est un cul-de-sac en consultation. Les prérequis attendent donc que le
+ * trou soit comblé côté contenu, ce qui demande une réponse clinique : que propose-t-on à un DT2
+ * nouvellement diagnostiqué avec un DFG < 30 ?
+ */
 const CONTINUATIONS_SANS_PREREQUIS_CONNUES: Record<string, Record<string, string>> = {
   prescription: {
     'Poursuivre le traitement en cours et réévaluer':
-      "K1 (recette navigateur 2026-07-27), CONSTATÉ À L'ÉCRAN : avec l'intention « Initier » — donc aucun " +
-      "traitement en cours, et le champ « Traitements en cours » masqué par cette intention même — cette " +
-      "carte sort badgée « Recommandée », et son argumentaire affirme « objectif atteint sans agent " +
-      "iatrogène à optimiser » alors que « Au-dessus de l'objectif » vient d'être saisi. QUESTION AU " +
-      "RÉFÉRENT : quel prérequis ? « traitements_en_cours ne_contient_pas … » ne suffit pas, la liste est " +
-      'masquée à l’initiation ; le prérequis porte probablement sur `intention != initier`.',
+      'K1 — prérequis `intention != initier` TRANCHÉ par le référent mais NON POSÉ : il fait échouer I2′ ' +
+      'sur 6 profils (initiation + DFG < 30), où plus aucune option ne subsiste. QUESTION AU RÉFÉRENT : ' +
+      'quelle conduite pour un DT2 nouvellement diagnostiqué en insuffisance rénale sévère ? Une fois ' +
+      'cette option écrite, le prérequis se pose sans rien casser.',
   },
   insuline: {
     "Poursuivre le schéma d'insuline en cours et réévaluer":
-      'Même classe, trouvée par une AUTRE voie avant la recette (`comptage-module-insuline.md`) : ce repli ' +
-      "ne nomme aucune situation et vaut donc aussi pour le patient NAÏF d'insuline, à qui il propose de " +
-      'poursuivre une insuline qu’il ne prend pas. Le lot 1 l’a rendu inoffensif sur formulaire vierge ' +
-      '(défaut B) mais sa condition reste `["default"]` sans garde. QUESTION AU RÉFÉRENT : prérequis ' +
-      '`situation_insuline != naif` ?',
+      'Même situation : prérequis `situation_insuline != naif` tranché mais non posé. Les 7 profils que ' +
+      'I2′ signale sont tous des saisies INCOHÉRENTES (naïf + insuline déjà cochée), déjà couvertes par ' +
+      "une alerte du nœud. QUESTION AU RÉFÉRENT : accepte-t-on un écran sans option pour une saisie " +
+      'contradictoire — l’alerte suffit-elle — ou faut-il un repli propre à ce cas ?',
   },
 }
 
