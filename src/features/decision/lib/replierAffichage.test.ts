@@ -6,6 +6,7 @@
  * ci-dessous vérifie donc, en plus de son propos, que la réunion des deux partitions redonne l'entrée
  * exactement — même nombre d'options, mêmes intitulés.
  */
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { partitionnerAffichage, SEUIL_REPLI } from './replierAffichage.ts'
 import type { FamilleVue, OptionVue } from './vueDecision.ts'
@@ -113,5 +114,45 @@ describe('replierAffichage — partitionnerAffichage', () => {
     expect(p.principales[0].groupes[0]).toHaveLength(2)
     expect(p.nbRepliees).toBe(2)
     verifierConservation(familles, p)
+  })
+})
+
+/**
+ * NON-RÉGRESSION DE SÉCURITÉ — ajoutée le 2026-07-27 (soir), après qu'une passe adversariale a démontré
+ * que le repli livré quelques heures plus tôt CACHAIT une carte de sécurité sur le nœud `prescription`.
+ *
+ * Ce que le défaut a appris, et que ces tests figent : la recette écrivait « les cartes de sécurité sont
+ * toutes au rang 1, donc dépliées par construction ». C'était faux — le socle metformine porte
+ * `priorite: 0` avec une condition « toujours ». `Math.min` en faisait le meilleur rang, et tout le reste,
+ * y compris le rang 1, passait derrière le bouton.
+ *
+ * La cause de fond est un glissement de sens : `priorite` a été écrit comme un ordre de TRI (D13/D14),
+ * puis utilisé comme une porte d'AFFICHAGE. Rang 0 n'y signifie pas « le plus important » mais « socle ».
+ * Aucun contenu du domaine n'avait été relu à cette aune.
+ */
+describe('replierAffichage — le piège du rang 0 (défaut avéré du 2026-07-27)', () => {
+  it('reproduit le défaut : un socle au rang 0 replie TOUT le reste, rang 1 de sécurité compris', () => {
+    // Reproduction fidèle de la structure de `prescription` pour un patient en état catabolique :
+    // un socle « toujours » au rang 0, et la réponse de sécurité au rang 1.
+    const familles = [
+      famille('Socle', opt('Metformine — socle du traitement', 0)),
+      famille('À faire d’emblée — sécurité', opt('Insuline d’initiation — état catabolique', 1)),
+      famille('Agent à ajouter', opt('Tirzépatide', 4), opt('Remplacer le sulfamide', 4)),
+    ]
+    const p = partitionnerAffichage({ familles })
+    // Le défaut, tel qu'il était : une seule carte dépliée, la carte de sécurité repliée.
+    expect(titres(p.principales)).toEqual(['Metformine — socle du traitement'])
+    expect(titres(p.repliees)).toContain('Insuline d’initiation — état catabolique')
+    verifierConservation(familles, p)
+  })
+
+  it('l’écran ne replie plus rien tant que la question de fond n’est pas tranchée', () => {
+    // GARDE-FOU DE PORTÉE. `partitionnerAffichage` reste une fonction correcte et testée — c'est son
+    // USAGE qui était mal fondé. Le repli est donc neutralisé DANS L'ÉCRAN
+    // (`screens/DecisionNodeScreen.tsx`, constante `REPLI_ACTIF`), pas ici.
+    // Ce test lit le source de l'écran : si quelqu'un réactive le repli sans avoir répondu à la question
+    // « quel signal du contenu dit qu'une carte ne peut pas être repliée ? », il tombe.
+    const source = readFileSync('src/features/decision/screens/DecisionNodeScreen.tsx', 'utf-8')
+    expect(source).toContain('const REPLI_ACTIF = false')
   })
 })

@@ -342,8 +342,32 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
               // dont une erreur ferait DISPARAÎTRE une option des yeux d'un prescripteur. Rien n'est
               // retiré — `principales ∪ repliees` est exactement `vue.familles`, et le bouton porte le
               // compte exact de ce qu'il cache.
+              // ⚠ REPLI NEUTRALISÉ le 2026-07-27 (soir) — DÉFAUT DE SÉCURITÉ AVÉRÉ, dans mon
+              // implémentation et non dans la décision référent qui l'a demandé.
+              //
+              // CE QUI S'EST PASSÉ. `partitionnerAffichage` déplie le MEILLEUR rang et replie le reste.
+              // J'avais écrit dans la recette : « les cartes de sécurité sont toutes au rang 1, donc
+              // dépliées par construction ». C'est faux : le socle metformine de `prescription` porte
+              // `priorite: 0` avec une condition « toujours », si bien que `Math.min` en fait le meilleur
+              // rang et que TOUT le reste passe derrière le bouton.
+              // Contre-exemple exécuté (58 ans, metformine + sulfamide, cétonémie CONFIRMÉE, ASCVD,
+              // insuffisance cardiaque, HbA1c 9) : l'écran n'affichait QU'UNE carte — « Metformine, socle
+              // du traitement » — et repliait « Insuline d'initiation (état catabolique) », rang 1, qui
+              // est la réponse de sécurité à ce tableau.
+              // La cause de fond dépasse le correctif : `priorite` a été écrit comme un ordre de TRI
+              // (D13/D14) et je l'ai transformé en porte d'AFFICHAGE, sans relire à cette aune un seul
+              // contenu du domaine. Rang 0 n'y veut pas dire « le plus important » mais « socle ».
+              //
+              // POURQUOI NEUTRALISER PLUTÔT QUE RUSER. Ajouter une heuristique non relue sur un chemin
+              // d'affichage de sécurité, le soir, est exactement la manœuvre qui a produit ce défaut.
+              // L'écran revient donc au comportement de ce matin — tout est affiché — qui est strictement
+              // plus sûr. Le module `lib/replierAffichage.ts` et ses tests restent en place, intacts :
+              // la fonction est correcte pour ce qu'elle fait, c'est son USAGE qui était mal fondé.
+              // À rouvrir avec le référent, sur la question de fond : quel signal du contenu dit qu'une
+              // carte ne peut pas être repliée ? (la famille ? une alerte portée ? un champ dédié ?)
+              const REPLI_ACTIF = false
               const { principales, repliees, nbRepliees } = partitionnerAffichage(vue)
-              if (nbRepliees === 0) return rendreFamilles(principales)
+              if (!REPLI_ACTIF || nbRepliees === 0) return rendreFamilles(vue.familles)
               return (
                 <>
                   {rendreFamilles(principales)}
