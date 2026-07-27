@@ -160,6 +160,24 @@ dans la justification.
 
 - **À juger** : information utile au praticien, ou bruit à masquer ?
 
+## 8. Une MESURE à rapporter (ce n'est pas une vérification)
+
+Le prochain lot va **alléger la carte d'option** : le corps (effet attendu, délai, avantages,
+inconvénients) passera derrière un dépli au tap, tandis que trois éléments resteront toujours visibles —
+contre-indications, alertes d'option, et « doses non calculées ». Cette décision a été prise **sans
+qu'aucun de nous ait vu l'écran réel**. Tu es le premier à le voir.
+
+Rapporte donc, factuellement, sans juger :
+
+- **Combien de cartes** s'affichent sur `Traiter…` pour un patient d'intensification banal (metformine
+  seule, HbA1c 8,5, DFG 80, pas de comorbidité) ? Et **quelle hauteur** occupe une seule carte, en
+  écrans (« il faut faire défiler 2 fois pour passer à la suivante ») ?
+- **Combien de mentions « · à confirmer »** sur un formulaire vierge, nœud par nœud ?
+- **Combien de cartes portent des `contre-indications`** dans ce même écran ? Ce sont elles qui
+  resteront visibles quoi qu'il arrive — s'il y en a beaucoup et qu'elles sont longues, l'allègement
+  n'allégera pas grand-chose, et il faut le savoir avant de le câbler.
+- Une capture pleine page de cet écran, pour que le référent juge la densité sur pièce.
+
 ---
 
 # Ce que tu rends

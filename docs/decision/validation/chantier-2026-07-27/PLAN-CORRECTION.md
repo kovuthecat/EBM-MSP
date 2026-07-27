@@ -314,6 +314,33 @@ laisserait le nœud dans un état intermédiaire incohérent (l'option « Interr
 encore à 4 quand le reste du nœud parle de 5). La dette I9 posée au lot 0 le dit explicitement et
 expirera d'elle-même quand ce passage sera fait.
 
+#### Rendus le 2026-07-27 (soir, second tour) — recette §N
+
+| # | question | décision référent |
+|---|---|---|
+| **A5** | corps de la carte d'option (§N, 1ᵉʳ volet) | **Carte allégée + socle de sécurité INAMOVIBLE.** Par défaut : intitulé, badges, « proposé parce que ». Derrière un dépli **au clic/tap** (jamais un survol — inutilisable au doigt en consultation) : effet attendu, délai, avantages, inconvénients. |
+| **A6** | sort du niveau de lecture 2 (`ArgumentPanel`, §N, 2ᵈ volet) | **Le garder, décider plus tard.** Il porte l'argumentaire du **nœud**, pas de l'option : les deux volets de §N ne visent pas le même objet, et les fusionner mélangerait deux décisions. À réexaminer une fois la carte tranchée, sur écran réel. |
+
+**TROIS choses restent toujours visibles**, jamais dépliables — et la troisième n'existait pas encore
+quand §N a été écrit :
+
+1. `contre_indications` — D21/R8 : un fait de sécurité s'affiche avec son motif ;
+2. `option.alertes` — même canal, même raison (D21) ;
+3. **`calculsEnAttente`** — « Doses non calculées : … à renseigner : Poids », livré au lot 1. La pousser
+   derrière un dépli ferait revenir le défaut J le jour même où A5 est livré.
+
+⚠ **SÉQUENCEMENT — A5 ne se livre PAS avant la recette visuelle du lot 1.** Le prompt de recette
+(`PROMPT-recette-visuelle-lot1.md`, commit `c69241e`) décrit la carte telle qu'elle est : son scénario 4
+fait vérifier « Doses non calculées » *sur la carte*, le 7 fait juger le « pourquoi » allongé, et
+plusieurs autres supposent le corps de carte actuel. Réorganiser la carte avant que la passe tourne
+ferait recetter une interface qui n'existe plus. La recette rendra en outre une donnée dont A5 a besoin
+et qu'aucune lecture de code ne donne : la **densité réelle** d'une carte à l'écran, et le nombre de
+mentions « à confirmer » sur un formulaire vierge.
+
+**Note de synergie, écartée par le référent** : A3 (déclarer le rôle d'une option) aurait permis de
+moduler le corps de carte par rôle plutôt que d'appliquer une règle unique. L'option « attendre A3 » a
+été explicitement écartée — A5 se livre avec une règle unique, indépendante de A3.
+
 ### 2.1 — Encore ouvert : `statine`, le reste du dossier CK
 
 J'ai fait arbitrer « 4 N » sur une prémisse fausse : je n'avais pas ouvert `NICE 2023.pdf`, que vous
