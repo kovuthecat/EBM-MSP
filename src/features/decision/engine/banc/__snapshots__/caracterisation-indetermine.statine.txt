@@ -26,7 +26,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
 Sortie :
   (aucune option applicable — sortie vide)
   Options EN ATTENTE (indétermination, R7/D20) :
-    - Discuter la statine (décision partagée) — diabète non compliqué à faible risque absolu :: à renseigner : anciennete_diabete_annees, autres_FDRCV, diabete_complique
+    - Débuter la statine à dose plus faible (CK élevées mais sous 5 fois la normale, avant initiation) :: à renseigner : intolerance_statine, CK_x_normale
 
 ### Profil #1 — 1 critère masqué (ciblé — cité par une `exclusions` du nœud) : intolerance_statine
 
@@ -88,7 +88,7 @@ Sortie :
   Alertes de nœud :
     - Patient en dialyse : le bénéfice d'une statine n'est pas démontré sur les critères durs dans cette population (4D chez le DT2 hémodialysé : critère principal RR 0,92 NS, avec un signal d'AVC fatal ; AURORA : neutre malgré −43 % de LDL). Chez un patient dialysé SANS statine en cours, l'option de haute intensité (prévention secondaire) n'est plus proposée par cet outil — retrait structurel, pas seulement un rappel. Si une statine est DÉJÀ en place, sa poursuite reste raisonnable et les options ci-dessus s'appliquent normalement. En maladie rénale chronique NON dialysée, la statine reste indiquée. [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
-    - Statine indisponible (intolérance avérée ou contre-indication) — alternatives hypolipémiantes :: à renseigner : intolerance_statine
+    - Débuter la statine à dose plus faible (CK élevées mais sous 5 fois la normale, avant initiation) :: à renseigner : intolerance_statine
 
 ### Profil #4 — 4 critère(s) masqué(s) (masque stratifié) : ASCVD_etablie, statine_deja_en_place, autres_FDRCV, dialyse
 
@@ -230,7 +230,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
 Sortie :
   (aucune option applicable — sortie vide)
   Options EN ATTENTE (indétermination, R7/D20) :
-    - Interrompre la statine 4 à 6 semaines et réévaluer (CK au-dessus de 4 fois la normale) :: à renseigner : intolerance_statine, CK_x_normale
+    - Interrompre la statine 4 à 6 semaines et réévaluer (CK au-dessus de 5 fois la normale) :: à renseigner : intolerance_statine, CK_x_normale
 
 ### Profil #11 — 6 critère(s) masqué(s) (masque stratifié) : age, CK_x_normale, ASCVD_etablie, diabete_complique, autres_FDRCV, intolerance_statine
 
@@ -250,7 +250,7 @@ Sortie :
   Alertes de nœud :
     - Patient en dialyse : le bénéfice d'une statine n'est pas démontré sur les critères durs dans cette population (4D chez le DT2 hémodialysé : critère principal RR 0,92 NS, avec un signal d'AVC fatal ; AURORA : neutre malgré −43 % de LDL). Chez un patient dialysé SANS statine en cours, l'option de haute intensité (prévention secondaire) n'est plus proposée par cet outil — retrait structurel, pas seulement un rappel. Si une statine est DÉJÀ en place, sa poursuite reste raisonnable et les options ci-dessus s'appliquent normalement. En maladie rénale chronique NON dialysée, la statine reste indiquée. [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
-    - Discuter la statine (décision partagée) — diabète non compliqué à faible risque absolu :: à renseigner : autres_FDRCV, diabete_complique
+    - Débuter la statine à dose plus faible (CK élevées mais sous 5 fois la normale, avant initiation) :: à renseigner : intolerance_statine, CK_x_normale
 
 ### Profil #12 — 6 critère(s) masqué(s) (masque stratifié) : age, autres_FDRCV, CK_x_normale, diabete_complique, statine_deja_en_place, intolerance_statine
 
@@ -270,7 +270,7 @@ Sortie :
   Alertes de nœud :
     - Patient en dialyse : le bénéfice d'une statine n'est pas démontré sur les critères durs dans cette population (4D chez le DT2 hémodialysé : critère principal RR 0,92 NS, avec un signal d'AVC fatal ; AURORA : neutre malgré −43 % de LDL). Chez un patient dialysé SANS statine en cours, l'option de haute intensité (prévention secondaire) n'est plus proposée par cet outil — retrait structurel, pas seulement un rappel. Si une statine est DÉJÀ en place, sa poursuite reste raisonnable et les options ci-dessus s'appliquent normalement. En maladie rénale chronique NON dialysée, la statine reste indiquée. [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
-    - Interrompre la statine 4 à 6 semaines et réévaluer (CK au-dessus de 4 fois la normale) :: à renseigner : intolerance_statine, CK_x_normale
+    - Interrompre la statine 4 à 6 semaines et réévaluer (CK au-dessus de 5 fois la normale) :: à renseigner : intolerance_statine, CK_x_normale
 
 ### Profil #13 — 4 critère(s) masqué(s) (masque stratifié) : CK_x_normale, intolerance_statine, statine_deja_en_place, age
 
@@ -289,10 +289,8 @@ Sortie :
   (aucune option applicable — sortie vide)
   Alertes de nœud :
     - Patient en dialyse : le bénéfice d'une statine n'est pas démontré sur les critères durs dans cette population (4D chez le DT2 hémodialysé : critère principal RR 0,92 NS, avec un signal d'AVC fatal ; AURORA : neutre malgré −43 % de LDL). Chez un patient dialysé SANS statine en cours, l'option de haute intensité (prévention secondaire) n'est plus proposée par cet outil — retrait structurel, pas seulement un rappel. Si une statine est DÉJÀ en place, sa poursuite reste raisonnable et les options ci-dessus s'appliquent normalement. En maladie rénale chronique NON dialysée, la statine reste indiquée. [attention]
-  Options écartées (sécurité, R4) :
-    - Statine de haute intensité — prévention secondaire (maladie athéromateuse établie) :: dialyse == true AND statine_deja_en_place == false
   Options EN ATTENTE (indétermination, R7/D20) :
-    - Statine indisponible (intolérance avérée ou contre-indication) — alternatives hypolipémiantes :: à renseigner : intolerance_statine, CK_x_normale
+    - Débuter la statine à dose plus faible (CK élevées mais sous 5 fois la normale, avant initiation) :: à renseigner : intolerance_statine, CK_x_normale
 
 ### Profil #14 — 4 critère(s) masqué(s) (masque stratifié) : anciennete_diabete_annees, ASCVD_etablie, age, diabete_complique
 
@@ -309,12 +307,10 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
 
 Sortie :
   Famille « (repli à plat) » (exclusive: n/a) :
-  - [recommandee] Statine indisponible (intolérance avérée ou contre-indication) — alternatives hypolipémiantes
-      proposé parce que : intolerance_statine != non AND CK_x_normale > 4 AND statine_deja_en_place == false
-      alertes d'option : Cette carte est atteinte parce que les CK dépassent 5 fois la normale AVANT toute initiation — ce qui, dans la recommandation française 2026, est une contre-indication à la statine. Ce n'est PAS un constat d'intolérance : la même recommandation demande de doser les CK avant de traiter précisément « pour écarter une maladie musculaire chez les sujets à risque de myopathie ». La conduite est donc d'abord DIAGNOSTIQUE — chercher la cause de cette élévation — avant de conclure que la classe est définitivement indisponible pour ce patient. [attention] ; Ce patient a une maladie cardiovasculaire ÉTABLIE : il relève de la prévention SECONDAIRE, où le bénéfice de l'abaissement du LDL est le mieux démontré et le NNT le plus bas. L'indisponibilité de la statine ne diminue en rien son risque absolu — elle rend seulement plus difficile de le réduire. Ne pas laisser ce patient sans traitement hypolipémiant au motif que la statine est écartée. [attention]
+  - [recommandee] Débuter la statine à dose plus faible (CK élevées mais sous 5 fois la normale, avant initiation)
+      proposé parce que : intolerance_statine == rapportee AND CK_x_normale > 4 AND CK_x_normale <= 5 AND statine_deja_en_place == false
+      alertes d'option : Ce patient a une maladie cardiovasculaire ÉTABLIE : il relèverait sans ces CK d'une statine de HAUTE intensité, où le bénéfice est le mieux démontré. La dose plus faible proposée ici est un compromis de sécurité biologique, pas la dose cible — re-doser les CK à 7 jours et titrer dès que le taux le permet. [attention]
   Alertes de nœud :
     - Patient en dialyse : le bénéfice d'une statine n'est pas démontré sur les critères durs dans cette population (4D chez le DT2 hémodialysé : critère principal RR 0,92 NS, avec un signal d'AVC fatal ; AURORA : neutre malgré −43 % de LDL). Chez un patient dialysé SANS statine en cours, l'option de haute intensité (prévention secondaire) n'est plus proposée par cet outil — retrait structurel, pas seulement un rappel. Si une statine est DÉJÀ en place, sa poursuite reste raisonnable et les options ci-dessus s'appliquent normalement. En maladie rénale chronique NON dialysée, la statine reste indiquée. [attention]
     - Intolérance aux statines RAPPORTÉE, non éprouvée : plus de 90 % des symptômes musculaires rapportés sous statine ne sont, en réalité, PAS attribuables à la statine, l'excès réel de risque étant limité à la 1re année de traitement (méta CTT sur données individuelles, 2022). Ce que montrent les réintroductions EN AVEUGLE chez des patients déjà étiquetés intolérants : l'excès réel porte sur l'ARRÊT du traitement, pas sur les symptômes eux-mêmes (Aebi 2025, 13 ECR : symptômes OR 1,19 [0,86-1,64] non significatif, mais arrêt OR 1,48 [1,03-2,12] significatif ; Kraut 2023 : environ un tiers de ces patients sont réellement intolérants à la statine, et un quart le sont au PLACEBO). Avant d'écarter la classe entière : une réintroduction, un changement de molécule (pravastatine, rosuvastatine et pitavastatine ont moins d'interactions CYP3A4 que simvastatine/atorvastatine) ou une dose plus faible titrée progressivement — la reco française 2026 note que « cette titration permet d'identifier le seuil d'apparition des effets musculaires ». Ce n'est qu'une fois l'intolérance AVÉRÉE que la statine cesse d'être une option pour ce patient. [attention]
-  Options écartées (sécurité, R4) :
-    - Statine de haute intensité — prévention secondaire (maladie athéromateuse établie) :: dialyse == true AND statine_deja_en_place == false ; intolerance_statine != non AND CK_x_normale > 4 AND statine_deja_en_place == false
 

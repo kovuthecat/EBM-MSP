@@ -182,7 +182,29 @@ describe('statine — F-05/F-08 : alertes (D15)', () => {
 })
 
 describe('statine — F-09 : formulaire vierge, valeur indéterminée (D20)', () => {
-  it('F-09 — `renseignes` vide : aucun tier désigné, "Discuter" en attente sur ses 3 critères manquants, "haute intensité" non retenue (ASCVD par défaut = false), le repli n’est jamais atteint', () => {
+  // ⚠ VIGNETTE RÉVISÉE le 2026-07-27 (soir), passage A1+A2 — et c'est un CHANGEMENT DE COMPORTEMENT,
+  // pas une correction de test. Il est consigné ici parce qu'il touche ce que le praticien voit sur un
+  // formulaire `statine` VIERGE, que la recette visuelle venait de mesurer.
+  //
+  // CE QUI CHANGE. La nouvelle option « Débuter la statine à dose plus faible » (bande 4-5 N avant
+  // initiation, arbitrage A1-b) est placée AVANT « haute intensité » — obligatoire en
+  // `ordered-first-match`, sans quoi un patient ASCVD à 4,5 N recevrait la dose forte que NG238 écarte
+  // précisément. Or sur formulaire vierge sa condition est INDÉTERMINÉE (`intolerance_statine` est un
+  // `enum`, `CK_x_normale` un `nombre`), et `statine_deja_en_place == false` est VRAI par défaut : aucun
+  // atome faux ne vient donc court-circuiter le terme. Le moteur HALTE là (D20/D11), avant d'atteindre
+  // « haute intensité » et « Discuter ».
+  //
+  // POURQUOI CE N'EST PAS UNE RÉGRESSION DE SÉCURITÉ. Avant ce passage, le formulaire vierge halte AUSSI
+  // — simplement plus loin, sur « Discuter ». Dans les deux cas `applicable` est VIDE : le nœud n'a jamais
+  // rien affirmé sur un formulaire vierge, et il ne le fait toujours pas. Ce qui change est la LISTE « en
+  // attente » affichée : elle nomme désormais `intolerance_statine` et `CK_x_normale` au lieu des trois
+  // critères de « Discuter ».
+  //
+  // CE QU'IL FAUT SURVEILLER, et qui revient au référent : l'intitulé « Débuter la statine à dose plus
+  // faible » est la PREMIÈRE chose qu'un praticien lit en ouvrant le nœud, alors qu'elle ne le concerne
+  // probablement pas. C'est un point d'ergonomie, porté dans VALIDATION.md — pas un défaut du moteur, qui
+  // se comporte ici exactement comme il le doit.
+  it('F-09 — `renseignes` vide : aucun tier désigné, halte sur « Débuter à dose plus faible » (indéterminée), ni "haute intensité" ni "Discuter" ni le repli ne sont atteints', () => {
     // D20 : `nombre`/`enum` non renseignés sont INDÉTERMINÉS ; `diabete_complique` porte
     // `confirmation_requise: true` (F-statine §9.2) donc reste indéterminé même si "bool". Les autres
     // bool (ASCVD_etablie, dialyse, statine_deja_en_place, intolerance_statine) gardent leur défaut
@@ -211,23 +233,21 @@ describe('statine — F-09 : formulaire vierge, valeur indéterminée (D20)', ()
     // affirmé sur des critères non renseignés.
     expect(result.applicable).toEqual([])
 
-    // "haute intensité" : sa seule condition (ASCVD_etablie == true) est DÉTERMINÉE à `false` (bool sans
-    // confirmation_requise, défaut clinique réel) → non retenue normalement, PAS en attente.
-    expect(result.nonRetenues.get(OPT_HAUTE)).toBe('ASCVD_etablie == true')
-    expect(result.enAttente.has(OPT_HAUTE)).toBe(false)
+    // LA HALTE A LIEU ICI, sur la nouvelle option de la bande 4-5 N : elle est EN ATTENTE, et elle nomme
+    // les deux critères qui la lèveraient. `CK_x_normale` y figure alors qu'il est masqué dès que
+    // l'intolérance vaut « non » — ce n'est PAS l'impasse que I11 interdit : tant que `intolerance_statine`
+    // est indéterminé, le champ CK est bien AFFICHÉ (R7, repli « fail open »), donc renseignable.
+    const OPT_DOSE_FAIBLE = node!.options.find((o) => o.intitule.startsWith('Débuter la statine à dose plus faible'))!
+    expect(result.enAttente.has(OPT_DOSE_FAIBLE)).toBe(true)
+    expect(new Set(result.enAttente.get(OPT_DOSE_FAIBLE))).toEqual(new Set(['intolerance_statine', 'CK_x_normale']))
 
-    // "Discuter" : ses 3 conditions portent sur anciennete_diabete_annees/autres_FDRCV (nombre, jamais
-    // renseignés) et diabete_complique (bool à confirmation_requise) → toutes indéterminées → EN ATTENTE,
-    // avec le nom des 3 primitifs à renseigner (D20 §2.5, "à renseigner : …").
-    expect(result.enAttente.has(OPT_DISCUTER)).toBe(true)
-    expect(new Set(result.enAttente.get(OPT_DISCUTER))).toEqual(
-      new Set(['anciennete_diabete_annees', 'autres_FDRCV', 'diabete_complique']),
-    )
-
-    // Halte ordered-first-match sur indéterminé (D20) : l'ordre du nœud fait foi, "intensité modérée"
-    // (le repli) n'est JAMAIS atteinte — ni en attente, ni non retenue, ni applicable.
-    expect(result.enAttente.has(OPT_MODEREE)).toBe(false)
-    expect(result.nonRetenues.has(OPT_MODEREE)).toBe(false)
+    // Halte ordered-first-match sur indéterminé (D20) : TOUT ce qui suit dans l'ordre du nœud n'est jamais
+    // atteint — ni en attente, ni non retenu, ni applicable. Y compris « haute intensité » et « Discuter »,
+    // que la version précédente de cette vignette voyait encore (cf. l'en-tête du describe).
+    for (const option of [OPT_HAUTE, OPT_DISCUTER, OPT_MODEREE]) {
+      expect(result.enAttente.has(option)).toBe(false)
+      expect(result.nonRetenues.has(option)).toBe(false)
+    }
   })
 })
 
@@ -362,7 +382,7 @@ describe('statine — F-13/F-19 : intolérance avérée et garde-fou CK (D21, lo
     // l'intolérance : la conduite y est d'abord diagnostique, ce que dit l'alerte dédiée.
     const o = { ASCVD_etablie: true, intolerance_statine: 'rapportee', CK_x_normale: 6 } as Partial<Criteria>
     const result = evalProfile(o)
-    expect(result.excluded.get(OPT_HAUTE)).toContain('intolerance_statine != non AND CK_x_normale > 4 AND statine_deja_en_place == false')
+    expect(result.excluded.get(OPT_HAUTE)).toContain('intolerance_statine != non AND CK_x_normale > 5 AND statine_deja_en_place == false')
     expect(result.applicable).toEqual([OPT_TERMINALE])
     expect(alertesDeCetteOption(o, OPT_TERMINALE).some((a) => a.message.includes('5 fois la normale'))).toBe(true)
   })
@@ -456,7 +476,7 @@ describe('statine — F-21/F-25 : conduite CK sous traitement (parcours NHS, lot
     const o = { ASCVD_etablie: true, statine_deja_en_place: false, intolerance_statine: 'rapportee', CK_x_normale: 6 } as Partial<Criteria>
     const result = evalProfile(o)
     expect(result.applicable).toEqual([OPT_TERMINALE])
-    expect(result.excluded.get(OPT_HAUTE)).toContain('intolerance_statine != non AND CK_x_normale > 4 AND statine_deja_en_place == false')
+    expect(result.excluded.get(OPT_HAUTE)).toContain('intolerance_statine != non AND CK_x_normale > 5 AND statine_deja_en_place == false')
   })
 
   it('F-27 — la divergence France / NHS sur l’arrêt définitif est ÉCRITE, pas effacée', () => {

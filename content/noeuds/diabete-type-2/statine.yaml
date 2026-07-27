@@ -171,20 +171,31 @@ criteres_entree:
   # daté de janvier 2022, « endorsed by NICE Dec 2021 », qui se rattache à CG181 — la recommandation que
   # NG238 a remplacée en décembre 2023 — et qui porte « Review date: Jan 2024 ». Il a donc dépassé sa
   # propre date de révision et renvoie à un référentiel remplacé. Le référent a décidé de l'utiliser
-  # malgré cela, en portant la réserve : c'est la conduite à tenir la plus concrète de tout le dossier, et
-  # rien de plus récent ne la remplace.
+  # malgré cela, en portant la réserve : c'est la conduite à tenir la plus concrète de tout le dossier.
+  #
+  # ⚠ CORRECTION DU 2026-07-27 (soir) — ce commentaire, et trois autres endroits du fichier, affirmaient
+  # que « rien de plus récent ne le remplace ». C'EST FAUX, et la source primaire le dit : NG238 porte son
+  # PROPRE protocole de réintroduction (§1.9.2-1.9.4) et une section entière « Treatment if statins are
+  # contraindicated or not tolerated » (§1.10). Décision référent (Q4, SPEC-passage-statine.md) : retirer
+  # les affirmations fausses — cela ne se discutait pas — et MAINTENIR le parcours NHS comme source de la
+  # conduite détaillée, parce que basculer sur NG238 rouvrirait les trois autres arbitrages ci-dessous, tous
+  # rendus sur le parcours. Le choix de source est donc désormais un choix ASSUMÉ, plus une fausse absence
+  # d'alternative. Un lot de veille devra comparer les deux protocoles sur pièces.
   #
   # QUATRE ARBITRAGES RÉFÉRENT, pris sur les divergences que ce document a révélées :
   # 1. QUAND DOSER — « Do not measure CK if person is asymptomatic » (verbatim). Le champ n'apparaît donc
   #    plus qu'à partir du moment où quelque chose est rapporté (`visible_si` ci-dessous). Le nœud demandait
   #    ce dosage à TOUT patient à l'initiation, c'est-à-dire exactement l'examen que la source déconseille.
-  # 2. SEUIL À L'INITIATION — 4 N, pas 5. Les deux sources divergent : la reco française 2026 écrit
-  #    « CK levels >5-fold higher than normal are contraindications » ; le pathway écrit « If CK levels are
-  #    > 4x ULN do not start statin - investigation required ». Le référent a retenu le seuil le PLUS BAS,
-  #    donc le plus prudent, et celui qui vient avec une conduite explicite plutôt qu'un simple mot.
+  # 2. SEUIL À L'INITIATION — 5 N. ⚠ RÉVISÉ le 2026-07-27 (soir), arbitrage A1 : ce point avait d'abord été
+  #    tranché à 4 N, « le seuil le plus bas donc le plus prudent », sur la seule confrontation reco
+  #    française (« CK levels >5-fold higher than normal are contraindications ») / pathway (« If CK levels
+  #    are > 4x ULN do not start statin »). La lecture de NG238 §1.5.7 en source primaire a montré que le
+  #    « plus prudent » ne l'était pas : la source pose 5 N AVEC re-dosage à 7 jours, et surtout traite la
+  #    bande basse par « débuter à DOSE PLUS FAIBLE » et non par l'abstention. Retenir 4 N revenait donc à
+  #    ne PAS traiter un patient que la source veut traiter — une sous-prescription, pas une précaution.
   # 3. AU-DELÀ DE 10 N — arrêt TEMPORAIRE, pas définitif. Divergence la plus lourde des deux documents :
   #    la reco française écrit « statin treatment is stopped permanently » ; le pathway fait converger les
-  #    bandes 4-10 N ET 10-50 N vers la même case, « Stop statin for 4-6 weeks », suivie d'une réévaluation
+  #    bandes hautes vers la même case, « Stop statin for 4-6 weeks », suivie d'une réévaluation
   #    et d'une réintroduction à dose plus faible. L'arrêt définitif y est réservé à la myosite nécrosante
   #    auto-immune (SRM 6), « avoidance of re-exposure to statins ». Le référent a suivi le pathway : ne pas
   #    fermer définitivement la classe à un patient à haut risque cardiovasculaire qui pourrait la tolérer
@@ -194,7 +205,8 @@ criteres_entree:
   #    trompée dessus : elle annonçait « atorvastatine 20 → 40 mg », le pathway écrit « Atorvastatin 10 or
   #    20 mg OD, or Rosuvastatin 5 or 10mg OD », titrées à 8 semaines d'intervalle.
   #
-  # NOMBRE ET NON BOOLÉEN : trois seuils distincts agissent (4 / 10 / 50), un booléen n'en exprimait qu'un.
+  # NOMBRE ET NON BOOLÉEN : quatre seuils distincts agissent (4 / 5 / 10 / 50) depuis l'ouverture de la
+  # bande basse, un booléen n'en exprimait qu'un.
   # 0 = NON DOSÉ, et c'est le défaut : aucune comparaison `> 4` n'est vraie à 0, donc aucun garde-fou ne se
   # déclenche sur un champ vide — pas besoin du garde `> 0` qu'exigent les seuils par le bas.
   #
@@ -218,26 +230,49 @@ criteres_entree:
     visible_si: "intolerance_statine != non"
 options:
   # ======================================================================================================
-  # PREMIÈRE OPTION DU NŒUD, et ce n'est pas un hasard : en `ordered-first-match`, la première option
-  # satisfaite l'emporte. Un patient dont les CK dépassent 4 fois la normale SOUS traitement relève de ce
-  # geste-là et d'aucun autre — lui afficher d'abord « statine de haute intensité » serait exactement le
-  # défaut que D21 corrige ailleurs dans ce fichier.
-  # SOURCE : NHS England / AAC, *Statin Intolerance Pathway* (janvier 2022, avalisé par NICE en décembre
-  # 2021, rattaché à CG181, date de révision dépassée — cf. le commentaire du critère `CK_x_normale` pour
-  # la réserve complète). Les bandes 4-10 N et 10-50 N y convergent vers UNE SEULE case, « Stop statin for
-  # 4-6 weeks » : c'est pourquoi cette option n'a qu'un seuil d'entrée (> 4) et deux alertes qui la
-  # qualifient au-delà, plutôt que trois options empilées.
-  - intitule: "Interrompre la statine 4 à 6 semaines et réévaluer (CK au-dessus de 4 fois la normale)"
+  # LES TROIS PREMIÈRES OPTIONS DU NŒUD SONT LES OPTIONS « CK », et leur ordre n'est pas un hasard : en
+  # `ordered-first-match`, la première option satisfaite l'emporte. Un patient dont les CK dépassent le
+  # seuil relève de ces gestes-là et d'aucun autre — lui afficher d'abord « statine de haute intensité »
+  # serait exactement le défaut que D21 corrige ailleurs dans ce fichier.
+  #
+  # SEUIL PORTÉ DE 4 N À 5 N le 2026-07-27 (soir) — arbitrage référent A1, chantier-2026-07-27. Le seuil
+  # de 4 N venait du parcours NHS/AAC et avait été retenu comme « le plus bas donc le plus prudent ».
+  # NG238 §1.5.7, lue depuis en source primaire, pose **5 N avec re-dosage à 7 jours**, et surtout traite
+  # la bande basse autrement : « *raised but < 5× ULN* → débuter la statine à DOSE PLUS FAIBLE ». Le nœud
+  # rendait donc « statine indisponible » à un patient que la source veut traiter — une SOUS-PRESCRIPTION
+  # chez un patient dont le risque cardiovasculaire, lui, n'a pas bougé. Les bandes 10 N et 50 N restent
+  # inchangées : NG238 ne les couvre pas, le parcours NHS en reste seule source.
+  #
+  # PÉRIMÈTRE DE LA BANDE BASSE — arbitrage référent Q1 (SPEC-passage-statine.md) : NG238 écrit « toute
+  # élévation sous 5 N », ce qui aurait aussi changé la conduite des patients à 1-4 N, aujourd'hui traités
+  # à dose pleine sans que rien ne l'ait signalé comme un défaut. Le référent a retenu la lecture
+  # RESTREINTE — 4 à 5 N — qui corrige le défaut constaté et ne touche à aucune autre conduite. L'écart au
+  # texte de NG238 est assumé et enregistré ici plutôt que masqué (invariant 6).
+  #
+  # SCISSION DE « INTERROMPRE » — arbitrage référent A2. Le geste d'arrêt est le même pour l'intolérance
+  # rapportée et l'intolérance avérée ; c'est la SUITE qui diffère, et une seule carte ne pouvait pas dire
+  # les deux. La carte « la classe reste indisponible » porte donc elle-même l'orientation vers les
+  # alternatives (arbitrage Q3) : en `ordered-first-match` elle gagne AVANT la carte terminale, et sans
+  # cela le patient s'entendrait dire que la classe est fermée sans voir par quoi la remplacer.
+  #
+  # SOURCE DE LA CONDUITE : NHS England / AAC, *Statin Intolerance Pathway* (janvier 2022, avalisé par
+  # NICE en décembre 2021, rattaché à CG181, date de révision dépassée — cf. le commentaire du critère
+  # `CK_x_normale`). Les bandes 5-10 N et 10-50 N y convergent vers UNE SEULE case, « Stop statin for 4-6
+  # weeks » : c'est pourquoi ces options n'ont qu'un seuil d'entrée et deux alertes qui les qualifient
+  # au-delà, plutôt que des options empilées.
+  - intitule: "Interrompre la statine 4 à 6 semaines et réévaluer (CK au-dessus de 5 fois la normale)"
     conditions:
-      - "intolerance_statine != non AND CK_x_normale > 4 AND statine_deja_en_place == true"
+      - "intolerance_statine == rapportee AND CK_x_normale > 5 AND statine_deja_en_place == true"
     avantages:
       - "Conduite du parcours NHS England / AAC : interrompre la statine 4 à 6 SEMAINES, en documentant le délai d'apparition des symptômes et celui de leur résolution. C'est une interruption d'épreuve, pas un renoncement — elle sert à établir si la statine est bien en cause."
+      - "Re-doser les CK à 7 JOURS (NG238 §1.5.7) : c'est ce contrôle qui distingue une élévation transitoire — effort physique, geste récent, cause non médicamenteuse — d'une élévation persistante attribuable au traitement."
       - "Réintroduction ensuite, sous trois conditions cumulatives : CK normalisées, symptômes résolus, et patient asymptomatique depuis au moins 2 semaines. On reprend alors à dose BASSE ou MODÉRÉE d'une statine de haute intensité — atorvastatine 10 ou 20 mg, ou rosuvastatine 5 ou 10 mg — puis on titre à 8 semaines d'intervalle."
       - "Une statine à dose plus faible vaut mieux que pas de statine du tout : c'est la position explicite du parcours. Si la prise quotidienne n'est pas tolérée, un jour sur deux ou deux fois par semaine reste une option — l'atorvastatine et la rosuvastatine ont des demi-vies qui le permettent."
+      - "L'intolérance est ici RAPPORTÉE, pas éprouvée : chez des patients étiquetés intolérants puis réintroduits en aveugle, l'excès porte sur l'ARRÊT du traitement et non sur les symptômes (Aebi 2025 : symptômes OR 1,19 non significatif, arrêt OR 1,48). La réintroduction est donc la conduite attendue, pas l'exception."
     inconvenients:
       - "DIVERGENCE DE SOURCES sur ce point précis, et elle porte sur une règle de sécurité : la recommandation française 2026 écrit qu'au-delà de 10 fois la normale la statine est arrêtée DÉFINITIVEMENT. Le parcours NHS ne réserve l'arrêt définitif qu'à la myosite nécrosante auto-immune. Le nœud suit le parcours NHS (décision référent) — pour ne pas fermer définitivement la classe à un patient à haut risque cardiovasculaire qui pourrait la tolérer autrement — mais la position française est ici, et elle est défendable."
       - "Le bénéfice cardiovasculaire des stratégies de réintroduction à dose réduite ou espacée n'est PAS démontré sur critère dur : le parcours l'écrit lui-même (« cardiovascular benefits have not been proven for all the above approaches »). Ce qui est acquis, c'est l'abaissement du LDL."
-      - "Provenance à connaître : document NHS England / AAC de janvier 2022, avalisé par NICE en décembre 2021, rattaché à CG181 (remplacée par NG238 en décembre 2023) et portant une date de révision de janvier 2024, dépassée. Rien de plus récent ne le remplace à ce jour."
+      - "Provenance à connaître : document NHS England / AAC de janvier 2022, avalisé par NICE en décembre 2021, rattaché à CG181 (remplacée par NG238 en décembre 2023) et portant une date de révision de janvier 2024, dépassée. NG238 porte pour sa part son propre protocole de réintroduction (§1.9.2-1.9.4) et une section « Treatment if statins are contraindicated or not tolerated » (§1.10) : le référent a maintenu le parcours NHS comme source de la conduite détaillée, mais le nœud n'affirme plus que rien de plus récent n'existe."
     effet_attendu: >-
       Non chiffrable : aucune étude ne mesure le devenir cardiovasculaire de cette séquence. Ce qu'elle
       permet, c'est d'établir l'imputabilité et de récupérer une statine tolérée chez une partie des
@@ -255,6 +290,8 @@ options:
     alertes:
       # Les deux bandes hautes du parcours. D21 : ces faits QUALIFIENT le geste proposé (l'interruption)
       # sans le remplacer — c'est la même interruption, avec un examen de plus ou une urgence en plus.
+      # DUPLIQUÉES sur la carte « la classe reste indisponible » ci-dessous : les deux cartes couvrent le
+      # même geste d'arrêt, un patient à 20 N peut atterrir sur l'une ou l'autre selon son intolérance.
       - quand: "CK_x_normale > 10 AND CK_x_normale <= 50"
         niveau: attention
         message: >-
@@ -270,6 +307,104 @@ options:
           CK au-dessus de 50 fois la normale : arrêter la statine et évoquer une RHABDOMYOLYSE. Avis
           spécialisé URGENT et évaluation hospitalière — ne pas attendre le dosage de la myoglobinurie
           pour réhydrater. Ce n'est plus la séquence d'interruption-réintroduction décrite ci-dessus.
+  # ------------------------------------------------------------------------------------------------------
+  # A2, second volet. MÊME GESTE, SUITE DIFFÉRENTE : on interrompt aussi, mais on ne réintroduit pas — la
+  # classe est fermée pour ce patient. Q3 : cette carte PORTE l'orientation vers les alternatives, qu'elle
+  # duplique de la carte terminale (« Statine indisponible »), parce qu'en `ordered-first-match` elle gagne
+  # avant elle. Renvoyer à une carte que le patient ne verra pas n'aurait rien orienté du tout.
+  # ⚠ DETTE ASSUMÉE : ce contenu est en DEUX exemplaires dans le fichier. Toute mise à jour de la séquence
+  # française (ézétimibe → anti-PCSK9 → acide bempédoïque) doit toucher les deux. C'est le prix explicite
+  # de l'arbitrage Q3, préféré au renvoi.
+  - intitule: "Interrompre la statine — la classe reste indisponible (intolérance avérée, CK au-dessus de 5 fois la normale)"
+    conditions:
+      - "intolerance_statine == averee AND CK_x_normale > 5 AND statine_deja_en_place == true"
+    avantages:
+      - "Interrompre la statine 4 à 6 semaines, comme dans l'intolérance rapportée : le geste d'arrêt et sa surveillance sont identiques. Re-doser les CK à 7 jours (NG238 §1.5.7)."
+      - "CE QUI DIFFÈRE : l'intolérance étant AVÉRÉE, la réintroduction n'est pas la suite attendue. Ne pas laisser ce patient sans hypolipémiant pour autant — son risque cardiovasculaire n'a pas diminué, seule la voie pour le réduire s'est fermée."
+      - "SÉQUENCE FRANÇAISE À PRENDRE ENSUITE (recommandation SFE/SFD/NSFA/SFC 2026) : ézétimibe seul en premier — « en cas de contre-indication formelle aux statines ou d'intolérance avérée, un traitement par ézétimibe seul peut être envisagé » (§6.1), et c'est le prérequis de remboursement de tout ce qui suit ; puis anti-PCSK9 en 3e ligne ; l'acide bempédoïque y est qualifié de « traitement de dernier recours »."
+      - "ACIDE BEMPÉDOÏQUE — le SEUL agent disposant d'un essai de morbi-mortalité mené dans cette population (CLEAR Outcomes, n=13 970) : composite HR 0,87 (0,79-0,96), sous-groupe diabète HR 0,83 (0,72-0,95), réduction ABSOLUE 2,4 %. Prodrogue activée uniquement dans le foie et non dans le muscle, donc sans douleur musculaire significative même chez l'intolérant aux statines (verbatim de la reco française) — c'est ce qui le distingue ici."
+    inconvenients:
+      - "Ne JAMAIS présenter l'acide bempédoïque comme réduisant la mortalité : dans CLEAR Outcomes, décès cardiovasculaire HR 1,04 et décès toutes causes HR 1,03, tous deux non significatifs et de point estimé DÉFAVORABLE ; aucun effet sur l'AVC. La HAS lui a attribué une ASMR V pour ces motifs précis."
+      - "ÉZÉTIMIBE : aucun essai de critère dur ne l'a testé chez l'intolérant. IMPROVE-IT est un ADD-ON chez des patients qui TOLÉRAIENT leur statine — son bénéfice n'y est pas transposable tel quel."
+      - "DIVERGENCE DE SOURCES sur l'arrêt : la recommandation française 2026 écrit qu'au-delà de 10 fois la normale la statine est arrêtée DÉFINITIVEMENT ; le parcours NHS ne réserve l'arrêt définitif qu'à la myosite nécrosante auto-immune. Le nœud suit le parcours NHS (décision référent), la position française est ici et elle est défendable."
+      - "⚠ « Intolérance avérée » est une qualification CLINIQUE, portée par le praticien : c'est elle qui ferme la classe, et le nœud ne la vérifie pas. Chez des patients étiquetés intolérants puis réintroduits en aveugle, environ un tiers seulement le sont réellement à la statine — et un quart au PLACEBO (Kraut 2023). S'assurer que l'imputabilité a été établie avant de conclure."
+    effet_attendu: >-
+      Acide bempédoïque, sous-groupe diabète de CLEAR Outcomes : réduction absolue du composite de 2,4 %
+      sur un suivi médian de 3,4 ans (chiffre publié). Ézétimibe seul chez l'intolérant : aucun effet
+      chiffrable sur critère dur, faute d'essai. L'interruption elle-même n'a pas d'effet chiffrable —
+      aucune étude ne mesure le devenir cardiovasculaire de cette séquence.
+    # R2 : repris du suivi médian publié de CLEAR Outcomes (40,6 mois), non recalculé.
+    delai_benefice: "3-4 ans"
+    niveau_preuve: modere
+    references:
+      - clear-outcomes
+      - clear-diabete
+      - improve-it-diabete
+      - kraut-2023
+      - aebi-2025
+    contre_indications:
+      - "REMBOURSEMENT FR de l'acide bempédoïque : effectif depuis le 12/12/2025, à 65 %, dans un périmètre RESTREINT — intolérance AVÉRÉE et traitement hypolipémiant optimisé « incluant au moins l'ézétimibe ». SMR important dans ce périmètre, insuffisant en dehors ; ASMR V."
+      - "PÉRIMÈTRE : cette carte ORIENTE, elle ne pilote pas la séquence complète des alternatives — le nœud déclare ce point hors périmètre depuis l'origine."
+    alertes:
+      # Mêmes deux bandes hautes que la carte précédente, et pour la même raison (D21 : elles qualifient
+      # le geste sans le remplacer). Dupliquées parce que les deux cartes sont mutuellement exclusives.
+      - quand: "CK_x_normale > 10 AND CK_x_normale <= 50"
+        niveau: attention
+        message: >-
+          CK entre 10 et 50 fois la normale : vérifier la FONCTION RÉNALE avant tout. Si le débit de
+          filtration glomérulaire est stable et normal, la conduite reste l'interruption de 4 à 6 semaines
+          décrite ci-dessus. S'il est altéré, évoquer une rhabdomyolyse et demander un avis spécialisé.
+          Si les CK ne se normalisent pas malgré l'arrêt et que la faiblesse musculaire progresse, penser
+          à la myosite nécrosante auto-immune induite par les statines.
+      - quand: "CK_x_normale > 50"
+        niveau: attention
+        message: >-
+          CK au-dessus de 50 fois la normale : arrêter la statine et évoquer une RHABDOMYOLYSE. Avis
+          spécialisé URGENT et évaluation hospitalière — ne pas attendre le dosage de la myoglobinurie
+          pour réhydrater. Ce n'est plus la séquence décrite ci-dessus.
+      - quand: "ASCVD_etablie == true"
+        niveau: attention
+        message: >-
+          Ce patient a une maladie cardiovasculaire ÉTABLIE : il relève de la prévention SECONDAIRE, où le
+          bénéfice de l'abaissement du LDL est le mieux démontré et le NNT le plus bas. L'indisponibilité
+          de la statine ne diminue en rien son risque absolu — elle rend seulement plus difficile de le
+          réduire.
+  # ------------------------------------------------------------------------------------------------------
+  # A1-b — LA BANDE 4-5 N À L'INITIATION. C'est le défaut de sous-prescription que ce passage corrige :
+  # ce patient recevait « statine indisponible », NG238 §1.5.7 demande de le TRAITER, à dose plus faible.
+  # Placée AVANT « haute intensité » : en `ordered-first-match`, sans cela un patient ASCVD à 4,5 N
+  # recevrait la dose forte que la source écarte précisément.
+  # `intolerance_statine == rapportee` et non `!= non` : chez l'intolérant AVÉRÉ la classe est fermée quel
+  # que soit le taux de CK — il relève de la carte terminale, pas d'une initiation prudente. Le terme porte
+  # aussi le garde de portée exigé par R8/I10 (`CK_x_normale` est masqué quand aucune intolérance n'est
+  # déclarée) : les deux rôles coïncident ici, mais ce sont bien deux exigences distinctes.
+  - intitule: "Débuter la statine à dose plus faible (CK élevées mais sous 5 fois la normale, avant initiation)"
+    conditions:
+      - "intolerance_statine == rapportee AND CK_x_normale > 4 AND CK_x_normale <= 5 AND statine_deja_en_place == false"
+    avantages:
+      - "NG238 §1.5.7, verbatim : des CK « raised but < 5× ULN » ne contre-indiquent PAS la statine — on débute à DOSE PLUS FAIBLE. Ne pas traiter ce patient reviendrait à lui retirer un bénéfice démontré sur critères durs au motif d'un taux que la source elle-même juge compatible avec le traitement."
+      - "Re-doser les CK à 7 JOURS avant de conclure (NG238 §1.5.7) : une élévation modérée est souvent transitoire — effort physique récent, geste traumatique, cause non médicamenteuse."
+      - "Dose de départ, reprise du parcours NHS/AAC : atorvastatine 10 ou 20 mg, ou rosuvastatine 5 ou 10 mg, à titrer à 8 semaines d'intervalle selon la tolérance et le LDL obtenu."
+    inconvenients:
+      - "Le bénéfice cardiovasculaire d'une stratégie à dose réduite n'est PAS démontré sur critère dur chez ce patient précis : ce qui est acquis, c'est l'abaissement du LDL, et le bénéfice relatif ~constant par mmol/L abaissé (CTT). Une dose plus faible abaisse moins, donc protège moins — c'est un compromis de tolérance, pas un équivalent."
+      - "PÉRIMÈTRE RESTREINT, écart assumé avec NG238 : la source écrit « toute élévation sous 5 N », le nœud n'ouvre cette carte qu'entre 4 et 5 N (arbitrage référent Q1, 2026-07-27). Un patient à 2 ou 3 N reçoit donc la conduite ordinaire, à dose pleine. L'écart est enregistré plutôt que masqué."
+      - "Rappel de portée : les CK ne sont dosées, dans ce nœud, que si une intolérance est rapportée ou avérée — « Do not measure CK if person is asymptomatic » (parcours NHS/AAC). Un patient asymptomatique n'atteint donc jamais cette carte, et c'est voulu."
+    effet_attendu: >-
+      Non chiffrable tel quel : aucun essai n'a comparé « débuter à dose plus faible » à « ne pas
+      débuter » chez un patient aux CK modérément élevées. Le bénéfice attendu est celui d'une statine à
+      dose basse ou modérée, proportionnel au LDL abaissé (CTT : événements vasculaires majeurs RR ~0,79
+      par 1 mmol/L chez le diabétique).
+    niveau_preuve: faible
+    references:
+      - ctt-symptomes-musculaires
+    alertes:
+      - quand: "ASCVD_etablie == true"
+        niveau: attention
+        message: >-
+          Ce patient a une maladie cardiovasculaire ÉTABLIE : il relèverait sans ces CK d'une statine de
+          HAUTE intensité, où le bénéfice est le mieux démontré. La dose plus faible proposée ici est un
+          compromis de sécurité biologique, pas la dose cible — re-doser les CK à 7 jours et titrer dès
+          que le taux le permet.
   - intitule: "Statine de haute intensité — prévention secondaire (maladie athéromateuse établie)"
     conditions:
       - "ASCVD_etablie == true"
@@ -318,7 +453,7 @@ options:
     exclusions:
       - "dialyse == true AND statine_deja_en_place == false"
       - "intolerance_statine == averee"
-      - "intolerance_statine != non AND CK_x_normale > 4 AND statine_deja_en_place == false"
+      - "intolerance_statine != non AND CK_x_normale > 5 AND statine_deja_en_place == false"
   - intitule: "Discuter la statine (décision partagée) — diabète non compliqué à faible risque absolu"
     conditions:
       - "anciennete_diabete_annees < 10"
@@ -330,7 +465,7 @@ options:
     # patient à faible risque absolu.
     exclusions:
       - "intolerance_statine == averee"
-      - "intolerance_statine != non AND CK_x_normale > 4 AND statine_deja_en_place == false"
+      - "intolerance_statine != non AND CK_x_normale > 5 AND statine_deja_en_place == false"
     avantages:
       - "Diabète RÉCENT (< 10 ans), NON compliqué (pas d'atteinte d'organe rétinienne / rénale / neurologique ni de maladie macrovasculaire) et SANS autre facteur de risque cardiovasculaire : le risque absolu est faible, en-deçà des populations où le bénéfice a été démontré par ECR (CARDS a inclus des diabétiques 40-75 ans AVEC ≥ 1 facteur de risque ; ASPEN, à plus bas risque, est nul). Le bénéfice ABSOLU d'une statine y est faible → décision partagée plutôt qu'automatisme."
     inconvenients:
@@ -380,7 +515,7 @@ options:
   # l'ordre où elles le nomment, avec le niveau de preuve de chacune.
   - intitule: "Statine indisponible (intolérance avérée ou contre-indication) — alternatives hypolipémiantes"
     conditions:
-      - "intolerance_statine == averee OR intolerance_statine != non AND CK_x_normale > 4 AND statine_deja_en_place == false"
+      - "intolerance_statine == averee OR intolerance_statine != non AND CK_x_normale > 5 AND statine_deja_en_place == false"
     avantages:
       - "ÉZÉTIMIBE SEUL = la conduite que nomme explicitement la recommandation française : « en cas de contre-indication formelle aux statines ou d'intolérance avérée, un traitement par ézétimibe seul peut être envisagé » (SFE/SFD/NSFA/SFC 2026, §6.1). C'est aussi le prérequis de remboursement de tout ce qui vient après."
       - "ACIDE BEMPÉDOÏQUE = le SEUL agent disposant d'un essai de morbi-mortalité mené dans cette population (CLEAR Outcomes, n=13 970, suivi médian 40,6 mois) : critère composite 11,7 % vs 13,3 %, HR 0,87 (0,79-0,96) ; IDM HR 0,77 ; revascularisation HR 0,81. Sous-groupe DIABÈTE (n=6 373, 45,6 %) : HR 0,83 (0,72-0,95), réduction ABSOLUE de 2,4 % — chiffre publié, pas dérivé."
@@ -417,7 +552,7 @@ options:
       # Les deux voies d'accès à cette option n'appellent pas la même conduite : l'une est un constat
       # d'intolérance, l'autre un signal biologique qui demande d'abord un diagnostic. D21 : le fait
       # QUALIFIE le geste proposé sans le retirer — donc une alerte d'option, pas une exclusion de plus.
-      - quand: "intolerance_statine != non AND CK_x_normale > 4 AND statine_deja_en_place == false"
+      - quand: "intolerance_statine != non AND CK_x_normale > 5 AND statine_deja_en_place == false"
         niveau: attention
         message: >-
           Cette carte est atteinte parce que les CK dépassent 5 fois la normale AVANT toute initiation — ce
@@ -443,7 +578,7 @@ options:
     # (`banc/couverture.test.ts` — « chaque option porteuse d'exclusions est exclue pour au moins un
     # profil ») les a immédiatement signalées comme JAMAIS déclenchées, sur 180 profils.
     # Raison : en `ordered-first-match`, l'évaluation s'ARRÊTE à la première option satisfaite. Les
-    # conditions de l'option terminale qui précède (`intolerance_statine == averee OR CK_x_normale > 4`)
+    # conditions de l'option terminale qui précède (`intolerance_statine == averee OR CK_x_normale > 5`)
     # sont exactement complémentaires de ces exclusions : chaque fois que l'une d'elles aurait mordu, la
     # terminale a déjà gagné et ce repli n'est même pas atteint. Le garde-fou était donc du code mort — pire
     # qu'absent, puisqu'il laissait croire à une protection qui n'existait pas.
@@ -520,6 +655,24 @@ alertes:
       intensité (prévention secondaire) n'est plus proposée par cet outil — retrait structurel, pas
       seulement un rappel. Si une statine est DÉJÀ en place, sa poursuite reste raisonnable et les options
       ci-dessus s'appliquent normalement. En maladie rénale chronique NON dialysée, la statine reste indiquée.
+  # A1-c (arbitrage référent, 2026-07-27 soir) — RASSURER. NG238 §1.11.4 : sous traitement, des CK
+  # au-dessous de 5 N ne demandent ni arrêt ni interruption ; §1.11.5 ajoute de ne PAS doser les CK chez
+  # l'asymptomatique traité (c'est ce que fait déjà le `visible_si` du critère).
+  # POURQUOI UNE ALERTE ET NON UNE OPTION (arbitrage Q2, D21) : « rassurer » n'est pas un geste
+  # thérapeutique, c'est une information — et le patient concerné peut atterrir sur PLUSIEURS cartes
+  # différentes (haute intensité, bas risque, repli) selon son profil. L'accrocher à l'une d'elles la
+  # ferait disparaître pour les autres. D'où une alerte de NŒUD, indépendante de ce que le moteur retient.
+  # BORNE BASSE À 4 N, et c'est la conséquence directe de l'arbitrage Q1 : la lecture restreinte ne change
+  # la conduite que dans la bande 4-5 N — c'est-à-dire celle qui, jusqu'à ce passage, déclenchait à tort
+  # une interruption. En deçà de 4 N, rien ne changeait et il n'y a rien à rassurer.
+  - quand: "intolerance_statine != non AND CK_x_normale > 4 AND CK_x_normale <= 5 AND statine_deja_en_place == true"
+    niveau: info
+    message: >-
+      CK élevées mais AU-DESSOUS de 5 fois la normale, sous traitement : il n'y a pas lieu d'interrompre la
+      statine (NG238 §1.11.4). Rassurer le patient, re-doser à 7 jours pour vérifier qu'il ne s'agit pas
+      d'une élévation transitoire (effort physique récent, geste traumatique), et poursuivre le traitement.
+      Chercher aussi les causes non médicamenteuses avant d'attribuer cette élévation à la statine. Ce seuil
+      a été porté de 4 N à 5 N le 2026-07-27 : la conduite précédente interrompait ce traitement à tort.
   # RECIBLÉE sur `rapportee` le 2026-07-27 (6e série) : ce message dit « n'écartez pas la classe trop vite ».
   # Il a du sens tant que l'intolérance n'est pas éprouvée ; adressé à un patient dont elle EST avérée, il
   # devient une invitation à ignorer son dossier. Pour celui-là, c'est l'option terminale qui s'affiche.
@@ -584,7 +737,7 @@ argumentaire: >
   proposée (4D, AURORA neutres — exclusion structurelle depuis 2026-07-26) ; une statine déjà en place peut
   raisonnablement être poursuivie. Le « diabète induit par statine » est sans objet chez un patient déjà
   diabétique.
-  QUATRIÈME SITUATION (2026-07-27) : la statine INDISPONIBLE — intolérance AVÉRÉE, ou CK au-dessus de 4 fois
+  QUATRIÈME SITUATION (2026-07-27) : la statine INDISPONIBLE — intolérance AVÉRÉE, ou CK au-dessus de 5 fois
   la normale avant initiation. Une intolérance seulement RAPPORTÉE ne retire rien : chez des patients
   étiquetés intolérants puis réintroduits en aveugle, l'excès porte sur l'ARRÊT du traitement et non sur les
   symptômes (Aebi 2025 : symptômes OR 1,19 non significatif, arrêt OR 1,48 ; Kraut 2023 : environ un tiers
@@ -593,9 +746,12 @@ argumentaire: >
   essai de critère dur chez l'intolérant), acide bempédoïque (le SEUL agent disposant d'un essai de
   morbi-mortalité dans cette population — CLEAR Outcomes, sous-groupe diabète HR 0,83, réduction absolue
   2,4 % — SANS bénéfice de mortalité, points estimés défavorables), anti-PCSK9 en 3e ligne. Sous traitement,
-  des CK au-dessus de 4 N imposent d'interrompre 4 à 6 semaines avant tout autre raisonnement, puis de
-  réintroduire à dose plus basse ; la France dit arrêt définitif au-delà de 10 N, le parcours NHS
-  interruption temporaire — divergence affichée, tranchée en faveur du second.
+  des CK au-dessus de 5 N imposent d'interrompre 4 à 6 semaines avant tout autre raisonnement, puis de
+  réintroduire à dose plus basse (sauf intolérance avérée, où la classe reste fermée et la carte oriente
+  elle-même vers les alternatives) ; la France dit arrêt définitif au-delà de 10 N, le parcours NHS
+  interruption temporaire — divergence affichée, tranchée en faveur du second. ENTRE 4 ET 5 N, la conduite
+  a changé le 2026-07-27 (NG238 §1.5.7) : sous traitement on RASSURE et on re-dose à 7 jours au lieu
+  d'interrompre ; avant initiation on DÉBUTE à dose plus faible au lieu de déclarer la classe indisponible.
 sources:
   references_primaires:
     - id: cards
@@ -838,11 +994,11 @@ incertitudes:
   - "Dialyse (2026-07-26, D21, F-statine §9.1) : l'INITIATION est désormais retirée par une `exclusion` structurelle (`dialyse == true AND statine_deja_en_place == false`) sur l'option « haute intensité » — la contradiction la plus sévère relevée en recette. Cette exclusion N'A PAS été étendue aux options « discuter » (bas risque) ni au repli « primaire modérée » : le nœud est en `ordered-first-match` à 3 options sans 4e filet, et l'invariant générique I2′ (jamais de sortie vide quand tout est renseigné, `engine/banc/invariants.test.ts`, hors périmètre de ce lot) interdit d'exclure le repli. Un patient dialysé sans statine en cours et sans ASCVD établie peut donc encore voir s'afficher « discuter » ou « primaire modérée » (contre_indications reformulées en conséquence, pas en impératif absolu) — limite connue, signalée plutôt que masquée (invariant 6), non corrigée dans ce lot (nécessiterait une option dédiée « statine non recommandée » ou une révision de l'invariant générique)."
   - "ASCVD établie + dialyse + PAS encore de statine (2026-07-26, red-team HAUTE-4, `chantier-2026-07-26/redteam-clinique-securite.md`) : l'exclusion D21 ci-dessus retire l'option « haute intensité » à ce patient, et l'`ordered-first-match` le route vers « discuter » ou le repli « prévention primaire modérée » — un mislabeling en soi (un patient de prévention SECONDAIRE présenté comme « faible risque »/« prévention primaire »), car ces deux options n'ont aucune condition sur `ASCVD_etablie` et le moteur ne revoit jamais le statut ASCVD une fois l'exclusion passée. Corrigé par une alerte PORTÉE PAR CES DEUX OPTIONS (`options[].alertes`, visible uniquement quand l'option est réellement atteinte, D21 : « le fait qualifie un geste sans l'interdire ») qui restaure le contexte ASCVD. Ce que le correctif NE fait PAS : le dossier de preuve ne tranche PAS la conduite optimale pour ce sous-groupe précis (dialysé, ASCVD établie, jamais traité) — ni l'excès d'une haute intensité non prouvée en dialyse (4D, AURORA neutres) ni le sous-traitement d'un risque de prévention secondaire réel ne sont démontrés par le dossier. L'alerte le dit explicitement et renvoie à une discussion individualisée plutôt que d'inventer une conduite ; non résolu au-delà — une donnée dédiée (essai statine chez le dialysé ASCVD) ou une option distincte trancherait mieux qu'une alerte de qualification."
   - "Intolérance aux statines — LARGEMENT RÉSOLU le 2026-07-27 (6e série), avec des résiduels précis. Le critère est passé de `bool` à `enum` (non / rapportee / averee) et une OPTION TERMINALE relaie les trois options de statine, dont l'intolérance avérée retire désormais les deux premières. Ce que le lot corrige : jusqu'ici, un patient ASCVD dont l'intolérance était avérée recevait une carte lui PRESCRIVANT de l'atorvastatine 40-80 mg, contredite par une seule alerte — la configuration que D21 existe pour interdire, et le défaut exact (« l'alerte interdisait ce que rien ne retirait ») déjà corrigé sur CE nœud le 2026-07-26 pour la dialyse. RÉSIDUELS, tous signalés plutôt que comblés : (a) le PROTOCOLE de réintroduction en aveugle n'est pas encodé — la seule source qui le détaille (NICE NG238 : lavage 4-6 semaines, seuils ALAT/CK, réintroduction atorvastatine 20 → 40 mg) est restée en 403, et le red-team a explicitement demandé de ne PAS encoder ces chiffres de seconde main ; (b) le nœud ORIENTE vers les alternatives sans piloter leur séquence complète (ézétimibe → anti-PCSK9 → bempédoïque), ce qui reste hors périmètre déclaré ; (c) le taux de reprise d'une statine après réintroduction n'est pas affiché : les chiffres disponibles vont de 72,5 % (Mampuya, rétrospectif) à « > 90 % à 1 an » (matériel VA/DoD non vérifié), avec des dénominateurs et des définitions incompatibles — n'en encoder aucun comme « le » chiffre."
-  - "PROVENANCE DU PROTOCOLE DE RÉINTRODUCTION — RÉSERVE À NE PAS PERDRE. Le *Statin Intolerance Pathway* est un document NHS England / AAC Clinical Subgroup de janvier 2022, « endorsed by NICE Dec 2021 », qui se rattache à CG181 — remplacée par NG238 en décembre 2023 — et porte « Review date: Jan 2024 », dépassée. CORRECTION D'ATTRIBUTION au passage, du même type que le « convention KDIGO » corrigé le matin même sur `prescription` : la collecte attribuait ce protocole à NG238 ; il n'y est pas, NICE ne fait que l'héberger comme ressource. Le référent a décidé de l'utiliser malgré sa date, faute de plus récent — mais un lot de veille devra vérifier si NG238 ou une mise à jour du parcours l'ont remplacé. La collecte s'était par ailleurs trompée sur ses chiffres : elle annonçait « atorvastatine 20 → 40 mg », le parcours écrit « Atorvastatin 10 or 20 mg OD, or Rosuvastatin 5 or 10mg OD », titrées à 8 semaines d'intervalle."
+  - "PROVENANCE DU PROTOCOLE DE RÉINTRODUCTION — RÉSERVE À NE PAS PERDRE. Le *Statin Intolerance Pathway* est un document NHS England / AAC Clinical Subgroup de janvier 2022, « endorsed by NICE Dec 2021 », qui se rattache à CG181 — remplacée par NG238 en décembre 2023 — et porte « Review date: Jan 2024 », dépassée. CORRECTION D'ATTRIBUTION au passage, du même type que le « convention KDIGO » corrigé le matin même sur `prescription` : la collecte attribuait ce protocole à NG238 ; il n'y est pas, NICE ne fait que l'héberger comme ressource. Le référent a décidé de l'utiliser malgré sa date — décision RÉEXAMINÉE et MAINTENUE le 2026-07-27 (soir, arbitrage Q4) : ce n'est PAS « faute de plus récent », NG238 porte son propre protocole de réintroduction (§1.9.2-1.9.4) et une section §1.10 ; c'est un choix assumé, motivé par le fait que basculer de source rouvrirait les trois autres arbitrages du dossier CK, tous rendus sur le parcours — mais un lot de veille devra vérifier si NG238 ou une mise à jour du parcours l'ont remplacé. La collecte s'était par ailleurs trompée sur ses chiffres : elle annonçait « atorvastatine 20 → 40 mg », le parcours écrit « Atorvastatin 10 or 20 mg OD, or Rosuvastatin 5 or 10mg OD », titrées à 8 semaines d'intervalle."
   - "ÉCART ASSUMÉ SUR LE DÉCLENCHEUR DU DOSAGE DE CK. Le parcours NHS fait doser les CK devant « persistent generalised unexplained muscle pain, whether associated or not with previous lipid-lowering therapy » — une douleur musculaire, liée ou non à une statine. Le nœud accroche l'apparition du champ à `intolerance_statine != non`, c'est-à-dire à une intolérance AUX STATINES. Un patient qui a des douleurs musculaires sans avoir jamais pris de statine n'entre donc pas dans la case, et son dosage de CK ne sera pas demandé avant initiation. Le référent a préféré cette solution à un critère supplémentaire (charge de saisie) ; l'écart est enregistré ici plutôt que masqué. Il se comblerait par un booléen « douleur musculaire persistante inexpliquée » commandant le même champ."
   - "COUVERTURE DU BANC SUR LA BANDE 10-50 N. Le générateur de profils figés a tiré, pour `CK_x_normale`, les valeurs 0, 3, 4, 5 et 60 : la bande 10-50 (celle qui déclenche la vérification de la fonction rénale) n'est représentée par AUCUN profil du golden master. Le comportement est couvert par la vignette F-24, qui pose 20 N explicitement — mais un futur lot qui casserait cette alerte ne serait rattrapé que par elle, pas par le banc mécanique. Signalé pour que personne ne lise le golden master comme une couverture de cette bande."
   - "PLACE DE L'ACIDE BEMPÉDOÏQUE — DIVERGENCE ASSUMÉE, non arbitrée par l'outil. La reco française 2026 le qualifie de « traitement de dernier recours » ; l'ESC 2025 le recommande en classe I / niveau B chez le patient qui ne peut pas prendre de statine. NUANCE MÉTHODO À CONSERVER (red-team, MOYENNE-4) : ce n'est PAS « dernier recours contre classe I » — la mention française est une phrase de texte courant, NON graduée, et la table des recommandations graduées de la reco ne contient aucune recommandation sur cette molécule. Il n'y a donc pas d'écart de RANG à opposer, seulement un écart de PLACE. Et la reco française rapporte CLEAR Outcomes fidèlement (« −13 % de MACE, −23 % d'IDM, sans effet sur l'AVC ni la mortalité ») : la divergence ne vient pas d'une lecture biaisée des chiffres. L'option terminale porte les deux positions sans trancher entre elles."
-  - "GARDE-FOU CK — REPRIS SUR SOURCE PRIMAIRE le 2026-07-27 (soir). L'entrée précédente, écrite le matin même, signalait une tension interne à la recommandation française (> 5 N contre-indique l'initiation, mais 4-10 N sous traitement conduit à réintroduire plus bas) et se bornait à ne pas la trancher. Le référent a ensuite récupéré les deux documents NICE que ni la collecte ni le red-team n'avaient pu ouvrir (403 répétés) — `docs/decision/sources/statin-intolerance-pathway.pdf` et `NICE 2023.pdf` — et la tension se dissout : ce ne sont pas deux règles contradictoires d'une même source, ce sont DEUX SOURCES qui divergent. Le parcours NHS England / AAC fait converger les bandes 4-10 N et 10-50 N vers une seule conduite (« Stop statin for 4-6 weeks »), pose le seuil d'initiation à 4 N et non 5, et réserve l'arrêt DÉFINITIF à la seule myosite nécrosante auto-immune. La recommandation française 2026 écrit au contraire qu'au-delà de 10 N la statine est arrêtée « permanently ». QUATRE ARBITRAGES RÉFÉRENT ont tranché : doser les CK seulement en cas de symptôme rapporté (le parcours écrit « Do not measure CK if person is asymptomatic », et le nœud demandait ce dosage à TOUT patient à l'initiation) ; seuil d'initiation à 4 N, le plus bas donc le plus prudent ; interruption temporaire et non arrêt définitif au-delà de 10 N, pour ne pas fermer la classe à un patient à haut risque qui pourrait la tolérer autrement ; protocole de réintroduction encodé, avec sa réserve de provenance. La position française sur l'arrêt définitif est PORTÉE dans l'option, pas effacée."
+  - "GARDE-FOU CK — REPRIS SUR SOURCE PRIMAIRE le 2026-07-27 (soir). L'entrée précédente, écrite le matin même, signalait une tension interne à la recommandation française (> 5 N contre-indique l'initiation, mais 4-10 N sous traitement conduit à réintroduire plus bas) et se bornait à ne pas la trancher. Le référent a ensuite récupéré les deux documents NICE que ni la collecte ni le red-team n'avaient pu ouvrir (403 répétés) — `docs/decision/sources/statin-intolerance-pathway.pdf` et `NICE 2023.pdf` — et la tension se dissout : ce ne sont pas deux règles contradictoires d'une même source, ce sont DEUX SOURCES qui divergent. Le parcours NHS England / AAC fait converger les bandes 4-10 N et 10-50 N vers une seule conduite (« Stop statin for 4-6 weeks »), pose le seuil d'initiation à 4 N et non 5, et réserve l'arrêt DÉFINITIF à la seule myosite nécrosante auto-immune. La recommandation française 2026 écrit au contraire qu'au-delà de 10 N la statine est arrêtée « permanently ». QUATRE ARBITRAGES RÉFÉRENT ont tranché : doser les CK seulement en cas de symptôme rapporté (le parcours écrit « Do not measure CK if person is asymptomatic », et le nœud demandait ce dosage à TOUT patient à l'initiation) ; seuil d'initiation à 4 N, « le plus bas donc le plus prudent » — RÉVISÉ à 5 N le 2026-07-27 (soir, A1) après lecture de NG238 §1.5.7 : le plus bas ne l'était pas, puisqu'il faisait renoncer à traiter un patient que la source veut traiter à dose plus faible ; interruption temporaire et non arrêt définitif au-delà de 10 N, pour ne pas fermer la classe à un patient à haut risque qui pourrait la tolérer autrement ; protocole de réintroduction encodé, avec sa réserve de provenance. La position française sur l'arrêt définitif est PORTÉE dans l'option, pas effacée."
   - "ESSAIS ABSENTS DE LA POPULATION VISÉE — formulation à ne pas relâcher. Il n'existe AUCUN essai de morbi-mortalité conduit dans une population DÉFINIE par l'intolérance aux statines, en dehors de CLEAR Outcomes. Écrire « chez des patients intolérants » serait faux : VESALIUS-CV (évolocumab, n = 12 257, 59 % de diabétiques, MACE-3 −25 %) et ORION-4 contiennent certainement des intolérants sans être des essais d'intolérance — le premier a d'ailleurs été mené sur fond de traitement hypolipémiant optimisé (68 % de statine haute intensité). Et dans CLEAR lui-même, l'intolérance est DÉCLARATIVE (« unable or unwilling ») avec 22,7 % de participants encore sous statine à très faible dose. VESALIUS-CV est à verser à la veille : c'est le plus grand et le plus récent essai de critère dur d'un anti-PCSK9 en population majoritairement diabétique."
   - "RÉSOLU (2026-07-26) — `autres_FDRCV` acceptait des valeurs hors domaine clinique (ex. -1), ce qui faisait basculer la sortie d'un tier à l'autre (recette 2026-07-26, défaut 13.4), le schéma ne portant alors aucune borne pour un critère `nombre`. Les champs `min`/`max` ont depuis été ajoutés au schéma et renseignés ici (`min: 0`, `max: 6`). Entrée conservée sous forme résolue plutôt que supprimée, parce qu'elle documente aussi le SECOND usage des bornes, moins évident : elles servent au générateur du banc à ne pas attribuer à un critère les littéraux d'un autre critère cité dans la même règle."
   - "`age` est un critère saisi et délibérément NON DÉCISIF sur les options : il n'intervient dans AUCUNE condition, seulement dans l'alerte `age > 75 AND ASCVD_etablie == false`. TRANCHÉ par le référent le 2026-07-26 (F-statine §9.4, 2ᵉ série) : un lot précédent avait proposé un gate `age >= 40` (recette 2026-07-26, F-statine §9.3) ; le référent l'a REJETÉ — « tout dépend de l'ancienneté du diabète et des atteintes d'organe. On colle à la grille. » Un DT2 de 30 ans avec 2 facteurs de risque est donc traité, À DESSEIN, comme un DT2 de 60 ans avec 2 facteurs de risque : c'est la grille française 2026 (`anciennete_diabete_annees`, `autres_FDRCV`, `diabete_complique`) qui gouverne la stratification, pas l'âge. Ce n'est plus une lacune mais une décision assumée — voir aussi le commentaire porté par le critère `age` dans `criteres_entree`."
@@ -853,8 +1009,43 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Claude Code"
   statut: brouillon
-  version: "1.10"
+  version: "1.11"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        SEUIL CK PORTÉ DE 4 N À 5 N, ET LA BANDE BASSE OUVERTE (arbitrages référent A1 + A2, chantier
+        2026-07-27, `SPEC-passage-statine.md`). RÉVISE l'entrée du même jour ci-dessous, qui avait tranché
+        4 N — celle-ci reste dans ce changelog, elle enregistre ce qui a été fait et pourquoi.
+        LE DÉFAUT : le nœud déclenchait à 4 N pendant que DEUX textes visibles à l'écran annonçaient 5 N
+        (constaté À L'ÉCRAN par la recette visuelle du lot 1, pas seulement dans le YAML), et surtout il
+        rendait « statine indisponible » à un patient dont les CK sont à 4,5 N avant initiation — là où
+        NG238 §1.5.7 demande de DÉBUTER À DOSE PLUS FAIBLE. Ce n'était pas un défaut d'affichage : c'était
+        une SOUS-PRESCRIPTION chez un patient dont le risque cardiovasculaire n'avait pas bougé. Le « seuil
+        le plus bas donc le plus prudent » retenu le matin ne l'était donc pas.
+        (1) SEUIL — six expressions passent de `> 4` à `> 5` (condition et exclusions des options CK,
+        condition et alerte de l'option terminale). Bandes 10 N et 50 N INCHANGÉES : NG238 ne les couvre
+        pas, le parcours NHS/AAC en reste seule source.
+        (2) NOUVELLE OPTION « Débuter la statine à dose plus faible » (4-5 N, avant initiation), placée
+        AVANT « haute intensité » — sans quoi, en ordered-first-match, un patient ASCVD à 4,5 N recevrait
+        la dose forte que la source écarte. PÉRIMÈTRE RESTREINT par arbitrage Q1 : NG238 écrit « toute
+        élévation sous 5 N », le référent a retenu 4-5 N pour ne pas changer la conduite des patients à
+        1-4 N, aujourd'hui traités à dose pleine sans que rien ne l'ait signalé comme un défaut. Écart au
+        texte assumé et enregistré dans `incertitudes`.
+        (3) NOUVELLE ALERTE DE NŒUD « rassurer » (4-5 N, sous traitement, `niveau: info`) : NG238 §1.11.4,
+        pas d'interruption sous 5 N. Alerte et non option (arbitrage Q2, D21) — « rassurer » n'est pas un
+        geste, et le patient concerné peut atterrir sur plusieurs cartes selon son profil.
+        (4) SCISSION DE « INTERROMPRE » en deux options (A2) : intolérance RAPPORTÉE → interrompre et
+        réévaluer, la réintroduction est la suite attendue ; intolérance AVÉRÉE → interrompre, la classe
+        reste fermée. La seconde PORTE elle-même l'orientation vers les alternatives (ézétimibe, acide
+        bempédoïque, anti-PCSK9) — arbitrage Q3 : en ordered-first-match elle gagne avant la carte
+        terminale, et renvoyer à une carte que le patient ne verra pas n'aurait rien orienté. Dette de
+        duplication assumée et signalée dans le fichier.
+        (5) QUATRE AFFIRMATIONS FAUSSES RETIRÉES (arbitrage Q4) : le nœud écrivait que « rien de plus
+        récent ne remplace le parcours NHS ». NG238 porte son propre protocole de réintroduction
+        (§1.9.2-1.9.4) et une section §1.10. Le parcours NHS reste la source de la conduite détaillée —
+        décision maintenue, mais désormais ASSUMÉE plutôt que présentée comme une absence d'alternative.
+        Basculer sur NG238 rouvrirait les trois autres arbitrages du dossier CK ; à instruire en veille.
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

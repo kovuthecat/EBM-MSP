@@ -607,3 +607,31 @@ Rapport : `docs/decision/validation/chantier-2026-07-27/recette-visuelle-lot1.md
       n° 3 du rapport (densité de ce bloc).
 - [ ] L'ordre des champs dans « à renseigner : … » suit désormais **l'ordre du formulaire**. À juger :
       se remplit-il de haut en bas sans revenir en arrière ?
+
+## Passage `statine` — A1 + A2 (2026-07-27, soir)
+
+Seuil CK porté de 4 N à 5 N, bande 4‑5 N ouverte, option « Interrompre » scindée.
+Mesure sur les 180 profils figés : **27 changent d'option**, **0 patient à CK > 5 ne gagne une
+prescription de statine**, et les **9 profils de la bande 4‑5 N passent de « aucune conduite » à une
+conduite**. C'est la sous‑prescription corrigée.
+
+- [ ] **Le défaut principal** — intolérance « rapportée », CK **4,5**, statine déjà en place **non**,
+      ASCVD **oui** : la carte **« Débuter la statine à dose plus faible »** doit s'afficher.
+      Avant ce passage, l'écran affichait « Statine indisponible ».
+- [ ] **Sous traitement** — mêmes valeurs mais statine déjà en place **oui** : plus d'interruption ; la
+      carte habituelle s'affiche, accompagnée de l'alerte bleue **« CK élevées mais au‑dessous de 5 fois
+      la normale : il n'y a pas lieu d'interrompre »**.
+- [ ] **CK 6, statine en place, intolérance rapportée** : « Interrompre 4 à 6 semaines et réévaluer ».
+      Avec intolérance **avérée** : « Interrompre — la classe reste indisponible », et cette carte doit
+      porter **elle‑même** l'orientation ézétimibe / acide bempédoïque / anti‑PCSK9.
+- [ ] Les textes annonçant « 5 fois la normale » sont désormais cohérents avec le seuil appliqué
+      (incohérence relevée à l'écran par la recette visuelle, hors périmètre 1).
+
+### ⚠ Un point d'ergonomie à juger, conséquence du passage
+
+- [ ] **Formulaire `statine` vierge** : le nœud halte désormais plus tôt, sur la nouvelle option, et
+      affiche « **Débuter la statine à dose plus faible** — à renseigner : Intolérance aux statines,
+      CK ». C'est correct au sens du moteur (on n'affirme rien avant de savoir) et `applicable` reste
+      vide comme avant — mais cet intitulé est la **première chose que lit le praticien en ouvrant le
+      nœud**, alors qu'il ne le concerne probablement pas. Avant, il lisait « Discuter la statine ».
+      À juger : acceptable, ou faut‑il repenser ce que montre un formulaire vierge ?
