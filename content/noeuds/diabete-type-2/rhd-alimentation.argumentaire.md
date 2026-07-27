@@ -122,7 +122,7 @@ plus proches de la preuve randomisée) et documenté comme limite dans `incertit
 | Repas maison de plus | Ultratransformés | Savoir-faire diététique (non EBM) | HAS (item de recueil, pas une reco d'action formulée) + Santé publique France |
 | Restauration rapide, choisir mieux | Restauration rapide | Recommandation officielle | EBM Guidelines (tips list, grade A/B, mention explicite hamburgers/pizzas) |
 | Huile d'olive en cuisson | Matières grasses | Savoir-faire diététique (non EBM)* | Santé publique France (repère non gradé) + HAS Fiche 4 |
-| Diviser fromage/charcuterie | Matières grasses | Savoir-faire diététique (non EBM) | HAS + Santé publique France (repères non gradés) |
+| Réduire charcuterie et viande rouge | Viande et charcuterie | Recommandation officielle | Santé publique France / Manger-Bouger, colonne « Réduire » (repères non gradés) |
 | Fruits à coque | Fruits à coque, légumineuses, poisson | Savoir-faire diététique (non EBM)* | Santé publique France (repère non gradé) |
 | Légumineuses | Fruits à coque, légumineuses, poisson | Savoir-faire diététique (non EBM) | Santé publique France (repère non gradé) |
 | Poisson | Fruits à coque, légumineuses, poisson | Savoir-faire diététique (non EBM) | Santé publique France (repère non gradé) |
@@ -177,12 +177,50 @@ parcours surpoids-obésité (p.43) :
 3. Antécédent de demande de régime amaigrissant ou habitudes alimentaires très restrictives — seul signe
    appartenant littéralement à la liste DSM-5 de la source.
 
-Aucun instrument validé de repérage (SCOFF, EDE-Q…) n'a été trouvé dans les sources locales : ce verrou
-n'est PAS un score, une seule case cochée suffit à bloquer les pistes de réduction et de quantification
-(division des portions, pesée, repères visuels de portion, réduction du grignotage). Restent NON bloquées
-la régularité des repas et le fait de manger sans se presser — la HAS cite elle-même l'instauration d'un
-rythme et d'un cadre alimentaire comme mesure d'accompagnement du trouble du comportement alimentaire, en
-structure spécialisée.
+**CE VERROU NE BLOQUE PLUS RIEN DEPUIS LE 2026-07-27 — il ORIENTE.** Décision référent, prise sur un
+principe qui recadre tout le nœud : « dans le cadre des RHD en médecine générale on ne propose pas de
+restriction calorique, en tout cas pas chiffrée ; on propose des modifications d'habitudes alimentaires,
+jamais de régime. » Un verrou anti-restriction n'a alors plus d'objet, et l'inventaire de ce qu'il bloquait
+réellement le confirme — aucune des trois exclusions n'était à sa place :
+
+| ce que le verrou bloquait | ce que c'était vraiment |
+|---|---|
+| « Repérer un moment de grignotage et lui trouver une **alternative** » | une **substitution** : rien n'y est retiré ni chiffré |
+| « Se repérer aux **proportions** dans l'assiette » | un **reliquat** : ce blocage protégeait de la piste de PESÉE, supprimée la veille. La piste avait été réécrite en repère qualitatif, l'exclusion était restée — et son propre `inconvenients` décrivait encore une piste disparue |
+| « Diviser par deux la portion de fromage et de charcuterie » | le **seul** geste réellement chiffré. Il a été réécrit sans chiffre (voir plus bas) |
+
+Le verrou conditionne désormais les **deux options d'orientation** — diététicien, et avis spécialisé en TCA —
+et rien d'autre. Ce déplacement change aussi le poids d'une objection connue : sa sensibilité et sa
+spécificité sont **inconnues**, aucune étude ne l'ayant évalué. Tant qu'il servait de test bloquant, c'était
+un vrai problème — un blocage binaire fondé sur une spécificité inconnue. En déclencheur d'orientation, un
+faux positif propose une orientation de plus, là où il retirait auparavant des pistes au patient.
+
+**Ce que la littérature contient réellement**, et que la formulation d'origine (« aucun instrument trouvé
+dans les sources locales ») était trop étroite pour dire — elle était **exacte**, le corpus local ne contenant
+effectivement ni la RBP anorexie 2010 ni la fiche boulimie 2019, mais non informative :
+
+- le **SCOFF-F** existe, il est validé en français et la HAS le nomme dans **deux** recommandations. Il reste
+  écarté pour quatre motifs qui tiennent : il est **mal formé pour ce patient** — ses items visent les
+  vomissements provoqués, une perte de poids récente de plus de 6 kg et la conviction d'être gros quand
+  l'entourage vous trouve trop mince ; chez un adulte DT2 en surpoids dont le TCA attendu est l'hyperphagie
+  boulimique, **au moins un item est inversé** (la perte de poids y est un objectif thérapeutique, pas un
+  signe d'alerte), et Kutz 2020 documente précisément cette perte de sensibilité dans l'hyperphagie
+  boulimique, chez les hommes et en recrutement communautaire — les trois conditions de ce nœud. Ses
+  validations françaises (Garcia 2010, 2011) ne portent en outre que sur des **femmes jeunes**.
+- **Expali™** (Tavolacci 2019) est l'outil français qui traite explicitement la catégorie hyperphagique, mais
+  il n'a **jamais été évalué contre des témoins sans TCA** : ses auteurs demandent eux-mêmes une validation en
+  médecine générale.
+- la **Binge Eating Scale française** (Brunault 2016) est le seul instrument validé chez l'adulte obèse des
+  deux sexes contre un entretien diagnostique (Se 75 %, Sp 88,4 %, VPP 37,5 % sur n = 47) — mais elle fait
+  **seize items**, incompatible avec le socle de 2-3 minutes que vise ce nœud.
+
+**Une divergence de recommandations, portée et non arbitrée.** La HAS 2019 écrit « rechercher
+SYSTÉMATIQUEMENT une hyperphagie boulimique en cas de surpoids ou d'obésité » ; l'USPSTF 2022 conclut que
+« les preuves actuelles sont insuffisantes » pour dépister l'adulte asymptomatique (*I statement*). Le nœud se
+tient entre les deux — trois signes d'appel, pas de dépistage systématique — et le lot du 2026-07-27 en réduit
+l'enjeu, puisque le repérage ne ferme plus aucune piste. Réserve de périmètre à connaître : le patient de ce
+nœud, adulte DT2 d'âge moyen ou avancé en surpoids, n'appartient à la population cible **déclarée** d'aucun
+des deux documents HAS invoqués.
 
 Chaque signe porte `confirmation_requise: true` (D20) : un « non » qui n'a jamais été demandé au patient ne
 peut pas être présumé sans risque — même famille de garde-fou que `diabete_complique` sur le nœud statine.

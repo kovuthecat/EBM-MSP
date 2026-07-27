@@ -296,44 +296,28 @@ describe('I8 — adossement bibliographique des options (générique, tous nœud
   })
 
   /**
-   * DETTE NOMMÉE, au plus fin — une entrée par couple (nœud, option), jamais une dispense de nœud entier
-   * (même doctrine que `ALERTES_PROHIBITIVES_HORS_PERIMETRE` ci-dessus).
+   * DETTE ENTIÈREMENT RÉSORBÉE le 2026-07-27, le jour même où elle a été créée — et la façon dont elle
+   * s'est résorbée vaut d'être gardée.
    *
-   * CE QUE CETTE LISTE DIT VRAIMENT, et c'est une trouvaille de l'invariant lui-même : ces options
-   * revendiquent un niveau de preuve `eleve` ou `modere` dont le fondement n'est PAS expérimental mais
-   * RÉGLEMENTAIRE (RCP ANSM, contre-indication de société savante) ou tiré d'un accord d'experts. Aucun
-   * essai de `references_primaires` ne les porte, et il aurait été facile — et malhonnête — de leur
-   * accrocher l'essai le plus voisin pour faire passer le test au vert. Une citation fabriquée dans ce
-   * champ créerait exactement la fausse confiance que l'invariant existe pour empêcher.
+   * En posant I8c, cinq options se sont révélées revendiquer un niveau de preuve `eleve` ou `modere` dont
+   * le fondement n'était pas expérimental mais RÉGLEMENTAIRE (RCP ANSM, contre-indication de société
+   * savante) ou tiré d'un accord d'experts. Aucun essai ne les portait. Deux issues s'offraient : leur
+   * accrocher l'essai le plus voisin — ce qui aurait fait passer le test au vert en fabriquant exactement
+   * la fausse confiance que cet invariant existe pour empêcher — ou les nommer une à une en dette.
    *
-   * LA VRAIE QUESTION, À TRANCHER PAR LE RÉFÉRENT : `niveau_preuve` doit-il refléter la certitude de la
-   * PREUVE (auquel cas une contre-indication de RCP n'est ni `eleve` ni `modere` au sens GRADE, et ces
-   * options sont mal étiquetées), ou la force de la RECOMMANDATION (auquel cas l'étiquette est juste et
-   * c'est le champ `references` qui a besoin d'accueillir autre chose que des essais) ? Tant que ce n'est
-   * pas tranché, chaque cas est nommé ici avec son fondement réel.
+   * Elles ont d'abord été nommées ici. Puis le référent a tranché la question de fond : « le niveau de
+   * preuve doit refléter la CERTITUDE DE LA PREUVE, c'est l'intérêt d'un outil EBM et pas d'un listing de
+   * recos officielles. » Appliquée, cette règle vide la liste : les cinq options étaient simplement MAL
+   * ÉTIQUETÉES — elles confondaient la force d'une recommandation avec la certitude d'une donnée. Toutes
+   * sont passées en `faible`, sans qu'aucun geste clinique ne change.
+   *
+   * LEÇON, plus générale que ce cas : une dette qu'aucune réécriture ne semble pouvoir lever signale
+   * souvent une question de fond non tranchée, pas un invariant trop strict. Ici, l'invariant avait
+   * raison ; c'est le contenu qui se trompait, et il fallait une décision de principe pour le voir.
+   * La liste reste déclarée, VIDE, comme `NOEUDS_AVEC_ALERTE_DEFAULT_CONNUE` pour I6 : si un cas
+   * réapparaît un jour, il devra être nommé et motivé ici, jamais dispensé en bloc.
    */
-  const OPTIONS_A_FONDEMENT_NON_EXPERIMENTAL = new Map<string, string>([
-    [
-      'prescription :: Arrêter la metformine (DFG < 30 — contre‑indication rénale)',
-      'Contre-indication du RCP ANSM (risque d’acidose lactique par accumulation). Aucun ECR n’a randomisé l’arrêt de la metformine sous 30 — et aucun ne le fera.',
-    ],
-    [
-      'prescription :: Réduire la posologie de la metformine (fonction rénale altérée ou intolérance digestive)',
-      'Paliers posologiques du RCP ANSM (max 2 g/j si DFG 45-59 ; 1 g/j si 30-44). Norme réglementaire, pas résultat d’essai.',
-    ],
-    [
-      'prescription :: Arrêter le sulfamide (DFG < 30 — contre‑indication rénale)',
-      'Contre-indication CITÉE par la SFD (prise de position 2023 et 2025, Tableau I note 2 + Avis n° 12) — vérifiée en source primaire le 2026-07-27. C’est une recommandation, donc sa place est `reco_officielle`, pas `references_primaires` : le schéma n’accepte dans ce champ que des références portant un `type_critere` (dur/mixte/substitution), ce qu’un texte normatif n’a pas.',
-    ],
-    [
-      "prescription :: Suspendre l'iSGLT2 (cétonémie confirmée — suspicion d'acidocétose euglycémique)",
-      'Garde-fou de sécurité (acidocétose euglycémique), porté par les RCP et les alertes d’agence. Aucun essai ne randomise la suspension.',
-    ],
-    [
-      'insuline :: Désintensifier / alléger le schéma',
-      'Accord d’experts (ADA §13, HAS R.103, SFD Avis 5 bis). L’ECR de déprescription du sujet âgé (Grant) est versé dans le nœud `prescription`, pas ici — un futur lot pourrait l’y ajouter et lever cette entrée.',
-    ],
-  ])
+  const OPTIONS_A_FONDEMENT_NON_EXPERIMENTAL = new Map<string, string>([])
 
   it('I8c — une option en preuve modérée ou élevée déclare au moins une référence', () => {
     const violations: string[] = []

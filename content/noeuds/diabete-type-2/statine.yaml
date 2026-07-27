@@ -584,6 +584,18 @@ argumentaire: >
   proposée (4D, AURORA neutres — exclusion structurelle depuis 2026-07-26) ; une statine déjà en place peut
   raisonnablement être poursuivie. Le « diabète induit par statine » est sans objet chez un patient déjà
   diabétique.
+  QUATRIÈME SITUATION (2026-07-27) : la statine INDISPONIBLE — intolérance AVÉRÉE, ou CK au-dessus de 4 fois
+  la normale avant initiation. Une intolérance seulement RAPPORTÉE ne retire rien : chez des patients
+  étiquetés intolérants puis réintroduits en aveugle, l'excès porte sur l'ARRÊT du traitement et non sur les
+  symptômes (Aebi 2025 : symptômes OR 1,19 non significatif, arrêt OR 1,48 ; Kraut 2023 : environ un tiers
+  réellement intolérants à la statine, un quart au PLACEBO). Seule l'intolérance avérée ferme la classe, et
+  une carte terminale oriente alors vers les alternatives : ézétimibe seul (position française, mais aucun
+  essai de critère dur chez l'intolérant), acide bempédoïque (le SEUL agent disposant d'un essai de
+  morbi-mortalité dans cette population — CLEAR Outcomes, sous-groupe diabète HR 0,83, réduction absolue
+  2,4 % — SANS bénéfice de mortalité, points estimés défavorables), anti-PCSK9 en 3e ligne. Sous traitement,
+  des CK au-dessus de 4 N imposent d'interrompre 4 à 6 semaines avant tout autre raisonnement, puis de
+  réintroduire à dose plus basse ; la France dit arrêt définitif au-delà de 10 N, le parcours NHS
+  interruption temporaire — divergence affichée, tranchée en faveur du second.
 sources:
   references_primaires:
     - id: cards

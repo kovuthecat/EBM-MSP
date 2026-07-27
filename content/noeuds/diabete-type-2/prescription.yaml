@@ -362,7 +362,14 @@ options:
       - "Réévaluer le contrôle après l'arrêt (socle retiré) ; renforcer souvent la protection cardio‑rénale en parallèle."
     effet_attendu: >-
       Suppression du risque d'acidose lactique en insuffisance rénale sévère (sécurité — RCP/ANSM).
-    niveau_preuve: eleve
+    # NIVEAU DE PREUVE ABAISSÉ le 2026-07-27 — décision de principe du référent, en réponse à la question
+    # que l'invariant I8 avait fait surgir : « le niveau de preuve doit refléter la CERTITUDE DE LA PREUVE,
+    # c'est l'intérêt d'un outil EBM et pas d'un listing de recos officielles. »
+    # Cette option était étiquetée `eleve`. Son fondement est la contre-indication du RCP ANSM (accumulation, risque d'acidose lactique) — il n'existe
+    # aucun essai qui l'établisse, et il n'en existera pas. Au sens GRADE, la certitude est donc FAIBLE,
+    # quelle que soit la force de la recommandation qui la porte. Les deux notions étaient confondues.
+    # Le geste reste EXACTEMENT le même : c'est l'étiquette qui devient honnête, pas la conduite.
+    niveau_preuve: faible
   - intitule: "Réduire la posologie de la metformine (fonction rénale altérée ou intolérance digestive)"
     # GATING SUR LA DOSE (décision référent, 2026-07-26, 3e série — recette capture 1, problème 2) : avant
     # ce lot, cette option se déclenchait sur la seule fourchette de DFG, SANS savoir si la dose ACTUELLE
@@ -395,7 +402,14 @@ options:
     effet_attendu: >-
       Réduit le risque d'accumulation en maintenant le bénéfice de la metformine dans la plage utilisable
       (sécurité — RCP/ANSM).
-    niveau_preuve: eleve
+    # NIVEAU DE PREUVE ABAISSÉ le 2026-07-27 — décision de principe du référent, en réponse à la question
+    # que l'invariant I8 avait fait surgir : « le niveau de preuve doit refléter la CERTITUDE DE LA PREUVE,
+    # c'est l'intérêt d'un outil EBM et pas d'un listing de recos officielles. »
+    # Cette option était étiquetée `eleve`. Son fondement est les paliers posologiques du RCP ANSM (2 g/j si DFG 45-59, 1 g/j si 30-44) — il n'existe
+    # aucun essai qui l'établisse, et il n'en existera pas. Au sens GRADE, la certitude est donc FAIBLE,
+    # quelle que soit la force de la recommandation qui la porte. Les deux notions étaient confondues.
+    # Le geste reste EXACTEMENT le même : c'est l'étiquette qui devient honnête, pas la conduite.
+    niveau_preuve: faible
   - intitule: "Arrêter le sulfamide (DFG < 30 — contre‑indication rénale)"
     conditions:
       - "traitements_en_cours contient sulfamide"
@@ -419,7 +433,14 @@ options:
     effet_attendu: >-
       Suppression du risque d'hypoglycémie sévère par accumulation en insuffisance rénale (sécurité — RCP « IR
       sévère » ; seuil cité par la SFD 2023/2025).
-    niveau_preuve: eleve
+    # NIVEAU DE PREUVE ABAISSÉ le 2026-07-27 — décision de principe du référent, en réponse à la question
+    # que l'invariant I8 avait fait surgir : « le niveau de preuve doit refléter la CERTITUDE DE LA PREUVE,
+    # c'est l'intérêt d'un outil EBM et pas d'un listing de recos officielles. »
+    # Cette option était étiquetée `eleve`. Son fondement est la contre-indication citée par la SFD (prise de position 2023 et 2025) — il n'existe
+    # aucun essai qui l'établisse, et il n'en existera pas. Au sens GRADE, la certitude est donc FAIBLE,
+    # quelle que soit la force de la recommandation qui la porte. Les deux notions étaient confondues.
+    # Le geste reste EXACTEMENT le même : c'est l'étiquette qui devient honnête, pas la conduite.
+    niveau_preuve: faible
   # ---- Sécurité — acidocétose euglycémique sous iSGLT2 --------------------------------------------------
   - intitule: "Suspendre l'iSGLT2 (cétonémie confirmée — suspicion d'acidocétose euglycémique)"
     # AJOUT (2026-07-26, 4e série, red-team clinique sécurité HAUTE-3, PRIORITÉ ABSOLUE DU LOT) : aucune
@@ -452,7 +473,14 @@ options:
       Suppression du facteur aggravant reconnu de l'acidocétose euglycémique (sécurité — pharmacovigilance
       FDA/EMA). Pas un effet chiffré sur un critère dur ; ne remet pas en cause le bénéfice cardio-rénal
       habituel de la classe (cf. option « Introduire un iSGLT2 »), suspendu le temps de l'épisode seulement.
-    niveau_preuve: eleve
+    # NIVEAU DE PREUVE ABAISSÉ le 2026-07-27 — décision de principe du référent, en réponse à la question
+    # que l'invariant I8 avait fait surgir : « le niveau de preuve doit refléter la CERTITUDE DE LA PREUVE,
+    # c'est l'intérêt d'un outil EBM et pas d'un listing de recos officielles. »
+    # Cette option était étiquetée `eleve`. Son fondement est un garde-fou de sécurité (acidocétose euglycémique) qu'aucun essai ne pourrait randomiser — il n'existe
+    # aucun essai qui l'établisse, et il n'en existera pas. Au sens GRADE, la certitude est donc FAIBLE,
+    # quelle que soit la force de la recommandation qui la porte. Les deux notions étaient confondues.
+    # Le geste reste EXACTEMENT le même : c'est l'étiquette qui devient honnête, pas la conduite.
+    niveau_preuve: faible
     contre_indications:
       - "Cétonémie ≥ 3 mmol/L → urgence (insuline + hospitalisation), hors périmètre du nœud."
   # ---- Ajout d'un agent protecteur (fix bug 9 : priorités conditionnelles) ------------------------------
@@ -1257,6 +1285,16 @@ argumentaire: >
   bénéfice d'organe des populations enrichies des CVOT (EMPA-REG OUTCOME ; DAPA-CKD, NNT 19/2,4 ans ;
   EMPEROR-Reduced, NNT 19) — d'où une place plus restreinte pour la dapagliflozine hors indication d'organe
   (divergence de degré, cf. divergence).
+  VOLET RÉNAL, repris en source primaire le 2026-07-27 : le seuil de 30 des sulfamides n'est plus présenté
+  comme une « convention KDIGO » — la KDIGO ne porte aucun chiffre sur cette classe, c'est la SFD qui cite le
+  seuil dans la même phrase que la contre-indication, sur deux éditions. Le glinide en est distingué : aucune
+  contre-indication rénale à son RCP, élimination hépatobiliaire, exposition doublée en IRC sévère qui
+  justifie une prudence posologique — et deux sources françaises le nomment nommément sous DFG 15. Le sujet
+  âgé FRAGILE se voit désormais retirer le sulfamide par une exclusion (la SFD 2025 a durci « éviter » en
+  « ne jamais utiliser » chez le dépendant ; sur-blocage assumé, le nœud n'ayant pas cette catégorie). Le
+  garde-fou d'HbA1c devient conditionnel : 7 % si DFG < 30 sous glinide ou insuline, 6,5 % sinon. Et sous
+  DFG 30, la gliptine nommée est la VILDAGLIPTINE 50 mg/j — la forme sitagliptine 25 mg n'est pas
+  commercialisée en France, vérifié par le référent.
 sources:
   references_primaires:
     - id: empa-reg

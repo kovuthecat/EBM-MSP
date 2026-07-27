@@ -652,7 +652,14 @@ options:
     inconvenients:
       - "Contrôle glycémique volontairement moins strict — bénéfice = réduction du risque d'hypoglycémie."
     effet_attendu: "Priorité à la sécurité et à la qualité de vie ; cibles glycémiques et de MCG relâchées (voir alerte)."
-    niveau_preuve: modere
+    # NIVEAU DE PREUVE ABAISSÉ le 2026-07-27 — décision de principe du référent, en réponse à la question
+    # que l'invariant I8 avait fait surgir : « le niveau de preuve doit refléter la CERTITUDE DE LA PREUVE,
+    # c'est l'intérêt d'un outil EBM et pas d'un listing de recos officielles. »
+    # Cette option était étiquetée `modere`. Son fondement est un accord d'experts (ADA §13, HAS R.103, SFD Avis 5 bis) — il n'existe
+    # aucun essai qui l'établisse, et il n'en existera pas. Au sens GRADE, la certitude est donc FAIBLE,
+    # quelle que soit la force de la recommandation qui la porte. Les deux notions étaient confondues.
+    # Le geste reste EXACTEMENT le même : c'est l'étiquette qui devient honnête, pas la conduite.
+    niveau_preuve: faible
   - intitule: "Optimiser la répartition du basal-bolus (guidé par l'AGP et les doses actuelles)"
     famille: "Ajuster le schéma en place"
     # 12.11 (recette) : condition unique = situation, préemptant le repli — un patient à l'objectif,

@@ -183,6 +183,107 @@ contre‑indique — la lacune la plus visible des nœuds B/C historiques :
 Ces garde‑fous sont des **décisions référent** (seuils pragmatiques) : la preuve borne la *direction*
 (prudence incrétine chez le fragile/dénutri — ADA « Older Adults », SFD Avis 3/5, RCP), pas le chiffre exact.
 
+## Insuffisance rénale — les seuils, et ce qui les porte réellement
+
+*Section ajoutée le 2026-07-27, après une collecte de preuve et une re-vérification adversariale qui a rouvert
+chaque source primaire. Elle corrige une attribution que le nœud portait depuis l'origine.*
+
+### Le seuil de 30 des sulfamides n'est pas une convention — c'est une citation
+
+Le nœud écrivait « DFG < 30, convention KDIGO/SFD ». Vérification en source primaire, puis re-vérification
+indépendante :
+
+- **La KDIGO 2022 ne porte AUCUN chiffre sur les sulfamides.** Sa seule phrase les reliant au DFG est
+  qualitative — « *sulfonylureas that are long-acting or cleared by the kidney should be avoided at low
+  eGFRs* » — et renvoie à une revue, pas à une norme. Sa Figure 23, l'algorithme de choix, ne chiffre que la
+  metformine et l'iSGLT2 ; le sulfamide y est relégué sans le moindre nombre. **L'attribution KDIGO était
+  fausse et a été retirée.**
+- **La SFD, elle, porte le chiffre et la contre-indication dans la MÊME phrase**, et sur deux éditions (2023
+  et 2025) : Tableau I note 1 (stade 4 = DFG 15-29, stade 5 = < 15), note 2 (« les sulfamides hypoglycémiants
+  sont contre-indiqués en cas d'IRC sévère ou terminale »), et Avis n° 12 qui attache « (SU contre-indiqués) »
+  aux plages chiffrées. Il n'y a aucune déduction à faire.
+- **La HAS 2024 ne nomme jamais un sulfamide individuel** — zéro occurrence de `clazide|piride|clamide|pizide`
+  dans ses 17 249 lignes — et ne porte aucun seuil de DFG pour la classe. Le guide HAS parcours maladie rénale
+  chronique non plus : il se récuse explicitement sur le glycémique. Le négatif HAS est complet et fermé.
+
+**Ce qui n'est délibérément PAS encodé** : la distinction entre molécules. Elle est réelle — le gliclazide est
+métabolisé en métabolites **inactifs**, le glimépiride produit un métabolite M1 **actif** qui s'accumule — et
+portée par au moins deux sociétés savantes **étrangères** : l'Endocrine Society 2019 (glimépiride « *should
+not be used with an eGFR < 30* », recommandation graduée) et la Société suisse d'endocrinologie 2012
+(gliclazide seul jusqu'à 40, glimépiride contre-indiqué < 60). Aucune source **française** de rang
+recommandation ne la porte, et les seuils étrangers contrediraient les RCP français. Motif rectifié au
+passage : « aucune source **française** », et non « aucune source » — la collecte avait écrit la seconde
+formulation, qui est fausse.
+
+### Le glinide n'est pas un sulfamide, et son RCP le dit
+
+L'option unique « réduire le sulfamide ou le glinide » portait une exclusion `DFG < 30` héritée du sulfamide.
+Elle retirait donc au patient sous répaglinide **le geste que son propre RCP recommande**. Scindée en deux le
+2026-07-26 :
+
+- **Aucune contre-indication rénale** au RCP (rubrique 4.3, cinq contre-indications, aucune rénale — vérifié
+  jusque sur le RCP centralisé EMA de Novonorm) ; élimination hépatobiliaire à plus de 90 %.
+- **Exposition doublée en insuffisance rénale sévère** : ASC ×2 entre 20 et 39 ml/min après cinq jours de
+  traitement (rubrique 5.2). L'étude sous-jacente a été identifiée par le red-team : **Schumacher 2001**,
+  34 patients. C'est très exactement ce qui justifie une **prudence posologique**, c'est-à-dire le geste que
+  l'option propose. Une alerte d'option le porte à partir de DFG < 40.
+- **Deux sources françaises de rang recommandation le nomment** : SFD 2025 Avis n° 12 bis (liste fermée des
+  molécules utilisables sous DFG 15, répaglinide compris) et HAS 2024 R.78, grade C.
+
+**Ce qui reste ouvert, et qu'il ne faut pas clore.** La collecte proposait de fermer le résiduel « pas de
+donnée sous 20 ml/min » au motif qu'une PK spécifique de l'hémodialysé existerait — Marbury 2000, bras de six
+patients avec dosage du dialysat, « *hemodialysis did not significantly affect repaglinide clearance* ». Le
+red-team a montré que ce bras est en **dose unique ×2 avec washout** : il établit que l'hémodialyse n'épure
+pas le répaglinide, **pas** qu'une prise prandiale répétée soit sûre chez le dialysé. Il a aussi relevé la
+phrase que la collecte omettait, dans le même résumé — « *the elimination rate constant in the group with
+severe renal impairment decreased after 1 week of treatment* », soit un signal d'accumulation — et le fait que
+l'étiquetage FDA **nie** l'existence de toute étude sous CrCl 20 ou en hémodialyse. Formulation juste :
+l'option est **soutenue par une recommandation** (SFD, sous 15) mais **sans donnée pharmacocinétique d'état
+d'équilibre en dialyse**.
+
+### Le sujet âgé : un durcissement que le nœud n'exprimait qu'en prose
+
+La SFD a durci sa note 6 entre deux éditions. 2023 : « il est **préférable d'éviter** de prescrire un
+sulfamide ou un glinide chez les sujets âgés fragiles ou dépendants ». 2025 : « il est recommandé d'**éviter**
+chez les sujets âgés "fragiles" et de **ne JAMAIS les utiliser** chez les sujets âgés "dépendants" ».
+
+La prohibition n'existait dans le nœud qu'en prose (« déconseillé chez le sujet à risque d'hypoglycémie
+élevé »), c'est-à-dire à un cran plus faible que « ne jamais ». Une **exclusion** a été posée sur l'option
+sulfamide. **Sur-blocage assumé** (décision référent) : le nœud n'a pas de catégorie « dépendant » —
+`fragilite` est un booléen — de sorte que l'exclusion retire aussi le sulfamide au sujet **fragile**, que la
+source dit seulement d'éviter. Choix délibéré, du côté sûr d'un garde-fou d'hypoglycémie. Le glinide, visé par
+la même phrase, n'a pas d'option d'ajout dans ce nœud : rien à exclure de ce côté, et les options qui le
+**réduisent** ou l'**arrêtent** restent ouvertes — arrêter un traitement est une option, jamais une exclusion.
+
+### Un plancher d'HbA1c qui dépend du traitement
+
+SFD 2025, Avis n° 12 : en IRC sévère ou terminale, « on visera une HbA1c cible ≤ 8 %, avec une **limite
+inférieure de 7 %** en cas de traitement par **glinide ou insuline** (SU contre-indiqués), pour minimiser le
+risque hypoglycémique ».
+
+Le garde-fou du nœud était unique, à 6,5 %. Un patient à DFG 25 sous répaglinide et HbA1c 6,8 % était donc
+**dans la zone que la SFD interdit sans déclencher aucun garde-fou numérique** — il n'était rattrapé que si le
+praticien déclarait lui-même un sur-traitement. Le plancher est désormais **conditionnel** : 7 % si DFG < 30
+sous glinide ou insuline, 6,5 % sinon.
+
+**Lecture littérale assumée** : la SFD attache ce plancher au couple « IRC sévère + glinide/insuline ». Elle
+ne dit rien du patient à DFG < 30 sous un autre agent, ni du patient sous glinide/insuline à DFG 30-44. Ces
+deux zones restent au plancher général. C'est fidèle à la source ; ce n'est pas nécessairement la bonne
+lecture clinique.
+
+### Quelle gliptine sous DFG 30
+
+Le nœud proposait « sitagliptine 25 mg, dialyse incluse », en trois endroits. La SFD 2025 écrit **deux fois**
+que cette forme **n'est pas commercialisée en France** et désigne à sa place la **vildagliptine 50 mg/j**. Le
+red-team n'avait pas pu ouvrir la base de données publique des médicaments et avait explicitement laissé le
+point au référent plutôt que de le deviner — la bonne conduite, et elle a payé : **le référent a vérifié, la
+sitagliptine 25 mg n'est effectivement pas disponible en France**. Les trois libellés nomment donc désormais
+la vildagliptine. Le rang et les conditions de l'option gliptine sont **inchangés** : seule la molécule
+nommée change, aucune exclusion rénale n'a été ajoutée, aucune source n'en porte.
+
+Aucune contradiction avec la règle « gliptine française = sitagliptine » posée ailleurs dans le domaine :
+celle-là porte sur la **classe disponible** en France, celle-ci sur le **dosage utilisable** en rénal sévère.
+
 ## Méthode & frontières
 
 Fusion de trois dossiers **déjà validés** ; le socle EBM n'est **pas re‑dérivé** (voir B/C/D). Seules les

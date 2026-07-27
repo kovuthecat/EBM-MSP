@@ -16,6 +16,13 @@ de l'HbA1c** et du traitement antidiabétique. Trois situations :
   démontrée**.
 - **Diabète non compliqué à faible risque absolu** (récent, sans autre facteur de risque) → **décision
   partagée** (bénéfice absolu faible).
+- **Statine indisponible** — intolérance **avérée**, ou CK > 4 fois la normale avant initiation → la classe
+  est retirée et une carte terminale oriente vers les alternatives hypolipémiantes. *(Ajouté le
+  2026-07-27 : jusque-là, l'outil affichait « atorvastatine 40-80 mg » à un patient dont le dossier
+  déclarait qu'il ne pouvait pas en prendre, avec une simple alerte à côté.)*
+
+À quoi s'ajoute une conduite qui n'est pas un tier de risque mais un geste de sécurité : **CK > 4 fois la
+normale sous traitement → interrompre 4 à 6 semaines et réévaluer**, avant tout autre raisonnement.
 
 Position assumée : **l'intensité est calée sur le niveau de risque, pas sur une cible LDL chiffrée**.
 
@@ -169,13 +176,132 @@ au cas par cas, pas de conduite inventée au-delà de ce que le dossier établit
   le non-diabétique. Chez un patient **déjà diabétique**, cet argument **ne s'applique pas**.
 - **Symptômes musculaires** : la méta CTT sur données individuelles 2022 montre un excès réel **seulement la
   1re année** (RR 1,07), nul ensuite, et **> 90 % des symptômes musculaires rapportés ne sont pas attribuables**
-  à la statine (~1 sur 15). *(Depuis 2026-07-26, ce constat alimente une alerte dédiée du nœud sur le nouveau
-  critère `intolerance_statine` — le dossier ne documente PAS de protocole de conduite à tenir en cas
-  d'intolérance confirmée : réintroduction, dose alternée, molécule de repli. Non modélisé, signalé plutôt
-  qu'inventé.)*
+  à la statine (~1 sur 15). *(Ce constat alimente une alerte du nœud, ciblée depuis le 2026-07-27 sur la seule
+  valeur `rapportee` du critère `intolerance_statine` : adressé à un patient dont l'intolérance est AVÉRÉE, ce
+  message l'inviterait à ignorer son propre dossier. La conduite à tenir, elle, n'est plus un trou du dossier
+  — voir le § 6 bis ci-dessous.)*
+- **Créatine kinase — le seul seuil qui retire réellement une option.** La recommandation française 2026
+  n'emploie le mot *contre-indication* qu'une seule fois dans tout son chapitre statine, et c'est ici : des CK
+  élevées avant initiation contre-indiquent la classe. Le parcours NHS pose le seuil à **4 fois la normale**
+  (la reco française écrit 5) et, surtout, **ne fait doser les CK qu'en présence d'une douleur musculaire** —
+  « *Do not measure CK if person is asymptomatic* ». Le nœud suit le seuil le plus bas et ne demande le
+  dosage que si une intolérance est rapportée ou avérée.
 - **Choix de molécule** : simvastatine et atorvastatine sont métabolisées par le **CYP3A4** (interactions :
   macrolides, azolés, amiodarone, vérapamil/diltiazem, inhibiteurs de protéase, pamplemousse). **Pravastatine,
   rosuvastatine, pitavastatine** ont **moins d'interactions** — à préférer en cas de co-prescription à risque.
+
+## 6 bis. Intolérance aux statines — ce que la donnée établit, et ce qu'on en fait
+
+*Section ajoutée le 2026-07-27, après une collecte de preuve, une re-vérification adversariale qui a corrigé
+cinq affirmations de cette collecte, et la lecture en source primaire des deux documents NICE que ni l'une ni
+l'autre n'avaient pu ouvrir.*
+
+### Une intolérance rapportée n'est pas une intolérance
+
+C'est le fait le mieux établi du dossier, et il commande tout le reste. Chez des patients **déjà étiquetés
+intolérants** et réintroduits **en aveugle** :
+
+- **Kraut 2023** (méta de réintroductions en aveugle) : environ **un tiers** sont réellement intolérants à la
+  statine — et **un quart le sont au placebo**. Risque relatif d'intolérance 1,40 (1,23-1,60), NNH 10, chiffre
+  publié dans le résumé. Mais le **score symptomatique** ne diffère pas : 1,08 (−1,51 à 3,67).
+- **Aebi 2025** (13 ECR, 1 868 participants) précise la nature de l'excès : les **symptômes** ne sont pas en
+  excès significatif (OR 1,19 [0,86-1,64]) alors que **l'ARRÊT du traitement** l'est (OR 1,48 [1,03-2,12]).
+  Ce qui est en excès sous statine n'est donc pas tant la douleur que la décision d'arrêter.
+- **GAUSS-3** phase A donne l'ordre de grandeur de l'attribution : 42,6 % de symptômes sous atorvastatine
+  seule, mais **26,5 % sous placebo seul** — excès net d'environ **16 points**, et non 42,6 %. Deux mises en
+  garde qui ont coûté une correction : chaque traitement n'y est donné **qu'une fois** (rien n'y est
+  « reproductible »), et l'essai est **financé par Amgen**, fabricant de l'anti-PCSK9 comparé.
+- **SAMSON** et **StatinWISE**, tous deux **non industriels**, vont dans le même sens : ratio nocebo 0,90 pour
+  le premier ; différence de score de douleur non significative pour le second, avec **deux tiers** de reprise.
+
+D'où la distinction encodée dans le nœud : `intolerance_statine` vaut **non / rapportée / avérée**. Une
+intolérance *rapportée* ne retire rien — la conduite y est la réintroduction. Seule l'intolérance *avérée*
+rend la classe indisponible.
+
+### Le protocole de réintroduction
+
+Il vient du *Statin Intolerance Pathway* (NHS England / AAC Clinical Subgroup). **Réserve de provenance à ne
+pas perdre** : document de janvier 2022, avalisé par NICE en décembre 2021, rattaché à **CG181** — remplacée
+par NG238 en décembre 2023 — et portant une date de révision de **janvier 2024, dépassée**. Il n'est **pas**
+dans NG238, contrairement à ce que la collecte affirmait : NICE ne fait que l'héberger. Rien de plus récent ne
+le remplace à ce jour.
+
+1. **Interrompre 4 à 6 semaines**, en documentant le délai d'apparition des symptômes et celui de leur
+   résolution.
+2. Réintroduire sous **trois conditions cumulatives** : CK normalisées, symptômes résolus, patient
+   asymptomatique depuis **au moins 2 semaines**.
+3. Reprendre à dose **basse ou modérée d'une statine de haute intensité** — atorvastatine **10 ou 20 mg**, ou
+   rosuvastatine **5 ou 10 mg**. *(La collecte annonçait « atorvastatine 20 → 40 mg » : c'était faux.)*
+4. **Titrer à 8 semaines d'intervalle.**
+
+Si la prise quotidienne n'est pas tolérée, un jour sur deux ou deux fois par semaine reste une option — les
+demi-vies de l'atorvastatine et de la rosuvastatine le permettent. Le parcours pose lui-même la limite de tout
+cela : « *cardiovascular benefits have not been proven for all the above approaches* ». Ce qui est acquis,
+c'est l'abaissement du LDL.
+
+### Les seuils de CK, et une divergence de sécurité
+
+| CK | Sous traitement | Avant initiation |
+|---|---|---|
+| < 4 N | poursuivre si les symptômes sont tolérables | pas d'obstacle |
+| 4-10 N | **interrompre 4 à 6 semaines**, puis réintroduire | **ne pas débuter** — investigation requise |
+| 10-50 N | idem, **après vérification de la fonction rénale** ; si elle est altérée, évoquer une rhabdomyolyse | — |
+| > 50 N | **arrêt et avis spécialisé urgent**, évaluation hospitalière | — |
+
+Le parcours ajoute une consigne que le nœud applique : **ne pas doser les CK chez un patient asymptomatique**.
+Le champ n'apparaît donc qu'à partir du moment où une intolérance est rapportée ou avérée.
+
+**La divergence, et elle porte sur une règle de sécurité.** La recommandation française 2026 écrit qu'au-delà
+de 10 fois la normale la statine est arrêtée **définitivement** (« *stopped permanently* »). Le parcours NHS
+ne réserve l'arrêt définitif qu'à la **myosite nécrosante auto-immune** — évoquée devant une faiblesse
+musculaire progressive et des CK qui ne se normalisent pas malgré l'arrêt. Le nœud suit le parcours NHS
+(décision référent) pour ne pas fermer définitivement la classe à un patient à haut risque cardiovasculaire
+qui pourrait la tolérer autrement ; la position française est **affichée dans la carte**, pas effacée.
+
+### Quand la statine est vraiment indisponible
+
+- **Ézétimibe seul** : c'est la conduite que nomme explicitement la recommandation française — « *en cas de
+  contre-indication formelle aux statines ou d'intolérance avérée, un traitement par ézétimibe seul peut être
+  envisagé* ». **Mais aucun essai de critère dur ne l'a testé chez l'intolérant.** IMPROVE-IT (sous-groupe
+  diabète : HR 0,85 [0,78-0,94], 5,5 % en absolu à 7 ans) est un **add-on chez des patients qui toléraient
+  leur statine**. EWTOPIA 75 est ouvert, contre conseils diététiques, tiré par la revascularisation, neutre
+  sur l'AVC et la mortalité.
+- **Acide bempédoïque** : le **seul** agent disposant d'un essai de morbi-mortalité mené dans cette
+  population. CLEAR Outcomes (n = 13 970, 40,6 mois) : composite HR 0,87 (0,79-0,96), IDM HR 0,77,
+  revascularisation HR 0,81. Sous-groupe **diabète** (n = 6 373) : HR 0,83 (0,72-0,95), **réduction absolue de
+  2,4 %** — chiffre publié. Propriété décisive ici : c'est une **prodrogue activée uniquement dans le foie,
+  pas dans le muscle**, « *with no significant muscle pain, even in patients intolerant to statins* ».
+  **Ce qu'il ne faut jamais en dire** : qu'il réduit la mortalité. Décès cardiovasculaire HR 1,04
+  (0,88-1,24), toutes causes HR 1,03 (0,90-1,18) — points estimés **défavorables**, et c'est exactement ce qui
+  a motivé l'**ASMR V** de la HAS. Effets indésirables en excès : goutte 3,1 % vs 2,1 %, lithiase biliaire
+  2,2 % vs 1,2 % — environ un cas supplémentaire pour 100 patients traités, pour chacun des deux.
+- **Anti-PCSK9** : 3ᵉ ligne française. FOURIER et ODYSSEY OUTCOMES ont été menés **sous statine**, pas chez
+  l'intolérant. ODYSSEY ALTERNATIVE, lui, inclut bien des intolérants avérés — mais son critère principal est
+  le LDL à 24 semaines : **aucun critère dur**.
+
+**Formulation à ne pas relâcher** : il n'existe aucun essai de morbi-mortalité conduit dans une population
+**définie par l'intolérance aux statines**, en dehors de CLEAR Outcomes. Écrire « chez des patients
+intolérants » serait faux — VESALIUS-CV et ORION-4 en contiennent certainement sans être des essais
+d'intolérance. Et dans CLEAR lui-même, l'intolérance est **déclarative** (« *unable or unwilling* »), avec
+22,7 % de participants encore sous statine à très faible dose.
+
+### La divergence de place, et ce qu'elle n'est pas
+
+La reco française qualifie l'acide bempédoïque de « traitement de dernier recours » ; l'ESC 2025 le
+recommande en **classe I / niveau B** chez le patient qui ne peut pas prendre de statine. **Nuance
+méthodologique à conserver** : ce n'est pas « dernier recours contre classe I ». La mention française est une
+phrase de **texte courant, non graduée** — la table des recommandations graduées de la reco ne contient
+aucune recommandation sur cette molécule. Il n'y a donc pas d'écart de **rang** à opposer, seulement un écart
+de **place**. Et la reco française rapporte CLEAR fidèlement (« −13 % de MACE, −23 % d'IDM, sans effet sur
+l'AVC ni la mortalité ») : la divergence ne vient pas d'une lecture biaisée des chiffres. Le nœud affiche les
+deux positions **sans trancher** (décision référent).
+
+Statut réglementaire français, pour mémoire : avis favorable de la Commission de la transparence le
+**12/02/2025**, arrêté du 09/12/2025, **remboursement effectif au 12/12/2025** à 65 %, dans un périmètre
+restreint — intolérance **avérée** et traitement hypolipémiant optimisé « incluant au moins l'ézétimibe ».
+*(La collecte affirmait un remboursement « depuis février 2025 » et en tirait que la reco française, qui
+écrivait le médicament non encore commercialisé, était dépassée. Les deux moitiés étaient fausses : dix mois
+d'écart, et la reco — clôture bibliographique septembre 2025 — disait vrai au moment où elle a été écrite.)*
 
 ## 7. Recommandation officielle vs position raisonnée (divergence)
 
