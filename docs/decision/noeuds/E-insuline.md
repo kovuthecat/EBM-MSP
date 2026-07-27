@@ -472,7 +472,7 @@ L'objectif reste **d'éviter les complications** : l'insuline **corrige la glyc�
   « discordant de la Cochrane 2020 NS » ; (2) retrait de « LEADER/SUSTAIN-6 » et du « ≈ −1 % » de l'option
   GLP-1 (hors périmètre E → renvoi B/C) ; (3) PMID 17890232 (4T 1 an) ajouté ; (4) PMID Bertuol/FreeDM2 ajoutés.
 - **Agent B (red-team moteur, 27 profils tracés sur le vrai `evaluateNode`) — 1 HAUTE, CORRIGÉE & RE-TRACÉE.**
-  Cloisonnement des 4 situations **parfait** ; précédence des alertes MCG (`terrain_fragile`) **correcte** ;
+  Cloisonnement des 4 situations **parfait** ; précédence des alertes MCG (`risque_hypoglycemique_eleve`) **correcte** ;
   aucun mélange `AND`/`OR` dans une même chaîne (pas de piège de précédence).
   - **[HAUTE corrigée]** l'option 2a « titrer la basale » se co-déclenchait avec 2b « corriger l'hypo » quand le
     seul signal était `profil_glycemique contient hypo_nocturne` (exclusions 2a couvraient TBR/TBR_severe/CV mais
@@ -531,7 +531,7 @@ criteres_entree:
   - { nom: fragilite, type: bool }
   - { nom: esperance_vie, type: enum, valeurs: [longue, intermediaire, limitee] }
   - { nom: risque_hypoglycemie_schema, type: enum, valeurs: [faible, eleve] }
-  - { nom: terrain_fragile, type: bool }         # DÉRIVÉ formulaire : fragilite OR esperance_vie==limitee OR age>=75 OR risque_hypoglycemie_schema==eleve (= relaxation cible, cohérent nœud A)
+  - { nom: risque_hypoglycemique_eleve, type: bool }         # DÉRIVÉ formulaire : fragilite OR esperance_vie==limitee OR age>=75 OR risque_hypoglycemie_schema==eleve (= relaxation cible, cohérent nœud A)
   - { nom: hypo_severe_recurrente, type: bool }  # NOUVELLE : ATCD hypo sévère / non-perception (orientation)
   - { nom: symptomes_glucotoxicite, type: bool }
   - { nom: traitements_en_cours, type: liste, valeurs: [metformine, iSGLT2, aGLP1, sulfamide, glinide, gliptine, insuline_basale, insuline_rapide] }
@@ -673,10 +673,10 @@ alertes:
   - quand: "DFG < 45"
     niveau: attention
     message: "DFG bas : besoins en insuline réduits et risque d'hypoglycémie majoré (adapter les doses) ; sulfamides à proscrire ; adapter/arrêter la metformine selon le DFG."
-  - quand: "mcg_disponible == true AND terrain_fragile == false"
+  - quand: "mcg_disponible == true AND risque_hypoglycemique_eleve == false"
     niveau: info
     message: "Cibles MCG standard (consensus Battelino 2019, PAS un critère dur) : TIR > 70 %, TBR < 4 % & < 1 %, TAR < 25 % & < 5 %, CV ≤ 36 %."
-  - quand: "mcg_disponible == true AND terrain_fragile == true"
+  - quand: "mcg_disponible == true AND risque_hypoglycemique_eleve == true"
     niveau: info
     message: "Sujet âgé/fragile/à haut risque d'hypo : cibles MCG ASSOUPLIES — TIR > 50 %, TBR < 1 %, TAR plus permissif (cohérent avec la cible d'HbA1c relâchée du nœud A)."
   - quand: "mcg_disponible == false"

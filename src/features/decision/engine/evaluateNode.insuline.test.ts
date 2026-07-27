@@ -30,7 +30,7 @@
  * sans AUCUN garde-fou d'hypoglycémie sur ses options d'escalade), F2 (même situation, silence total une
  * fois les 2 options d'escalade épuisées malgré une cible non atteinte), F4 (`hypo_severe_recurrente`
  * absent du choix de la molécule à l'initiation, alors qu'il pilote déjà la désintensification plus loin
- * dans le même nœud — fusionné dans `terrain_fragile`, cf. changelog `insuline.yaml` v0.10).
+ * dans le même nœud — fusionné dans `risque_hypoglycemique_eleve`, cf. changelog `insuline.yaml` v0.10).
  *
  * Ce fichier n'exécute et ne modifie que ce nœud + le moteur RÉEL (`evaluateNode` + `deriveCritere`) ;
  * aucun autre fichier du dépôt n'est touché par cette tâche (trois agents écrivent en parallèle sur
@@ -49,7 +49,7 @@ if (!node) throw new Error('Nœud "insuline" introuvable (content/noeuds/diabete
  * Profil « neutre » cliniquement plausible : situation « basale seule », valeurs jamais à zéro par
  * accident (over_basalisation, gaj_a_cible… dépendent toutes de divisions/bornes sensibles à 0 — cf.
  * `docs/decision/validation/recette-2026-07-25-prescription-intensifier.md` 12.1-12.5). Les critères
- * dérivés (`cible_atteinte`, `terrain_fragile`, `gaj_a_cible`, `over_basalisation`) sont recalculés par
+ * dérivés (`cible_atteinte`, `risque_hypoglycemique_eleve`, `gaj_a_cible`, `over_basalisation`) sont recalculés par
  * `calculerCriteresDerives` à chaque appel ; les valeurs ici ne servent qu'à la lecture du profil neutre
  * (même convention que `evaluateNode.prescription.test.ts`).
  */
@@ -79,10 +79,10 @@ const BASE: Criteria = {
   dose_basale_actuelle: 20,
   dose_rapide_actuelle: 5,
   cible_atteinte: true,
-  terrain_fragile: false,
-  // Terrain justifiant une CIBLE relâchée — distinct de `terrain_fragile` (risque hypoglycémique)
-  // depuis le 2026-07-27 : une hypo sévère appelle une correction du traitement, pas une cible plus
-  // permissive (principe référent, déjà appliqué au nœud A).
+  risque_hypoglycemique_eleve: false,
+  // Terrain justifiant une CIBLE relâchée — distinct de `risque_hypoglycemique_eleve` depuis le
+  // 2026-07-27 : une hypo sévère appelle une correction du traitement, pas une cible plus permissive
+  // (principe référent, déjà appliqué au nœud A).
   terrain_cible_assouplie: false,
   gaj_a_cible: true,
   over_basalisation: false,
@@ -302,7 +302,7 @@ describe('insuline — E-05 : même sur-basalisation qu\'E-04, mais poids NON re
   })
 })
 
-describe('insuline — E-07/E-08 : « terrain_fragile » inclut l\'âge (arbitrage référent 2026-07-26, D20/D21 2ᵉ série)', () => {
+describe('insuline — E-07/E-08 : « risque_hypoglycemique_eleve » inclut l\'âge (arbitrage référent 2026-07-26, D20/D21 2ᵉ série)', () => {
   it('E-07 — 80 ans, HbA1c 6 % pour une cible de 7 %, basal-bolus, case « fragile » NON cochée : « Désintensifier / alléger le schéma » apparaît quand même', () => {
     const o = {
       situation_insuline: 'basal_bolus',
@@ -433,7 +433,7 @@ describe(
 
 describe(
   'insuline — F4 (redteam-clinique-silences.md, 2026-07-26) : `hypo_severe_recurrente` absent du choix ' +
-    'de la molécule à l\'initiation — arbitrage I3, fusionné dans `terrain_fragile`',
+    'de la molécule à l\'initiation — arbitrage I3, fusionné dans `risque_hypoglycemique_eleve`',
   () => {
     it(
       'profil EXACT du rapport (naïf, 74 ans, non fragile, EV longue, risque de schéma faible, SEUL ' +
@@ -516,6 +516,30 @@ describe('insuline — arbitrages référent du 2026-07-27', () => {
       const messages = alertMsgs(o)
       expect(messages.some((m) => m.includes('Cibles de MCG standard'))).toBe(true)
       expect(messages.some((m) => m.includes('ASSOUPLIES'))).toBe(false)
+    },
+  )
+
+  it(
+    'A27-4 — basale SEULE, glycémie à jeun DÉJÀ à la cible mais HbA1c au-dessus (écart post-prandial) : ' +
+      'les deux gestes concrets sont proposés, pas seulement la prose qui dit « intensifier autrement »',
+    () => {
+      const o = {
+        situation_insuline: 'basale_seule',
+        GAJ: 1.0, HbA1c_actuelle: 8.5, HbA1c_cible: 7,
+        // Aucun autre signal : ni hypoglycémie, ni variabilité, ni sur-basalisation. Avant l'arbitrage
+        // du 2026-07-27, ce patient ne recevait QUE « Ne pas sur-titrer… — intensifier autrement », qui
+        // dit d'intensifier sans nommer par quoi.
+        mcg_disponible: false, TBR: 1, TBR_severe: 0, CV_glycemique: 20,
+        profil_glycemique: ['stable'],
+        poids: 80, dose_basale_actuelle: 20,
+      } as Partial<Criteria>
+      const t = titles(o)
+      expect(has(t, AJOUTER_GLP1_BB)).toBe(true)
+      expect(has(t, AJOUTER_BOLUS)).toBe(true)
+      // La carte de cadrage reste affichée : elle dit POURQUOI on n'augmente pas la basale.
+      expect(has(t, NE_PAS_SURTITRER)).toBe(true)
+      // Et la titration de la basale reste bien fermée — le jeûne est à la cible.
+      expect(has(t, TITRER)).toBe(false)
     },
   )
 

@@ -101,7 +101,15 @@ const CRITERE_LABELS: Record<string, string> = {
   // Nœud E « Insuline » (docs/decision/noeuds/E-insuline.md §1)
   situation_insuline: "Situation d'insulinothérapie",
   cible_atteinte: 'HbA1c à la cible',
+  // ⚠ DEUX dérivés voisins, à ne pas confondre — et c'est précisément pourquoi ils ne portent plus le
+  // même nom depuis le 2026-07-27. `terrain_fragile` reste celui de `prescription` (âge / fragilité /
+  // espérance de vie / schéma à risque) ; `insuline` a renommé le sien en `risque_hypoglycemique_eleve`,
+  // parce qu'il inclut en plus l'antécédent d'hypoglycémie sévère et désigne donc un RISQUE, pas un
+  // terrain gériatrique. Les deux définitions divergeaient déjà sous un nom identique — la divergence
+  // est désormais visible dans le nom.
   terrain_fragile: 'Terrain fragile (âgé / fragile / EV limitée / risque hypo)',
+  risque_hypoglycemique_eleve: 'Risque hypoglycémique élevé (terrain, schéma ou antécédent d’hypo sévère)',
+  terrain_cible_assouplie: 'Terrain justifiant une cible relâchée (âge / fragilité / espérance de vie)',
   hypo_severe_recurrente: 'Hypoglycémies sévères récurrentes / non-perception',
   symptomes_glucotoxicite: 'Symptômes de glucotoxicité (polyuro-polydipsie, amaigrissement)',
   mcg_disponible: 'MCG disponible',

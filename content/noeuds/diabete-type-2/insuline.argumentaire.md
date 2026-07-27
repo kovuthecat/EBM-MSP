@@ -64,7 +64,7 @@ nœud le dit désormais explicitement au praticien (incohérence situation/trait
 ## 2. Choix de la molécule basale — hypoglycémie nocturne (substitut) vs sévère (dur)
 
 Chez le patient à risque d'hypoglycémie (âgé, fragile, insuffisance rénale, hypoglycémies nocturnes, **ou
-antécédent d'hypoglycémie sévère récurrente — cf. `terrain_fragile`, ci-dessous**), préférer un **analogue
+antécédent d'hypoglycémie sévère récurrente — cf. `risque_hypoglycemique_eleve`, ci-dessous**), préférer un **analogue
 de 2ᵉ génération** (glargine U300 ou degludec) à glargine U100 / détémir, a fortiori à la NPH.
 
 *Correction 2026-07-26 (4ᵉ lot, F4 red-team « silence et omission »).* L'antécédent d'hypoglycémie sévère
@@ -73,7 +73,7 @@ observé plutôt qu'un drapeau déclaratif de fragilité — n'orientait jusqu'i
 non fragile, non âgé, à espérance de vie longue, dont le SEUL marqueur de risque était cet antécédent,
 recevait la même recommandation qu'un patient sans aucun facteur de risque. Le même signal pilotait
 pourtant déjà, plus loin dans ce nœud, la désintensification du basal-bolus (§4) — même concept de
-sécurité, deux encodages. Fusionné dans le dérivé `terrain_fragile` (arbitrage, cf. `insuline.yaml`
+sécurité, deux encodages. Fusionné dans le dérivé `risque_hypoglycemique_eleve` (arbitrage, cf. `insuline.yaml`
 `incertitudes` — le référent doit pouvoir revoir ce choix).
 
 | Comparaison | Hypo nocturne / symptomatique (substitut) | Hypo SÉVÈRE (dur) |
@@ -146,7 +146,7 @@ situation intermédiaire retombait jusqu'ici sur le seul repli « poursuivre et 
 non atteinte.
 
 **Désintensification.** Chez le sujet fragile, à espérance de vie limitée, âgé (≥ 75 ans), à risque
-hypoglycémique élevé, ou avec hypoglycémies sévères récurrentes (`terrain_fragile`, dérivé aligné
+hypoglycémique élevé, ou avec hypoglycémies sévères récurrentes (`risque_hypoglycemique_eleve`, dérivé aligné
 2026-07-26 sur celui du nœud A, **et englobant depuis le 2026-07-26 [4ᵉ lot] l'antécédent d'hypoglycémie
 sévère récurrente** — jusqu'ici ce même signal pilotait la désintensification sans jamais orienter le choix
 de la molécule à l'initiation, cf. § 2) : relâcher la cible, simplifier le schéma, réduire les doses,
@@ -288,11 +288,11 @@ source généraliste réelle est Joubert 2025, favorable à la MCG). Elles ne so
   « Optimiser la répartition du basal-bolus », réutilisées en « basale_plus_bolus », y chevauchent les
   options d'escalade — même limite, même non-correction assumée.
 - **RÉSOLU 2026-07-26 (4ᵉ lot, F4 red-team « silence et omission »)** — « Désintensifier / alléger le
-  schéma » (basal-bolus) : l'alignement sur `terrain_fragile` (2026-07-26, 2ᵉ lot) avait préservé
+  schéma » (basal-bolus) : l'alignement sur `risque_hypoglycemique_eleve` (2026-07-26, 2ᵉ lot) avait préservé
   `hypo_severe_recurrente` comme déclencheur indépendant, en OR littéral, distinct de ce que décrivait la
   consigne référent d'alors — et jamais lu par « Choisir un analogue basal de 2ᵉ génération » (§2), même
   concept de sécurité encodé deux fois (invariant I4). Arbitrage tranché : `hypo_severe_recurrente` est
-  désormais **fusionné dans `terrain_fragile`** plutôt que laissé en déclencheur indépendant par option — à
+  désormais **fusionné dans `risque_hypoglycemique_eleve`** plutôt que laissé en déclencheur indépendant par option — à
   confirmer par le référent, deux conséquences : (1) le OR littéral sur « Désintensifier » a été retiré
   (redondant) ; (2) la population des alertes « cibles MCG assouplies » (§5) s'élargit au même signal.
 - **F2/F3 red-team « silence et omission » (2026-07-26, 4ᵉ lot) — situation « basale_plus_bolus » :**
