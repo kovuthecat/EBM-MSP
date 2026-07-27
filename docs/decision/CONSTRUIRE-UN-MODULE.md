@@ -289,6 +289,12 @@ défauts de modèle, c'est que P2 ou P3 ont été abrégés.
 - [ ] **Verdict sur une ligne existante ≠ choix du remplaçant** — R3, deux options distinctes.
 - [ ] **Clause de repli en prose** si aucune destination n'est applicable — R3 ; sinon le verdict
       produit une injonction sans issue.
+- [ ] **Son intitulé ne nomme qu'UNE classe ou molécule.** Une option qui en nomme deux (« réduire le
+      sulfamide **/ le glinide** ») est un piège différé : le premier garde-fou qu'on lui pose vaut pour
+      les deux, y compris si leur profil de sécurité est opposé. C'est arrivé exactement ainsi — une
+      exclusion `DFG < 30` justifiée pour le sulfamide (contre-indication RCP) a retiré au répaglinide,
+      d'élimination hépatobiliaire et sans contre-indication rénale, le geste que son propre RCP
+      recommande. Le regroupement paraissait économique à l'écriture ; il a coûté un défaut de sécurité.
 - [ ] **Elle n'est pas déclenchée par la seule valeur du primer.** Sinon elle **préempte le repli** et
       le nœud ne peut plus conclure « rien à faire » : c'était le cas dans **trois situations sur
       quatre** de `insuline`, où un patient à l'objectif sous basal-bolus recevait quand même
@@ -301,9 +307,15 @@ défauts de modèle, c'est que P2 ou P3 ont été abrégés.
 ### 2.3 Alerte
 
 - [ ] **Canal correct** (R8/D21) : contre-indication → `exclusions` · réserve sur un geste →
-      `options[].alertes` · fait vrai quel que soit le geste → `alertes` de nœud.
-- [ ] **Jamais `quand: "default"`** — elle s'afficherait pour tout le monde, donc pour personne.
-- [ ] **Jamais un libellé prohibitif sans `exclusion` correspondante** — invariant I7.
+      `options[].alertes` · fait vrai quel que soit le geste **mais pas pour tous les patients** →
+      `alertes` de nœud · fait vrai **pour tous les patients du nœud** → `cadrage` (D24).
+- [ ] **Jamais `quand: "default"`** — elle s'afficherait pour tout le monde, donc pour personne. Si
+      l'énoncé ne peut être conditionné par aucun critère, ce n'est pas une alerte mal écrite : c'est un
+      **cadrage** (D24), et il change de champ, pas de formulation.
+- [ ] **Jamais un libellé prohibitif sans garde-fou correspondant** — invariant I7, `exclusions` **ou**
+      `prerequis`. Deux exceptions qui n'en sont pas : une injonction à **arrêter** un traitement en
+      cours (R3 : c'est une option, jamais une exclusion) et une prohibition portant sur un geste d'un
+      **autre nœud** (celui-ci ne l'offre pas, il ne peut pas l'exclure).
 - [ ] **Si elle parle d'un geste, c'est une alerte d'option.** Une alerte de nœud ne voit que les
       critères, jamais ce que le moteur a retenu : elle ne peut pas savoir qu'elle contredit la carte
       affichée juste en dessous.
@@ -328,9 +340,31 @@ défauts de modèle, c'est que P2 ou P3 ont été abrégés.
 
 ### 2.5 Module (D22)
 
-- [ ] Préambule de terrain **partagé** — les critères communs ne sont pas redéclarés par nœud.
-- [ ] **Primer d'orientation** vers le ou les nœuds pertinents.
+- [ ] **Cadrage partagé** — les énoncés communs sont posés une fois sur le module, pas recopiés dans le
+      `population_cible` de chaque nœud (I4). C'est la duplication qui a justifié le mécanisme.
+- [ ] **Primer d'orientation** vers le ou les nœuds pertinents, et **l'écran le dit explicitement :
+      il oriente, il ne verrouille pas.** Deux gros boutons de choix se lisent spontanément comme un
+      aiguillage exclusif — sans une phrase qui l'infirme, le praticien croit devoir choisir et n'ouvre
+      jamais le second axe.
+- [ ] **Aucune saisie sur l'écran de module** — garde-fou R1 : un module est un *flux d'écran*, jamais un
+      chaînage. Aucune valeur ne circule vers un nœud, chaque nœud reste évaluable seul. À tenir par un
+      test (« l'écran de module ne contient aucun `input`/`select`/`textarea` »), sinon l'érosion est
+      certaine : le premier critère « qu'on saisirait bien une fois pour les deux » fait basculer le
+      module en prérequis.
+- [ ] **Tout nœud du module est atteignable depuis le primer.** L'écran de module *retire* ses nœuds de
+      la liste du domaine : un nœud oublié dans les orientations devient inaccessible. C'est la pire
+      régression que ce mécanisme puisse produire, et elle est silencieuse — un test dédié, pas une
+      relecture.
+- [ ] **Un module regroupe au moins deux nœuds.** À un seul, il n'ajoute qu'un écran d'interstice et un
+      clic, sans rien mutualiser.
 - [ ] Charge de saisie mesurée : au-delà d'une douzaine d'items par nœud, arbitrer avant d'encoder.
+
+> **Un champ de contenu que personne ne lit ne se signale jamais.** `module: RHD` a vécu dans le schéma
+> *et* dans les deux nœuds sans qu'aucune ligne de code ne le consomme — ni l'écran, ni les tests, ni
+> même le type TS `Noeud`, où il manquait purement et simplement. Tout était vert : le YAML validait, la
+> suite passait. Un champ ajouté au schéma doit être, dans le même lot, **soit consommé, soit déclaré
+> inerte par un test qui le dit** — faute de quoi on ne découvre son inexistence qu'en voulant s'en
+> servir, des semaines plus tard.
 
 ---
 
@@ -359,11 +393,48 @@ sont renseignés » (I2′).
 > **deux fois**, pour le même motif : les garde-fous d'urgence sont orthogonaux à la position vs
 > objectif.
 
+**Trois questions devant un invariant rouge, dans cet ordre** — la troisième a été découverte tard :
+
+1. le **contenu** a-t-il tort ?
+2. l'invariant est-il **trop large** (faux positif) ?
+3. l'invariant demande-t-il **l'inverse de ce que la grammaire impose** ? C'est une *erreur de
+   catégorie*, et elle ne se corrige pas en resserrant un seuil. I7 exigeait une `exclusion` pour toute
+   alerte au libellé prohibitif ; or son radical `arrêt` attrapait des **injonctions à agir**
+   (« arrêter le sulfamide »), alors que R3 exige précisément que l'arrêt d'un traitement soit une
+   **option** et jamais une exclusion. Six « violations » sur six étaient de cette forme : le test
+   réclamait au contenu le contraire de la règle. Retirer le radical n'a rien affaibli — les deux cas
+   qui avaient motivé l'invariant restent détectés.
+
+> **Une dette qu'aucune réécriture ne peut lever signale un canal manquant dans le modèle.** Deux
+> alertes en `quand: "default"` ont résisté à toutes les tentatives de correction, pour une raison qui
+> n'apparaît qu'après coup : elles ne portaient pas sur le patient mais sur **l'état des preuves du
+> nœud** — rien ne pouvait les rendre conditionnelles. Tant que `alertes` était le seul canal, la dette
+> était insoluble *par construction*. La sortie n'a pas été de réécrire les textes (ils sont partis
+> inchangés) mais d'ajouter le canal qui manquait (`cadrage`, D24). **Quand une règle juste ne peut être
+> satisfaite par aucune formulation, ce n'est pas le contenu qu'il faut plier.**
+
+**Une exception de dette se nomme au plus fin.** Dispenser un *nœud entier* d'un invariant rend invisible
+toute **nouvelle** violation sur ce nœud : la dette ne protège plus un cas diagnostiqué, elle aveugle un
+fichier. Les exemptions se portent sur l'objet exact (ici : l'alerte, identifiée par son `quand` — la
+partie stable, qu'une reformulation éditoriale ne fera pas expirer en silence), accompagnées de leur
+motif. Une liste de dette qui ne rétrécit jamais devient du papier peint.
+
 **La caractérisation (*golden master*) n'est pas une vignette.** Elle fige le comportement pour rendre
 les diffs relisibles ; elle ne dit rien de ce qui est *souhaitable*. À relire ligne à ligne avant
 acceptation : le passage à R7 a changé 23 profils sur `insuline`, tous de la même cause légitime
 (l'alerte de sur-basalisation ne se déclenche plus sur un poids inconnu, `dose / poids` valant
 auparavant `Infinity`).
+
+**Deux conditions pour qu'elle soit relisible, et elles ne vont pas de soi :**
+
+- **les profils sont GELÉS** dans des fixtures versionnées, jamais régénérés à la volée. Tant qu'ils
+  étaient tirés à chaque exécution, la moindre évolution du contenu les faisait **permuter** : le diff
+  affichait des changements de comportement là où deux profils avaient seulement échangé leur rang. Ça a
+  produit **trois diagnostics faux d'affilée**, tous dans le même sens (« cette correction a changé le
+  comportement de X profils » — c'était faux à chaque fois) ;
+- **les critères sont rendus en clair** dans l'instantané. Un golden master qui n'affiche que la sortie
+  oblige à rouvrir le générateur pour savoir de quel patient on parle — donc, en pratique, on ne le fait
+  pas.
 
 ---
 
@@ -385,6 +456,48 @@ Table de relecture rapide. Chaque ligne est un défaut **constaté**, pas antici
 | **Domaine de tirage corrompu** | banc testant un DFG à 2 000 | bornes **+** filtrage des littéraux |
 | **Deux chemins d'affichage** | signature ≠ écran (5 occurrences) | tout passe par `construireVueDecision` |
 | **Absence de coche = rassurant** | profil nocturne non coché lu « stable » | expliciter la valeur neutre |
+| **Garde-fou à cheval sur deux classes** | `DFG < 30` posé sur « réduire le sulfamide / le glinide » | une option = une classe |
+| **Dette dispensée par nœud** | une nouvelle violation sur un nœud déjà listé passe inaperçue | exempter l'objet exact, avec motif |
+| **Champ de schéma non consommé** | `module: RHD` écrit partout, lu par personne, absent du type TS | consommer ou déclarer inerte, dans le même lot |
+| **Statut de contenu invisible** | 5 nœuds `brouillon` en production, rien ne le dit au praticien | rendre `meta.statut` là où le contenu est lu |
+
+---
+
+## 4 bis. Corriger un défaut sans en créer un autre
+
+Le premier domaine a été corrigé par vagues, sous pression de recette. **Deux des défauts les plus graves
+de la dernière journée venaient de nos propres correctifs du matin**, pas du contenu d'origine :
+
+- une exclusion de sécurité sur `statine` (dialyse) a fait tomber, par `ordered-first-match`, un patient
+  de prévention **secondaire** dans une carte « prévention primaire, risque faible » — un mislabeling
+  créé de toutes pièces par le correctif ;
+- une exclusion `DFG < 30` justifiée pour le sulfamide a retiré au glinide un geste que son RCP
+  recommande, parce qu'une seule option portait les deux classes.
+
+**Un correctif est un changement de comportement comme un autre.** Il passe donc par la même porte que
+du contenu neuf — piste B du §P6 — et pas seulement par la relecture de son propre diff.
+
+**La mesure qui répond à la bonne question** n'est pas « combien de lignes ont changé » mais **combien de
+profils ont gagné ou perdu une option, et lesquels**. Sur la scission sulfamide/glinide, la formulation
+utile tenait en trois nombres : *28 profils à DFG < 30 récupèrent le geste · 0 profil sulfamide ne
+repasse sous le garde-fou · 0 option perdue.* Le premier dit que le correctif fait ce qu'on attend, le
+deuxième que le garde-fou d'origine tient toujours, le troisième qu'on n'a rien cassé ailleurs.
+
+**Valider l'instrument de mesure avant de conclure.** Mesurer un instantané structuré à coups de `grep`
+et de troncatures s'est trompé **quatre fois** dans la même journée : fins de ligne CRLF, champ retiré
+des deux côtés du diff, décalage de numéros de ligne, et enfin une troncature au *premier* séparateur
+d'un format qui en compte cinq — qui a produit un rassurant « zéro changement » entièrement faux. Avant
+d'annoncer un chiffre tiré d'un diff : vérifier le format sur **un cas dont on connaît déjà la réponse**.
+
+**Un lot purement éditorial doit prouver qu'il l'est.** La bonne preuve n'est pas « j'ai relu » mais le
+golden master **inchangé au bit près**, accompagné de l'argument structurel qui dit *pourquoi* c'était
+attendu (les champs modifiés — `avantages`, `inconvenients`, `effet_attendu` — ne sont pas rendus dans la
+signature, ils sont donc hors de portée de l'instantané par construction).
+
+**Le doute du clinicien sur un garde-fou automatique se vérifie en source primaire.** Quand le référent a
+demandé « glinide sous 30 de DFG, quelle est la question ? Il faut vérifier la RCP », le réflexe naturel
+était d'expliquer le correctif. La RCP a donné tort au correctif. Un garde-fou de sécurité mis en doute
+par le clinicien se re-source, il ne se défend pas.
 
 ---
 
@@ -403,6 +516,31 @@ correction laisse une branche orpheline et qu'on tranche faute de mieux, on l'é
 risque hypoglycémique a laissé orpheline une branche du cran ≤ 8 %, retirée plutôt que promue, motif
 donné et marqué à confirmer (`47e3527`).
 
+### Classer chaque `incertitudes` par NATURE, à l'écriture
+
+Le DT2 en compte **55**. Question posée par le référent en fin de domaine : *« une collecte de données
+en réglerait-elle une partie ? »* — question évidente, et **impossible à trancher sans relire les 55**,
+parce que rien ne distingue une lacune de la preuve d'un arbitrage en attente ou d'une dette technique
+rangée là faute d'un meilleur endroit. Le dépouillement a donné cinq familles très inégales :
+
+| nature | ce qui la lève | part du DT2 |
+|---|---|---|
+| **Lacune irréductible de la preuve** — « non démontré », « aucun ECR » | rien, sauf un essai futur ; une collecte ne fait que **confirmer le vide** | ~15 |
+| **Arbitrage référent en attente** — un choix, pas un fait | une décision, jamais une source | ~10 |
+| **Choix de conception documenté** — « choix assumé », « signalé, pas inventé » | rien : c'est une trace, pas une question | ~10 |
+| **Sourçage réellement manquant** — la donnée existe, on n'est pas allé la chercher | **une collecte ciblée** | ~6 |
+| **Mal rangé** — dette technique ou entrée périmée | un lot de code, ou une suppression | ~7 |
+
+Deux conséquences pratiques, l'une pour le prochain domaine, l'autre pour celui-ci :
+
+- **déclarer la nature dans l'entrée elle-même** (un préfixe suffit : `PREUVE:` / `ARBITRAGE:` /
+  `CONCEPTION:` / `SOURÇAGE:` / `TECHNIQUE:`). Le tri devient instantané, et la question « que peut-on
+  encore fermer, et par quel moyen ? » se répond d'un coup d'œil au lieu d'une relecture intégrale ;
+- **une entrée périmée est pire qu'absente** : elle décrit un défaut corrigé comme s'il subsistait. Le
+  DT2 en portait au moins une — « le schéma ne porte aucun `min`/`max` pour un critère `nombre` » —
+  restée en place après l'ajout de ces champs. Purger `incertitudes` fait partie du lot qui lève la
+  limite, au même titre que le changelog.
+
 ---
 
 ## 6. Discipline de session
@@ -418,6 +556,16 @@ Reprise de `ETAT-DES-LIEUX.md` du chantier 2026-07-26, applicable telle quelle �
    corrigé est de la dette.
 5. **Une décision node-specific se consigne dans `docs/decision/noeuds/<nœud>.md`**, jamais seulement
    dans le document de chantier — sinon elle disparaît à la clôture.
+6. **Des agents parallèles ne partagent jamais un fichier.** Le périmètre s'énonce en fichiers, et deux
+   lots qui se recouvrent se sérialisent. Un lot éditorial et un correctif de sécurité ont visé le même
+   YAML le même soir ; le second a dû attendre. C'est le bon comportement, mais il se décide **avant**
+   de lancer, pas en voyant le `git status`.
+7. **Un agent mesure, il n'estime pas.** « Beaucoup de changements cosmétiques » annoncé sur un lot
+   `insuline` recouvrait **79 profils dont la liste d'options avait réellement changé**. La consigne
+   d'un lot doit exiger le chiffre et la méthode qui le produit, pas une appréciation.
+8. **Le statut du contenu est visible là où le contenu est lu.** Cinq nœuds sont `brouillon` et
+   l'application déployée n'en dit rien — un praticien ne peut pas savoir qu'il lit un contenu non
+   validé. Le cycle de vie éditorial n'a de valeur que s'il atteint l'écran.
 
 ---
 

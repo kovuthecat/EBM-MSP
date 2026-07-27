@@ -4,6 +4,7 @@ import { AppShell } from './features/shared/layout/AppShell'
 import { HomeScreen } from './features/shared/screens/HomeScreen'
 import { MethodeScreen } from './features/shared/screens/MethodeScreen'
 import { DecisionDomainsScreen } from './features/decision/screens/DecisionDomainsScreen'
+import { DecisionModuleScreen } from './features/decision/screens/DecisionModuleScreen'
 import { DecisionNodeScreen } from './features/decision/screens/DecisionNodeScreen'
 
 function App() {
@@ -25,6 +26,8 @@ function renderScreen(screen: Screen, params: NavigationParams, go: Navigation['
       return <MethodeScreen />
     case 'decisionDomains':
       return <DecisionDomainsScreen go={go} />
+    case 'decisionModule':
+      return <DecisionModuleScreen moduleId={params.moduleId} go={go} />
     case 'decisionNode':
       // `key` force un remontage (et donc une réinitialisation des critères) quand on change de
       // nœud sans repasser par D2 (ex. lien direct entre deux nœuds, pas utilisé en P1 mais robuste).

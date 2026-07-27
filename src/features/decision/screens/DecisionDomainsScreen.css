@@ -84,6 +84,13 @@
   color: var(--c-text);
 }
 
+/* Entrée de MODULE (D22) : la ligne secondaire nomme les nœuds qu'il contient, pour qu'on sache où l'on
+   entre avant de cliquer — un module dont on ignore le contenu se lit comme un dossier fermé. */
+.decision-domains__node-sub {
+  font-size: 13px;
+  color: var(--c-text-muted);
+}
+
 .decision-domains__node-badge {
   font-size: 11px;
   font-weight: 600;

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { Navigation } from '../../shared/navigation'
+import { entreesListe } from '../content/loadModules'
 import { noeudsParDomaine } from '../content/loadNodes'
 import { labelForDomaine, sortNodesForDomaine, UPCOMING_DOMAINS } from '../lib/labels'
 import './DecisionDomainsScreen.css'
@@ -26,6 +27,9 @@ export function DecisionDomainsScreen({ go }: DecisionDomainsScreenProps) {
     () => (selectedDomaine ? sortNodesForDomaine(selectedDomaine, noeudsParDomaine[selectedDomaine] ?? []) : []),
     [selectedDomaine],
   )
+  // Regroupement par module (D22), appliqué APRÈS le tri : un module prend la place de son premier
+  // nœud, donc l'ordre voulu par `NODE_ORDER` est préservé sans que `entreesListe` ait à le connaître.
+  const entrees = useMemo(() => entreesListe(nodes), [nodes])
 
   return (
     <div className="decision-domains">
@@ -62,21 +66,40 @@ export function DecisionDomainsScreen({ go }: DecisionDomainsScreenProps) {
       )}
 
       <section className="decision-domains__group">
-        {nodes.map((node) => (
-          <button
-            key={node.id}
-            type="button"
-            className="decision-domains__node"
-            onClick={() => go('decisionNode', { nodeId: node.id })}
-          >
-            <span className="decision-domains__node-info">
-              <span className="decision-domains__node-title">{node.titre}</span>
-            </span>
-            {node.veille_liee.length > 0 && (
-              <span className="decision-domains__node-badge">Mis à jour par la veille</span>
-            )}
-          </button>
-        ))}
+        {entrees.map((entree) =>
+          entree.type === 'module' ? (
+            // Un MODULE (D22) compte pour UNE entrée : ses nœuds ne sont pas listés ici, ils s'ouvrent
+            // depuis l'écran de module après son cadrage partagé. Lister les deux à la fois annulerait
+            // l'intérêt du module — le praticien entrerait dans un nœud sans avoir vu le cadrage.
+            <button
+              key={`module-${entree.module.id}`}
+              type="button"
+              className="decision-domains__node"
+              onClick={() => go('decisionModule', { moduleId: entree.module.id })}
+            >
+              <span className="decision-domains__node-info">
+                <span className="decision-domains__node-title">{entree.module.titre}</span>
+                <span className="decision-domains__node-sub">
+                  {entree.noeuds.map((noeud) => noeud.titre).join(' · ')}
+                </span>
+              </span>
+            </button>
+          ) : (
+            <button
+              key={entree.noeud.id}
+              type="button"
+              className="decision-domains__node"
+              onClick={() => go('decisionNode', { nodeId: entree.noeud.id })}
+            >
+              <span className="decision-domains__node-info">
+                <span className="decision-domains__node-title">{entree.noeud.titre}</span>
+              </span>
+              {entree.noeud.veille_liee.length > 0 && (
+                <span className="decision-domains__node-badge">Mis à jour par la veille</span>
+              )}
+            </button>
+          ),
+        )}
       </section>
     </div>
   )

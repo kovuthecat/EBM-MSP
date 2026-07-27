@@ -381,3 +381,29 @@ valider par le référent**, notamment le point badge non tranché ci-dessous.
 - [ ] **Les deux cartes ne se confondent pas** : leurs intitulés ne diffèrent que par le nom de la
   molécule — vérifier qu'un praticien pressé ne peut pas les lire comme un doublon. Si c'est le cas,
   c'est un point à corriger en libellé, pas en logique.
+
+## Écran de module RHD (D22) — réalisation (2026-07-27)
+
+> Build + typecheck + **511 tests OK** (dont 5 sur l'écran de module et 8 sur l'intégrité module ↔ nœuds) ;
+> **visuel à valider par le référent.** Nouveau chemin : Aide à la décision → « Règles hygiéno-diététiques »
+> → un des deux axes.
+
+- [ ] **La liste du domaine montre UNE entrée « Règles hygiéno-diététiques »** (avec, en sous-titre, les
+  deux nœuds qu'elle contient) — et non plus deux entrées séparées. Les quatre autres nœuds sont
+  inchangés, à plat.
+- [ ] **L'ordre de la liste n'a pas bougé** : le module prend la place qu'occupait le premier nœud RHD.
+- [ ] **L'écran de module affiche le cadrage partagé** (3 énoncés) au-dessus de la question d'orientation,
+  dans le même style neutre que le cadrage d'un nœud — c'est le même objet, seule la portée change.
+- [ ] **La phrase « cette question oriente, elle ne verrouille rien » est lisible** et comprise comme
+  telle. Point à surveiller : deux gros boutons se lisent spontanément comme un choix exclusif. Si vous
+  avez l'impression de devoir choisir un axe et de renoncer à l'autre, le texte a échoué.
+- [ ] **Les indices d'orientation aident réellement à choisir** — ce sont des repères de consultation, pas
+  des critères. Ils viennent d'une rédaction non clinique : à corriger si l'un d'eux sonne faux.
+- [ ] **Depuis un nœud RHD, le retour pointe vers le module** (« ← Module : Règles hygiéno-diététiques »)
+  et non vers le domaine : travailler les deux axes dans la même consultation doit rester fluide.
+- [ ] **Aucune saisie sur l'écran de module** — c'est le garde-fou R1 (le module oriente, il n'enchaîne
+  pas). Un test le tient, mais confirmez que rien ne suggère à l'écran qu'une saisie serait attendue ici.
+- [ ] **Arbitrage à rendre** : D22 prévoyait aussi un *socle de critères de terrain partagé*
+  (`fragilite`, `age`…) saisi une seule fois. Il n'est **pas** livré, car il suppose de transmettre une
+  saisie d'un écran à l'autre — exactement le chaînage que le garde-fou R1 interdit. Le vouloir suppose
+  de rouvrir ce garde-fou. À trancher.

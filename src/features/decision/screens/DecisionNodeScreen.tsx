@@ -5,6 +5,7 @@ import { ArgumentPanel } from '../components/ArgumentPanel'
 import { CadrageList } from '../components/CadrageList'
 import { CriteriaForm } from '../components/CriteriaForm'
 import { OptionCard } from '../components/OptionCard'
+import { getModuleDuNoeud } from '../content/loadModules'
 import { getNoeudById } from '../content/loadNodes'
 import type { Criteria, CriteriaValue } from '../engine/conditions'
 import { criteresPertinents } from '../engine/relevance'
@@ -42,6 +43,9 @@ interface DecisionNodeScreenProps {
  */
 export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   const node = nodeId ? getNoeudById(nodeId) : undefined
+  // Module d'appartenance (D22), s'il existe : pilote UNIQUEMENT le lien de retour. Aucune donnée du
+  // module n'entre dans l'évaluation — garde-fou R1, le nœud reste évaluable seul.
+  const moduleDuNoeud = node ? getModuleDuNoeud(node) : undefined
 
   const [criteria, setCriteria] = useState<Criteria>(() =>
     node ? buildDefaultCriteria(node.criteres_entree) : {},
@@ -200,9 +204,22 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
 
   return (
     <div className="decision-node">
-      <button type="button" className="decision-node__back" onClick={() => go('decisionDomains')}>
-        ← Domaine : {labelForDomaine(node.domaine)}
-      </button>
+      {/* Retour vers le MODULE quand le nœud en fait partie (D22) : sans cela, on quitterait le module
+          dès le premier nœud ouvert et le second axe ne serait plus atteignable qu'en repassant par la
+          liste — alors que travailler les deux axes dans la même consultation est le cas prévu. */}
+      {moduleDuNoeud ? (
+        <button
+          type="button"
+          className="decision-node__back"
+          onClick={() => go('decisionModule', { moduleId: moduleDuNoeud.id })}
+        >
+          ← Module : {moduleDuNoeud.titre}
+        </button>
+      ) : (
+        <button type="button" className="decision-node__back" onClick={() => go('decisionDomains')}>
+          ← Domaine : {labelForDomaine(node.domaine)}
+        </button>
+      )}
       <h1 className="decision-node__title">{node.titre}</h1>
       <p className="decision-node__population">{node.population_cible}</p>
 

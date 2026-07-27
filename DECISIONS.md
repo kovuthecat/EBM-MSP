@@ -835,6 +835,29 @@ nœud doit rester évaluable seul, avec ses critères posés directement. Aucun 
 ni sur la signature de pertinence. Conception :
 `docs/decision/validation/chantier-2026-07-26/CONCEPTION-module-rhd.md`.
 
+### Réalisation (2026-07-27)
+
+L'écran existe : `schema/module.schema.json` + `content/modules/<domaine>/*.yaml` +
+`content/loadModules.ts` + `screens/DecisionModuleScreen.tsx`. Un module compte pour **une entrée** dans
+la liste d'un domaine et ses nœuds ne s'ouvrent que depuis lui — sinon on entrerait dans un nœud sans
+avoir vu le cadrage, et le mécanisme perdrait son objet.
+
+**Livré** : le cadrage partagé (même champ que `Noeud.cadrage`, D24 — c'est le même objet, seule la
+portée change) et le primer d'orientation. **Non livré, et c'est une décision** : le *socle de critères
+de terrain partagé* qu'évoquait la décision initiale. Il suppose un état de saisie transmis d'un écran à
+l'autre, c'est-à-dire exactement le chaînage que le garde-fou R1 interdit. Le tenir demanderait un
+arbitrage explicite sur ce garde-fou ; en attendant, `fragilite`/`age` restent déclarés par nœud.
+
+Le garde-fou est tenu **par un test** (« l'écran de module ne contient aucun champ de saisie ») et non
+par la seule vigilance : le premier critère « qu'on saisirait bien une fois pour les deux » suffirait à
+faire basculer le module en prérequis. Un second test vérifie que **chaque nœud du module est
+atteignable depuis le primer** — l'écran les retirant de la liste du domaine, un nœud oublié dans les
+orientations deviendrait inaccessible, en silence.
+
+Au passage, ce lot a révélé que `module` était écrit dans le schéma et dans les deux nœuds RHD depuis la
+décision, **mais absent du type TS `Noeud` et lu par aucun code** : un champ de contenu orphelin que rien
+ne signalait, ni le schéma ni la suite de tests.
+
 ---
 
 ## 2026-07-26 — D23 · La position affichée s'appuie sur la donnée publiée, jamais sur la publication

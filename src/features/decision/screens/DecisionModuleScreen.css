@@ -1,0 +1,96 @@
+.decision-module {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+.decision-module__back {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0 0 18px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--c-accent-decision);
+  cursor: pointer;
+}
+
+.decision-module__title {
+  font-size: 26px;
+  margin: 0 0 6px;
+  color: var(--c-text);
+}
+
+.decision-module__population {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--c-text-muted);
+  margin: 0 0 20px;
+}
+
+.decision-module__empty {
+  font-size: 14px;
+  color: var(--c-text-muted);
+}
+
+.decision-module__primer-question {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--c-text);
+  margin: 28px 0 6px;
+}
+
+/* La note du primer dit à l'écran ce que le garde-fou R1 de D22 impose au modèle : le module oriente,
+   il n'enchaîne pas. Sans elle, deux gros boutons de choix se lisent naturellement comme un aiguillage
+   exclusif — le praticien croirait devoir choisir, et n'ouvrirait jamais le second axe. */
+.decision-module__primer-note {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--c-text-faible);
+  margin: 0 0 20px;
+}
+
+.decision-module__orientations {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.decision-module__orientation {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 18px 20px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  cursor: pointer;
+  font: inherit;
+}
+
+.decision-module__orientation:hover {
+  border-color: var(--c-accent-decision);
+  background: var(--c-accent-decision-soft);
+}
+
+.decision-module__orientation-libelle {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+.decision-module__orientation-noeud {
+  display: block;
+  font-size: 13px;
+  color: var(--c-text-muted);
+  margin-top: 2px;
+}
+
+.decision-module__indices {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--c-text-faible);
+}

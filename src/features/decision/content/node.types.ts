@@ -286,6 +286,16 @@ export interface Famille {
 /** Nœud de décision (brief §5.1). `domaine` obligatoire — module Décision multi-domaine (D8). */
 export interface Noeud {
   id: string
+  /**
+   * Libellé de MODULE regroupant plusieurs nœuds d'un même domaine (DECISIONS.md D22) — valeur de
+   * jointure avec `ModuleDecision.libelle` (`content/loadModules.ts`).
+   *
+   * Ce champ existait dans `schema/noeud.schema.json` et dans le contenu (`module: RHD` sur les deux
+   * nœuds RHD) depuis le 2026-07-26, mais **manquait ici** : il n'était donc lu par aucun code, et rien
+   * ne le signalait — ni le schéma (le YAML était valide), ni les tests. Ajouté avec l'écran de module.
+   * Aucun effet moteur : `evaluateNode` l'ignore.
+   */
+  module?: string
   domaine: string
   titre: string
   population_cible: string

@@ -8,6 +8,8 @@ import { useCallback, useState } from 'react'
 export type Screen =
   | 'home'
   | 'decisionDomains'
+  /** Écran de MODULE (D22) : cadrage partagé + primer d'orientation, entre la liste et un nœud. */
+  | 'decisionModule'
   | 'decisionNode'
   | 'veilleList'
   | 'veilleDetail'
@@ -18,6 +20,8 @@ export type Screen =
 
 export interface NavigationParams {
   nodeId?: string
+  /** Id de module pour l'écran `decisionModule` (D22). */
+  moduleId?: string
   articleId?: string
 }
 
