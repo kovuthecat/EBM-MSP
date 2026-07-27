@@ -707,3 +707,110 @@ describe('I14 — un drapeau qui n’agit qu’à travers un `derive` n’a pas 
     expect(Object.keys(connus).filter((nom) => !sansVoix.includes(nom))).toEqual([])
   })
 })
+
+
+// ═══════════════════════════════════════════════════════════════════════════════════════════════════
+// I15 — MÉCANISER R9 : « SAVOIR SI LE GESTE EST DÉJÀ FAIT »
+// ═══════════════════════════════════════════════════════════════════════════════════════════════════
+
+/**
+ * I15 — **une option qui propose de POURSUIVRE quelque chose doit déclarer un `prerequis`.**
+ *
+ * LE CAS RÉEL (recette navigateur du 2026-07-27, classe K1). Sur `Traiter : initier, optimiser,
+ * intensifier`, avec l'intention « Initier » — donc AUCUN traitement en cours, et le champ
+ * « Traitements en cours » masqué par cette intention même — la carte « Poursuivre le traitement en
+ * cours et réévaluer » sort avec le badge « Recommandée », et son argumentaire affirme « objectif
+ * atteint sans agent iatrogène à optimiser » alors que « Au-dessus de l'objectif » vient d'être saisi.
+ * Le nœud propose de poursuivre un traitement qui n'existe pas.
+ *
+ * POURQUOI AUCUN TEST NE LE VOYAIT. `couverture.test.ts` exige que chaque règle se DÉCLENCHE : ici elle
+ * se déclenche, c'est un succès. L'invariant 1 de `invariants.test.ts` ne contrôle que les `exclusions`.
+ * Rien n'interdisait à une option de repli de s'appliquer quand son présupposé est faux — R9
+ * (`GRAMMAIRE-NOEUD.md`, « savoir si le geste est déjà fait ») existait en toutes lettres, mais
+ * uniquement comme consigne de rédaction.
+ *
+ * LA MÊME CLASSE, DEUX NŒUDS. Le comptage du module `insuline` (`comptage-module-insuline.md`) avait
+ * déjà relevé que son repli « Poursuivre le schéma d'insuline en cours » ne nomme AUCUNE situation et
+ * vaut donc aussi pour le patient naïf d'insuline. C'est le même défaut, trouvé par une autre voie : ce
+ * n'est pas une bizarrerie de `prescription`, c'est R9 qui n'est pas mécanisé.
+ *
+ * FORME, PAS SÉMANTIQUE. L'invariant ne juge pas le CONTENU du prérequis — il ne saurait pas le faire.
+ * Il exige seulement qu'une option dont l'intitulé annonce une continuation en déclare un, c'est-à-dire
+ * qu'un auteur se soit posé la question « à quelle condition ce geste a-t-il un objet ? ». Le champ
+ * existe déjà (R6), et `couverture.test.ts` vérifie même que chaque `prerequis` mord sur au moins un
+ * profil : la mécanique est entièrement en place, il ne manquait que l'obligation.
+ *
+ * Aucun id de nœud dans la LOGIQUE (CLAUDE.md invariant 5) — seule la dette en nomme, comme partout
+ * ailleurs dans ce fichier.
+ */
+const VERBES_DE_CONTINUATION = ['poursuivre', 'maintenir', 'continuer', 'reconduire']
+
+/**
+ * Verbes d'INSTAURATION. Une option qui annonce les deux (« Metformine — instaurer ou poursuivre »)
+ * n'a aucun présupposé à garder : elle vaut que le geste soit déjà fait ou non, et c'est justement ce
+ * que son intitulé dit.
+ */
+const VERBES_D_INSTAURATION = ['instaurer', 'initier', 'introduire', 'debuter', 'commencer', 'ajouter']
+
+/** Sans accents ni casse : « Poursuivre », « poursuivre », « POURSUIVRE » se valent. */
+function normalise(texte: string): string {
+  return texte.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+}
+
+/**
+ * CALIBRATION — troisième invariant du dépôt à passer par une réduction de portée après confrontation
+ * au contenu réel (après I9 et I10), et le motif est chaque fois le même : la première rédaction
+ * décrivait la FORME du défaut observé, pas sa CAUSE.
+ *
+ * Rédaction 1 — « tout intitulé portant un verbe de continuation exige un `prerequis` » : 5 cas, dont
+ * **3 faux positifs**. « Maintenir la pratique actuelle » et « Poursuivre les habitudes actuelles »
+ * (`rhd-activite-physique`) portent des `conditions` qui ÉTABLISSENT déjà l'état continué
+ * (`frequence_activite_structuree == deux_a_trois_fois_semaine AND …`) : leur présupposé est vérifié,
+ * simplement par un autre champ que `prerequis`. Exiger un prérequis de plus n'aurait rien protégé.
+ *
+ * Rédaction 2, retenue — l'exigence ne porte que sur les options **de REPLI** (`conditions:
+ * ["default"]`), c'est-à-dire celles qui s'appliquent SANS qu'aucune condition n'ait rien établi. C'est
+ * exactement la situation du défaut K1 : un repli qui propose de poursuivre un traitement, retenu parce
+ * qu'aucune autre option ne s'appliquait, sans que rien n'ait jamais vérifié qu'un traitement existe.
+ *
+ * Le sentinel `toujours` en est aussi exclu, mais pour une autre raison : « Metformine — instaurer ou
+ * poursuivre » annonce les DEUX gestes et vaut donc dans les deux cas (cf. `VERBES_D_INSTAURATION`).
+ */
+const CONTINUATIONS_SANS_PREREQUIS_CONNUES: Record<string, Record<string, string>> = {
+  prescription: {
+    'Poursuivre le traitement en cours et réévaluer':
+      "K1 (recette navigateur 2026-07-27), CONSTATÉ À L'ÉCRAN : avec l'intention « Initier » — donc aucun " +
+      "traitement en cours, et le champ « Traitements en cours » masqué par cette intention même — cette " +
+      "carte sort badgée « Recommandée », et son argumentaire affirme « objectif atteint sans agent " +
+      "iatrogène à optimiser » alors que « Au-dessus de l'objectif » vient d'être saisi. QUESTION AU " +
+      "RÉFÉRENT : quel prérequis ? « traitements_en_cours ne_contient_pas … » ne suffit pas, la liste est " +
+      'masquée à l’initiation ; le prérequis porte probablement sur `intention != initier`.',
+  },
+  insuline: {
+    "Poursuivre le schéma d'insuline en cours et réévaluer":
+      'Même classe, trouvée par une AUTRE voie avant la recette (`comptage-module-insuline.md`) : ce repli ' +
+      "ne nomme aucune situation et vaut donc aussi pour le patient NAÏF d'insuline, à qui il propose de " +
+      'poursuivre une insuline qu’il ne prend pas. Le lot 1 l’a rendu inoffensif sur formulaire vierge ' +
+      '(défaut B) mais sa condition reste `["default"]` sans garde. QUESTION AU RÉFÉRENT : prérequis ' +
+      '`situation_insuline != naif` ?',
+  },
+}
+
+describe('I15 — une option de REPLI qui propose de CONTINUER déclare un `prerequis` (mécanise R9)', () => {
+  it.each(noeuds.map((node) => [node.id, node] as const))('nœud %s', (id, node) => {
+    const connus = CONTINUATIONS_SANS_PREREQUIS_CONNUES[id] ?? {}
+    const sansPrerequis: string[] = []
+
+    for (const option of node.options) {
+      // REPLI seulement : une option à conditions réelles a déjà dit quand elle s'applique.
+      if (!option.conditions.includes('default')) continue
+      const intitule = normalise(option.intitule)
+      if (!VERBES_DE_CONTINUATION.some((verbe) => intitule.includes(verbe))) continue
+      if (VERBES_D_INSTAURATION.some((verbe) => intitule.includes(verbe))) continue
+      if ((option.prerequis ?? []).length === 0) sansPrerequis.push(option.intitule)
+    }
+
+    expect(sansPrerequis.filter((intitule) => connus[intitule] == null)).toEqual([])
+    expect(Object.keys(connus).filter((intitule) => !sansPrerequis.includes(intitule))).toEqual([])
+  })
+})
