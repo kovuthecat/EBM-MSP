@@ -214,6 +214,33 @@ provisoire, et doit être présenté comme tel. Trois affirmations relayées ce 
 devant lui. Mieux vaut annoncer « la collecte affirme X, le red-team n'a pas encore rendu » que d'avoir à
 se corriger.
 
+#### Un QUATRIÈME cas, le soir du même jour — et il donne la règle mécanique qui manquait
+
+La passe adversariale `prescription` affirmait : **« 432 profils sur 2 160 perdent TOUTE option *Agent à
+ajouter* »** à cause d'une exclusion sur `fragilite`. Le chiffre allait être porté au référent pour qu'il
+rouvre un arbitrage rendu le matin même. Mesuré avant de le faire
+(`docs/decision/validation/chantier-2026-07-27/mesure-surblocage-fragilite.md`) :
+
+- comparaison **appariée** (`genererPairesBooleennes`, le même patient fragile et non fragile, dérivés
+  recalculés) : **9 patients sur 1 840**, pas 432 — et **0** se retrouve sans aucune option ;
+- **une seule option est jamais perdue**, le sulfamide — celle que la source vise nommément ;
+- **certain par LECTURE, pas par tirage** : `fragilite == true` n'apparaît que dans **une** `exclusions`
+  de tout le nœud, ses cinq autres occurrences étant des dérivés, des rangs et une alerte, qui ne
+  retirent rien (D21).
+
+Le chiffre de 432 comptait les familles **vides**, sans contrôler la cause : la quasi-totalité l'est pour
+des raisons étrangères à la fragilité. Compter l'**état** au lieu de mesurer l'**effet** gonflait le
+constat d'un facteur ~40.
+
+> **RÈGLE.** Toute affirmation de la forme « N profils perdent X » doit être produite par une
+> **comparaison appariée**, jamais par un comptage d'état. Le dépôt fournit l'instrument
+> (`engine/banc/profils.ts` `genererPairesBooleennes`, écrit exactement pour ça). Ne pas l'employer
+> **invalide** le constat — ne l'affaiblit pas : le rend inutilisable.
+
+Le motif est le même dans les quatre cas, et il vaut d'être nommé : **un agent mesure ce qu'il peut
+mesurer facilement, pas ce que la question demande.** Un comptage brut est à portée de main ; un
+contrefactuel demande de savoir que l'outil existe et pourquoi il existe.
+
 **Porte de sortie P4** : chaque décision exigée par une vignette est adossée à une source vérifiée en
 primaire, et la passe adversariale est close.
 

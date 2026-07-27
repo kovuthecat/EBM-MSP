@@ -370,7 +370,7 @@ sécurité sans contrepartie clinique. Elle est traitée par S1+S2 au lot 0.
 | **I** | (a) `prerequis` silencieux / (b) masquer les `contient` sur `liste` / (c) champ de contenu. Recommandation recette : **(b)** pour livrer, **(a)** à terme | recette I |
 | **§5** | `insuline` en module de 4 nœuds — **après** le comptage produit par S7 | recette §5 |
 | **N/O/P** | ergonomie (argumentaire, repli par section, code couleur, réorganisation) | recette |
-| — | sur-blocage `fragilite` : **432 profils sur 2 160** perdent **toute** option d'ajout. Le sur-blocage a été assumé ; son ampleur n'était pas connue au moment de l'arbitrage | prescription |
+| ~~—~~ | ~~sur-blocage `fragilite`~~ — **RETIRÉ le 2026-07-27 (soir) : le constat était faux.** Mesuré avant de vous le porter (`mesure-surblocage-fragilite.md`) : le chiffre « 432/2160 » comptait les familles VIDES sans contrôler la cause, au lieu de mesurer l'effet. Comparaison appariée : **9 patients sur 1 840** perdent toute leur famille « Agent à ajouter », **0** se retrouve sans aucune option, et **la seule option jamais perdue est le sulfamide**. Certain par lecture, pas seulement par tirage : `fragilite == true` n'apparaît que dans **une** `exclusions` de tout le nœud. L'arbitrage du matin tenait ; rien à rouvrir. | prescription |
 
 ---
 
