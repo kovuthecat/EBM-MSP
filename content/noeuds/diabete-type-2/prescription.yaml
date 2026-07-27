@@ -65,7 +65,7 @@ criteres_entree:
     # INITIER = patient naïf par définition : la question n'a pas d'objet, le champ est masqué (et remis à
     # vide s'il avait été rempli sous une autre intention — cf. lib/formLayout.ts).
     visible_si: "intention != initier"
-    valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, insuline, glinide]
+    valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, insuline_basale, insuline_rapide, glinide]
   - nom: dose_metformine
     type: nombre
     min: 0
@@ -197,7 +197,7 @@ criteres_entree:
     # Écrit en forme normale disjonctive (AND lie plus fort que OR — même idiome que `palette_glycemique_
     # ouverte` ci-dessous). Le garde `DFG > 0` est indispensable : le défaut d'un nombre non saisi est 0, et
     # `DFG < 30` seul serait VRAI pour tout patient dont le DFG n'est pas renseigné.
-    derive: "HbA1c_actuelle > 0 AND HbA1c_actuelle < 6.5 OR HbA1c_actuelle > 0 AND HbA1c_actuelle < 7 AND DFG > 0 AND DFG < 30 AND traitements_en_cours contient glinide OR HbA1c_actuelle > 0 AND HbA1c_actuelle < 7 AND DFG > 0 AND DFG < 30 AND traitements_en_cours contient insuline"
+    derive: "HbA1c_actuelle > 0 AND HbA1c_actuelle < 6.5 OR HbA1c_actuelle > 0 AND HbA1c_actuelle < 7 AND DFG > 0 AND DFG < 30 AND traitements_en_cours contient glinide OR HbA1c_actuelle > 0 AND HbA1c_actuelle < 7 AND DFG > 0 AND DFG < 30 AND traitements_en_cours contient insuline_basale OR HbA1c_actuelle > 0 AND HbA1c_actuelle < 7 AND DFG > 0 AND DFG < 30 AND traitements_en_cours contient insuline_rapide"
   - nom: cible_atteinte
     type: bool
     # R1 (GRAMMAIRE-NOEUD.md) : dérivé de l'ÉTAT déclaré (`position_vs_cible`), plus de l'intention.
@@ -275,7 +275,7 @@ criteres_entree:
     # « instaurer » supprimée à tort — rien à « déprescrire » chez qui n'a jamais eu la molécule. Trouvé en
     # rejouant le banc de 180 profils (`genererProfils`, profil #121 : iSGLT2+tirzépatide, fragile,
     # sous_objectif, aucun sulfamide/gliptine/glinide/insuline → carte socle exclue SANS remplacement).
-    derive: "traitements_en_cours contient metformine AND position_vs_cible == sous_objectif AND fragilite == true AND traitements_en_cours ne_contient_pas sulfamide AND traitements_en_cours ne_contient_pas gliptine AND traitements_en_cours ne_contient_pas glinide AND traitements_en_cours ne_contient_pas insuline"
+    derive: "traitements_en_cours contient metformine AND position_vs_cible == sous_objectif AND fragilite == true AND traitements_en_cours ne_contient_pas sulfamide AND traitements_en_cours ne_contient_pas gliptine AND traitements_en_cours ne_contient_pas glinide AND traitements_en_cours ne_contient_pas insuline_basale AND traitements_en_cours ne_contient_pas insuline_rapide"
 # `familles` (correctif « ordre accidentel / badge multi-natures », 2026-07-25) : déclaration EXPLICITE
 # des sections du panneau de résultats, présentation pure (aucun effet moteur, cf.
 # schema/noeud.schema.json). L'ORDRE DE CE TABLEAU EST L'ORDRE D'AFFICHAGE — « urgence d'abord » (décision
@@ -310,7 +310,7 @@ options:
     # place est insuffisante en catabolisme, l'ajustement relève du nœud E (hors périmètre, cf.
     # `population_cible`), pas d'une « initiation ».
     prerequis:
-      - "traitements_en_cours ne_contient_pas insuline"
+      - "traitements_en_cours ne_contient_pas insuline_basale AND traitements_en_cours ne_contient_pas insuline_rapide"
     priorite: 1
     famille: "À faire d'emblée — sécurité"
     avantages:
@@ -676,7 +676,7 @@ options:
     # sulfamide) — celle-ci ne l'avait pas. Si l'insuline en place est mal réglée, l'ajustement relève du
     # nœud E (hors périmètre, cf. `population_cible`), pas d'un « envisager » qui suppose l'absence.
     prerequis:
-      - "traitements_en_cours ne_contient_pas insuline"
+      - "traitements_en_cours ne_contient_pas insuline_basale AND traitements_en_cours ne_contient_pas insuline_rapide"
     priorite: 6
     famille: "Agent à ajouter"
     avantages:
@@ -810,7 +810,7 @@ options:
       # terme à terme — même valeur de vérité, deux motifs désormais lisibles séparément : le terrain
       # gériatrique d'un côté, le schéma hypoglycémiant de l'autre.
       - "hba1c_sous_cible == true OR hypoglycemie_recente == true AND terrain_cible_assouplie == true OR hypoglycemie_recente == true AND risque_hypoglycemie_schema == eleve OR position_vs_cible == sous_objectif"
-      - "traitements_en_cours contient sulfamide OR traitements_en_cours contient glinide OR traitements_en_cours contient insuline"
+      - "traitements_en_cours contient sulfamide OR traitements_en_cours contient glinide OR traitements_en_cours contient insuline_basale OR traitements_en_cours contient insuline_rapide"
     priorite: 1
     famille: "Traitement à alléger"
     avantages:
@@ -830,7 +830,7 @@ options:
     # commentaire de « Désintensifier » plus haut pour la justification complète — même ajout, même
     # raison, sans exigence de fragilité.
     conditions:
-      - "traitements_en_cours contient insuline"
+      - "traitements_en_cours contient insuline_basale OR traitements_en_cours contient insuline_rapide"
       - "hba1c_sous_cible == true OR hypoglycemie_recente == true OR intolerance_traitement == true OR position_vs_cible == sous_objectif"
     priorite: 1
     famille: "Traitement à alléger"
@@ -1031,7 +1031,7 @@ options:
     # jamais montrés comme justification (cf. option iSGLT2 plus haut).
     prerequis:
       - "traitements_en_cours ne_contient_pas sulfamide"
-      - "traitements_en_cours ne_contient_pas insuline"
+      - "traitements_en_cours ne_contient_pas insuline_basale AND traitements_en_cours ne_contient_pas insuline_rapide"
     exclusions:
       - "DFG < 30"
       - "symptomes_glucotoxicite == true"
@@ -1127,7 +1127,7 @@ alertes:
       HbA1c non franchement élevée. ≥ 0,6 mmol/L → insuline d'initiation ; ≥ 3 mmol/L → urgence (insuline +
       hospitalisation).
   # AJOUT 2026-07-26 (orchestrateur) — COLMATAGE D'UNE RÉGRESSION INTRODUITE LE MÊME JOUR.
-  # Le prérequis `ne_contient_pas insuline` ajouté à « Insuline d'initiation » supprime cette option chez
+  # Le prérequis `ne_contient_pas insuline_basale AND … insuline_rapide` ajouté à « Insuline d'initiation » supprime cette option chez
   # un patient déjà sous insuline — décision correcte (« initier » n'a pas de sens, l'ajustement relève du
   # nœud E). Mais le message d'urgence sur la cétonémie vivait dans les `contre_indications` de cette
   # option : il disparaissait donc avec elle. Un patient cétonémique déjà sous insuline, HbA1c < 10 et sans
@@ -1141,7 +1141,7 @@ alertes:
   # en conséquence — la RUPTURE THÉRAPEUTIQUE (arrêt, oubli, défaut d'administration, panne de pompe) est
   # désormais désignée comme la PREMIÈRE chose à rechercher devant ce tableau, avant d'orienter vers un
   # ajustement de schéma. Reste du message inchangé (seuil 3 mmol/L, suspicion de DT1, renvoi au nœud E).
-  - quand: "cetonemie == true AND traitements_en_cours contient insuline"
+  - quand: "cetonemie == true AND traitements_en_cours contient insuline_basale OR cetonemie == true AND traitements_en_cours contient insuline_rapide"
     niveau: attention
     message: >-
       État catabolique (cétonémie) chez un patient DÉJÀ sous insuline : rare en pratique — la PREMIÈRE
@@ -1209,7 +1209,7 @@ alertes:
       de 30 (dialyse incluse), la SFD 2025 nomme la vildagliptine 50 mg/j — la forme sitagliptine 25 mg
       n'est pas commercialisée en France. Sulfamide gliclazide/glimépiride à dose réduite mais
       CONTRE‑INDIQUÉ < 30 ; jamais de glibenclamide.
-  - quand: "traitements_en_cours contient insuline AND traitements_en_cours contient sulfamide OR traitements_en_cours contient insuline AND traitements_en_cours contient glinide"
+  - quand: "traitements_en_cours contient insuline_basale AND traitements_en_cours contient sulfamide OR traitements_en_cours contient insuline_rapide AND traitements_en_cours contient sulfamide OR traitements_en_cours contient insuline_basale AND traitements_en_cours contient glinide OR traitements_en_cours contient insuline_rapide AND traitements_en_cours contient glinide"
     niveau: attention
     message: >-
       Association insuline + sulfamide / glinide : risque d'hypoglycémie cumulée. Envisager d'arrêter le
@@ -1257,7 +1257,7 @@ alertes:
       qu'aucun critère saisi ne le déclenche à ce jour (agent hypoglycémiant en cours, sur‑contrôle,
       hypoglycémie récente chez le fragile) : consultez « Pourquoi pas d'autres options ? » pour le détail
       des options non retenues sur ce patient.
-  - quand: "traitements_en_cours contient insuline AND risque_hypoglycemie_schema == eleve"
+  - quand: "traitements_en_cours contient insuline_basale AND risque_hypoglycemie_schema == eleve OR traitements_en_cours contient insuline_rapide AND risque_hypoglycemie_schema == eleve"
     niveau: attention
     message: >-
       Patient sous insuline à haut risque hypoglycémique : ÉVITER d'ajouter un sécrétagogue (sulfamide /

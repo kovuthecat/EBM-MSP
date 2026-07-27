@@ -253,7 +253,7 @@ describe('prescription — E · intolérance & F · garde-fous durs', () => {
   })
 
   it('A8 — insuline + sulfamide en place : alerte hypoglycémie cumulée (red-team M1)', () => {
-    const o = { traitements_en_cours: ['metformine', 'sulfamide', 'insuline'], intention: 'intensifier',
+    const o = { traitements_en_cours: ['metformine', 'sulfamide', 'insuline_basale'], intention: 'intensifier',
       position_vs_cible: 'au_dessus', HbA1c_actuelle: 8 } as Partial<Criteria>
     expect(alertMsgs(o).some((m) => m.includes('hypoglycémie cumulée'))).toBe(true)
   })
@@ -593,7 +593,7 @@ describe('prescription — P-38+ (déprescrire la metformine, garde-fou 2026-07-
     // en place) soit VRAIE — sinon le test ne prouverait rien sur le nouveau `prerequis` ajouté le
     // 2026-07-26 (`ne_contient_pas insuline`, prescription.yaml:519-520) : il faut que l'option soit
     // écartée PAR le prérequis, pas déjà écartée en amont par ses conditions habituelles.
-    const o = { traitements_en_cours: ['metformine', 'iSGLT2', 'aGLP1', 'insuline'], intention: 'intensifier',
+    const o = { traitements_en_cours: ['metformine', 'iSGLT2', 'aGLP1', 'insuline_basale'], intention: 'intensifier',
       position_vs_cible: 'au_dessus', HbA1c_actuelle: 8 } as Partial<Criteria>
     expect(has(titles(o), "Envisager l")).toBe(false)
   })
@@ -619,7 +619,7 @@ describe('prescription — P-38+ (déprescrire la metformine, garde-fou 2026-07-
   })
 
   it('P-44 — le même patient (fragile, sous-objectif) + INSULINE en plus : metformine PAS déprescrite, c’est l’insuline qu’on allège d’abord', () => {
-    const o = { traitements_en_cours: ['metformine', 'iSGLT2', 'insuline'], position_vs_cible: 'sous_objectif',
+    const o = { traitements_en_cours: ['metformine', 'iSGLT2', 'insuline_basale'], position_vs_cible: 'sous_objectif',
       fragilite: true, HbA1c_actuelle: 6.0 } as Partial<Criteria>
     const t = titles(o)
     expect(has(t, 'Déprescrire la metformine')).toBe(false)
@@ -646,7 +646,7 @@ describe('prescription — P-46+ (insuline déjà en place, correctif de sécuri
     // — il disparaissait donc avec elle une fois le prérequis `ne_contient_pas insuline` ajouté (un
     // patient déjà sous insuline ne recevait alors plus AUCUN signal). Ce profil n'était couvert par
     // AUCUNE vignette avant ce chantier.
-    const o = { traitements_en_cours: ['metformine', 'insuline'], cetonemie: true, intention: 'intensifier',
+    const o = { traitements_en_cours: ['metformine', 'insuline_basale'], cetonemie: true, intention: 'intensifier',
       position_vs_cible: 'au_dessus', HbA1c_actuelle: 8 } as Partial<Criteria>
     expect(has(titles(o), "Insuline d'initiation")).toBe(false)
     expect(alertMsgs(o).some((m) => m.includes('RUPTURE THÉRAPEUTIQUE'))).toBe(true)
@@ -788,7 +788,7 @@ describe('prescription — RT-S1..S4 (red-team clinique 2026-07-26, défauts GRA
   it('RT-S4 — sur-traitement DÉCLARÉ (sous_objectif), insuline seule, non fragile : l’allègement de l’insuline apparaît désormais (redteam-clinique-silences F1)', () => {
     const o = { intention: 'optimiser', HbA1c_actuelle: 6.5, position_vs_cible: 'sous_objectif',
       ASCVD_etablie: true, DFG: 46, albuminurie: 'micro', IMC: 23, fragilite: false,
-      hypoglycemie_recente: false, traitements_en_cours: ['metformine', 'insuline'],
+      hypoglycemie_recente: false, traitements_en_cours: ['metformine', 'insuline_basale'],
       hba1c_sous_cible: false } as Partial<Criteria>
     const t = titles(o)
     expect(has(t, "Réduire la posologie de l'insuline")).toBe(true)
@@ -915,7 +915,7 @@ describe('prescription — lot seuils rénaux du 2026-07-27 (garde-fou gériatri
   })
 
   it('R6-7 — DFG 25 sous insuline, HbA1c 6,8 % : la désintensification est PROPOSÉE (2e branche du plancher)', () => {
-    const o = { traitements_en_cours: ['insuline'], DFG: 25, HbA1c_actuelle: 6.8,
+    const o = { traitements_en_cours: ['insuline_basale'], DFG: 25, HbA1c_actuelle: 6.8,
       dose_metformine: 0 } as Partial<Criteria>
     expect(has(titles(o), DESINTENSIFIER)).toBe(true)
   })

@@ -177,7 +177,6 @@ Sortie :
       proposé parce que : experience_activite_negative == true
   Alertes de nœud :
     - Neuropathie périphérique ou mal perforant plantaire : la source HAS restreint la limitation aux activités en CHARGE des membres inférieurs (marche prolongée, course) — les activités sollicitant les membres supérieurs et le travail en décharge (vélo assis, activités en position assise, renforcement du haut du corps, activités aquatiques après avis podologique) restent possibles. L'outil retire ici la famille « pratique structurée » dans son ensemble, faute de recueillir de quoi distinguer les pistes par segment corporel : orienter vers une pratique adaptée plutôt que de conclure à l'absence d'activité possible. Surveillance podologique et chaussage adaptés dans tous les cas. [attention]
-    - Sous insuline, sulfamide ou glinide, toute augmentation de la dépense énergétique majore le risque d'hypoglycémie À L'EFFORT : signaler le risque au patient (resucrage à disposition, autosurveillance autour de l'effort) — arbitrage référent : alerte simple, pas un blocage des pistes proposées. [attention]
     - Sujet fragile : éviter les activités physiques prolongées par forte chaleur, favoriser l'hydratation même en l'absence de sensation de soif, et éviter les activités de renforcement musculaire de forte intensité en ambiance chaude (HAS, guide des connaissances sur l'activité physique et la sédentarité). [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine :: à renseigner : mode_deplacement_courts_trajets
@@ -651,7 +650,6 @@ Sortie :
   - [recommandee] Proposer un bilan avec un enseignant en activité physique adaptée avant toute reprise
       proposé parce que : experience_activite_negative == true
   Alertes de nœud :
-    - Sous insuline, sulfamide ou glinide, toute augmentation de la dépense énergétique majore le risque d'hypoglycémie À L'EFFORT : signaler le risque au patient (resucrage à disposition, autosurveillance autour de l'effort) — arbitrage référent : alerte simple, pas un blocage des pistes proposées. [attention]
     - Sujet fragile : éviter les activités physiques prolongées par forte chaleur, favoriser l'hydratation même en l'absence de sensation de soif, et éviter les activités de renforcement musculaire de forte intensité en ambiance chaude (HAS, guide des connaissances sur l'activité physique et la sédentarité). [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine :: à renseigner : mode_deplacement_courts_trajets

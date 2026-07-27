@@ -99,7 +99,7 @@ criteres_entree:
   - nom: traitements_en_cours
     type: liste
     groupe: Terrain
-    valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, insuline, glinide]
+    valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, insuline_basale, insuline_rapide, glinide]
   # ── Socle — habitudes d'activité physique (S1-S5) ──
   - nom: frequence_activite_structuree
     type: enum
@@ -369,7 +369,7 @@ alertes:
       distinguer les pistes par segment corporel : orienter vers une pratique adaptée plutôt que de
       conclure à l'absence d'activité possible. Surveillance podologique et chaussage adaptés dans tous
       les cas.
-  - quand: "traitements_en_cours contient insuline OR traitements_en_cours contient sulfamide OR traitements_en_cours contient glinide"
+  - quand: "traitements_en_cours contient insuline_basale OR traitements_en_cours contient insuline_rapide OR traitements_en_cours contient sulfamide OR traitements_en_cours contient glinide"
     niveau: attention
     message: >-
       Sous insuline, sulfamide ou glinide, toute augmentation de la dépense énergétique majore le risque

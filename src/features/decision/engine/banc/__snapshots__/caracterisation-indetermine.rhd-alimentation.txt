@@ -184,8 +184,6 @@ Sortie :
       proposé parce que : verrou_tca == true ; fragilite == true
   - [recommandee] Proposer aussi un avis spécialisé en trouble du comportement alimentaire
       proposé parce que : verrou_tca == true
-  Alertes de nœud :
-    - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Remplacer une boisson sucrée du quotidien par de l'eau :: à renseigner : frequence_boissons_sucrees
     - Ne pas remplacer une boisson sucrée par des édulcorants intenses :: à renseigner : frequence_boissons_sucrees
@@ -727,8 +725,6 @@ Sortie :
       proposé parce que : verrou_tca == true ; fragilite == true
   - [recommandee] Proposer aussi un avis spécialisé en trouble du comportement alimentaire
       proposé parce que : verrou_tca == true
-  Alertes de nœud :
-    - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
   Options écartées (sécurité, R4) :
     - Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats) :: fragilite == true
   Options EN ATTENTE (indétermination, R7/D20) :

@@ -426,7 +426,7 @@ describe('ordre des sections — stable quel que soit le patient', () => {
       }),
     ],
     ['insuffisance rénale sévère', profil({ intention: 'optimiser', traitements_en_cours: ['metformine', 'sulfamide'], DFG: 25 })],
-    ['déprescription chez le fragile', profil({ intention: 'deprescrire', age: 84, fragilite: true, traitements_en_cours: ['insuline', 'sulfamide'] })],
+    ['déprescription chez le fragile', profil({ intention: 'deprescrire', age: 84, fragilite: true, traitements_en_cours: ['insuline_basale', 'sulfamide'] })],
   ]
 
   const sectionsDe = (criteria: Criteria) => {
