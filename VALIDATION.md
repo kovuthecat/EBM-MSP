@@ -669,3 +669,28 @@ dur — `intention` sur `Traiter…`, `situation_insuline` sur `insuline`, `into
       Un champ peut porter les deux. À juger : se distinguent-ils bien ?
 - [ ] **`cible-glycemique` et les deux nœuds RHD** n'ont aucun `visible_si` : aucun repère ne doit
       apparaître, l'écran est inchangé.
+
+## A5 — carte allégée (2026-07-27, soir)
+
+Le corps de la carte passe derrière un dépli natif (`<details>`, ouverture au clic/tap, jamais au
+survol). **Fermé par défaut** — une carte ouverte n'allège rien.
+
+**Reste toujours visible** : intitulé, badges, contre-indications, alertes d'option, doses (calculées
+**et** « non calculées »), « Proposé parce que », motif du rang.
+**Passe dans le dépli** : effet attendu, délai du bénéfice, avantages, inconvénients.
+
+Le dépli est placé **en fin de carte** : l'ouvrir ajoute du contenu SOUS le socle de sécurité, sans
+jamais le repousser hors de l'écran.
+
+- [ ] **`Traiter…`, intensification banale** (metformine seule, HbA1c 8,5, DFG 80, sans comorbidité) —
+      le profil que la recette a mesuré à 5 cartes de ~1 écran chacune. Mesurer à nouveau : combien
+      d'écrans pour les 5 cartes ? L'estimation était 0,3 écran par carte.
+- [ ] **Le dépli s'ouvre-t-il au doigt sans difficulté ?** Le libellé « Effet attendu, délai, avantages
+      et inconvénients » est-il assez clair pour donner envie de l'ouvrir quand il le faut ?
+- [ ] **Aucune contre-indication, alerte ou dose ne doit se trouver dans le dépli.** C'est garanti par
+      l'invariant I12 sur les six nœuds, mais à vérifier une fois de l'œil.
+- [ ] **Deux arbitrages que j'ai pris et qu'il faut confirmer** : les « Doses indicatives » restent
+      visibles (incohérent de montrer « dose non calculée » et de cacher la dose calculée) ; « Ce rang
+      tient compte de » aussi (une ligne, et c'est ce qui rend le tri auditable).
+- [ ] **Cartes ouvertes en même temps** : le navigateur garde chaque dépli indépendant. Faut-il un
+      « tout déplier » ? À juger à l'usage.

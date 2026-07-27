@@ -48,12 +48,36 @@ interface OptionCardProps {
 }
 
 /**
- * Carte d'option applicable (T-006 étape 2) : intitulé, badge de mise en avant, badge preuve, effet
- * attendu, avantages/inconvénients (qui portent déjà la position critique — D12), contre-indications
- * si renseignées, les alertes propres à l'option (jamais affichées pour une option écartée ou non
- * retenue, puisque cette carte n'existe alors pas — cf. `lib/vueDecision.ts` `OptionVue.alertes`), la
- * ligne « Proposé parce que » dérivée des termes réellement vrais pour ce patient (R6,
- * `lib/conditionText.ts`), et — quand elle compte — le motif du rang parmi les options de sa famille.
+ * Carte d'option applicable (T-006 étape 2), ALLÉGÉE le 2026-07-27 — arbitrage référent A5.
+ *
+ * POURQUOI. La recette visuelle a mesuré une carte à **0,71 à 1,06 écran** en largeur étroite : il faut
+ * un défilement plein écran, parfois plus, pour passer d'une carte à la suivante, et un profil banal en
+ * affiche cinq. Ce sont les avantages/inconvénients (3 à 6 puces longues) et le paragraphe d'effet
+ * attendu qui font ce volume — les contre-indications, elles, ne pèsent que 11 à 18 % de la hauteur.
+ *
+ * DEUX REGISTRES, ET LA FRONTIÈRE N'EST PAS « COURT / LONG » MAIS « AGIR / S'INSTRUIRE ».
+ *
+ * SOCLE, jamais repliable — ce sur quoi le praticien AGIT dans la minute :
+ *   - intitulé et badges (quel geste, avec quelle force et quel niveau de preuve) ;
+ *   - `contre_indications` — D21 : un fait de sécurité s'affiche avec son motif, il ne se déplie pas ;
+ *   - `option.alertes` — même canal, même raison ;
+ *   - `calculsEnAttente` (« Doses non calculées : … à renseigner : Poids ») — la pousser derrière un
+ *     dépli ferait revenir le défaut J le jour même où A5 est livré ;
+ *   - `calculs` (« Doses indicatives : 8 U/j ») — MON ARBITRAGE, à confirmer : une dose est ce qu'on
+ *     prescrit, et il serait incohérent de montrer « dose non calculée » sans montrer la dose calculée ;
+ *   - « Proposé parce que » et, quand il compte, le motif du rang (R6) : une ligne chacun, et c'est ce
+ *     qui rend la carte auditable en consultation.
+ *
+ * DÉPLI (`<details>`), ce qui INSTRUIT la décision une fois qu'on veut l'approfondir : effet attendu,
+ * délai du bénéfice, avantages, inconvénients.
+ *
+ * `<details>` NATIF, et c'est un choix, pas une facilité : ouverture au clic/tap (jamais au survol —
+ * A5 l'exige, un survol est inutilisable au doigt en consultation), état géré par le navigateur donc
+ * aucun `useState` à synchroniser, et accessibilité clavier + lecteur d'écran acquise sans code — la
+ * même exigence que A9 vient de poser sur les boutons segmentés.
+ *
+ * GARDE-FOU : `banc/carte-affichage.test.ts` vérifie sur les six nœuds RÉELS qu'aucun texte de
+ * contre-indication, d'alerte d'option ou de dose n'atterrit jamais à l'intérieur du dépli.
  */
 export function OptionCard({ option, badge, reasons, calculs, calculsEnAttente, motifRang, alertes }: OptionCardProps) {
   return (
@@ -69,15 +93,6 @@ export function OptionCard({ option, badge, reasons, calculs, calculsEnAttente, 
         </div>
       </div>
 
-      <div className="option-card__effet">{option.effet_attendu}</div>
-
-      {/* R2 : le délai est posé À CÔTÉ de l'effet, jamais confronté à l'espérance de vie du patient par
-          l'outil — cette mise en balance est l'arbitrage du praticien (invariant 2, aucun score caché).
-          Formulation « Délai du bénéfice : X » plutôt que « Bénéfice attendu en X », qui deviendrait
-          fautive pour les valeurs `immédiat` et `non établi`. */}
-      {option.delai_benefice && (
-        <div className="option-card__delai">Délai du bénéfice : {option.delai_benefice}</div>
-      )}
 
       {calculs.length > 0 && (
         <div className="option-card__calculs">
@@ -108,24 +123,6 @@ export function OptionCard({ option, badge, reasons, calculs, calculsEnAttente, 
         </div>
       )}
 
-      <div className="option-card__lists">
-        <div>
-          <div className="option-card__list-title">Avantages</div>
-          {option.avantages.map((avantage, index) => (
-            <div key={`${index}-${avantage}`} className="option-card__list-item">
-              • {avantage}
-            </div>
-          ))}
-        </div>
-        <div>
-          <div className="option-card__list-title">Inconvénients</div>
-          {option.inconvenients.map((inconvenient, index) => (
-            <div key={`${index}-${inconvenient}`} className="option-card__list-item">
-              • {inconvenient}
-            </div>
-          ))}
-        </div>
-      </div>
 
       {option.contre_indications && option.contre_indications.length > 0 && (
         <div className="option-card__ci">
@@ -144,6 +141,44 @@ export function OptionCard({ option, badge, reasons, calculs, calculsEnAttente, 
       {/* R6 couche 2 : pourquoi CE rang parmi les autres options de la famille — seulement quand une
           vraie concurrence de rang existe (cf. `lib/vueDecision.ts` `OptionVue.motifRang`). */}
       {motifRang && <div className="option-card__rang">Ce rang tient compte de : {describeReasons([motifRang])}</div>}
+
+      {/* A5 — LE DÉPLI. Tout ce qui instruit la décision sans être ce sur quoi on agit dans la minute.
+          Fermé par défaut : c'est l'allègement lui-même, une carte ouverte n'allège rien. `<details>`
+          natif (cf. docstring de tête) — le navigateur porte l'état, le clavier et le lecteur d'écran. */}
+      <details className="option-card__detail">
+        <summary className="option-card__detail-summary">
+          Effet attendu, délai, avantages et inconvénients
+        </summary>
+
+        <div className="option-card__effet">{option.effet_attendu}</div>
+
+        {/* R2 : le délai est posé À CÔTÉ de l'effet, jamais confronté à l'espérance de vie du patient
+            par l'outil — cette mise en balance est l'arbitrage du praticien (invariant 2, aucun score
+            caché). Formulation « Délai du bénéfice : X » plutôt que « Bénéfice attendu en X », qui
+            deviendrait fautive pour les valeurs `immédiat` et `non établi`. */}
+        {option.delai_benefice && (
+          <div className="option-card__delai">Délai du bénéfice : {option.delai_benefice}</div>
+        )}
+
+        <div className="option-card__lists">
+          <div>
+            <div className="option-card__list-title">Avantages</div>
+            {option.avantages.map((avantage, index) => (
+              <div key={`${index}-${avantage}`} className="option-card__list-item">
+                • {avantage}
+              </div>
+            ))}
+          </div>
+          <div>
+            <div className="option-card__list-title">Inconvénients</div>
+            {option.inconvenients.map((inconvenient, index) => (
+              <div key={`${index}-${inconvenient}`} className="option-card__list-item">
+                • {inconvenient}
+              </div>
+            ))}
+          </div>
+        </div>
+      </details>
     </div>
   )
 }

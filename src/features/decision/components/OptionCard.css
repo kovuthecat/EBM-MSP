@@ -137,3 +137,35 @@
 .option-card__calculs--en-attente {
   color: var(--c-attention);
 }
+
+/* ── A5 — LE DÉPLI (arbitrage référent, 2026-07-27) ──────────────────────────────────────────────────
+   La recette visuelle a mesuré 0,71 à 1,06 écran par carte en largeur étroite, cinq cartes sur un
+   profil banal. Ce qui fait ce volume, ce sont les avantages/inconvénients et l'effet attendu — pas les
+   contre-indications (11 à 18 %). D'où : tout ce sur quoi on AGIT reste au-dessus, tout ce qui INSTRUIT
+   passe ici, fermé par défaut.
+   Placé en FIN de carte à dessein : l'ouvrir ajoute du contenu SOUS le socle de sécurité, sans jamais
+   le repousser hors de l'écran. */
+.option-card__detail {
+  margin-top: 12px;
+  border-top: 1px solid var(--c-border-subtle, rgba(0, 0, 0, 0.08));
+  padding-top: 10px;
+}
+
+.option-card__detail-summary {
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--c-accent-decision);
+  /* Cible tactile confortable : A5 exige le clic/tap, pas le survol — inutilisable au doigt. */
+  padding: 6px 2px;
+  list-style-position: inside;
+}
+
+.option-card__detail-summary:hover {
+  text-decoration: underline;
+}
+
+/* Le premier bloc du dépli ne doit pas coller au résumé une fois ouvert. */
+.option-card__detail[open] .option-card__effet {
+  margin-top: 8px;
+}
