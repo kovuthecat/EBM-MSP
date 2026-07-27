@@ -135,6 +135,51 @@ export function valeursProposeesDepuisSaisie(
 }
 
 /**
+ * PRÉ-REMPLISSAGE CALCULÉ (K6, `CritereEntree.preremplissage`) : pour chaque critère saisi que le
+ * praticien n'a PAS encore renseigné, la première règle dont le `quand` est vrai AU SENS STRICT fournit
+ * une valeur de départ.
+ *
+ * TROIS GARDE-FOUS, et chacun répond à un travers précis :
+ *  - `!== true` ne suffit pas, on exige `=== true` : une expression INDÉTERMINÉE (opérande non renseigné)
+ *    ne pré-remplit RIEN. Deviner sur une donnée manquante serait exactement ce que R7/D20 proscrit ;
+ *  - un critère DÉJÀ RENSEIGNÉ n'est jamais touché — « sinon c'est la position déclarée qui fait foi »
+ *    (référent). C'est ce qui garde le critère DÉCLARÉ au sens de R1 : le mécanisme propose un point de
+ *    départ, il ne transforme pas un critère saisi en critère `derive` ;
+ *  - la valeur pré-remplie doit appartenir aux `valeurs` déclarées pour un `enum` — un contenu qui se
+ *    tromperait de libellé injecterait sinon une valeur que le formulaire ne sait pas rendre.
+ *
+ * Renvoie les critères effectivement pré-remplis, pour que l'appelant les SIGNALE à l'écran : un champ
+ * qui paraît répondu alors que personne n'a répondu sur cet écran est le défaut A du lot 1.
+ */
+export function appliquerPreremplissage(
+  criteresEntree: CritereEntree[],
+  criteria: Criteria,
+  renseignes: ReadonlySet<string>,
+): { criteria: Criteria; preremplis: string[] } {
+  const candidats = criteresEntree.filter(
+    (c) => c.derive == null && (c.preremplissage ?? []).length > 0 && !renseignes.has(c.nom),
+  )
+  if (candidats.length === 0) return { criteria, preremplis: [] }
+
+  const derives = calculerCriteresDerives(criteresEntree, criteria)
+  const effectifs = determinesEffectifs(criteresEntree, derives, renseignes)
+  const suivant = { ...criteria }
+  const preremplis: string[] = []
+
+  for (const critere of candidats) {
+    const regle = (critere.preremplissage ?? []).find(
+      (r) => evaluateCondition(r.quand, derives, effectifs) === true,
+    )
+    if (regle == null) continue
+    if (critere.type === 'enum' && !(critere.valeurs ?? []).includes(regle.valeur)) continue
+    if (suivant[critere.nom] === regle.valeur) continue
+    suivant[critere.nom] = regle.valeur
+    preremplis.push(critere.nom)
+  }
+  return preremplis.length > 0 ? { criteria: suivant, preremplis } : { criteria, preremplis: [] }
+}
+
+/**
  * Champs SAISISSABLES (non `derive`) actuellement visibles, groupés par `groupe` dans l'ordre de première
  * apparition. Les critères dérivés ne sont jamais rendus (calculés, cf. `deriveCritere.ts`) ; un groupe
  * dont tous les champs sont masqués disparaît entièrement.

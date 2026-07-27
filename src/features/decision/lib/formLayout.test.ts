@@ -11,6 +11,7 @@ import type { Criteria } from '../engine/conditions.ts'
 import { getNoeudById } from '../content/loadNodes.ts'
 import { criteresPertinents } from '../engine/relevance.ts'
 import {
+  appliquerPreremplissage,
   buildDefaultCriteria,
   champEstVisible,
   champsVisibles,
@@ -406,5 +407,76 @@ describe('reinitialiserChampsMasques — A4/F : une valeur cochée puis masquée
     const entree = { situation: 'basale_seule', traitements: ['insuline_basale'] }
     const { criteria } = reinitialiserChampsMasques(CRITERES, entree, new Set(['situation', 'traitements']))
     expect(criteria.traitements).toEqual(['insuline_basale'])
+  })
+})
+
+/**
+ * K6 — PRÉ-REMPLISSAGE CALCULÉ (`preremplissage`). Décision référent : « si la cible est connue, le module
+ * peut déduire le résultat en calculant l'écart à la cible et pré-remplir la position à la cible. Sinon
+ * c'est la position à la cible DÉCLARÉE qui fait foi. » Seuil donné : « nettement au-dessus » = HbA1c
+ * supérieure ou égale à 1 point de plus que l'objectif.
+ */
+describe('appliquerPreremplissage — K6', () => {
+  const CRITERES: CritereEntree[] = [
+    { nom: 'actuelle', type: 'nombre', min: 4, max: 18 },
+    { nom: 'cible', type: 'nombre', min: 6, max: 9.5 },
+    { nom: 'nettement', type: 'bool', derive: 'actuelle > 0 AND cible > 0 AND actuelle - cible >= 1' },
+    { nom: 'au_dessus', type: 'bool', derive: 'actuelle > 0 AND cible > 0 AND actuelle > cible' },
+    {
+      nom: 'position',
+      type: 'enum',
+      valeurs: ['a_l_objectif', 'au_dessus', 'nettement_au_dessus'],
+      preremplissage: [
+        { quand: 'nettement == true', valeur: 'nettement_au_dessus' },
+        { quand: 'au_dessus == true', valeur: 'au_dessus' },
+      ],
+    },
+  ]
+  const saisi = { actuelle: 0, cible: 0, position: 'a_l_objectif' }
+  const deuxRenseignes = new Set(['actuelle', 'cible'])
+
+  it('applique la PREMIÈRE règle vraie — « nettement » l’emporte sur « au-dessus »', () => {
+    // 8,0 pour une cible à 7,0 : écart de 1 point exactement, donc « nettement » (seuil ≥ 1, référent).
+    const r = appliquerPreremplissage(CRITERES, { ...saisi, actuelle: 8, cible: 7 }, deuxRenseignes)
+    expect(r.criteria.position).toBe('nettement_au_dessus')
+    expect(r.preremplis).toEqual(['position'])
+  })
+
+  it('« au-dessus » quand l’écart est strictement inférieur à 1 point', () => {
+    const r = appliquerPreremplissage(CRITERES, { ...saisi, actuelle: 7.5, cible: 7 }, deuxRenseignes)
+    expect(r.criteria.position).toBe('au_dessus')
+  })
+
+  it('ne pré-remplit RIEN quand aucune règle n’est vraie — sous l’objectif, le praticien déclare', () => {
+    // ⚠ Délibéré : le référent a donné le seuil du « nettement au-dessus », pas la frontière entre
+    // `a_l_objectif` et `sous_objectif`. Cette frontière déclenche la déprescription — on ne la devine pas.
+    const r = appliquerPreremplissage(CRITERES, { ...saisi, actuelle: 6.5, cible: 7 }, deuxRenseignes)
+    expect(r.preremplis).toEqual([])
+    expect(r.criteria.position).toBe('a_l_objectif')
+  })
+
+  it('ne pré-remplit RIEN tant qu’un opérande n’est pas renseigné — on ne devine pas sur une donnée absente', () => {
+    // R7/D20 : `quand` est alors INDÉTERMINÉ, et l'exigence est `=== true`, pas `!== false`.
+    const r = appliquerPreremplissage(CRITERES, { ...saisi, actuelle: 9, cible: 7 }, new Set(['actuelle']))
+    expect(r.preremplis).toEqual([])
+  })
+
+  it('ne touche JAMAIS un champ déjà répondu — « la position déclarée fait foi »', () => {
+    const r = appliquerPreremplissage(
+      CRITERES,
+      { ...saisi, actuelle: 9, cible: 7, position: 'a_l_objectif' },
+      new Set(['actuelle', 'cible', 'position']),
+    )
+    expect(r.preremplis).toEqual([])
+    expect(r.criteria.position).toBe('a_l_objectif')
+  })
+
+  it('refuse une valeur que le critère `enum` ne déclare pas', () => {
+    const faux: CritereEntree[] = [
+      { nom: 'x', type: 'enum', valeurs: ['a'], preremplissage: [{ quand: 'y == true', valeur: 'inexistante' }] },
+      { nom: 'y', type: 'bool' },
+    ]
+    const r = appliquerPreremplissage(faux, { x: 'a', y: true }, new Set(['y']))
+    expect(r.preremplis).toEqual([])
   })
 })

@@ -11,6 +11,7 @@ import { describe, expect, it } from 'vitest'
 import { getNoeudById } from '../content/loadNodes.ts'
 import { calculerCriteresDerives } from './deriveCritere.ts'
 import { evaluateNode } from './evaluateNode.ts'
+import { buildDefaultCriteria } from '../lib/formLayout.ts'
 import { construireVueDecision } from '../lib/vueDecision.ts'
 import type { Criteria } from './conditions.ts'
 
@@ -18,7 +19,14 @@ const node = getNoeudById('prescription')
 if (!node) throw new Error('Nœud "prescription" introuvable (content/noeuds/diabete-type-2/prescription.yaml).')
 
 /** Profil « neutre » cliniquement plausible : pas de comorbidité, DFG/IMC/âge réalistes (jamais 0). */
+// PROFIL NEUTRE — PART DES VALEURS PAR DÉFAUT DU NŒUD (2026-07-27), puis les surcharge.
+// AVANT : un objet écrit entièrement à la main. Ajouter un critère au contenu (ici `HbA1c_cible`, K6) le
+// laissait `undefined` sur TOUS les profils, et la première dérivation qui le lisait levait une
+// `ConditionError` — 76 vignettes tombées d'un coup sur un changement qui ne touchait aucune règle de
+// décision. Les valeurs nommées ci-dessous continuent d'écraser exactement ce qu'elles écrasaient :
+// AUCUN profil ne change, le banc devient seulement résistant à la croissance du contenu.
 const BASE: Criteria = {
+  ...buildDefaultCriteria(node!.criteres_entree),
   traitements_en_cours: [],
   intention: 'optimiser',
   // GATING DOSE METFORMINE (2026-07-26, 3e série, prescription.yaml) : `dose_metformine` doit exister sur
@@ -58,7 +66,7 @@ const BASE: Criteria = {
 
 function evalProfile(overrides: Partial<Criteria>) {
   // Cast sûr : `overrides` (Partial) ne porte que des valeurs définies ; le spread ne fait qu'écraser
-  // des clés existantes de BASE (complet). Sans cast, le spread d'un Partial est typé `… | undefined`.
+  // des clés existantes de BASE (complet, cf. sa définition).
   const criteria = calculerCriteresDerives(node!.criteres_entree, { ...BASE, ...overrides } as Criteria)
   return evaluateNode(node!, criteria)
 }

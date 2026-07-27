@@ -149,11 +149,15 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
     // littéraux ne déplacent aucune sortie du moteur).
     valeurs_visible_si: 'affichage',
     partage: 'inerte', // K6 : drapeau de reprise entre nœuds, pas une expression
+    preremplissage: 'inerte', // conteneur : cf. `reglePreremplissage`
     confirmation_requise: 'inerte',
     min: 'inerte',
     max: 'inerte',
   },
   famille: { libelle: 'inerte', exclusive: 'inerte' },
+  // K6 — `quand` est une expression d'AFFICHAGE : elle décide d'une valeur de DÉPART dans le formulaire,
+  // jamais de l'applicabilité d'une option. `evaluateNode` ne la lit pas.
+  reglePreremplissage: { quand: 'affichage', valeur: 'inerte' },
   referencePrimaire: { id: 'inerte', titre: 'inerte', annee: 'inerte', lien: 'inerte', type_critere: 'inerte' },
   referenceCritique: { nom: 'inerte', lien: 'inerte', detail: 'inerte' },
   sources: { references_primaires: 'inerte', synthese_critique: 'inerte', reco_officielle: 'inerte' },
@@ -214,6 +218,9 @@ export function fragmentsDuNoeud(node: Noeud): FragmentExpression[] {
     for (const [valeur, expression] of Object.entries(critere.valeurs_visible_si ?? {})) {
       pousser(expression, 'affichage', `criteres_entree[${i}].valeurs_visible_si.${valeur}`)
     }
+    ;(critere.preremplissage ?? []).forEach((regle, j) => {
+      pousser(regle.quand, 'affichage', `criteres_entree[${i}].preremplissage[${j}].quand`)
+    })
   })
 
   return fragments

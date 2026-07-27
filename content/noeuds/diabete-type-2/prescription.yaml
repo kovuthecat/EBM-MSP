@@ -91,9 +91,46 @@ criteres_entree:
     # les nœuds qui la déclarent : un critère `partage` doit avoir le même encodage partout (invariant du
     # banc), sinon on ferait circuler un concept sous un nom commun avec deux définitions.
     partage: true
+  # AJOUTÉ le 2026-07-27 (K6). Ce nœud n'avait pas la cible : il ne demandait que la POSITION par rapport
+  # à elle. La déclarer permet de PRÉ-REMPLIR cette position en calculant l'écart — la décision du référent
+  # — et la valeur circule depuis le nœud « Insulinothérapie » quand elle y a déjà été saisie (`partage`).
+  # Bornes IDENTIQUES à celles du nœud E : un critère `partage` doit avoir le même encodage partout (I19).
+  # Aucune règle de DÉCISION ne lit ce critère : il n'alimente que les deux dérivés d'écart ci-dessous,
+  # eux-mêmes lus par le seul `preremplissage`. La position déclarée reste ce qui fait foi.
+  - nom: HbA1c_cible
+    type: nombre
+    min: 6
+    max: 9.5
+    groupe: Traitement actuel et contrôle
+    partage: true
+  # Les deux gardes `> 0` sont indispensables : le défaut d'un nombre non saisi est 0, et l'écart calculé
+  # sur une cible à 0 vaudrait l'HbA1c elle-même — donc « nettement au-dessus » pour tout le monde. Le banc
+  # marque tous les critères comme renseignés, c'est donc lui, et non l'écran, que ces gardes protègent.
+  - nom: ecart_nettement_au_dessus_cible
+    type: bool
+    # SEUIL DONNÉ PAR LE RÉFÉRENT (2026-07-27) : « nettement au-dessus : HbA1c supérieure ou égale à
+    # 1 point de plus que l'objectif ».
+    derive: "HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND HbA1c_actuelle - HbA1c_cible >= 1"
+  - nom: ecart_au_dessus_cible
+    type: bool
+    derive: "HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND HbA1c_actuelle > HbA1c_cible"
   - nom: position_vs_cible
     type: enum
     groupe: Traitement actuel et contrôle
+    # PRÉ-REMPLISSAGE (K6) — la première règle vraie l'emporte, d'où l'ordre : « nettement » avant
+    # « au-dessus », qui est moins spécifique et serait sinon toujours atteint le premier.
+    #
+    # ⚠ RIEN N'EST PRÉ-REMPLI SOUS L'OBJECTIF, et c'est délibéré : le référent a donné le seuil du
+    # « nettement au-dessus », pas la frontière entre `a_l_objectif` et `sous_objectif`. Or cette
+    # frontière n'est pas cosmétique — `sous_objectif` déclenche la déprescription. Proposer
+    # « à l'objectif » à un patient à 6,0 pour une cible à 7,5 masquerait un sur-traitement ; proposer
+    # « sous objectif » à 6,9 pour 7,0 ouvrirait une déprescription sur un dixième de point. Tant que la
+    # règle n'est pas donnée, le praticien déclare — comportement d'aujourd'hui, inchangé.
+    preremplissage:
+      - quand: "ecart_nettement_au_dessus_cible == true"
+        valeur: nettement_au_dessus
+      - quand: "ecart_au_dessus_cible == true"
+        valeur: au_dessus
     # R1 (docs/decision/GRAMMAIRE-NOEUD.md) : l'ÉTAT du contrôle est DÉCLARÉ par le praticien, jamais
     # déduit de son INTENTION — « optimiser » veut dire « améliorer le traitement », ce qui ne dit rien
     # de la position vs objectif (recette référent 2026-07-25). Le nœud « Fixer la cible » reste une AIDE
@@ -1749,8 +1786,23 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.32"
+  version: "0.33"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        K6 (2e volet) — `position_vs_cible` est désormais PRÉ-REMPLIE en calculant l'écart à la cible.
+        Décision référent : « si la cible est connue, le module peut déduire le résultat en calculant
+        l'écart à la cible et pré-remplir la position à la cible. Sinon c'est la position à la cible
+        DÉCLARÉE qui fait foi. » Seuil donné par le référent : « nettement au-dessus » = HbA1c supérieure
+        ou égale à 1 point de plus que l'objectif. Le nœud déclare pour cela `HbA1c_cible` (`partage`,
+        bornes identiques au nœud E) et deux dérivés d'écart, lus par le SEUL `preremplissage` — aucune
+        règle de décision ne les lit, et `position_vs_cible` reste un critère SAISI : le pré-remplissage
+        cesse dès que le praticien touche au champ (R1, l'état se déclare). ⚠ RIEN N'EST PRÉ-REMPLI SOUS
+        L'OBJECTIF : le référent a donné le seuil du « nettement au-dessus », pas la frontière entre
+        `a_l_objectif` et `sous_objectif` — or celle-ci déclenche la déprescription, on ne la devine pas.
+        VÉRIFIÉ : golden master identique ligne pour ligne une fois le nouveau critère écarté des deux
+        côtés (690 lignes, 0 différence) ; les 41 lignes d'option retenue sont inchangées.
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

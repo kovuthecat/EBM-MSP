@@ -86,6 +86,13 @@ interface CriteriaFormProps {
    * qui lui est proposé, sous peine de valider sans regarder une donnée venue d'ailleurs.
    */
   repris?: ReadonlySet<string>
+  /**
+   * Champs remplis par une RÈGLE DE CONTENU (`CritereEntree.preremplissage`, K6) plutôt que par le
+   * praticien. Distincts de `repris` — là une valeur vient d'un autre nœud, ici elle est calculée depuis
+   * d'autres réponses. Deux origines, deux mentions : « d'où sort cette valeur ? » n'a pas la même
+   * réponse, et un praticien qui vérifie a besoin de la bonne.
+   */
+  preremplis?: ReadonlySet<string>
   onChange: (nom: string, value: CriteriaValue) => void
 }
 
@@ -117,6 +124,7 @@ export function CriteriaForm({
   onEffacer,
   contraintesViolees,
   repris,
+  preremplis,
   onChange,
 }: CriteriaFormProps) {
   // `touched` fait aussi office de `renseignes` (D20 R7) pour la VISIBILITÉ (`visible_si`) : un champ dont
@@ -176,6 +184,18 @@ export function CriteriaForm({
 
   /** K6 — mention « repris » : dit d'où vient une valeur que le praticien n'a pas tapée SUR CET ÉCRAN. */
   const estRepris = (critere: CritereEntree) => repris?.has(critere.nom) === true
+  const estPrerempli = (critere: CritereEntree) => preremplis?.has(critere.nom) === true
+
+  /** Mention d'origine d'une valeur que le praticien n'a pas tapée sur CET écran. */
+  const renderOrigine = (critere: CritereEntree) => {
+    if (estRepris(critere)) {
+      return <span className="criteria-form__field-repris"> · repris de votre saisie</span>
+    }
+    if (estPrerempli(critere)) {
+      return <span className="criteria-form__field-repris"> · calculé, à vérifier</span>
+    }
+    return null
+  }
 
   const renderChamp = (critere: CritereEntree) => {
     const dim = estDim(critere.nom)
@@ -205,7 +225,7 @@ export function CriteriaForm({
             {pilote && <span className="criteria-form__field-pilote"> · détermine la suite</span>}
             {/* `confirmation_requise` seulement (D20 R7) : jamais sur un `bool` ordinaire, cf. `estAConfirmer`. */}
             {confirmer && <span className="criteria-form__field-todo"> · à confirmer</span>}
-            {estRepris(critere) && <span className="criteria-form__field-repris"> · repris de votre saisie</span>}
+            {renderOrigine(critere)}
           </span>
         </label>
       )
@@ -247,7 +267,7 @@ export function CriteriaForm({
             {labelForCritere(critere.nom)}
             {pilote && <span className="criteria-form__field-pilote"> · détermine la suite</span>}
             {confirmer && <span className="criteria-form__field-todo"> · à confirmer</span>}
-            {estRepris(critere) && <span className="criteria-form__field-repris"> · repris de votre saisie</span>}
+            {renderOrigine(critere)}
           </div>
           {renderAide(critere)}
           <div className="criteria-form__chips">
@@ -289,7 +309,7 @@ export function CriteriaForm({
           {pilote && <span className="criteria-form__field-pilote"> · détermine la suite</span>}
           {dim && <span className="criteria-form__field-note"> · sans effet sur la reco actuelle</span>}
           {confirmer && <span className="criteria-form__field-todo"> · à confirmer</span>}
-          {estRepris(critere) && <span className="criteria-form__field-repris"> · repris de votre saisie</span>}
+          {renderOrigine(critere)}
         </div>
 
         {critere.type === 'nombre' ? (

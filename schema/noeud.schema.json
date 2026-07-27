@@ -34,32 +34,56 @@
       "minLength": 1,
       "description": "Domaine clinique du noeud (ex. diabete-type-2). Champ obligatoire (DECISIONS.md D8)."
     },
-    "titre": { "type": "string", "minLength": 1 },
-    "population_cible": { "type": "string", "minLength": 1 },
+    "titre": {
+      "type": "string",
+      "minLength": 1
+    },
+    "population_cible": {
+      "type": "string",
+      "minLength": 1
+    },
     "criteres_entree": {
       "type": "array",
-      "items": { "$ref": "#/definitions/critereEntree" }
+      "items": {
+        "$ref": "#/definitions/critereEntree"
+      }
     },
     "options": {
       "type": "array",
       "minItems": 1,
-      "items": { "$ref": "#/definitions/option" }
+      "items": {
+        "$ref": "#/definitions/option"
+      }
     },
-    "argumentaire": { "type": "string", "minLength": 1 },
-    "sources": { "$ref": "#/definitions/sources" },
+    "argumentaire": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sources": {
+      "$ref": "#/definitions/sources"
+    },
     "incertitudes": {
       "type": "array",
-      "items": { "type": "string" }
+      "items": {
+        "type": "string"
+      }
     },
     "veille_liee": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Ids d'entrees de veille ayant modifie ce noeud (pont bidirectionnel avec noeuds_impactes cote veille)."
     },
-    "meta": { "$ref": "#/definitions/meta" },
+    "meta": {
+      "$ref": "#/definitions/meta"
+    },
     "selection": {
       "type": "string",
-      "enum": ["ordered-first-match", "multi-options"],
+      "enum": [
+        "ordered-first-match",
+        "multi-options"
+      ],
       "description": "Mode de selection des options (DECISIONS.md D11). 'ordered-first-match' = sortie UNIQUE : la 1re option (ordre du noeud) dont les conditions sont vraies l'emporte, le default en dernier sert de repli — pour un noeud a cible unique (ex. cible glycemique). Absent ou 'multi-options' = plusieurs options applicables affichees (noeuds B/C)."
     },
     "argumentaire_exhaustif": {
@@ -68,22 +92,31 @@
     },
     "alertes": {
       "type": "array",
-      "items": { "$ref": "#/definitions/alerte" },
+      "items": {
+        "$ref": "#/definitions/alerte"
+      },
       "description": "Alertes cliniques conditionnelles (DECISIONS.md D15) : messages affiches quand `quand` est vrai, independamment des options selectionnees."
     },
     "cadrage": {
       "type": "array",
-      "items": { "type": "string", "minLength": 1 },
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
       "description": "OPTIONNEL — POSITIONS DE LECTURE du noeud (DECISIONS.md D24) : enonces vrais pour TOUS les patients du noeud, qui disent comment lire l'ensemble de ses options (ex. « l'insuline n'a pas de benefice cardiovasculaire demontre — ORIGIN neutre » ; « la decision se grade sur le risque absolu, pas sur une cible LDL chiffree »). Affiches en tete du noeud, AVANT le formulaire, sans condition. Ce champ existe parce que ces enonces etaient auparavant ecrits comme des `alertes` en `quand: \"default\"`, ce que D21 (interdit n°2) proscrit : une alerte qui s'affiche pour tout le monde ne signale plus rien, elle se confond avec le decor et devalue les alertes reellement conditionnelles a cote desquelles elle apparait. Le probleme n'etait pas le TEXTE mais le CANAL — d'ou un canal propre plutot qu'une exception a l'invariant. Distinction opposable : une alerte porte sur la SITUATION d'un patient (elle a un `quand`, elle peut etre fausse) ; un cadrage porte sur l'ETAT DES PREUVES du noeud (il n'a pas de `quand`, il ne peut pas etre faux pour un patient particulier). Si un enonce peut etre vrai pour un patient et faux pour un autre, il n'a rien a faire ici : c'est une alerte. Aucun effet moteur : `evaluateNode` l'ignore, il n'entre dans aucune selection d'option."
     },
     "contraintes": {
       "type": "array",
-      "items": { "$ref": "#/definitions/contrainte" },
+      "items": {
+        "$ref": "#/definitions/contrainte"
+      },
       "description": "OPTIONNEL — RELATIONS ENTRE CRITERES qui doivent rester VRAIES : une saisie qui en viole une decrit un patient IMPOSSIBLE, pas un patient rare (ex. `TBR_severe <= TBR` — le temps passe sous 54 mg/dL est par definition INCLUS dans le temps passe sous 70). Ajoute le 2026-07-27 (defaut K3 de la seconde recette : `TBR = 1` avec `TBR severe = 95` etait accepte sans un mot, et le noeud en tirait trois cartes « Recommandee » dont un ajout de bolus chez un patient que la saisie decrit comme passant 95 % du temps en hypoglycemie severe). Meme DSL que `conditions` (la comparaison entre DEUX criteres numeriques a ete ajoutee a l'evaluateur pour ce champ). DEUX consommateurs, et c'est le point : (1) le FORMULAIRE signale la contrainte violee au praticien, qui seul peut dire laquelle des deux valeurs est fausse — jamais de correction automatique ni de refus de saisie ; (2) le BANC (`engine/banc/profils.ts`) n'engendre plus de profil qui la viole, faute de quoi il depense ses profils sur des etats impossibles et fige leur sortie absurde dans un golden master. Une contrainte n'a AUCUN effet sur la selection des options : le moteur ne la lit pas."
     },
     "familles": {
       "type": "array",
-      "items": { "$ref": "#/definitions/famille" },
+      "items": {
+        "$ref": "#/definitions/famille"
+      },
       "description": "Declaration EXPLICITE des familles d'actes cliniques du noeud (correctif « ordre accidentel / badge multi-natures », 2026-07-25). L'ORDRE DE CE TABLEAU EST L'ORDRE D'AFFICHAGE DES SECTIONS du panneau de resultats : il ne depend plus de l'ordre d'ecriture des options dans `options` (un reordonnancement du fichier ne change plus rien a l'affichage). Chaque entree porte aussi `exclusive` : true = les options de cette famille sont des ALTERNATIVES (on en choisit une, badge « recommandee » reserve au groupe de tete) ; false = des gestes CUMULABLES (tout ce qui est affiche est a faire, badge « recommandee » sur tous). `option.famille` est une REFERENCE a `familles[].libelle` (integrite verifiee par un test dedie, pas par ce schema qui ne peut pas croiser deux champs). Optionnel : un noeud sans `familles` retombe integralement sur le rendu a plat historique (ordre de 1re apparition dans `options`, badge selon la regle D16 d'origine)."
     }
   },
@@ -91,7 +124,10 @@
     "contrainte": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["expression", "message"],
+      "required": [
+        "expression",
+        "message"
+      ],
       "properties": {
         "expression": {
           "type": "string",
@@ -108,7 +144,10 @@
     "famille": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["libelle", "exclusive"],
+      "required": [
+        "libelle",
+        "exclusive"
+      ],
       "properties": {
         "libelle": {
           "type": "string",
@@ -124,31 +163,56 @@
     "alerte": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["quand", "message"],
+      "required": [
+        "quand",
+        "message"
+      ],
       "properties": {
         "quand": {
           "type": "string",
           "minLength": 1,
           "description": "Expression DSL (meme grammaire que conditions), ou 'default' pour une alerte toujours affichee."
         },
-        "message": { "type": "string", "minLength": 1 },
-        "niveau": { "type": "string", "enum": ["info", "attention"] }
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "niveau": {
+          "type": "string",
+          "enum": [
+            "info",
+            "attention"
+          ]
+        }
       }
     },
     "critereEntree": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["nom", "type"],
+      "required": [
+        "nom",
+        "type"
+      ],
       "properties": {
-        "nom": { "type": "string", "minLength": 1 },
+        "nom": {
+          "type": "string",
+          "minLength": 1
+        },
         "type": {
           "type": "string",
-          "enum": ["nombre", "bool", "enum", "liste"],
+          "enum": [
+            "nombre",
+            "bool",
+            "enum",
+            "liste"
+          ],
           "description": "'liste' = critere multivalue (valeur = tableau de libelles), opere par contient/ne_contient_pas (DECISIONS.md D13)."
         },
         "valeurs": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+            "type": "string"
+          },
           "description": "Valeurs possibles, pertinent quand type = enum ou liste."
         },
         "derive": {
@@ -168,13 +232,23 @@
         },
         "valeurs_visible_si": {
           "type": "object",
-          "additionalProperties": { "type": "string", "minLength": 1 },
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          },
           "description": "OPTIONNEL, criteres de type `liste` UNIQUEMENT — masque UNE VALEUR de la liste plutot que le champ entier (arbitrage A4/F du 2026-07-27). Cle = une valeur declaree dans `valeurs` ; valeur = une expression DSL sous laquelle cette case est PROPOSEE. Une valeur absente de cet objet est toujours proposee. MOTIF : `visible_si` porte sur un champ ENTIER, et le contenu le disait deja de lui-meme — « impossible de masquer UNE valeur d'une liste dont les quatre autres restent pertinentes ». Chez un patient declare naif d'insuline, « Insuline basale » et « Insuline rapide » restaient cochables dans `traitements_en_cours`. Le contournement employe deux fois (scinder la valeur en critere propre) ne passe pas a l'echelle sur un critere PARTAGE entre plusieurs noeuds ; c'est la troisieme occurrence du meme manque. MEME SEMANTIQUE que `visible_si` : expression INDETERMINEE (operande non renseigne) ⇒ valeur VISIBLE — on ne masque jamais sur une donnee qu'on ignore encore (R7/D20, repli « fail open »). MEME SURETE aussi : une valeur cochee puis masquee est RETIREE de la saisie (`reinitialiserChampsMasques`), sans quoi elle continuerait de piloter le moteur en silence pendant que l'ecran affirme le contraire. Aucun effet moteur direct : `evaluateNode` ne lit pas ce champ, il ne voit que la liste resultante."
         },
         "aide": {
           "type": "string",
           "minLength": 1,
           "description": "OPTIONNEL — TEXTE D'AIDE A LA SAISIE, affiche sous le champ. Ajoute le 2026-07-27 pour la fusion des trois signes d'appel TCA de `rhd-alimentation` : le referent a arbitre qu'ils formaient UNE question de reperage et non trois, mais les trois items de l'encadre 11 de la HAS devaient rester lisibles quelque part. Ce champ est le 'quelque part' — et il est GENERIQUE, pas un correctif ponctuel : il repond aussi au constat de recette sur les libelles bruts, ou un nom de critere technique ne suffit pas a dire ce qu'on demande. CE QU'IL N'EST PAS : ni une justification clinique (elle vit dans `argumentaire` / `avantages` / `sources`), ni une alerte (qui a un `quand` et porte sur le patient), ni un libelle (le libelle repond a 'quel champ ?', l'aide a 'qu'est-ce que je coche exactement ?'). Aucun effet moteur : `evaluateNode` ne le lit pas."
+        },
+        "preremplissage": {
+          "type": "array",
+          "description": "OPTIONNEL — PRE-REMPLISSAGE CALCULE d'un critere SAISI (K6, decision referent du 2026-07-27 : « si la cible est connue, le module peut deduire le resultat en calculant l'ecart a la cible et pre-remplir la position a la cible. Sinon c'est la position a la cible declaree qui fait foi »). La premiere regle dont le `quand` est VRAI AU SENS STRICT fournit la valeur ; une expression INDETERMINEE ne pre-remplit rien (on ne devine pas sur une donnee manquante, R7/D20). NE S'APPLIQUE QUE TANT QUE LE PRATICIEN N'A PAS REPONDU LUI-MEME : des qu'il touche au champ, le pre-remplissage cesse definitivement — « la position declaree fait foi ». Le champ reste donc DECLARE au sens de R1 (l'etat clinique se declare, il ne se deduit pas d'une intention) : ce mecanisme propose une valeur de depart, il ne transforme pas un critere saisi en critere derive. L'ecran SIGNALE tout champ pre-rempli, sans quoi il paraitrait repondu alors que personne n'a repondu sur cet ecran (defaut A du lot 1). Meme idiome que la suggestion d'esperance de vie deja en place, mais DECLARE PAR LE CONTENU au lieu d'etre code en dur dans l'ecran.",
+          "items": {
+            "$ref": "#/definitions/reglePreremplissage"
+          }
         },
         "partage": {
           "type": "boolean",
@@ -208,9 +282,22 @@
         "conditions"
       ],
       "properties": {
-        "intitule": { "type": "string", "minLength": 1 },
-        "avantages": { "type": "array", "items": { "type": "string" } },
-        "inconvenients": { "type": "array", "items": { "type": "string" } },
+        "intitule": {
+          "type": "string",
+          "minLength": 1
+        },
+        "avantages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "inconvenients": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "effet_attendu": {
           "type": "string",
           "minLength": 1,
@@ -221,49 +308,78 @@
           "minLength": 1,
           "description": "R2 (docs/decision/GRAMMAIRE-NOEUD.md) : delai d'apparition du benefice tel qu'OBSERVE dans les essais cites ('16-26 mois', '5-6 ans'), ou 'immediat', ou 'non etabli'. AFFICHAGE SEUL : le moteur ne le lit pas et n'en tire aucune conclusion. Mettre en balance un delai avec l'esperance de vie du patient est un arbitrage clinique, qui reste au praticien ; l'outil se borne a poser les deux faits cote a cote (invariant 2 : aucun score cache). Obligatoire, par la grammaire, pour toute option revendiquant un benefice sur critere dur avec niveau_preuve modere ou eleve."
         },
-        "niveau_preuve": { "$ref": "#/definitions/niveauPreuve" },
+        "niveau_preuve": {
+          "$ref": "#/definitions/niveauPreuve"
+        },
         "references": {
           "type": "array",
           "minItems": 1,
-          "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          },
           "description": "Ids des references de `sources.references_primaires` qui PORTENT les revendications de cette option (effet_attendu, chiffres des avantages/inconvenients). Ajoute le 2026-07-27. MOTIF : rien ne reliait une option a ses sources, et le decrochage est passe inapercu deux jours — des options citaient un NNT tire d'un essai que le noeud n'avait jamais verse dans sa bibliographie. L'invariant I8 du banc l'exige desormais pour toute option dont le `niveau_preuve` est `modere` ou `eleve` : une option qui revendique un niveau de preuve doit dire DE QUOI elle le tire. Une option en preuve `faible` peut s'en passer (accord d'experts, savoir-faire) mais gagne a en porter si une reference existe."
         },
         "role": {
           "type": "string",
-          "enum": ["socle", "securite", "geste", "repli"],
+          "enum": [
+            "socle",
+            "securite",
+            "geste",
+            "repli"
+          ],
           "description": "CE QUE L'OPTION EST, declare par le contenu (arbitrage A3 du 2026-07-27). Ajoute parce que le contenu n'avait AUCUN moyen de dire la nature d'une option : `priorite` portait trois sens incompatibles a la fois (ordre de tri D13/D14, porte d'affichage pour le repli, marqueur de socle via le rang 0), et le seul indice restant de la nature d'une carte etait un LIBELLE DE FAMILLE en francais — que le moteur a interdiction de lire (invariant CLAUDE.md 5 / D8, aucun nom de domaine ni de noeud). Cinq constats de recette convergeaient sur ce manque : le socle metformine preemptait tout l'ecran, le repli d'affichage a cache une carte de securite, l'option terminale de `statine` n'est protegee que par sa POSITION, le « pourquoi pas d'autres options » est pollue, et deux options `default` coexistent sur `prescription`. VALEURS : `socle` = le geste de fond, propose quel que soit le reste (sentinelle `conditions: [\"toujours\"]`) ; `securite` = a faire d'emblee, jamais replie ni plafonne — un fait de securite ne se negocie pas contre la place a l'ecran ; `geste` = une piste therapeutique ordinaire, le cas courant ; `repli` = ce qu'on propose quand rien d'autre ne s'applique (sentinelle `conditions: [\"default\"]`). La coherence entre `role` et les deux sentinelles est verifiee par un invariant du banc, dans les DEUX sens : une declaration qui derive de la mecanique serait pire que pas de declaration du tout."
         },
         "conditions": {
           "type": "array",
           "minItems": 1,
-          "items": { "type": "string", "minLength": 1 },
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
           "description": "Regles d'affichage : expressions booleennes sur les criteres_entree (ex. 'age < 60'), ou ['default'] pour l'option de repli du noeud, ou ['toujours'] pour une option systematiquement applicable (D16, ex. socle metformine en multi-options), soumise a ses `exclusions`. Au moins une expression non vide (une condition vide leverait ConditionError au runtime, D13)."
         },
         "prerequis": {
           "type": "array",
           "minItems": 1,
-          "items": { "type": "string", "minLength": 1 },
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
           "description": "R6 (docs/decision/GRAMMAIRE-NOEUD.md, arbitrage indication/prerequis) : garde-fous de COHERENCE, evalues EXACTEMENT comme les `conditions` (meme grammaire DSL, memes regles d'applicabilite : une option est applicable si TOUTES ses `conditions` ET TOUS ses `prerequis` sont vrais) mais JAMAIS affiches comme justification (`OptionVue.reasons`, lib/vueDecision.ts, ne lit que `conditions`). Distinction : une `condition` repond a « pourquoi cette option est proposee a CE patient » (une indication clinique) ; un `prerequis` repond a « qu'est-ce qui ne l'empeche pas » (ex. 'traitements_en_cours ne_contient_pas iSGLT2' — ne pas deja prendre la classe ; 'classes_a_benefice_indisponibles == false' — la niche de repli n'est pas ouverte) — vrai pour la quasi-totalite des patients, son enonce n'apprend rien au praticien. Une option retiree par un `prerequis` faux est « non retenue » comme pour une condition (R4). Optionnel : absent = comportement rigoureusement identique a avant ce champ."
         },
         "contre_indications": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+            "type": "string"
+          },
           "description": "Prose destinee au lecteur (affichage). Distincte de `exclusions`, evaluee par le moteur (DECISIONS.md D13)."
         },
         "priorite": {
           "description": "Rang en mode multi-options : options triees par rang croissant (tri stable ; absente = rang faible). Entier = rang FIXE (D13) ; liste de regles {quand, rang} = rang CONDITIONNEL (D14, 1re regle dont `quand` — condition DSL ou 'default' — est vraie ; placer 'default' EN DERNIER, sinon les regles suivantes sont mortes). Ignore en ordered-first-match.",
           "oneOf": [
-            { "type": "integer" },
+            {
+              "type": "integer"
+            },
             {
               "type": "array",
               "minItems": 1,
               "items": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": ["quand", "rang"],
+                "required": [
+                  "quand",
+                  "rang"
+                ],
                 "properties": {
-                  "quand": { "type": "string", "minLength": 1, "description": "Condition DSL, ou 'default' pour le repli." },
-                  "rang": { "type": "integer" }
+                  "quand": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Condition DSL, ou 'default' pour le repli."
+                  },
+                  "rang": {
+                    "type": "integer"
+                  }
                 }
               }
             }
@@ -271,7 +387,9 @@
         },
         "exclusions": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+            "type": "string"
+          },
           "description": "Exclusions dures : expressions DSL (meme grammaire que conditions). Une option applicable est retiree si l'une est vraie, et reportee dans EvaluateNodeResult.excluded (DECISIONS.md D13)."
         },
         "calculs": {
@@ -280,11 +398,22 @@
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["libelle", "expression"],
+            "required": [
+              "libelle",
+              "expression"
+            ],
             "properties": {
-              "libelle": { "type": "string", "minLength": 1 },
-              "expression": { "type": "string", "minLength": 1 },
-              "unite": { "type": "string" }
+              "libelle": {
+                "type": "string",
+                "minLength": 1
+              },
+              "expression": {
+                "type": "string",
+                "minLength": 1
+              },
+              "unite": {
+                "type": "string"
+              }
             }
           }
         },
@@ -295,47 +424,76 @@
         },
         "alertes": {
           "type": "array",
-          "items": { "$ref": "#/definitions/alerte" },
+          "items": {
+            "$ref": "#/definitions/alerte"
+          },
           "description": "Alertes PORTEES PAR CETTE OPTION (docs/decision/GRAMMAIRE-NOEUD.md, § additions au schema) : meme forme que `Noeud.alertes` (`quand`, `message`, `niveau`), mais rendues UNIQUEMENT quand cette option est APPLICABLE pour le patient — a distinguer d'une alerte de noeud (`Noeud.alertes`, DECISIONS.md D15), evaluee sur la seule situation du patient, independamment de ce que le moteur retient. Repond au defaut constate en recette : une alerte de noeud citant un traitement peut s'afficher alors meme que ce traitement vient d'etre ECARTE, faute de voir ce que le moteur a selectionne. Optionnel : absent = aucune alerte propre a l'option."
         }
       }
     },
     "niveauPreuve": {
       "type": "string",
-      "enum": ["eleve", "modere", "faible", "tres_faible"],
+      "enum": [
+        "eleve",
+        "modere",
+        "faible",
+        "tres_faible"
+      ],
       "description": "Echelle GRADE simplifiee (brief §4). NB forme : cette enum utilise l'underscore 'tres_faible', identique au commentaire du brief §5.1. Le type partage `src/features/shared/types.ts` (`NiveauPreuve`, cree en S1 pour l'affichage transverse) utilise lui 'tres-faible' (trait d'union). Ecart de forme signale, non resolu ici (hors perimetre S2 : shared ne doit pas etre modifie sans decision) ; a trancher avant le cablage des ecrans (S4)."
     },
     "typeCritere": {
       "type": "string",
-      "enum": ["dur", "mixte", "substitution"],
+      "enum": [
+        "dur",
+        "mixte",
+        "substitution"
+      ],
       "description": "Nature du critere evalue par la reference (brief §4 : distinguer toujours critere dur vs substitution ; 'mixte' pour un essai combinant les deux, ex. ADVANCE)."
     },
     "referencePrimaire": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "titre", "annee", "lien", "type_critere"],
+      "required": [
+        "id",
+        "titre",
+        "annee",
+        "lien",
+        "type_critere"
+      ],
       "properties": {
         "id": {
           "type": "string",
           "pattern": "^[a-z0-9][a-z0-9-]*$",
           "description": "Identifiant court et stable de la reference, unique DANS le noeud (ex. 'clear-outcomes', 'cards'). Ajoute le 2026-07-27 pour rendre une reference CITABLE depuis une option (`option.references`). Facultatif au schema, mais requis de fait pour toute reference qu'une option adosse : l'invariant I8 du banc (engine/banc/invariants-contenu.test.ts) verifie que chaque id cite existe et que les ids sont uniques. Choisir un slug qui survit a une reformulation du titre — c'est le titre qui change, jamais l'id."
         },
-        "titre": { "type": "string", "minLength": 1 },
-        "annee": { "type": "integer" },
+        "titre": {
+          "type": "string",
+          "minLength": 1
+        },
+        "annee": {
+          "type": "integer"
+        },
         "lien": {
           "type": "string",
           "description": "URL/DOI si disponible ; chaine vide acceptee en attendant sourcage complet."
         },
-        "type_critere": { "$ref": "#/definitions/typeCritere" }
+        "type_critere": {
+          "$ref": "#/definitions/typeCritere"
+        }
       }
     },
     "referenceCritique": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["nom"],
+      "required": [
+        "nom"
+      ],
       "description": "Citation bibliographique d'une revue secondaire independante, dans `sources.synthese_critique.references` (DECISIONS.md D23). Jamais evaluee par le moteur ; jamais le sujet grammatical d'un argument affiche — seulement une reference a cote de la donnee qui, elle, porte l'argument.",
       "properties": {
-        "nom": { "type": "string", "minLength": 1 },
+        "nom": {
+          "type": "string",
+          "minLength": 1
+        },
         "lien": {
           "type": "string",
           "description": "URL, si disponible."
@@ -358,12 +516,17 @@
       "properties": {
         "references_primaires": {
           "type": "array",
-          "items": { "$ref": "#/definitions/referencePrimaire" }
+          "items": {
+            "$ref": "#/definitions/referencePrimaire"
+          }
         },
         "synthese_critique": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["donnee", "references"],
+          "required": [
+            "donnee",
+            "references"
+          ],
           "description": "Position critique independante (ex-medicalement_geek + ex-prescrire, fusionnes D23). `donnee` porte l'ARGUMENT — fonde sur les essais/meta-analyses (deja cites dans references_primaires ou repris ici), jamais sur le nom d'une revue. `references` cite les revues qui ont ete lues pour la construire : elles restent des references bibliographiques legitimes, jamais le sujet d'une phrase d'argument.",
           "properties": {
             "donnee": {
@@ -372,7 +535,9 @@
             },
             "references": {
               "type": "array",
-              "items": { "$ref": "#/definitions/referenceCritique" },
+              "items": {
+                "$ref": "#/definitions/referenceCritique"
+              },
               "description": "Revues secondaires independantes consultees (Prescrire, Medicalement Geek/DragiWebdo, Minerva, RecoMedicales, Louvain Medical, ebmfrance/Duodecim...). Citables en bibliographie ; ne portent jamais elles-memes l'argument de `donnee`."
             }
           }
@@ -380,18 +545,27 @@
         "reco_officielle": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["source", "position", "divergence", "explication"],
+          "required": [
+            "source",
+            "position",
+            "divergence",
+            "explication"
+          ],
           "properties": {
             "source": {
               "type": "string",
               "description": "Organisme(s) emettant une recommandation OFFICIELLE (HAS, SFD, ADA/EASD, KDIGO, RCP ANSM...). Une revue secondaire independante (Prescrire, Medicalement Geek, ebmfrance...) n'a pas sa place ici — cf. `synthese_critique.references` (D23)."
             },
-            "position": { "type": "string" },
+            "position": {
+              "type": "string"
+            },
             "divergence": {
               "type": "boolean",
               "description": "true si la position raisonnee de l'outil diverge de la reco officielle citee."
             },
-            "explication": { "type": "string" }
+            "explication": {
+              "type": "string"
+            }
           }
         }
       }
@@ -399,11 +573,21 @@
     "changelogEntry": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["date", "auteur", "resume"],
+      "required": [
+        "date",
+        "auteur",
+        "resume"
+      ],
       "properties": {
-        "date": { "type": "string" },
-        "auteur": { "type": "string" },
-        "resume": { "type": "string" },
+        "date": {
+          "type": "string"
+        },
+        "auteur": {
+          "type": "string"
+        },
+        "resume": {
+          "type": "string"
+        },
         "veille_source": {
           "type": "string",
           "description": "Id de l'entree de veille a l'origine de la modification, si applicable (DECISIONS.md D5)."
@@ -413,15 +597,55 @@
     "meta": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["date_revue", "auteur", "statut", "version", "changelog"],
+      "required": [
+        "date_revue",
+        "auteur",
+        "statut",
+        "version",
+        "changelog"
+      ],
       "properties": {
-        "date_revue": { "type": "string" },
-        "auteur": { "type": "string" },
-        "statut": { "type": "string", "enum": ["brouillon", "valide"] },
-        "version": { "type": "string" },
+        "date_revue": {
+          "type": "string"
+        },
+        "auteur": {
+          "type": "string"
+        },
+        "statut": {
+          "type": "string",
+          "enum": [
+            "brouillon",
+            "valide"
+          ]
+        },
+        "version": {
+          "type": "string"
+        },
         "changelog": {
           "type": "array",
-          "items": { "$ref": "#/definitions/changelogEntry" }
+          "items": {
+            "$ref": "#/definitions/changelogEntry"
+          }
+        }
+      }
+    },
+    "reglePreremplissage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "quand",
+        "valeur"
+      ],
+      "properties": {
+        "quand": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Expression DSL. La PREMIERE regle vraie l'emporte (meme idiome que `priorite` conditionnelle D14)."
+        },
+        "valeur": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Valeur a pre-remplir. Doit appartenir a `valeurs` pour un critere `enum` (verifie par un invariant du banc)."
         }
       }
     }

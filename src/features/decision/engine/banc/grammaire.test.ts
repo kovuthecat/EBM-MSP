@@ -131,6 +131,7 @@ const MARQUEURS = {
   calcul: 'MARQUEUR_calcul * 9',
   contrainte: 'MARQUEUR_contrainte <= 10',
   valeurVisibleSi: 'MARQUEUR_valeur_visible_si == 11',
+  preremplissage: 'MARQUEUR_preremplissage == 12',
 } as const
 
 function noeudSynthetique(): Noeud {
@@ -149,6 +150,13 @@ function noeudSynthetique(): Noeud {
         type: 'liste',
         valeurs: ['a'],
         valeurs_visible_si: { a: MARQUEURS.valeurVisibleSi },
+      },
+      // K6 : `preremplissage` porte une expression PAR RÈGLE.
+      {
+        nom: 'prerempli_test',
+        type: 'enum',
+        valeurs: ['x'],
+        preremplissage: [{ quand: MARQUEURS.preremplissage, valeur: 'x' }],
       },
     ],
     options: [
@@ -205,6 +213,8 @@ describe('G2 — le collecteur visite tous les emplacements porteurs d’express
       [MARQUEURS.contrainte, 'saisie'],
       // Même nature que `visible_si` : affichage, donc hors extraction de seuils.
       [MARQUEURS.valeurVisibleSi, 'affichage'],
+      // Décide d'une valeur de DÉPART dans le formulaire, jamais de l'applicabilité d'une option.
+      [MARQUEURS.preremplissage, 'affichage'],
     ]
 
     const violations: string[] = []
@@ -230,7 +240,7 @@ describe('G2 — le collecteur visite tous les emplacements porteurs d’express
         if (nature !== 'inerte') porteurs.push(`${definition}.${champ}`)
       }
     }
-    // 10 emplacements de schéma pour 11 marqueurs : `alerte.quand` est la MÊME définition de schéma,
+    // 11 emplacements de schéma pour 12 marqueurs : `alerte.quand` est la MÊME définition de schéma,
     // exercée à deux endroits (nœud et option) — c'est précisément la confusion qui a produit le défaut.
     expect(porteurs.sort()).toEqual(
       [
@@ -244,6 +254,7 @@ describe('G2 — le collecteur visite tous les emplacements porteurs d’express
         'option.exclusions',
         'option.prerequis',
         'option.priorite',
+        'reglePreremplissage.quand',
       ].sort(),
     )
   })

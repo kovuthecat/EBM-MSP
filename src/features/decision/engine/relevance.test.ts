@@ -21,7 +21,11 @@ if (!node) throw new Error('Nœud "prescription" introuvable.')
 // C'est ce qui s'est produit le 2026-07-26 : `dose_metformine`, ajouté le matin, n'a fait échouer ce
 // fichier qu'après le lot des bornes, qui a changé les valeurs candidates donc les chemins explorés.
 // Le fixture voisin `PROFIL_RECETTE` n'a pas ce défaut : il part de `buildDefaultCriteria`.
+// Complété par les valeurs par défaut du nœud (2026-07-27) : un critère ajouté au contenu ne doit pas
+// laisser ce profil incomplet, sinon la première dérivation qui le lit lève une `ConditionError` sur un
+// changement qui ne touche aucune règle. Les valeurs nommées ci-dessous écrasent, comme avant.
 const PROFIL: Criteria = {
+  ...buildDefaultCriteria(node!.criteres_entree),
   traitements_en_cours: ['metformine'],
   // DFG 80 : aucun plafond de dose ne s'applique (les paliers sont DFG 45-59 → 2 000 et 30-44 → 1 000),
   // donc ce critère reste légitimement non décisif pour ce profil — cf. la liste des inertes acceptés.
@@ -142,6 +146,14 @@ describe('relevance — égalité de rang par défaut ne doit pas masquer un cri
       // présence de la metformine dans `traitements_en_cours`. Ce profil étant naïf (intention=initier),
       // le champ est masqué, donc inerte — légitimement, et pour la même raison que la ligne au-dessus.
       'dose_metformine',
+      // Ajouté le 2026-07-27 avec le critère lui-même (K6). `HbA1c_cible` n'agit pas sur la DÉCISION —
+      // aucune option, aucune alerte, aucun rang ne le lit. Il agit sur le FORMULAIRE : il pré-remplit
+      // `position_vs_cible` en calculant l'écart (décision référent). `criteresPertinents` mesure la
+      // décisivité en comparant `signatureVue`, qui ne contient pas l'état du formulaire : cet effet-là
+      // lui est structurellement invisible. Ce n'est donc PAS un critère mort au sens de R5 — c'est un
+      // effet d'une nature que l'instrument ne sait pas voir, et le dire ici vaut mieux que d'élargir
+      // `signatureVue` à la couche de saisie pour un seul cas.
+      'HbA1c_cible',
     ])
     for (const critere of node!.criteres_entree) {
       if (critere.derive != null) continue

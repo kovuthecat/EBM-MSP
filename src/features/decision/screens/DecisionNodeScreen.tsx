@@ -12,7 +12,13 @@ import { contraintesViolees } from '../engine/contraintes'
 import { criteresPertinents } from '../engine/relevance'
 import { describeReasons } from '../lib/conditionText'
 import { ESPERANCE_VIE_DRIVERS, hasEsperanceVieCritere, suggestEsperanceVie } from '../lib/esperanceVieDefault'
-import { buildDefaultCriteria, decisifsAConfirmer, reinitialiserChampsMasques, valeurParDefaut } from '../lib/formLayout'
+import {
+  appliquerPreremplissage,
+  buildDefaultCriteria,
+  decisifsAConfirmer,
+  reinitialiserChampsMasques,
+  valeurParDefaut,
+} from '../lib/formLayout'
 import { memoriserCriteres, valeursReprises } from '../lib/sessionCriteres'
 import { plafonnerPistes, PLAFOND_PISTES } from '../lib/replierAffichage'
 import type { FamilleVue } from '../lib/vueDecision'
@@ -64,7 +70,9 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
     if (!node) return {}
     const base = buildDefaultCriteria(node.criteres_entree)
     for (const { nom, valeur } of reprises) base[nom] = valeur
-    return base
+    // Une valeur reprise peut en pré-remplir une autre : la cible et l'HbA1c reprises de la session
+    // suffisent à proposer la position vs objectif dès l'ouverture du nœud.
+    return appliquerPreremplissage(node.criteres_entree, base, new Set(reprises.map((r) => r.nom))).criteria
   })
   // Critères déjà modifiés par l'utilisateur (T-009) : distingue une valeur par défaut (0, non
   // fiable cliniquement) d'une valeur réellement saisie, pour ne pas afficher un résultat basé sur
@@ -81,6 +89,23 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   // et jamais mis à jour : dès que le praticien modifie un de ces champs, la mention devient fausse — d'où
   // le retrait ci-dessous dans `handleCriteriaChange`.
   const [repris, setRepris] = useState<Set<string>>(() => new Set(reprises.map((r) => r.nom)))
+  // Champs remplis par une règle de CONTENU (`preremplissage`, K6) plutôt que par le praticien. Distincts
+  // de `repris` (valeur venue d'un autre nœud) : l'origine n'est pas la même, la mention non plus.
+  const [preremplis, setPreremplis] = useState<Set<string>>(() =>
+    node
+      ? new Set(
+          appliquerPreremplissage(
+            node.criteres_entree,
+            (() => {
+              const base = buildDefaultCriteria(node.criteres_entree)
+              for (const { nom, valeur } of reprises) base[nom] = valeur
+              return base
+            })(),
+            new Set(reprises.map((r) => r.nom)),
+          ).preremplis,
+        )
+      : new Set(),
+  )
   const [argOpen, setArgOpen] = useState(false)
   // R4 (`docs/decision/GRAMMAIRE-NOEUD.md`) : les options NON RETENUES (faute de condition) sont une
   // information d'EXPLICATION, consultée sur demande — fermée par défaut, jamais poussée à l'écran
@@ -184,10 +209,31 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
     // valeur invisible ne doit jamais continuer à piloter la reco (cf. `formLayout.ts`). Il redevient
     // aussi « non renseigné », sinon il passerait pour confirmé s'il réapparaissait plus tard.
     const { criteria: nettoye, reinitialises } = reinitialiserChampsMasques(node.criteres_entree, next, renseignesApres)
-    setCriteria(nettoye)
     const touchedApres = new Set(touched).add(nom)
     for (const efface of reinitialises) touchedApres.delete(efface)
+
+    // K6 — le pré-remplissage se REJOUE à chaque saisie, tant que le champ visé n'a pas été répondu :
+    // saisir l'HbA1c après avoir saisi la cible doit proposer la position, pas attendre un remontage.
+    // `appliquerPreremplissage` ne touche jamais un champ déjà renseigné : la position DÉCLARÉE fait foi
+    // dès que le praticien l'a donnée.
+    const { criteria: avecPrerempli, preremplis: nouveaux } = appliquerPreremplissage(
+      node.criteres_entree,
+      nettoye,
+      touchedApres,
+    )
+    setCriteria(avecPrerempli)
     setTouched(touchedApres)
+    if (nouveaux.length > 0) {
+      setPreremplis((previous) => new Set([...previous, ...nouveaux]))
+    }
+    // Le champ que le praticien vient de saisir cesse d'être « pré-rempli ».
+    if (preremplis.has(nom)) {
+      setPreremplis((previous) => {
+        const suivant = new Set(previous)
+        suivant.delete(nom)
+        return suivant
+      })
+    }
     // K6 : la mention « repris » cesse dès que le praticien touche au champ — elle deviendrait fausse.
     if (repris.has(nom)) {
       setRepris((previous) => {
@@ -198,7 +244,7 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
     }
     // K6 : mémoriser APRÈS coup, sur l'état déjà nettoyé — un champ que ce changement vient de masquer
     // ne doit pas partir en session avec la valeur qu'il avait juste avant d'être remis à zéro.
-    memoriserCriteres(node.criteres_entree, nettoye, touchedApres)
+    memoriserCriteres(node.criteres_entree, avecPrerempli, touchedApres)
   }
 
   /**
@@ -294,6 +340,7 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
             pertinents={pertinents}
             aConfirmer={new Set(decisifsManquants)}
             repris={repris}
+            preremplis={preremplis}
             hints={
               hasEsperanceVieCritere(node.criteres_entree) && !touched.has('esperance_vie')
                 ? { esperance_vie: 'Suggestion auto (âge, fragilité, comorbidité grave, antécédent CV) — à valider' }

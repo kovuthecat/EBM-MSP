@@ -17,6 +17,12 @@ export type NiveauPreuve = 'eleve' | 'modere' | 'faible' | 'tres_faible'
 /** Nature du critère évalué par une référence primaire (brief §4 : dur vs substitution). */
 export type TypeCritere = 'dur' | 'mixte' | 'substitution'
 
+/** Une règle de pré-remplissage (`CritereEntree.preremplissage`, K6). Première vraie = retenue. */
+export interface ReglePreremplissage {
+  quand: string
+  valeur: string
+}
+
 export interface CritereEntree {
   nom: string
   /** `liste` = critère multivalué (valeur = tableau de libellés), opéré par `contient`/`ne_contient_pas` (D13). */
@@ -101,6 +107,20 @@ export interface CritereEntree {
    * du banc, sans quoi on ferait circuler un concept sous un nom commun avec deux encodages (dette I4).
    */
   partage?: boolean
+  /**
+   * PRÉ-REMPLISSAGE CALCULÉ d'un critère SAISI (K6). La première règle dont le `quand` est vrai AU SENS
+   * STRICT fournit la valeur ; une expression indéterminée ne pré-remplit rien — on ne devine pas sur une
+   * donnée manquante (R7/D20).
+   *
+   * NE S'APPLIQUE QUE TANT QUE LE PRATICIEN N'A PAS RÉPONDU LUI-MÊME. Dès qu'il touche au champ, le
+   * pré-remplissage cesse définitivement : « sinon c'est la position à la cible DÉCLARÉE qui fait foi »
+   * (référent). Le critère reste donc déclaré au sens de R1 — ce mécanisme propose un point de départ, il
+   * ne transforme pas un critère saisi en critère `derive`.
+   *
+   * Même idiome que la suggestion d'espérance de vie déjà en place dans l'écran, mais DÉCLARÉ PAR LE
+   * CONTENU au lieu d'être codé en dur.
+   */
+  preremplissage?: ReglePreremplissage[]
   /**
    * Borne basse plausible du domaine clinique d'un critère `nombre` (table validée par le référent,
    * `docs/decision/GRAMMAIRE-NOEUD.md`). Triple rôle, aucun lu par le moteur (`evaluateNode` l'ignore) :

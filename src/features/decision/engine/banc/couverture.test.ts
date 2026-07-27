@@ -27,6 +27,29 @@ import { genererProfils, tailleBanc } from './profils.ts'
 const NOEUDS_AVEC_CRITERES_MORTS_CONNUS = new Set<string>([])
 
 /**
+ * EXCEPTIONS R5 **PAR CRITÈRE** — ajouté le 2026-07-27, et le grain compte.
+ *
+ * `NOEUDS_AVEC_CRITERES_MORTS_CONNUS` ci-dessus désactive R5 pour un nœud ENTIER : accepter une exception
+ * de cette maille pour un seul critère aveuglerait les 26 autres de `prescription`, exactement le travers
+ * que ce fichier dénonce (« ne doit grossir que sur un diagnostic similaire »). Cette table-ci retire un
+ * critère nommé, avec son motif, et rien d'autre.
+ *
+ * AUTO-EXPIRANTE : le test échoue AUSSI quand une entrée devient périmée — critère redevenu décisif, ou
+ * disparu du contenu. Une exception qui ne signale pas sa propre résorption devient du papier peint.
+ */
+const CRITERES_NON_DECISIFS_ADMIS: Record<string, Record<string, string>> = {
+  prescription: {
+    HbA1c_cible:
+      "K6 — n'agit pas sur la DÉCISION (aucune option, aucune alerte, aucun rang ne le lit) mais sur le " +
+      'FORMULAIRE : il pré-remplit `position_vs_cible` en calculant l’écart à la cible (décision référent, ' +
+      '« nettement au-dessus » = HbA1c ≥ objectif + 1). `criteresPertinents` mesure la décisivité en ' +
+      'comparant `signatureVue`, qui ne contient pas l’état de saisie — cet effet lui est structurellement ' +
+      'invisible. Ce n’est donc pas un critère MORT au sens de R5 (« un critère qu’on demande doit agir ») : ' +
+      'il agit, sur un plan que l’instrument ne sait pas mesurer.',
+  },
+}
+
+/**
  * Nœuds dont une option n'est JAMAIS applicable sur le banc — **défaut du GÉNÉRATEUR, pas du contenu**.
  * Diagnostiqué le 2026-07-26 (poids/DFG ci-dessous), **CORRIGÉ le même jour** par la déclaration de
  * bornes `min`/`max` sur les critères `nombre` (table validée référent, docs/decision/GRAMMAIRE-NOEUD.md,
@@ -195,6 +218,7 @@ describe.each(noeuds.map((node) => [node.id, node] as const))('banc — couvertu
   testR5(
     'R5 — chaque critère SAISISSABLE (non `derive`) est pertinent pour au moins un profil',
     () => {
+      const admis = CRITERES_NON_DECISIFS_ADMIS[node.id] ?? {}
       const saisissables = node.criteres_entree.filter((critere) => critere.derive == null).map((c) => c.nom)
       const jamaisDecisif = new Set(saisissables)
       for (const profil of profils) {
@@ -207,7 +231,12 @@ describe.each(noeuds.map((node) => [node.id, node] as const))('banc — couvertu
         // dont le verdict dépend de la machine apprend à ignorer le rouge.
         if (jamaisDecisif.size === 0) break
       }
-      expect([...jamaisDecisif]).toEqual([])
+      expect([...jamaisDecisif].filter((nom) => admis[nom] == null)).toEqual([])
+      // Auto-expiration : une exception résorbée (ou dont le critère a disparu) doit réclamer son retrait.
+      expect(
+        Object.keys(admis).filter((nom) => !jamaisDecisif.has(nom)),
+        `exception(s) R5 devenue(s) inutile(s) sur "${node.id}" — retirer de CRITERES_NON_DECISIFS_ADMIS`,
+      ).toEqual([])
     },
     // Filet, dimensionné pour le cas d'échec qui doit parcourir tout le banc (nœud `insuline`), pas pour
     // le cas passant que la sortie anticipée rend court.
