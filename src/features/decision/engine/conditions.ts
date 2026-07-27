@@ -265,6 +265,63 @@ export function evaluateCondition(
 }
 
 /**
+ * Atomes RESPONSABLES de l'indétermination de `expression` : les comparaisons élémentaires qui valent
+ * `INDETERMINE` **et qui peuvent encore changer le verdict**. Vide si l'expression est déjà tranchée
+ * (`true` ou `false`).
+ *
+ * POURQUOI CETTE FONCTION EXISTE — le défaut G, moitié résiduelle (recette visuelle du 2026-07-27,
+ * écart 2). `evaluateNode.criteresManquants` construisait la liste « à renseigner : … » en lisant
+ * l'expression ENTIÈRE, sans regarder quels termes `OR` étaient déjà FAUX. Sur `prescription`, option
+ * « Réduire la posologie de la metformine » :
+ *
+ *     DFG >= 45 AND DFG < 60 AND dose_metformine > 2000
+ *  OR DFG >= 30 AND DFG < 45 AND dose_metformine > 1000
+ *  OR intolerance_traitement == true AND nature_intolerance == digestive
+ *
+ * un patient à DFG 45 ayant répondu « pas d'intolérance » laisse le 1ᵉʳ terme INDÉTERMINÉ (dose non
+ * saisie) et les deux autres FAUX. L'option part donc légitimement en attente — mais l'écran réclamait
+ * `dose_metformine` ET `nature_intolerance`, or `nature_intolerance` est masqué derrière
+ * `visible_si: "intolerance_traitement == true"` : **le praticien lisait une demande qu'aucun champ de
+ * l'écran ne permettait de satisfaire**. Le lot 1 avait corrigé l'ÉVALUATION (garde R8 ajouté au
+ * contenu, le terme court-circuite bien à faux) sans corriger le NOMMAGE, qui l'ignorait.
+ *
+ * Ne retenir que les atomes des termes `OR` non encore faux rend la liste ACTIONNABLE par construction :
+ * tout critère cité y modifie réellement le verdict s'il est renseigné. C'est ce que l'invariant I11
+ * (`banc/impasse.test.ts`) vérifie désormais sur les six nœuds.
+ *
+ * COURT-CIRCUIT REPRODUIT À L'IDENTIQUE de `evaluateCondition` ci-dessus (même boucle, même `break` sur
+ * le premier atome faux) — et pour la même raison, qui n'est pas la performance : un contenu réel laisse
+ * volontairement des atomes inatteignables derrière un terme décisif plus tôt (`dose_metformine > 2000`
+ * n'a de sens qu'une fois le DFG dans la bande). Les évaluer tous lèverait des `ConditionError`
+ * nouvelles sur des expressions que le moteur n'a jamais réellement rencontrées.
+ */
+export function atomesIndetermines(
+  expression: string,
+  criteria: Criteria,
+  renseignes?: ReadonlySet<string>,
+): string[] {
+  const responsables: string[] = []
+  for (const orTerm of splitTopLevel(expression, 'OR')) {
+    const indetermines: string[] = []
+    let conjonctionFausse = false
+    for (const atomic of splitTopLevel(orTerm, 'AND')) {
+      const valeur = evaluateAtomic(atomic, criteria, renseignes)
+      if (valeur === false) {
+        conjonctionFausse = true
+        break
+      }
+      if (valeur === INDETERMINE) indetermines.push(atomic)
+    }
+    if (conjonctionFausse) continue
+    // Conjonction pleinement vraie ⇒ `evaluateCondition` renverrait `true` : l'expression est tranchée,
+    // il n'y a RIEN à renseigner — y compris ce qu'un terme `OR` précédent aurait laissé indéterminé.
+    if (indetermines.length === 0) return []
+    responsables.push(...indetermines)
+  }
+  return responsables
+}
+
+/**
  * Termes `OR` de `expression` réellement VRAIS pour ces critères (`docs/decision/GRAMMAIRE-NOEUD.md`,
  * R6 : « l'argumentaire est situationnel, jamais encyclopédique »). Le DSL n'a pas de parenthèses et
  * `AND` est prioritaire sur `OR` (docstring de tête de ce fichier) : toute expression est donc une

@@ -52,7 +52,7 @@
  */
 import type { Alerte, CritereEntree, Noeud, Option } from '../content/node.types.ts'
 import type { Criteria, Ternaire } from './conditions.ts'
-import { ConditionError, INDETERMINE, evaluateCondition } from './conditions.ts'
+import { ConditionError, INDETERMINE, atomesIndetermines, evaluateCondition } from './conditions.ts'
 import { determinesEffectifs } from './deriveCritere.ts'
 
 /**
@@ -429,18 +429,36 @@ function primitivesReferencees(expression: string, criteres: CritereEntree[]): s
 
 /**
  * Primitifs à renseigner pour lever l'indétermination d'une ou plusieurs expressions DSL (D20 §2.5,
- * « à renseigner : … ») : parmi les primitifs référencés par `expressions` (dérivés déroulés vers leurs
- * primitifs, cf. `primitivesReferencees`), ceux qui ne sont PAS dans `effectifs`. Toujours non vide
- * quand appelée juste après un `statutToutes`/`statutUne` ayant renvoyé `INDETERMINE` sur ces mêmes
- * `expressions` — c'est justement ce qui a produit ce résultat.
+ * « à renseigner : … ») : parmi les primitifs référencés par les ATOMES RESPONSABLES de cette
+ * indétermination (`conditions.ts` `atomesIndetermines` — dérivés déroulés vers leurs primitifs, cf.
+ * `primitivesReferencees`), ceux qui ne sont PAS dans `effectifs`. Toujours non vide quand appelée juste
+ * après un `statutToutes`/`statutUne` ayant renvoyé `INDETERMINE` sur ces mêmes `expressions` : une
+ * expression indéterminée a au moins un terme `OR` indéterminé, donc au moins un atome indéterminé, donc
+ * au moins un opérande hors d'`effectifs` — c'est précisément la définition de son indétermination.
+ *
+ * CORRECTIF DU 2026-07-27 (recette visuelle, écart 2 — moitié résiduelle du défaut G). Cette fonction
+ * lisait auparavant les expressions ENTIÈRES, y compris les termes `OR` déjà tranchés à FAUX : elle
+ * réclamait donc des critères que renseigner n'aurait rien changé, et — dans un cas mesuré sur 20 profils
+ * de banc — un critère que le formulaire ne montre même pas (`nature_intolerance`, masqué derrière le
+ * `visible_si` dont la fausseté avait justement rendu ce terme inopérant). Le praticien lisait une
+ * demande sans issue. Cf. `atomesIndetermines` pour le détail, et `banc/impasse.test.ts` (I11) pour
+ * l'invariant qui interdit désormais ce cas sur les six nœuds.
  */
 function criteresManquants(
   expressions: string[],
   criteres: CritereEntree[],
+  criteria: Criteria,
   effectifs: ReadonlySet<string>,
 ): string[] {
-  const referencees = new Set(expressions.flatMap((e) => primitivesReferencees(e, criteres)))
-  return [...referencees].filter((nom) => !effectifs.has(nom))
+  const atomes = expressions.flatMap((e) => atomesIndetermines(e, criteria, effectifs))
+  const referencees = new Set(atomes.flatMap((a) => primitivesReferencees(a, criteres)))
+  // ORDRE DU FORMULAIRE, explicitement (et non l'ordre des atomes, qui suit la logique de l'expression) :
+  // c'est une liste que le praticien remplit, il la parcourt donc dans l'ordre où les champs lui sont
+  // présentés — `lib/formLayout.ts` rend les groupes dans l'ordre de `criteres_entree`. Avant le
+  // correctif du 2026-07-27 cet ordre découlait par accident de la boucle de `primitivesReferencees` ;
+  // il est désormais POSÉ, ce qui le rend aussi stable pour `signatureVue` (cf. `serialiseEnAttente`).
+  const rang = new Map(criteres.map((critere, index) => [critere.nom, index]))
+  return [...referencees].filter((nom) => !effectifs.has(nom)).sort((a, b) => rang.get(a)! - rang.get(b)!)
 }
 
 /**
@@ -470,7 +488,7 @@ function classerOption(
 ): boolean {
   const statutCond = statutToutes(expressionsCondition, criteria, effectifs)
   if (statutCond === INDETERMINE) {
-    enAttente.set(option, criteresManquants(expressionsCondition, criteresEntree, effectifs ?? new Set()))
+    enAttente.set(option, criteresManquants(expressionsCondition, criteresEntree, criteria, effectifs ?? new Set()))
     return false
   }
   if (statutCond === false) {
@@ -480,7 +498,7 @@ function classerOption(
   const exclusions = option.exclusions ?? []
   const statutExcl = statutUne(exclusions, criteria, effectifs)
   if (statutExcl === INDETERMINE) {
-    enAttente.set(option, criteresManquants(exclusions, criteresEntree, effectifs ?? new Set()))
+    enAttente.set(option, criteresManquants(exclusions, criteresEntree, criteria, effectifs ?? new Set()))
     return false
   }
   if (statutExcl === true) {

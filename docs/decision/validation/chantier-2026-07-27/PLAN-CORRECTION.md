@@ -341,6 +341,21 @@ mentions « à confirmer » sur un formulaire vierge.
 moduler le corps de carte par rôle plutôt que d'appliquer une règle unique. L'option « attendre A3 » a
 été explicitement écartée — A5 se livre avec une règle unique, indépendante de A3.
 
+#### Ouverts par la recette visuelle (2026-07-27, soir) — à trancher
+
+⚠ **A5 est désormais DÉBLOQUÉ** : la recette a rendu la densité mesurée. Les `contre_indications`, qui
+resteront visibles quoi qu'il arrive, ne pèsent que **11 à 18 %** de la hauteur de carte (5 cartes sur 5
+en portent une, 314 caractères en moyenne) — ce sont les avantages/inconvénients et l'effet attendu qui
+font le volume. La crainte formulée en arbitrant A5 (« si les contre-indications occupent déjà
+l'essentiel, l'allègement ne servira à rien ») **n'est pas vérifiée**. Une carte passerait d'environ
+1 écran à 0,3 écran en largeur étroite.
+
+| # | question | ce qui est en jeu | ma recommandation |
+| --- | --- | --- | --- |
+| **A7** | **Un `visible_si` indéterminé doit-il afficher le champ (aujourd'hui) ou le masquer ?** Sur `insuline` vierge, le praticien voit d'emblée TBR, coefficient de variation et dose de basale — pour un patient dont il n'a pas encore dit s'il prend de l'insuline. | R7 « fail open » : ne rien cacher tant qu'on ne sait pas. C'est un choix de sécurité, pas un oubli — masquer par défaut cacherait un champ qui *pourrait* compter. | **Garder R7, mais ordonner le formulaire** : le vrai problème signalé par la recette n'est pas que les champs s'affichent, c'est que **rien ne désigne le champ qui commande tous les autres** (« Situation d'insulinothérapie », « Intention thérapeutique »). Mettre en avant le champ primaire coûte bien moins qu'un changement de sémantique, et ne retire aucune information. |
+| **A8** | **Le compteur « N critères décisifs non confirmés » peut être insoluble** : sur `statine`, il annonce 1 critère alors qu'aucun champ ne porte de marqueur (le critère restant est un booléen ordinaire, exclu du marqueur par conception). | Le praticien lit un compteur qu'aucun repère ne lui permet de résoudre. | **Rendre le compteur cliquable** (défiler jusqu'au premier champ concerné), ou marquer aussi les booléens décisifs non confirmés. À votre main : la seconde option augmente la densité de marqueurs, que la recette signale déjà comme forte sur 3 nœuds. |
+| **A9** | **`aria-pressed` absent des boutons segmentés** : un lecteur d'écran ne restitue pas la valeur retenue. | C'est **l'invariant du lot 1 appliqué à qui ne voit pas l'écran** : ce que l'interface affirme doit être ce que le moteur croit. | **Corriger** — quelques lignes, aucun effet visuel, et cohérent avec ce que le lot 1 vient d'établir. |
+
 ### 2.1 — Encore ouvert : `statine`, le reste du dossier CK
 
 J'ai fait arbitrer « 4 N » sur une prémisse fausse : je n'avais pas ouvert `NICE 2023.pdf`, que vous
@@ -522,6 +537,93 @@ masquage produit une INDÉTERMINATION** sont concernés (`nombre`/`enum`, ou `bo
 Ce filtre est **dynamique**, et c'est voulu : le jour où l'arbitrage C posera `confirmation_requise` sur
 `profil_glycemique`, ce critère entrera dans le périmètre et l'invariant réclamera ses gardes. Rendre
 visible ce que la décision d'hier ne pouvait pas prévoir.
+
+### Lot 1 bis — La recette visuelle, et ce qu'elle a trouvé — ✅ **LIVRÉ le 2026-07-27**
+
+Rapport de l'agent à navigateur : `recette-visuelle-lot1.md` (12 points, 7 scénarios montés à l'écran,
+2 écarts). C'est la **première passe de la journée qui regarde l'écran réel** — les six rapports
+précédents lisaient du code ou du contenu.
+
+#### Vérification du rapport avant d'agir
+
+Les deux écarts ont été **reproduits sur le moteur** avant toute correction, conformément à la leçon
+répétée de la journée (six rapports, six sur-accusations d'au moins un point). Verdict :
+
+| écart annoncé | verdict après vérification |
+|---|---|
+| **2b** — le bloc MCG s'affiche sur un formulaire `insuline` vierge | **c'est le comportement voulu (R7), et l'énoncé du scénario était faux — le mien.** J'avais écrit « masqué dans les deux cas » ; R7 dit l'inverse : un `visible_si` indéterminé s'affiche (repli « fail open », on ne cache rien tant qu'on ne sait pas). Mesuré : les 9 champs gardés s'affichent à vide, les 9 disparaissent au clic sur « Naïf ». L'agent a eu raison de le signaler comme écart **à l'énoncé** et de refuser de trancher à ma place. **Aucun correctif de code** — reste une vraie question d'ergonomie, portée en arbitrage A7 ci-dessous. |
+| **5** — « Nature de l'intolérance » réclamé alors que l'écran ne le montre nulle part | **défaut RÉEL, et c'est la moitié résiduelle du défaut G que le lot 1 croyait avoir traité.** Corrigé ci-dessous. Une inexactitude dans le rapport : « reproduit une seconde fois au scénario 6 » — non, dans ce profil `intolerance_traitement` n'est pas répondu, donc le champ EST affiché (fail open) ; il n'y a pas d'impasse. Le défaut est réel, son étendue est plus étroite qu'annoncé. |
+
+#### Le défaut G n'était corrigé qu'à moitié — et le lot 1 ne pouvait pas le voir
+
+Le lot 1 avait ajouté au contenu les gardes R8 manquants : l'ÉVALUATION est devenue correcte, le terme
+`intolerance_traitement == true AND nature_intolerance == digestive` court-circuite bien à faux. Mais le
+**nommage** des critères manquants, lui, lisait l'expression ENTIÈRE sans regarder quels termes `OR`
+étaient déjà tranchés. D'où, sur un patient à DFG 45 sous metformine ayant répondu « pas d'intolérance » :
+
+```text
+EN ATTENTE — Réduire la posologie de la metformine
+   à renseigner : Dose metformine, Nature de l'intolérance
+```
+
+— or « Nature de l'intolérance » est masqué derrière son `visible_si`. **Une demande sans issue.**
+
+Un correctif d'un seul côté d'une frontière que rien ne vérifiait : `evaluateNode` réclame,
+`formLayout` affiche, et aucun test ne confrontait les deux. C'est la même famille que le défaut de
+production du lot 1 — un contrat implicite entre deux couches.
+
+**Correctif** : `conditions.ts` `atomesIndetermines` ne retient que les atomes des termes `OR` **non
+encore faux** ; `criteresManquants` s'en sert (et pose explicitement l'ordre du FORMULAIRE, que
+l'ancienne implémentation obtenait par accident). Un terme faux le reste quoi qu'on renseigne — le
+retirer est toujours correct.
+
+**Nouvel invariant I11** (`banc/impasse.test.ts`) : *une option en attente ne réclame jamais un champ
+que le formulaire ne montre pas*. **Premier invariant du dépôt à confronter le moteur à la couche
+d'affichage** (I1→I5 et 1→7 n'interrogent que le moteur ; I6→I10 ne lisent que le contenu et
+s'interdisent explicitement d'importer le moteur ; S7 regarde deux nœuds, mais du même côté). Vérifié
+qu'il échoue réellement sans le correctif, en nommant l'option, le critère et le `visible_si` fautif.
+
+#### Mesure §4bis — et une mesure que j'ai dû refaire deux fois
+
+Sur 7 382 couples (profil × option en attente) des six nœuds :
+
+| | |
+|---|---|
+| critères **ajoutés** à une liste « à renseigner » | **0** — la nouvelle liste est un sous-ensemble strict |
+| critères **retirés** (cumulé) | **1 931** |
+| impasses (critère réclamé mais invisible) | **20 profils → 0** |
+| cas où renseigner la liste ne suffit pas et un second tour apparaît | **43 → 49** (+6, soit +0,08 %) |
+
+Ces +6 sont le prix honnête du correctif : en ne réclamant plus que ce qui compte *maintenant*, on
+réclame parfois en deux temps. Aucun risque clinique — l'option reste « en attente », ni proposée ni
+écartée — contre 1 931 demandes inutiles supprimées et l'impasse refermée.
+
+**Deux fois je me suis trompé en mesurant, et les deux fois dans le sens qui m'arrangeait.** D'abord en
+modélisant l'ancien comportement par « conditions + prérequis + exclusions réunis » alors que le moteur
+est **étagé** (les exclusions ne sont lues qu'une fois les conditions vraies) : la comparaison donnait
+« 0 régression ». Puis en comparant contre `renseignes` brut au lieu de l'ensemble **effectif** : elle
+donnait « 62 ajouts ». Ni l'un ni l'autre n'était vrai. Les chiffres ci-dessus sont ceux du troisième
+modèle, aligné sur le moteur. *Un instrument de mesure se vérifie contre le code qu'il prétend décrire,
+pas contre l'idée qu'on s'en fait* — c'est exactement ce que le lot 0 disait des invariants, et cela
+vaut aussi pour les sondes jetables.
+
+Golden master régénéré (`caracterisation-indetermine.{prescription,insuline}.txt`), diff relu ligne à
+ligne : **que des retraits et une remise en ordre de formulaire**, aucun ajout. Sur `insuline`, un
+formulaire vierge fait tomber les listes de 9 champs énumérés à **« Situation d'insulinothérapie »
+seule** — ce qui répond en partie, et gratuitement, à la question ouverte n° 3 du rapport.
+
+611 tests, typecheck et build verts.
+
+#### Ce que la recette rapporte et qui n'est PAS corrigé ici
+
+| point | nature | suite |
+| --- | --- | --- |
+| **CK : « 4 N » appliqué, « 5 N » écrit dans deux textes visibles** (hors périmètre 1) | contenu clinique | déjà en attente d'arbitrage §2.1 — la recette confirme que l'incohérence est **visible à l'écran**, pas seulement dans le YAML |
+| **Libellés RHD bruts et sans accents** (« Frequence boissons sucrees »…), idem `statine` (« deja », « Rapportee ») | libellés | lot 2 |
+| **`aria-pressed` absent des boutons segmentés** | accessibilité | à arbitrer — c'est le **même invariant que le lot 1** (ce que l'écran affirme = ce que le moteur croit) pour qui ne voit pas l'écran |
+| **Compteur « N critères décisifs non confirmés » sans repère résoluble** (hors périmètre 4) | ergonomie | à arbitrer, cf. A8 |
+| **Densité du bloc « en attente »** (question ouverte 3) | ergonomie | partiellement réglé par le correctif ci-dessus ; à re-juger sur pièce |
+| **Mesures de densité de carte** (§6 du rapport) | mesure | **débloque A5** : les contre‑indications ne pèsent que 11‑18 % de la hauteur — l'allègement porte donc bien sur l'essentiel du volume, la crainte formulée en arbitrage **n'est pas vérifiée** |
 
 ### Lot 2 — Contenu, un seul passage par fichier
 

@@ -582,3 +582,28 @@ valider par le référent**, notamment le point badge non tranché ci-dessous.
 - [ ] Le « pourquoi » de certaines cartes de `statine` s'allonge d'un terme (« une intolérance est
       rapportée ET les CK dépassent… »). C'est le garde de portée, désormais visible dans la
       justification. À juger : information utile, ou bruit à masquer à l'affichage ?
+
+## Recette visuelle du lot 1 — PASSÉE le 2026-07-27
+
+Menée par un agent muni d'un navigateur, sur le serveur local au commit `7a14689`.
+Rapport : `docs/decision/validation/chantier-2026-07-27/recette-visuelle-lot1.md`.
+
+**Les points ci-dessus sont vérifiés à l'écran**, sauf deux, tous deux instruits depuis :
+
+- le bloc MCG visible sur un formulaire `insuline` **vierge** : **comportement voulu** (R7, un
+  `visible_si` indéterminé s'affiche). C'est mon énoncé de recette qui était faux, pas l'application.
+  La question d'ergonomie qu'il soulève est portée en arbitrage **A7**.
+- « Nature de l'intolérance » encore réclamé (défaut G) : **défaut réel**, moitié résiduelle que le
+  lot 1 n'avait pas vue — **corrigé**, avec l'invariant **I11** qui l'interdit désormais.
+
+### Reste à valider à l'œil après le correctif du défaut G
+
+- [ ] **`prescription`** — patient DFG 45, metformine seule, « Rien à signaler » sur les intolérances,
+      dose de metformine laissée vide : le bloc « en attente » doit réclamer **« Dose metformine »
+      seule**, plus « Nature de l'intolérance ».
+- [ ] **`insuline`, formulaire vierge** — le bloc « en attente » ne doit plus réclamer que
+      **« Situation d'insulinothérapie »** sur chacune de ses lignes, au lieu d'énumérer jusqu'à
+      9 champs. C'est l'effet de bord attendu du correctif ; il répond en partie à la question ouverte
+      n° 3 du rapport (densité de ce bloc).
+- [ ] L'ordre des champs dans « à renseigner : … » suit désormais **l'ordre du formulaire**. À juger :
+      se remplit-il de haut en bas sans revenir en arrière ?
