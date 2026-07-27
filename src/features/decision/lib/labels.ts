@@ -91,6 +91,13 @@ const CRITERE_LABELS: Record<string, string> = {
   antecedent_cv: 'Antécédent cardiovasculaire',
   comorbidite_grave: 'Comorbidité grave',
   diabete_complique: "Diabète compliqué (atteinte d'organe : rétinopathie, néphropathie, neuropathie, macrovasculaire)",
+  // Nœud F « Statine » — lot intolérance du 2026-07-27.
+  intolerance_statine: 'Intolérance aux statines (non / rapportée / avérée)',
+  // Le « 0 = non dosé » fait partie du libellé, et pas seulement du commentaire du contenu : c'est la
+  // valeur par défaut du champ, et un praticien doit pouvoir le laisser tel quel sans croire qu'il affirme
+  // une CK normale. Le parcours NHS demande d'ailleurs de NE PAS doser les CK chez un patient
+  // asymptomatique — le champ n'apparaît que si une intolérance est rapportée ou avérée.
+  CK_x_normale: 'CK, en multiples de la normale (0 = non dosé)',
   dialyse: 'Dialyse',
   cetonemie: 'Cétonémie',
   hypoglycemie_recente: 'Hypoglycémie récente',

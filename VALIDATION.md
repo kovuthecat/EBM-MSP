@@ -501,3 +501,29 @@ valider par le référent**, notamment le point badge non tranché ci-dessous.
 - [ ] **Patient avec un signe d'appel TCA** : il reçoit désormais les mêmes pistes que les autres, PLUS
       ses deux orientations (diététicien, avis spécialisé). Le point à juger : cet écran vous paraît-il
       cliniquement juste, ou manque-t-il une mise en garde maintenant que plus rien n'est bloqué ?
+
+## Garde-fou CK repris sur source primaire (2026-07-27, 5ᵉ lot)
+
+> Build + typecheck + **547 tests OK** ; **visuel à valider par le référent.**
+>
+> Les deux documents NICE que vous avez récupérés ont corrigé quatre points du lot précédent, dans la
+> même journée. Le champ CK n'est plus le même, et une option nouvelle passe devant toutes les autres.
+
+- [ ] **Le champ CK n'apparaît plus par défaut.** Il ne se montre qu'après avoir déclaré une intolérance
+      « rapportée » ou « avérée » — le parcours NHS écrit de ne pas doser les CK chez un asymptomatique.
+      Vérifier que son libellé (« CK, en multiples de la normale — 0 = non dosé ») est sans ambiguïté :
+      un praticien doit pouvoir le laisser à 0 sans croire qu'il affirme une CK normale.
+- [ ] **Patient sous statine, CK à 6 fois la normale** : l'écran doit afficher « Interrompre la statine
+      4 à 6 semaines et réévaluer » **et rien d'autre** — même chez un patient avec ASCVD établie, pour
+      qui la carte de haute intensité serait normalement la première. C'est voulu : cette option est
+      placée en tête du nœud.
+- [ ] **Le même patient à 20 N** : une alerte demande de vérifier la fonction rénale. **À 60 N** : elle
+      bascule sur la rhabdomyolyse et l'avis urgent, et l'alerte rénale disparaît. Les deux ne doivent
+      jamais s'afficher ensemble — un message de temporisation dans une situation urgente serait grave.
+- [ ] **La carte d'interruption porte la divergence France / NHS** sur l'arrêt définitif au-delà de 10 N.
+      Le point à juger : le texte dit-il clairement que l'outil a tranché, et dans quel sens ? Il ne doit
+      pas laisser croire à un consensus.
+- [ ] **Le protocole de réintroduction** (arrêt 4-6 semaines, CK normalisées, 2 semaines sans symptôme,
+      reprise à atorvastatine 10-20 ou rosuvastatine 5-10, titration à 8 semaines) est-il lisible en
+      consultation, ou faut-il le scinder ? Il porte aussi sa réserve de provenance — document de 2022,
+      date de révision dépassée. Vérifier que cette réserve ne noie pas la conduite à tenir.
