@@ -527,3 +527,58 @@ valider par le référent**, notamment le point badge non tranché ci-dessous.
       reprise à atorvastatine 10-20 ou rosuvastatine 5-10, titration à 8 semaines) est-il lisible en
       consultation, ou faut-il le scinder ? Il porte aussi sa réserve de provenance — document de 2022,
       date de révision dépassée. Vérifier que cette réserve ne noie pas la conduite à tenir.
+
+## Lot 1 du chantier — la détermination (2026-07-27, soir)
+
+> Build + typecheck + **604 tests OK** ; **visuel à valider par le référent.**
+>
+> Ce lot corrige les défauts **A, B, G, J** de votre recette sur le déployé, et **un défaut de
+> production qu'aucun des cinq rapports n'avait vu** — trouvé par un invariant écrit le même soir.
+> Rien de clinique n'a bougé : ce sont des corrections de PORTÉE et d'AFFICHAGE.
+
+### Le défaut de production, à vérifier en premier
+
+- [ ] **`statine`, patient de prévention secondaire sans intolérance déclarée** (ASCVD établie, pas de
+      statine en cours, aucun symptôme musculaire). **Avant ce lot, l'écran ne proposait RIEN** : le nœud
+      s'arrêtait en attendant une valeur de CK dans un champ qu'il ne montre pas. Vérifier qu'il affiche
+      désormais « Statine de haute intensité — prévention secondaire ». *(Défaut introduit le matin même
+      avec le critère CK ; il était déployé.)*
+
+### Défaut A — le primer n'était jamais « répondu »
+
+- [ ] **Formulaire vierge, n'importe quel nœud** : aucun bouton segmenté n'est allumé, et les listes
+      déroulantes affichent « — ». Avant, la première valeur s'affichait sélectionnée sans qu'on ait
+      cliqué, et le moteur, lui, tenait le champ pour non répondu.
+- [ ] **`insuline`, formulaire vierge puis clic sur « Naïf d'insuline »** : le bloc MCG (GAJ, TBR, doses)
+      doit être **masqué** dans les deux cas — c'est ce que les 8 `visible_si` du 26/07 demandaient, et
+      qu'ils ne faisaient plus.
+- [ ] **`prescription`, intention « Initier »** : « Traitements en cours » doit disparaître.
+- [ ] Les champs `enum` décisifs non répondus portent maintenant le marqueur ambre « · à confirmer ».
+      Le point à juger : est-ce trop présent sur un formulaire vierge ?
+
+### Défaut B — l'écran concluait pendant que le moteur suspendait son jugement
+
+- [ ] **`insuline`, formulaire vierge** : la carte « Poursuivre le schéma d'insuline en cours »,
+      badge « Recommandée », **ne doit plus apparaître**. Seul le bloc « en attente » s'affiche, avec les
+      champs à renseigner. Même chose sur `prescription` avec « Poursuivre le traitement en cours ».
+- [ ] Le point à juger : **un écran qui ne montre que « en attente » est-il acceptable en consultation**,
+      ou faut-il une phrase d'accueil qui explique pourquoi rien n'est encore proposé ?
+
+### Défaut J — une dose non calculable disparaissait en silence
+
+- [ ] **`insuline`, « Initier une insuline basale », sans avoir saisi le poids** : la carte doit afficher
+      « Doses non calculées : Dose initiale (0,1 U/kg) — à renseigner : Poids ». Avant, elle s'affichait
+      sans aucune dose et sans rien dire.
+- [ ] Le point à juger : le libellé et la couleur (ambre, le même registre que « à confirmer ») sont-ils
+      justes, ou faut-il un lien cliquable vers le champ ?
+
+### Défaut G — « en attente » sur un champ que l'écran n'affiche pas
+
+- [ ] **`prescription`, aucune intolérance déclarée** : plus aucune option ne doit réclamer « Nature de
+      l'intolérance ». Vérifier notamment « Réduire la posologie de la metformine ».
+
+### Un effet de bord à juger
+
+- [ ] Le « pourquoi » de certaines cartes de `statine` s'allonge d'un terme (« une intolérance est
+      rapportée ET les CK dépassent… »). C'est le garde de portée, désormais visible dans la
+      justification. À juger : information utile, ou bruit à masquer à l'affichage ?

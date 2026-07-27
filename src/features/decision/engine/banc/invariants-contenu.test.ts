@@ -23,6 +23,7 @@
  */
 import { describe, expect, it } from 'vitest'
 import { noeuds } from '../../content/loadNodes.ts'
+import { fragmentsDuNoeud } from '../expressionsNoeud.ts'
 import type { CritereEntree, Option } from '../../content/node.types.ts'
 
 // ---------------------------------------------------------------------------------------------------
@@ -236,6 +237,141 @@ describe.each(noeuds.map((node) => [node.id, node] as const))('banc — invarian
 })
 
 // =====================================================================================================
+// I10 — UN CRITÈRE À PORTÉE CONDITIONNELLE RÉPÈTE SON GARDE DANS CHAQUE TERME QUI LE LIT.
+//
+// LA RÈGLE EXISTAIT DÉJÀ, ÉCRITE, JAMAIS OUTILLÉE. `docs/decision/GRAMMAIRE-NOEUD.md`, R8, dernier
+// paragraphe : « un critère dont la portée est conditionnelle doit répéter cette condition dans chaque
+// expression qui le lit ». Elle avait été formulée pour un cas de sécurité (`CK_sup_5N`) ; rien ne la
+// vérifiait, et le même mécanisme a reproduit le défaut ailleurs.
+//
+// LE DÉFAUT QU'ELLE ATTRAPE (recette référent 2026-07-27, défaut G). `nature_intolerance` porte
+// `visible_si: "intolerance_traitement == true"` — champ masqué tant qu'aucune intolérance n'est
+// déclarée. Une condition de `prescription` le lisait SANS répéter le garde :
+//     "… OR nature_intolerance == digestive"
+// Champ masqué ⇒ jamais `touched` ⇒ INDÉTERMINÉ (D20) ⇒ `false OR false OR indéterminé = indéterminé`
+// ⇒ l'option part « en attente » en réclamant un champ que l'écran n'affiche pas. Le praticien voit
+// « Réduire la posologie de la metformine — à renseigner : Nature de l'intolérance » sans avoir nulle
+// part où répondre.
+//
+// GRAIN DE LA VÉRIFICATION — calibré sur le contenu réel, après une première version trop grossière.
+//
+// (1) Par TERME `OR`, pas par expression entière. La grammaire n'a pas de parenthèses et `AND` lie plus
+//     fort que `OR` : une expression est une disjonction de conjonctions. Un garde présent dans un AUTRE
+//     terme ne protège rien —
+//         "intolerance_traitement == true AND X   OR   nature_intolerance == digestive"
+//     laisse le second terme entièrement découvert. Vérifier globalement laisserait passer exactement la
+//     forme qu'on cherche.
+//
+// (2) MAIS le garde peut légitimement vivre dans une AUTRE expression de la même option. La première
+//     rédaction l'ignorait et sortait 16 violations sur `insuline`, toutes fausses : les critères du
+//     bloc MCG (`TBR`, `CV_glycemique`, `profil_glycemique`…) sont masqués par
+//     `situation_insuline != naif`, et les options qui les lisent portent ce garde dans une entrée
+//     `conditions` VOISINE. Or les entrées de `conditions` se combinent en ET, et le moteur
+//     (`classerOption`) n'évalue les `exclusions` qu'APRÈS avoir établi conditions+prerequis vrais : le
+//     garde est donc bien en vigueur au moment où l'expression est lue.
+//     Sont retenues comme protectrices les expressions voisines SANS `OR` — une voisine disjonctive ne
+//     garantit rien non plus (« A OR situation_insuline != naif » n'assure pas le garde).
+//
+// CE QUI EST EXIGÉ, ET CE QUI NE L'EST PAS : que le garde soit MENTIONNÉ, pas que la condition soit
+// logiquement impliquée (indécidable ici sans moteur de preuve). Une mention peut donc être incorrecte
+// tout en passant — mais l'ABSENCE de mention, elle, est toujours un défaut, et c'est la forme sous
+// laquelle il s'est présenté.
+// =====================================================================================================
+
+/** Termes `OR` d'une expression DSL (la grammaire n'a pas de parenthèses ; `AND` lie plus fort). */
+function termesOr(expression: string): string[] {
+  return expression.split(/\s+OR\s+/)
+}
+
+/** Le terme cite-t-il ce critère (mot entier) ? */
+function citeLeCritere(terme: string, nom: string): boolean {
+  return new RegExp(`\\b${nom}\\b`).test(terme)
+}
+
+describe('I10 — le garde d’un critère à `visible_si` est répété dans chaque terme qui le lit (R8)', () => {
+  it.each(noeuds.map((node) => [node.id, node] as const))('nœud %s', (_id, node) => {
+    const gardes = new Map<string, Set<string>>()
+    for (const critere of node.criteres_entree) {
+      if (!critere.visible_si) continue
+      // (3) SEULS les critères dont le masquage produit réellement une INDÉTERMINATION sont concernés —
+      // même règle que `engine/deriveCritere.ts` `critereEstDetermine` (D20/SPEC §2.2) : `nombre` et
+      // `enum` sont indéterminés dès qu'ils ne sont pas saisis ; `bool` et `liste` gardent leur défaut
+      // (« non », « aucun »), QUI EST UNE RÉPONSE, sauf `confirmation_requise`.
+      //
+      // Sans ce filtre, l'invariant réclamait un garde autour de chaque lecture de
+      // `traitements_en_cours` (`liste`, masquée à l'initiation) dans `prescription` — 9 faux positifs.
+      // Masquée, cette liste vaut `[]` : déterminée, aucune option ne part en attente. Le mécanisme que
+      // R8 décrit ne s'y applique tout simplement pas.
+      //
+      // ⚠ CE FILTRE EST DYNAMIQUE, et c'est voulu : le jour où l'arbitrage C posera
+      // `confirmation_requise: true` sur `profil_glycemique` (`liste` de `insuline`), ce critère entrera
+      // dans le périmètre et l'invariant réclamera ses gardes. C'est exactement le service attendu —
+      // rendre visible ce que la décision d'hier ne pouvait pas prévoir.
+      const indeterminable =
+        critere.type === 'nombre' || critere.type === 'enum' || critere.confirmation_requise === true
+      if (!indeterminable) continue
+      gardes.set(critere.nom, extraireCriteres(critere.visible_si))
+    }
+    if (gardes.size === 0) return // aucun critère à portée conditionnelle : rien à vérifier
+
+    /**
+     * Critères tenus pour ACQUIS au moment où une expression de cette option est lue : ceux que ses
+     * `conditions`/`prerequis` voisines CONTRAIGNENT quelle que soit la branche empruntée (cf. point (2)
+     * ci-dessus). Vide pour une alerte de nœud ou un `derive`, qui n'ont aucune voisine en vigueur.
+     *
+     * Une voisine DISJONCTIVE compte, à une condition : que CHACUN de ses termes `OR` cite le critère.
+     * `situation_insuline == basale_seule OR situation_insuline == basale_plus_bolus` contraint bien
+     * `situation_insuline` — quelle que soit la branche vraie, le critère est fixé. C'est la forme
+     * dominante du contenu `insuline` (une option qui vaut pour deux situations sur quatre), et l'exiger
+     * non disjonctive produisait 16 faux positifs sur ce seul nœud.
+     */
+    const acquisParOption = new Map<number, Set<string>>()
+    node.options.forEach((option, i) => {
+      const acquis = new Set<string>()
+      for (const expression of [...option.conditions, ...(option.prerequis ?? [])]) {
+        const termes = termesOr(expression)
+        const parTerme = termes.map((t) => extraireCriteres(t))
+        // Intersection : seuls les critères cités par TOUS les termes sont réellement contraints.
+        for (const nom of parTerme[0] ?? []) {
+          if (parTerme.every((critères) => critères.has(nom))) acquis.add(nom)
+        }
+      }
+      acquisParOption.set(i, acquis)
+    })
+
+    const violations: string[] = []
+    for (const fragment of fragmentsDuNoeud(node)) {
+      // `affichage` exclu : un `visible_si` qui en lit un autre est une cascade de visibilité, pas une
+      // lecture par le moteur de décision. `arithmetique` exclu : un `calculs` ne décide de rien — au
+      // pire il ne s'affiche pas (défaut J, traité à l'écran).
+      if (fragment.nature !== 'decision') continue
+      const indexOption = fragment.chemin.startsWith('options[')
+        ? Number(fragment.chemin.slice('options['.length, fragment.chemin.indexOf(']')))
+        : undefined
+      const acquis = indexOption === undefined ? new Set<string>() : (acquisParOption.get(indexOption) ?? new Set())
+
+      for (const terme of termesOr(fragment.expression)) {
+        for (const [nom, criteresDuGarde] of gardes) {
+          if (!citeLeCritere(terme, nom)) continue
+          if (criteresDuGarde.size === 0) continue // garde non tokenisable : rien à faire correspondre
+          const protege = [...criteresDuGarde].some((g) => citeLeCritere(terme, g) || acquis.has(g))
+          if (!protege) {
+            violations.push(
+              `nœud "${node.id}" :: ${fragment.chemin} :: le terme « ${terme.trim()} » lit ` +
+                `"${nom}" (masqué par \`visible_si\`) sans que son garde {${[...criteresDuGarde].join(', ')}} ` +
+                `soit répété dans le terme NI acquis par une condition/prérequis non disjonctive de ` +
+                `l'option — champ masqué ⇒ indéterminé ⇒ option « en attente » sur un champ que l'écran ` +
+                `n'affiche pas (R8).`,
+            )
+          }
+        }
+      }
+    }
+    expect(violations).toEqual([])
+  })
+})
+
+// =====================================================================================================
 // I9 — UNE ALERTE NE PEUT PAS ANNONCER UN SEUIL AUTRE QUE CELUI QUI LA DÉCLENCHE.
 //
 // POURQUOI CET INVARIANT EXISTE. Le 2026-07-27, la passe adversariale `statine` a relevé qu'une alerte
@@ -329,7 +465,10 @@ function seuilsDuDeclencheur(quand: string, criteres: CritereEntree[]): number[]
  */
 const ALERTES_A_SEUIL_ANNONCE_DIFFERENT = new Map<string, string>([
   [
-    'statine :: CK_x_normale > 4 AND statine_deja_en_place == false',
+    // Clé mise à jour le 2026-07-27 (soir) : le `quand` a gagné son garde `intolerance_statine != non`
+    // (correctif R8/I10 du même lot). L'entrée avait donc expiré d'elle-même et le banc l'a réclamée —
+    // exactement l'effet recherché : un changement de déclencheur force à rouvrir l'exception.
+    'statine :: intolerance_statine != non AND CK_x_normale > 4 AND statine_deja_en_place == false',
     "DÉFAUT AVÉRÉ, pas une divergence légitime — c'est le cas qui a motivé I9. Le message annonce " +
       '« 5 fois la normale » sous un déclencheur à 4. Non corrigé ICI parce que le nombre juste est ' +
       "précisément l'objet d'un arbitrage rendu le 2026-07-27 : le référent a aligné la bande basse du " +

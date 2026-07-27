@@ -37,9 +37,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - dose_rapide_actuelle = 0
 
 Sortie :
-  Famille « Aucun geste — surveiller » (exclusive: false) :
-  - [recommandee] Poursuivre le schéma d'insuline en cours et réévaluer
-      proposé parce que : default
+  (aucune option applicable — sortie vide)
   Options EN ATTENTE (indétermination, R7/D20) :
     - Envisager un GLP-1 (ou une association fixe basale + GLP-1) avant ou avec l'insuline :: à renseigner : situation_insuline, HbA1c_actuelle, HbA1c_cible
     - Initier une insuline basale (en maintenant les antidiabétiques en cours) :: à renseigner : situation_insuline, HbA1c_actuelle, HbA1c_cible
@@ -80,11 +78,8 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - dose_rapide_actuelle = 73.96
 
 Sortie :
-  Famille « Aucun geste — surveiller » (exclusive: false) :
-  - [recommandee] Poursuivre le schéma d'insuline en cours et réévaluer
-      proposé parce que : default
+  (aucune option applicable — sortie vide)
   Alertes de nœud :
-    - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
     - iSGLT2 + insuline : maintenir l'iSGLT2 pour le bénéfice cardio-rénal, mais informer du risque d'acidocétose euglycémique — suspendre en cas de jeûne, de chirurgie ou de maladie aiguë intercurrente. [attention]
     - Insuffisance rénale : besoins en insuline réduits et risque d'hypoglycémie majoré (adapter les doses, renforcer la surveillance) ; sulfamide (s'il est encore utilisé) : gliclazide/glimépiride à dose réduite et surveillance rapprochée si DFG 30-44, contre-indiqué si DFG < 30 (convention KDIGO/SFD — cf. nœud prescription, place résiduelle SU/gliptine) ; adapter ou arrêter la metformine selon le DFG. [attention]
@@ -93,6 +88,7 @@ Sortie :
     - Choisir un analogue basal de 2ᵉ génération (glargine U300 ou degludec) si risque hypoglycémique :: à renseigner : situation_insuline
     - Corriger l'hypoglycémie ou la variabilité (réduire la dose, passer en 2ᵉ génération, relâcher la cible) :: à renseigner : situation_insuline
     - Ne pas sur-titrer la basale — intensifier autrement (GLP-1 puis bolus) :: à renseigner : situation_insuline
+    - Titrer la basale (augmenter la dose) :: à renseigner : situation_insuline
     - Désintensifier / alléger le schéma :: à renseigner : situation_insuline
     - Optimiser la répartition du basal-bolus (guidé par l'AGP et les doses actuelles) :: à renseigner : situation_insuline
 
@@ -279,9 +275,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - dose_rapide_actuelle = 150
 
 Sortie :
-  Famille « Aucun geste — surveiller » (exclusive: false) :
-  - [recommandee] Poursuivre le schéma d'insuline en cours et réévaluer
-      proposé parce que : default
+  (aucune option applicable — sortie vide)
   Alertes de nœud :
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
     - iSGLT2 + insuline : maintenir l'iSGLT2 pour le bénéfice cardio-rénal, mais informer du risque d'acidocétose euglycémique — suspendre en cas de jeûne, de chirurgie ou de maladie aiguë intercurrente. [attention]
@@ -319,9 +313,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - dose_rapide_actuelle = 47.09
 
 Sortie :
-  Famille « Aucun geste — surveiller » (exclusive: false) :
-  - [recommandee] Poursuivre le schéma d'insuline en cours et réévaluer
-      proposé parce que : default
+  (aucune option applicable — sortie vide)
   Alertes de nœud :
     - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
@@ -438,9 +430,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - dose_rapide_actuelle = 99.66
 
 Sortie :
-  Famille « Aucun geste — surveiller » (exclusive: false) :
-  - [recommandee] Poursuivre le schéma d'insuline en cours et réévaluer
-      proposé parce que : default
+  (aucune option applicable — sortie vide)
   Alertes de nœud :
     - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
@@ -484,9 +474,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - dose_rapide_actuelle = 150
 
 Sortie :
-  Famille « Aucun geste — surveiller » (exclusive: false) :
-  - [recommandee] Poursuivre le schéma d'insuline en cours et réévaluer
-      proposé parce que : default
+  (aucune option applicable — sortie vide)
   Alertes de nœud :
     - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
@@ -530,11 +518,8 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - dose_rapide_actuelle = 47.09
 
 Sortie :
-  Famille « Aucun geste — surveiller » (exclusive: false) :
-  - [recommandee] Poursuivre le schéma d'insuline en cours et réévaluer
-      proposé parce que : default
+  (aucune option applicable — sortie vide)
   Alertes de nœud :
-    - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
     - Insuffisance rénale : besoins en insuline réduits et risque d'hypoglycémie majoré (adapter les doses, renforcer la surveillance) ; sulfamide (s'il est encore utilisé) : gliclazide/glimépiride à dose réduite et surveillance rapprochée si DFG 30-44, contre-indiqué si DFG < 30 (convention KDIGO/SFD — cf. nœud prescription, place résiduelle SU/gliptine) ; adapter ou arrêter la metformine selon le DFG. [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
@@ -572,11 +557,8 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - dose_rapide_actuelle = 99.66
 
 Sortie :
-  Famille « Aucun geste — surveiller » (exclusive: false) :
-  - [recommandee] Poursuivre le schéma d'insuline en cours et réévaluer
-      proposé parce que : default
+  (aucune option applicable — sortie vide)
   Alertes de nœud :
-    - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Initier une insuline basale (en maintenant les antidiabétiques en cours) :: à renseigner : situation_insuline

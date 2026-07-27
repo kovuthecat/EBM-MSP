@@ -360,8 +360,26 @@ describe('insuline — E-07/E-08 : « risque_hypoglycemique_eleve » inclut l\'�
   })
 })
 
-describe('insuline — E-09 : formulaire vierge (`renseignes` vide, D20)', () => {
-  it('les options qui dépendent de `situation_insuline` passent EN ATTENTE ; le repli, lui, reste actif (ses conditions sont vacuité pure)', () => {
+/**
+ * E-09 — VIGNETTE RÉVISÉE le 2026-07-27, et le motif de la révision vaut d'être lu.
+ *
+ * Sa dernière assertion exigeait que le repli « Poursuivre le schéma d'insuline en cours » RESTE ACTIF
+ * sur formulaire vierge (« ses conditions sont vacuité pure »). C'était l'attente référent du
+ * 2026-07-26, et elle décrivait fidèlement le moteur d'alors.
+ *
+ * La recette référent du 2026-07-27 sur le déployé l'a renversée, en classant le fait observé en
+ * 🔴 SÉCURITÉ (défaut B, symptôme A4) : **« Poursuivre le schéma d'insuline en cours » proposé à un
+ * patient NAÏF d'insuline**, avec le badge « Recommandée », pendant que les 9 options du nœud étaient
+ * en attente. Deux énoncés du référent se contredisent ; le plus récent tranche, et il tranche sur
+ * pièces — il décrit ce que l'écran a réellement montré en consultation.
+ *
+ * Ce que la première rédaction n'avait pas vu : « les conditions du repli sont vacuité pure » est vrai
+ * du MOTEUR et faux du SENS. Le repli ne dit pas « rien d'autre ne s'applique », il dit « objectif
+ * atteint, sans hypoglycémie ni variabilité » — une affirmation sur un patient dont, à cet instant, on
+ * ne sait rien. Cf. `engine/evaluateNode.ts`, révision de D20.
+ */
+describe('insuline — E-09 : formulaire vierge (`renseignes` vide, D20 révisé 2026-07-27)', () => {
+  it('les options qui dépendent de `situation_insuline` passent EN ATTENTE, et le repli est SUSPENDU avec elles', () => {
     const res = evalProfileTernaire({}, CRITERES_NOMBRE_ENUM)
     const optNaif = node!.options.find((opt) => opt.intitule.includes(GLP1_NAIF))!
     const optTitrer = node!.options.find((opt) => opt.intitule.includes(TITRER))!
@@ -372,7 +390,12 @@ describe('insuline — E-09 : formulaire vierge (`renseignes` vide, D20)', () =>
     expect(res.enAttente.has(optTitrer)).toBe(true)
     expect(res.enAttente.has(optDesintensifier)).toBe(true)
     expect(res.enAttente.has(optAjouterBolus)).toBe(true)
-    expect(has(res.applicable.map((opt) => opt.intitule), POURSUIVRE)).toBe(true)
+    // Le cœur de la révision : plus aucune conduite n'est PROPOSÉE tant que le moteur est en attente.
+    expect(has(res.applicable.map((opt) => opt.intitule), POURSUIVRE)).toBe(false)
+    expect(res.applicable).toEqual([])
+    // I2′ reste tenu : la sortie n'est pas vide au sens de l'écran — le bloc EN ATTENTE prend le relais,
+    // et il est non vide par construction dans cette branche.
+    expect(res.enAttente.size).toBeGreaterThan(0)
   })
 })
 

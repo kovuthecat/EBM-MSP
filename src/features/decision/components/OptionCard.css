@@ -119,3 +119,21 @@
   color: var(--c-text-muted);
   margin-top: 6px;
 }
+
+/* Doses calculées (`Option.calculs`) : la carte en portait le rendu depuis le câblage P3 sans qu'aucune
+   règle ne les distingue de la prose environnante. Même discrétion que le délai de bénéfice — un repère
+   posologique, pas une injonction. */
+.option-card__calculs {
+  font-size: 12px;
+  color: var(--c-text-muted);
+  margin-bottom: 14px;
+}
+
+/* Défaut J (recette référent, 2026-07-27) — une dose non calculable était omise EN SILENCE, la carte
+   s'affichant sans dose ni explication. La variante reprend l'ambre `--c-attention`, réservé dans tout
+   l'écran à « ce que l'outil attend de vous » (proposition P de la même recette : une seule couleur pour
+   ce registre, jamais une couleur qui porterait un jugement clinique — ce serait le score caché que
+   l'invariant 2 interdit). */
+.option-card__calculs--en-attente {
+  color: var(--c-attention);
+}

@@ -300,6 +300,7 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                       badge={optionVue.badge}
                       reasons={optionVue.reasons}
                       calculs={optionVue.calculs}
+                      calculsEnAttente={optionVue.calculsEnAttente}
                       motifRang={optionVue.motifRang}
                       alertes={optionVue.alertes}
                     />

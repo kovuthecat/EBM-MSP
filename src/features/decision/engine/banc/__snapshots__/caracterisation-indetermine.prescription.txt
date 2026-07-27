@@ -38,9 +38,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - classes_a_benefice_indisponibles = false
 
 Sortie :
-  Famille « Aucun geste — surveiller » (exclusive: false) :
-  - [recommandee] Poursuivre le traitement en cours et réévaluer
-      proposé parce que : default
+  (aucune option applicable — sortie vide)
   Options EN ATTENTE (indétermination, R7/D20) :
     - Metformine (socle du traitement) — instaurer ou poursuivre :: à renseigner : DFG, position_vs_cible
     - Introduire un iSGLT2 (protection cardio‑rénale et/ou contrôle glycémique) :: à renseigner : DFG, albuminurie, intention, position_vs_cible
@@ -90,7 +88,7 @@ Sortie :
   - [recommandee] Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer
       proposé parce que : intolerance_traitement == true
   - [recommandee] Réduire la posologie du tirzépatide (perte de poids excessive / intolérance)
-      proposé parce que : traitements_en_cours contient tirzepatide ; denutrition == true ; nature_intolerance == digestive
+      proposé parce que : traitements_en_cours contient tirzepatide ; denutrition == true ; intolerance_traitement == true AND nature_intolerance == digestive
   - [recommandee] Réduire la posologie du glinide (tolérance, hypoglycémie légère)
       proposé parce que : traitements_en_cours contient glinide ; intolerance_traitement == true
   Alertes de nœud :
@@ -143,8 +141,6 @@ Sortie :
   - [recommandee] Réduire la posologie de l'insuline (sur‑basalisation / hypoglycémie)
       proposé parce que : traitements_en_cours contient insuline ; hypoglycemie_recente == true
     -- groupe d'égalité #1 --
-  - [recommandee] Réduire la posologie de l'AR GLP‑1 (perte de poids excessive / intolérance digestive)
-      proposé parce que : traitements_en_cours contient aGLP1 ; nature_intolerance == perte_poids
   - [recommandee] Réduire la posologie du sulfamide (tolérance, hypoglycémie légère)
       proposé parce que : traitements_en_cours contient sulfamide ; hypoglycemie_recente == true
   Alertes de nœud :
@@ -360,8 +356,6 @@ Sortie :
   Options EN ATTENTE (indétermination, R7/D20) :
     - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : position_vs_cible, HbA1c_actuelle, age, esperance_vie
     - Réduire la posologie de l'insuline (sur‑basalisation / hypoglycémie) :: à renseigner : position_vs_cible, HbA1c_actuelle
-    - Réduire la posologie de l'AR GLP‑1 (perte de poids excessive / intolérance digestive) :: à renseigner : nature_intolerance
-    - Réduire la posologie du tirzépatide (perte de poids excessive / intolérance) :: à renseigner : nature_intolerance
     - Réduire la posologie du glinide (tolérance, hypoglycémie légère) :: à renseigner : position_vs_cible
 
 ### Profil #7 — 12 critère(s) masqué(s) (masque stratifié) : denutrition, insuffisance_cardiaque, DFG, ASCVD_etablie, intention, dose_metformine, IMC, fragilite, HbA1c_actuelle, intolerance_traitement, position_vs_cible, cetonemie
@@ -550,9 +544,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - classes_a_benefice_indisponibles = false
 
 Sortie :
-  Famille « Traitement à alléger » (exclusive: false) :
-  - [recommandee] Réduire la posologie du tirzépatide (perte de poids excessive / intolérance)
-      proposé parce que : traitements_en_cours contient tirzepatide ; nature_intolerance == perte_poids
+  (aucune option applicable — sortie vide)
   Alertes de nœud :
     - Contrôler la cétonémie capillaire (β‑hydroxybutyrate) : décompensation catabolique possible malgré une HbA1c non franchement élevée. ≥ 0,6 mmol/L → insuline d'initiation ; ≥ 3 mmol/L → urgence (insuline + hospitalisation). [attention]
     - Association insuline + sulfamide / glinide : risque d'hypoglycémie cumulée. Envisager d'arrêter le sulfamide / le glinide, surtout à l'introduction ou à l'intensification de l'insuline. [attention]
@@ -591,7 +583,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
 Sortie :
   Famille « À faire d'emblée — sécurité » (exclusive: false) :
   - [recommandee] Réduire la posologie de la metformine (fonction rénale altérée ou intolérance digestive)
-      proposé parce que : traitements_en_cours contient metformine ; nature_intolerance == digestive
+      proposé parce que : traitements_en_cours contient metformine ; intolerance_traitement == true AND nature_intolerance == digestive
   Famille « Socle du traitement » (exclusive: false) :
   - [reco-officielle] Metformine (socle du traitement) — instaurer ou poursuivre
       proposé parce que : toujours
@@ -602,7 +594,7 @@ Sortie :
   - [recommandee] Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer
       proposé parce que : intolerance_traitement == true
   - [recommandee] Réduire la posologie du tirzépatide (perte de poids excessive / intolérance)
-      proposé parce que : traitements_en_cours contient tirzepatide ; nature_intolerance == digestive
+      proposé parce que : traitements_en_cours contient tirzepatide ; intolerance_traitement == true AND nature_intolerance == digestive
   - [recommandee] Réduire la posologie du glinide (tolérance, hypoglycémie légère)
       proposé parce que : traitements_en_cours contient glinide ; intolerance_traitement == true
       alertes d'option : Insuffisance rénale sévère : l'exposition au répaglinide et sa demi-vie DOUBLENT (ASC ×2 mesurée entre 20 et 39 ml/min, RCP rubrique 5.2), et la sensibilité à l'insuline est majorée — réduire la dose et renforcer la surveillance des hypoglycémies. Ce n'est PAS une contre-indication : le RCP n'en porte aucune sur le rein (contrairement au sulfamide), il conclut à la prudence posologique. [attention]
@@ -700,9 +692,9 @@ Sortie :
       proposé parce que : toujours
   Famille « Traitement à alléger » (exclusive: false) :
   - [recommandee] Réduire la posologie de l'AR GLP‑1 (perte de poids excessive / intolérance digestive)
-      proposé parce que : traitements_en_cours contient aGLP1 ; denutrition == true ; nature_intolerance == perte_poids
+      proposé parce que : traitements_en_cours contient aGLP1 ; denutrition == true
   - [recommandee] Réduire la posologie du tirzépatide (perte de poids excessive / intolérance)
-      proposé parce que : traitements_en_cours contient tirzepatide ; denutrition == true ; nature_intolerance == perte_poids
+      proposé parce que : traitements_en_cours contient tirzepatide ; denutrition == true
   - [recommandee] Réduire la posologie du sulfamide (tolérance, hypoglycémie légère)
       proposé parce que : traitements_en_cours contient sulfamide ; hypoglycemie_recente == true
   - [recommandee] Réduire la posologie du glinide (tolérance, hypoglycémie légère)
@@ -713,7 +705,6 @@ Sortie :
   Options écartées (sécurité, R4) :
     - Introduire un iSGLT2 (protection cardio‑rénale et/ou contrôle glycémique) :: symptomes_glucotoxicite == true ; cetonemie == true
   Options EN ATTENTE (indétermination, R7/D20) :
-    - Réduire la posologie de la metformine (fonction rénale altérée ou intolérance digestive) :: à renseigner : nature_intolerance
     - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : position_vs_cible, risque_hypoglycemie_schema, age
 
 ### Profil #14 — 10 critère(s) masqué(s) (masque stratifié) : insuffisance_cardiaque, dose_metformine, nature_intolerance, risque_hypoglycemie_schema, DFG, infections_uro_genitales_recidivantes, esperance_vie, preference_injection, traitements_en_cours, ASCVD_etablie

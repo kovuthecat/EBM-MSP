@@ -103,12 +103,21 @@ export function CriteriaForm({
   // 6b) : la valeur saisie par le praticien reste pleinement lisible même redevenue non décisive. Générique :
   // aucun nom de critère connu d'avance.
   const estDim = (nom: string) => pertinents != null && !pertinents.has(nom) && !touched.has(nom)
-  // Marqueur visuel restreint aux `nombre` (tâche 3) — SAUF un `bool` `confirmation_requise` (D20 R7,
-  // cf. docstring `aConfirmer` ci-dessus) : seul un défaut `0`/un booléen non présumable n'est jamais une
-  // réponse clinique valide (`bool` ORDINAIRE faux = « non » ; `enum`/`liste` défaut = valeur du contenu).
+  // Marqueur visuel : `nombre` (tâche 3), `enum` (2026-07-27, cf. ci-dessous), et un `bool`/`liste`
+  // `confirmation_requise` (D20 R7). Un `bool` ORDINAIRE en est exclu — décoché EST la réponse « non ».
+  //
+  // `enum` AJOUTÉ le 2026-07-27 (défaut A de la recette référent). D20 range `enum` avec `nombre` : non
+  // renseigné, il est INDÉTERMINÉ pour le moteur. Rien ne le disait à l'écran, et le rendu affirmait
+  // même le contraire — cf. le correctif du `data-on`/`<select>` plus bas.
+  // `liste` AJOUTÉ dans le même mouvement (prérequis technique n°1 de l'arbitrage C) : le moteur sait
+  // DÉJÀ traiter une `liste` `confirmation_requise` comme indéterminée
+  // (`engine/deriveCritere.ts` `critereEstDetermine`, qui teste `bool` ET `liste`) ; seul ce marqueur
+  // manquait pour que le praticien le voie.
   const estAConfirmer = (critere: CritereEntree) =>
     aConfirmer?.has(critere.nom) === true &&
-    (critere.type === 'nombre' || (critere.type === 'bool' && critere.confirmation_requise === true))
+    (critere.type === 'nombre' ||
+      critere.type === 'enum' ||
+      ((critere.type === 'bool' || critere.type === 'liste') && critere.confirmation_requise === true))
 
   /** Coche/décoche une valeur dans un critère `liste` (tableau de libellés, D13). */
   const toggleListeValeur = (nom: string, valeur: string, coche: boolean) => {
@@ -231,7 +240,23 @@ export function CriteriaForm({
                 key={valeur}
                 type="button"
                 className="criteria-form__segment"
-                data-on={String(criteria[critere.nom] ?? '') === valeur || undefined}
+                // `touched` EXIGÉ (correctif du 2026-07-27, défaut A de la recette référent — le plus
+                // rentable du rapport : une condition, quatre symptômes en cascade).
+                //
+                // Sans lui, ce test allumait le segment sur la seule égalité de valeur. Or
+                // `valeurParDefaut` (`lib/formLayout.ts`) initialise tout `enum` à sa PREMIÈRE valeur
+                // déclarée : le premier segment s'affichait donc SÉLECTIONNÉ dès le chargement, sans
+                // qu'aucun clic n'ait eu lieu. `touched`, lui, n'est alimenté que par un `onChange` réel
+                // — le moteur tenait donc le critère pour INDÉTERMINÉ (D20/R7) pendant que l'écran
+                // affirmait le contraire.
+                //
+                // Ce que ça a produit en consultation : « Traitements en cours » restait affiché alors
+                // que l'intention était d'INITIER (le `visible_si: "intention != initier"` ne se
+                // déclenchait jamais) ; sur `insuline`, les 8 `visible_si` masquant le bloc MCG au
+                // patient naïf étaient intégralement neutralisés, les 9 options passaient « en attente »
+                // en réclamant un champ que l'écran montrait comme déjà répondu, et « Poursuivre le
+                // schéma d'insuline en cours » était proposé à un naïf.
+                data-on={(touched.has(critere.nom) && String(criteria[critere.nom] ?? '') === valeur) || undefined}
                 title={describeEnumValue(valeur)}
                 onClick={() => onChange(critere.nom, valeur)}
               >
@@ -242,9 +267,16 @@ export function CriteriaForm({
         ) : (
           <select
             className="criteria-form__input"
-            value={String(criteria[critere.nom] ?? '')}
+            // Même correctif que le `data-on` ci-dessus, pour la variante `<select>` (enum de plus de
+            // MAX_VALEURS_SEGMENTE valeurs) : un `<select>` affiche sa première `<option>` quand aucune
+            // ne correspond à sa `value`. L'option vide ci-dessous rend l'état « pas encore répondu »
+            // REPRÉSENTABLE — sans elle, il n'existe aucune valeur à donner au champ pour ne rien dire.
+            value={touched.has(critere.nom) ? String(criteria[critere.nom] ?? '') : ''}
             onChange={(event) => onChange(critere.nom, event.target.value)}
           >
+            <option value="" disabled>
+              —
+            </option>
             {valeurs.map((valeur) => (
               <option key={valeur} value={valeur}>
                 {labelForEnumValue(valeur)}

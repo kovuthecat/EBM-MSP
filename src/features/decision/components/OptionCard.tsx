@@ -1,8 +1,8 @@
 import { EvidenceBadge } from '../../shared/badges/EvidenceBadge'
 import type { Alerte, Option } from '../content/node.types'
 import { describeReasons } from '../lib/conditionText'
-import { toSharedNiveauPreuve } from '../lib/labels'
-import type { CalculAffiche } from '../lib/vueDecision'
+import { labelForCritere, toSharedNiveauPreuve } from '../lib/labels'
+import type { CalculAffiche, CalculEnAttente } from '../lib/vueDecision'
 import { AlertList } from './AlertList'
 import './OptionCard.css'
 
@@ -25,6 +25,11 @@ interface OptionCardProps {
   /** Doses calculées DÉJÀ ÉVALUÉES (`lib/vueDecision.ts` `construireVueDecision`) : cette carte ne
    * connaît plus les critères du patient, seulement le résultat déjà filtré (non-calculables omis). */
   calculs: CalculAffiche[]
+  /**
+   * Doses déclarées mais NON calculables faute d'un critère (défaut J de la recette référent du
+   * 2026-07-27) : la carte les nomme et dit quel champ les débloque, au lieu de s'afficher muette.
+   */
+  calculsEnAttente?: CalculEnAttente[]
   /**
    * Motif de rang (R6 couche 2, « pourquoi à ce rang » — `lib/vueDecision.ts` `OptionVue.motifRang`) :
    * la condition qui a fixé le rang de CETTE option parmi les autres de sa famille, DSL brut à humaniser
@@ -50,7 +55,7 @@ interface OptionCardProps {
  * ligne « Proposé parce que » dérivée des termes réellement vrais pour ce patient (R6,
  * `lib/conditionText.ts`), et — quand elle compte — le motif du rang parmi les options de sa famille.
  */
-export function OptionCard({ option, badge, reasons, calculs, motifRang, alertes }: OptionCardProps) {
+export function OptionCard({ option, badge, reasons, calculs, calculsEnAttente, motifRang, alertes }: OptionCardProps) {
   return (
     <div className={badge ? 'option-card option-card--primary' : 'option-card'}>
       <div className="option-card__header">
@@ -82,6 +87,22 @@ export function OptionCard({ option, badge, reasons, calculs, motifRang, alertes
               {ligne.libelle} ≈ {Math.round(ligne.valeur)}
               {ligne.unite ? ` ${ligne.unite}` : ''}
               {index < calculs.length - 1 ? ' · ' : ''}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Défaut J (recette référent, 2026-07-27) : une dose non calculable était OMISE en silence — la
+          carte s'affichait sans aucune dose, et rien n'indiquait qu'un poids la ferait apparaître. Le
+          critère manquant était pourtant DÉJÀ réclamé, mais dans le formulaire, à plusieurs sections
+          de là. On rétablit ici le seul lien qui manquait : la carte dit ce qu'elle attend. */}
+      {calculsEnAttente && calculsEnAttente.length > 0 && (
+        <div className="option-card__calculs option-card__calculs--en-attente">
+          <span className="option-card__calculs-label">Doses non calculées : </span>
+          {calculsEnAttente.map((ligne, index) => (
+            <span key={`${index}-${ligne.libelle}`} className="option-card__calcul">
+              {ligne.libelle} — à renseigner : {ligne.criteresManquants.map(labelForCritere).join(', ')}
+              {index < calculsEnAttente.length - 1 ? ' · ' : ''}
             </span>
           ))}
         </div>

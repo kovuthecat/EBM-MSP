@@ -181,7 +181,13 @@ describe('decisifsAConfirmer — le contenu réel du nœud `prescription`', () =
     const pertinents = criteresPertinents(node, criteria)
     const vide = new Set<string>()
     const reclames = decisifsAConfirmer(node.criteres_entree, criteria, vide, pertinents)
-    const visibles = champsVisibles(node.criteres_entree, criteria)
+    // `vide` transmis AUSSI à `champsVisibles` (correctif du 2026-07-27) : ce test mélangeait deux
+    // conventions de visibilité, et c'est ce qui a rendu l'écart visible. Il passait `touched = ∅` à
+    // `decisifsAConfirmer` — donc « rien n'est renseigné », `visible_si` indéterminé, champ AFFICHÉ par
+    // le repli « fail open » de R7 — tout en calculant sa propre référence en mode repli « tout est
+    // renseigné », où le même champ est masqué. Les deux côtés de l'assertion ne parlaient pas du même
+    // écran. Ils comparent désormais la même chose, celle que le formulaire rend réellement.
+    const visibles = champsVisibles(node.criteres_entree, criteria, vide)
 
     expect(reclames.filter((nom) => !pertinents.has(nom))).toEqual([])
     expect(reclames.filter((nom) => !visibles.has(nom))).toEqual([])

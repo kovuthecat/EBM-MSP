@@ -382,7 +382,7 @@ options:
     # affirmée à l'aveugle — vérifié par les vignettes P-39/P-57/P-58 du banc.
     conditions:
       - "traitements_en_cours contient metformine"
-      - "DFG >= 45 AND DFG < 60 AND dose_metformine > 2000 OR DFG >= 30 AND DFG < 45 AND dose_metformine > 1000 OR nature_intolerance == digestive"
+      - "DFG >= 45 AND DFG < 60 AND dose_metformine > 2000 OR DFG >= 30 AND DFG < 45 AND dose_metformine > 1000 OR intolerance_traitement == true AND nature_intolerance == digestive"
     # GARDE-FOU AJOUTÉ (2026-07-26, 4e série, red-team clinique sécurité HAUTE-2) : la branche « intolérance
     # digestive » est la SEULE des trois disjoncts indépendante du DFG — sans cette exclusion, elle
     # continuait de s'appliquer sous DFG < 30, où la metformine n'est plus « à réduire » mais CONTRE‑
@@ -843,7 +843,7 @@ options:
   - intitule: "Réduire la posologie de l'AR GLP‑1 (perte de poids excessive / intolérance digestive)"
     conditions:
       - "traitements_en_cours contient aGLP1"
-      - "denutrition == true OR nature_intolerance == perte_poids OR nature_intolerance == digestive"
+      - "denutrition == true OR intolerance_traitement == true AND nature_intolerance == perte_poids OR intolerance_traitement == true AND nature_intolerance == digestive"
     priorite: 2
     famille: "Traitement à alléger"
     avantages:
@@ -855,7 +855,7 @@ options:
   - intitule: "Réduire la posologie du tirzépatide (perte de poids excessive / intolérance)"
     conditions:
       - "traitements_en_cours contient tirzepatide"
-      - "denutrition == true OR nature_intolerance == perte_poids OR nature_intolerance == digestive"
+      - "denutrition == true OR intolerance_traitement == true AND nature_intolerance == perte_poids OR intolerance_traitement == true AND nature_intolerance == digestive"
     priorite: 2
     famille: "Traitement à alléger"
     avantages:
@@ -1176,7 +1176,7 @@ alertes:
       iSGLT2 (en cours ou indiqué par la comorbidité) + infections génito‑urinaires récidivantes : réévaluer
       l'indication (ne pas initier / envisager l'arrêt) ; risque de gangrène de Fournier. Préférer une autre
       classe si une protection est requise.
-  - quand: "nature_intolerance == digestive AND traitements_en_cours contient metformine AND traitements_en_cours contient aGLP1 OR nature_intolerance == digestive AND traitements_en_cours contient metformine AND traitements_en_cours contient tirzepatide"
+  - quand: "intolerance_traitement == true AND nature_intolerance == digestive AND traitements_en_cours contient metformine AND traitements_en_cours contient aGLP1 OR intolerance_traitement == true AND nature_intolerance == digestive AND traitements_en_cours contient metformine AND traitements_en_cours contient tirzepatide"
     niveau: attention
     message: >-
       Intolérance digestive : la metformine ET l'AR GLP‑1 / tirzépatide en sont deux sources. Privilégier

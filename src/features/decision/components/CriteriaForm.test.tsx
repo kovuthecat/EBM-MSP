@@ -101,9 +101,29 @@ describe('CriteriaForm — marqueur « à confirmer » restreint aux `nombre` (t
     expect(html).not.toContain('à confirmer')
   })
 
-  it("ne marque pas non plus un `enum` décisif non renseigné", () => {
+  /**
+   * ASSERTION INVERSÉE le 2026-07-27 (défaut A de la recette référent). Ce test exigeait qu'un `enum`
+   * décisif non renseigné NE PORTE PAS le marqueur — c'était cohérent avec la règle d'alors, « le
+   * défaut d'un `enum` est une valeur du contenu, donc une réponse ». Cette règle était fausse : D20
+   * range `enum` avec `nombre`, indéterminé tant qu'il n'est pas saisi, et le moteur le traite ainsi
+   * depuis (`deriveCritere.ts` `critereEstDetermine`).
+   *
+   * L'écart avait une conséquence directe en consultation : `valeurParDefaut` initialise un `enum` à sa
+   * première valeur déclarée, le segment s'allumait donc sans clic, et RIEN ne signalait que la réponse
+   * manquait. L'écran affirmait une chose, le moteur en croyait une autre.
+   */
+  it('marque un `enum` décisif non renseigné — D20 le range avec `nombre` (indéterminé tant que non saisi)', () => {
     const html = rendre(new Set(['albuminurie']))
-    expect(html).not.toContain('data-confirmer')
+    expect(html).toContain('data-confirmer="true"')
+    expect(html).toContain('à confirmer')
+  })
+
+  it("n'allume aucun segment d'un `enum` non touché, même s'il porte sa valeur par défaut", () => {
+    // Le pendant du marqueur, et la moitié qui MENTAIT : `buildDefaultCriteria` pose `albuminurie` à
+    // `normo` (première valeur déclarée) sans que personne ne l'ait choisi. `touched` étant vide ici,
+    // aucun `data-on` ne doit apparaître.
+    const html = rendre(new Set(['albuminurie']))
+    expect(html).not.toContain('data-on')
   })
 })
 

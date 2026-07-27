@@ -169,7 +169,7 @@ criteres_entree:
     visible_si: "situation_insuline != naif"
   - nom: gaj_a_cible
     type: bool
-    derive: "GAJ >= 0.7 AND GAJ <= 1.2"
+    derive: "situation_insuline != naif AND GAJ >= 0.7 AND GAJ <= 1.2"
   # E-03 (2026-07-26) : PIVOT nocturne de la situation « basale seule ». Référent, dit trois fois (dont
   # recette capture 8) : « titrer sur la courbe nocturne, pas la GAJ ; la GAJ est le cas de repli quand il
   # n'y a pas de MCG, ce qui est maintenant rare. » Ces deux dérivés lisent `profil_glycemique` (jamais
@@ -221,7 +221,7 @@ criteres_entree:
     visible_si: "situation_insuline == basal_bolus OR situation_insuline == basale_plus_bolus"
   - nom: over_basalisation
     type: bool
-    derive: "dose_basale_actuelle / poids > 0.5"
+    derive: "situation_insuline != naif AND dose_basale_actuelle / poids > 0.5"
 # FAMILLES DÉCLARÉES (D22/correctif « ordre accidentel », arbitrage référent 2026-07-27). Motif : les
 # rangs `priorite` 1-2-3 sont RÉUTILISÉS par les quatre blocs de situation de ce nœud, si bien que deux
 # gestes de nature opposée pouvaient s'afficher sous la mention « à égalité » — typiquement « Corriger
@@ -723,7 +723,7 @@ alertes:
       Incohérence de saisie : la situation « naïf d'insuline » et une insuline basale déjà cochée dans les
       traitements en cours sont contradictoires — un patient naïf ne peut pas être déjà sous insuline basale.
       Vérifier la situation renseignée ou la liste des traitements en cours.
-  - quand: "hypo_severe_recurrente == true OR CV_glycemique > 36 OR TBR_severe > 1"
+  - quand: "hypo_severe_recurrente == true OR situation_insuline != naif AND CV_glycemique > 36 OR situation_insuline != naif AND TBR_severe > 1"
     niveau: attention
     message: >-
       Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre

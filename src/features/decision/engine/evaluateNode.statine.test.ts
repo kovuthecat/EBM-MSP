@@ -360,9 +360,9 @@ describe('statine — F-13/F-19 : intolérance avérée et garde-fou CK (D21, lo
   it('F-18 — CK > 5 N avant initiation : seconde voie d’accès à la terminale, avec son alerte propre', () => {
     // La seule phrase de la reco française employant le mot « contre-indication ». Voie DISTINCTE de
     // l'intolérance : la conduite y est d'abord diagnostique, ce que dit l'alerte dédiée.
-    const o = { ASCVD_etablie: true, CK_x_normale: 6 } as Partial<Criteria>
+    const o = { ASCVD_etablie: true, intolerance_statine: 'rapportee', CK_x_normale: 6 } as Partial<Criteria>
     const result = evalProfile(o)
-    expect(result.excluded.get(OPT_HAUTE)).toContain('CK_x_normale > 4 AND statine_deja_en_place == false')
+    expect(result.excluded.get(OPT_HAUTE)).toContain('intolerance_statine != non AND CK_x_normale > 4 AND statine_deja_en_place == false')
     expect(result.applicable).toEqual([OPT_TERMINALE])
     expect(alertesDeCetteOption(o, OPT_TERMINALE).some((a) => a.message.includes('5 fois la normale'))).toBe(true)
   })
@@ -375,7 +375,7 @@ describe('statine — F-13/F-19 : intolérance avérée et garde-fou CK (D21, lo
     // d'initiation. Elle est donc écrite AUSSI dans l'expression (`AND statine_deja_en_place == false`).
     // Valeur choisie SOUS le seuil de 4 : au-dessus, c'est l'option d'interruption qui prend la main (F-21),
     // et le test ne dirait plus rien de l'exclusion qu'il vise.
-    const o = { ASCVD_etablie: true, statine_deja_en_place: true, CK_x_normale: 3 } as Partial<Criteria>
+    const o = { ASCVD_etablie: true, statine_deja_en_place: true, intolerance_statine: 'rapportee', CK_x_normale: 3 } as Partial<Criteria>
     const result = evalProfile(o)
     expect(result.applicable).toEqual([OPT_HAUTE])
     expect(result.excluded.has(OPT_HAUTE)).toBe(false)
@@ -417,26 +417,26 @@ describe('statine — F-21/F-25 : conduite CK sous traitement (parcours NHS, lot
     // Le point structurel : cette option est la PREMIÈRE du nœud, donc en ordered-first-match elle gagne
     // sur « haute intensité » même chez un patient ASCVD. Afficher d'abord « atorvastatine 40-80 mg » à un
     // patient dont les CK sont à 6 N serait le défaut que D21 corrige ailleurs dans ce même fichier.
-    const o = { ASCVD_etablie: true, statine_deja_en_place: true, CK_x_normale: 6 } as Partial<Criteria>
+    const o = { ASCVD_etablie: true, statine_deja_en_place: true, intolerance_statine: 'rapportee', CK_x_normale: 6 } as Partial<Criteria>
     expect(evalProfile(o).applicable).toEqual([OPT_INTERRUPTION])
   })
 
   it('F-22 — CK à 3 N sous statine : rien ne se déclenche, le tier de risque reste affiché', () => {
     // Contre-épreuve du seuil. Le parcours laisse continuer sous CK < 4 N quand les symptômes sont
     // tolérables : sans ce test, un seuil accidentellement posé à 2 ou à 0 passerait inaperçu.
-    const o = { ASCVD_etablie: true, statine_deja_en_place: true, CK_x_normale: 3 } as Partial<Criteria>
+    const o = { ASCVD_etablie: true, statine_deja_en_place: true, intolerance_statine: 'rapportee', CK_x_normale: 3 } as Partial<Criteria>
     expect(evalProfile(o).applicable).toEqual([OPT_HAUTE])
   })
 
   it('F-23 — CK à 6 N : aucune des deux alertes de bande haute ne s’affiche', () => {
-    const o = { statine_deja_en_place: true, CK_x_normale: 6 } as Partial<Criteria>
+    const o = { statine_deja_en_place: true, intolerance_statine: 'rapportee', CK_x_normale: 6 } as Partial<Criteria>
     const msgs = alertesDeCetteOption(o, OPT_INTERRUPTION).map((a) => a.message)
     expect(msgs.some((m) => m.includes('FONCTION RÉNALE'))).toBe(false)
     expect(msgs.some((m) => m.includes('RHABDOMYOLYSE'))).toBe(false)
   })
 
   it('F-24 — CK à 20 N : bande 10-50, l’alerte demande la fonction rénale (et pas l’urgence)', () => {
-    const o = { statine_deja_en_place: true, CK_x_normale: 20 } as Partial<Criteria>
+    const o = { statine_deja_en_place: true, intolerance_statine: 'rapportee', CK_x_normale: 20 } as Partial<Criteria>
     const msgs = alertesDeCetteOption(o, OPT_INTERRUPTION).map((a) => a.message)
     expect(msgs.some((m) => m.includes('FONCTION RÉNALE'))).toBe(true)
     expect(msgs.some((m) => m.includes('RHABDOMYOLYSE'))).toBe(false)
@@ -445,7 +445,7 @@ describe('statine — F-21/F-25 : conduite CK sous traitement (parcours NHS, lot
   it('F-25 — CK à 60 N : bande > 50, l’alerte bascule sur l’urgence — les deux bandes sont EXCLUSIVES', () => {
     // Les bornes des deux `quand` doivent se toucher sans se recouvrir : à 60 N, afficher AUSSI l'alerte
     // « vérifier la fonction rénale » enverrait un message de temporisation dans une situation urgente.
-    const o = { statine_deja_en_place: true, CK_x_normale: 60 } as Partial<Criteria>
+    const o = { statine_deja_en_place: true, intolerance_statine: 'rapportee', CK_x_normale: 60 } as Partial<Criteria>
     const msgs = alertesDeCetteOption(o, OPT_INTERRUPTION).map((a) => a.message)
     expect(msgs.some((m) => m.includes('RHABDOMYOLYSE'))).toBe(true)
     expect(msgs.some((m) => m.includes('FONCTION RÉNALE'))).toBe(false)
@@ -453,10 +453,10 @@ describe('statine — F-21/F-25 : conduite CK sous traitement (parcours NHS, lot
 
   it('F-26 — CK à 6 N SANS statine en place : c’est l’initiation qui est bloquée, pas une interruption', () => {
     // Les deux voies ne doivent jamais se croiser : sans statine en cours, il n'y a rien à interrompre.
-    const o = { ASCVD_etablie: true, statine_deja_en_place: false, CK_x_normale: 6 } as Partial<Criteria>
+    const o = { ASCVD_etablie: true, statine_deja_en_place: false, intolerance_statine: 'rapportee', CK_x_normale: 6 } as Partial<Criteria>
     const result = evalProfile(o)
     expect(result.applicable).toEqual([OPT_TERMINALE])
-    expect(result.excluded.get(OPT_HAUTE)).toContain('CK_x_normale > 4 AND statine_deja_en_place == false')
+    expect(result.excluded.get(OPT_HAUTE)).toContain('intolerance_statine != non AND CK_x_normale > 4 AND statine_deja_en_place == false')
   })
 
   it('F-27 — la divergence France / NHS sur l’arrêt définitif est ÉCRITE, pas effacée', () => {

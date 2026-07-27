@@ -517,6 +517,50 @@ describe('construireVueDecision — `enAttente` (DECISIONS.md D20, SPEC-valeur-i
     expect(vueRenseignee.familles[0].groupes[0][0].calculs).toEqual([{ libelle: 'Dose', valeur: 7, unite: 'U' }])
   })
 
+  /**
+   * DÉFAUT J de la recette référent (2026-07-27). Le test juste au-dessus fige le comportement CORRECT
+   * — une dose non calculable n'est pas affichée. Ce qui manquait est ce que la carte dit ALORS : rien.
+   * Le praticien voyait « Initier une insuline basale » sans aucune dose, sans savoir qu'un poids la
+   * ferait apparaître.
+   *
+   * Le critère manquant était pourtant DÉJÀ réclamé — vérifié avant de coder : `poids` est bien
+   * `pertinent` et bien dans `decisifsAConfirmer`. Le correctif ne touche donc pas le moteur : il
+   * rétablit le LIEN entre le champ marqué dans le formulaire et la carte qui l'attend.
+   */
+  it('nomme les doses NON calculables et le champ qui les débloque (défaut J)', () => {
+    const a = opt('Initier', ['toujours'], {
+      calculs: [
+        { libelle: 'Dose initiale (0,1 U/kg)', expression: 'poids * 0.1', unite: 'U/j' },
+        { libelle: 'Dose initiale (0,2 U/kg)', expression: 'poids * 0.2', unite: 'U/j' },
+      ],
+    })
+    const node = makeNode([a], [{ nom: 'poids', type: 'nombre' }])
+
+    const sansPoids = construireVueDecision(node, { poids: 0 }, new Set())
+    const carte = sansPoids.familles[0].groupes[0][0]
+    expect(carte.calculs).toEqual([])
+    expect(carte.calculsEnAttente).toEqual([
+      { libelle: 'Dose initiale (0,1 U/kg)', criteresManquants: ['poids'] },
+      { libelle: 'Dose initiale (0,2 U/kg)', criteresManquants: ['poids'] },
+    ])
+
+    // Poids renseigné : plus rien en attente, et les deux doses s'affichent.
+    const avecPoids = construireVueDecision(node, { poids: 70 }, new Set(['poids']))
+    expect(avecPoids.familles[0].groupes[0][0].calculsEnAttente).toEqual([])
+    expect(avecPoids.familles[0].groupes[0][0].calculs).toHaveLength(2)
+  })
+
+  it('ne réclame RIEN en repli `renseignes` absent — aucune indétermination n’existe alors', () => {
+    // Garde-fou de non-régression : tout le chantier D20 tient sur la promesse qu'un appelant qui ne
+    // passe pas `renseignes` garde le comportement historique, à l'identique.
+    const a = opt('Initier', ['toujours'], {
+      calculs: [{ libelle: 'Dose', expression: 'poids * 0.1', unite: 'U' }],
+    })
+    const node = makeNode([a], [{ nom: 'poids', type: 'nombre' }])
+    const vue = construireVueDecision(node, { poids: 70 })
+    expect(vue.familles[0].groupes[0][0].calculsEnAttente).toEqual([])
+  })
+
   it("une alerte d'option dont le `quand` est indéterminé ne s'affiche pas", () => {
     const alerteOption: Alerte = { quand: 'DFG < 30', message: 'Alerte rénale' }
     const a = opt('Socle', ['toujours'], { alertes: [alerteOption] })

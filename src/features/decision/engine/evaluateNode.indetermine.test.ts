@@ -180,15 +180,47 @@ describe('evaluateNode — bool/liste restent déterminés PAR DÉFAUT (SPEC §2
   })
 })
 
-describe('evaluateNode — repli `default` : un non-default en attente ne bloque pas le repli', () => {
-  it("le repli s'active si l'option non-default est EN ATTENTE (ni applicable ni exclue ne compte, D20)", () => {
+/**
+ * RÉVISION DE D20 — 2026-07-27. Ce `describe` s'intitulait « un non-default en attente ne bloque pas le
+ * repli » et vérifiait l'INVERSE de ce qu'il vérifie aujourd'hui. Le comportement d'origine était
+ * délibéré (« rester silencieux sur une option ne doit pas priver le patient d'un repli par ailleurs
+ * sûr ») ; la recette référent du 2026-07-27 l'a renversé sur pièces.
+ *
+ * Le cas qui a tranché : sur `insuline`, patient NAÏF d'insuline, les 9 options passaient en attente ET
+ * la carte « Poursuivre le schéma d'insuline en cours » s'affichait, badge « Recommandée ». Le moteur
+ * suspendait son jugement, l'écran concluait — R7 exactement (« le moteur ne se prononce jamais sur ce
+ * qu'il ignore »).
+ *
+ * Ce que le renversement a demandé de voir : le repli n'est pas un filet NEUTRE. Celui d'`insuline`
+ * affirme « objectif atteint, sans hypoglycémie ni variabilité ». Tant qu'on le lisait comme « rien
+ * d'autre ne s'applique, voici la conduite sûre », le motif d'origine tenait ; dès qu'on lit ce qu'il
+ * DIT, il tombe.
+ *
+ * Le test ci-dessous n'a donc PAS été supprimé : il documente la frontière, dans les deux sens.
+ */
+describe('evaluateNode — repli `default` : une option EN ATTENTE suspend le repli (révision D20, 2026-07-27)', () => {
+  it("le repli NE s'active PAS tant qu'une option non-default est EN ATTENTE (R7 : ne pas conclure sur ce qu'on ignore)", () => {
     const criteres: CritereEntree[] = [{ nom: 'DFG', type: 'nombre' }]
     const a = opt('A', ['DFG < 60'])
     const def = opt('Défaut', ['default'])
     const node = makeNode([a, def], criteres)
     const res = evaluateNode(node, { DFG: 999 }, new Set())
-    expect(noms(res.applicable)).toEqual(['Défaut'])
+    expect(res.applicable).toEqual([])
     expect(res.enAttente.has(a)).toBe(true)
+  })
+
+  it("le repli s'active dès que l'indétermination est levée, même si l'option non-default reste non retenue", () => {
+    // La contrepartie, et c'est elle qui borne la révision : suspendre le repli sur une INDÉTERMINATION
+    // ne doit pas le suspendre sur un simple « non indiqué ». DFG renseigné à 999 ⇒ A est non retenue
+    // (R4), plus en attente ⇒ le repli reprend son rôle de filet.
+    const criteres: CritereEntree[] = [{ nom: 'DFG', type: 'nombre' }]
+    const a = opt('A', ['DFG < 60'])
+    const def = opt('Défaut', ['default'])
+    const node = makeNode([a, def], criteres)
+    const res = evaluateNode(node, { DFG: 999 }, new Set(['DFG']))
+    expect(noms(res.applicable)).toEqual(['Défaut'])
+    expect(res.enAttente.size).toBe(0)
+    expect(res.nonRetenues.has(a)).toBe(true)
   })
 })
 

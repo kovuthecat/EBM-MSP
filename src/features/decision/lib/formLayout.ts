@@ -188,6 +188,20 @@ export function decisifsAConfirmer(
   pertinents: ReadonlySet<string> | undefined,
 ): string[] {
   if (!pertinents) return []
-  const visibles = champsVisibles(criteresEntree, criteria)
+  // `touched` PASSÉ COMME `renseignes` (correctif du 2026-07-27, cause racine S3). Cet appel omettait
+  // le 3ᵉ paramètre et retombait donc sur « tout est renseigné » — alors que le formulaire réel, lui,
+  // calcule sa visibilité EN TERNAIRE (`CriteriaForm` passe `touched` à `grouperChamps`).
+  //
+  // L'écart n'est pas théorique : sur un `visible_si` INDÉTERMINÉ, les deux couches divergeaient dans
+  // des sens opposés. Le formulaire applique le repli « fail open » de R7 et AFFICHE le champ ; ce
+  // calcul-ci l'évaluait strictement et pouvait le tenir pour MASQUÉ, donc ne pas le réclamer. Un champ
+  // décisif, affiché, non répondu, et silencieusement absent de « à confirmer » — exactement la classe
+  // de défaut que ce chantier corrige ailleurs (l'écran affirme une chose, le calcul en croit une
+  // autre), à une couche de plus.
+  //
+  // Les deux couches lisent désormais la même chose. La docstring ci-dessus insiste sur le fait que
+  // réclamé et estompé dérivent de la MÊME source pour rendre la contradiction impossible : la
+  // visibilité devait suivre la même règle.
+  const visibles = champsVisibles(criteresEntree, criteria, touched)
   return [...pertinents].filter((nom) => !touched.has(nom) && visibles.has(nom))
 }

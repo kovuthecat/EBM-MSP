@@ -229,7 +229,7 @@ options:
   # qualifient au-delà, plutôt que trois options empilées.
   - intitule: "Interrompre la statine 4 à 6 semaines et réévaluer (CK au-dessus de 4 fois la normale)"
     conditions:
-      - "CK_x_normale > 4 AND statine_deja_en_place == true"
+      - "intolerance_statine != non AND CK_x_normale > 4 AND statine_deja_en_place == true"
     avantages:
       - "Conduite du parcours NHS England / AAC : interrompre la statine 4 à 6 SEMAINES, en documentant le délai d'apparition des symptômes et celui de leur résolution. C'est une interruption d'épreuve, pas un renoncement — elle sert à établir si la statine est bien en cause."
       - "Réintroduction ensuite, sous trois conditions cumulatives : CK normalisées, symptômes résolus, et patient asymptomatique depuis au moins 2 semaines. On reprend alors à dose BASSE ou MODÉRÉE d'une statine de haute intensité — atorvastatine 10 ou 20 mg, ou rosuvastatine 5 ou 10 mg — puis on titre à 8 semaines d'intervalle."
@@ -318,7 +318,7 @@ options:
     exclusions:
       - "dialyse == true AND statine_deja_en_place == false"
       - "intolerance_statine == averee"
-      - "CK_x_normale > 4 AND statine_deja_en_place == false"
+      - "intolerance_statine != non AND CK_x_normale > 4 AND statine_deja_en_place == false"
   - intitule: "Discuter la statine (décision partagée) — diabète non compliqué à faible risque absolu"
     conditions:
       - "anciennete_diabete_annees < 10"
@@ -330,7 +330,7 @@ options:
     # patient à faible risque absolu.
     exclusions:
       - "intolerance_statine == averee"
-      - "CK_x_normale > 4 AND statine_deja_en_place == false"
+      - "intolerance_statine != non AND CK_x_normale > 4 AND statine_deja_en_place == false"
     avantages:
       - "Diabète RÉCENT (< 10 ans), NON compliqué (pas d'atteinte d'organe rétinienne / rénale / neurologique ni de maladie macrovasculaire) et SANS autre facteur de risque cardiovasculaire : le risque absolu est faible, en-deçà des populations où le bénéfice a été démontré par ECR (CARDS a inclus des diabétiques 40-75 ans AVEC ≥ 1 facteur de risque ; ASPEN, à plus bas risque, est nul). Le bénéfice ABSOLU d'une statine y est faible → décision partagée plutôt qu'automatisme."
     inconvenients:
@@ -380,7 +380,7 @@ options:
   # l'ordre où elles le nomment, avec le niveau de preuve de chacune.
   - intitule: "Statine indisponible (intolérance avérée ou contre-indication) — alternatives hypolipémiantes"
     conditions:
-      - "intolerance_statine == averee OR CK_x_normale > 4 AND statine_deja_en_place == false"
+      - "intolerance_statine == averee OR intolerance_statine != non AND CK_x_normale > 4 AND statine_deja_en_place == false"
     avantages:
       - "ÉZÉTIMIBE SEUL = la conduite que nomme explicitement la recommandation française : « en cas de contre-indication formelle aux statines ou d'intolérance avérée, un traitement par ézétimibe seul peut être envisagé » (SFE/SFD/NSFA/SFC 2026, §6.1). C'est aussi le prérequis de remboursement de tout ce qui vient après."
       - "ACIDE BEMPÉDOÏQUE = le SEUL agent disposant d'un essai de morbi-mortalité mené dans cette population (CLEAR Outcomes, n=13 970, suivi médian 40,6 mois) : critère composite 11,7 % vs 13,3 %, HR 0,87 (0,79-0,96) ; IDM HR 0,77 ; revascularisation HR 0,81. Sous-groupe DIABÈTE (n=6 373, 45,6 %) : HR 0,83 (0,72-0,95), réduction ABSOLUE de 2,4 % — chiffre publié, pas dérivé."
@@ -417,7 +417,7 @@ options:
       # Les deux voies d'accès à cette option n'appellent pas la même conduite : l'une est un constat
       # d'intolérance, l'autre un signal biologique qui demande d'abord un diagnostic. D21 : le fait
       # QUALIFIE le geste proposé sans le retirer — donc une alerte d'option, pas une exclusion de plus.
-      - quand: "CK_x_normale > 4 AND statine_deja_en_place == false"
+      - quand: "intolerance_statine != non AND CK_x_normale > 4 AND statine_deja_en_place == false"
         niveau: attention
         message: >-
           Cette carte est atteinte parce que les CK dépassent 5 fois la normale AVANT toute initiation — ce

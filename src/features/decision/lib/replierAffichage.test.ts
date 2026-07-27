@@ -19,6 +19,7 @@ function opt(intitule: string, rang: number | undefined): OptionVue {
     badge: null,
     reasons: [],
     calculs: [],
+    calculsEnAttente: [],
     motifRang: undefined,
     alertes: [],
     rang,

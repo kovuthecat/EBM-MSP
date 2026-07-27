@@ -56,7 +56,7 @@
  * dans `signatureVue` comme les autres dimensions (totalité) : un critère qui ne change QUE la liste des
  * options en attente doit rester DÉCISIF pour `engine/relevance.ts`.
  */
-import type { Alerte, Noeud, Option } from '../content/node.types.ts'
+import type { Alerte, CritereEntree, Noeud, Option } from '../content/node.types.ts'
 import type { Criteria } from '../engine/conditions.ts'
 import { termesVrais } from '../engine/conditions.ts'
 import { calculerCriteresDerives, determinesEffectifs, evaluerNombre } from '../engine/deriveCritere.ts'
@@ -68,6 +68,15 @@ export interface CalculAffiche {
   libelle: string
   valeur: number
   unite: string | undefined
+}
+
+/**
+ * Une dose/valeur déclarée par le contenu mais NON calculable pour ce patient, avec les champs à
+ * renseigner pour l'obtenir (défaut J de la recette référent, cf. `calculsEnAttente` plus bas).
+ */
+export interface CalculEnAttente {
+  libelle: string
+  criteresManquants: string[]
 }
 
 /** Une option applicable, avec tout ce que sa carte (`OptionCard.tsx`) a besoin de rendre. */
@@ -91,6 +100,12 @@ export interface OptionVue {
   reasons: string[]
   /** Doses calculées déjà évaluées ; ne contient que celles calculables (cf. `evaluerNombre`). */
   calculs: CalculAffiche[]
+  /**
+   * Doses déclarées que ce patient ne permet pas encore de calculer (défaut J, 2026-07-27). Vide dès
+   * que tout est renseigné — et vide aussi en repli `renseignes === undefined`, où rien n'est
+   * indéterminé. La carte s'en sert pour dire ce qui lui manque, au lieu de se taire.
+   */
+  calculsEnAttente: CalculEnAttente[]
   /**
    * Motif de rang (R6 couche 2, « pourquoi à ce rang ») : le `quand` (DSL brut, à humaniser comme
    * `reasons`) de la règle de `priorite` CONDITIONNELLE (D14) qui a fixé le rang de cette option pour ce
@@ -193,6 +208,47 @@ function calculsAffiches(option: Option, criteria: Criteria, effectifs?: Readonl
 }
 
 /**
+ * Doses NON calculables d'une option, avec les critères à renseigner pour les obtenir (défaut J de la
+ * recette référent, 2026-07-27).
+ *
+ * LE DÉFAUT, ET CE QU'IL N'ÉTAIT PAS. `calculsAffiches` ci-dessus OMET une ligne non calculable — le
+ * bon comportement (afficher `NaN` serait pire). Mais la carte apparaissait alors **sans aucune dose**,
+ * et rien n'y disait qu'un poids la ferait apparaître : sur `insuline`, « Initier une insuline basale »
+ * s'affichait muette, son repli « 10 U le soir » ne vivant que dans la prose d'`effet_attendu`.
+ *
+ * Le rapport de recette proposait de faire entrer ces critères dans le registre `enAttente` du moteur.
+ * VÉRIFIÉ AVANT DE CODER, et c'était inutile : `poids` EST déjà pertinent (la perturbation de
+ * `engine/relevance.ts` ajoute le critère à `renseignes` avant de comparer, donc le calcul redevient
+ * calculable et la signature change) et il EST déjà réclamé par `decisifsAConfirmer`. Le moteur faisait
+ * son travail. Ce qui manquait était le LIEN : le champ était marqué « à confirmer » dans le
+ * formulaire, à plusieurs sections de la carte qui, elle, restait silencieuse sur la raison de son
+ * silence.
+ *
+ * D'où un correctif d'AFFICHAGE et non de moteur — plus local, sans toucher à la sémantique de
+ * `enAttente` (« ni proposée, ni écartée »), qui ne dit rien de ce cas : l'option EST proposée, c'est sa
+ * dose qui manque.
+ */
+function calculsEnAttente(
+  option: Option,
+  criteria: Criteria,
+  criteresEntree: CritereEntree[],
+  effectifs?: ReadonlySet<string>,
+): CalculEnAttente[] {
+  return (option.calculs ?? [])
+    .filter((calcul) => evaluerNombre(calcul.expression, criteria, effectifs) == null)
+    .map((calcul) => ({
+      libelle: calcul.libelle,
+      // Mêmes noms de champ que « à renseigner : … » du bloc EN ATTENTE (D20 §2.5) : le praticien lit
+      // partout le même vocabulaire, et jamais un nom de critère dérivé (non saisissable).
+      criteresManquants: criteresEntree
+        .filter((critere) => critere.derive == null)
+        .filter((critere) => new RegExp(`\\b${critere.nom}\\b`).test(calcul.expression))
+        .filter((critere) => effectifs == null || !effectifs.has(critere.nom))
+        .map((critere) => critere.nom),
+    }))
+}
+
+/**
  * Une sentinelle moteur (`["default"]` D11, `["toujours"]` D16) N'EST PAS une expression évaluable :
  * `termesVrais`/`evaluateCondition` lèveraient dessus (`ConditionError`, variable de critère inconnue).
  * Même test que `isDefaultOption`/`isToujoursOption` (`engine/evaluateNode.ts`), réécrit ici sur un
@@ -267,6 +323,7 @@ export function construireVueDecision(node: Noeud, criteria: Criteria, renseigne
             badge: badges.get(option) ?? null,
             reasons: raisonsSituationnelles(option.conditions, derived),
             calculs: calculsAffiches(option, criteria, effectifs),
+            calculsEnAttente: calculsEnAttente(option, criteria, node.criteres_entree, effectifs),
             motifRang: motifRangPertinent ? rangMotifs.get(option) : undefined,
             alertes: evaluateAlertesDeListe(option.alertes, derived, effectifs),
             rang: rangs.get(option),

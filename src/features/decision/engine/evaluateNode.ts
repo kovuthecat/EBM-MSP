@@ -677,10 +677,33 @@ export function evaluateNode(node: Noeud, criteria: Criteria, renseignes?: Reado
   }
 
   // Le repli ne s'active que si AUCUNE option non-default n'est réellement applicable (une option
-  // exclue OU en attente ne compte pas — D20 : rester silencieux sur une option ne doit pas priver le
-  // patient d'un repli par ailleurs sûr). Le repli est lui aussi soumis à ses propres `prerequis` (R6,
-  // évalués AVANT les `exclusions` — mêmes raisons que la branche « toujours » ci-dessus) puis exclusions.
-  if (!anyNonDefaultApplicable) {
+  // exclue ne compte pas), ET si le moteur n'est EN ATTENTE sur aucune option. Le repli est lui aussi
+  // soumis à ses propres `prerequis` (R6, évalués AVANT les `exclusions` — mêmes raisons que la branche
+  // « toujours » ci-dessus) puis exclusions.
+  //
+  // LA CONDITION `enAttente.size === 0` EST UNE RÉVISION DE D20, datée du 2026-07-27 — pas la
+  // correction d'un oubli. Le comportement antérieur était délibéré et motivé ainsi : « rester
+  // silencieux sur une option ne doit pas priver le patient d'un repli par ailleurs sûr ». La recette
+  // référent l'a renversé, sur pièces : sur `insuline` chez un patient naïf, les 9 options passaient en
+  // attente ET la carte « Poursuivre le schéma d'insuline en cours » s'affichait, avec le badge
+  // « Recommandée ». Le moteur suspendait explicitement son jugement et l'écran concluait quand même.
+  //
+  // C'est la violation frontale de R7 — « le moteur ne se prononce jamais sur ce qu'il ignore ». Le
+  // motif d'origine gardait sa valeur tant qu'on voyait le repli comme un filet neutre ; il tombe dès
+  // qu'on regarde ce que le repli DIT. Celui d'`insuline` affirme « objectif atteint, sans hypoglycémie
+  // ni variabilité » : ce n'est pas un filet, c'est une conclusion sur le patient (défaut D de la même
+  // recette, corrigé côté contenu au lot 2).
+  //
+  // I2′ (« jamais de sortie vide ») RESTE TENU, et c'est ce qui rend la révision sûre : dans cette
+  // branche `enAttente` est non vide par construction, donc le bloc EN ATTENTE de l'écran a toujours
+  // quelque chose à montrer — c'est son rôle déclaré (« sur formulaire vierge, c'est ce bloc qui prend
+  // le relais du panneau de résultats vide »). L'invariant I2′ du banc, lui, ne teste QUE des profils
+  // intégralement renseignés, où `enAttente` est vide : il n'est pas affecté.
+  //
+  // `ordered-first-match` n'avait PAS ce défaut : `evaluateOrderedFirstMatch` s'arrête net sur une
+  // option indéterminée et n'atteint jamais son repli (cf. sa docstring, « HALTE sur indéterminé »).
+  // La correction ne concerne donc que le mode `multi-options`, qui reprend ici la même doctrine.
+  if (!anyNonDefaultApplicable && enAttente.size === 0) {
     for (const option of defaults) {
       if (
         classerOption(

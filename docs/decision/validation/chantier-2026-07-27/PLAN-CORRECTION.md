@@ -425,13 +425,76 @@ demande une déclaration d'**unité** sur les critères `nombre` — candidate p
 récolte d'alerte d'option retirée, plafond remis à 20 000) : chacun tombe, avec un message qui dit quoi
 faire.
 
-### Lot 1 — La détermination (S3 + S4 côté moteur)
+### Lot 1 — La détermination — ✅ **LIVRÉ le 2026-07-27**
 
-**A** (le rendu consulte `touched` ; `estAConfirmer` étendu aux `enum`) → referme A1‑A4 · **B** (révision
-tracée de la sous-décision D20) · **J** (`calculs` non résoluble ⇒ critère réclamé) · **G** (l'invariant,
-puis les 4 expressions qu'il nomme) · la question `renseignes` de `decisifsAConfirmer` (§S3).
+**Résultat : 594 → 604 tests, typecheck et build verts.** Recette visuelle consignée dans `VALIDATION.md`.
+
+| # | livré | où |
+|---|---|---|
+| **A** | le rendu consulte `touched` (segments **et** `<select>`, avec une option vide « — » qui rend l'état « pas encore répondu » représentable) ; `estAConfirmer` étendu aux `enum` **et** aux `liste` `confirmation_requise` | `components/CriteriaForm.tsx` |
+| **B** | **révision tracée de la sous-décision D20** : `enAttente` non vide ⇒ ni repli `["default"]`, ni badge | `engine/evaluateNode.ts` |
+| **J** | `OptionVue.calculsEnAttente` — la carte nomme la dose manquante et le champ qui la débloque | `lib/vueDecision.ts`, `components/OptionCard.tsx` |
+| **G** | **I10** (invariant R8) + les expressions qu'il nomme, sur 3 nœuds | `banc/invariants-contenu.test.ts`, 3 YAML |
+| **S3** | `decisifsAConfirmer` transmet enfin `touched` à `champsVisibles` | `lib/formLayout.ts` |
 
 ⚠ **A conditionne tout flux par étapes** (piège de séquencement de la recette §P) — donc avant N/O/P.
+
+#### Le défaut de production que le lot a trouvé
+
+**Un patient de prévention secondaire sans intolérance déclarée ne recevait AUCUNE recommandation du
+nœud `statine`.** ASCVD établie, pas de statine en cours, aucun symptôme musculaire : le cas le plus
+banal du nœud. Le champ `CK_x_normale` est masqué chez lui (`visible_si: intolerance_statine != non`),
+donc jamais renseigné, donc **indéterminé** — et l'exclusion de l'option de haute intensité le lit sans
+répéter ce garde. En `ordered-first-match`, une option indéterminée **arrête le nœud** : sortie vide.
+
+Introduit le matin même par le critère `CK_x_normale` (commit `3bf372e`), **déployé**, et invisible aux
+cinq rapports du jour. Trouvé par I10, écrit deux heures plus tôt. C'est l'argument le plus net en
+faveur de l'ordre du plan : réparer les instruments avant le contenu.
+
+#### Correction à apporter au rapport de recette
+
+**Le défaut J n'en était pas un côté moteur.** La recette proposait de faire entrer les critères d'un
+`calculs` non résoluble dans le registre `enAttente`. Vérifié avant de coder : `poids` **est** déjà
+pertinent (la perturbation de `relevance.ts` ajoute le critère à `renseignes` avant de comparer, donc le
+calcul redevient calculable et la signature change) et **est** déjà réclamé par `decisifsAConfirmer`. Ce
+qui manquait était le **lien** — le champ était marqué « à confirmer » dans le formulaire, à plusieurs
+sections de la carte qui restait muette. Correctif d'affichage, sans toucher à la sémantique de
+`enAttente` (« ni proposée, ni écartée »), qui ne décrit pas ce cas : l'option **est** proposée, c'est sa
+dose qui manque.
+
+#### Trois tests encodaient le comportement révisé
+
+Ils n'ont pas été supprimés mais **inversés, avec leur motif** : la vignette référent E-09 d'`insuline`
+(« le repli reste actif »), le test moteur de D20 (« un non-default en attente ne bloque pas le repli »),
+et le test de formulaire (« ne marque pas un `enum` non renseigné »). Deux énoncés du référent se
+contredisaient ; le plus récent — la recette sur le déployé, qui décrit ce que l'écran a réellement
+montré — tranche.
+
+#### Golden master — mesure §4bis
+
+| nœud | profils modifiés (rendus en clair) |
+|---|---|
+| `statine` | **4 / 10** — dont 2 qui recevaient une *interruption de statine fantôme* |
+| `prescription` | **3 / 10** |
+| `insuline` | **2 / 10** |
+
+Sur les snapshots d'indétermination : `insuline` **8 / 15** et `prescription` **1 / 15** profils ne
+concluent plus à tort. Chaque diff a été lu ligne à ligne, jamais accepté en bloc.
+
+#### Deux invariants calibrés sur le contenu réel, pas au jugé
+
+**I10** est passé par trois rédactions. La première (garde exigé dans le même terme `OR`) sortait 16
+violations sur `insuline`, **toutes fausses** : le garde vivait dans une entrée `conditions` voisine, et
+les entrées de `conditions` se combinent en ET. La deuxième (voisines non disjonctives seulement)
+en gardait 12, encore fausses : la forme dominante du contenu est
+`situation_insuline == A OR situation_insuline == B`, qui contraint bel et bien le critère puisque
+**chacun** de ses termes le cite. La troisième ajoute le filtre décisif — **seuls les critères dont le
+masquage produit une INDÉTERMINATION** sont concernés (`nombre`/`enum`, ou `bool`/`liste`
+`confirmation_requise`) : une `liste` masquée vaut `[]`, déterminée, et ne met rien en attente.
+
+Ce filtre est **dynamique**, et c'est voulu : le jour où l'arbitrage C posera `confirmation_requise` sur
+`profil_glycemique`, ce critère entrera dans le périmètre et l'invariant réclamera ses gardes. Rendre
+visible ce que la décision d'hier ne pouvait pas prévoir.
 
 ### Lot 2 — Contenu, un seul passage par fichier
 
