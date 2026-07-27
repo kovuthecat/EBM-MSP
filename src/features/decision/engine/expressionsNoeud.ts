@@ -111,6 +111,7 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
   },
   option: {
     intitule: 'inerte',
+    role: 'inerte', // A3 : déclaration de nature, pas une expression (cf. `RoleOption`)
     avantages: 'inerte',
     inconvenients: 'inerte',
     effet_attendu: 'inerte',

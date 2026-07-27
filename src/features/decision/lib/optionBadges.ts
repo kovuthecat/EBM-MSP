@@ -1,6 +1,22 @@
 import type { Option } from '../content/node.types.ts'
 import type { GroupeFamille } from '../engine/evaluateNode.ts'
-import { isToujoursOption } from '../engine/evaluateNode.ts'
+
+/**
+ * « Cette option est-elle le SOCLE du traitement ? » — question de NATURE, à laquelle le contenu répond
+ * désormais lui-même (A3, `Option.role`).
+ *
+ * Cette fonction lisait `isToujoursOption`, c'est-à-dire la sentinelle `conditions: ["toujours"]` — un
+ * MÉCANISME de sélection détourné en indice de nature. C'est exactement le défaut qu'A3 corrige : le
+ * contenu n'avait aucun moyen de dire ce qu'une option EST, on le devinait donc à partir de la façon dont
+ * elle s'applique. ZÉRO CHANGEMENT DE COMPORTEMENT — l'invariant I17 verrouille l'équivalence
+ * `conditions: ["toujours"]` ⟺ `role: socle` dans les deux sens ; ce qui change est ce que le code DIT.
+ *
+ * `evaluateNode` continue, lui, de lire les sentinelles : là, elles ne sont pas un indice de nature mais
+ * la mécanique de sélection elle-même (repli, candidature permanente). La distinction est le point.
+ */
+function estSocle(option: Option): boolean {
+  return option.role === 'socle'
+}
 
 /** Badge de mise en avant d'une carte d'option (D16). `null` = carte non mise en avant. */
 export type OptionBadge = 'recommandee' | 'reco-officielle' | null
@@ -16,7 +32,7 @@ export type OptionBadge = 'recommandee' | 'reco-officielle' | null
  * badge (cf. `Noeud.familles`, `engine/evaluateNode.ts` `groupesParFamille`).
  *
  * Règle par famille (`GroupeFamille.exclusive`) :
- * - option « toujours » (`isToujoursOption`, ex. socle metformine) → `'reco-officielle'`, INCHANGÉ,
+ * - option de SOCLE (`role: socle`, ex. metformine) → `'reco-officielle'`, INCHANGÉ,
  *   prioritaire sur toute logique de famille ;
  * - famille CUMULABLE (`exclusive: false`) : tout ce qui est affiché est à faire → `'recommandee'` sur
  *   TOUTES les options de la famille, indépendamment de leur rang respectif ;
@@ -39,7 +55,7 @@ export function computeBadges(familles: GroupeFamille[]): Map<Option, OptionBadg
     if (famille.exclusive === false) {
       // Cumulable : tout ce qui est affiché dans cette famille est à faire.
       for (const option of toutesOptions) {
-        badges.set(option, isToujoursOption(option) ? 'reco-officielle' : 'recommandee')
+        badges.set(option, estSocle(option) ? 'reco-officielle' : 'recommandee')
       }
       continue
     }
@@ -48,7 +64,7 @@ export function computeBadges(familles: GroupeFamille[]): Map<Option, OptionBadg
       // Exclusive : alternatives, badge réservé au groupe d'égalité de tête.
       const groupeTete = famille.groupes[0]
       for (const option of toutesOptions) {
-        if (isToujoursOption(option)) {
+        if (estSocle(option)) {
           badges.set(option, 'reco-officielle')
         } else if (groupeTete?.includes(option)) {
           badges.set(option, 'recommandee')
@@ -61,12 +77,12 @@ export function computeBadges(familles: GroupeFamille[]): Map<Option, OptionBadg
 
     // Repli (nœud sans `familles` déclarées) : règle historique D16/S7-ui Lot 3, inchangée — badge
     // sur le groupe d'égalité contenant la 1re option qui N'EST PAS un socle.
-    const premiereNonSocle = toutesOptions.find((option) => !isToujoursOption(option))
+    const premiereNonSocle = toutesOptions.find((option) => !estSocle(option))
     const groupeTete = premiereNonSocle
       ? famille.groupes.find((groupe) => groupe.includes(premiereNonSocle))
       : undefined
     for (const option of toutesOptions) {
-      if (isToujoursOption(option)) {
+      if (estSocle(option)) {
         badges.set(option, 'reco-officielle')
       } else if (groupeTete?.includes(option)) {
         badges.set(option, 'recommandee')

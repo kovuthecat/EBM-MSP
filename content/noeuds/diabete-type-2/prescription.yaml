@@ -355,6 +355,7 @@ familles:
 options:
   # ---- Gate / socle -------------------------------------------------------------------------------------
   - intitule: "Insuline d'initiation (souvent transitoire — état catabolique)"
+    role: securite
     conditions:
       - "HbA1c_actuelle >= 10 AND symptomes_glucotoxicite == true OR cetonemie == true"
     # PRÉREQUIS AJOUTÉ (2026-07-26, chantier prescription/prérequis) : « d'initiation » suppose un
@@ -380,6 +381,7 @@ options:
     contre_indications:
       - "Cétonémie ≥ 3 mmol/L → urgence (insuline + hospitalisation), hors périmètre du nœud."
   - intitule: "Metformine (socle du traitement) — instaurer ou poursuivre"
+    role: socle
     conditions:
       - "toujours"
     priorite: 0
@@ -406,6 +408,7 @@ options:
       - "CONTRE‑INDIQUÉE si DFG < 30 (RCP ANSM) ; à écarter en insuffisance cardiaque décompensée, IDM récent, insuffisance hépatique, alcoolisme. À suspendre : déshydratation, sepsis, jeûne, produit de contraste iodé, chirurgie."
   # ---- Sécurité rénale metformine ----------------------------------------------------------------------
   - intitule: "Arrêter la metformine (DFG < 30 — contre‑indication rénale)"
+    role: securite
     conditions:
       - "traitements_en_cours contient metformine"
       - "DFG < 30"
@@ -426,6 +429,7 @@ options:
     # Le geste reste EXACTEMENT le même : c'est l'étiquette qui devient honnête, pas la conduite.
     niveau_preuve: faible
   - intitule: "Réduire la posologie de la metformine (fonction rénale altérée ou intolérance digestive)"
+    role: securite
     # GATING SUR LA DOSE (décision référent, 2026-07-26, 3e série — recette capture 1, problème 2) : avant
     # ce lot, cette option se déclenchait sur la seule fourchette de DFG, SANS savoir si la dose ACTUELLE
     # dépassait le maximum ajusté — une dose déjà sous le maximum n'a rien à « réduire ». Seuils repris
@@ -466,6 +470,7 @@ options:
     # Le geste reste EXACTEMENT le même : c'est l'étiquette qui devient honnête, pas la conduite.
     niveau_preuve: faible
   - intitule: "Arrêter le sulfamide (DFG < 30 — contre‑indication rénale)"
+    role: securite
     conditions:
       - "traitements_en_cours contient sulfamide"
       - "DFG < 30"
@@ -498,6 +503,7 @@ options:
     niveau_preuve: faible
   # ---- Sécurité — acidocétose euglycémique sous iSGLT2 --------------------------------------------------
   - intitule: "Suspendre l'iSGLT2 (cétonémie confirmée — suspicion d'acidocétose euglycémique)"
+    role: securite
     # AJOUT (2026-07-26, 4e série, red-team clinique sécurité HAUTE-3, PRIORITÉ ABSOLUE DU LOT) : aucune
     # option de ce nœud ne suspendait l'iSGLT2 chez un patient cétonémique déjà sous cette classe — 25 % du
     # banc réaliste (traitements_en_cours contient iSGLT2 AND cetonemie == true) ne recevait AUCUN geste sur
@@ -540,6 +546,7 @@ options:
       - "Cétonémie ≥ 3 mmol/L → urgence (insuline + hospitalisation), hors périmètre du nœud."
   # ---- Ajout d'un agent protecteur (fix bug 9 : priorités conditionnelles) ------------------------------
   - intitule: "Introduire un iSGLT2 (protection cardio‑rénale et/ou contrôle glycémique)"
+    role: geste
     conditions:
       - "insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo OR ASCVD_etablie == true OR palette_glycemique_ouverte == true OR remplacement_agent_sans_benefice == true"
     # R6 (docs/decision/GRAMMAIRE-NOEUD.md, arbitrage indication/prérequis) : garde-fous de cohérence,
@@ -585,6 +592,7 @@ options:
       - "Infections génito‑urinaires récidivantes ; antécédent de gangrène de Fournier ; prudence si artériopathie évoluée / amputation (signal canagliflozine)."
       - "En cas d'IC avec saxagliptine en cours : arrêter la saxagliptine (signal SAVOR), ne pas se contenter d'ajouter l'iSGLT2."
   - intitule: "Introduire un AR GLP‑1 (liraglutide, sémaglutide, dulaglutide)"
+    role: geste
     # LEVÉE DU VERROU (référent, 2026-07-25) : `ne_contient_pas gliptine` retiré. La non-association
     # gliptine + AR GLP‑1 n'est plus garantie par construction (elle empêchait aussi le SWITCH, pas
     # seulement l'association) mais par l'affichage : dès qu'une gliptine est en cours, le verdict dédié
@@ -665,6 +673,7 @@ options:
           Chez un sujet fragile, surveiller le poids et l'état nutritionnel à l'instauration d'un
           incrétine (risque de sarcopénie / anorexie).
   - intitule: "Introduire le tirzépatide (obésité — prescription spécialisée)"
+    role: geste
     conditions:
       - "IMC >= 30"
     # R6 : garde-fous de cohérence (ne pas déjà prendre la classe visée / une classe concurrente ;
@@ -703,6 +712,7 @@ options:
           Chez un sujet fragile, surveiller le poids et l'état nutritionnel à l'instauration d'un
           incrétine (risque de sarcopénie / anorexie).
   - intitule: "Association iSGLT2 + AR GLP‑1 (deux indications distinctes)"
+    role: geste
     conditions:
       - "insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo"
       - "ASCVD_etablie == true OR IMC >= 30"
@@ -734,6 +744,7 @@ options:
       Additivité glycémique/pondérale acquise (DURATION‑8) ; bénéfice dur additif non confirmé par un ECR dédié.
     niveau_preuve: faible
   - intitule: "Envisager l'insuline (palette non‑insulinique épuisée — ajustement fin → nœud E)"
+    role: geste
     # CONDITION GÉNÉRALISÉE le 2026-07-27 (objection du référent, cf. `isglt2_indisponible` en tête de
     # fichier). Elle s'écrivait :
     #   iSGLT2 en cours AND aGLP1 en cours  OR  iSGLT2 en cours AND dénutrition  OR  iSGLT2 en cours AND IMC<22
@@ -777,6 +788,7 @@ options:
   # dénutrition, propres à l'AR GLP‑1) ne portent plus sur CE verdict, cf. R3 (« les exclusions du verdict
   # sont structurelles, jamais celles d'une destination »).
   - intitule: "Remplacer la gliptine (aucun bénéfice sur critère dur — préférer un agent qui en apporte)"
+    role: geste
     conditions:
       - "traitements_en_cours contient gliptine"
     # R6 : garde-fous de cohérence (ne pas déjà prendre le remplaçant visé) — jamais montrés comme
@@ -808,6 +820,7 @@ options:
     contre_indications:
       - "Ne pas maintenir la gliptine en association avec un AR GLP‑1 : la remplacer. Les contre-indications propres au remplaçant retenu s'appliquent (voir l'option correspondante)."
   - intitule: "Arrêter la gliptine redondante (association gliptine + AR GLP‑1 / tirzépatide déjà en place)"
+    role: geste
     conditions:
       - "traitements_en_cours contient gliptine"
       - "traitements_en_cours contient aGLP1 OR traitements_en_cours contient tirzepatide"
@@ -829,6 +842,7 @@ options:
   # restent des gardes-fous DISTINCTS : dans ces deux cas, on déprescrit, on ne switche pas (cf. l'option
   # de désintensification).
   - intitule: "Remplacer le sulfamide (moins d'hypoglycémie, moins de poids, plus de bénéfice)"
+    role: geste
     conditions:
       - "traitements_en_cours contient sulfamide"
       - "hypoglycemie_recente == false"
@@ -855,6 +869,7 @@ options:
       - "En sur‑contrôle (hba1c_sous_cible) ou après hypoglycémie/chute récente : il s'agit de DÉSINTENSIFIER (retirer sans remplacer) — cette option ne se déclenche pas. Si un SU doit être conservé : gliclazide/glimépiride, jamais le glibenclamide."
   # ---- Intolérance (porte : réduction OU switch) -------------------------------------------------------
   - intitule: "Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer"
+    role: geste
     conditions:
       - "intolerance_traitement == true"
     priorite: 2
@@ -869,6 +884,7 @@ options:
     niveau_preuve: faible
   # ---- Désintensification (porte : hba1c_sous_cible à tout âge, ou hypo récente sur terrain fragile) ----
   - intitule: "Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline"
+    role: geste
     # GÉNÉRALISATION position_vs_cible (2026-07-26, 4e série, red-team clinique silences F1,
     # GRAMMAIRE-NOEUD.md R1) : `position_vs_cible == sous_objectif` — l'ÉTAT DÉCLARÉ de sur-traitement,
     # introduit précisément pour capter ce cas sans dépendre du seuil absolu `hba1c_sous_cible` (< 6,5 %,
@@ -901,6 +917,7 @@ options:
       - "Ne JAMAIS retirer un iSGLT2 ni un AR GLP‑1 pour désintensifier : bénéfice cardio‑rénal maintenu quelle que soit la glycémie (ADA 13.14d grade A). La désintensification ne cible que sulfamide / glinide / excès d'insuline."
   # ---- Déprescrire par RÉDUCTION de dose (distinct par traitement ; le praticien juge la dose, S8) -------
   - intitule: "Réduire la posologie de l'insuline (sur‑basalisation / hypoglycémie)"
+    role: geste
     # GÉNÉRALISATION position_vs_cible (2026-07-26, 4e série, red-team clinique silences F1) : voir le
     # commentaire de « Désintensifier » plus haut pour la justification complète — même ajout, même
     # raison, sans exigence de fragilité.
@@ -916,6 +933,7 @@ options:
     effet_attendu: "Moins d'hypoglycémie sans sevrage complet ; effet non chiffrable."
     niveau_preuve: faible
   - intitule: "Réduire la posologie de l'AR GLP‑1 (perte de poids excessive / intolérance digestive)"
+    role: geste
     conditions:
       - "traitements_en_cours contient aGLP1"
       - "denutrition == true OR intolerance_traitement == true AND nature_intolerance == perte_poids OR intolerance_traitement == true AND nature_intolerance == digestive"
@@ -928,6 +946,7 @@ options:
     effet_attendu: "non chiffrable"
     niveau_preuve: faible
   - intitule: "Réduire la posologie du tirzépatide (perte de poids excessive / intolérance)"
+    role: geste
     conditions:
       - "traitements_en_cours contient tirzepatide"
       - "denutrition == true OR intolerance_traitement == true AND nature_intolerance == perte_poids OR intolerance_traitement == true AND nature_intolerance == digestive"
@@ -961,6 +980,7 @@ options:
   # option distincte). Pas d'option « Arrêter le glinide » en miroir : sans contre-indication RCP, aucun
   # fondement à un arrêt motivé par le seul DFG (R3 — un arrêt est un geste, il lui faut une indication).
   - intitule: "Réduire la posologie du sulfamide (tolérance, hypoglycémie légère)"
+    role: geste
     # GÉNÉRALISATION position_vs_cible (2026-07-26, 4e série, red-team clinique silences F1) : voir le
     # commentaire de « Désintensifier » plus haut pour la justification complète — même ajout (l'ÉTAT
     # DÉCLARÉ de sur-traitement `sous_objectif` ouvre aussi cet allègement, sans exiger la fragilité, qui
@@ -984,6 +1004,7 @@ options:
     effet_attendu: "non chiffrable"
     niveau_preuve: faible
   - intitule: "Réduire la posologie du glinide (tolérance, hypoglycémie légère)"
+    role: geste
     conditions:
       - "traitements_en_cours contient glinide"
       - "intolerance_traitement == true OR hypoglycemie_recente == true OR position_vs_cible == sous_objectif"
@@ -1012,6 +1033,7 @@ options:
     niveau_preuve: faible
   # ---- Déprescription de la metformine (arbitrage référent 2026-07-26, 2e série) -----------------------
   - intitule: "Déprescrire la metformine (sur-traitement chez un patient fragile, tous les autres agents à bénéfice dur)"
+    role: geste
     # DÉCISION RÉFÉRENT (2026-07-26, 2e série) : arbitrage resté ouvert depuis la capture 6. Trois
     # conditions cumulatives, portées par `metformine_deprescriptible` (voir son commentaire dans
     # `criteres_entree` pour le détail — notamment la lecture stricte appliquée à l'insuline, une
@@ -1038,6 +1060,7 @@ options:
     contre_indications:
       - "Ne jamais retirer un agent PROTECTEUR (iSGLT2, AR GLP‑1, tirzépatide) à la place de la metformine pour désintensifier. Si un agent sans bénéfice dur (y compris l'insuline) est encore en place, c'est lui qu'on allège en priorité — cette option ne se déclenche d'ailleurs pas dans ce cas (cf. `metformine_deprescriptible`)."
   - intitule: "Reconsidérer un agent protecteur prescrit hors indication ET posant un risque (ex. iSGLT2 sans terrain + infections uro)"
+    role: geste
     conditions:
       - "traitements_en_cours contient iSGLT2 AND ASCVD_etablie == false AND insuffisance_cardiaque == false AND DFG >= 60 AND albuminurie == normo AND infections_uro_genitales_recidivantes == true"
     priorite: 4
@@ -1050,6 +1073,7 @@ options:
     niveau_preuve: faible
   # ---- Place résiduelle SU / gliptine (classes protectrices indisponibles) ------------------------------
   - intitule: "Gliptine (sitagliptine) — option glycémique orale de bas rang (place résiduelle)"
+    role: geste
     conditions:
       - "classes_a_benefice_indisponibles == true OR palette_glycemique_ouverte == true"
       - "position_vs_cible != sous_objectif"
@@ -1099,6 +1123,7 @@ options:
     contre_indications:
       - "SITAGLIPTINE (dose au DFG : 100 mg si ≥ 45 ; 50 mg si 30‑44). En dessous de 30 (dialyse incluse), la SFD 2025 nomme la VILDAGLIPTINE 50 mg/j : la forme sitagliptine 25 mg n'est pas commercialisée en France. Ne pas utiliser saxagliptine (IC + retrait FR) ni lina/alogliptine (non commercialisées FR). Éruption bulleuse → évoquer pemphigoïde, arrêter."
   - intitule: "Sulfamide (gliclazide MR ou glimépiride) — option glycémique de bas rang, derrière la gliptine"
+    role: geste
     conditions:
       - "classes_a_benefice_indisponibles == true OR palette_glycemique_ouverte == true"
       - "position_vs_cible != sous_objectif"
@@ -1169,6 +1194,7 @@ options:
   # référent, et sans lui la carte affirmerait « pas de traitement » à un patient naïf AU-DESSUS de son
   # objectif chez qui tout serait par ailleurs bloqué — un écran silencieux vaut mieux qu'une carte fausse.
   - intitule: "Aucun traitement médicamenteux — mesures hygiéno‑diététiques seules, réévaluer"
+    role: repli
     conditions:
       - "default"
     prerequis:
@@ -1184,6 +1210,7 @@ options:
       individualisé.
     niveau_preuve: faible
   - intitule: "Poursuivre le traitement en cours et réévaluer"
+    role: repli
     conditions:
       - "default"
     # PRÉREQUIS POSÉ le 2026-07-27, après trois obstacles levés dans l'ordre (R9 / invariant I15 : un repli
@@ -1717,8 +1744,21 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.30"
+  version: "0.31"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        A3 — chaque option DÉCLARE désormais son rôle (`role` : socle / securite / geste / repli), champ
+        rendu OBLIGATOIRE au schéma. Motif : le contenu n'avait aucun moyen de dire ce qu'une option EST.
+        `priorite` portait trois sens incompatibles (ordre de tri, porte d'affichage du repli, marqueur de
+        socle par le rang 0), et le seul indice restant de la nature d'une carte était un LIBELLÉ DE
+        FAMILLE en français — que le moteur a interdiction de lire (D8). Cinq constats de recette
+        convergeaient sur ce manque, dont un repli d'affichage qui avait caché une carte de sécurité.
+        Les rôles ont été posés MÉCANIQUEMENT, sans arbitrage clinique : `socle`/`repli` depuis les
+        sentinelles `conditions`, `securite` depuis les familles que le nœud déclare déjà comme telles,
+        `geste` pour le reste. Invariant I17 : `role` ne peut pas contredire les sentinelles, dans les DEUX
+        sens. ZÉRO changement de comportement — aucun golden master modifié.
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

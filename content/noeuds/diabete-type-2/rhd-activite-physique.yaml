@@ -159,6 +159,7 @@ criteres_entree:
 options:
   # ═══════════ FAMILLE DÉPLACEMENTS ACTIFS ═══════════
   - intitule: "Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine"
+    role: geste
     conditions:
       - "mode_deplacement_courts_trajets == motorise_ou_assis"
     priorite: 5
@@ -170,6 +171,7 @@ options:
     effet_attendu: "Non chiffrable pour ce geste isolé — contribue au volume d'activité quotidienne."
     niveau_preuve: faible
   - intitule: "Pour les courses, préférer plusieurs petits déplacements actifs à un grand trajet motorisé"
+    role: geste
     conditions:
       - "mode_deplacement_courts_trajets == motorise_ou_assis"
     priorite: 5
@@ -182,6 +184,7 @@ options:
     niveau_preuve: faible
   # ═══════════ FAMILLE RUPTURE DE SÉDENTARITÉ ═══════════
   - intitule: "Se lever et bouger quelques minutes à chaque heure de position assise prolongée"
+    role: geste
     conditions:
       - "temps_assis_quotidien == quatre_a_huit_h OR temps_assis_quotidien == plus_8h OR rupture_sedentarite_habituelle == false"
     priorite: 2
@@ -194,6 +197,7 @@ options:
     effet_attendu: "Réduit le temps de sédentarité continue ; non chiffrable pour ce geste isolé."
     niveau_preuve: faible
   - intitule: "S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant)"
+    role: geste
     conditions:
       - "temps_assis_quotidien == quatre_a_huit_h OR temps_assis_quotidien == plus_8h OR rupture_sedentarite_habituelle == false"
     priorite: 3
@@ -205,6 +209,7 @@ options:
     effet_attendu: "Non chiffrable pour ce geste isolé."
     niveau_preuve: faible
   - intitule: "Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants"
+    role: geste
     conditions:
       - "temps_assis_quotidien == quatre_a_huit_h OR temps_assis_quotidien == plus_8h OR rupture_sedentarite_habituelle == false"
     priorite: 3
@@ -217,6 +222,7 @@ options:
     niveau_preuve: faible
   # ═══════════ FAMILLE ACTIVITÉ QUOTIDIENNE ═══════════
   - intitule: "Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées)"
+    role: geste
     conditions:
       - "frequence_activite_structuree == jamais OR frequence_activite_structuree == une_fois_semaine"
     priorite: 2
@@ -231,6 +237,7 @@ options:
       - has-guide-ap
       - spf-antisedentarite
   - intitule: "Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue"
+    role: geste
     conditions:
       - "duree_seance == moins_10_min"
     priorite: 3
@@ -246,6 +253,7 @@ options:
       - has-guide-ap
       - duodecim-ap
   - intitule: "Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente"
+    role: geste
     conditions:
       - "frequence_activite_structuree == jamais OR frequence_activite_structuree == une_fois_semaine"
     priorite: 2
@@ -258,6 +266,7 @@ options:
     niveau_preuve: faible
   # ═══════════ FAMILLE PRATIQUE STRUCTURÉE (verrou sécurité) ═══════════
   - intitule: "Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel"
+    role: geste
     conditions:
       - "frequence_activite_structuree == jamais OR frequence_activite_structuree == une_fois_semaine"
     exclusions:
@@ -284,6 +293,7 @@ options:
       réserve majeure de ce nœud).
     niveau_preuve: faible
   - intitule: "Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement)"
+    role: geste
     conditions:
       - "frequence_activite_structuree == quatre_fois_ou_plus_semaine AND rupture_sedentarite_habituelle == true"
     priorite: 1
@@ -300,6 +310,7 @@ options:
       - duodecim-ap
   # ═══════════ FAMILLE ORIENTATION VERS UNE RESSOURCE ═══════════
   - intitule: "Orienter vers une structure d'activité physique adaptée pour un bilan et un accompagnement progressif"
+    role: geste
     conditions:
       - "limitation_physique_connue == true OR difficulte_acces_activite == true OR offre_proximite_connue == false"
     priorite:
@@ -315,6 +326,7 @@ options:
     effet_attendu: "Non chiffrable — orientation, pas un geste d'activité physique en soi."
     niveau_preuve: faible
   - intitule: "Proposer un bilan avec un enseignant en activité physique adaptée avant toute reprise"
+    role: geste
     conditions:
       - "experience_activite_negative == true"
     priorite: 2
@@ -341,6 +353,7 @@ options:
   # nécessairement vraie dès que le cas muet complet se produit. Indépendamment plus fréquente (se
   # déclenche dès que ces deux marqueurs sont favorables, cumulable avec d'autres pistes par ailleurs).
   - intitule: "Poursuivre les habitudes actuelles et rester attentif à la régularité"
+    role: geste
     conditions:
       - "frequence_activite_structuree == deux_a_trois_fois_semaine AND rupture_sedentarite_habituelle == true"
     famille: "Maintien"
@@ -495,8 +508,21 @@ meta:
   date_revue: "2026-07-26"
   auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
   statut: brouillon
-  version: "0.5"
+  version: "0.6"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        A3 — chaque option DÉCLARE désormais son rôle (`role` : socle / securite / geste / repli), champ
+        rendu OBLIGATOIRE au schéma. Motif : le contenu n'avait aucun moyen de dire ce qu'une option EST.
+        `priorite` portait trois sens incompatibles (ordre de tri, porte d'affichage du repli, marqueur de
+        socle par le rang 0), et le seul indice restant de la nature d'une carte était un LIBELLÉ DE
+        FAMILLE en français — que le moteur a interdiction de lire (D8). Cinq constats de recette
+        convergeaient sur ce manque, dont un repli d'affichage qui avait caché une carte de sécurité.
+        Les rôles ont été posés MÉCANIQUEMENT, sans arbitrage clinique : `socle`/`repli` depuis les
+        sentinelles `conditions`, `securite` depuis les familles que le nœud déclare déjà comme telles,
+        `geste` pour le reste. Invariant I17 : `role` ne peut pas contredire les sentinelles, dans les DEUX
+        sens. ZÉRO changement de comportement — aucun golden master modifié.
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

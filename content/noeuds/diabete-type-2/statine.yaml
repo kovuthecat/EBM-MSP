@@ -261,6 +261,7 @@ options:
   # weeks » : c'est pourquoi ces options n'ont qu'un seuil d'entrée et deux alertes qui les qualifient
   # au-delà, plutôt que des options empilées.
   - intitule: "Interrompre la statine 4 à 6 semaines et réévaluer (CK au-dessus de 5 fois la normale)"
+    role: geste
     conditions:
       - "intolerance_statine == rapportee AND CK_x_normale > 5 AND statine_deja_en_place == true"
     avantages:
@@ -316,6 +317,7 @@ options:
   # française (ézétimibe → anti-PCSK9 → acide bempédoïque) doit toucher les deux. C'est le prix explicite
   # de l'arbitrage Q3, préféré au renvoi.
   - intitule: "Interrompre la statine — la classe reste indisponible (intolérance avérée, CK au-dessus de 5 fois la normale)"
+    role: geste
     conditions:
       - "intolerance_statine == averee AND CK_x_normale > 5 AND statine_deja_en_place == true"
     avantages:
@@ -379,6 +381,7 @@ options:
   # aussi le garde de portée exigé par R8/I10 (`CK_x_normale` est masqué quand aucune intolérance n'est
   # déclarée) : les deux rôles coïncident ici, mais ce sont bien deux exigences distinctes.
   - intitule: "Débuter la statine à dose plus faible (CK élevées mais sous 5 fois la normale, avant initiation)"
+    role: geste
     conditions:
       - "intolerance_statine == rapportee AND CK_x_normale > 4 AND CK_x_normale <= 5 AND statine_deja_en_place == false"
     avantages:
@@ -406,6 +409,7 @@ options:
           compromis de sécurité biologique, pas la dose cible — re-doser les CK à 7 jours et titrer dès
           que le taux le permet.
   - intitule: "Statine de haute intensité — prévention secondaire (maladie athéromateuse établie)"
+    role: geste
     conditions:
       - "ASCVD_etablie == true"
     avantages:
@@ -455,6 +459,7 @@ options:
       - "intolerance_statine == averee"
       - "intolerance_statine != non AND CK_x_normale > 5 AND statine_deja_en_place == false"
   - intitule: "Discuter la statine (décision partagée) — diabète non compliqué à faible risque absolu"
+    role: geste
     conditions:
       - "anciennete_diabete_annees < 10"
       - "autres_FDRCV == 0"
@@ -514,6 +519,7 @@ options:
   # déclare ce point hors périmètre depuis l'origine). Elle nomme ce que les sources françaises nomment, dans
   # l'ordre où elles le nomment, avec le niveau de preuve de chacune.
   - intitule: "Statine indisponible (intolérance avérée ou contre-indication) — alternatives hypolipémiantes"
+    role: geste
     conditions:
       - "intolerance_statine == averee OR intolerance_statine != non AND CK_x_normale > 5 AND statine_deja_en_place == false"
     avantages:
@@ -570,6 +576,7 @@ options:
           réduire. Ne pas laisser ce patient sans traitement hypolipémiant au motif que la statine est
           écartée.
   - intitule: "Statine (prévention primaire, intensité modérée — haute si risque très élevé)"
+    role: repli
     conditions:
       - "default"
     # PAS D'EXCLUSION ICI, et c'est structurel — pas un oubli.
@@ -1009,8 +1016,21 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Claude Code"
   statut: brouillon
-  version: "1.11"
+  version: "1.12"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        A3 — chaque option DÉCLARE désormais son rôle (`role` : socle / securite / geste / repli), champ
+        rendu OBLIGATOIRE au schéma. Motif : le contenu n'avait aucun moyen de dire ce qu'une option EST.
+        `priorite` portait trois sens incompatibles (ordre de tri, porte d'affichage du repli, marqueur de
+        socle par le rang 0), et le seul indice restant de la nature d'une carte était un LIBELLÉ DE
+        FAMILLE en français — que le moteur a interdiction de lire (D8). Cinq constats de recette
+        convergeaient sur ce manque, dont un repli d'affichage qui avait caché une carte de sécurité.
+        Les rôles ont été posés MÉCANIQUEMENT, sans arbitrage clinique : `socle`/`repli` depuis les
+        sentinelles `conditions`, `securite` depuis les familles que le nœud déclare déjà comme telles,
+        `geste` pour le reste. Invariant I17 : `role` ne peut pas contredire les sentinelles, dans les DEUX
+        sens. ZÉRO changement de comportement — aucun golden master modifié.
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

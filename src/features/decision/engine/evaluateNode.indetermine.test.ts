@@ -9,8 +9,12 @@ import { evaluateNode } from './evaluateNode.ts'
 
 /** Fabrique une option minimale (les champs cliniques d'affichage ne changent pas la sélection). */
 function opt(intitule: string, conditions: string[], extra: Partial<Option> = {}): Option {
+  const seule = conditions.length === 1 ? conditions[0] : undefined
   return {
     intitule,
+    // `role` (A3) dérivé des sentinelles pour ces options SYNTHÉTIQUES : l'invariant I17 porte la
+    // garantie sur le contenu réel, ce fichier n'a pas à la répéter à chaque appel.
+    role: seule === 'toujours' ? 'socle' : seule === 'default' ? 'repli' : 'geste',
     conditions,
     avantages: [],
     inconvenients: [],

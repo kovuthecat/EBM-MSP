@@ -191,6 +191,7 @@
       "$comment": "Choix de forme (T-002 'Si bloque' : ambiguite mineure entre §5.1 et §11, tranchee en suivant le gabarit concret §11) : `contre_indications` est optionnel. Dans le gabarit §11, seule l'option la plus stricte ('Cible ~6,5 %') porte ce champ ; les 3 autres options l'omettent completement (pas de tableau vide). Rendre le champ requis aurait invalide le contenu sourci du brief.",
       "required": [
         "intitule",
+        "role",
         "avantages",
         "inconvenients",
         "effet_attendu",
@@ -217,6 +218,11 @@
           "minItems": 1,
           "items": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
           "description": "Ids des references de `sources.references_primaires` qui PORTENT les revendications de cette option (effet_attendu, chiffres des avantages/inconvenients). Ajoute le 2026-07-27. MOTIF : rien ne reliait une option a ses sources, et le decrochage est passe inapercu deux jours — des options citaient un NNT tire d'un essai que le noeud n'avait jamais verse dans sa bibliographie. L'invariant I8 du banc l'exige desormais pour toute option dont le `niveau_preuve` est `modere` ou `eleve` : une option qui revendique un niveau de preuve doit dire DE QUOI elle le tire. Une option en preuve `faible` peut s'en passer (accord d'experts, savoir-faire) mais gagne a en porter si une reference existe."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["socle", "securite", "geste", "repli"],
+          "description": "CE QUE L'OPTION EST, declare par le contenu (arbitrage A3 du 2026-07-27). Ajoute parce que le contenu n'avait AUCUN moyen de dire la nature d'une option : `priorite` portait trois sens incompatibles a la fois (ordre de tri D13/D14, porte d'affichage pour le repli, marqueur de socle via le rang 0), et le seul indice restant de la nature d'une carte etait un LIBELLE DE FAMILLE en francais — que le moteur a interdiction de lire (invariant CLAUDE.md 5 / D8, aucun nom de domaine ni de noeud). Cinq constats de recette convergeaient sur ce manque : le socle metformine preemptait tout l'ecran, le repli d'affichage a cache une carte de securite, l'option terminale de `statine` n'est protegee que par sa POSITION, le « pourquoi pas d'autres options » est pollue, et deux options `default` coexistent sur `prescription`. VALEURS : `socle` = le geste de fond, propose quel que soit le reste (sentinelle `conditions: [\"toujours\"]`) ; `securite` = a faire d'emblee, jamais replie ni plafonne — un fait de securite ne se negocie pas contre la place a l'ecran ; `geste` = une piste therapeutique ordinaire, le cas courant ; `repli` = ce qu'on propose quand rien d'autre ne s'applique (sentinelle `conditions: [\"default\"]`). La coherence entre `role` et les deux sentinelles est verifiee par un invariant du banc, dans les DEUX sens : une declaration qui derive de la mecanique serait pire que pas de declaration du tout."
         },
         "conditions": {
           "type": "array",

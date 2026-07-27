@@ -145,6 +145,7 @@ function noeudSynthetique(): Noeud {
     options: [
       {
         intitule: 'Option portant tous les emplacements',
+        role: 'geste', // A3 : champ obligatoire ; sans valeur de sentinelle, c'est un geste ordinaire.
         avantages: [],
         inconvenients: [],
         effet_attendu: 'non chiffrable',

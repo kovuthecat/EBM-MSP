@@ -30,6 +30,7 @@ criteres_entree:
     type: bool
 options:
   - intitule: "Cible < 9 %"
+    role: geste
     conditions:
       - "esperance_vie == limitee"
       - "fragilite == true OR comorbidite_grave == true"
@@ -40,6 +41,7 @@ options:
     effet_attendu: "non chiffrable"
     niveau_preuve: tres_faible
   - intitule: "Cible ≤ 8 %"
+    role: geste
     conditions:
       - "fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true"
     avantages:
@@ -49,6 +51,7 @@ options:
     effet_attendu: "Pas de bénéfice dur démontré à cet horizon ; bénéfice principal = réduction du risque hypoglycémique (fragile, comorbidité grave) et prudence chez l'antécédent cardiovasculaire établi (ACCORD : surmortalité sous contrôle intensif dans une population à ~35 % de maladie CV)."
     niveau_preuve: faible
   - intitule: "Cible ~6,5 % (6,5–7 %)"
+    role: geste
     conditions:
       - "age < 70"
       - "anciennete_diabete_annees < 5"
@@ -67,6 +70,7 @@ options:
       - "Schéma à risque d'hypoglycémie"
       - "Rétinopathie préexistante : éviter une baisse rapide de l'HbA1c (risque d'aggravation)"
   - intitule: "Cible ≤ 7 %"
+    role: repli
     conditions:
       - "default"
     avantages:
@@ -184,8 +188,21 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude Code"
   statut: valide
-  version: "2.4"
+  version: "2.5"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        A3 — chaque option DÉCLARE désormais son rôle (`role` : socle / securite / geste / repli), champ
+        rendu OBLIGATOIRE au schéma. Motif : le contenu n'avait aucun moyen de dire ce qu'une option EST.
+        `priorite` portait trois sens incompatibles (ordre de tri, porte d'affichage du repli, marqueur de
+        socle par le rang 0), et le seul indice restant de la nature d'une carte était un LIBELLÉ DE
+        FAMILLE en français — que le moteur a interdiction de lire (D8). Cinq constats de recette
+        convergeaient sur ce manque, dont un repli d'affichage qui avait caché une carte de sécurité.
+        Les rôles ont été posés MÉCANIQUEMENT, sans arbitrage clinique : `socle`/`repli` depuis les
+        sentinelles `conditions`, `securite` depuis les familles que le nœud déclare déjà comme telles,
+        `geste` pour le reste. Invariant I17 : `role` ne peut pas contredire les sentinelles, dans les DEUX
+        sens. ZÉRO changement de comportement — aucun golden master modifié.
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

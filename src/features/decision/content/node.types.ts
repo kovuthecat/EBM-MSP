@@ -109,8 +109,33 @@ export interface Calcul {
   unite?: string
 }
 
+/**
+ * CE QU'UNE OPTION EST (arbitrage A3, 2026-07-27). Le contenu n'avait aucun moyen de le dire : `priorite`
+ * portait trois sens incompatibles à la fois — ordre de tri (D13/D14), porte d'affichage pour le repli,
+ * marqueur de socle via le rang 0 — et le seul indice restant de la nature d'une carte était un LIBELLÉ DE
+ * FAMILLE en français, que le moteur a interdiction de lire (invariant CLAUDE.md 5 / D8).
+ *
+ * C'est ce manque qui explique cinq constats de recette d'un coup : le socle metformine préemptait tout
+ * l'écran, le repli d'affichage a caché une carte de sécurité, l'option terminale de `statine` n'est
+ * protégée que par sa POSITION dans le fichier, le « pourquoi pas d'autres options » est pollué, et deux
+ * options `default` coexistent sur `prescription` sans qu'on puisse les distinguer.
+ *
+ * - `socle` — le geste de fond, proposé quel que soit le reste (sentinelle `conditions: ["toujours"]`) ;
+ * - `securite` — à faire d'emblée, **jamais replié ni plafonné** : un fait de sécurité ne se négocie pas
+ *   contre la place à l'écran ;
+ * - `geste` — une piste thérapeutique ordinaire, le cas courant ;
+ * - `repli` — ce qu'on propose quand rien d'autre ne s'applique (sentinelle `conditions: ["default"]`).
+ */
+export type RoleOption = 'socle' | 'securite' | 'geste' | 'repli'
+
 export interface Option {
   intitule: string
+  /**
+   * Nature de l'option (A3). Obligatoire — un nœud qui n'en déclare pas est refusé par le schéma. La
+   * cohérence avec les deux sentinelles de `conditions` est vérifiée par un invariant du banc DANS LES
+   * DEUX SENS : une déclaration qui dérive de la mécanique serait pire que pas de déclaration du tout.
+   */
+  role: RoleOption
   avantages: string[]
   inconvenients: string[]
   /** Effet absolu / NNT / NNH, sinon la chaîne `"non chiffrable"`. */

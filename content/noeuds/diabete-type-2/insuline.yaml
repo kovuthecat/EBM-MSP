@@ -280,6 +280,7 @@ familles:
 options:
   # ═══════════ SITUATION 1 — NAÏF D'INSULINE ═══════════
   - intitule: "Envisager un GLP-1 (ou une association fixe basale + GLP-1) avant ou avec l'insuline"
+    role: geste
     famille: "Instaurer l'insuline"
     conditions:
       - "situation_insuline == naif"
@@ -308,6 +309,7 @@ options:
       - maiorino
       - dual-vii
   - intitule: "Initier une insuline basale (en maintenant les antidiabétiques en cours)"
+    role: geste
     famille: "Instaurer l'insuline"
     conditions:
       - "situation_insuline == naif"
@@ -342,6 +344,7 @@ options:
       - { libelle: "Dose initiale (0,1 U/kg)", expression: "poids * 0.1", unite: "U/j" }
       - { libelle: "Dose initiale (0,2 U/kg)", expression: "poids * 0.2", unite: "U/j" }
   - intitule: "Choisir un analogue basal de 2ᵉ génération (glargine U300 ou degludec) si risque hypoglycémique"
+    role: geste
     famille: "Instaurer l'insuline"
     # Arbitrage référent 2026-07-26 (2ᵉ série, 12.6/12.7) : condition alignée sur `risque_hypoglycemique_eleve` au lieu
     # du triplet brut `risque_hypoglycemie_schema == eleve OR fragilite == true OR esperance_vie == limitee`,
@@ -376,6 +379,7 @@ options:
       - edition-pool
   # ═══════════ SITUATION 2 — BASALE SEULE À OPTIMISER ═══════════
   - intitule: "Corriger l'hypoglycémie ou la variabilité (réduire la dose, passer en 2ᵉ génération, relâcher la cible)"
+    role: securite
     famille: "Sécurité — à corriger d'abord"
     # I2/F3 (redteam-clinique-silences.md, 2026-07-26, 4ᵉ lot) : option RÉUTILISÉE (aucun contenu clinique
     # nouveau) pour couvrir aussi « basale_plus_bolus », qui n'avait jusqu'ici AUCUNE option de sécurité —
@@ -412,6 +416,7 @@ options:
     calculs:
       - { libelle: "Basale réduite (−20 %)", expression: "dose_basale_actuelle * 0.8", unite: "U/j" }
   - intitule: "Ne pas sur-titrer la basale — intensifier autrement (GLP-1 puis bolus)"
+    role: securite
     famille: "Sécurité — à corriger d'abord"
     # Arbitrage référent 2026-07-26 (2ᵉ série) : condition ÉLARGIE pour éviter un MUTISME. `over_basalisation
     # == true` devient une exclusion de « Titrer la basale » (ci-dessous) ; sans ce second déclencheur, un
@@ -461,6 +466,7 @@ options:
       - "CV_glycemique > 36"
       - "profil_glycemique contient hypo_nocturne"
   - intitule: "Titrer la basale (augmenter la dose)"
+    role: geste
     famille: "Intensifier le traitement"
     # E-03 (2026-07-26) : 3ᵉ item réécrit pour le PIVOT nocturne, symétrique de « Ne pas sur-titrer »
     # ci-dessus. Sans MCG (`mcg_disponible == false`) : repli inchangé sur `gaj_a_cible == false` (GAJ hors
@@ -542,6 +548,7 @@ options:
   # n'ouvre PAS ce déclencheur — laissé en l'état (prose seule sur « Ne pas sur-titrer... »), non demandé
   # par le référent, non testé par une vignette ; signalé comme limite plutôt que généralisé sans mandat.
   - intitule: "Ajouter un GLP-1 / une association fixe d'abord (si non encore fait)"
+    role: geste
     famille: "Intensifier le traitement"
     conditions:
       - "situation_insuline == basale_plus_bolus OR situation_insuline == basale_seule"
@@ -597,6 +604,7 @@ options:
       - "situation_insuline == basale_plus_bolus AND profil_glycemique contient hypo_nocturne"
       - "situation_insuline == basale_plus_bolus AND hypo_severe_recurrente == true"
   - intitule: "Ajouter un bolus au repas principal (basal-plus, par étapes)"
+    role: geste
     famille: "Intensifier le traitement"
     conditions:
       - "situation_insuline == basale_plus_bolus OR situation_insuline == basale_seule"
@@ -645,6 +653,7 @@ options:
       - "situation_insuline == basale_plus_bolus AND profil_glycemique contient hypo_nocturne"
       - "situation_insuline == basale_plus_bolus AND hypo_severe_recurrente == true"
   - intitule: "Insuline prémélangée — option dégradée, dernier recours"
+    role: geste
     famille: "Intensifier le traitement"
     conditions:
       - "situation_insuline == basale_plus_bolus"
@@ -658,6 +667,7 @@ options:
     niveau_preuve: faible
   # ═══════════ SITUATION 4 — BASAL-BOLUS COMPLET ═══════════
   - intitule: "Désintensifier / alléger le schéma"
+    role: geste
     famille: "Alléger le schéma"
     # Arbitrage référent 2026-07-26 (2ᵉ série, 12.6/12.7) : condition alignée sur `risque_hypoglycemique_eleve` — même
     # décision que ci-dessus pour « Choisir un analogue... » (situation « naïf »). Cas vérifié : patient de
@@ -693,6 +703,7 @@ options:
     # Le geste reste EXACTEMENT le même : c'est l'étiquette qui devient honnête, pas la conduite.
     niveau_preuve: faible
   - intitule: "Optimiser la répartition du basal-bolus (guidé par l'AGP et les doses actuelles)"
+    role: geste
     famille: "Ajuster le schéma en place"
     # 12.11 (recette) : condition unique = situation, préemptant le repli — un patient à l'objectif,
     # sans hypoglycémie ni variabilité, recevait quand même cette option sur le seul fait d'être sous
@@ -730,6 +741,7 @@ options:
     calculs:
       - { libelle: "Dose totale quotidienne", expression: "dose_basale_actuelle + dose_rapide_actuelle", unite: "U/j" }
   - intitule: "Poursuivre le schéma d'insuline en cours et réévaluer"
+    role: repli
     famille: "Aucun geste — surveiller"
     conditions:
       - "default"
@@ -1015,8 +1027,21 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Opus"
   statut: brouillon
-  version: "0.19"
+  version: "0.20"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        A3 — chaque option DÉCLARE désormais son rôle (`role` : socle / securite / geste / repli), champ
+        rendu OBLIGATOIRE au schéma. Motif : le contenu n'avait aucun moyen de dire ce qu'une option EST.
+        `priorite` portait trois sens incompatibles (ordre de tri, porte d'affichage du repli, marqueur de
+        socle par le rang 0), et le seul indice restant de la nature d'une carte était un LIBELLÉ DE
+        FAMILLE en français — que le moteur a interdiction de lire (D8). Cinq constats de recette
+        convergeaient sur ce manque, dont un repli d'affichage qui avait caché une carte de sécurité.
+        Les rôles ont été posés MÉCANIQUEMENT, sans arbitrage clinique : `socle`/`repli` depuis les
+        sentinelles `conditions`, `securite` depuis les familles que le nœud déclare déjà comme telles,
+        `geste` pour le reste. Invariant I17 : `role` ne peut pas contredire les sentinelles, dans les DEUX
+        sens. ZÉRO changement de comportement — aucun golden master modifié.
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

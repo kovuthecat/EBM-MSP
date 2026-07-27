@@ -889,3 +889,46 @@ describe('I16 — toute `contrainte` est violable, et le banc filtré ne la viol
     },
   )
 })
+
+/**
+ * I17 — le `role` déclaré (A3) et les sentinelles de `conditions` disent la MÊME chose.
+ *
+ * POURQUOI CET INVARIANT EST LE CŒUR D'A3, et pas un contrôle de forme. `role` existe parce que le
+ * contenu n'avait aucun moyen de déclarer ce qu'une option EST : `priorite` portait trois sens à la fois,
+ * et le seul indice restant était un libellé de famille en français que le moteur ne peut pas lire. Mais
+ * une déclaration qui DÉRIVE en silence de la mécanique serait pire que pas de déclaration du tout : on
+ * lirait `role` en croyant lire une intention, alors qu'il contredirait le comportement réel.
+ *
+ * Deux équivalences, vérifiées DANS LES DEUX SENS :
+ *   `conditions: ["toujours"]`  ⟺  `role: socle`
+ *   `conditions: ["default"]`   ⟺  `role: repli`
+ *
+ * Le sens « ⇐ » est le plus utile des deux : il interdit de déclarer `repli` une option qui a de vraies
+ * conditions (elle s'afficherait comme un dernier recours alors qu'elle a sa propre indication), et
+ * `socle` une option qui ne s'applique pas toujours.
+ *
+ * `securite` et `geste` ne sont PAS mécanisables : rien dans les conditions ne dit qu'un geste est un
+ * geste de sécurité. C'est précisément l'information que le contenu seul détient — et la raison d'être
+ * du champ. Cet invariant ne peut donc pas les vérifier, et ne prétend pas le faire.
+ */
+describe('I17 — `role` (A3) ne contredit jamais les sentinelles de `conditions`', () => {
+  it.each(noeuds.map((node) => [node.id, node] as const))('nœud %s', (_id, node) => {
+    const violations: string[] = []
+    for (const option of node.options) {
+      const seule = option.conditions.length === 1 ? option.conditions[0] : undefined
+      const attendu = seule === 'toujours' ? 'socle' : seule === 'default' ? 'repli' : undefined
+
+      if (attendu != null && option.role !== attendu) {
+        violations.push(`« ${option.intitule} » : conditions ["${seule}"] ⇒ role "${attendu}", déclaré "${option.role}"`)
+      }
+      // Sens inverse : un `role` de sentinelle sans la sentinelle correspondante.
+      if (option.role === 'socle' && seule !== 'toujours') {
+        violations.push(`« ${option.intitule} » : role "socle" sans conditions ["toujours"]`)
+      }
+      if (option.role === 'repli' && seule !== 'default') {
+        violations.push(`« ${option.intitule} » : role "repli" sans conditions ["default"]`)
+      }
+    }
+    expect(violations).toEqual([])
+  })
+})

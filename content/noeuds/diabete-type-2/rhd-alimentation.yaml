@@ -222,6 +222,7 @@ criteres_entree:
 options:
   # ═══════════ FAMILLE BOISSONS ═══════════
   - intitule: "Remplacer une boisson sucrée du quotidien par de l'eau"
+    role: geste
     conditions:
       - "frequence_boissons_sucrees == frequent OR frequence_boissons_sucrees == quotidien"
     priorite: 3
@@ -241,6 +242,7 @@ options:
       - has-dt2-nutrition
       - duodecim-alim
   - intitule: "Ne pas remplacer une boisson sucrée par des édulcorants intenses"
+    role: geste
     conditions:
       - "frequence_boissons_sucrees == frequent OR frequence_boissons_sucrees == quotidien"
     priorite: 5
@@ -253,6 +255,7 @@ options:
     niveau_preuve: faible
   # ═══════════ FAMILLE ULTRATRANSFORMÉS ═══════════
   - intitule: "Un repas simple fait maison de plus par semaine"
+    role: geste
     conditions:
       - "frequence_ultratransformes == frequent OR frequence_ultratransformes == quotidien"
     priorite: 4
@@ -265,6 +268,7 @@ options:
     niveau_preuve: faible
   # ═══════════ FAMILLE RESTAURATION RAPIDE ═══════════
   - intitule: "En restauration rapide, choisir mieux plutôt que s'interdire d'y aller"
+    role: geste
     conditions:
       - "frequence_restauration_rapide == frequent OR frequence_restauration_rapide == quotidien"
     priorite: 4
@@ -281,6 +285,7 @@ options:
       - has-obesite-alim
   # ═══════════ FAMILLE MATIÈRES GRASSES ═══════════
   - intitule: "Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre"
+    role: geste
     conditions:
       - "matiere_grasse_cuisson == beurre_graisses_animales OR matiere_grasse_cuisson == melange"
     priorite: 1
@@ -316,6 +321,7 @@ options:
   # de cuisson reste traité par sa propre piste (huile d'olive), et `matiere_grasse_cuisson` garde donc ses
   # consommateurs (R5).
   - intitule: "Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats)"
+    role: geste
     conditions:
       - "frequence_viande_rouge_charcuterie == regulier OR frequence_viande_rouge_charcuterie == quotidien"
     priorite: 4
@@ -340,6 +346,7 @@ options:
       - has-dt2-nutrition
   # ═══════════ FAMILLE FRUITS À COQUE, LÉGUMINEUSES, POISSON ═══════════
   - intitule: "Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine"
+    role: geste
     conditions:
       - "frequence_fruits_a_coque == jamais OR frequence_fruits_a_coque == occasionnel"
     priorite: 1
@@ -354,6 +361,7 @@ options:
       effet propre de ce geste isolé non chiffrable.
     niveau_preuve: faible
   - intitule: "Ajouter un plat de légumineuses de plus par semaine"
+    role: geste
     conditions:
       - "frequence_legumineuses == jamais OR frequence_legumineuses == occasionnel"
     priorite: 3
@@ -366,6 +374,7 @@ options:
     effet_attendu: "Rapproche du motif méditerranéen ; non chiffrable pour ce geste isolé."
     niveau_preuve: faible
   - intitule: "Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre"
+    role: geste
     conditions:
       - "frequence_poisson == jamais OR frequence_poisson == occasionnel"
     priorite: 3
@@ -379,6 +388,7 @@ options:
     niveau_preuve: faible
   # ═══════════ FAMILLE STRUCTURE DES REPAS ═══════════
   - intitule: "Se fixer des repas à des horaires à peu près réguliers"
+    role: geste
     conditions:
       - "regularite_repas == irreguliers"
     priorite: 4
@@ -391,6 +401,7 @@ options:
     effet_attendu: "Prévient le grignotage compensatoire ; non chiffrable pour ce geste isolé."
     niveau_preuve: faible
   - intitule: "Manger sans se presser"
+    role: geste
     conditions:
       - "alimentation_emotionnelle == frequent"
     priorite: 5
@@ -402,6 +413,7 @@ options:
     effet_attendu: "Aide à la perception de la satiété ; non chiffrable pour ce geste isolé."
     niveau_preuve: faible
   - intitule: "Repérer un moment de grignotage récurrent et lui trouver une alternative"
+    role: geste
     conditions:
       - "frequence_grignotage == frequent OR frequence_grignotage == quotidien"
     priorite: 4
@@ -425,6 +437,7 @@ options:
   # généralisation au DT2 tout-venant n'était pas soutenue. Ne reste qu'une piste, recentrée sur les
   # PROPORTIONS DANS L'ASSIETTE plutôt que sur la quantification.
   - intitule: "Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées"
+    role: geste
     conditions:
       - "difficulte_estimation_portions == difficile OR difficulte_estimation_portions == ne_sait_pas"
     priorite: 6
@@ -447,6 +460,7 @@ options:
     niveau_preuve: faible
   # ═══════════ FAMILLE ORIENTATION ═══════════
   - intitule: "Orienter vers le diététicien de la structure"
+    role: geste
     conditions:
       - "acces_alimentation == difficultes_importantes OR signes_appel_tca == true OR fragilite == true"
     priorite:
@@ -475,6 +489,7 @@ options:
   # rang 1 et une condition volontairement plus étroite (le verrou TCA seul, sans `fragilite` ni
   # `acces_alimentation`, qui n'appellent pas un avis spécialisé en TCA).
   - intitule: "Proposer aussi un avis spécialisé en trouble du comportement alimentaire"
+    role: geste
     conditions:
       - "signes_appel_tca == true"
     priorite: 1
@@ -499,6 +514,7 @@ options:
   # fréquente (déclenchée dès que ces deux marqueurs — les deux composantes réellement randomisées de
   # PREDIMED — sont déjà favorables, même si d'autres pistes s'affichent par ailleurs : gestes cumulables).
   - intitule: "Continuer ce qui fonctionne déjà"
+    role: geste
     conditions:
       - "matiere_grasse_cuisson == huile_olive_ou_colza AND frequence_fruits_a_coque == regulier"
     famille: "Maintien"
@@ -662,8 +678,21 @@ meta:
   date_revue: "2026-07-26"
   auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
   statut: brouillon
-  version: "0.6"
+  version: "0.7"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        A3 — chaque option DÉCLARE désormais son rôle (`role` : socle / securite / geste / repli), champ
+        rendu OBLIGATOIRE au schéma. Motif : le contenu n'avait aucun moyen de dire ce qu'une option EST.
+        `priorite` portait trois sens incompatibles (ordre de tri, porte d'affichage du repli, marqueur de
+        socle par le rang 0), et le seul indice restant de la nature d'une carte était un LIBELLÉ DE
+        FAMILLE en français — que le moteur a interdiction de lire (D8). Cinq constats de recette
+        convergeaient sur ce manque, dont un repli d'affichage qui avait caché une carte de sécurité.
+        Les rôles ont été posés MÉCANIQUEMENT, sans arbitrage clinique : `socle`/`repli` depuis les
+        sentinelles `conditions`, `securite` depuis les familles que le nœud déclare déjà comme telles,
+        `geste` pour le reste. Invariant I17 : `role` ne peut pas contredire les sentinelles, dans les DEUX
+        sens. ZÉRO changement de comportement — aucun golden master modifié.
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

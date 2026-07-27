@@ -7,9 +7,18 @@ import { evaluateNode, groupesParFamille } from '../engine/evaluateNode.ts'
 import { buildDefaultCriteria } from './formLayout.ts'
 import { computeBadges } from './optionBadges.ts'
 
+/**
+ * `role` (A3) DÉRIVÉ ICI DES SENTINELLES, et c'est légitime dans ce fichier précis : ces options sont
+ * synthétiques, elles n'existent que pour exercer `computeBadges`, et l'invariant I17 garantit sur le
+ * CONTENU RÉEL que les deux ne peuvent pas diverger. Le dériver évite de réécrire vingt appels avec un
+ * argument de plus, sans affaiblir la garantie — qui est portée par le banc, pas par ce fichier.
+ * `extra.role` reste prioritaire pour les cas qui veulent le poser explicitement.
+ */
 function opt(intitule: string, conditions: string[], extra: Partial<Option> = {}): Option {
+  const seule = conditions.length === 1 ? conditions[0] : undefined
   return {
     intitule,
+    role: seule === 'toujours' ? 'socle' : seule === 'default' ? 'repli' : 'geste',
     conditions,
     avantages: [],
     inconvenients: [],
