@@ -344,7 +344,13 @@ options:
     effet_attendu: "Non chiffrable pour ce geste isolé."
     niveau_preuve: faible
   # ═══════════ FAMILLE PORTIONS (savoir-faire, gating dur TCA/fragilité) ═══════════
-  - intitule: "Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil"
+  # DÉCISION RÉFÉRENT 2026-07-27 : la piste de PESÉE (« peser deux ou trois fois les féculents ») est
+  # SUPPRIMÉE — « trop contraignant et difficile en consultation de médecine générale ». Elle tranche du
+  # même coup la tension de source qui était consignée en incertitude : le rapport SFD situait la pesée
+  # chez les patients pratiquant un comptage précis (insulinothérapie fonctionnelle), et sa
+  # généralisation au DT2 tout-venant n'était pas soutenue. Ne reste qu'une piste, recentrée sur les
+  # PROPORTIONS DANS L'ASSIETTE plutôt que sur la quantification.
+  - intitule: "Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées"
     conditions:
       - "difficulte_estimation_portions == difficile OR difficulte_estimation_portions == ne_sait_pas"
     priorite: 6
@@ -352,24 +358,12 @@ options:
     exclusions:
       - "verrou_tca == true OR fragilite == true"
     avantages:
-      - "Provenance : savoir-faire diététique (non EBM). Corrige l'erreur la plus fréquente selon un rapport de la filière diabétologique/diététique française : ce n'est pas le comptage des glucides qui pèche le plus souvent, mais l'estimation des quantités."
+      - "Provenance : savoir-faire diététique (non EBM). Raisonner en PART RELATIVE de l'assiette — la place des légumes par rapport à celle des féculents et de l'aliment protidique — plutôt qu'en grammes : praticable à chaque repas, sans matériel, sans calcul, et transposable au restaurant comme à la cantine."
+      - "Se négocie en une phrase et se vérifie d'un coup d'œil à la consultation suivante, ce qu'une consigne de pesée ne permet pas."
     inconvenients:
-      - "La pesée alimentaire est un comportement classiquement à risque de renforcement du contrôle chez un patient en restriction cognitive — d'où le blocage par le verrou de repérage et par la fragilité/dénutrition."
-      - "Le document source situe cette technique surtout pour les patients pratiquant un comptage précis (insulinothérapie fonctionnelle) ; sa généralisation à tout patient DT2 est signalée comme une tension interne à la source, pas totalement levée."
-    effet_attendu: "Non chiffrable — vise à améliorer l'estimation des quantités, pas un effet métabolique direct."
-    niveau_preuve: faible
-  - intitule: "Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement"
-    conditions:
-      - "difficulte_estimation_portions == difficile OR difficulte_estimation_portions == ne_sait_pas"
-    priorite: 6
-    famille: "Portions"
-    exclusions:
-      - "verrou_tca == true OR fragilite == true"
-    avantages:
-      - "Provenance : savoir-faire diététique (non EBM). Rend l'estimation des portions praticable au quotidien sans matériel spécialisé (une fraction d'assiette, un bol, une cuillère)."
-    inconvenients:
-      - "Même réserve que la pesée : geste de quantification, bloqué en cas de repérage positif de trouble du comportement alimentaire ou de fragilité/dénutrition."
-    effet_attendu: "Non chiffrable — aide à l'estimation des quantités."
+      - "Geste de quantification malgré tout : bloqué en cas de repérage positif de trouble du comportement alimentaire ou de fragilité/dénutrition (même verrou que les autres pistes de réduction)."
+      - "Aucune proportion CHIFFRÉE n'est affirmée ici : le dossier de preuve de ce nœud ne source aucun ratio précis (cf. incertitudes). Le repère est qualitatif — la place respective des composantes, pas une fraction à respecter."
+    effet_attendu: "Non chiffrable — aide à l'estimation des quantités, pas un effet métabolique direct."
     niveau_preuve: faible
   # ═══════════ FAMILLE ORIENTATION ═══════════
   - intitule: "Orienter vers le diététicien de la structure"
@@ -533,7 +527,7 @@ incertitudes:
   - "L'étiquette « bénéfice EBM sur critère dur » du régime méditerranéen (PREDIMED, CORDIOPREV) porte sur le motif alimentaire supplémenté dans son ensemble, jamais sur une piste isolée de ce nœud (décision référent) — y compris l'huile d'olive et les fruits à coque, les deux composants réellement randomisés."
   - "Aucune version française validée du MEDAS n'a été identifiée (recherche documentée, cible-mediterraneenne-medas.md §4) : l'instrument sert ici uniquement de cadre de définition des axes recueillis (S9-S12, A12), jamais d'instrument administré ou scoré — ce qui rend l'absence de validation linguistique sans conséquence pour cet usage."
   - "Le verrou de repérage (S8) reformule 3 signes d'appel HAS (encadré 11), ce n'est PAS un instrument de repérage TCA validé (SCOFF, EDE-Q…) : aucun n'a été trouvé dans les sources locales. Un résultat négatif ne garantit pas l'absence de TCA ; un résultat positif ne le confirme pas — il ouvre une orientation, pas un verdict."
-  - "P1'/P2' (pesée, repères visuels de portion) : la source qui les documente (SFD, rapport glucides) les situe explicitement pour les patients pratiquant un comptage précis (insulinothérapie fonctionnelle), tout en réutilisant la même formule pour l'éducation nutritionnelle générale des patients diabétiques — tension interne à la source, signalée, non tranchée."
+  - "TRANCHÉ le 2026-07-27 (référent) : la piste de PESÉE est SUPPRIMÉE — « trop contraignant et difficile en consultation de médecine générale ». Cela résout aussi la tension de source qui était consignée ici : le rapport SFD situait la pesée chez les patients pratiquant un comptage précis (insulinothérapie fonctionnelle) et sa généralisation au DT2 tout-venant n'était pas soutenue. La famille « Portions » ne conserve qu'une piste, recentrée sur les PROPORTIONS DANS L'ASSIETTE. RÉSIDUEL ASSUMÉ : aucune proportion chiffrée n'est affirmée (pas de « moitié de légumes, quart de féculents ») — le dossier de preuve de ce nœud ne source aucun ratio, et l'inventer irait contre l'invariant 6. Le repère reste donc qualitatif : la place RELATIVE des composantes. Si le référent veut un ratio explicite, il faudra le sourcer (guides Manger-Bouger / HAS déjà au dossier du module, non dépouillés sur ce point précis)."
   - "Le plafond d'affichage (2-3 pistes négociables selon ebmfrance) n'est pas appliqué techniquement par le moteur : traité par le rang déclaré (`priorite`) uniquement. Un affichage effectivement plafonné demanderait un changement d'écran, hors périmètre de cette tâche — signalé au référent."
   - "Mal perforant plantaire, rétinopathie et autres contre-indications à l'EFFORT (verrou du nœud sœur `rhd-activite-physique`) n'ont aucune portée ici : ce nœud ne collecte que des critères alimentaires."
   - "« Continuer ce qui fonctionne déjà » n'est pas un sentinel `default` : sa condition (huile d'olive ET fruits à coque réguliers) est un sous-ensemble NÉCESSAIRE, mais pas exactement équivalent, du cas où les 13 axes de recueil sont tous favorables — elle peut donc aussi s'afficher (à raison, cumulée à d'autres pistes) chez un patient favorable sur ces deux seuls axes sans l'être sur tous les autres. Choix assumé : couvrir à coup sûr le cas muet complet plutôt que viser une équivalence stricte impossible à exprimer dans le DSL sans sentinel réellement atteignable."
@@ -543,8 +537,20 @@ meta:
   date_revue: "2026-07-26"
   auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
   statut: brouillon
-  version: "0.1"
+  version: "0.2"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        DÉCISION RÉFÉRENT : la piste de PESÉE des féculents est SUPPRIMÉE — « trop contraignant et
+        difficile en consultation de médecine générale ». La famille « Portions » ne conserve qu'une piste,
+        RECENTRÉE sur les proportions dans l'assiette (« Se repérer aux proportions dans l'assiette plutôt
+        qu'aux quantités pesées ») : la part relative des composantes, praticable à chaque repas, sans
+        matériel ni calcul. Aucune proportion CHIFFRÉE n'est affirmée — le dossier de ce nœud n'en source
+        aucune, et l'inventer irait contre l'invariant 6 ; le repère reste qualitatif. Cette décision clôt
+        du même coup la tension de source consignée en incertitude (le rapport SFD situait la pesée en
+        insulinothérapie fonctionnelle, pas chez le DT2 tout-venant). Golden master : 7 profils perdent la
+        carte de pesée, aucun n'en perd d'autre.
     - date: "2026-07-26"
       auteur: "Claude Code (agent dédié)"
       resume: >-

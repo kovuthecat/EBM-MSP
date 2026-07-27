@@ -342,6 +342,24 @@ options:
     effet_attendu: "Non chiffrable — renforcement positif d'une situation déjà favorable sur ces deux axes."
     niveau_preuve: faible
 alertes:
+  # DÉCISION RÉFÉRENT 2026-07-27 : le verrou d'effort retire toute la famille « pratique structurée » dès
+  # qu'un signe est positif — y compris pour une neuropathie / un mal perforant plantaire, alors que la
+  # source HAS restreint la contre-indication aux membres INFÉRIEURS. Arbitrage : garder le blocage
+  # (le nœud ne recueille pas de quoi qualifier chaque piste par segment corporel) mais RESTITUER
+  # l'information par une alerte, pour qu'un patient neuropathe ne reparte pas sans aucune piste.
+  # Alerte de NŒUD et non d'option (D21) : elle doit s'afficher précisément quand l'option a disparu —
+  # une alerte d'option ne serait jamais rendue, l'option étant exclue.
+  - quand: "neuropathie_ou_mal_perforant_plantaire == true"
+    niveau: attention
+    message: >-
+      Neuropathie périphérique ou mal perforant plantaire : la source HAS restreint la limitation aux
+      activités en CHARGE des membres inférieurs (marche prolongée, course) — les activités sollicitant
+      les membres supérieurs et le travail en décharge (vélo assis, activités en position assise,
+      renforcement du haut du corps, activités aquatiques après avis podologique) restent possibles.
+      L'outil retire ici la famille « pratique structurée » dans son ensemble, faute de recueillir de quoi
+      distinguer les pistes par segment corporel : orienter vers une pratique adaptée plutôt que de
+      conclure à l'absence d'activité possible. Surveillance podologique et chaussage adaptés dans tous
+      les cas.
   - quand: "traitements_en_cours contient insuline OR traitements_en_cours contient sulfamide OR traitements_en_cours contient glinide"
     niveau: attention
     message: >-
@@ -451,7 +469,7 @@ sources:
 incertitudes:
   - "Aucune piste de ce nœud ne porte l'étiquette « bénéfice EBM sur critère dur » — constat de l'état réel de la preuve sur cet axe (Look AHEAD neutre sur le critère cardiovasculaire primaire et sur la mortalité ; aucun ECR d'exercice isolé dans le DT2 établi ne montre de bénéfice sur critère dur), pas une lacune de cette collecte."
   - "Seuil de rupture de sédentarité : divergence documentée entre 3 sources HAS/institutionnelles pour le même geste (« au moins 1 minute toutes les heures », grade C, DT2, retenu par défaut ; « 4 à 5 minutes toutes les heures et demie », non gradée, fiche métier obésité ; « minimum 1 à 5 minutes », non gradée, avec réserve explicite d'incertitude sur la littérature internationale sous-jacente) — signalé, tranché par le référent en faveur du repère le plus bas et le mieux gradé, pas résolu au sens d'une convergence des sources."
-  - "Le verrou de sécurité à l'effort bloque, par construction, l'ensemble de la famille « pratique structurée » dès qu'un signe est positif — y compris pour une neuropathie/mal perforant plantaire, dont une source HAS précise que la contre-indication porte spécifiquement sur l'activité physique des membres INFÉRIEURS (les activités des membres supérieurs restant permises). Cette nuance n'est PAS modélisée séparément ici (pas de distinction membres supérieurs/inférieurs dans ce nœud) — limite documentée, signalée plutôt que résolue, cohérente avec le point laissé ouvert par la collecte source."
+  - "Le verrou de sécurité à l'effort bloque, par construction, l'ensemble de la famille « pratique structurée » dès qu'un signe est positif — y compris pour une neuropathie/mal perforant plantaire, dont une source HAS précise que la contre-indication porte spécifiquement sur l'activité physique des membres INFÉRIEURS (les activités des membres supérieurs restant permises). TRANCHÉ le 2026-07-27 (référent) : garder le blocage, mais RESTITUER l'information par une alerte de nœud dédiée (`neuropathie_ou_mal_perforant_plantaire == true`), qui nomme ce qui reste possible — activités des membres supérieurs, travail en décharge — et invite à orienter vers une pratique adaptée plutôt qu'à conclure à l'absence d'activité possible. La distinction membres supérieurs/inférieurs n'est toujours PAS modélisée dans les options (le nœud ne recueille pas de quoi qualifier chaque piste par segment corporel, et le faire coûterait un critère de plus pour une situation peu fréquente) : le choix est donc de dire, plutôt que de filtrer. Alerte de NŒUD et non d'option, délibérément — une alerte d'option ne serait jamais rendue, l'option étant précisément exclue."
   - "G1 (évaluation médicale avant intensité si inactif/facteur de risque cardiovasculaire) et G7 (glycémie avant l'effort, seuil de vigilance 2,5 g/L) sont portés par une alerte D'OPTION sur « Envisager un programme d'activité physique adaptée », pas par des critères d'entrée collectés : ce sont des rappels de bonne pratique et d'auto-surveillance ponctuelle, pas des données chroniques du patient."
   - "L'hypoglycémie sous insuline/sulfamide/glinide reste une alerte simple (jamais un blocage) : arbitrage référent explicite qui tranche le point laissé ouvert par le red-team des collectes (finding B-3) — le mécanisme visé ici (hypoglycémie À L'EFFORT) est cliniquement distinct de celui déjà arbitré côté alimentation (hypoglycémie par restriction des apports), les deux nœuds convergent malgré tout vers le même canal (alerte, pas exclusion)."
   - "Le plafond d'affichage (2-3 pistes négociables selon ebmfrance) n'est pas appliqué techniquement par le moteur : traité par le rang déclaré (`priorite`) uniquement — un affichage effectivement plafonné demanderait un changement d'écran, hors périmètre de cette tâche, signalé au référent."
@@ -462,8 +480,19 @@ meta:
   date_revue: "2026-07-26"
   auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
   statut: brouillon
-  version: "0.1"
+  version: "0.2"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        DÉCISION RÉFÉRENT : alerte de nœud ajoutée pour la neuropathie / le mal perforant plantaire. Le
+        verrou d'effort retire toute la famille « pratique structurée » dès qu'un signe est positif, alors
+        que la source HAS restreint la limitation aux activités EN CHARGE des membres inférieurs. Le
+        blocage est conservé (le nœud ne recueille pas de quoi qualifier chaque piste par segment
+        corporel), mais l'alerte restitue ce qui reste possible — membres supérieurs, travail en décharge —
+        et invite à orienter vers une pratique adaptée plutôt qu'à conclure à l'absence d'activité
+        possible. Alerte de NŒUD et non d'option, délibérément : une alerte d'option ne serait jamais
+        rendue, l'option étant précisément exclue. Aucune liste d'options modifiée.
     - date: "2026-07-26"
       auteur: "Claude Code (agent dédié)"
       resume: >-

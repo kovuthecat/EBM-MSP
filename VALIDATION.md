@@ -407,3 +407,27 @@ valider par le référent**, notamment le point badge non tranché ci-dessous.
   (`fragilite`, `age`…) saisi une seule fois. Il n'est **pas** livré, car il suppose de transmettre une
   saisie d'un écran à l'autre — exactement le chaînage que le garde-fou R1 interdit. Le vouloir suppose
   de rouvrir ce garde-fou. À trancher.
+
+## Arbitrages référent — 2ᵉ lot d'incertitudes (2026-07-27)
+
+> Build + typecheck + **515 tests OK** ; **visuel à valider par le référent.**
+
+- [ ] **`insuline` — six sections au lieu d'une liste à plat** : « Sécurité — à corriger d'abord » →
+  « Instaurer l'insuline » → « Intensifier le traitement » → « Ajuster le schéma en place » →
+  « Alléger le schéma » → « Aucun geste — surveiller ». Vérifier que la mention « à égalité » ne
+  rapproche plus jamais un geste de sécurité et un geste d'escalade.
+- [ ] **Aucune section d'`insuline` ne porte « en choisir un »** : toutes les familles sont déclarées
+  cumulables. Point à trancher à l'usage — « Instaurer l'insuline » regroupe « Envisager un GLP-1
+  avant/avec », « Initier une basale » et « Choisir un analogue de 2ᵉ génération » : si à l'écran ces
+  trois cartes se lisent comme trois routes concurrentes plutôt qu'un geste et ses modalités, la famille
+  doit passer `exclusive: true`.
+- [ ] **`rhd-alimentation` — la carte de pesée a disparu**, remplacée par « Se repérer aux proportions
+  dans l'assiette plutôt qu'aux quantités pesées ». Vérifier que le texte ne suggère aucune fraction
+  chiffrée (aucune n'est sourcée) et qu'il reste négociable en une phrase.
+- [ ] **`rhd-activite-physique` — patient avec neuropathie ou mal perforant plantaire** : la famille
+  « Pratique structurée » disparaît (verrou d'effort) ET une alerte explique ce qui reste possible
+  (membres supérieurs, travail en décharge). Le point à juger : un praticien lisant cet écran
+  comprend-il qu'il reste des pistes, ou l'écran donne-t-il l'impression d'un patient sans solution ?
+- [ ] **`prescription` — position « au-dessus » + intention « optimiser »** : l'outil propose toujours
+  socle + poursuite, mais une alerte dit maintenant pourquoi et indique l'issue (« déclarer intensifier »).
+  Vérifier que le ton n'est pas culpabilisant — c'est une explication, pas un reproche de saisie.

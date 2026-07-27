@@ -953,6 +953,22 @@ options:
       protection (qui rouvrirait la prescription).
     niveau_preuve: faible
 alertes:
+  # DÉCISION RÉFÉRENT 2026-07-27 : rendre AUDIBLE une combinaison qui produisait jusqu'ici un silence
+  # déroutant. `palette_glycemique_ouverte` est commandée par l'INTENTION (R1, séquençage S8) : un
+  # praticien qui déclare « optimiser » chez un patient qu'il déclare AU-DESSUS de sa cible reçoit le
+  # socle et la poursuite, sans levier glycémique — comportement fidèle à l'intention déclarée, mais qui
+  # peut se lire comme une défaillance de l'outil. Le comportement est CONSERVÉ (l'outil n'infléchit pas
+  # ce que le praticien a déclaré) ; seule la raison devient visible. C'est aussi l'entrée par laquelle
+  # une incertitude à prémisse fausse a été démasquée : le silence était attribué à un verrou IMC qui
+  # n'existe pas (cf. incertitudes).
+  - quand: "intention == optimiser AND position_vs_cible == au_dessus OR intention == optimiser AND position_vs_cible == nettement_au_dessus"
+    niveau: info
+    message: >-
+      Position déclarée AU-DESSUS de l'objectif, avec une intention d'OPTIMISATION : l'outil s'en tient à
+      ce qui est déclaré et ne propose donc pas d'ajout d'agent glycémique (la palette d'intensification
+      est commandée par l'intention, pas par la position). C'est le comportement attendu si vous
+      travaillez d'abord la tolérance, l'observance ou la simplification du schéma. Si un renforcement du
+      traitement est visé, déclarer l'intention « intensifier » ouvre les options correspondantes.
   # ÉLARGIE (2026-07-26, 4e série, red-team clinique sécurité HAUTE-3) : cette alerte ne testait jusqu'ici
   # que deux PROXYS de décompensation (HbA1c très élevée, symptômes de glucotoxicité) — jamais `cetonemie`
   # elle-même. Une cétonémie CONFIRMÉE sans ces deux proxys (le tableau typique de l'acidocétose
@@ -1307,8 +1323,17 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.25"
+  version: "0.26"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        Alerte ajoutée (arbitrage référent) sur la combinaison « position déclarée AU-DESSUS de l'objectif
+        + intention OPTIMISER » : l'outil ne proposait alors aucun levier glycémique, en silence. Le
+        comportement est CONSERVÉ — il est fidèle à l'intention déclarée (R1), la palette étant commandée
+        par l'intention et non par la position — mais sa raison devient visible, avec l'issue explicite
+        (« déclarer l'intention intensifier ouvre les options correspondantes »). C'est le silence qui
+        avait fait attribuer à tort ce comportement à un verrou IMC inexistant.
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

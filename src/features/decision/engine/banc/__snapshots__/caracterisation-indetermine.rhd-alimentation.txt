@@ -48,8 +48,7 @@ Sortie :
     - Se fixer des repas à des horaires à peu près réguliers :: à renseigner : regularite_repas
     - Manger sans se presser :: à renseigner : alimentation_emotionnelle
     - Repérer un moment de grignotage récurrent et lui trouver une alternative :: à renseigner : frequence_grignotage
-    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: à renseigner : difficulte_estimation_portions
-    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: à renseigner : difficulte_estimation_portions
+    - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
     - Orienter vers le diététicien de la structure :: à renseigner : acces_alimentation, signe_restriction_puis_craquage, signe_manger_cache_ou_culpabilite, signe_antecedent_regime_restrictif
     - Continuer ce qui fonctionne déjà :: à renseigner : matiere_grasse_cuisson, frequence_fruits_a_coque
 
@@ -95,8 +94,7 @@ Sortie :
     - Se fixer des repas à des horaires à peu près réguliers :: à renseigner : regularite_repas
     - Manger sans se presser :: à renseigner : alimentation_emotionnelle
     - Repérer un moment de grignotage récurrent et lui trouver une alternative :: à renseigner : signe_restriction_puis_craquage, signe_manger_cache_ou_culpabilite, signe_antecedent_regime_restrictif
-    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: à renseigner : difficulte_estimation_portions
-    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: à renseigner : difficulte_estimation_portions
+    - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
     - Continuer ce qui fonctionne déjà :: à renseigner : matiere_grasse_cuisson, frequence_fruits_a_coque
 
 ### Profil #2 — 13 critère(s) masqué(s) (masque stratifié) : regularite_repas, signe_restriction_puis_craquage, frequence_viande_rouge_charcuterie, matiere_grasse_cuisson, frequence_legumineuses, traitements_en_cours, frequence_ultratransformes, frequence_restauration_rapide, difficulte_estimation_portions, signe_antecedent_regime_restrictif, acces_alimentation, alimentation_emotionnelle, frequence_boissons_sucrees
@@ -139,8 +137,7 @@ Sortie :
     - Ajouter un plat de légumineuses de plus par semaine :: à renseigner : frequence_legumineuses
     - Se fixer des repas à des horaires à peu près réguliers :: à renseigner : regularite_repas
     - Manger sans se presser :: à renseigner : alimentation_emotionnelle
-    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: à renseigner : difficulte_estimation_portions
-    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: à renseigner : difficulte_estimation_portions
+    - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
     - Orienter vers le diététicien de la structure :: à renseigner : acces_alimentation, signe_restriction_puis_craquage, signe_antecedent_regime_restrictif
     - Continuer ce qui fonctionne déjà :: à renseigner : matiere_grasse_cuisson
 
@@ -190,8 +187,7 @@ Sortie :
     - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: à renseigner : matiere_grasse_cuisson
     - Se fixer des repas à des horaires à peu près réguliers :: à renseigner : regularite_repas
     - Manger sans se presser :: à renseigner : alimentation_emotionnelle
-    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: à renseigner : difficulte_estimation_portions
-    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: à renseigner : difficulte_estimation_portions
+    - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
 
 ### Profil #4 — 9 critère(s) masqué(s) (masque stratifié) : acces_alimentation, consommation_vin, difficulte_estimation_portions, frequence_viande_rouge_charcuterie, frequence_legumineuses, fragilite, signe_manger_cache_ou_culpabilite, matiere_grasse_cuisson, frequence_grignotage
 
@@ -230,8 +226,7 @@ Sortie :
     - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: à renseigner : matiere_grasse_cuisson, frequence_viande_rouge_charcuterie
     - Ajouter un plat de légumineuses de plus par semaine :: à renseigner : frequence_legumineuses
     - Repérer un moment de grignotage récurrent et lui trouver une alternative :: à renseigner : frequence_grignotage
-    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: à renseigner : difficulte_estimation_portions
-    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: à renseigner : difficulte_estimation_portions
+    - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
     - Orienter vers le diététicien de la structure :: à renseigner : acces_alimentation, signe_manger_cache_ou_culpabilite
 
 ### Profil #5 — 4 critère(s) masqué(s) (masque stratifié) : matiere_grasse_cuisson, frequence_fruits_a_coque, frequence_restauration_rapide, frequence_poisson
@@ -272,8 +267,7 @@ Sortie :
   Options écartées (sécurité, R4) :
     - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: verrou_tca == true OR fragilite == true
     - Repérer un moment de grignotage récurrent et lui trouver une alternative :: verrou_tca == true
-    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: verrou_tca == true OR fragilite == true
-    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: verrou_tca == true OR fragilite == true
+    - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: verrou_tca == true OR fragilite == true
   Options EN ATTENTE (indétermination, R7/D20) :
     - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide
     - Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre :: à renseigner : matiere_grasse_cuisson
@@ -329,8 +323,7 @@ Sortie :
     - Ajouter un plat de légumineuses de plus par semaine :: à renseigner : frequence_legumineuses
     - Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre :: à renseigner : frequence_poisson
     - Repérer un moment de grignotage récurrent et lui trouver une alternative :: à renseigner : frequence_grignotage
-    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: à renseigner : difficulte_estimation_portions
-    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: à renseigner : difficulte_estimation_portions
+    - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
 
 ### Profil #7 — 10 critère(s) masqué(s) (masque stratifié) : signe_manger_cache_ou_culpabilite, frequence_boissons_sucrees, matiere_grasse_cuisson, frequence_restauration_rapide, alimentation_emotionnelle, fragilite, frequence_ultratransformes, frequence_viande_rouge_charcuterie, frequence_legumineuses, acces_alimentation
 
@@ -420,8 +413,7 @@ Sortie :
   Alertes de nœud :
     - Consommation de vin au niveau ou au-delà du seuil d'adhérence méditerranéenne (≥ 7 verres/semaine, score MEDAS) : ce nœud ne propose jamais l'alcool comme piste — orienter vers le repérage d'un mésusage plutôt que d'encourager cette consommation. Interactions à garder en tête : foie, triglycérides, hypoglycémie sous insulinosécréteur. [attention]
   Options écartées (sécurité, R4) :
-    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: verrou_tca == true OR fragilite == true
-    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: verrou_tca == true OR fragilite == true
+    - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: verrou_tca == true OR fragilite == true
   Options EN ATTENTE (indétermination, R7/D20) :
     - Remplacer une boisson sucrée du quotidien par de l'eau :: à renseigner : frequence_boissons_sucrees
     - Ne pas remplacer une boisson sucrée par des édulcorants intenses :: à renseigner : frequence_boissons_sucrees
@@ -478,8 +470,7 @@ Sortie :
     - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
   Options écartées (sécurité, R4) :
     - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: verrou_tca == true OR fragilite == true
-    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: verrou_tca == true OR fragilite == true
-    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: verrou_tca == true OR fragilite == true
+    - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: verrou_tca == true OR fragilite == true
   Options EN ATTENTE (indétermination, R7/D20) :
     - Un repas simple fait maison de plus par semaine :: à renseigner : frequence_ultratransformes
     - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide
@@ -529,8 +520,7 @@ Sortie :
     - Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine :: à renseigner : frequence_fruits_a_coque
     - Se fixer des repas à des horaires à peu près réguliers :: à renseigner : regularite_repas
     - Manger sans se presser :: à renseigner : alimentation_emotionnelle
-    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: à renseigner : difficulte_estimation_portions
-    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: à renseigner : difficulte_estimation_portions
+    - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
     - Continuer ce qui fonctionne déjà :: à renseigner : frequence_fruits_a_coque
 
 ### Profil #11 — 13 critère(s) masqué(s) (masque stratifié) : frequence_fruits_a_coque, traitements_en_cours, alimentation_emotionnelle, matiere_grasse_cuisson, frequence_ultratransformes, difficulte_estimation_portions, consommation_vin, frequence_restauration_rapide, frequence_boissons_sucrees, signe_manger_cache_ou_culpabilite, fragilite, acces_alimentation, signe_antecedent_regime_restrictif
@@ -575,8 +565,7 @@ Sortie :
     - Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine :: à renseigner : frequence_fruits_a_coque
     - Manger sans se presser :: à renseigner : alimentation_emotionnelle
     - Repérer un moment de grignotage récurrent et lui trouver une alternative :: à renseigner : signe_manger_cache_ou_culpabilite, signe_antecedent_regime_restrictif
-    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: à renseigner : difficulte_estimation_portions
-    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: à renseigner : difficulte_estimation_portions
+    - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
     - Orienter vers le diététicien de la structure :: à renseigner : acces_alimentation, signe_manger_cache_ou_culpabilite, signe_antecedent_regime_restrictif
     - Continuer ce qui fonctionne déjà :: à renseigner : matiere_grasse_cuisson, frequence_fruits_a_coque
 
@@ -620,8 +609,7 @@ Sortie :
     - Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre :: à renseigner : frequence_poisson
     - Manger sans se presser :: à renseigner : alimentation_emotionnelle
     - Repérer un moment de grignotage récurrent et lui trouver une alternative :: à renseigner : frequence_grignotage
-    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: à renseigner : difficulte_estimation_portions
-    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: à renseigner : difficulte_estimation_portions
+    - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
 
 ### Profil #13 — 9 critère(s) masqué(s) (masque stratifié) : fragilite, alimentation_emotionnelle, difficulte_estimation_portions, frequence_boissons_sucrees, consommation_vin, signe_manger_cache_ou_culpabilite, regularite_repas, matiere_grasse_cuisson, signe_restriction_puis_craquage
 
@@ -671,8 +659,7 @@ Sortie :
     - Diviser par deux la portion habituelle de fromage et de charcuterie, préférer la volaille :: à renseigner : signe_restriction_puis_craquage, signe_manger_cache_ou_culpabilite
     - Se fixer des repas à des horaires à peu près réguliers :: à renseigner : regularite_repas
     - Manger sans se presser :: à renseigner : alimentation_emotionnelle
-    - Peser deux ou trois fois les féculents les plus consommés, pour apprendre à les reconnaître à l'œil :: à renseigner : difficulte_estimation_portions
-    - Utiliser des repères visuels sur la vaisselle habituelle plutôt que de peser systématiquement :: à renseigner : difficulte_estimation_portions
+    - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
     - Orienter vers le diététicien de la structure :: à renseigner : signe_restriction_puis_craquage, signe_manger_cache_ou_culpabilite
 
 ### Profil #14 — 8 critère(s) masqué(s) (masque stratifié) : matiere_grasse_cuisson, consommation_vin, frequence_restauration_rapide, signe_restriction_puis_craquage, traitements_en_cours, frequence_legumineuses, signe_manger_cache_ou_culpabilite, frequence_boissons_sucrees

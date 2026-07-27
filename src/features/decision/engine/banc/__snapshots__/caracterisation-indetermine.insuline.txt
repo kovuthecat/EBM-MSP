@@ -37,7 +37,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - dose_rapide_actuelle = 0
 
 Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
+  Famille « Aucun geste — surveiller » (exclusive: false) :
   - [recommandee] Poursuivre le schéma d'insuline en cours et réévaluer
       proposé parce que : default
   Options EN ATTENTE (indétermination, R7/D20) :
@@ -80,7 +80,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - dose_rapide_actuelle = 73.96
 
 Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
+  Famille « Aucun geste — surveiller » (exclusive: false) :
   - [recommandee] Poursuivre le schéma d'insuline en cours et réévaluer
       proposé parce que : default
   Alertes de nœud :
@@ -123,13 +123,13 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - dose_rapide_actuelle = 47.09
 
 Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
+  Famille « Instaurer l'insuline » (exclusive: false) :
     -- groupe d'égalité #0 --
   - [recommandee] Initier une insuline basale (en maintenant les antidiabétiques en cours)
       proposé parce que : situation_insuline == naif ; cible_atteinte == false
       calculs : Dose initiale (0,1 U/kg) = 3.5U/j ; Dose initiale (0,2 U/kg) = 7U/j
     -- groupe d'égalité #1 --
-  - [(sans badge)] Choisir un analogue basal de 2ᵉ génération (glargine U300 ou degludec) si risque hypoglycémique
+  - [recommandee] Choisir un analogue basal de 2ᵉ génération (glargine U300 ou degludec) si risque hypoglycémique
       proposé parce que : situation_insuline == naif ; terrain_fragile == true
   Alertes de nœud :
     - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
@@ -163,14 +163,13 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - dose_rapide_actuelle = 0
 
 Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
-    -- groupe d'égalité #0 --
-  - [recommandee] Désintensifier / alléger le schéma
-      proposé parce que : situation_insuline == basal_bolus ; terrain_fragile == true
-    -- groupe d'égalité #1 --
-  - [(sans badge)] Optimiser la répartition du basal-bolus (guidé par l'AGP et les doses actuelles)
+  Famille « Ajuster le schéma en place » (exclusive: false) :
+  - [recommandee] Optimiser la répartition du basal-bolus (guidé par l'AGP et les doses actuelles)
       proposé parce que : situation_insuline == basal_bolus ; cible_atteinte == false ; TBR_severe > 1 ; hypo_interprandiale == true
       calculs : Dose totale quotidienne = 0U/j
+  Famille « Alléger le schéma » (exclusive: false) :
+  - [recommandee] Désintensifier / alléger le schéma
+      proposé parce que : situation_insuline == basal_bolus ; terrain_fragile == true
   Alertes de nœud :
     - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
     - Sujet âgé / fragile / à espérance de vie limitée : cibles de MCG ASSOUPLIES — TIR > 50 %, TBR < 1 %, TAR plus permissif (cohérent avec la cible d'HbA1c relâchée issue du nœud A). [info]
@@ -202,7 +201,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - dose_rapide_actuelle = 150
 
 Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
+  Famille « Sécurité — à corriger d'abord » (exclusive: false) :
   - [recommandee] Corriger l'hypoglycémie ou la variabilité (réduire la dose, passer en 2ᵉ génération, relâcher la cible)
       proposé parce que : situation_insuline == basale_seule ; TBR_severe > 1 ; profil_glycemique contient hypo_nocturne
       calculs : Basale réduite (−20 %) = 1.2000000000000002U/j
@@ -240,13 +239,12 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - dose_rapide_actuelle = 99.66
 
 Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
-    -- groupe d'égalité #0 --
+  Famille « Sécurité — à corriger d'abord » (exclusive: false) :
   - [recommandee] Corriger l'hypoglycémie ou la variabilité (réduire la dose, passer en 2ᵉ génération, relâcher la cible)
       proposé parce que : situation_insuline == basale_plus_bolus ; TBR > 4 ; TBR_severe > 1 ; profil_glycemique contient hypo_nocturne ; hypo_severe_recurrente == true
       calculs : Basale réduite (−20 %) = 120U/j
-    -- groupe d'égalité #1 --
-  - [(sans badge)] Optimiser la répartition du basal-bolus (guidé par l'AGP et les doses actuelles)
+  Famille « Ajuster le schéma en place » (exclusive: false) :
+  - [recommandee] Optimiser la répartition du basal-bolus (guidé par l'AGP et les doses actuelles)
       proposé parce que : situation_insuline == basale_plus_bolus ; TBR > 4 ; TBR_severe > 1 ; profil_glycemique contient hypo_nocturne ; hypo_interprandiale == true
       calculs : Dose totale quotidienne = 249.66U/j
   Alertes de nœud :
@@ -281,7 +279,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - dose_rapide_actuelle = 150
 
 Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
+  Famille « Aucun geste — surveiller » (exclusive: false) :
   - [recommandee] Poursuivre le schéma d'insuline en cours et réévaluer
       proposé parce que : default
   Alertes de nœud :
@@ -321,7 +319,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - dose_rapide_actuelle = 47.09
 
 Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
+  Famille « Aucun geste — surveiller » (exclusive: false) :
   - [recommandee] Poursuivre le schéma d'insuline en cours et réévaluer
       proposé parce que : default
   Alertes de nœud :
@@ -367,7 +365,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - dose_rapide_actuelle = 73.96
 
 Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
+  Famille « Instaurer l'insuline » (exclusive: false) :
   - [recommandee] Choisir un analogue basal de 2ᵉ génération (glargine U300 ou degludec) si risque hypoglycémique
       proposé parce que : situation_insuline == naif ; terrain_fragile == true
   Alertes de nœud :
@@ -402,7 +400,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - dose_rapide_actuelle = 0
 
 Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
+  Famille « Sécurité — à corriger d'abord » (exclusive: false) :
   - [recommandee] Corriger l'hypoglycémie ou la variabilité (réduire la dose, passer en 2ᵉ génération, relâcher la cible)
       proposé parce que : situation_insuline == basale_seule ; TBR > 4 ; TBR_severe > 1 ; profil_glycemique contient hypo_nocturne
       calculs : Basale réduite (−20 %) = 0.4U/j
@@ -440,7 +438,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - dose_rapide_actuelle = 99.66
 
 Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
+  Famille « Aucun geste — surveiller » (exclusive: false) :
   - [recommandee] Poursuivre le schéma d'insuline en cours et réévaluer
       proposé parce que : default
   Alertes de nœud :
@@ -486,7 +484,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - dose_rapide_actuelle = 150
 
 Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
+  Famille « Aucun geste — surveiller » (exclusive: false) :
   - [recommandee] Poursuivre le schéma d'insuline en cours et réévaluer
       proposé parce que : default
   Alertes de nœud :
@@ -532,7 +530,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - dose_rapide_actuelle = 47.09
 
 Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
+  Famille « Aucun geste — surveiller » (exclusive: false) :
   - [recommandee] Poursuivre le schéma d'insuline en cours et réévaluer
       proposé parce que : default
   Alertes de nœud :
@@ -574,7 +572,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - dose_rapide_actuelle = 99.66
 
 Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
+  Famille « Aucun geste — surveiller » (exclusive: false) :
   - [recommandee] Poursuivre le schéma d'insuline en cours et réévaluer
       proposé parce que : default
   Alertes de nœud :
@@ -615,14 +613,13 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - dose_rapide_actuelle = 0
 
 Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
-    -- groupe d'égalité #0 --
-  - [recommandee] Désintensifier / alléger le schéma
-      proposé parce que : situation_insuline == basal_bolus ; terrain_fragile == true
-    -- groupe d'égalité #1 --
-  - [(sans badge)] Optimiser la répartition du basal-bolus (guidé par l'AGP et les doses actuelles)
+  Famille « Ajuster le schéma en place » (exclusive: false) :
+  - [recommandee] Optimiser la répartition du basal-bolus (guidé par l'AGP et les doses actuelles)
       proposé parce que : situation_insuline == basal_bolus ; cible_atteinte == false ; TBR_severe > 1 ; CV_glycemique > 36 ; hypo_interprandiale == true
       calculs : Dose totale quotidienne = 1.5U/j
+  Famille « Alléger le schéma » (exclusive: false) :
+  - [recommandee] Désintensifier / alléger le schéma
+      proposé parce que : situation_insuline == basal_bolus ; terrain_fragile == true
   Alertes de nœud :
     - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
     - iSGLT2 + insuline : maintenir l'iSGLT2 pour le bénéfice cardio-rénal, mais informer du risque d'acidocétose euglycémique — suspendre en cas de jeûne, de chirurgie ou de maladie aiguë intercurrente. [attention]

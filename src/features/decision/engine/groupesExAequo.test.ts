@@ -365,9 +365,14 @@ describe('groupesParFamille — cas réel (nœud `prescription`, correctif « pr
 })
 
 describe('groupesParFamille — non-régression sur un nœud réel SANS `famille` déclarée', () => {
-  it('un nœud multi-options réel sans aucune `famille` (`insuline`) produit exactement la structure d’avant (famille unique sans libellé)', () => {
-    const node = getNoeudById('insuline')
-    if (!node) throw new Error('Nœud "insuline" introuvable.')
+  // TÉMOIN CHANGÉ le 2026-07-27 : c'était `insuline`, qui a depuis reçu ses propres `familles`
+  // (arbitrage référent — ses rangs 1-2-3, réutilisés par quatre blocs de situation, faisaient
+  // apparaître « à égalité » un geste de sécurité et un geste d'escalade). `statine` prend le relais :
+  // il ne déclare aucune famille et n'a pas vocation à en déclarer (`ordered-first-match`, sortie
+  // unique — il n'y a jamais plusieurs options à regrouper en sections).
+  it('un nœud réel sans aucune `famille` (`statine`) produit exactement la structure d’avant (famille unique sans libellé)', () => {
+    const node = getNoeudById('statine')
+    if (!node) throw new Error('Nœud "statine" introuvable.')
     expect(node.options.every((o) => o.famille == null)).toBe(true)
 
     const criteria = buildDefaultCriteria(node.criteres_entree)
