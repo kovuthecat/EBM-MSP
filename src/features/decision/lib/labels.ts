@@ -152,11 +152,76 @@ const CRITERE_LABELS: Record<string, string> = {
   infections_uro_genitales_recidivantes: 'Infections génito-urinaires récidivantes',
   intolerance_traitement: 'Intolérance à un traitement en cours',
   nature_intolerance: "Nature de l'intolérance",
+  dose_metformine: 'Dose de metformine (mg/j)',
+  isglt2_indisponible: "iSGLT2 inutilisable (déjà en cours, DFG < 20 ou infections génito-urinaires récidivantes)",
+  aglp1_indisponible: "AR GLP-1 inutilisable (déjà en cours, dénutrition ou IMC < 22)",
+  metformine_deprescriptible:
+    "Metformine déprescriptible (fragilité, en dessous de l'objectif, sans sulfamide, glinide, gliptine ni insuline)",
+  // Écarts à la cible (K6) : lus par le SEUL `preremplissage`, jamais par une règle de décision. Ils ne
+  // peuvent donc pas apparaître dans un « Proposé parce que » — mais ils sont catalogués comme les autres,
+  // parce qu'une exception nominative dans l'invariant de couverture coûterait plus cher que ces deux lignes.
+  ecart_au_dessus_cible: "HbA1c au-dessus de l'objectif fixé",
+  ecart_nettement_au_dessus_cible: "HbA1c à 1 point ou plus au-dessus de l'objectif fixé",
+  // Nœud F « Statine » — le champ qui dit si le geste est DÉJÀ FAIT (R9).
+  statine_deja_en_place: 'Statine déjà en place',
+  // Nœud E « Insuline » — complément AGP.
+  hypo_interprandiale: 'Hypoglycémies entre les repas',
+  profil_nocturne_permet_titration:
+    "Profil nocturne compatible avec une titration de la basale (courbe stable ou phénomène de l'aube)",
+  profil_nocturne_a_cible: 'Profil nocturne à la cible (excursions post-prandiales au premier plan)',
+  // ── Module RHD, axe alimentation (`rhd-alimentation.yaml`) ──
+  // ⚠ CES LIBELLÉS NOMMENT L'ITEM RECUEILLI, ILS NE DÉFINISSENT PAS L'ÉCHELLE. « occasionnel » vs
+  // « fréquent » n'est défini nulle part dans le contenu, et c'est pourtant cette frontière-là qui fait
+  // basculer la piste (`== frequent OR == quotidien`). Y écrire un seuil ici serait inventer du contenu
+  // clinique dans un fichier de présentation (invariant CLAUDE.md 6) : la définition doit vivre dans le
+  // champ `aide` du critère, sous version et changelog — signalé au référent, pas comblé ici.
+  frequence_boissons_sucrees: 'Boissons sucrées',
+  frequence_ultratransformes: 'Aliments ultra-transformés',
+  frequence_restauration_rapide: 'Restauration rapide',
+  matiere_grasse_cuisson: 'Matière grasse de cuisson',
+  regularite_repas: 'Régularité des repas',
+  frequence_grignotage: 'Grignotage',
+  acces_alimentation: "Accès à l'alimentation",
+  frequence_fruits_a_coque: 'Fruits à coque',
+  frequence_legumineuses: 'Légumineuses',
+  frequence_poisson: 'Poisson',
+  frequence_viande_rouge_charcuterie: 'Viande rouge et charcuterie',
+  signes_appel_tca: "Signes d'appel d'un trouble du comportement alimentaire",
+  difficulte_estimation_portions: 'Estimation des portions',
+  alimentation_emotionnelle: 'Alimentation émotionnelle',
+  consommation_vin: 'Consommation de vin',
+  // ── Module RHD, axe activité physique (`rhd-activite-physique.yaml`) ──
+  frequence_activite_structuree: "Séances d'activité physique structurée",
+  duree_seance: "Durée d'une séance",
+  mode_deplacement_courts_trajets: 'Déplacements sur les courts trajets',
+  temps_assis_quotidien: 'Temps assis par jour',
+  rupture_sedentarite_habituelle: 'Interrompt habituellement les longues périodes assises',
+  limitation_physique_connue: 'Limitation physique connue',
+  symptomes_ischemie_effort: "Symptômes d'ischémie à l'effort",
+  retinopathie_non_stabilisee_ou_proliferante: 'Rétinopathie non stabilisée ou proliférante',
+  neuropathie_ou_mal_perforant_plantaire: 'Neuropathie ou mal perforant plantaire',
+  verrou_effort:
+    "Signe imposant un avis avant la pratique structurée (limitation, ischémie d'effort, rétinopathie, pied)",
+  difficulte_acces_activite: "Difficulté d'accès à une activité physique",
+  offre_proximite_connue: "Offre d'activité de proximité connue",
+  experience_activite_negative: "Expérience négative de l'activité physique",
 }
 
 /** Libellé d'un critère (`criteres_entree[].nom`) ; repli générique si critère non catalogué (nœud futur). */
 export function labelForCritere(nom: string): string {
   return CRITERE_LABELS[nom] ?? humanize(nom)
+}
+
+/**
+ * Ce critère a-t-il un libellé RÉDIGÉ, par opposition au repli mécanique `humanize` ?
+ *
+ * Existe pour l'invariant I20 (`banc/libelles.test.ts`), et pour lui seul. Le repli est un filet de
+ * sécurité pour un contenu pas encore catalogué — il n'a jamais eu vocation à être ce qu'un praticien
+ * lit à l'écran. La distinction ne peut pas se mesurer en comparant à `humanize()` : un libellé rédigé
+ * peut coïncider avec le repli (« Dialyse »), et la présence de la clé est la seule question honnête.
+ */
+export function libelleCritereCatalogue(nom: string): boolean {
+  return Object.hasOwn(CRITERE_LABELS, nom)
 }
 
 /** Valeurs d'énumération rencontrées dans les `valeurs[]` des critères (même dictionnaire §0). */
@@ -217,11 +282,58 @@ const ENUM_VALUE_LABELS: Record<string, string> = {
   intensifier: 'Intensifier (renforcer le contrôle glycémique)',
   optimiser: 'Optimiser (améliorer le rapport bénéfice/risque du traitement)',
   deprescrire: 'Déprescrire (alléger ou retirer un traitement)',
+  // intolerance_statine (nœud F)
+  non: 'Non',
+  rapportee: 'Rapportée',
+  averee: 'Avérée',
+  // ── Module RHD ──
+  // ⚠ CE DICTIONNAIRE EST INDEXÉ PAR LA VALEUR SEULE, jamais par le couple (critère, valeur) : `occasionnel`
+  // rend le même libellé pour les boissons sucrées et pour le vin. Ces cinq crans de fréquence sont donc
+  // tenus VOLONTAIREMENT GÉNÉRIQUES — y glisser une quantité (« 1 à 2 fois par semaine ») la propagerait à
+  // tous les items qui partagent le cran, y compris ceux pour lesquels elle serait fausse. Toute précision
+  // par item appartient au champ `aide` du critère, dans le contenu.
+  jamais: 'Jamais',
+  occasionnel: 'Occasionnel',
+  frequent: 'Fréquent',
+  quotidien: 'Quotidien',
+  regulier: 'Régulier',
+  // rhd-alimentation — crans propres à un seul critère
+  beurre_graisses_animales: 'Beurre ou graisses animales',
+  melange: 'Un peu des deux',
+  huile_olive_ou_colza: "Huile d'olive ou de colza",
+  reguliers: 'Réguliers',
+  irreguliers: 'Irréguliers',
+  sans_difficulte: 'Sans difficulté',
+  quelques_difficultes: 'Quelques difficultés',
+  difficultes_importantes: 'Difficultés importantes',
+  facile: 'Facile',
+  difficile: 'Difficile',
+  ne_sait_pas: 'Ne sait pas',
+  un_a_six_verres_semaine: '1 à 6 verres par semaine',
+  sept_verres_ou_plus_semaine: '7 verres ou plus par semaine',
+  // rhd-activite-physique
+  une_fois_semaine: '1 fois par semaine',
+  deux_a_trois_fois_semaine: '2 à 3 fois par semaine',
+  quatre_fois_ou_plus_semaine: '4 fois ou plus par semaine',
+  moins_10_min: 'Moins de 10 minutes',
+  dix_a_trente_min: '10 à 30 minutes',
+  plus_30_min: 'Plus de 30 minutes',
+  actif_pied_ou_velo: 'À pied ou à vélo',
+  motorise_ou_assis: 'En voiture ou en transport assis',
+  mixte: 'Les deux selon les jours',
+  moins_4h: 'Moins de 4 h',
+  quatre_a_huit_h: '4 à 8 h',
+  plus_8h: 'Plus de 8 h',
 }
 
 /** Libellé d'une valeur d'énumération ; repli générique (couvre aussi les valeurs numériques telles quelles). */
 export function labelForEnumValue(valeur: string): string {
   return ENUM_VALUE_LABELS[valeur] ?? humanize(valeur)
+}
+
+/** Pendant de `libelleCritereCatalogue` pour les valeurs d'énumération (I20). */
+export function libelleValeurCatalogue(valeur: string): boolean {
+  return Object.hasOwn(ENUM_VALUE_LABELS, valeur)
 }
 
 /**
