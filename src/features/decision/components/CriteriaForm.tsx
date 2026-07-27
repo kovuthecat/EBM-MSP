@@ -155,6 +155,13 @@ export function CriteriaForm({
     onChange(nom, suivant)
   }
 
+  // TEXTE D'AIDE de contenu (`CritereEntree.aide`, 2026-07-27) — rendu à l'identique dans les trois
+  // branches de champ. Distinct de `hints`, qui vient de l'APPELANT (suggestion calculée) : celui-ci vient
+  // du CONTENU et dit ce que le champ recouvre exactement — « qu'est-ce que je coche ? », là où le libellé
+  // dit seulement « quel champ ? ». Les deux peuvent coexister sur un même critère.
+  const renderAide = (critere: CritereEntree) =>
+    critere.aide ? <div className="criteria-form__aide">{critere.aide}</div> : null
+
   const renderChamp = (critere: CritereEntree) => {
     const dim = estDim(critere.nom)
     const confirmer = estAConfirmer(critere)
@@ -162,7 +169,10 @@ export function CriteriaForm({
     const valeurs = critere.valeurs ?? []
 
     if (critere.type === 'bool') {
-      return (
+      // L'aide est HORS du `<label>` : à l'intérieur, cliquer dessus pour la lire cocherait la case —
+      // et sur un critère `confirmation_requise` (le cas de la fusion TCA), cocher par accident est
+      // exactement ce qu'il ne faut pas.
+      const champ = (
         <label
           key={critere.nom}
           className="criteria-form__field criteria-form__field--flag"
@@ -183,6 +193,18 @@ export function CriteriaForm({
           </span>
         </label>
       )
+      // SANS aide : le `<label>` est rendu TEL QUEL, enfant direct de la grille — aucun changement de
+      // structure pour les dizaines de booléens du domaine qui n'en portent pas. L'enveloppe n'existe que
+      // là où il y a quelque chose à envelopper.
+      if (!critere.aide) return champ
+      // Enveloppe SANS style propre au-delà de l'occupation de grille (`--avec-aide`) : elle ne doit pas
+      // ajouter un second cadre autour du `<label>`, qui porte déjà le sien.
+      return (
+        <div key={critere.nom} className="criteria-form__avec-aide">
+          {champ}
+          {renderAide(critere)}
+        </div>
+      )
     }
 
     if (critere.type === 'liste') {
@@ -200,6 +222,7 @@ export function CriteriaForm({
             {pilote && <span className="criteria-form__field-pilote"> · détermine la suite</span>}
             {confirmer && <span className="criteria-form__field-todo"> · à confirmer</span>}
           </div>
+          {renderAide(critere)}
           <div className="criteria-form__chips">
             {valeurs.map((valeur) => (
               <label
@@ -328,6 +351,7 @@ export function CriteriaForm({
           </select>
         )}
 
+        {renderAide(critere)}
         {hints?.[critere.nom] && <div className="criteria-form__hint">{hints[critere.nom]}</div>}
       </div>
     )

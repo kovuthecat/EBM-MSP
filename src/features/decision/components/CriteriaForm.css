@@ -244,3 +244,23 @@
   line-height: 1.45;
   color: var(--c-attention);
 }
+
+/* TEXTE D'AIDE DE CONTENU (`CritereEntree.aide`, 2026-07-27). Distinct de `__hint` (suggestion calculée
+   par l'écran) : celui-ci vient du YAML et dit ce que le champ recouvre — les trois items de l'encadré 11
+   de la HAS derrière une seule question de repérage, par exemple. Un cran plus lisible qu'un `__hint`
+   (non italique, contraste un peu plus fort) : ce n'est pas une remarque marginale, c'est la définition
+   de ce qu'on demande de cocher. */
+.criteria-form__aide {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--c-text-muted);
+  white-space: pre-line; /* le contenu peut lister ses items ligne à ligne */
+}
+
+/* Enveloppe d'un `bool` PORTANT une aide : l'aide doit rester hors du <label> (la lire ne doit pas
+   cocher la case), et l'enveloppe ne fait qu'occuper la largeur — aucun cadre propre, le <label> a
+   déjà le sien. */
+.criteria-form__avec-aide {
+  grid-column: 1 / -1;
+}

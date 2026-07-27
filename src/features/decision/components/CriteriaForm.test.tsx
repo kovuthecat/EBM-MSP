@@ -423,3 +423,54 @@ describe('CriteriaForm — contraintes de saisie violées (K3)', () => {
     expect(html).toContain('criteria-form__grid')
   })
 })
+
+/**
+ * `CritereEntree.aide` (2026-07-27) — texte d'aide venu du CONTENU. Motivé par la fusion des trois signes
+ * d'appel TCA de `rhd-alimentation` en une seule question : les trois items de l'encadré 11 de la HAS ne
+ * vivaient nulle part ailleurs que dans les trois libellés qu'on supprimait.
+ */
+describe('CriteriaForm — texte d’aide de contenu (`aide`)', () => {
+  const AVEC_AIDE: CritereEntree[] = [
+    { nom: 'signes_appel_tca', type: 'bool', confirmation_requise: true, aide: 'Au moins un de ces trois signes.' },
+    { nom: 'age', type: 'nombre', aide: 'En années révolues.' },
+    { nom: 'esperance_vie', type: 'enum', valeurs: ['longue', 'limitee'], aide: 'Estimation clinique.' },
+    { nom: 'traitements_en_cours', type: 'liste', valeurs: ['metformine'], aide: 'Cocher tout ce qui est en cours.' },
+  ]
+  const html = renderToStaticMarkup(
+    <CriteriaForm
+      criteresEntree={AVEC_AIDE}
+      criteria={buildDefaultCriteria(AVEC_AIDE)}
+      touched={new Set()}
+      onChange={() => {}}
+    />,
+  )
+
+  it('rend l’aide sur les QUATRE types de champ — un champ sans aide n’en invente pas', () => {
+    for (const attendu of [
+      'Au moins un de ces trois signes.',
+      'En années révolues.',
+      'Estimation clinique.',
+      'Cocher tout ce qui est en cours.',
+    ]) {
+      expect(html).toContain(attendu)
+    }
+    // Les critères de `CRITERES_LISTE` n'en déclarent aucune : aucun bloc d'aide ne doit apparaître.
+    const sansAide = renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={CRITERES_LISTE}
+        criteria={buildDefaultCriteria(CRITERES_LISTE)}
+        touched={new Set()}
+        onChange={() => {}}
+      />,
+    )
+    expect(sansAide).not.toContain('criteria-form__aide')
+  })
+
+  it('place l’aide d’un `bool` HORS du <label> — la lire ne doit pas cocher la case', () => {
+    // Sur un `confirmation_requise` (le cas TCA), cocher par accident est exactement ce qu'il ne faut pas.
+    const debut = html.indexOf('signes_appel_tca') >= 0 ? html : html
+    const finLabel = debut.indexOf('</label>')
+    const posAide = debut.indexOf('Au moins un de ces trois signes.')
+    expect(posAide).toBeGreaterThan(finLabel)
+  })
+})

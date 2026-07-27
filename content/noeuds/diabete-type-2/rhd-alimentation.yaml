@@ -29,9 +29,10 @@
 # portent donc l'étiquette « recommandation officielle » ou « savoir-faire diététique (non EBM) ».
 #
 # GARDE-FOUS CLINIQUES — DES `exclusions`, PAS DES ALERTES (D21) :
-#   - verrou TCA / restriction cognitive (`verrou_tca`, dérivé de 3 signes HAS encadré 11, chacun
-#     `confirmation_requise: true` — un « non » présumé serait le vide lu dans le sens rassurant que R7/D20
-#     proscrit) : depuis le 2026-07-27, il N'EST PLUS UN BLOCAGE — c'est un DÉCLENCHEUR D'ORIENTATION.
+#   - repérage TCA / restriction cognitive (`signes_appel_tca`, `confirmation_requise: true` — un « non »
+#     présumé serait le vide lu dans le sens rassurant que R7/D20 proscrit ; les 3 signes de l'encadré 11
+#     HAS sont portés par son champ `aide` depuis la fusion du 2026-07-27, cf. sa déclaration) : depuis le
+#     2026-07-27, il N'EST PLUS UN BLOCAGE — c'est un DÉCLENCHEUR D'ORIENTATION.
 #     Décision référent, sur un principe qui recadre tout le nœud : « dans le cadre des RHD en médecine
 #     générale on ne propose pas de restriction calorique, en tout cas pas chiffrée ; on propose des
 #     modifications d'habitudes alimentaires, jamais de régime. » Si le nœud ne propose aucune restriction,
@@ -165,37 +166,46 @@ criteres_entree:
     type: enum
     groupe: Vers le motif méditerranéen
     valeurs: [jamais, occasionnel, regulier, quotidien]
-  # ── Verrou — repérage avant de proposer une réduction ou une pesée (S8, 3 signes HAS encadré 11 p.43 ;
-  #    seul le 3ᵉ appartient littéralement à la liste DSM-5 de la source — red-team A-6). Chaque signe est
-  #    confirmation_requise : un « non » qui n'a jamais été demandé ne peut pas être présumé sans risque
-  #    (même famille de défaut que `diabete_complique` sur le nœud statine). ──
-  - nom: signe_restriction_puis_craquage
+  # ── Repérage d'un trouble du comportement alimentaire (S8, 3 signes HAS encadré 11 p.43 ; seul le 3ᵉ
+  #    appartient littéralement à la liste DSM-5 de la source — red-team A-6).
+  #
+  # FUSION DU 2026-07-27 (décision référent). Ce repérage s'écrivait en TROIS booléens saisis
+  # (`signe_restriction_puis_craquage`, `signe_manger_cache_ou_culpabilite`,
+  # `signe_antecedent_regime_restrictif`) et un dérivé `verrou_tca` qui n'en faisait que la disjonction.
+  # Le référent a tranché : « il me semblait qu'on utilisait plus les signes de TCA puisqu'on proposait
+  # uniquement des recommandations et pas de restriction. » C'est UNE question de repérage, pas trois.
+  #
+  # CE QUE LA FUSION FAIT PERDRE, ET COMMENT C'EST RATTRAPÉ. Les trois signes n'étaient nulle part
+  # distingués DANS LA DÉCISION : rien ne lisait un signe en particulier, seule leur disjonction comptait.
+  # Ils ne coûtaient donc au praticien que trois cases à cocher pour une seule information. En revanche,
+  # leurs trois LIBELLÉS portaient le contenu de l'encadré 11 — le seul endroit où le praticien lisait ce
+  # qu'il fallait chercher. C'est ce contenu que le nouveau champ `aide` conserve (ajouté au schéma le
+  # même jour, et générique : il sert aussi les libellés bruts relevés en recette). Sans lui, la fusion
+  # aurait remplacé trois questions précises par une question vague.
+  #
+  # `verrou_tca` DISPARAÎT AVEC EUX, et pas seulement par économie : un dérivé qui ne fait plus que
+  # recopier un unique critère saisi est une indirection sans contenu — et l'invariant I14 (« un `bool`
+  # cité seulement dans le `derive` d'un autre critère n'a pas de voix propre ») l'aurait signalé comme
+  # tel. Les trois lectures de `verrou_tca` pointent désormais directement sur le critère saisi.
+  #
+  # RÔLE, inchangé depuis l'arbitrage du 2026-07-27 (1re série) : ce repérage ne porte AUCUNE `exclusion`.
+  # Il ne bloque rien — il DÉCLENCHE les deux options d'orientation (diététicien, avis spécialisé TCA).
+  # Le nœud ne propose aucune restriction, donc un verrou anti-restriction n'a plus d'objet ; sa
+  # performance reste inconnue (aucune étude ne l'a évalué), ce qui était gênant pour un test BLOQUANT et
+  # l'est beaucoup moins pour un déclencheur d'orientation — un faux positif propose une orientation de
+  # plus, là où il retirait auparavant des pistes au patient.
+  #
+  # `confirmation_requise` conservé : un « non » qui n'a jamais été demandé ne peut pas être présumé sans
+  # risque (même famille de défaut que `diabete_complique` sur le nœud statine).
+  - nom: signes_appel_tca
     type: bool
     groupe: Repérage — signes d’appel et orientation
     confirmation_requise: true
-  - nom: signe_manger_cache_ou_culpabilite
-    type: bool
-    groupe: Repérage — signes d’appel et orientation
-    confirmation_requise: true
-  - nom: signe_antecedent_regime_restrictif
-    type: bool
-    groupe: Repérage — signes d’appel et orientation
-    confirmation_requise: true
-  # CHANGEMENT DE RÔLE le 2026-07-27 (décision référent) : ce dérivé ne porte plus AUCUNE `exclusion`.
-  # Il ne bloque plus rien — il DÉCLENCHE les deux options d'orientation (diététicien, avis spécialisé TCA).
-  # Motif : le nœud ne propose aucune restriction, donc un verrou anti-restriction n'a plus d'objet. Voir
-  # l'en-tête du fichier pour le principe complet.
-  # CE QUE CELA NE VEUT PAS DIRE : le repérage n'est pas dévalué, il est REPLACÉ à sa vraie fonction. Sa
-  # performance reste inconnue (aucune étude ne l'a évalué), ce qui était un argument gênant tant qu'il
-  # servait de test bloquant — un blocage binaire fondé sur une spécificité inconnue. En déclencheur
-  # d'orientation, l'asymétrie coûte beaucoup moins cher : un faux positif propose une orientation de plus,
-  # là où il retirait auparavant des pistes au patient.
-  - nom: verrou_tca
-    type: bool
-    groupe: Repérage — signes d’appel et orientation
-    derive: >-
-      signe_restriction_puis_craquage == true OR signe_manger_cache_ou_culpabilite == true
-      OR signe_antecedent_regime_restrictif == true
+    aide: >-
+      Au moins un de ces trois signes (HAS, guide parcours surpoids-obésité de l'adulte, encadré 11
+      p. 43) : restrictions suivies de craquages ; manger caché ou culpabilité après avoir mangé ;
+      antécédent de régime restrictif. Le rôle du médecin généraliste s'arrête au repérage et à
+      l'orientation — ni le diagnostic ni le traitement ne se posent ici.
   # ── Approfondissement (décisifs uniquement, R5) ──
   - nom: difficulte_estimation_portions
     type: enum
@@ -438,9 +448,9 @@ options:
   # ═══════════ FAMILLE ORIENTATION ═══════════
   - intitule: "Orienter vers le diététicien de la structure"
     conditions:
-      - "acces_alimentation == difficultes_importantes OR verrou_tca == true OR fragilite == true"
+      - "acces_alimentation == difficultes_importantes OR signes_appel_tca == true OR fragilite == true"
     priorite:
-      - quand: "verrou_tca == true"
+      - quand: "signes_appel_tca == true"
         rang: 1
       - quand: "fragilite == true"
         rang: 1
@@ -460,13 +470,13 @@ options:
   # « Une orientation, selon le tableau clinique, vers un PSYCHOLOGUE ou un PSYCHIATRE spécialiste des TCA
   # peut être nécessaire pour explorer plus avant la situation et proposer une approche thérapeutique
   # EN COMPLÉMENT d'un accompagnement par un diététicien. »
-  # Or la seule orientation que `verrou_tca == true` déclenchait était le diététicien. « En complément »,
+  # Or la seule orientation que `signes_appel_tca == true` déclenchait était le diététicien. « En complément »,
   # pas « à la place » : cette option COEXISTE avec la précédente, elle ne la remplace pas — d'où le même
   # rang 1 et une condition volontairement plus étroite (le verrou TCA seul, sans `fragilite` ni
   # `acces_alimentation`, qui n'appellent pas un avis spécialisé en TCA).
   - intitule: "Proposer aussi un avis spécialisé en trouble du comportement alimentaire"
     conditions:
-      - "verrou_tca == true"
+      - "signes_appel_tca == true"
     priorite: 1
     famille: "Orientation"
     avantages:
@@ -652,8 +662,27 @@ meta:
   date_revue: "2026-07-26"
   auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
   statut: brouillon
-  version: "0.5"
+  version: "0.6"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        FUSION DU REPÉRAGE TCA — les trois booléens `signe_restriction_puis_craquage`,
+        `signe_manger_cache_ou_culpabilite`, `signe_antecedent_regime_restrictif` et le dérivé `verrou_tca`
+        qui n'en faisait que la disjonction deviennent UN critère saisi, `signes_appel_tca`. Décision
+        référent : « il me semblait qu'on utilisait plus les signes de TCA puisqu'on proposait uniquement
+        des recommandations et pas de restriction » — c'est une question de repérage, pas trois. Les trois
+        items de l'encadré 11 de la HAS (p. 43), qui ne vivaient que dans les libellés supprimés, sont
+        portés par le nouveau champ de schéma `aide` (générique, ajouté le même jour : il répond aussi au
+        constat de recette sur les libellés bruts). `verrou_tca` disparaît parce qu'un dérivé qui recopie
+        un unique critère saisi est une indirection sans contenu — l'invariant I14 l'aurait signalée comme
+        telle ; ses trois lectures pointent désormais sur le critère saisi. `confirmation_requise`
+        conservé (un « non » jamais demandé ne se présume pas). Rôle inchangé : déclencheur d'orientation,
+        aucune `exclusion`. ÉQUIVALENCE EXACTE pour un patient donné — `signes_appel_tca == true` signifie
+        « au moins un des trois signes », soit littéralement l'ancienne disjonction ; les 4 profils du
+        golden master qui perdent l'orientation la perdent parce que le BANC tirait trois pièces
+        indépendantes (donc déclenchait 7 fois sur 8) là où il n'en tire plus qu'une, exactement le biais
+        de cardinalité déjà documenté dans `banc/profils.ts`. Dette I14 de ce nœud (3 entrées) résorbée.
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

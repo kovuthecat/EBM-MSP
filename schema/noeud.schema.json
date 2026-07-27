@@ -166,6 +166,11 @@
           "minLength": 1,
           "description": "Condition DSL (grammaire de conditions.ts, évaluée sur les critères dérivés inclus) sous laquelle ce champ est AFFICHE. Fausse = champ masqué et retiré de la saisie (ex. 'traitements en cours' sans objet quand l'intention est d'initier ; 'nature de l'intolérance' sans objet si aucune intolérance). Pure présentation : le moteur continue de recevoir la valeur du critère, qui reste à sa valeur par défaut tant que le champ est masqué."
         },
+        "aide": {
+          "type": "string",
+          "minLength": 1,
+          "description": "OPTIONNEL — TEXTE D'AIDE A LA SAISIE, affiche sous le champ. Ajoute le 2026-07-27 pour la fusion des trois signes d'appel TCA de `rhd-alimentation` : le referent a arbitre qu'ils formaient UNE question de reperage et non trois, mais les trois items de l'encadre 11 de la HAS devaient rester lisibles quelque part. Ce champ est le 'quelque part' — et il est GENERIQUE, pas un correctif ponctuel : il repond aussi au constat de recette sur les libelles bruts, ou un nom de critere technique ne suffit pas a dire ce qu'on demande. CE QU'IL N'EST PAS : ni une justification clinique (elle vit dans `argumentaire` / `avantages` / `sources`), ni une alerte (qui a un `quand` et porte sur le patient), ni un libelle (le libelle repond a 'quel champ ?', l'aide a 'qu'est-ce que je coche exactement ?'). Aucun effet moteur : `evaluateNode` ne le lit pas."
+        },
         "confirmation_requise": {
           "type": "boolean",
           "description": "Valeur indéterminée (DECISIONS.md D20, docs/decision/validation/chantier-2026-07-26/SPEC-valeur-indeterminee.md §2.2) : réservé aux critères bool/liste dont le défaut (false/[]) NE PEUT PAS être présumé sans risque clinique. Quand true, traité comme nombre/enum : indéterminé tant que non renseigné par le praticien, plutôt que de garder sa valeur par défaut. Absent ou false (repli) = comportement historique inchangé (une case non cochée EST une réponse clinique). Sans effet sur nombre/enum, déjà toujours indéterminés tant que non saisis."

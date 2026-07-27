@@ -673,15 +673,20 @@ const DRAPEAUX_SANS_VOIX_PROPRE_CONNUS: Record<string, Record<string, string>> =
       "intensité élevée) plutôt que le retrait global ? La dissymétrie avec les deux autres drapeaux du " +
       "même verrou, qui ont leur canal, est dans le contenu et non dans le moteur.",
   },
-  'rhd-alimentation': {
-    signe_restriction_puis_craquage:
-      "Trouvé PAR CET INVARIANT, hors recette. QUESTION AU RÉFÉRENT : les trois signes de trouble du " +
-      "comportement alimentaire sont cliniquement distincts — restriction suivie de craquage, manger " +
-      "caché ou culpabilité, antécédent de régime restrictif — mais produisent aujourd'hui le même " +
-      "écran. Le premier évoque un trouble ACTIF, le troisième un antécédent : faut-il les distinguer ?",
-    signe_manger_cache_ou_culpabilite: 'Idem — voir `signe_restriction_puis_craquage`.',
-    signe_antecedent_regime_restrictif: 'Idem — voir `signe_restriction_puis_craquage`.',
-  },
+  // `rhd-alimentation` A ÉTÉ RETIRÉ le 2026-07-27 — DETTE RÉSORBÉE, ses trois entrées avec.
+  //
+  // La question posée par cet invariant était : « les trois signes de trouble du comportement alimentaire
+  // sont cliniquement distincts, mais produisent le même écran — faut-il les distinguer ? » Le référent a
+  // répondu dans l'autre sens : ne pas les distinguer, les FUSIONNER. « Il me semblait qu'on utilisait
+  // plus les signes de TCA puisqu'on proposait uniquement des recommandations et pas de restriction. »
+  // C'est une question de repérage, pas trois, et le dérivé `verrou_tca` qui n'en faisait que la
+  // disjonction disparaît avec elles.
+  //
+  // CE QUE L'INVARIANT A RÉELLEMENT ATTRAPÉ, avec le recul : non pas « trois signaux confondus » mais
+  // « trois cases pour une seule information ». La distinction utile n'était pas dans la DÉCISION (rien
+  // ne lisait un signe en particulier) mais dans les LIBELLÉS, qui portaient le contenu de l'encadré 11
+  // de la HAS. C'est ce contenu qu'il fallait sauver — d'où le champ `aide` ajouté au schéma le même jour,
+  // et non un troisième canal d'alerte.
   insuline: {
     fragilite:
       "Trouvé PAR CET INVARIANT, hors recette. `fragilite` n'agit qu'à travers le dérivé de cible " +

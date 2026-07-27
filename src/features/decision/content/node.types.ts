@@ -56,6 +56,17 @@ export interface CritereEntree {
    */
   confirmation_requise?: boolean
   /**
+   * TEXTE D'AIDE À LA SAISIE, affiché sous le champ. Ajouté le 2026-07-27 pour la fusion des trois signes
+   * d'appel TCA de `rhd-alimentation` — le référent a arbitré qu'ils formaient UNE question de repérage et
+   * non trois, mais les trois items de l'encadré 11 de la HAS devaient rester lisibles. Générique, et pas
+   * un correctif ponctuel : il répond aussi au constat de recette sur les libellés bruts.
+   *
+   * Ce qu'il n'est PAS : ni une justification clinique (elle vit dans `argumentaire`/`avantages`/`sources`),
+   * ni une alerte (qui a un `quand` et porte sur le patient). Le libellé répond à « quel champ ? »,
+   * l'aide à « qu'est-ce que je coche exactement ? ». Aucun effet moteur.
+   */
+  aide?: string
+  /**
    * Borne basse plausible du domaine clinique d'un critère `nombre` (table validée par le référent,
    * `docs/decision/GRAMMAIRE-NOEUD.md`). Triple rôle, aucun lu par le moteur (`evaluateNode` l'ignore) :
    * (1) le formulaire (`components/CriteriaForm.tsx`) la répercute sur l'attribut HTML `min` de l'input,

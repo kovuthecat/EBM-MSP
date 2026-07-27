@@ -143,6 +143,7 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
     derive: 'decision',
     groupe: 'inerte',
     visible_si: 'affichage',
+    aide: 'inerte', // prose d'aide à la saisie, jamais évaluée (cf. `CritereEntree.aide`)
     confirmation_requise: 'inerte',
     min: 'inerte',
     max: 'inerte',
