@@ -84,6 +84,24 @@ export interface CritereEntree {
    */
   valeurs_visible_si?: Record<string, string>
   /**
+   * Cette valeur SAISIE peut être REPRISE d'un nœud à l'autre dans la même session (K6, décision référent
+   * du 2026-07-27). Sortir d'un nœud et y revenir remettait le formulaire à zéro : chaque nœud est monté à
+   * neuf, et rien ne circulait.
+   *
+   * CE QUI CIRCULE EST UNE VALEUR SAISIE PAR LE PRATICIEN, JAMAIS UNE CONCLUSION DU MOTEUR — c'est
+   * exactement la distinction que le garde-fou R1 protège (aucun chaînage entre nœuds), et elle est
+   * respectée. La valeur est PRÉ-REMPLIE, jamais imposée : l'écran signale d'où elle vient et le praticien
+   * peut la corriger.
+   *
+   * Périmètre conforme à l'invariant CLAUDE.md 1 : mémoire de session, aucune écriture disque, aucun
+   * réseau, remise à zéro complète au rechargement (« un reload de la page reset tout »).
+   *
+   * DÉCLARÉ PAR LE CONTENU et non par le socle : celui-ci n'a pas le droit de connaître `HbA1c_cible` par
+   * son nom (D8). Un critère `partage` doit être déclaré à l'IDENTIQUE partout où il apparaît — invariant
+   * du banc, sans quoi on ferait circuler un concept sous un nom commun avec deux encodages (dette I4).
+   */
+  partage?: boolean
+  /**
    * Borne basse plausible du domaine clinique d'un critère `nombre` (table validée par le référent,
    * `docs/decision/GRAMMAIRE-NOEUD.md`). Triple rôle, aucun lu par le moteur (`evaluateNode` l'ignore) :
    * (1) le formulaire (`components/CriteriaForm.tsx`) la répercute sur l'attribut HTML `min` de l'input,

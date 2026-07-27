@@ -13,6 +13,7 @@ import { criteresPertinents } from '../engine/relevance'
 import { describeReasons } from '../lib/conditionText'
 import { ESPERANCE_VIE_DRIVERS, hasEsperanceVieCritere, suggestEsperanceVie } from '../lib/esperanceVieDefault'
 import { buildDefaultCriteria, decisifsAConfirmer, reinitialiserChampsMasques, valeurParDefaut } from '../lib/formLayout'
+import { memoriserCriteres, valeursReprises } from '../lib/sessionCriteres'
 import { plafonnerPistes, PLAFOND_PISTES } from '../lib/replierAffichage'
 import type { FamilleVue } from '../lib/vueDecision'
 import { construireVueDecision } from '../lib/vueDecision'
@@ -50,13 +51,36 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   // module n'entre dans l'évaluation — garde-fou R1, le nœud reste évaluable seul.
   const moduleDuNoeud = node ? getModuleDuNoeud(node) : undefined
 
-  const [criteria, setCriteria] = useState<Criteria>(() =>
-    node ? buildDefaultCriteria(node.criteres_entree) : {},
-  )
+  // K6 (décision référent, 2026-07-27) — REPRISE DE SESSION. Les critères que le contenu déclare
+  // `partage` et que le praticien a déjà saisis sur un AUTRE nœud sont pré-remplis ici. Calculé UNE FOIS
+  // à l'initialisation de l'état (`useState(() => …)`), jamais à chaque rendu : une valeur reprise est un
+  // point de départ, pas une source qui écraserait en continu ce que le praticien tape ensuite.
+  //
+  // Ce qui circule est une valeur SAISIE, jamais une conclusion du moteur — cf. `lib/sessionCriteres.ts`
+  // pour le raisonnement complet vis-à-vis du garde-fou R1 et de l'invariant « aucune persistance ».
+  const reprises = node ? valeursReprises(node.criteres_entree) : []
+
+  const [criteria, setCriteria] = useState<Criteria>(() => {
+    if (!node) return {}
+    const base = buildDefaultCriteria(node.criteres_entree)
+    for (const { nom, valeur } of reprises) base[nom] = valeur
+    return base
+  })
   // Critères déjà modifiés par l'utilisateur (T-009) : distingue une valeur par défaut (0, non
   // fiable cliniquement) d'une valeur réellement saisie, pour ne pas afficher un résultat basé sur
   // un âge/ancienneté resté à 0 sans que le praticien s'en rende compte.
-  const [touched, setTouched] = useState<Set<string>>(() => new Set())
+  //
+  // UNE VALEUR REPRISE COMPTE COMME SAISIE, et c'est un arbitrage à assumer plutôt qu'un raccourci : le
+  // praticien A RÉPONDU à cette question, dans cette consultation, sur un autre écran. La laisser hors de
+  // `touched` afficherait une valeur tout en la traitant comme indéterminée — le moteur la marquerait
+  // « à confirmer » alors qu'elle est affichée remplie, c'est-à-dire exactement le défaut A du lot 1 (un
+  // champ qui paraît répondu sans l'être). L'écran la SIGNALE donc comme reprise (`repris`), au lieu de la
+  // faire passer pour non répondue.
+  const [touched, setTouched] = useState<Set<string>>(() => new Set(reprises.map((r) => r.nom)))
+  // Noms des champs PRÉ-REMPLIS, pour que le formulaire dise d'où vient la valeur. Figé à l'initialisation
+  // et jamais mis à jour : dès que le praticien modifie un de ces champs, la mention devient fausse — d'où
+  // le retrait ci-dessous dans `handleCriteriaChange`.
+  const [repris, setRepris] = useState<Set<string>>(() => new Set(reprises.map((r) => r.nom)))
   const [argOpen, setArgOpen] = useState(false)
   // R4 (`docs/decision/GRAMMAIRE-NOEUD.md`) : les options NON RETENUES (faute de condition) sont une
   // information d'EXPLICATION, consultée sur demande — fermée par défaut, jamais poussée à l'écran
@@ -161,11 +185,20 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
     // aussi « non renseigné », sinon il passerait pour confirmé s'il réapparaissait plus tard.
     const { criteria: nettoye, reinitialises } = reinitialiserChampsMasques(node.criteres_entree, next, renseignesApres)
     setCriteria(nettoye)
-    setTouched((previous) => {
-      const suivant = new Set(previous).add(nom)
-      for (const efface of reinitialises) suivant.delete(efface)
-      return suivant
-    })
+    const touchedApres = new Set(touched).add(nom)
+    for (const efface of reinitialises) touchedApres.delete(efface)
+    setTouched(touchedApres)
+    // K6 : la mention « repris » cesse dès que le praticien touche au champ — elle deviendrait fausse.
+    if (repris.has(nom)) {
+      setRepris((previous) => {
+        const suivant = new Set(previous)
+        suivant.delete(nom)
+        return suivant
+      })
+    }
+    // K6 : mémoriser APRÈS coup, sur l'état déjà nettoyé — un champ que ce changement vient de masquer
+    // ne doit pas partir en session avec la valeur qu'il avait juste avant d'être remis à zéro.
+    memoriserCriteres(node.criteres_entree, nettoye, touchedApres)
   }
 
   /**
@@ -260,6 +293,7 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
             touched={touched}
             pertinents={pertinents}
             aConfirmer={new Set(decisifsManquants)}
+            repris={repris}
             hints={
               hasEsperanceVieCritere(node.criteres_entree) && !touched.has('esperance_vie')
                 ? { esperance_vie: 'Suggestion auto (âge, fragilité, comorbidité grave, antécédent CV) — à valider' }

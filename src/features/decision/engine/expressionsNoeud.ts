@@ -148,6 +148,7 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
     // A4/F : même nature que `visible_si` — expressions d'AFFICHAGE, hors extraction de seuils (leurs
     // littéraux ne déplacent aucune sortie du moteur).
     valeurs_visible_si: 'affichage',
+    partage: 'inerte', // K6 : drapeau de reprise entre nœuds, pas une expression
     confirmation_requise: 'inerte',
     min: 'inerte',
     max: 'inerte',

@@ -86,6 +86,11 @@ criteres_entree:
     min: 4
     max: 18
     groupe: Traitement actuel et contrôle
+    # K6 (décision référent, 2026-07-27) : cette valeur SAISIE est reprise d'un nœud à l'autre dans la
+    # même consultation, pré-remplie et signalée comme telle — jamais imposée. Bornes IDENTIQUES sur tous
+    # les nœuds qui la déclarent : un critère `partage` doit avoir le même encodage partout (invariant du
+    # banc), sinon on ferait circuler un concept sous un nom commun avec deux définitions.
+    partage: true
   - nom: position_vs_cible
     type: enum
     groupe: Traitement actuel et contrôle
@@ -1744,8 +1749,22 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.31"
+  version: "0.32"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        K6 — les critères `HbA1c_actuelle` (et `HbA1c_cible` sur le nœud E) sont déclarés `partage` :
+        leur valeur SAISIE est reprise d'un nœud à l'autre dans la même consultation, pré-remplie et
+        signalée comme telle à l'écran, jamais imposée. Décision référent : « on peut garder une
+        persistance par session — un reload de la page reset tout ». Ce qui circule est une valeur saisie
+        par le praticien, JAMAIS une conclusion du moteur : le garde-fou R1 (aucun chaînage entre nœuds)
+        est respecté, et un critère DÉRIVÉ n'est jamais mémorisé. Mémoire de session uniquement — aucune
+        écriture disque, aucun réseau (invariant 1). Le champ est déclaré par le CONTENU et non par le
+        socle, qui n'a pas le droit de connaître `HbA1c_cible` par son nom (D8). Invariant I19 : un critère
+        `partage` doit avoir le même encodage (type, bornes, valeurs) sur tous les nœuds qui le déclarent,
+        sans quoi on ferait circuler un concept sous un nom commun avec deux définitions. Aucun effet sur
+        la sélection des options : aucun golden master modifié.
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

@@ -932,3 +932,59 @@ describe('I17 — `role` (A3) ne contredit jamais les sentinelles de `conditions
     expect(violations).toEqual([])
   })
 })
+
+/**
+ * I19 — un critère `partage` (K6) est déclaré à l'IDENTIQUE partout où il apparaît.
+ *
+ * POURQUOI. `partage` fait circuler une valeur SAISIE d'un nœud à l'autre dans une même consultation. Si
+ * deux nœuds déclarent le même nom avec deux encodages — un `nombre` ici, un `enum` là ; des bornes
+ * différentes ; des valeurs d'énumération qui ne se recouvrent pas — on ferait circuler un concept sous
+ * un nom commun avec deux définitions. C'est la dette I4 (« un concept, un encodage »), déjà constatée sur
+ * ce dépôt entre `prescription` et `insuline`, et elle deviendrait ici un transport de données faux.
+ *
+ * `lib/sessionCriteres.ts` refuse déjà, à l'exécution, une valeur que le critère receveur ne peut pas
+ * représenter. Mais un refus silencieux à l'exécution ne se voit pas : le praticien ressaisirait sans
+ * savoir pourquoi. Cet invariant interdit la divergence EN AMONT, au moment où le contenu s'écrit — la
+ * ceinture est dans le code, les bretelles sont ici.
+ *
+ * Aucun nom de nœud ni de critère dans la logique (D8) : tout est lu sur le contenu.
+ */
+describe('I19 — un critère `partage` a le même encodage sur tous les nœuds qui le déclarent', () => {
+  it('aucune divergence de type, de bornes ou de valeurs', () => {
+    const parNom = new Map<string, { noeud: string; critere: CritereEntree }[]>()
+    for (const node of noeuds) {
+      for (const critere of node.criteres_entree) {
+        if (critere.partage !== true) continue
+        const entrees = parNom.get(critere.nom) ?? []
+        entrees.push({ noeud: node.id, critere })
+        parNom.set(critere.nom, entrees)
+      }
+    }
+
+    const violations: string[] = []
+    for (const [nom, entrees] of parNom) {
+      const [reference, ...autres] = entrees
+      for (const { noeud, critere } of autres) {
+        const memeValeurs =
+          JSON.stringify(critere.valeurs ?? null) === JSON.stringify(reference.critere.valeurs ?? null)
+        if (
+          critere.type !== reference.critere.type ||
+          critere.min !== reference.critere.min ||
+          critere.max !== reference.critere.max ||
+          !memeValeurs
+        ) {
+          violations.push(
+            `"${nom}" déclaré différemment sur "${reference.noeud}" et "${noeud}" : ` +
+              `type ${reference.critere.type}/${critere.type}, ` +
+              `bornes [${reference.critere.min}, ${reference.critere.max}] vs [${critere.min}, ${critere.max}]`,
+          )
+        }
+      }
+    }
+    expect(violations).toEqual([])
+
+    // Garde-fou du garde-fou : un invariant sur un ensemble VIDE est vert pour rien. Le jour où plus
+    // aucun contenu ne déclare `partage`, ce test doit le dire plutôt que de rester silencieusement vrai.
+    expect(parNom.size).toBeGreaterThan(0)
+  })
+})

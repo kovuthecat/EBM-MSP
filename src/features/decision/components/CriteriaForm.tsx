@@ -75,6 +75,17 @@ interface CriteriaFormProps {
    * Ni blocage ni correction automatique : le praticien continue de saisir dans l'ordre qu'il veut.
    */
   contraintesViolees?: readonly Contrainte[]
+  /**
+   * Champs PRÉ-REMPLIS depuis la session (K6, `lib/sessionCriteres.ts`) : une valeur que le praticien a
+   * saisie sur un AUTRE nœud de la même consultation, reprise ici.
+   *
+   * POURQUOI UNE MENTION EST INDISPENSABLE, et pas un simple confort : la valeur compte comme SAISIE
+   * (elle l'est — sur un autre écran), donc le champ paraît répondu. Sans repère, on retombe exactement
+   * sur le défaut A du lot 1 — « le rendu affiche répondu sans consulter `touched` » — à ceci près que
+   * cette fois la valeur est réelle. Le praticien doit pouvoir distinguer ce qu'il vient de taper de ce
+   * qui lui est proposé, sous peine de valider sans regarder une donnée venue d'ailleurs.
+   */
+  repris?: ReadonlySet<string>
   onChange: (nom: string, value: CriteriaValue) => void
 }
 
@@ -105,6 +116,7 @@ export function CriteriaForm({
   onConfirmerChamps,
   onEffacer,
   contraintesViolees,
+  repris,
   onChange,
 }: CriteriaFormProps) {
   // `touched` fait aussi office de `renseignes` (D20 R7) pour la VISIBILITÉ (`visible_si`) : un champ dont
@@ -162,6 +174,9 @@ export function CriteriaForm({
   const renderAide = (critere: CritereEntree) =>
     critere.aide ? <div className="criteria-form__aide">{critere.aide}</div> : null
 
+  /** K6 — mention « repris » : dit d'où vient une valeur que le praticien n'a pas tapée SUR CET ÉCRAN. */
+  const estRepris = (critere: CritereEntree) => repris?.has(critere.nom) === true
+
   const renderChamp = (critere: CritereEntree) => {
     const dim = estDim(critere.nom)
     const confirmer = estAConfirmer(critere)
@@ -190,6 +205,7 @@ export function CriteriaForm({
             {pilote && <span className="criteria-form__field-pilote"> · détermine la suite</span>}
             {/* `confirmation_requise` seulement (D20 R7) : jamais sur un `bool` ordinaire, cf. `estAConfirmer`. */}
             {confirmer && <span className="criteria-form__field-todo"> · à confirmer</span>}
+            {estRepris(critere) && <span className="criteria-form__field-repris"> · repris de votre saisie</span>}
           </span>
         </label>
       )
@@ -231,6 +247,7 @@ export function CriteriaForm({
             {labelForCritere(critere.nom)}
             {pilote && <span className="criteria-form__field-pilote"> · détermine la suite</span>}
             {confirmer && <span className="criteria-form__field-todo"> · à confirmer</span>}
+            {estRepris(critere) && <span className="criteria-form__field-repris"> · repris de votre saisie</span>}
           </div>
           {renderAide(critere)}
           <div className="criteria-form__chips">
@@ -272,6 +289,7 @@ export function CriteriaForm({
           {pilote && <span className="criteria-form__field-pilote"> · détermine la suite</span>}
           {dim && <span className="criteria-form__field-note"> · sans effet sur la reco actuelle</span>}
           {confirmer && <span className="criteria-form__field-todo"> · à confirmer</span>}
+          {estRepris(critere) && <span className="criteria-form__field-repris"> · repris de votre saisie</span>}
         </div>
 
         {critere.type === 'nombre' ? (

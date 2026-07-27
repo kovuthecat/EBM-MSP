@@ -264,3 +264,14 @@
 .criteria-form__avec-aide {
   grid-column: 1 / -1;
 }
+
+/* K6 — champ PRÉ-REMPLI depuis la session : une valeur que le praticien a saisie sur un autre nœud de la
+   même consultation. Volontairement DISCRET et non alarmant (ce n'est ni une erreur ni un manque), mais
+   présent : sans lui, le champ paraît répondu sur cet écran alors qu'il ne l'a pas été — le défaut A du
+   lot 1, à ceci près que la valeur est réelle. Distinct visuellement de « à confirmer » (ambre, une
+   action attendue) : ici il n'y a rien à faire, seulement à savoir. */
+.criteria-form__field-repris {
+  font-weight: 400;
+  font-style: italic;
+  color: var(--c-text-faible);
+}
