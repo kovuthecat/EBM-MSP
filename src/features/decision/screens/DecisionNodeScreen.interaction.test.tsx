@@ -223,7 +223,22 @@ describe('DecisionNodeScreen — comportement 3 : « Rien à signaler » appara�
   })
 })
 
-describe('DecisionNodeScreen — comportement 4 : le marqueur « à confirmer » cible `nombre` + `bool confirmation_requise`, jamais un `bool` ordinaire', () => {
+/**
+ * COMPORTEMENT 4 RÉVISÉ le 2026-07-27 (soir) — arbitrage référent A8, après la recette VISUELLE.
+ *
+ * Ce bloc exigeait que le marqueur « à confirmer » ne touche JAMAIS un `bool` ordinaire, au motif
+ * qu'une case décochée EST une réponse clinique complète (« non »). Le motif reste vrai POUR LE
+ * MOTEUR — D20 : un `bool` sans `confirmation_requise` est déterminé par défaut, et rien n'a changé
+ * de ce côté. Il ne l'était pas pour le PRATICIEN : la recette visuelle a relevé, sur `statine`, un
+ * bandeau annonçant « 1 critère décisif non confirmé » alors qu'AUCUN champ de l'écran ne portait de
+ * marqueur. Le compteur comptait les booléens ordinaires, le marqueur les excluait — deux définitions
+ * pour un même mot, et un praticien devant un nombre qu'il ne pouvait pas résoudre.
+ *
+ * Le référent a tranché pour la congruence : compteur et marqueurs ont désormais la même définition.
+ * La contrepartie assumée est une densité de marqueurs plus forte, mesurée dans
+ * `docs/decision/validation/chantier-2026-07-27/mesure-densite-marqueurs.md`.
+ */
+describe('DecisionNodeScreen — comportement 4 : le marqueur « à confirmer » couvre TOUT critère décisif non confirmé (A8)', () => {
   it('marque le `nombre` décisif non renseigné', () => {
     renderNode()
     const input = nombreInput()
@@ -240,7 +255,7 @@ describe('DecisionNodeScreen — comportement 4 : le marqueur « à confirmer »
     expect(label.textContent).toContain('à confirmer')
   })
 
-  it("ne marque PAS le `bool` ORDINAIRE, alors même qu'il est décisif, non renseigné, et que sa section propose aussi « Rien à signaler »", () => {
+  it('marque AUSSI le `bool` ORDINAIRE décisif non renseigné — et sa section propose toujours « Rien à signaler » pour le résoudre', () => {
     renderNode()
     const checkbox = screen.getByLabelText('Ascvd etablie', { exact: false })
     const label = checkbox.closest('label')
@@ -248,12 +263,9 @@ describe('DecisionNodeScreen — comportement 4 : le marqueur « à confirmer »
     const section = checkbox.closest('section')
     if (!section) throw new Error('section introuvable')
 
-    // Preuve que ce booléen est bien traité comme décisif+non confirmé par le câblage réel (sinon la
-    // négation ci-dessous serait triviale, vraie pour n'importe quel champ non pertinent) : le bouton
-    // « Rien à signaler » de SA section existe bel et bien.
+    // Le mécanisme de résolution reste le même — le bouton « Rien à signaler » de SA section — et c'est
+    // justement ce que le marqueur rend trouvable : avant A8, rien ne disait QUEL champ ce bouton visait.
     expect(within(section).getByText('Rien à signaler')).toBeTruthy()
-    // Et pourtant, aucun marqueur textuel « à confirmer » sur son libellé — un `bool` ordinaire non coché
-    // EST une réponse clinique complète (« non »), pas une case en attente.
-    expect(label.textContent).not.toContain('à confirmer')
+    expect(label.textContent).toContain('à confirmer')
   })
 })

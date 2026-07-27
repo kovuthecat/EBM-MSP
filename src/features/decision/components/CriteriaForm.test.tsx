@@ -95,10 +95,33 @@ describe('CriteriaForm — marqueur « à confirmer » restreint aux `nombre` (t
     expect(html).toContain('à confirmer')
   })
 
-  it("ne marque PAS un `bool` ORDINAIRE décisif non renseigné, même présent dans aConfirmer", () => {
+  /**
+   * ASSERTION INVERSÉE le 2026-07-27 (soir) — arbitrage référent A8, après la recette VISUELLE. Ce test
+   * exigeait qu'un `bool` ORDINAIRE décisif ne porte JAMAIS le marqueur, au motif que « décoché EST la
+   * réponse non ». Le motif est juste pour le MOTEUR (D20 : un `bool` sans `confirmation_requise` est
+   * déterminé par défaut) et il ne l'était pas pour le PRATICIEN : sur `statine`, l'écran annonçait
+   * « 1 critère décisif non confirmé » alors qu'aucun champ ne portait de marqueur — un compteur que
+   * rien à l'écran ne permettait de résoudre.
+   *
+   * Le référent a tranché pour la congruence : compteur et marqueurs ont la même définition. La
+   * contrepartie — une densité de marqueurs plus forte — est assumée et mesurée
+   * (`docs/decision/validation/chantier-2026-07-27/mesure-densite-marqueurs.md`).
+   */
+  it('marque AUSSI un `bool` ORDINAIRE décisif non renseigné — A8 : compteur et marqueurs congruents', () => {
     const html = rendre(new Set(['ASCVD_etablie']))
-    expect(html).not.toContain('data-confirmer')
-    expect(html).not.toContain('à confirmer')
+    expect(html).toContain('data-confirmer="true"')
+    expect(html).toContain('à confirmer')
+  })
+
+  /**
+   * L'INVARIANT que l'arbitrage A8 institue, et la raison d'être de ce test : le nombre annoncé par le
+   * bandeau est TOUJOURS le nombre de marqueurs affichés. C'est la propriété que la recette visuelle a
+   * trouvée violée, et elle ne peut plus l'être sans faire échouer ce test.
+   */
+  it('autant de marqueurs affichés que de critères réclamés, quels que soient leurs types', () => {
+    const reclames = new Set(['HbA1c_actuelle', 'ASCVD_etablie', 'albuminurie'])
+    const html = rendre(reclames)
+    expect(html.split('· à confirmer').length - 1).toBe(reclames.size)
   })
 
   /**
@@ -116,6 +139,14 @@ describe('CriteriaForm — marqueur « à confirmer » restreint aux `nombre` (t
     const html = rendre(new Set(['albuminurie']))
     expect(html).toContain('data-confirmer="true"')
     expect(html).toContain('à confirmer')
+  })
+
+  it('expose l’état des segments aux lecteurs d’écran (A9) — `aria-pressed`, `false` tant que non touché', () => {
+    // `data-on` ne pilotait que le style : un lecteur d'écran annonçait des boutons indiscernables.
+    // `false` partout tant que le critère n'est pas `touched` EST la représentation de l'indéterminé.
+    const html = rendre(new Set(['albuminurie']))
+    expect(html).toContain('aria-pressed="false"')
+    expect(html).not.toContain('aria-pressed="true"')
   })
 
   it("n'allume aucun segment d'un `enum` non touché, même s'il porte sa valeur par défaut", () => {
@@ -155,13 +186,17 @@ describe('CriteriaForm — `bool` `confirmation_requise` porte le marqueur « à
     expect(html).toContain('à confirmer')
   })
 
-  it("ne marque PAS un `bool` ORDINAIRE même présent dans aConfirmer, alors qu'un `confirmation_requise` voisin l'est", () => {
+  // INVERSÉ le 2026-07-27 (soir, A8) pour la même raison que ci-dessus : un `bool` ORDINAIRE réclamé
+  // porte désormais le marqueur, exactement comme son voisin `confirmation_requise`. La distinction de
+  // type reste réelle POUR LE MOTEUR (l'un est déterminé par défaut, l'autre non) — elle a simplement
+  // cessé d'être visible à l'écran, où elle ne servait qu'à rendre un compteur insoluble.
+  it('marque le `bool` ORDINAIRE comme son voisin `confirmation_requise` — la distinction reste au moteur, plus à l’écran', () => {
     const html = rendre(new Set(['diabete_complique', 'ASCVD_etablie']))
-    // Le libellé du bool ordinaire ne doit jamais être suivi de « à confirmer ».
     const labelBlocks = html.split('<label')
-    const ascvdRow = labelBlocks.find((bloc) => bloc.includes('Maladie cardiovasculaire')) ?? labelBlocks.find((bloc) => bloc.toLowerCase().includes('ascvd')) ?? ''
-    expect(ascvdRow).not.toContain('à confirmer')
+    const ascvdRow = labelBlocks.find((bloc) => bloc.includes('Maladie cardiovasculaire')) ?? ''
+    expect(ascvdRow).toContain('à confirmer')
   })
+
 })
 
 // Tâches 4 & 5 (recette référent) : pied de section avec rappel des `nombre` manquants et bouton

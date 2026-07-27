@@ -635,3 +635,17 @@ conduite**. C'est la sous‑prescription corrigée.
       vide comme avant — mais cet intitulé est la **première chose que lit le praticien en ouvrant le
       nœud**, alors qu'il ne le concerne probablement pas. Avant, il lisait « Discuter la statine ».
       À juger : acceptable, ou faut‑il repenser ce que montre un formulaire vierge ?
+
+## A8 + A9 (2026-07-27, soir)
+
+- [ ] **A8 — compteur et marqueurs congruents.** Le nombre annoncé par le bandeau est désormais
+      TOUJOURS le nombre de mentions « · à confirmer » visibles (invariant testé). Vérifier sur
+      `statine` que le cas relevé en recette a disparu : plus de compteur sans repère.
+- [ ] **Densité à juger sur pièce.** Sur un formulaire VIERGE, la part de champs marqués monte
+      (`insuline` 64 % → 95 %, `rhd-alimentation` 89 % → 100 %). Après un clic « Rien à signaler » par
+      section, elle redevient **exactement** ce qu'elle était avant A8 — le surcoût est entièrement
+      transitoire (`mesure-densite-marqueurs.md`). Le point de jugement est donc : **l'ouverture d'un
+      nœud décourage-t-elle ?**
+- [ ] **A9 — lecteur d'écran.** Les boutons segmentés portent `aria-pressed`. À vérifier avec un
+      lecteur d'écran : la valeur retenue est annoncée, et aucune ne l'est tant que rien n'est cliqué.
+      Aucun changement visuel attendu.

@@ -103,21 +103,26 @@ export function CriteriaForm({
   // 6b) : la valeur saisie par le praticien reste pleinement lisible même redevenue non décisive. Générique :
   // aucun nom de critère connu d'avance.
   const estDim = (nom: string) => pertinents != null && !pertinents.has(nom) && !touched.has(nom)
-  // Marqueur visuel : `nombre` (tâche 3), `enum` (2026-07-27, cf. ci-dessous), et un `bool`/`liste`
-  // `confirmation_requise` (D20 R7). Un `bool` ORDINAIRE en est exclu — décoché EST la réponse « non ».
+  // Marqueur visuel « · à confirmer » : EXACTEMENT les critères que `decisifsAConfirmer` compte, sans
+  // aucun filtre de type — arbitrage référent A8 du 2026-07-27 (soir).
   //
-  // `enum` AJOUTÉ le 2026-07-27 (défaut A de la recette référent). D20 range `enum` avec `nombre` : non
-  // renseigné, il est INDÉTERMINÉ pour le moteur. Rien ne le disait à l'écran, et le rendu affirmait
-  // même le contraire — cf. le correctif du `data-on`/`<select>` plus bas.
-  // `liste` AJOUTÉ dans le même mouvement (prérequis technique n°1 de l'arbitrage C) : le moteur sait
-  // DÉJÀ traiter une `liste` `confirmation_requise` comme indéterminée
-  // (`engine/deriveCritere.ts` `critereEstDetermine`, qui teste `bool` ET `liste`) ; seul ce marqueur
-  // manquait pour que le praticien le voie.
-  const estAConfirmer = (critere: CritereEntree) =>
-    aConfirmer?.has(critere.nom) === true &&
-    (critere.type === 'nombre' ||
-      critere.type === 'enum' ||
-      ((critere.type === 'bool' || critere.type === 'liste') && critere.confirmation_requise === true))
+  // CE QUE LE FILTRE DE TYPE PRODUISAIT, et que la recette visuelle a vu à l'écran : le bandeau
+  // annonçait « 1 critère décisif non confirmé » sur `statine` alors qu'AUCUN champ ne portait de
+  // marqueur. Le critère restant était un `bool` ORDINAIRE — délibérément exclu du marqueur, au motif
+  // que « décoché EST la réponse non ». Le raisonnement est juste pour le MOTEUR (D20 : un `bool` sans
+  // `confirmation_requise` est déterminé par défaut) mais il ne l'était pas pour le PRATICIEN, à qui on
+  // affichait un compteur qu'aucun repère ne permettait de résoudre. Le mécanisme de résolution existe
+  // pourtant — le bouton « Rien à signaler » de la section — mais rien ne disait LEQUEL des champs il
+  // visait.
+  //
+  // Le compteur et les marqueurs ont donc désormais la MÊME définition, et c'est un invariant testé
+  // (`CriteriaForm.test.tsx`) : le nombre annoncé est toujours le nombre de marqueurs affichés. C'est la
+  // même exigence que le lot 1 tout entier — ce que l'écran affirme doit être ce que le calcul croit.
+  //
+  // ⚠ CONTREPARTIE ASSUMÉE PAR LE RÉFÉRENT : cela AUGMENTE la densité de marqueurs, que la recette
+  // signalait déjà comme forte (56 % des champs sur `statine`, 65 % sur RHD Alimentation). L'effet réel
+  // est mesuré dans `docs/decision/validation/chantier-2026-07-27/mesure-densite-marqueurs.md`.
+  const estAConfirmer = (critere: CritereEntree) => aConfirmer?.has(critere.nom) === true
 
   /** Coche/décoche une valeur dans un critère `liste` (tableau de libellés, D13). */
   const toggleListeValeur = (nom: string, valeur: string, coche: boolean) => {
@@ -257,6 +262,13 @@ export function CriteriaForm({
                 // en réclamant un champ que l'écran montrait comme déjà répondu, et « Poursuivre le
                 // schéma d'insuline en cours » était proposé à un naïf.
                 data-on={(touched.has(critere.nom) && String(criteria[critere.nom] ?? '') === valeur) || undefined}
+                // A9 (arbitrage référent, 2026-07-27 soir) : `data-on` ne pilote QUE le style — rien
+                // n'exposait la valeur retenue à un lecteur d'écran, qui annonçait trois boutons
+                // indiscernables. C'est le même invariant que tout le lot 1, appliqué à qui ne voit pas
+                // l'écran : ce que l'interface affirme doit être ce que le moteur croit.
+                // `false` sur TOUS les segments quand le critère n'est pas `touched` — c'est exactement
+                // la représentation de l'indéterminé de D20, sans avoir à l'inventer.
+                aria-pressed={touched.has(critere.nom) && String(criteria[critere.nom] ?? '') === valeur}
                 title={describeEnumValue(valeur)}
                 onClick={() => onChange(critere.nom, valeur)}
               >

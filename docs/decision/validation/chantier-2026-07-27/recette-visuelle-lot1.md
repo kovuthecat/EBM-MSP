@@ -407,14 +407,12 @@ cliquable ; le champ « Poids (kg) » se trouve, sur `insuline`, à environ
 **5. Le garde de portée dans le « pourquoi » : information utile ou bruit ?**
 Ce qui est affiché n'est pas une phrase mais **la condition, rendue presque
 telle quelle** : « Intolérance aux statines (non / rapportée / avérée) ≠ Non et
-CK, en multiples de la normale (0 = non dosé) > 4 et Statine deja en place :
-non ». Trois observations factuelles, à l'attention du référent :
+CK, en multiples de la normale (0 = non dosé) > 5 et Statine deja en place :
+non ». Deux observations factuelles, à l'attention du référent :
   - le libellé complet du critère est répété entre parenthèses à l'intérieur de
     la condition, ce qui l'allonge (« (non / rapportée / avérée) »,
     « (0 = non dosé) ») ;
-  - la comparaison est rendue en notation symbolique (`≠`, `>`), pas en français ;
-  - **le seuil affiché est « > 4 » alors que le texte de la même carte dit
-    « les CK dépassent 5 fois la normale »** (voir §7, point 1).
+  - la comparaison est rendue en notation symbolique (`≠`, `>`), pas en français.
 
 ---
 
@@ -576,23 +574,19 @@ tête du §6, et la page se remonte en moins d'une minute.
 
 ## 7. Hors périmètre — ce que j'ai remarqué en passant
 
-**1. Le seuil de CK affiché contredit le texte de la même carte.** Sur
-`statine`, la condition appliquée est `CK_x_normale > 4` (visible à l'écran :
-« CK, en multiples de la normale (0 = non dosé) **> 4** », et l'option écartée
-s'intitule « Interrompre la statine 4 à 6 semaines et réévaluer (**CK au-dessus
-de 4 fois la normale**) »). Mais le texte de justification affiché dans la carte
-« Statine indisponible » dit :
-
-> Cette carte est atteinte parce que **les CK dépassent 5 fois la normale**
-> AVANT toute initiation — ce qui, dans la recommandation française 2026, est
-> une contre-indication à la statine.
-
-… et le chapô du nœud, lui aussi affiché à l'écran, dit « la contre-indication
-biologique par des **CK > 5 N** avant initiation ». Le YAML porte trace d'un
-arbitrage référent du 2026-07-27 tranchant explicitement pour **4 N** (source
-NHS/AAC, « seuil le plus bas donc le plus prudent »). Le seuil appliqué semble
-donc être le bon, mais **deux textes visibles à l'écran annoncent encore 5 N**.
-Je ne réécris rien : c'est du contenu clinique, il revient au référent.
+**1. ~~Le seuil de CK affiché contredit le texte de la même carte.~~ —
+CONSTAT RETIRÉ, il était faux.** J'avais écrit que la carte « Statine
+indisponible » appliquait `CK > 4` tout en affirmant dans son texte « les CK
+dépassent 5 fois la normale ». Vérification refaite à l'écran sur deux profils
+(intolérance *rapportée*, CK = 6, statine non en place, avec puis sans maladie
+athéromateuse) : la carte affiche bien **« CK … > 5 »**, cohérent avec son
+propre texte et avec le chapô du nœud. Les conditions en `> 4` que j'avais lues
+appartiennent aux options de la **bande 4–5 N** (« Débuter la statine à dose
+plus faible », « Interrompre la statine 4 à 6 semaines et réévaluer »), dont les
+intitulés annoncent correctement « au-dessus de 4 fois la normale ». Il n'y a
+pas de contradiction : le nœud porte délibérément **deux seuils pour deux
+conduites distinctes**. L'erreur venait de ma transcription — j'avais recopié la
+condition de l'option voisine.
 
 **2. Les libellés des deux nœuds RHD sont sans accents et en style
 identifiant.** À l'écran, sur Alimentation : « Frequence boissons sucrees »,
