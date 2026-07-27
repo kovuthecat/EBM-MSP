@@ -1098,12 +1098,23 @@ alertes:
   # n'existe pas (cf. incertitudes).
   - quand: "intention == optimiser AND position_vs_cible == au_dessus OR intention == optimiser AND position_vs_cible == nettement_au_dessus"
     niveau: info
+    # PRÉCISÉE le 2026-07-27 (nuit) — classe K10 de la seconde recette navigateur. Le rapport a vérifié
+    # qu'il n'y avait PAS de contradiction logique : les cartes « Introduire… » qui suivent parfois cette
+    # alerte sont des ajouts PROTECTEURS (indication cardio-rénale), pas des intensifications
+    # glycémiques. Mais la distinction tenait au seul mot « glycémique », au milieu de cinq lignes, à un
+    # écran de deux cartes qui commencent par « Introduire ». Le message dit désormais ce que l'outil
+    # fait, explicitement — aucune revendication clinique nouvelle n'y est introduite, seule la
+    # description de son propre comportement est complétée.
     message: >-
       Position déclarée AU-DESSUS de l'objectif, avec une intention d'OPTIMISATION : l'outil s'en tient à
-      ce qui est déclaré et ne propose donc pas d'ajout d'agent glycémique (la palette d'intensification
-      est commandée par l'intention, pas par la position). C'est le comportement attendu si vous
-      travaillez d'abord la tolérance, l'observance ou la simplification du schéma. Si un renforcement du
-      traitement est visé, déclarer l'intention « intensifier » ouvre les options correspondantes.
+      ce qui est déclaré et ne propose donc aucune INTENSIFICATION GLYCÉMIQUE (la palette
+      d'intensification est commandée par l'intention, pas par la position). En revanche, les options de
+      PROTECTION cardio-rénale continuent d'être proposées si elles sont indiquées : une carte
+      « Introduire… » peut donc apparaître ci-dessous sans contredire ce message — elle est là pour le
+      bénéfice cardiaque ou rénal, et le « proposé parce que » de chaque carte le nomme. C'est le
+      comportement attendu si vous travaillez d'abord la tolérance, l'observance ou la simplification du
+      schéma. Si un renforcement du contrôle glycémique est visé, déclarer l'intention « intensifier »
+      ouvre les options correspondantes.
   # ÉLARGIE (2026-07-26, 4e série, red-team clinique sécurité HAUTE-3) : cette alerte ne testait jusqu'ici
   # que deux PROXYS de décompensation (HbA1c très élevée, symptômes de glucotoxicité) — jamais `cetonemie`
   # elle-même. Une cétonémie CONFIRMÉE sans ces deux proxys (le tableau typique de l'acidocétose

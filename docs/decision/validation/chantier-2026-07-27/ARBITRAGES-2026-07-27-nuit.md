@@ -165,3 +165,63 @@ deux prérequis attendent donc, en dette déclarée avec ce motif.
 - Les **trois vignettes manquantes** (dette S8) : `cible-glycemique`, `rhd-alimentation`,
   `rhd-activite-physique`.
 - `prescrire 12.pdf` toujours **vide**, à re-fournir.
+
+
+---
+
+## 8. Suites du 2026-07-27 (nuit, second temps)
+
+### Le trou « initiation + DFG < 30 » est plus étroit, et le correctif n'est pas une carte
+
+Diagnostiqué sur le moteur avant de faire rédiger quoi que ce soit. À DFG 25, HbA1c au-dessus,
+**« Introduire un iSGLT2 » s'applique déjà** (indication rénale). Les six profils muets sont soit à
+**DFG < 20** (l'iSGLT2 n'y est plus initiable), soit **à l'objectif** — et dans ce dernier cas ne rien
+proposer est correct.
+
+Le vrai cas manquant est donc : **initiation, DFG < 20, au-dessus de l'objectif**. Le référent nomme les
+conduites possibles (« aGLP1, insuline, … »), et le nœud PORTE DÉJÀ ces options. Ce qui les bloque :
+
+- `palette_glycemique_ouverte` ne s'ouvre à l'initiation que si la position est **« nettement
+  au-dessus »** — pas « au-dessus » ;
+- `classes_a_benefice_indisponibles` est un booléen **SAISI, jamais dérivé**, alors que le nœud détient
+  le DFG qui rend metformine (< 30) et iSGLT2 (< 20) indisponibles.
+
+Le mécanisme existe donc, mais il faut le cocher à la main : un praticien initiant à DFG 15 devrait
+savoir cocher « classes à bénéfice indisponibles » pour voir apparaître l'AR GLP‑1.
+
+**À trancher (clinique, donc pas par moi)** : lier `classes_a_benefice_indisponibles` au DFG — un DFG
+sous 20 rend-il par construction les classes à bénéfice indisponibles ? Si oui, le correctif est d'une
+ligne et le prérequis d'I15 se pose ensuite sans rien casser.
+
+### Le prérequis d'`insuline` reste bloqué, et il rejoint K3
+
+Le référent a accepté que l'alerte d'incohérence suffise pour une saisie contradictoire (« naïf » +
+insuline déjà cochée). Mais poser le prérequis ferait quand même échouer I2′ sur ces 7 profils, et le
+seul levier existant (`NOEUDS_AVEC_SORTIE_VIDE_CONNUE`) désactive I2′ pour le **nœud entier** — on
+perdrait la garantie sur tous les autres patients d'`insuline`.
+
+La bonne réponse est d'écarter ces profils **à la source** : ce sont des artefacts du générateur, qui
+tire chaque critère indépendamment. C'est exactement le mécanisme `contraintes` que K3 réclame par
+ailleurs (`TBR_severe <= TBR`). **Deux arbitrages distincts convergent sur la même capacité manquante**,
+ce qui la fait passer devant dans l'ordre d'exécution.
+
+### Exécuté
+
+- **K10** — l'alerte d'intention dit désormais explicitement que les options de PROTECTION
+  cardio-rénale continuent d'être proposées, et qu'une carte « Introduire… » ne la contredit donc pas.
+  Aucune revendication clinique nouvelle : seule la description du comportement de l'outil est
+  complétée. Golden master : 20 lignes, toutes le même message, **aucun changement de comportement**.
+
+⚠ **Écart signalé** : la substance fournie par le référent pour K10 (« le DFG peut contre-indiquer des
+agents à élimination rénale, il ne porte pas sur leur aspect glycémique — l'insuline n'a par exemple
+aucune contre-indication sur le DFG ») est juste, mais elle vise un AUTRE sujet : l'alerte que la
+recette a relevée porte sur l'INTENTION déclarée, pas sur le DFG. Elle n'a donc pas été reprise telle
+quelle. Reste à décider si une alerte distincte doit porter cette information rénale.
+
+### Reste exécutable, portée mesurée
+
+- **S7, vocabulaire fin** : 3 nœuds déclarent `insuline`, `insuline` déclare
+  `insuline_basale`/`insuline_rapide`. À reprendre : 3 listes de valeurs et **8 expressions**
+  `contient insuline`. Change le formulaire (une case devient deux sur trois nœuds) et déplace les
+  profils du banc — golden master à re-mesurer sur les 3 nœuds.
+- **Fusion TCA + champ `aide`** : évolution de schéma, rendu, et contenu de `rhd-alimentation`.
