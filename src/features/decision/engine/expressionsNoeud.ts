@@ -145,6 +145,9 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
     groupe: 'inerte',
     visible_si: 'affichage',
     aide: 'inerte', // prose d'aide à la saisie, jamais évaluée (cf. `CritereEntree.aide`)
+    // A4/F : même nature que `visible_si` — expressions d'AFFICHAGE, hors extraction de seuils (leurs
+    // littéraux ne déplacent aucune sortie du moteur).
+    valeurs_visible_si: 'affichage',
     confirmation_requise: 'inerte',
     min: 'inerte',
     max: 'inerte',
@@ -207,6 +210,9 @@ export function fragmentsDuNoeud(node: Noeud): FragmentExpression[] {
   node.criteres_entree.forEach((critere, i) => {
     if (critere.derive) pousser(critere.derive, 'decision', `criteres_entree[${i}].derive`)
     if (critere.visible_si) pousser(critere.visible_si, 'affichage', `criteres_entree[${i}].visible_si`)
+    for (const [valeur, expression] of Object.entries(critere.valeurs_visible_si ?? {})) {
+      pousser(expression, 'affichage', `criteres_entree[${i}].valeurs_visible_si.${valeur}`)
+    }
   })
 
   return fragments

@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import type { Contrainte, CritereEntree } from '../content/node.types'
 import type { Criteria, CriteriaValue } from '../engine/conditions'
-import { criteresPilotes, grouperChamps } from '../lib/formLayout'
+import { criteresPilotes, grouperChamps, valeursProposeesDepuisSaisie } from '../lib/formLayout'
 import { describeEnumValue, labelForCritere, labelForEnumValue } from '../lib/labels'
 import './CriteriaForm.css'
 
@@ -209,6 +209,16 @@ export function CriteriaForm({
 
     if (critere.type === 'liste') {
       const cochees = Array.isArray(criteria[critere.nom]) ? (criteria[critere.nom] as string[]) : []
+      // A4/F : le contenu peut masquer UNE valeur sans masquer le champ (`valeurs_visible_si`). Calculé
+      // sur la MÊME source que le groupement (`criteriaGroupement ?? criteria`, `touched` en `renseignes`),
+      // pour que l'apparition d'une case suive exactement le rythme de l'apparition d'un champ — sans quoi
+      // une case pourrait apparaître un cycle avant ou après la section qui la contient.
+      const valeursListe = valeursProposeesDepuisSaisie(
+        criteresEntree,
+        critere,
+        criteriaGroupement ?? criteria,
+        touched,
+      )
       return (
         <div
           key={critere.nom}
@@ -224,7 +234,7 @@ export function CriteriaForm({
           </div>
           {renderAide(critere)}
           <div className="criteria-form__chips">
-            {valeurs.map((valeur) => (
+            {valeursListe.map((valeur) => (
               <label
                 key={valeur}
                 className="criteria-form__chip"

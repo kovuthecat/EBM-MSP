@@ -67,6 +67,23 @@ export interface CritereEntree {
    */
   aide?: string
   /**
+   * MASQUE UNE VALEUR d'un critère `liste`, plutôt que le champ entier (A4/F, 2026-07-27). Clé = une
+   * valeur déclarée dans `valeurs` ; valeur = l'expression DSL sous laquelle cette case est PROPOSÉE. Une
+   * valeur absente de cet objet est toujours proposée.
+   *
+   * Le contenu réclamait ce champ de lui-même — « `visible_si` porte sur un champ entier : impossible de
+   * masquer UNE valeur d'une liste dont les quatre autres restent pertinentes ». Chez un patient déclaré
+   * naïf d'insuline, « Insuline basale » et « Insuline rapide » restaient cochables dans
+   * `traitements_en_cours`. Le contournement employé deux fois (scinder la valeur en critère propre) ne
+   * passe pas à l'échelle sur un critère PARTAGÉ entre plusieurs nœuds.
+   *
+   * MÊME SÉMANTIQUE que `visible_si`, et ce n'est pas un détail : une expression INDÉTERMINÉE laisse la
+   * valeur VISIBLE (R7/D20 — on ne masque jamais sur une donnée qu'on ignore encore). MÊME SÛRETÉ aussi :
+   * une valeur cochée puis masquée est RETIRÉE de la saisie, sans quoi elle continuerait de piloter le
+   * moteur en silence pendant que l'écran affirme le contraire.
+   */
+  valeurs_visible_si?: Record<string, string>
+  /**
    * Borne basse plausible du domaine clinique d'un critère `nombre` (table validée par le référent,
    * `docs/decision/GRAMMAIRE-NOEUD.md`). Triple rôle, aucun lu par le moteur (`evaluateNode` l'ignore) :
    * (1) le formulaire (`components/CriteriaForm.tsx`) la répercute sur l'attribut HTML `min` de l'input,

@@ -90,6 +90,51 @@ export function champEstVisible(
 }
 
 /**
+ * VALEURS d'un critère `liste` actuellement PROPOSÉES (A4/F, 2026-07-27). Le contenu peut masquer une
+ * valeur sans masquer le champ : `valeurs_visible_si` associe à une valeur l'expression sous laquelle elle
+ * reste cochable.
+ *
+ * MÊME RÈGLE QUE `champEstVisible`, et pour la même raison : `!== false`, donc une expression INDÉTERMINÉE
+ * laisse la valeur VISIBLE. On ne retire jamais une case au praticien sur une donnée qu'on ignore encore
+ * (R7/D20) — le sens sûr du doute est de montrer, pas de cacher.
+ *
+ * Un critère sans `valeurs_visible_si` renvoie ses `valeurs` telles quelles, même référence : le chemin
+ * courant ne paie rien pour un mécanisme qu'un seul critère utilise aujourd'hui.
+ */
+export function valeursProposees(
+  critere: CritereEntree,
+  criteriaDerives: Criteria,
+  renseignes?: ReadonlySet<string>,
+): string[] {
+  const valeurs = critere.valeurs ?? []
+  const gardes = critere.valeurs_visible_si
+  if (gardes == null) return valeurs
+  return valeurs.filter((valeur) => {
+    const garde = gardes[valeur]
+    if (garde == null) return true
+    return evaluateCondition(garde, criteriaDerives, renseignes) !== false
+  })
+}
+
+/**
+ * Même chose depuis la SAISIE BRUTE (dérivés et ensemble effectif calculés ici) — point d'entrée du
+ * formulaire, qui n'a pas à refaire ce que `grouperChamps` fait déjà de son côté. Deux fonctions plutôt
+ * qu'une parce que les deux appelants n'ont pas la même chose en main : `reinitialiserChampsMasques`
+ * tient déjà ses dérivés (il itère jusqu'à stabilité), le composant non.
+ */
+export function valeursProposeesDepuisSaisie(
+  criteresEntree: CritereEntree[],
+  critere: CritereEntree,
+  criteria: Criteria,
+  renseignes?: ReadonlySet<string>,
+): string[] {
+  if (critere.valeurs_visible_si == null) return critere.valeurs ?? []
+  const derives = calculerCriteresDerives(criteresEntree, criteria)
+  const effectifs = determinesEffectifs(criteresEntree, derives, renseignes)
+  return valeursProposees(critere, derives, effectifs)
+}
+
+/**
  * Champs SAISISSABLES (non `derive`) actuellement visibles, groupés par `groupe` dans l'ordre de première
  * apparition. Les critères dérivés ne sont jamais rendus (calculés, cf. `deriveCritere.ts`) ; un groupe
  * dont tous les champs sont masqués disparaît entièrement.
@@ -149,11 +194,32 @@ export function reinitialiserChampsMasques(
         ? !(Array.isArray(actuel) && actuel.length === 0)
         : actuel !== defaut
     })
-    if (aReinitialiser.length === 0) break
+
+    // A4/F — MÊME SÛRETÉ, À LA MAILLE DE LA VALEUR. Un champ peut rester visible alors qu'UNE de ses
+    // valeurs vient d'être masquée (`valeurs_visible_si`). Sans ce retrait, cocher « insuline basale »
+    // puis déclarer le patient naïf laisserait la valeur piloter le moteur en silence — exactement le
+    // défaut que la boucle ci-dessus corrige au niveau du champ entier, transposé d'un cran plus bas.
+    const valeursARetirer = criteresEntree.filter((critere) => {
+      if (critere.derive != null || critere.type !== 'liste' || critere.valeurs_visible_si == null) return false
+      if (!champEstVisible(critere, derives, effectifs)) return false // déjà traité au-dessus
+      const actuel = courant[critere.nom]
+      if (!Array.isArray(actuel) || actuel.length === 0) return false
+      const proposees = new Set(valeursProposees(critere, derives, effectifs))
+      return actuel.some((valeur) => !proposees.has(valeur))
+    })
+
+    if (aReinitialiser.length === 0 && valeursARetirer.length === 0) break
     const suivant = { ...courant }
     for (const critere of aReinitialiser) {
       suivant[critere.nom] = valeurParDefaut(critere)
       reinitialises.push(critere.nom)
+    }
+    for (const critere of valeursARetirer) {
+      const proposees = new Set(valeursProposees(critere, derives, effectifs))
+      suivant[critere.nom] = (courant[critere.nom] as string[]).filter((valeur) => proposees.has(valeur))
+      // PAS ajouté à `reinitialises` : l'appelant s'en sert pour retirer le champ de `touched`, or le
+      // champ reste répondu — le praticien a bien coché les valeurs qui subsistent. Le vider de `touched`
+      // ferait réapparaître le marqueur « à confirmer » sur un champ auquel il vient de répondre.
     }
     courant = suivant
   }

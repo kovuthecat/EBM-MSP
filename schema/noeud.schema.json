@@ -166,6 +166,11 @@
           "minLength": 1,
           "description": "Condition DSL (grammaire de conditions.ts, évaluée sur les critères dérivés inclus) sous laquelle ce champ est AFFICHE. Fausse = champ masqué et retiré de la saisie (ex. 'traitements en cours' sans objet quand l'intention est d'initier ; 'nature de l'intolérance' sans objet si aucune intolérance). Pure présentation : le moteur continue de recevoir la valeur du critère, qui reste à sa valeur par défaut tant que le champ est masqué."
         },
+        "valeurs_visible_si": {
+          "type": "object",
+          "additionalProperties": { "type": "string", "minLength": 1 },
+          "description": "OPTIONNEL, criteres de type `liste` UNIQUEMENT — masque UNE VALEUR de la liste plutot que le champ entier (arbitrage A4/F du 2026-07-27). Cle = une valeur declaree dans `valeurs` ; valeur = une expression DSL sous laquelle cette case est PROPOSEE. Une valeur absente de cet objet est toujours proposee. MOTIF : `visible_si` porte sur un champ ENTIER, et le contenu le disait deja de lui-meme — « impossible de masquer UNE valeur d'une liste dont les quatre autres restent pertinentes ». Chez un patient declare naif d'insuline, « Insuline basale » et « Insuline rapide » restaient cochables dans `traitements_en_cours`. Le contournement employe deux fois (scinder la valeur en critere propre) ne passe pas a l'echelle sur un critere PARTAGE entre plusieurs noeuds ; c'est la troisieme occurrence du meme manque. MEME SEMANTIQUE que `visible_si` : expression INDETERMINEE (operande non renseigne) ⇒ valeur VISIBLE — on ne masque jamais sur une donnee qu'on ignore encore (R7/D20, repli « fail open »). MEME SURETE aussi : une valeur cochee puis masquee est RETIREE de la saisie (`reinitialiserChampsMasques`), sans quoi elle continuerait de piloter le moteur en silence pendant que l'ecran affirme le contraire. Aucun effet moteur direct : `evaluateNode` ne lit pas ce champ, il ne voit que la liste resultante."
+        },
         "aide": {
           "type": "string",
           "minLength": 1,

@@ -18,6 +18,7 @@ import {
   decisifsAConfirmer,
   grouperChamps,
   reinitialiserChampsMasques,
+  valeursProposeesDepuisSaisie,
 } from './formLayout.ts'
 
 const CRITERES: CritereEntree[] = [
@@ -321,5 +322,89 @@ describe('criteresPilotes — A7, repère de départ dérivé du contenu', () =>
       { nom: 'b', type: 'bool', groupe: 'G' },
     ]
     expect(criteresPilotes(criteres).size).toBe(0)
+  })
+})
+
+/**
+ * A4/F — `valeurs_visible_si` : masquer UNE valeur d'une `liste` sans masquer le champ.
+ *
+ * Le défaut : chez un patient déclaré naïf d'insuline, « Insuline basale » et « Insuline rapide »
+ * restaient cochables dans `traitements_en_cours`. `visible_si` ne sait masquer qu'un champ entier, et le
+ * contenu le disait déjà de lui-même. Troisième occurrence du même manque.
+ */
+describe('valeursProposees — A4/F', () => {
+  const CRITERES: CritereEntree[] = [
+    { nom: 'situation', type: 'enum', valeurs: ['naif', 'basale_seule'] },
+    {
+      nom: 'traitements',
+      type: 'liste',
+      valeurs: ['metformine', 'insuline_basale', 'insuline_rapide'],
+      valeurs_visible_si: {
+        insuline_basale: 'situation != naif',
+        insuline_rapide: 'situation != naif',
+      },
+    },
+  ]
+  const critere = CRITERES[1]
+
+  it('masque les valeurs dont la garde est FAUSSE, garde les autres', () => {
+    const proposees = valeursProposeesDepuisSaisie(CRITERES, critere, { situation: 'naif', traitements: [] }, new Set(['situation']))
+    expect(proposees).toEqual(['metformine'])
+  })
+
+  it('propose tout quand la garde est VRAIE', () => {
+    const proposees = valeursProposeesDepuisSaisie(
+      CRITERES,
+      critere,
+      { situation: 'basale_seule', traitements: [] },
+      new Set(['situation']),
+    )
+    expect(proposees).toEqual(['metformine', 'insuline_basale', 'insuline_rapide'])
+  })
+
+  it('propose tout quand la garde est INDÉTERMINÉE — on ne cache jamais sur une donnée qu’on ignore', () => {
+    // Même règle que `champEstVisible` (R7/D20), et pour la même raison : masquer une case sur une donnée
+    // non encore renseignée reviendrait à retirer au praticien une réponse qu'il n'a pas eu l'occasion de
+    // donner. `situation` hors de `renseignes` ⇒ la garde est indéterminée.
+    const proposees = valeursProposeesDepuisSaisie(CRITERES, critere, { situation: 'naif', traitements: [] }, new Set())
+    expect(proposees).toEqual(['metformine', 'insuline_basale', 'insuline_rapide'])
+  })
+
+  it('un critère SANS `valeurs_visible_si` renvoie ses valeurs telles quelles', () => {
+    const simple: CritereEntree = { nom: 'x', type: 'liste', valeurs: ['a', 'b'] }
+    expect(valeursProposeesDepuisSaisie([simple], simple, { x: [] })).toEqual(['a', 'b'])
+  })
+})
+
+describe('reinitialiserChampsMasques — A4/F : une valeur cochée puis masquée est RETIRÉE', () => {
+  const CRITERES: CritereEntree[] = [
+    { nom: 'situation', type: 'enum', valeurs: ['naif', 'basale_seule'] },
+    {
+      nom: 'traitements',
+      type: 'liste',
+      valeurs: ['metformine', 'insuline_basale'],
+      valeurs_visible_si: { insuline_basale: 'situation != naif' },
+    },
+  ]
+
+  it('retire la valeur devenue masquée, conserve les autres, et le champ reste répondu', () => {
+    // Le scénario exact : cocher « insuline basale » sous « basale seule », puis revenir à « naïf ».
+    // Sans ce retrait, la valeur continuerait de piloter le moteur pendant que l'écran affirme le
+    // contraire — le défaut que la remise à zéro des champs masqués corrige déjà un cran plus haut.
+    const { criteria, reinitialises } = reinitialiserChampsMasques(
+      CRITERES,
+      { situation: 'naif', traitements: ['metformine', 'insuline_basale'] },
+      new Set(['situation', 'traitements']),
+    )
+    expect(criteria.traitements).toEqual(['metformine'])
+    // PAS dans `reinitialises` : l'appelant s'en sert pour retirer le champ de `touched`, or le praticien
+    // a bien répondu — le vider ferait réapparaître « à confirmer » sur un champ tout juste renseigné.
+    expect(reinitialises).not.toContain('traitements')
+  })
+
+  it('ne touche à rien quand toutes les valeurs cochées restent proposées', () => {
+    const entree = { situation: 'basale_seule', traitements: ['insuline_basale'] }
+    const { criteria } = reinitialiserChampsMasques(CRITERES, entree, new Set(['situation', 'traitements']))
+    expect(criteria.traitements).toEqual(['insuline_basale'])
   })
 })

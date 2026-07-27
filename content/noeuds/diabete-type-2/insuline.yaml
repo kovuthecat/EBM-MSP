@@ -116,6 +116,23 @@ criteres_entree:
   - nom: traitements_en_cours
     type: liste
     valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, glinide, gliptine, insuline_basale, insuline_rapide]
+    # A4/F (2026-07-27) — PREMIER USAGE de `valeurs_visible_si`, et le défaut qui l'a fait écrire : chez un
+    # patient déclaré NAÏF d'insuline, les deux cases d'insuline restaient cochables. Le contenu ne pouvait
+    # rien y faire et le disait déjà lui-même, quelques lignes plus bas sur `profil_glycemique` :
+    # « `visible_si` porte sur un champ entier : impossible de masquer UNE valeur d'une liste dont les
+    # quatre autres restent pertinentes ». Ce critère est PARTAGÉ avec `prescription` — le contournement
+    # employé deux fois (scinder la valeur en critère propre, cf. `hypo_interprandiale`) ne s'y appliquait
+    # pas sans dupliquer un critère commun. Troisième occurrence du même manque, d'où le mécanisme.
+    #
+    # ARTICULATION AVEC LA CONTRAINTE de saisie déclarée en tête de ce fichier, qui couvre la MÊME
+    # incohérence : les deux sont nécessaires et ne font pas double emploi. R8 le dit — « une alerte ne
+    # retire rien : elle commente une saisie qu'il faudrait empêcher ». Ici, le masquage EMPÊCHE la saisie
+    # dans le formulaire ; la contrainte, elle, reste indispensable au BANC, qui ignore `visible_si` et
+    # continuerait sinon d'engendrer des patients naïfs sous insuline. Prévention à l'écran, garde-fou à
+    # l'instrument.
+    valeurs_visible_si:
+      insuline_basale: "situation_insuline != naif"
+      insuline_rapide: "situation_insuline != naif"
   - nom: preference_injection
     type: enum
     valeurs: [accepte, refuse, indifferent]
@@ -1027,8 +1044,23 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Opus"
   statut: brouillon
-  version: "0.20"
+  version: "0.21"
   changelog:
+    - date: "2026-07-27"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        A4/F — `traitements_en_cours` masque désormais « insuline basale » et « insuline rapide » chez un
+        patient déclaré NAÏF, grâce au nouveau champ de schéma `valeurs_visible_si`. La recette avait
+        constaté que les deux cases restaient cochables ; le contenu ne pouvait rien y faire et le disait
+        déjà lui-même sur `profil_glycemique` — « `visible_si` porte sur un champ entier : impossible de
+        masquer UNE valeur d'une liste dont les quatre autres restent pertinentes ». Le contournement
+        employé deux fois (scinder la valeur en critère propre) ne s'appliquait pas ici : ce critère est
+        PARTAGÉ avec `prescription`. Troisième occurrence du même manque, d'où le mécanisme générique.
+        Il ne fait PAS double emploi avec la contrainte de saisie ajoutée le même jour sur la même
+        incohérence : R8 (« une alerte ne retire rien : elle commente une saisie qu'il faudrait
+        empêcher ») — le masquage EMPÊCHE la saisie à l'écran, la contrainte reste indispensable au BANC,
+        qui ignore `visible_si`. Sûreté à la maille de la valeur : une valeur cochée puis masquée est
+        RETIRÉE de la saisie, sans quoi elle piloterait le moteur en silence. Aucun golden master modifié.
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

@@ -130,6 +130,7 @@ const MARQUEURS = {
   visibleSi: 'MARQUEUR_visible_si == 8',
   calcul: 'MARQUEUR_calcul * 9',
   contrainte: 'MARQUEUR_contrainte <= 10',
+  valeurVisibleSi: 'MARQUEUR_valeur_visible_si == 11',
 } as const
 
 function noeudSynthetique(): Noeud {
@@ -141,6 +142,14 @@ function noeudSynthetique(): Noeud {
     criteres_entree: [
       { nom: 'derive_test', type: 'bool', derive: MARQUEURS.derive },
       { nom: 'visible_test', type: 'bool', visible_si: MARQUEURS.visibleSi },
+      // A4/F : `valeurs_visible_si` porte une expression PAR VALEUR — le collecteur doit les visiter
+      // toutes, pas seulement la première.
+      {
+        nom: 'liste_test',
+        type: 'liste',
+        valeurs: ['a'],
+        valeurs_visible_si: { a: MARQUEURS.valeurVisibleSi },
+      },
     ],
     options: [
       {
@@ -194,6 +203,8 @@ describe('G2 — le collecteur visite tous les emplacements porteurs d’express
       // `decision` ferait entrer ses littéraux dans les domaines de tirage comme s'ils étaient des
       // frontières cliniques.
       [MARQUEURS.contrainte, 'saisie'],
+      // Même nature que `visible_si` : affichage, donc hors extraction de seuils.
+      [MARQUEURS.valeurVisibleSi, 'affichage'],
     ]
 
     const violations: string[] = []
@@ -219,13 +230,14 @@ describe('G2 — le collecteur visite tous les emplacements porteurs d’express
         if (nature !== 'inerte') porteurs.push(`${definition}.${champ}`)
       }
     }
-    // 9 emplacements de schéma pour 10 marqueurs : `alerte.quand` est la MÊME définition de schéma,
+    // 10 emplacements de schéma pour 11 marqueurs : `alerte.quand` est la MÊME définition de schéma,
     // exercée à deux endroits (nœud et option) — c'est précisément la confusion qui a produit le défaut.
     expect(porteurs.sort()).toEqual(
       [
         'alerte.quand',
         'contrainte.expression',
         'critereEntree.derive',
+        'critereEntree.valeurs_visible_si',
         'critereEntree.visible_si',
         'option.calculs',
         'option.conditions',
