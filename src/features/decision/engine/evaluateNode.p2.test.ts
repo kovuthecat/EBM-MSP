@@ -4,7 +4,7 @@
  *
  * Volontairement sur des nœuds **synthétiques** (le moteur ne connaît aucun nœud/domaine par son
  * nom, D8) : on isole la sémantique du sélecteur, indépendamment du contenu clinique réel. Les
- * nœuds A/B réels restent couverts par `evaluateNode.test.ts` et `content.test.ts`.
+ * nœuds A/B réels restent couverts par `evaluateNode.cible-glycemique.test.ts` et `content.test.ts`.
  */
 import { describe, expect, it } from 'vitest'
 import type { Noeud, Option, PrioriteConditionnelle } from '../content/node.types.ts'

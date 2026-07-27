@@ -263,7 +263,8 @@ function estSentinelle(conditions: string[]): boolean {
  * Justification SITUATIONNELLE d'une option (R6, `docs/decision/GRAMMAIRE-NOEUD.md`) : `option.conditions`
  * porte plusieurs chaînes en ET (`evaluateNode` : `.every(...)`) — on applique `termesVrais` à CHACUNE et
  * on concatène, plutôt que de recopier les règles littéralement (`EvaluateNodeResult.reasons`, qui reste
- * la liste brute des conditions, inchangée — utile ailleurs, ex. `evaluateNode.test.ts`). Les sentinelles
+ * la liste brute des conditions, inchangée — utile ailleurs, ex. `evaluateNode.cible-glycemique.test.ts`).
+ * Les sentinelles
  * traversent SANS être évaluées (cf. `estSentinelle`) : `describeReasons` les traite par un cas spécial.
  *
  * PREND EXPLICITEMENT `option.conditions` en paramètre, PAS `option.prerequis` (R6, § arbitrage

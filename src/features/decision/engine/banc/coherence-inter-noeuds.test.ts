@@ -158,14 +158,25 @@ describe('S7 — un critère partagé entre nœuds a un encodage unique', () => 
  * vignette est un nœud dont aucune sortie n'a jamais été formulée comme une attente.
  *
  * L'écrire ici ne corrige rien ; ça rend l'absence VISIBLE et datée, là où elle ne l'était nulle part.
- * À résorber au lot 2 (les vignettes RHD demandent la même relecture clinique que le contenu qu'elles
- * couvrent).
+ *
+ * ⚠ UNE DES TROIS ENTRÉES ÉTAIT FAUSSE, et le défaut est instructif. `cible-glycemique` y figurait sous
+ * le motif « jamais doté de vignettes » — il en portait 19, contre le nœud RÉEL, depuis l'origine. Ce
+ * test ne mesure pas l'absence de vignettes : il mesure la présence d'un FICHIER PORTANT UN NOM, et ce
+ * nœud est le seul dont le banc précédait la convention de nommage (`evaluateNode.test.ts`, sans suffixe
+ * — c'était alors le seul). La passe adversariale RHD le disait d'ailleurs noir sur blanc au même moment
+ * (« les vignettes de `cible-glycemique` dans `evaluateNode.test.ts` », `verif-finale-rhd.md` §E) ; la
+ * dette a été écrite sans confronter les deux. Résorbé le 2026-07-27 en RENOMMANT le fichier à la
+ * convention : le nœud n'a rien gagné en couverture, l'inventaire a cessé de mentir.
+ *
+ * ✅ DETTE S8 SOLDÉE le 2026-07-27. Les deux entrées RHD, elles, étaient réelles — aucun profil-patient
+ * nommé n'existait pour ces nœuds. Elles sont levées par `evaluateNode.rhd-alimentation.test.ts` et
+ * `evaluateNode.rhd-activite-physique.test.ts` (56 assertions, 12 vignettes). ⚠ AVEC UNE RÉSERVE QUI DOIT
+ * SURVIVRE À LA FERMETURE DE LA DETTE : ces vignettes-là verrouillent des ARBITRAGES CONSIGNÉS, elles
+ * n'ont pas été relues patient par patient comme F-01…F-09 sur `statine`. Le fichier vide est comblé, la
+ * relecture clinique reste due — cf. l'en-tête de chacun des deux bancs, qui le dit avant toute autre
+ * chose. La table ci-dessous reste en place, vide : la prochaine absence sera de nouveau visible.
  */
-const NOEUDS_SANS_VIGNETTES_CONNUS = new Map<string, string>([
-  ['cible-glycemique', 'Nœud le plus ancien du domaine, jamais doté de vignettes. À écrire au lot 2.'],
-  ['rhd-alimentation', 'Constat de la passe adversariale RHD du 2026-07-27. À écrire au lot 2.'],
-  ['rhd-activite-physique', 'Constat de la passe adversariale RHD du 2026-07-27. À écrire au lot 2.'],
-])
+const NOEUDS_SANS_VIGNETTES_CONNUS = new Map<string, string>([])
 
 /** Convention du dépôt : un fichier de vignettes par nœud, nommé d'après son id. */
 function cheminVignettes(id: string): string {
