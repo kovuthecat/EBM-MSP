@@ -718,9 +718,12 @@ export function evaluateNode(node: Noeud, criteria: Criteria, renseignes?: Reado
   // le relais du panneau de résultats vide »). L'invariant I2′ du banc, lui, ne teste QUE des profils
   // intégralement renseignés, où `enAttente` est vide : il n'est pas affecté.
   //
-  // `ordered-first-match` n'avait PAS ce défaut : `evaluateOrderedFirstMatch` s'arrête net sur une
-  // option indéterminée et n'atteint jamais son repli (cf. sa docstring, « HALTE sur indéterminé »).
-  // La correction ne concerne donc que le mode `multi-options`, qui reprend ici la même doctrine.
+  // `ordered-first-match` n'avait PAS ce défaut : `evaluateOrderedFirstMatch` mémorise la halte sans
+  // jamais conclure À SA PLACE — le repli n'y devient atteignable que s'il porte lui-même `role: securite`
+  // (D32, P4/S2, T-020 ; cf. sa docstring, « HALTE sur indéterminé »), jamais par simple absence d'autre
+  // option applicable comme ici. La correction ci-dessous ne concerne donc que le mode `multi-options`,
+  // qui reprend la même doctrine (ne jamais conclure sur ce qui reste en attente) sous une forme adaptée
+  // à sa propre sémantique (toutes les options applicables comptent, pas une seule sortie).
   if (!anyNonDefaultApplicable && enAttente.size === 0) {
     for (const option of defaults) {
       if (
@@ -777,14 +780,28 @@ export function evaluateNode(node: Noeud, criteria: Criteria, renseignes?: Reado
  * l'épuisement du nœud) : une fois une option retenue, les suivantes dans l'ordre du nœud ne sont
  * jamais évaluées — cohérent avec `excluded`, qui a la même limite en OFM.
  *
- * D20 (SPEC §2.4) — HALTE sur indéterminé, pas un simple saut : si l'option rencontrée dans l'ordre du
- * nœud est INDÉTERMINÉE (`conditions`/`prerequis`/`exclusions`), la boucle S'ARRÊTE là plutôt que de
- * tester l'option suivante. L'ORDRE du nœud FAIT FOI (D11) : sauter une option indéterminée pour en
- * retenir une plus loin reviendrait à décider qu'elle ne matche pas, ce qui est précisément ce que le
- * moteur ignore. Le nœud entier devient `enAttente` sur CETTE seule option ; les options suivantes — y
- * compris le repli — ne sont jamais atteintes, même limite que `nonRetenues`/`excluded` ci-dessus. Ce
- * choix n'est pas explicitement tranché par la spec (silencieuse sur l'interaction OFM/`enAttente`) —
- * signalé au rapport de tâche.
+ * D20 (SPEC §2.4) — HALTE sur indéterminé, RECTIFIÉE le 2026-07-28 (D32, P4/S2, T-020) : si l'option
+ * rencontrée dans l'ordre du nœud est INDÉTERMINÉE (`conditions`/`prerequis`/`exclusions`), la boucle NE
+ * TESTE PLUS l'option suivante COMME SI DE RIEN N'ÉTAIT — la halte est mémorisée (le nœud reste `enAttente`
+ * sur CETTE option, exactement comme avant) — mais elle N'ARRÊTE PLUS l'évaluation. Le parcours CONTINUE,
+ * en ne considérant plus, parmi les options restantes, que celles portant `role: securite` (D25) — le
+ * repli (`["default"]`) y compris, qui n'est lui-même retesté que s'IL porte ce rôle. Toute option
+ * ORDINAIRE (`role` autre que `securite`) placée après une halte reste HORS D'ATTEINTE, sans même être
+ * évaluée : l'ORDRE du nœud FAIT FOI (D11) — sauter une option indéterminée pour en retenir une plus loin
+ * reviendrait à décider qu'elle ne matche pas, ce que le moteur ignore toujours. Seule une option de
+ * SÉCURITÉ échappe à cette règle, parce qu'un fait de sécurité ne se négocie pas contre une indétermination
+ * plus tôt dans l'ordre (D25 : « à faire d'emblée, jamais repliée ni plafonnée ») — la halte, elle, reste
+ * PLEINEMENT rapportée dans `enAttente` : l'écran peut donc dire à la fois « voici le filet de sécurité » et
+ * « la décision principale reste suspendue à tels critères » (D32, `docs/decision/validation/
+ * recette-navigateur-2026-07-28.md`, D-03 : un patient en prévention secondaire avec une intolérance avérée
+ * n'obtenait STRICTEMENT RIEN, alors qu'une carte de sécurité plus loin dans l'ordre le couvrait déjà).
+ *
+ * Si la halte se reproduit PLUS LOIN, sur une option de sécurité elle-même indéterminée : elle s'ajoute
+ * simplement à `enAttente` (Map, plusieurs entrées possibles en OFM depuis ce lot) et le parcours continue
+ * vers les options de sécurité SUIVANTES — la première d'entre elles réellement APPLICABLE l'emporte
+ * (sortie toujours UNIQUE, D11). Si aucune ne matche, le nœud renvoie `applicable: []` avec, dans
+ * `enAttente`, la ou les haltes rencontrées — jamais un silence total sans aucune trace (cf. I23,
+ * `engine/banc/`).
  */
 function evaluateOrderedFirstMatch(
   node: Noeud,
@@ -796,8 +813,13 @@ function evaluateOrderedFirstMatch(
   const enAttente = new Map<Option, string[]>()
   const vide: EvaluateNodeResult['reasons'] = new Map()
 
+  // Devient `true` à la première halte rencontrée (option `enAttente`) : à partir de là, seules les
+  // options `role: securite` restent candidates — cf. docstring ci-dessus (D32).
+  let halte = false
+
   for (const option of node.options) {
     if (isDefaultOption(option)) continue
+    if (halte && option.role !== 'securite') continue // hors d'atteinte : ni évaluée, ni tracée nulle part.
     requireConditions(option)
     const expressionsCondition = isToujoursOption(option) ? option.prerequis ?? [] : [...option.conditions, ...(option.prerequis ?? [])]
     const applicable = classerOption(
@@ -814,13 +836,20 @@ function evaluateOrderedFirstMatch(
       return { applicable: [option], reasons: new Map([[option, [...option.conditions]]]), excluded, nonRetenues, enAttente }
     }
     if (enAttente.has(option)) {
-      // Halte immédiate (cf. docstring) : les options suivantes, repli compris, ne sont pas évaluées.
-      return { applicable: [], reasons: vide, excluded, nonRetenues, enAttente }
+      // Halte mémorisée (D32) : NE retourne PLUS immédiatement — le parcours continue, restreint aux
+      // options `role: securite` restantes (cf. docstring). La halte demeure rapportée dans `enAttente`.
+      halte = true
+      continue
     }
     // Sinon (non retenue ou exclue) : l'ordre du nœud continue vers l'option suivante.
   }
   const fallback = node.options.find(isDefaultOption)
   if (fallback) {
+    if (halte && fallback.role !== 'securite') {
+      // Repli hors d'atteinte derrière une halte (sauf s'il porte lui-même `role: securite`, D32) : la
+      // halte déjà mémorisée reste seule trace dans `enAttente`.
+      return { applicable: [], reasons: vide, excluded, nonRetenues, enAttente }
+    }
     const applicable = classerOption(
       fallback,
       fallback.prerequis ?? [],

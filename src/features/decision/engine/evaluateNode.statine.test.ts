@@ -488,3 +488,62 @@ describe('statine — F-21/F-25 : conduite CK sous traitement (parcours NHS, lot
     expect(texte).toContain('française')
   })
 })
+
+/**
+ * P4/S2, T-020 (D32) — CARACTÉRISATION du défaut D-03 (`docs/decision/validation/
+ * recette-navigateur-2026-07-28.md`) : « Sortie muette : intolérance avérée sans statine en place ».
+ *
+ * Profil EXACT de la « Décision clé » de T-020 : ASCVD établie = oui, intolérance = avérée, statine déjà
+ * en place = non (RENSEIGNÉ explicitement — « Rien à signaler » sur les sections concernées, D30/T-018),
+ * âge 62, et `anciennete_diabete_annees` / `autres_FDRCV` NON renseignés. Le parcours OFM atteint
+ * « Discuter la statine » (2ᵉ option restante après les exclusions dialyse/intolérance sur « haute
+ * intensité ») dont les 3 conditions testent `anciennete_diabete_annees`/`autres_FDRCV`/`diabete_complique`
+ * — les deux premiers non renseignés → INDÉTERMINÉ → HALTE (D20). Avant ce lot, la halte retournait
+ * `applicable: []` sans jamais atteindre la carte terminale « Statine indisponible » (`role: securite`),
+ * qui aurait pourtant matché sur `intolerance_statine == averee` seule (OR, court-circuit, ne dépend
+ * d'aucun des deux critères manquants). C'est très exactement D-03 : « la seule ligne qui le concerne est
+ * une expression booléenne dans un repli ».
+ */
+describe('statine — T-020 (D32) : une halte OFM ne masque plus la carte de sécurité terminale (caractérisation D-03)', () => {
+  it('D-03 — ASCVD établie + intolérance avérée + statine déjà en place = non (renseigné) + ancienneté/FDR non renseignés : la carte terminale reste atteignable malgré la halte sur « Discuter la statine »', () => {
+    const renseignes = new Set([
+      'age',
+      'ASCVD_etablie',
+      'diabete_complique',
+      'dialyse',
+      'statine_deja_en_place',
+      'intolerance_statine',
+      'CK_x_normale',
+      // `anciennete_diabete_annees` et `autres_FDRCV` délibérément ABSENTS : c'est le cœur de D-03.
+    ])
+    const o = {
+      age: 62,
+      ASCVD_etablie: true,
+      diabete_complique: false,
+      dialyse: false,
+      statine_deja_en_place: false,
+      intolerance_statine: 'averee',
+      CK_x_normale: 6,
+    } as Partial<Criteria>
+    const result = evalProfile(o, renseignes)
+
+    // AVANT CE LOT (T-020) : `applicable` était vide — la halte sur « Discuter la statine » arrêtait tout
+    // le parcours OFM, y compris la carte terminale de sécurité placée derrière elle. C'est exactement le
+    // défaut D-03 : zéro carte pour le patient qui en a le plus besoin.
+    // APRÈS CE LOT : la carte terminale reste atteignable — la halte ne bloque plus une option
+    // `role: securite` placée derrière elle (D32).
+    expect(result.applicable).toEqual([OPT_TERMINALE])
+
+    // La halte reste RAPPORTÉE (D32, étape 3) : « Discuter la statine » demeure EN ATTENTE — l'écran doit
+    // pouvoir dire à la fois « voici le filet » et « la décision principale reste suspendue ».
+    expect(result.enAttente.has(OPT_DISCUTER)).toBe(true)
+    expect(new Set(result.enAttente.get(OPT_DISCUTER))).toEqual(
+      new Set(['anciennete_diabete_annees', 'autres_FDRCV']),
+    )
+
+    // Les options non-sécurité placées ENTRE la halte et la carte terminale (ici : aucune dans ce nœud,
+    // la terminale suit immédiatement « Discuter ») ne sont pas concernées ; « haute intensité » (avant la
+    // halte) reste ÉCARTÉE avec son motif, comme avant ce lot (non-régression D21).
+    expect(result.excluded.has(OPT_HAUTE)).toBe(true)
+  })
+})
