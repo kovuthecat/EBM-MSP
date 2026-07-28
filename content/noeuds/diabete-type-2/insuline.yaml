@@ -162,7 +162,11 @@ criteres_entree:
     type: nombre
     min: 0
     max: 100
-    visible_si: "situation_insuline != naif"
+    # T-033 (P5/S2, 2026-07-28, BILAN-P4 §3bis) : second terme ajouté. `mcg_disponible` existait déjà
+    # comme critère mais ne commandait aucun affichage — un patient non naïf mais SANS capteur se voyait
+    # réclamer ce champ qu'il ne peut structurellement pas remplir (un lecteur capillaire ne rend pas de
+    # TBR). Masquage désormais conditionné aux DEUX : schéma déjà instauré ET capteur disponible.
+    visible_si: "situation_insuline != naif AND mcg_disponible == true"
   - nom: TBR_severe
     type: nombre
     min: 0
@@ -170,14 +174,20 @@ criteres_entree:
     # Piège P1 : également lu par l'alerte non filtrée `hypo_severe_recurrente == true OR CV_glycemique >
     # 36 OR TBR_severe > 1` (ci-dessous). Sans conséquence : remis à 0, ce terme de la disjonction devient
     # simplement toujours faux (0 n'est jamais > 1) — il ne peut pas déclencher l'alerte à tort ; les deux
-    # autres termes de la disjonction restent, eux, de vrais signaux indépendants de la situation.
-    visible_si: "situation_insuline != naif"
+    # autres termes de la disjonction restent, eux, de vrais signaux indépendants de la situation. RAISONNEMENT
+    # INCHANGÉ après T-033 (P5/S2, 2026-07-28) : le masquage se déclenche désormais aussi sur
+    # `mcg_disponible == false` (un lecteur capillaire ne distingue pas les deux seuils — `TBR_severe` est
+    # structurellement impossible à fournir sans capteur, BILAN-P4 §3bis), mais c'est le MÊME mécanisme de
+    # remise à défaut (0) qui opère, quelle que soit la condition qui l'a déclenché — la disjonction ci-dessus
+    # reste inerte sur ce terme dans les deux cas.
+    visible_si: "situation_insuline != naif AND mcg_disponible == true"
   - nom: CV_glycemique
     type: nombre
     min: 0
     max: 100
-    # Même piège, même conclusion que TBR_severe ci-dessus (0 n'est jamais > 36).
-    visible_si: "situation_insuline != naif"
+    # Même piège, même conclusion que TBR_severe ci-dessus (0 n'est jamais > 36) — y compris après T-033
+    # (P5/S2, 2026-07-28) : même second terme, même mécanisme de remise à défaut.
+    visible_si: "situation_insuline != naif AND mcg_disponible == true"
   - nom: profil_glycemique
     type: liste
     # `hypo_interprandiale` A ÉTÉ RETIRÉ de cette liste le 2026-07-27 (arbitrage référent) et promu en
@@ -186,7 +196,9 @@ criteres_entree:
     # comporte un bolus. Or `visible_si` porte sur un champ entier : impossible de masquer UNE valeur
     # d'une liste dont les quatre autres restent pertinentes en « basale seule ». D'où la scission.
     valeurs: [hypo_nocturne, phenomene_aube, excursions_postprandiales, stable]
-    visible_si: "situation_insuline != naif"
+    # T-033 (P5/S2, 2026-07-28, BILAN-P4 §3bis) : second terme ajouté, même motif que `TBR` ci-dessus —
+    # un profil AGP n'existe que si un capteur est posé ; sans lui, ce champ n'a rien à mesurer.
+    visible_si: "situation_insuline != naif AND mcg_disponible == true"
   - nom: hypo_interprandiale
     type: bool
     # Ne se recueille QUE là où le geste correspondant existe (R5 : un critère qu'on demande doit agir).
@@ -431,7 +443,13 @@ options:
     # `risque_hypoglycemique_eleve` — lequel inclut ce même signal : les trois situations sont donc couvertes.)
     conditions:
       - "situation_insuline == basale_seule OR situation_insuline == basale_plus_bolus"
-      - "TBR > 4 OR TBR_severe > 1 OR CV_glycemique > 36 OR profil_glycemique contient hypo_nocturne OR hypo_severe_recurrente == true"
+      # T-033 (P5/S2, 2026-07-28) : les 4 termes MCG regagnent `mcg_disponible == true AND` EN TÊTE — pas
+      # seulement pour I10 (déjà couvert par `situation_insuline` acquis via la condition voisine
+      # ci-dessus), mais parce que sans capteur ces 4 champs sont maintenant MASQUÉS (T-033) : sans ce
+      # garde, un patient sans capteur laissait ce terme INDÉTERMINÉ (jamais faux), l'option partait « en
+      # attente » en réclamant des champs invisibles (I11). `hypo_severe_recurrente` reste hors garde : ce
+      # signal n'est pas un champ de capteur, il reste toujours visible et déterminable.
+      - "mcg_disponible == true AND TBR > 4 OR mcg_disponible == true AND TBR_severe > 1 OR mcg_disponible == true AND CV_glycemique > 36 OR mcg_disponible == true AND profil_glycemique contient hypo_nocturne OR hypo_severe_recurrente == true"
     priorite: 1
     avantages:
       - "Sécurité prioritaire : l'hypoglycémie est le critère DUR qui pilote le schéma. Réduire la basale de −2 à −4 U (ou −10-20 % de la dose actuelle), envisager un analogue de 2ᵉ génération, relâcher la cible."
@@ -494,11 +512,15 @@ options:
       - maiorino
       - fullstep
       - bertuol
+    # T-033 (P5/S2, 2026-07-28) : `mcg_disponible == true AND` ajouté à chaque exclusion — ces 4 champs
+    # sont désormais masqués sans capteur ; sans ce garde, un patient sans capteur laissait l'exclusion
+    # INDÉTERMINÉE (jamais fausse) une fois les `conditions` de cette option satisfaites, faisant partir
+    # l'option « en attente » sur des champs invisibles (I11, même mécanisme que ci-dessus).
     exclusions:
-      - "TBR > 4"
-      - "TBR_severe > 1"
-      - "CV_glycemique > 36"
-      - "profil_glycemique contient hypo_nocturne"
+      - "mcg_disponible == true AND TBR > 4"
+      - "mcg_disponible == true AND TBR_severe > 1"
+      - "mcg_disponible == true AND CV_glycemique > 36"
+      - "mcg_disponible == true AND profil_glycemique contient hypo_nocturne"
   - intitule: "Titrer la basale (augmenter la dose)"
     role: geste
     famille: "Intensifier le traitement"
@@ -525,11 +547,12 @@ options:
       - porcellati
     calculs:
       - { libelle: "Basale après +2 U", expression: "dose_basale_actuelle + 2", unite: "U/j" }
+    # T-033 (P5/S2, 2026-07-28) : même correctif, même motif que « Ne pas sur-titrer... » ci-dessus.
     exclusions:
-      - "TBR > 4"
-      - "TBR_severe > 1"
-      - "CV_glycemique > 36"
-      - "profil_glycemique contient hypo_nocturne"
+      - "mcg_disponible == true AND TBR > 4"
+      - "mcg_disponible == true AND TBR_severe > 1"
+      - "mcg_disponible == true AND CV_glycemique > 36"
+      - "mcg_disponible == true AND profil_glycemique contient hypo_nocturne"
     # `over_basalisation` A ÉTÉ RETIRÉ de ces exclusions le 2026-07-27 (arbitrage référent, après collecte
     # de preuve + red-team : `chantier-2026-07-27/preuve-sur-basalisation.md` et `redteam-sur-basalisation.md`).
     #
@@ -598,7 +621,11 @@ options:
       # `cible_atteinte == false` — l'écart d'HbA1c est donc diurne, et monter la basale n'y peut
       # rien. Le patient ne recevait que la PROSE de « Ne pas sur-titrer… — intensifier autrement »,
       # qui dit d'intensifier sans dire par quoi ; il reçoit désormais les deux gestes nommés.
-      - "situation_insuline == basale_plus_bolus OR TBR > 4 OR TBR_severe > 1 OR CV_glycemique > 36 OR profil_glycemique contient hypo_nocturne OR over_basalisation == true OR gaj_a_cible == true OR profil_nocturne_a_cible == true"
+      # T-033 (P5/S2, 2026-07-28) : `mcg_disponible == true AND` ajouté devant les 4 signaux MCG bruts ET
+      # devant `profil_nocturne_a_cible` (lui-même dérivé de `profil_glycemique`, désormais masqué sans
+      # capteur) — sans quoi, sans capteur, ce terme restait INDÉTERMINÉ (I11). `over_basalisation` et
+      # `gaj_a_cible` restent hors garde : ni l'un ni l'autre ne dépend d'un champ masqué par T-033.
+      - "situation_insuline == basale_plus_bolus OR mcg_disponible == true AND TBR > 4 OR mcg_disponible == true AND TBR_severe > 1 OR mcg_disponible == true AND CV_glycemique > 36 OR mcg_disponible == true AND profil_glycemique contient hypo_nocturne OR over_basalisation == true OR gaj_a_cible == true OR mcg_disponible == true AND profil_nocturne_a_cible == true"
     # R6 : garde-fou de cohérence (ne pas déjà prendre l'une des classes visées) — jamais montré comme
     # justification.
     prerequis:
@@ -631,11 +658,13 @@ options:
     # vignette E-06. Réponse laissée en cas d'exclusion (R4, jamais un silence) : « Corriger
     # l'hypoglycémie ou la variabilité... » couvre désormais aussi « basale_plus_bolus » (même lot,
     # ci-dessus).
+    # T-033 (P5/S2, 2026-07-28) : `mcg_disponible == true AND` inséré dans les 4 exclusions MCG (même motif
+    # que les autres correctifs T-033 de ce nœud) ; `hypo_severe_recurrente` reste hors garde (non masqué).
     exclusions:
-      - "situation_insuline == basale_plus_bolus AND TBR > 4"
-      - "situation_insuline == basale_plus_bolus AND TBR_severe > 1"
-      - "situation_insuline == basale_plus_bolus AND CV_glycemique > 36"
-      - "situation_insuline == basale_plus_bolus AND profil_glycemique contient hypo_nocturne"
+      - "situation_insuline == basale_plus_bolus AND mcg_disponible == true AND TBR > 4"
+      - "situation_insuline == basale_plus_bolus AND mcg_disponible == true AND TBR_severe > 1"
+      - "situation_insuline == basale_plus_bolus AND mcg_disponible == true AND CV_glycemique > 36"
+      - "situation_insuline == basale_plus_bolus AND mcg_disponible == true AND profil_glycemique contient hypo_nocturne"
       - "situation_insuline == basale_plus_bolus AND hypo_severe_recurrente == true"
   - intitule: "Ajouter un bolus au repas principal (basal-plus, par étapes)"
     role: geste
@@ -652,7 +681,11 @@ options:
       # `cible_atteinte == false` — l'écart d'HbA1c est donc diurne, et monter la basale n'y peut
       # rien. Le patient ne recevait que la PROSE de « Ne pas sur-titrer… — intensifier autrement »,
       # qui dit d'intensifier sans dire par quoi ; il reçoit désormais les deux gestes nommés.
-      - "situation_insuline == basale_plus_bolus OR TBR > 4 OR TBR_severe > 1 OR CV_glycemique > 36 OR profil_glycemique contient hypo_nocturne OR over_basalisation == true OR gaj_a_cible == true OR profil_nocturne_a_cible == true"
+      # T-033 (P5/S2, 2026-07-28) : `mcg_disponible == true AND` ajouté devant les 4 signaux MCG bruts ET
+      # devant `profil_nocturne_a_cible` (lui-même dérivé de `profil_glycemique`, désormais masqué sans
+      # capteur) — sans quoi, sans capteur, ce terme restait INDÉTERMINÉ (I11). `over_basalisation` et
+      # `gaj_a_cible` restent hors garde : ni l'un ni l'autre ne dépend d'un champ masqué par T-033.
+      - "situation_insuline == basale_plus_bolus OR mcg_disponible == true AND TBR > 4 OR mcg_disponible == true AND TBR_severe > 1 OR mcg_disponible == true AND CV_glycemique > 36 OR mcg_disponible == true AND profil_glycemique contient hypo_nocturne OR over_basalisation == true OR gaj_a_cible == true OR mcg_disponible == true AND profil_nocturne_a_cible == true"
     # R6 : garde-fou de cohérence — même faille que « Initier une insuline basale » (12.10) : sans ce
     # prérequis, un bolus déjà en place pouvait être re-« ajouté ».
     prerequis:
@@ -680,11 +713,13 @@ options:
     # cours) : ajouter un bolus prandial à un patient dont l'antécédent d'hypoglycémie sévère récurrente
     # est coché est le cas le plus direct que cette exclusion doit couvrir. Même garde de situation, même
     # raison (E-06, basale_seule inchangée).
+    # T-033 (P5/S2, 2026-07-28) : `mcg_disponible == true AND` inséré dans les 4 exclusions MCG (même motif
+    # que les autres correctifs T-033 de ce nœud) ; `hypo_severe_recurrente` reste hors garde (non masqué).
     exclusions:
-      - "situation_insuline == basale_plus_bolus AND TBR > 4"
-      - "situation_insuline == basale_plus_bolus AND TBR_severe > 1"
-      - "situation_insuline == basale_plus_bolus AND CV_glycemique > 36"
-      - "situation_insuline == basale_plus_bolus AND profil_glycemique contient hypo_nocturne"
+      - "situation_insuline == basale_plus_bolus AND mcg_disponible == true AND TBR > 4"
+      - "situation_insuline == basale_plus_bolus AND mcg_disponible == true AND TBR_severe > 1"
+      - "situation_insuline == basale_plus_bolus AND mcg_disponible == true AND CV_glycemique > 36"
+      - "situation_insuline == basale_plus_bolus AND mcg_disponible == true AND profil_glycemique contient hypo_nocturne"
       - "situation_insuline == basale_plus_bolus AND hypo_severe_recurrente == true"
   - intitule: "Insuline prémélangée — option dégradée, dernier recours"
     role: geste
@@ -764,7 +799,10 @@ options:
     # une titration parfois nécessaire.
     conditions:
       - "situation_insuline == basal_bolus OR situation_insuline == basale_plus_bolus"
-      - "cible_atteinte == false OR TBR > 4 OR TBR_severe > 1 OR CV_glycemique > 36 OR profil_glycemique contient hypo_nocturne OR hypo_interprandiale == true"
+      # T-033 (P5/S2, 2026-07-28) : même correctif que « Corriger l'hypoglycémie... » ci-dessus —
+      # `mcg_disponible == true AND` devant les 4 signaux MCG bruts (I11). `hypo_interprandiale` hors
+      # garde : champ non masqué par T-033 (gardé par la situation du schéma, inchangé).
+      - "cible_atteinte == false OR mcg_disponible == true AND TBR > 4 OR mcg_disponible == true AND TBR_severe > 1 OR mcg_disponible == true AND CV_glycemique > 36 OR mcg_disponible == true AND profil_glycemique contient hypo_nocturne OR hypo_interprandiale == true"
     priorite: 2
     avantages:
       - "Prise en charge du basal-bolus par le médecin généraliste : équilibrer basal/bolus (~50/50) et ajuster à partir des doses actuelles, guidé par le profil AGP — hypo nocturne → réduire la basale ; phénomène de l'aube → augmenter la basale ; excursions post-prandiales → augmenter le bolus / avancer le timing ; hypo interprandiale → réduire le bolus."
@@ -1061,8 +1099,53 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Opus"
   statut: brouillon
-  version: "0.23"
+  version: "0.24"
   changelog:
+    - date: "2026-07-28"
+      auteur: "Claude Code (P5/S2, T-033) — correctif mécanique, en attente de relecture référent"
+      resume: >-
+        BILAN-P4-2026-07-28.md §3bis (précision clinique du référent) : `mcg_disponible` existait comme
+        critère mais ne commandait aucun affichage — les 4 champs de capteur (`TBR`, `TBR_severe`,
+        `CV_glycemique`, `profil_glycemique`) restaient réclamés à un patient non naïf SANS capteur, gardés
+        par le seul `situation_insuline != naif`. La recette « praticien naïf » en a montré la conséquence
+        concrète : un praticien sans capteur, face à des champs qu'il ne pouvait pas remplir, a saisi des
+        valeurs inventées (« 0 partout ») que le moteur a ensuite traitées comme des mesures réelles.
+        Correctif : second terme `AND mcg_disponible == true` ajouté au `visible_si` des 4 champs — masqués
+        désormais si le schéma n'est pas encore instauré (naïf) OU si aucun capteur n'est disponible. Portée
+        volontairement étroite (T-033, §3bis « exécutable directement ») : le pivot de décision sans capteur
+        et les 4 créneaux horaires d'hypoglycémie capillaire, également identifiés par ce même §3bis, restent
+        des arbitrages cliniques référent, non traités ici.
+        Vérifié : I10 (`banc/invariants-contenu.test.ts`) reste vert sans nouvelle dette — toutes les lectures
+        de ces 4 critères ailleurs dans le nœud portaient déjà `situation_insuline` comme garde mentionné/
+        acquis (I10 ne vérifie qu'UNE mention parmi les critères du garde, pas leur conjonction). MAIS I11
+        (`banc/impasse.test.ts`, moteur × formulaire) a révélé la vraie conséquence RUNTIME que le seul I10
+        ne peut pas voir : `situation_insuline` acquis ne suffit plus à empêcher l'indétermination une fois
+        le garde composé — sans capteur, un terme `TBR > 4` isolé reste INDÉTERMINÉ (jamais faux), faisant
+        partir 3 options (« Corriger l'hypoglycémie... », « Ajouter un GLP-1.../Ajouter un bolus... »,
+        « Optimiser la répartition du basal-bolus ») « en attente » en réclamant des champs masqués. Corrigé
+        par répétition du garde `mcg_disponible == true AND` EN TÊTE de chaque terme bare qui lit TBR/
+        TBR_severe/CV_glycemique/profil_glycemique (motif R8, même travail que P4/S9/T-031) — dans les
+        `conditions` des 3 options citées ET, par prudence (même mécanisme, non couvert par cet
+        échantillonnage de 400 profils partiels mais également exposé), dans les `exclusions` de « Ne pas
+        sur-titrer... », « Titrer la basale », « Ajouter un GLP-1... » et « Ajouter un bolus... » ; ainsi que
+        devant le terme bare `profil_nocturne_a_cible == true` (dérivé de `profil_glycemique`, non protégé à
+        cet endroit précis, contrairement à ses deux autres usages dans ce nœud qui le sont déjà). Aucun
+        changement pour un patient AVEC capteur (le second terme du AND est alors trivialement vrai).
+        La contrainte D31 (`TBR_severe <= TBR`) a été vérifiée non déclenchable à tort une fois `TBR_severe`
+        masqué (`engine/contraintes.ts` applique le même mécanisme `renseignes`/indétermination que le
+        moteur de décision — non modifiée). Aucune nouvelle logique clinique : uniquement la répétition
+        mécanique du garde déjà posé sur `visible_si`.
+        `npm test` intégral vert (I10/I11 compris). Le golden master FIGÉ (`banc/geler-profils.
+        maintenance.test.ts`, profils versionnés `fixtures/`) n'est PAS modifié. Les DEUX snapshots de
+        `banc/caracterisation.test.ts` (`__snapshots__/caracterisation.insuline.txt` et `-indetermine.
+        insuline.txt`), eux, CHANGENT — attendu et RELU intégralement (pas de régénération à l'aveugle, cf.
+        docstring de tête de ce fichier) : chaque écart correspond à un patient `mcg_disponible = false` (ou
+        masqué) dont une conclusion reposait sur un signal MCG désormais à bon droit ignoré (vérifié
+        systématiquement sur les 180 profils : aucun écart de bucket applicable/en-attente/exclu ne se
+        produit sur un profil `mcg_disponible = true`, seul le texte des raisons s'y allonge de la mention
+        triviale du garde). Une vignette (`evaluateNode.insuline.test.ts`, E-06) décrivait un patient
+        incohérent avec le nouveau modèle (`profil_glycemique` — une lecture AGP, donc un signal MCG —
+        renseigné sans `mcg_disponible: true`) : corrigée en conséquence, sans changer son objet clinique.
     - date: "2026-07-28"
       auteur: "Claude Code (P4/S1, T-018) — correctif mécanique, en attente de relecture référent"
       resume: >-

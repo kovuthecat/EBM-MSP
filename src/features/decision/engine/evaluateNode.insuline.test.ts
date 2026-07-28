@@ -242,6 +242,11 @@ describe('insuline — décisions référent 2026-07-26 implémentées (E-02/E-0
     () => {
       const o = {
         situation_insuline: 'basale_seule',
+        // T-033 (P5/S2, 2026-07-28, BILAN-P4 §3bis) : `profil_glycemique` est une lecture AGP — un
+        // signal MCG au même titre que TBR/TBR_severe/CV_glycemique. Sans `mcg_disponible: true` explicite
+        // ici, cette vignette décrirait un patient incohérent (profil AGP renseigné sans capteur), et les
+        // 4 champs de capteur sont désormais masqués (donc inertes) dans ce cas — cf. `visible_si` du nœud.
+        mcg_disponible: true,
         profil_glycemique: ['hypo_nocturne'],
         HbA1c_actuelle: 8,
         HbA1c_cible: 7,
