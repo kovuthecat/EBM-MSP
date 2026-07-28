@@ -3,7 +3,7 @@
 Photo à l'instant T. Mis à jour en fin de session. L'historique (comment on est arrivé ici) vit dans
 `git log`, `DECISIONS.md` et les changelogs de contenu — pas ici.
 
-> **Dernière mise à jour :** 2026-07-28 (soir, clôture P4)
+> **Dernière mise à jour :** 2026-07-28 (soir, clôture P4 puis P5)
 
 ## Ce qui existe
 
@@ -18,7 +18,7 @@ moteur ne connaît toujours aucun domaine ni module par son nom).
 | `cible-glycemique` | `valide` | v2.6 |
 | `statine` | `brouillon` | v1.15 |
 | `prescription` | `brouillon` | v0.34 |
-| `insuline` | `brouillon` | v0.23 |
+| `insuline` | `brouillon` | v0.24 |
 | `rhd-alimentation` | `brouillon` | v0.8 |
 | `rhd-activite-physique` | `brouillon` | v0.7 |
 
@@ -34,8 +34,8 @@ une seule entrée dans la liste du domaine, cadrage partagé + primer d'orientat
 **Le banc de tests** (`src/features/decision/engine/banc/`) est la garantie de non-régression du
 contenu : trois couches (vignettes cliniques, couverture mécanique, invariants génériques sur profils
 synthétiques) + I20 (libellés rédigés) + I16-I19 (rôle d'option/repli) + I21 (formulaire vierge → zéro
-carte, D30) + I22/I23 (sécurité toujours atteignable, jamais d'écran muet, D32) + S8 (tout nœud publié
-porte des vignettes exécutables — vrai pour les 6). **797 tests, 11 skip, typecheck et build verts.**
+carte, D30) + I22/I23 (sécurité toujours atteignable, jamais d'écran muet, D32). **802 tests, 11 skip,
+typecheck et build verts.**
 
 ## Chantier actif
 
@@ -47,25 +47,24 @@ six correctifs sont vérifiés CONFORME à l'écran sur le déployé**, pas seul
 « praticien naïf » (hors périmètre P4) a suivi dans la foulée et reclassé les priorités — synthèse dans
 `docs/decision/validation/BILAN-P4-2026-07-28.md`.
 
+Plan **P5** soldé le même jour (`plans/P5/`, commits `bc59e2a`, `7657f4a`, `806fdb9`) : les trois défauts
+« exécutables sans arbitrage clinique » trouvés par la clôture de P4 sont corrigés — un champ segmenté
+peut revenir à « non répondu » (réutilise `onEffacer`, déjà générique), `insuline` masque ses 4 champs de
+capteur sans `mcg_disponible` (S2 a aussi corrigé une régression de second ordre non anticipée par le
+cadrage, motif R8 sur trois options), et « Nouveau patient » donne un retour visuel après purge. **Poussé
+sans passe de contrôle navigateur** (décision Thibault, chantier plus contenu que P4) — à vérifier sur le
+déployé si besoin, cf. `VALIDATION.md`.
+
 Le bloc de dette ouvert le 2026-07-27 (nuit) reste **soldé** : les 9 items exécutables de
 `ARBITRAGES-2026-07-27-nuit.md` §1-5 sont livrés (rôle d'option D25, `visible_si` sur liste D26,
 contraintes de saisie D27, mémoire de session D28, pollution du « pourquoi pas d'autres options »,
 relecture rédactionnelle + I20 D29, dette S8 des vignettes RHD).
 
-**Trouvé par la clôture de P4, pas encore cadré (candidats P5)** :
+**Trouvé par la clôture de P4/P5, pas encore cadré** :
 
-- **Un champ segmenté (`enum`), une fois touché, ne revient jamais à « non répondu »** — tous nœuds,
-  `CriteriaForm.tsx` (le gestionnaire `onClick` n'a pas de chemin de retrait, contrairement au champ
-  numérique qui a `onEffacer` depuis le 2026-07-27). Combiné à un reflow de page qui peut dévier un clic
-  vers le mauvais champ, et alourdi par D30 (une valeur touchée est désormais décisive) : classé
-  **défaut grave, exécutable sans arbitrage clinique**. Détail : `BILAN-P4-2026-07-28.md` §2/§6.
-- **`mcg_disponible == false` ne masque pas les 4 champs de capteur** sur `insuline` (`TBR`,
-  `TBR_severe`, `CV_glycemique`, `profil_glycemique`) — ils restent réclamés sans capteur déclaré.
-  Exécutable sans arbitrage clinique. `BILAN-P4-2026-07-28.md` §3bis/§6.
-- **La purge « Nouveau patient » n'a aucun retour visuel** : rien à l'écran ne distingue « annulé » de
-  « exécuté ». `BILAN-P4-2026-07-28.md` §2bis/§6.
 - Onglet **« Veille » rend une page blanche** (texte `top: 0`, caché sous la barre de nav fixe) — défaut
-  d'affichage isolé, trouvé par la recette praticien naïf.
+  d'affichage isolé, trouvé par la recette praticien naïf. Pas repris dans P5 (hors des trois items
+  approuvés), petit, candidat pour un prochain lot mécanique.
 
 **Reclassé bloquant** (était « recherche, non bloquant ») :
 
@@ -74,8 +73,8 @@ relecture rédactionnelle + I20 D29, dette S8 des vignettes RHD).
   moteur les traite comme des mesures). Le référent a donné le 2026-07-28 une voie concrète : `TBR`
   existe sans capteur (lecteur capillaire), `TBR_severe` n'existe **pas** (un lecteur ne distingue pas les
   deux seuils) — et une piste de répartition horaire des hypoglycémies en 4 créneaux (nuit/matinée/
-  après-midi/soir), analogue capillaire de ce que `profil_glycemique` lit déjà par AGP. Deux volets
-  mécaniques exécutables sans arbitrage (masquer les 4 champs sans capteur, retirer `TBR_severe`) ; trois
+  après-midi/soir), analogue capillaire de ce que `profil_glycemique` lit déjà par AGP. **Les deux volets
+  mécaniques sont livrés par P5/S2** (masquer les 4 champs sans capteur, `TBR_severe` en découle) ; trois
   volets cliniques encore à trancher (pivot de décision sans capteur, seuils des 4 créneaux, correspondance
   avec `profil_glycemique`). Diagnostic : `chantier-2026-07-27/diagnostic-K2-mesures-mcg.md` +
   `BILAN-P4-2026-07-28.md` §3bis.
@@ -117,7 +116,7 @@ relecture rédactionnelle + I20 D29, dette S8 des vignettes RHD).
 ## Comment vérifier l'état réel
 
 ```bash
-npm test          # 797 tests attendus, 11 skip
+npm test          # 802 tests attendus, 11 skip
 npx tsc --noEmit
 npm run build
 ```

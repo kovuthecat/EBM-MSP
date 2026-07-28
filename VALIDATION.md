@@ -44,3 +44,18 @@ Rapports complets : `docs/decision/validation/recette-navigateur-2026-07-28-cont
 `docs/decision/validation/BILAN-P4-2026-07-28.md` (synthèse + réconciliation). Ce que la clôture a trouvé
 en plus (nouveau défaut grave, décisions référent, dette connue confirmée) est suivi dans `STATUS.md` et
 `TASKS.md` — ce n'est plus une checklist visuelle, c'est un arbitrage produit/clinique.
+
+## 2026-07-28 (suite) — Plan P5 (trois correctifs mécaniques issus de la clôture P4)
+
+**Non vérifié à l'écran** — poussé directement sur décision de Thibault, sans passe de contrôle navigateur
+(chantier plus contenu que P4). Les trois scénarios ci-dessous restent **à valider** dès qu'un passage sur
+le déployé est possible.
+
+- [ ] **T-032** — sur n'importe quel nœud, répondre à un champ segmenté puis re-cliquer le même bouton :
+      doit redevenir « à confirmer », aucune carte ne doit plus s'appuyer sur cette valeur.
+- [ ] **T-033** — `insuline`, cocher « pas de capteur » (`mcg_disponible = false`) : les 4 champs (TBR,
+      TBR sévère, CV glycémique, profil glycémique) doivent disparaître de l'écran, résultat cohérent.
+- [ ] **T-034** — cliquer « Nouveau patient », confirmer : un retour visuel (« Session vidée » ou
+      équivalent) doit être visible ~2 secondes.
+
+Commits : `bc59e2a`, `7657f4a`, `806fdb9`. Détail des sessions : `plans/P5/`.

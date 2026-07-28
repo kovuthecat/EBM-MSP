@@ -20,37 +20,30 @@ T-012), la fusion `prescription` T-020 à T-027**, et les six règles de la gram
 résolues le 2026-07-25). Le détail de tout cela reste entier dans `git log` et dans les décisions
 correspondantes de `DECISIONS.md`. Ce qui suit est le backlog **réel et actuel**.
 
-## Backlog — clôture P4 (2026-07-28), exécutable sans arbitrage clinique
+## Backlog — clôture P4/P5 (2026-07-28), exécutable sans arbitrage clinique
 
 > Trouvés par la passe de contrôle P4 (S8) et la recette « praticien naïf » complémentaire — détail dans
-> `docs/decision/validation/BILAN-P4-2026-07-28.md`. Candidats pour un plan P5 (à cadrer).
+> `docs/decision/validation/BILAN-P4-2026-07-28.md`. Trois des quatre items livrés par `plans/P5/`
+> (commits `bc59e2a`, `7657f4a`, `806fdb9`) : champ segmenté réversible (T-032), masquage capteur
+> `insuline` (T-033), retour visuel purge (T-034).
 
-- [ ] **Un champ segmenté (`enum`) ne revient jamais à « non répondu » une fois touché** — tous nœuds,
-      `src/features/decision/components/CriteriaForm.tsx` (le gestionnaire `onClick` du rendu segmenté
-      n'a pas de chemin de retrait, contrairement au champ numérique qui a `onEffacer` depuis le
-      2026-07-27). Aggravé par un reflow de page qui peut dévier un clic vers le mauvais champ, et par
-      D30 (une valeur touchée est désormais décisive) — défaut classé **grave**. `BILAN-P4-2026-07-28.md`
-      §2/§6 · modèle: Sonnet, effort: high · plan: —
-- [ ] **`mcg_disponible == false` doit masquer les 4 champs de capteur** sur `insuline` (`TBR`,
-      `TBR_severe`, `CV_glycemique`, `profil_glycemique`) — ils restent réclamés aujourd'hui sans capteur
-      déclaré. `BILAN-P4-2026-07-28.md` §3bis/§6 · modèle: Sonnet, effort: medium · plan: —
-- [ ] **La purge « Nouveau patient » n'a aucun retour visuel** — rien à l'écran ne distingue « annulé »
-      de « exécuté ». `BILAN-P4-2026-07-28.md` §2bis/§6 · modèle: Sonnet, effort: low · plan: —
 - [ ] Onglet **« Veille » rend une page blanche** (texte `top: 0`, caché sous la barre de nav fixe) —
-      défaut d'affichage isolé, trouvé par la recette praticien naïf · modèle: Haiku, effort: low · plan: —
+      défaut d'affichage isolé, trouvé par la recette praticien naïf, pas repris dans P5 · modèle: Haiku,
+      effort: low · plan: —
 
 ## Backlog — recherche clinique (bloque un câblage, contenu que je ne rédige pas seul)
 
 - [ ] **Passe A — glycémie capillaire pour l'ajustement de l'insuline (nœud `insuline`, sans MCG)** —
       **reclassée bloquante pour l'usage** le 2026-07-28 (recette praticien naïf : un patient non naïf
       sans capteur est aujourd'hui une impasse, le praticien invente des chiffres que le moteur traite
-      comme des mesures). Voie concrète donnée par le référent le 2026-07-28 (`BILAN-P4-2026-07-28.md`
-      §3bis) : `TBR` est obtenable au lecteur capillaire, `TBR_severe` ne l'est **pas** (un lecteur ne
-      distingue pas les deux seuils) ; piste de répartition horaire des hypoglycémies en 4 créneaux
-      (nuit/matinée/après-midi/soir), analogue capillaire de ce que `profil_glycemique` lit déjà par AGP.
-      Seuils de titration/plafonnement de la basale sur glycémie à jeun ; seuils post-prandiaux pour le
-      bolus (champ à créer). Cadrage :
-      `docs/decision/validation/chantier-2026-07-27/ARBITRAGES-2026-07-27-nuit.md` §1,
+      comme des mesures). **Volet mécanique livré par P5/S2 (T-033, commit `7657f4a`)** : les 4 champs de
+      capteur (dont `TBR_severe`) se masquent désormais sans `mcg_disponible`. Reste le volet clinique —
+      voie concrète donnée par le référent le 2026-07-28 (`BILAN-P4-2026-07-28.md` §3bis) : `TBR` est
+      obtenable au lecteur capillaire, `TBR_severe` ne l'est **pas** (un lecteur ne distingue pas les deux
+      seuils) ; piste de répartition horaire des hypoglycémies en 4 créneaux (nuit/matinée/après-midi/
+      soir), analogue capillaire de ce que `profil_glycemique` lit déjà par AGP. Seuils de titration/
+      plafonnement de la basale sur glycémie à jeun ; seuils post-prandiaux pour le bolus (champ à créer).
+      Cadrage : `docs/decision/validation/chantier-2026-07-27/ARBITRAGES-2026-07-27-nuit.md` §1,
       `chantier-2026-07-27/diagnostic-K2-mesures-mcg.md`, `BILAN-P4-2026-07-28.md` §3bis ·
       modèle: Opus, effort: xhigh · plan: —
 - [ ] **Passe B — sécurité à l'effort (nœud `rhd-activite-physique`)** : même statut, cadrage au même
