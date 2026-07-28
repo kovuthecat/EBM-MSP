@@ -2,7 +2,8 @@
 
 > **Statut** : R1→R6 issues de la recette du nœud `prescription` (2026-07-25), livrées. **R7 et R8**
 > ajoutées après la recette élargie du 2026-07-26 (nœuds `insuline`, `statine`, `rhd`) — R7 livrée
-> (D20), R8 à livrer (D21). **R9 est une proposition non arbitrée.**
+> (D20), R8 livrée (D21). **R9 est une proposition non arbitrée.** **R7 amendée et R10 ajoutée** après
+> la recette navigateur du 2026-07-28 (D30, D32 ; `docs/decision/validation/recette-navigateur-2026-07-28.md`).
 > **Portée** : ce document ne parle **d'aucun domaine clinique**. Il énonce les **règles** que doit
 > respecter l'écriture de n'importe quel nœud, DT2 ou futur domaine — il se consulte *pendant*
 > l'écriture. Le **procédé** de construction d'un module (ordre des étapes, portes de sortie,
@@ -276,14 +277,35 @@ Sur les 5 nœuds, 86 règles portent sur un `nombre`/`enum` : **56 penchent vers
 l'alarmant** sur valeur par défaut. C'est l'asymétrie — le même vide lu dans deux sens opposés — qui
 fait le défaut, pas le sens choisi.
 
-**Spécification complète** : `validation/chantier-2026-07-26/SPEC-valeur-indeterminee.md` §2.
-**Décision** : D20. **Invariant de banc** : I3.
+**Volet écran, ajouté le 2026-07-28 (recette navigateur du 2026-07-28).** La règle ci-dessus est vraie du
+**moteur** ; elle ne suffisait pas à empêcher l'**écran** de se prononcer sur ce qu'il ignore, par un
+autre chemin. Complément : *une propriété affichée ne se recalcule jamais — elle se lit à la source qui
+fait autorité pour le moteur.* Tout marqueur, compteur ou badge dérivé de l'état de saisie (« à
+confirmer », « N critères non confirmés », un pourcentage de complétude) doit lire **la même fonction**
+que celle qui décide côté moteur — jamais une reconstruction locale de l'écran (`touched` brut, un
+filtre dupliqué, une liste recopiée).
 
-**Ce que la règle rend obligatoire pour un nouveau nœud.** Déclarer, pour chaque `bool`/`liste` dont
-le « non » ne peut pas être présumé sans risque, un `confirmation_requise` — un drapeau de sécurité
-non coché n'est pas une réponse. Et vérifier, avant de figer les conditions, dans quel sens penche
-chaque règle sur valeur manquante : c'est un tableau à produire à l'écriture, pas un audit à faire
-après.
+**Le cas (volet écran).** `decisifsAConfirmer` (`lib/formLayout.ts`) marquait « à confirmer » et comptait
+les « critères décisifs non confirmés » sur `!touched.has(nom)` — vrai pour tout `bool`/`liste` jamais
+touché, y compris quand le contenu déclare `presomption_non: true` (le moteur, lui, le tient alors pour
+DÉTERMINÉ et ne réclame plus rien). Sur `Fixer la cible d'HbA1c`, formulaire vierge, l'écran affichait
+« Reco provisoire — 3 critères décisifs non confirmés » **sur la même page** que la carte « Cible
+~6,5 % … Proposé parce que : … Fragilité : non » : le moteur avait tranché, l'écran continuait de dire
+que rien n'était tranché. Corrigé (`DECISIONS.md` D30) en faisant lire à `decisifsAConfirmer` la
+**même** fonction que le moteur (`determinesEffectifs`) plutôt qu'un filtre local — les deux couches ne
+peuvent plus diverger, parce qu'elles interrogent la même source.
+
+**Spécification complète** : `validation/chantier-2026-07-26/SPEC-valeur-indeterminee.md` §2.
+**Décisions** : D20 (le moteur) ; D30 (le volet écran). **Invariant de banc** : I3.
+
+**Ce que la règle rend obligatoire pour un nouveau nœud.** Depuis D30, un `bool`/`liste` non renseigné
+est indéterminé par défaut, comme un `nombre`/`enum` — il n'y a plus de présomption de « non » à
+couvrir par un drapeau de sécurité. Le champ de contenu est `presomption_non` : ne le déclarer que
+pour les critères dont l'absence de réponse ne peut PAS nuire, établi **mécaniquement** (aucune
+condition d'option `role: securite`, aucune `exclusions`, aucun `prerequis` ne le lit) — jamais sur un
+critère qui participe, même indirectement, à une règle de sécurité. Et vérifier, avant de figer les
+conditions, dans quel sens penche chaque règle sur valeur manquante : c'est un tableau à produire à
+l'écriture, pas un audit à faire après.
 
 ---
 
@@ -392,6 +414,42 @@ mais ni collecté ni exclu — n'existe pas.
 Le référent a déjà tranché le premier cas d'application (ajout de `statine_deja_en_place` et
 `intolerance_statine`, 2026-07-26) ; ce qui reste à arbitrer est la **généralisation** en règle
 opposable à tout nouveau nœud, et l'invariant de banc correspondant.
+
+---
+
+## R10 — Tout patient repart avec quelque chose
+
+**Règle.** Un nœud ne doit jamais pouvoir produire un écran sans **conduite à tenir** ni **attente
+explicite**. Pour tout patient, à tout instant de la saisie, l'écran affiche soit au moins une option
+`applicable`, soit au moins une entrée `enAttente` qui nomme ce qui manque pour trancher — jamais les
+deux vides à la fois.
+
+**Pourquoi.** Un écran qui n'affiche rien n'est pas un écran neutre : le praticien qui l'obtient ne peut
+pas distinguer « ce nœud n'a rien à dire pour ce patient » de « quelque chose s'est tu ». C'est la forme
+la plus discrète des trois défauts les plus graves de la recette du 2026-07-28 — elle ne casse aucun
+test tant qu'aucun test ne pose explicitement la question « et si rien n'est applicable ? », et elle a
+donc survécu à cinq rapports d'audit et 769 tests unitaires.
+
+**Ce que ça interdit — trois manières d'y arriver, toutes rencontrées :**
+
+- une option `role: securite` rendue **inatteignable par l'ordre** du nœud (D-03 : intolérance avérée +
+  prévention secondaire → zéro carte, alors qu'une option de sécurité plus loin dans l'ordre couvrait
+  déjà ce patient — cause corrigée par D32) ;
+- une **combinaison de critères non couverte** par aucune option ni aucun repli ;
+- une **halte silencieuse** : le moteur suspend une décision (indétermination, R7/D20) sans que l'écran
+  ne le dise (l'écran rendait `null` à l'emplacement des cartes ; corrigé côté écran par P4/S3, T-023 —
+  le panneau de résultats nomme désormais explicitement ce qui est suspendu, ou, à défaut de toute
+  option et de toute attente, dit que le nœud n'a rien à proposer dans son périmètre).
+
+**Comment on le vérifie.** Mécaniquement, sur tout nœud publié, sans aucune relecture clinique répétée :
+
+- **I22** (`engine/banc/securite-atteignable.test.ts`) — toute option `role: securite` est
+  `applicable` pour au moins un profil du banc ;
+- **I23** (même fichier) — sur aucun profil valide du banc, `applicable` et `enAttente` ne sont vides en
+  même temps.
+
+Un nœud ne se déclare pas vérifié (`CONSTRUIRE-UN-MODULE.md`, porte de sortie P6) tant que ces deux
+invariants ne sont pas verts.
 
 ---
 

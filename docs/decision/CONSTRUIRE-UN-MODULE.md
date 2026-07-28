@@ -262,7 +262,11 @@ primaire, et la passe adversariale est close.
   bolus » y ont été **réutilisées telles quelles** (`6561c53`). Les seuils viennent des alertes déjà
   sourcées du fichier (`906df83`) — jamais d'un arrondi commode.
 
-**Porte de sortie P5** : Ajv vert, `tsc` propre, build vert.
+**Porte de sortie P5** : Ajv vert, `tsc` propre, build vert — **et**, ajouté le 2026-07-28
+(`DECISIONS.md` D30) : aucun critère ne porte `presomption_non: true` sans un motif écrit dans le
+fichier de contenu, et aucun critère participant à une condition, une `exclusions` ou un `prerequis`
+d'une option `role: securite` (D25) n'en porte, **jamais**. La liste des critères éligibles s'établit
+mécaniquement (parcours des expressions du nœud), pas à la main — cf. `GRAMMAIRE-NOEUD.md` R7.
 
 ---
 
@@ -283,7 +287,12 @@ destination au switch. C'étaient des faux positifs de l'heuristique (`41ea008`)
 ouvre une analyse ; il ne prescrit rien.
 
 **Porte de sortie P6** : piste A close ; piste B verte **ou** ses rouges documentés comme dette nommée
-(décision, date, chantier qui la lèvera).
+(décision, date, chantier qui la lèvera) — **et**, ajouté le 2026-07-28 (`DECISIONS.md` D30, D32 ;
+`GRAMMAIRE-NOEUD.md` R10) : **I21, I22 et I23 verts**
+(`engine/banc/vierge.test.ts`, `engine/banc/securite-atteignable.test.ts`). Un nœud ne se déclare pas
+vérifié sans eux — ce sont, à eux seuls, les trois invariants qui auraient attrapé les défauts les plus
+graves de la recette navigateur du 2026-07-28 (formulaire vierge qui recommande, option de sécurité
+inatteignable, écran muet).
 
 ---
 
@@ -291,6 +300,16 @@ ouvre une analyse ; il ne prescrit rien.
 
 Inchangée. Mais elle ne devrait plus révéler que du **réglage clinique**. Si elle révèle encore des
 défauts de modèle, c'est que P2 ou P3 ont été abrégés.
+
+**Passage obligé ajouté le 2026-07-28 : la recette navigateur.** Avant qu'un nœud repasse `valide`, une
+passe navigateur (protocole `docs/decision/validation/PROMPT-recette-navigateur.md`) est **obligatoire**,
+en plus de la recette référent sur maquette. Le fait qui la porte : les passes navigateur des 25 et 28
+juillet 2026 ont, à elles seules, trouvé plus de défauts graves que cinq rapports d'audit et 769 tests
+unitaires cumulés — une classe de défaut entière (l'écran qui affirme sur une donnée absente, qui se tait,
+ou dont une carte contredit l'alerte qu'elle contient) n'était atteignable par **aucun** des deux
+instruments existants, qui n'interrogent jamais la page telle qu'un praticien la lit réellement.
+
+**Porte de sortie P7** : recette référent **et** recette navigateur closes, sans défaut grave ouvert.
 
 ---
 
@@ -303,8 +322,9 @@ défauts de modèle, c'est que P2 ou P3 ont été abrégés.
 - [ ] **`nature` déclarée** (`etat` / `intention` / `terrain` / `preference`) — R1 ; rend testable
       qu'aucun `etat` ne dérive d'une `intention`.
 - [ ] **Bornes `min`/`max`** si `nombre` — P0 ci-dessus ; double motif saisie + banc.
-- [ ] **`confirmation_requise`** si c'est un `bool`/`liste` dont le « non » ne peut pas être présumé
-      sans risque — R7/D20.
+- [ ] **`presomption_non`** posé UNIQUEMENT si ce `bool`/`liste` peut être présumé « non » sans risque
+      quand il n'est pas renseigné — établi mécaniquement (aucune condition `role: securite`,
+      `exclusions` ni `prerequis` ne le lit) ; jamais sur un critère de sécurité — R7/D30.
 - [ ] **Testé dans les deux sens.** Un critère qui ne sait qu'**interdire** est à moitié câblé :
       `antecedent_cv` bloquait la cible stricte sans qu'aucune option ne le teste en position
       positive — un patient de 68 ans, 15 ans de diabète et un antécédent CV recevait la cible la plus
@@ -324,6 +344,16 @@ défauts de modèle, c'est que P2 ou P3 ont été abrégés.
       (option, rang, exclusion) ou seulement un *commentaire* (alerte, texte) ? `age` dans `statine`
       satisfaisait R5 en n'allumant qu'une alerte, pendant que 30 ans et 90 ans recevaient la carte
       identique.
+- [ ] **Coût de recueil déclaré**, ajouté le 2026-07-28 (recette navigateur, axe A-3). Pour ce critère,
+      le praticien cible l'a-t-il *sous les yeux* (dossier ouvert, biologie récente), doit-il *aller le
+      chercher* (rappeler le labo, un autre logiciel, repeser), ou ne l'a-t-il *pas du tout* (suppose un
+      équipement absent, ex. un capteur) ? Un critère de la troisième catégorie exige une **voie
+      alternative déclarée** dans le nœud — pas seulement un message qui explique comment faire sans,
+      ajouté après coup. Cas réel : sur `insuline`, 5 champs sur 20 sont impossibles à remplir sans
+      capteur de glucose (TBR, TBR sévère, coefficient de variation, profil AGP, faute de mesure
+      continue) — le message qui explique comment s'en passer existe (« Sans MCG : titrer la basale sur
+      la glycémie à jeun ») mais est rendu **sous** la ligne qui les réclame : un praticien sans capteur
+      découvre l'impasse avant l'explication, pas après.
 
 ### 2.2 Option
 
@@ -508,6 +538,10 @@ Table de relecture rapide. Chaque ligne est un défaut **constaté**, pas antici
 | **Dette dispensée par nœud** | une nouvelle violation sur un nœud déjà listé passe inaperçue | exempter l'objet exact, avec motif |
 | **Champ de schéma non consommé** | `module: RHD` écrit partout, lu par personne, absent du type TS | consommer ou déclarer inerte, dans le même lot |
 | **Statut de contenu invisible** | 5 nœuds `brouillon` en production, rien ne le dit au praticien | rendre `meta.statut` là où le contenu est lu |
+| **Réponse qu'on ne peut pas défaire** | « Rien à signaler » répond à 6 drapeaux d'un coup, irréversible, sans dire lesquels (D-11, recette du 2026-07-28) | offrir un retour en arrière, ou nommer explicitement ce qui vient d'être répondu |
+| **L'écran change sous les doigts** | cocher un critère fait passer une carte déjà lue derrière un repli sans signal (D-17) ; un bandeau de contrainte inséré en tête pousse tout le formulaire de 60 px pendant la frappe (D-15) | ancrer ce qui apparaît/disparaît ; ne jamais insérer un bloc au-dessus de ce que le praticien est en train de lire |
+| **La réponse arrive hors de portée du regard** | 2 207 px entre « à renseigner : Espérance de vie » et son champ ; 848 px entre une contrainte et le champ qu'elle corrige — mesuré, aucun des deux renvois n'était cliquable (D-15, D-16) | mesurer la distance à l'écran avant de livrer, pas seulement relire le contenu ; un renvoi doit s'atteindre en un geste |
+| **Garde répété de la mauvaise polarité** | répéter un garde en tête d'un terme (R8) protège une citation POSITIVE (`contient X`) mais, sur une citation NÉGATIVE (`ne_contient_pas X`) du même critère masqué, force le terme à `false` pour un patient qui la satisfait pourtant trivialement — huit options d'ajout de `prescription` exclues à tort pour tout patient `initier`, régression pire que le défaut d'origine, essayée puis revertée (P4/S9, T-031 ; `engine/banc/impasse.test.ts` `IMPASSES_CONNUES_T018`) | vérifier la POLARITÉ (positive/négative) du terme avant de répéter un garde mécaniquement — R8 dit qu'il faut protéger un terme, pas dans quel sens |
 
 ---
 

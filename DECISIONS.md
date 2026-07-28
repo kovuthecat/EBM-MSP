@@ -1079,6 +1079,213 @@ sur le critère principal.
 
 ---
 
+## 2026-07-28 — D30 · Un critère non répondu est indéterminé, quel que soit son type (amende D20)
+
+### Décision
+
+Un critère `bool`/`liste` non renseigné vaut désormais **`indéterminé`**, au même titre que
+`nombre`/`enum` — plus de présomption implicite « non »/« aucun ». Le champ de contenu qui portait
+l'exception s'appelle désormais **`presomption_non`** (renommé depuis `confirmation_requise`, **sens
+inversé**) : `presomption_non: true` est l'exception explicite qui rend un `bool`/`liste` déterminé par
+son défaut tant qu'il n'est pas renseigné — réservée aux critères qui ne participent à **aucune**
+condition, `exclusions` ou `prerequis` d'une option `role: securite` du nœud. Absent ou `false` = le
+critère reste indéterminé jusqu'à saisie, comme un `nombre`/`enum`.
+
+`critereEstDetermine` (`src/features/decision/engine/deriveCritere.ts`) porte la règle ; l'écran
+(`decisifsAConfirmer`, `src/features/decision/lib/formLayout.ts`) a été réaligné sur la **même** fonction
+moteur (`determinesEffectifs`) au lieu de son propre filtre `!touched.has(nom)`, pour que le marqueur
+« à confirmer » et le compteur de critères non confirmés ne puissent plus diverger de ce que le moteur
+tient réellement pour répondu.
+
+La liste des critères éligibles à `presomption_non` a été établie **mécaniquement** (parcours des
+`conditions`/`exclusions`/`prerequis`/`quand` d'alerte de chaque nœud), pas à la main : les critères qui
+portaient déjà `confirmation_requise: true` (5 sur `rhd-activite-physique`, 2 sur `rhd-alimentation`, 3
+sur `statine`) n'ont **jamais** reçu `presomption_non` — ils restent indéterminés.
+
+### Contexte
+
+Recette navigateur du 2026-07-28 : formulaire **entièrement vierge** sur `rhd-activite-physique` →
+quatre cartes « Recommandée » justifiées par « Interrompt habituellement les longues périodes assises :
+non » et « Offre d'activité de proximité connue : non » (D-01) ; sur `cible-glycemique`, une cible
+~6,5 % justifiée par « Antécédent cardiovasculaire : non et Comorbidité grave : non et Fragilité : non »,
+les trois marqués « · à confirmer » **dans la même page** (D-02). D20 posait l'inverse (« `bool`/`liste`
+restent déterminés par défaut, sauf `confirmation_requise` ») : la recette a montré que ce défaut,
+présenté comme rassurant côté contenu, produisait exactement le symptôme que D20 avait été écrite pour
+éliminer côté `nombre`/`enum`.
+
+### Raison du choix
+
+La forme du défaut n'est pas propre à `nombre`/`enum` : c'est « le moteur affirme sur une donnée qu'il
+n'a jamais reçue », quel que soit le type porteur. Traiter les deux familles de types différemment
+n'avait jamais été un choix clinique, seulement l'état du schéma au moment de D20. Arbitrage référent du
+2026-07-28.
+
+### Conséquences
+
+- Saisie allongée : un praticien qui laisse un drapeau vide ne bloque plus une seule option, il bloque
+  **toutes** celles qui le lisent — le geste « Rien à signaler » (répond en un clic à toute une section)
+  devient donc structurant, pas cosmétique.
+- Nouvel invariant de banc **I21** (`engine/banc/vierge.test.ts`) : sur tout nœud publié, un profil
+  entièrement vide ne produit **aucune** option `applicable`.
+- **Dette ouverte, nommée, non résolue par ce plan.** Sur le nœud `prescription`, deux critères
+  (`traitements_en_cours`, `intolerance_traitement`) sont masqués par `visible_si: "intention !=
+  initier"` et n'ont **pas pu** recevoir `presomption_non` (ils gardent de vraies conditions
+  `role: securite`/`exclusions` ailleurs sur le même nœud) — masqués, ils sont donc devenus indéterminés
+  pour un patient `initier`, faisant partir en attente une vingtaine d'options qui n'ont, par
+  construction, aucun objet pour un naïf. P4/S9 (T-031) a répété le garde `intention != initier` (motif
+  R8) sur toutes les citations **positives** des deux critères — suffisant pour clore `intolerance_
+  traitement` en entier. Le même geste reste **impuissant** sur les citations **négatives** de
+  `traitements_en_cours` (`ne_contient_pas X`, garde-fous de non-duplication sur 8 options d'ajout :
+  Insuline d'initiation, Introduire un iSGLT2/un AR GLP‑1/le tirzépatide, Association, Envisager
+  l'insuline, Gliptine/Sulfamide place résiduelle) : y répéter le même garde en `AND` **exclurait à
+  tort** ces options pour tout patient `initier` — régression confirmée sur le banc (I2′, profils
+  #227/#763/#1230). Tracée dans `engine/banc/impasse.test.ts` (`IMPASSES_CONNUES_T018`) et
+  `engine/banc/invariants-contenu.test.ts` (`VIOLATIONS_R8_CONNUES_T018`), à revoir avec le référent :
+  soit revenir sur l'exclusion de `traitements_en_cours` de `presomption_non` sur ce nœud, soit une
+  évolution du DSL vers un garde de polarité inverse.
+
+---
+
+## 2026-07-28 — D31 · Une contrainte de saisie est opposable au rendu (complète D27)
+
+### Décision
+
+Quand `contraintesViolees` (D27) n'est pas vide pour le formulaire courant, l'écran de nœud
+(`src/features/decision/screens/DecisionNodeScreen.tsx`) ne rend **plus** ni les options applicables, ni
+les options écartées/non retenues, ni le bloc « en attente » : un bloc unique
+(`decision-node__contrainte-suspension`, `role="alert"`, registre visuel des faits de sécurité) porte le
+ou les messages de contrainte violée, avec les libellés rédigés des critères en cause (I20). Les alertes
+de **nœud** (D15, faits de sécurité indépendants du geste retenu) restent, elles, affichées **au-dessus**
+du bloc de suspension : suspendre les résultats ne fait jamais disparaître un fait de sécurité qui aurait
+dû rester.
+
+### Contexte
+
+D27 (2026-07-27) avait introduit `Noeud.contraintes` comme signalement d'une combinaison de critères
+incohérente **en tant que saisie**, mais son seul effet observable était le filtrage des profils
+synthétiques du banc (`filtrerParContraintes`) — jamais branché sur l'écran réel. Recette du 2026-07-28
+(D-04) : sur `insuline`, TBR = 1 et TBR sévère = 95, le message d'impossibilité s'affichait correctement
+(bandeau ambre en tête de `CriteriaForm`) et **trois cartes « Recommandée » subsistaient**, dont
+« Corriger l'hypoglycémie (réduire la dose) » et « Ajouter un bolus au repas principal » **en même
+temps** — réduire et intensifier sur une saisie que l'outil venait de déclarer impossible. Second défaut
+mesuré par la même recette : le message s'affichait 848 px au-dessus du champ fautif (D-15), poussant
+tout le formulaire de 60 px à son apparition.
+
+### Raison du choix
+
+C'est la forme générale décrite par ce plan : deux couches croient des choses différentes, et la plus
+affirmative gagne à l'écran — ici, « cette saisie est incohérente » (le bandeau) contre « voici trois
+gestes à faire » (le panneau de résultats, juste en dessous). Rendre la contrainte opposable au rendu,
+plutôt que parallèle, ferme l'écart au lieu de l'habiller.
+
+### Conséquences
+
+- L'ancrage vers le champ fautif reste un **nom en clair**, pas un lien cliquable : aucun champ de
+  `CriteriaForm` ne porte d'`id` HTML aujourd'hui, et la session s'est arrêtée là plutôt que de
+  construire un mécanisme de navigation — limite notée explicitement, pas un oubli.
+- Le bandeau que `CriteriaForm` affichait en tête de formulaire (848 px au-dessus du champ, D-15) est
+  retiré : une contrainte violée n'est plus rendue qu'**une seule fois**, à la place du panneau de
+  résultats.
+- Un nœud dont plusieurs contraintes sont violées à la fois affiche un item par contrainte, dans le même
+  bloc.
+
+---
+
+## 2026-07-28 — D32 · En `ordered-first-match`, la halte sur indéterminé n'atteint pas les options `role: securite` (amende D11)
+
+### Décision
+
+Dans `evaluateOrderedFirstMatch` (`src/features/decision/engine/evaluateNode.ts`), quand une option
+rencontrée dans l'ordre du nœud est **indéterminée** (`conditions`/`prerequis`/`exclusions`), le
+parcours mémorise la halte (le nœud reste `enAttente` sur cette option) mais **n'arrête plus**
+l'évaluation : il continue, en ne considérant plus, parmi les options restantes, que celles portant
+**`role: securite`** (D25) — le repli `default` y compris, lui-même retesté seulement s'il porte ce
+rôle. Toute option **ordinaire** placée après une halte reste hors d'atteinte, sans être évaluée ni
+tracée : l'ordre du nœud continue de faire foi (D11) en dehors du filet de sécurité. Si une option de
+sécurité matche après la halte, elle est retenue **et** la halte reste rapportée dans `enAttente` :
+l'écran peut dire à la fois « voici le filet » et « la décision principale reste suspendue à tels
+critères ».
+
+Cette décision lève la réserve que portait la docstring de `evaluateOrderedFirstMatch` (« ce choix n'est
+pas explicitement tranché par la spec ») : il l'est désormais, explicitement, par D32.
+
+### Contexte
+
+Recette du 2026-07-28 (D-03) : nœud `statine`, patient en prévention **secondaire** (maladie
+cardiovasculaire athéromateuse établie), intolérance **avérée**, statine jamais en place, deux critères
+non renseignés (`anciennete_diabete_annees`, `autres_FDRCV`). Le parcours atteignait « Discuter la
+statine (décision partagée) », dont les conditions testaient ces deux critères → indéterminé → **halte**
+→ écran muet. La carte suivante dans l'ordre, « Statine indisponible — alternatives hypolipémiantes »
+(`role: securite`), aurait matché sur `intolerance_statine == averee` et couvrait déjà ce patient : le
+seul patient à qui l'outil ne disait **rien du tout** était celui pour qui la question était la plus
+urgente.
+
+### Raison du choix
+
+La halte reste nécessaire : elle empêche de retenir une option plus loin dans l'ordre alors qu'une
+option antérieure était peut-être la bonne, ce que D20 interdit (sauter un indéterminé pour en retenir
+un autre reviendrait à décider tacitement qu'il ne matche pas). Mais un fait de sécurité ne se négocie
+pas contre une indétermination plus tôt dans l'ordre — même principe que D25 (« un `role: securite` est
+à faire d'emblée, jamais replié ni plafonné »), appliqué ici à la halte plutôt qu'à l'affichage.
+
+### Conséquences
+
+- Nouveaux invariants de banc **I22** (`engine/banc/securite-atteignable.test.ts` : aucune option
+  `role: securite` d'un nœud publié n'est rendue inatteignable par l'ordre du nœud) et **I23** (même
+  fichier : jamais `applicable` vide **et** `enAttente` vide en même temps, sur aucun nœud publié).
+- `enAttente` peut désormais porter **plusieurs** entrées en `ordered-first-match` (une par halte
+  rencontrée), alors qu'une seule était possible avant cette décision.
+- Aucun contenu clinique modifié : le défaut était dans le moteur, pas dans l'ordre ni les conditions de
+  `statine`.
+
+---
+
+## 2026-07-28 — D33 · La mémoire de session a un geste de sortie (complète D28)
+
+### Décision
+
+Un bouton **« Nouveau patient »** (`src/features/shared/layout/Header.tsx`), placé à droite de la barre,
+hors du chemin de lecture clinique, purge explicitement la mémoire de session (`reinitialiserSession()`,
+`src/features/decision/lib/sessionCriteres.ts`) et force le remontage de tous les écrans montés par
+`key` — y compris **sans** changer de nœud, pour que rouvrir le même nœud reparte vierge. Confirmation
+(`window.confirm`) avant purge : le geste est destructif et à portée d'un clic parasite en consultation.
+Orchestré par `App.tsx`, seul composant qui connaît à la fois `sessionCriteres.ts` et le mécanisme de
+remontage par `key` (D28) — via un compteur `resetEpoch` injecté dans chaque `key` d'écran, jamais lu
+pour sa valeur.
+
+**Ce que ce n'est pas** : ni une purge implicite au retour à l'accueil, ni au changement de nœud.
+L'accueil reste le trajet normal **à l'intérieur** d'une même consultation (D9 : pas de navigation
+directe d'un nœud à l'autre) — y purger détruirait exactement ce que D28 sert à préserver (reprendre
+l'HbA1c ou le DFG d'un nœud à l'autre du même patient).
+
+### Contexte
+
+Recette du 2026-07-28 (D-13) : après une vignette (HbA1c actuelle 8,4 / cible 7), l'ouverture d'un nœud
+pour un **autre** patient pré-remplissait « HbA1c cible · repris de votre saisie » à 7, et cette valeur
+entrait dans le raisonnement affiché (« Proposé parce que : … HbA1c à la cible : non »). Aucun bouton de
+sortie n'existait : seul un rechargement complet (F5), que rien à l'écran ne mentionne, vidait la
+mémoire. C'est le seul défaut de la recette capable de faire raisonner l'outil sur les données d'un
+autre patient.
+
+### Raison du choix
+
+D28 est respectée à la lettre par le mécanisme lui-même (aucune valeur ne survit à un F5) : le trou
+n'était pas dans la mémoire de session, il était dans l'**absence de geste de fin de consultation** qui
+la vide **sans** recharger la page. Un bouton explicite, plutôt qu'une purge automatique à un point de
+navigation existant, évite de réinterpréter silencieusement un trajet (l'accueil) qui a déjà un autre
+sens établi (D9).
+
+### Conséquences
+
+- `sessionCriteres.ts` expose une fonction de purge triviale (vide la `Map` de module, aucun événement,
+  aucun abonnement).
+- Aucune nouvelle persistance introduite (`localStorage`/réseau toujours absents, invariant `CLAUDE.md`
+  1 inchangé) : le bouton vide une mémoire déjà volatile, il n'en crée pas de nouvelle.
+- Un nœud ré-ouvert après purge n'affiche plus aucune mention « · repris de votre saisie » — vérifié par
+  test.
+
+---
+
 ## Décisions ouvertes (à trancher avec le comité MSP)
 
 - **Méthode d'authentification veille** : magic link vs e-mail+mot de passe (reco : magic link + liste
