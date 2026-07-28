@@ -117,6 +117,68 @@
   margin-bottom: 0;
 }
 
+/* T-022 (D31, 2026-07-28) — SUSPENSION D'UNE CONTRAINTE DE SAISIE VIOLÉE. Registre visuel des FAITS DE
+   SÉCURITÉ (mêmes tokens `--c-disclaimer-*` qu'`AlertList.css`/`OptionCard.css` — jamais `--c-attention*`,
+   réservé à « à confirmer »/« reco provisoire », une saisie EN COURS plutôt qu'une saisie CONTRADICTOIRE :
+   DECISIONS.md D24, « un bloc gris de cadrage n'est pas une alerte, et l'inverse serait un défaut »). Ce
+   bloc REMPLACE tout le panneau de résultats tant qu'une contrainte reste violée (cf. `DecisionNodeScreen.tsx`) :
+   ni cartes, ni écartées, ni en attente, ni argumentaire. */
+.decision-node__contrainte-suspension {
+  display: grid;
+  gap: 12px;
+  margin: 0 0 20px;
+  padding: 14px 16px;
+  border: 1px solid var(--c-disclaimer-border);
+  background: var(--c-disclaimer-bg);
+  border-radius: var(--radius-md);
+}
+
+.decision-node__contrainte-suspension-titre {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--c-text);
+}
+
+.decision-node__contrainte-suspension-item {
+  display: grid;
+  gap: 4px;
+}
+
+.decision-node__contrainte-suspension-item + .decision-node__contrainte-suspension-item {
+  padding-top: 10px;
+  border-top: 1px solid var(--c-disclaimer-border);
+}
+
+.decision-node__contrainte-suspension-message {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--c-text);
+  white-space: pre-line;
+}
+
+.decision-node__contrainte-suspension-champs {
+  margin: 0;
+  font-size: 12px;
+  color: var(--c-text-muted);
+}
+
+/* T-023 Étape 1 (P4/S3, 2026-07-28) — zéro option APPLICABLE mais une décision reste EN ATTENTE (halte
+   possible depuis S2). Même registre AMBRE que `.decision-node__en-attente` juste en dessous (même
+   nature d'information — une question posée au praticien, pas une alerte de sécurité ni un cadrage) :
+   l'emplacement des cartes ne doit plus jamais rester silencieux (famille 7 du protocole de recette). */
+.decision-node__suspendu {
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--c-attention-border);
+  background: var(--c-attention-soft);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  color: var(--c-text);
+}
+
 /* D20 R7 (SPEC-valeur-indeterminee.md §2.5) — EN ATTENTE : quatrième registre, distinct des trois
    suivants. Registre AMBRE (mêmes tokens `--c-attention*` que le marqueur « à confirmer » du formulaire
    et le bandeau « reco provisoire ») : c'est une QUESTION posée au praticien (donnée manquante), jamais

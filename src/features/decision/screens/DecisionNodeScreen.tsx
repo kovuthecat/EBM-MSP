@@ -7,6 +7,7 @@ import { CriteriaForm } from '../components/CriteriaForm'
 import { OptionCard } from '../components/OptionCard'
 import { getModuleDuNoeud } from '../content/loadModules'
 import { getNoeudById } from '../content/loadNodes'
+import type { CritereEntree } from '../content/node.types'
 import type { Criteria, CriteriaValue } from '../engine/conditions'
 import { contraintesViolees } from '../engine/contraintes'
 import { criteresPertinents } from '../engine/relevance'
@@ -29,6 +30,34 @@ import './DecisionNodeScreen.css'
 interface DecisionNodeScreenProps {
   nodeId: string | undefined
   go: Navigation['go']
+}
+
+/**
+ * Noms des critères SAISISSABLES cités par l'expression d'une contrainte violée (T-022, P4/S3) — pour
+ * nommer « les champs en cause » dans le bloc de suspension (D31). Même mécanique de correspondance que
+ * `engine/evaluateNode.ts` `primitivesReferencees` (frontière de mot `\b`, un seul niveau de
+ * déréférencement d'un critère `derive`, jamais chaîné) — RÉIMPLÉMENTÉE ici plutôt qu'importée : usage de
+ * PRÉSENTATION seulement, même parti pris que `lib/conditionText.ts` (qui ne réutilise pas non plus le
+ * moteur pour cette raison) ; `engine/` est hors périmètre de cette session (S3.md "Hors périmètre").
+ *
+ * Une contrainte (`engine/contraintes.ts`) compare typiquement DEUX critères entre eux (ex.
+ * `"TBR_severe <= TBR"`) : les deux noms référencés par l'expression comptent comme « en cause », pas
+ * seulement celui de gauche — l'outil ne sait pas lequel des deux est erroné (cf. docstring
+ * `Contrainte`, `content/node.types.ts`).
+ */
+function champsEnCause(expression: string, criteresEntree: CritereEntree[]): string[] {
+  const noms = new Set<string>()
+  for (const critere of criteresEntree) {
+    if (!new RegExp(`\\b${critere.nom}\\b`).test(expression)) continue
+    if (critere.derive == null) {
+      noms.add(critere.nom)
+      continue
+    }
+    for (const autre of criteresEntree) {
+      if (autre.derive == null && new RegExp(`\\b${autre.nom}\\b`).test(critere.derive)) noms.add(autre.nom)
+    }
+  }
+  return [...noms]
 }
 
 /**
@@ -126,12 +155,36 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   // Modèle de vue UNIQUE (`lib/vueDecision.ts`) : l'écran ne calcule plus rien lui-même (ni
   // `groupesParFamille`, ni `computeBadges`, ni les doses `calculs`) — tout vient de `construireVueDecision`,
   // la même fonction pure que sérialise `engine/relevance.ts` pour la signature de pertinence.
+  // FUSION `touched` ∪ `preremplis` (T-023, D-06, P4/S3) — CE QUE L'ÉCRAN ET LE MOTEUR TRAITENT COMME
+  // « RENSEIGNÉ » à partir d'ici, SANS changer `touched` lui-même.
+  //
+  // LE DÉFAUT (D-06) : une valeur calculée par `preremplissage` (K6) était bien écrite dans `criteria`
+  // (`appliquerPreremplissage`, `handleCriteriaChange` ci-dessus) mais JAMAIS ajoutée à `touched` — donc
+  // invisible au formulaire (`CriteriaForm` n'allume `aria-pressed`/`data-on` que sur `touched.has(nom)`)
+  // ET invisible au moteur (`construireVueDecision`/`criteresPertinents`/... ne reçoivent que `touched`
+  // comme `renseignes`). L'étiquette « · calculé, à vérifier » s'affichait donc seule, sans rien qui la
+  // rende vraie : exactement l'hypothèse 1 de T-023 Étape 3, vérifiée avant de corriger.
+  //
+  // POURQUOI PAS SIMPLEMENT AJOUTER `preremplis` DANS `touched` : `appliquerPreremplissage`
+  // (`lib/formLayout.ts`) ne reconsidère JAMAIS un critère déjà dans le `renseignes` qu'on lui passe
+  // (`!renseignes.has(c.nom)`, cf. sa docstring K6 : « le pré-remplissage se REJOUE à chaque saisie, tant
+  // que le champ visé n'a pas été répondu »). Fusionner les deux ensembles AVANT l'appel à
+  // `appliquerPreremplissage` (dans `handleCriteriaChange`) figerait la valeur suggérée à la première
+  // saisie qui la déclenche — un patient dont la cible bouge ensuite ne verrait plus jamais la position
+  // rebasculer (`nettement_au_dessus` → `au_dessus`), ce que T-023 Étape 3/5 exige de vérifier. `touched`
+  // brut continue donc SEUL de nourrir `appliquerPreremplissage`/`reinitialiserChampsMasques`
+  // (`handleCriteriaChange`/`handleCriteriaEffacer`, inchangés) ; CETTE fusion, elle, nourrit tout ce qui
+  // AFFICHE ou ÉVALUE une fois la valeur posée : le formulaire (`touched` passé à `CriteriaForm`
+  // ci-dessous) et les quatre calculs de `renseignes` du moteur (`vue`, `pertinents`, `violations`,
+  // `decisifsManquants`).
+  const criteresRenseignes = useMemo(() => new Set([...touched, ...preremplis]), [touched, preremplis])
+
   const vue = useMemo(() => {
     if (!node) return undefined
-    // `touched` = `renseignes` (D20, cf. docstring de tête) : calculé sur `criteria` IMMÉDIAT, la même
-    // source temporelle que `touched` — les deux avancent ensemble, jamais l'un en retard sur l'autre.
-    return construireVueDecision(node, criteria, touched)
-  }, [node, criteria, touched])
+    // `criteresRenseignes` (D20 + T-023/D-06) : calculé sur `criteria` IMMÉDIAT, la même source
+    // temporelle — les deux avancent ensemble, jamais l'un en retard sur l'autre.
+    return construireVueDecision(node, criteria, criteresRenseignes)
+  }, [node, criteria, criteresRenseignes])
 
   // TEMPORISATION (tâche 6c, recette référent) : `criteresPertinents` perturbe le moteur une fois par
   // critère saisissable (plusieurs évaluations d'`evaluateNode` chacune) — recalculer à CHAQUE frappe sur
@@ -148,20 +201,21 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   // (temporisé) : coût borné mais non négligeable (plusieurs évaluations du moteur déterministe par frappe).
   const pertinents = useMemo(() => {
     if (!node || node.criteres_entree.length === 0 || node.options.length === 0) return undefined
-    // `touched` = `renseignes` (D20) transmis NON DIFFÉRÉ, comme `decisifsManquants` ci-dessous : seul
-    // `criteria` (via `criteriaDiffere`) est temporisé (cf. commentaire au-dessus), `touched` ne l'est
-    // jamais — sans quoi un champ tout juste répondu resterait vu « indéterminé » un instant de trop.
-    return criteresPertinents(node, criteriaDiffere, touched)
-  }, [node, criteriaDiffere, touched])
+    // `criteresRenseignes` (D20 + T-023/D-06) transmis NON DIFFÉRÉ, comme `decisifsManquants` ci-dessous :
+    // seul `criteria` (via `criteriaDiffere`) est temporisé (cf. commentaire au-dessus), `criteresRenseignes`
+    // ne l'est jamais — sans quoi un champ tout juste répondu resterait vu « indéterminé » un instant de trop.
+    return criteresPertinents(node, criteriaDiffere, criteresRenseignes)
+  }, [node, criteriaDiffere, criteresRenseignes])
 
   // CONTRAINTES DE SAISIE violées (K3, `engine/contraintes.ts`). Sur `criteria` IMMÉDIAT et non
   // `criteriaDiffere` : c'est un signalement d'erreur de frappe, il doit disparaître dès que le praticien
   // corrige — un message qui reste affiché une seconde après la correction se lit comme un refus.
-  // `touched` fait office de `renseignes` : une contrainte dont un opérande n'est pas encore saisi n'est
-  // jamais « violée » (cf. `contraintesViolees`), sans quoi elle s'allumerait sur un formulaire vierge.
+  // `criteresRenseignes` fait office de `renseignes` : une contrainte dont un opérande n'est pas encore
+  // saisi n'est jamais « violée » (cf. `contraintesViolees`), sans quoi elle s'allumerait sur un
+  // formulaire vierge.
   const violations = useMemo(
-    () => (node ? contraintesViolees(node, criteria, touched) : []),
-    [node, criteria, touched],
+    () => (node ? contraintesViolees(node, criteria, criteresRenseignes) : []),
+    [node, criteria, criteresRenseignes],
   )
 
   // Décisifs encore non confirmés → tant qu'il en reste, la reco est « provisoire » (jamais bloquée).
@@ -170,8 +224,8 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   // (`criteriaDiffere`, pas `criteria`) : sinon la visibilité (immédiate) et la pertinence (temporisée)
   // pourraient transitoirement se contredire (ex. un champ tout juste démasqué mais pas encore réévalué).
   const decisifsManquants = useMemo(
-    () => decisifsAConfirmer(node?.criteres_entree ?? [], criteriaDiffere, touched, pertinents),
-    [node, criteriaDiffere, touched, pertinents],
+    () => decisifsAConfirmer(node?.criteres_entree ?? [], criteriaDiffere, criteresRenseignes, pertinents),
+    [node, criteriaDiffere, criteresRenseignes, pertinents],
   )
 
   if (!node) {
@@ -336,7 +390,10 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
             criteresEntree={node.criteres_entree}
             criteria={criteria}
             criteriaGroupement={criteriaDiffere}
-            touched={touched}
+            // T-023/D-06 (P4/S3) : `criteresRenseignes` (`touched` ∪ `preremplis`), pas `touched` seul —
+            // sinon un segment pré-rempli par le contenu (K6) reste affiché `aria-pressed="false"` alors
+            // que sa valeur a bien été posée (cf. la fusion ci-dessus, docstring complète sur `vue`).
+            touched={criteresRenseignes}
             pertinents={pertinents}
             aConfirmer={new Set(decisifsManquants)}
             repris={repris}
@@ -348,12 +405,55 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
             }
             onConfirmerChamps={handleConfirmerChamps}
             onEffacer={handleCriteriaEffacer}
-            contraintesViolees={violations}
+            // T-022 (D31) : `contraintesViolees` n'est PLUS transmis ici — le bandeau que `CriteriaForm`
+            // en tirait s'affichait en tête de formulaire, 848 px au-dessus du champ fautif (D-15), ET en
+            // double avec le bloc de suspension ci-dessous (« un bloc unique », Étape 1). Une contrainte
+            // violée est désormais rendue UNE SEULE fois, à la place du panneau de résultats.
             onChange={handleCriteriaChange}
           />
 
+          {/* Alertes de NŒUD (D15, faits de sécurité) : restent visibles MÊME quand une contrainte de
+              saisie suspend le reste du panneau juste en dessous (T-022 "Si bloqué" : suspendre les
+              résultats ne doit jamais faire disparaître un fait de sécurité qui aurait dû rester — un
+              canal différent, cf. `docs/decision/GRAMMAIRE-NOEUD.md` R4/D15). */}
           {vue && <AlertList alertes={vue.alertes} />}
 
+          {violations.length > 0 ? (
+            // T-022 (D31, 2026-07-28) — UNE CONTRAINTE VIOLÉE SUSPEND TOUT LE RESTE DU PANNEAU DE
+            // RÉSULTATS : ni cartes applicables, ni options écartées, ni bloc « en attente », ni
+            // argumentaire (Étape 4, "rien d'autre que le message"). Recette du 2026-07-28 : sur
+            // `insuline`, TBR = 1 / TBR sévère = 95 (saisie que le nœud vient de déclarer impossible)
+            // laissait pourtant subsister trois cartes « Recommandée » contradictoires (D-04) — la
+            // contrainte n'était qu'un canal d'affichage parallèle, jamais opposable au rendu. Elle
+            // l'est désormais : ce bloc REMPLACE tout le panneau ci-dessous tant qu'une contrainte reste
+            // violée.
+            <div className="decision-node__contrainte-suspension" role="alert">
+              <div className="decision-node__contrainte-suspension-titre">
+                Saisie à corriger avant de poursuivre
+              </div>
+              {violations.map((contrainte) => {
+                // Étape 2 : nommer les champs en cause ET permettre d'y aller. AUCUN champ de
+                // `CriteriaForm` ne porte aujourd'hui d'`id` HTML (vérifié, `components/CriteriaForm.tsx`)
+                // — construire une ancre cliquable aurait donc exigé un mécanisme de navigation neuf (y
+                // ajouter des `id`, gérer le défilement), explicitement hors périmètre de cette tâche
+                // (« ne construis pas un mécanisme de navigation »). Repli explicite, tel que prévu par la
+                // tâche : le nom du champ en clair, jamais un identifiant technique (I20).
+                const champs = champsEnCause(contrainte.expression, node.criteres_entree)
+                return (
+                  <div key={contrainte.expression} className="decision-node__contrainte-suspension-item">
+                    <p className="decision-node__contrainte-suspension-message">{contrainte.message}</p>
+                    {champs.length > 0 && (
+                      <p className="decision-node__contrainte-suspension-champs">
+                        Champ{champs.length > 1 ? 's' : ''} concerné{champs.length > 1 ? 's' : ''} :{' '}
+                        {champs.map(labelForCritere).join(', ')}
+                      </p>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            <>
           <div className="decision-node__section-title">
             {decisifsManquants.length > 0 ? 'Options applicables — provisoire' : 'Options applicables'}
           </div>
@@ -405,8 +505,24 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                           « aucune de ces options n'est préférable à l'autre », faux pour des gestes
                           cumulables. La nuance « en choisir un » / « cumulables » est désormais portée
                           par le TITRE DE FAMILLE (mention générique dérivée de `exclusive`, ci-dessous),
-                          jamais par cet encadré générique. */}
-                      <p className="decision-node__egalite-mention">À égalité — même niveau de priorité.</p>
+                          jamais par cet encadré générique.
+
+                          T-024 (P4/S3, 2026-07-28) : « À ÉGALITÉ — MÊME NIVEAU DE PRIORITÉ. » ne portait
+                          aucun contenu de départage (recette du 2026-07-28, rencontré trois fois) — le
+                          praticien prenait la première carte de la liste, un ordre qui n'a pourtant aucune
+                          signification clinique à ce rang. Reformulée pour dire explicitement les trois
+                          choses que l'arbitrage retient : équivalentes sur les données disponibles, l'outil
+                          ne les départage pas, le choix revient au praticien — SANS rédiger de phrase de
+                          départage clinique (hors périmètre, ce serait du contenu à valider par le
+                          référent) ni afficher les conditions divergentes (ramènerait le DSL à l'écran,
+                          famille 8). Effet d'ordre déjà neutralisé par la mise en page (vérifié, pas
+                          supposé) : `.decision-node__egalite-grid` rend les cartes CÔTE À CÔTE (CSS grid,
+                          `auto-fit`), et `OptionCard.tsx` ne porte aucun numéro ni rang affiché — rien ne
+                          distingue la 1re carte des suivantes au-delà de l'ordre du DOM. */}
+                      <p className="decision-node__egalite-mention">
+                        Options équivalentes sur les données disponibles : l'outil ne les départage pas, le
+                        choix revient au praticien.
+                      </p>
                       <div className="decision-node__egalite-grid">{cartes}</div>
                     </div>
                   )
@@ -462,8 +578,28 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                 </>
               )
             })()
-          ) : vue && vue.enAttente.length > 0 ? null : ( // le bloc EN ATTENTE ci-dessous explique déjà l'état — jamais les deux messages à la fois (D20 R7, tâche 3).
-            <p className="decision-node__empty">Aucune option ne correspond à ces critères.</p>
+          ) : vue && vue.enAttente.length > 0 ? (
+            // T-023 Étape 1 (P4/S3) : `applicable` est vide, mais une ou plusieurs options restent EN
+            // ATTENTE (une halte en cours, possible depuis S2 — un patient peut légitimement n'avoir
+            // aucune option applicable tant qu'elle dure). Avant ce correctif, cet emplacement rendait
+            // `null` : rien n'y disait qu'une décision est suspendue, seul le bloc « en attente »
+            // ci-dessous (qui nomme déjà l'option et les critères manquants, en libellés rédigés — I20)
+            // le racontait, juste après. Ce bloc-ci rend l'emplacement des cartes explicite plutôt que
+            // silencieux — famille 7 du protocole de recette : « un écran qui n'affiche rien » ne doit
+            // plus être possible, quelle qu'en soit la cause.
+            <p className="decision-node__suspendu">
+              Aucune option n'est proposée pour l'instant : la décision est suspendue, faute de critères
+              renseignés — voir le détail juste en dessous (« en attente »).
+            </p>
+          ) : (
+            // T-023 Étape 2 : `applicable` ET `enAttente` sont TOUS DEUX vides — le nœud n'a rien à
+            // proposer dans son périmètre pour ce patient. Ne fabrique aucun conseil clinique : dit
+            // seulement que l'outil n'a rien, et renvoie au cadrage (positions de lecture du nœud,
+            // `CadrageList` en tête de page) quand le nœud en déclare un.
+            <p className="decision-node__empty">
+              Cet algorithme n'a aucune conduite à proposer pour ce patient, avec les critères renseignés.
+              {node.cadrage ? ' Son périmètre est décrit dans le cadrage en tête de page.' : ''}
+            </p>
           )}
 
           {/* D20 R7 (SPEC-valeur-indeterminee.md §2.5, quatrième registre distinct des trois ci-dessous) —
@@ -530,6 +666,8 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
           </button>
 
           {argOpen && <ArgumentPanel node={node} />}
+            </>
+          )}
         </>
       )}
 
