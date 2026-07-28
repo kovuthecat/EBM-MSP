@@ -56,11 +56,6 @@ relecture rédactionnelle + I20 D29, dette S8 des vignettes RHD).
 
 ## Dette technique connue
 
-- `VALIDATION.md` a cessé de fonctionner comme checklist active (697 lignes, aucun bloc coché en 6
-  jours d'itération quotidienne) — le référent valide en direct dans le navigateur et rapporte les
-  défauts au fil de l'eau, plutôt que de cocher ce fichier. Sa règle de purge (« supprimer les blocs
-  entièrement `[x]` ») ne s'est donc jamais déclenchée. Non retouché lors du nettoyage du 2026-07-28,
-  faute de pouvoir distinguer « superflu » de « pas encore vérifié à l'œil » sans le référent.
 - `TASKS.md` — plusieurs tâches P2 (T-013 à T-017, red-team/vignettes/rapport de validation systémique)
   restent `[ ]` alors que leur objet a été couvert, dans les faits, par les chantiers du 2026-07-26/27
   (red-team clinique par nœud, bancs de vignettes, rapports `verif-finale-*`). À réconcilier : soit

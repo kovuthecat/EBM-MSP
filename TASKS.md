@@ -54,9 +54,6 @@ correspondantes de `DECISIONS.md`. Ce qui suit est le backlog **réel et actuel*
       cochées alors que leur objet (red-team données, vignettes, red-team contradictoire, vérification,
       rapport) a été couvert dans les faits par les chantiers 2026-07-26/27, nœud par nœud, par un chemin
       différent de celui cadré dans `plans/P2/`. À trancher : cocher avec renvoi, ou retirer.
-- [ ] `VALIDATION.md` a cessé de fonctionner comme checklist active (cf. `STATUS.md` §Dette technique) —
-      décision à prendre avec le référent sur son sort (purge par ancienneté, ou fusion dans un protocole
-      de recette unique avec `chantier-2026-07-27/banc-profils-consultation.md`, conçu pour être rejoué).
 
 ## Backlog (P2 — Validation systémique DT2, cohérence inter-nœuds) — cadré dans `plans/P2/`
 
