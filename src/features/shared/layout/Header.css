@@ -92,3 +92,12 @@
   font-weight: 600;
   cursor: pointer;
 }
+
+/* T-034/P5 — retour transitoire après la purge (~1,8 s) : teinte déjà utilisée pour le module Veille
+   ailleurs dans ce header (`.header__pill--veille-active`), réutilisée ici plutôt qu'une nouvelle
+   couleur, pour se distinguer sans coder une nouvelle sémantique de « succès ». */
+.header__nouveau-patient--vide {
+  border-color: var(--c-accent-veille);
+  background: var(--c-accent-veille-soft);
+  color: var(--c-accent-veille);
+}

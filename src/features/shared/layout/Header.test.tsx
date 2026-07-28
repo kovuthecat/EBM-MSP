@@ -8,8 +8,8 @@
  * strictement rien déclencher — c'est la seule garde entre un clic parasite en consultation et une
  * purge réelle (D-13).
  */
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Navigation } from '../navigation'
 import { Header } from './Header'
 
@@ -42,5 +42,72 @@ describe('Header — bouton « Nouveau patient »', () => {
     expect(onNouveauPatient).not.toHaveBeenCalled()
 
     confirmSpy.mockRestore()
+  })
+
+  // T-034/P5 — sans ce retour, rien à l'écran ne distingue « j'ai annulé » de « ça n'a rien fait »
+  // (BILAN-P4-2026-07-28.md §2bis). Timers factices : pas de vrai délai dans le test.
+  describe('retour visuel transitoire après la purge (T-034)', () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it("confirmer affiche « Session vidée » puis revient à « Nouveau patient » après le délai", () => {
+      const onNouveauPatient = vi.fn()
+      const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
+
+      render(<Header nav={NAV} onNouveauPatient={onNouveauPatient} />)
+      fireEvent.click(screen.getByText('Nouveau patient'))
+
+      expect(onNouveauPatient).toHaveBeenCalledTimes(1)
+      expect(screen.getByText('Session vidée')).toBeTruthy()
+      expect(screen.queryByText('Nouveau patient')).toBeNull()
+
+      act(() => {
+        vi.runAllTimers()
+      })
+
+      expect(screen.getByText('Nouveau patient')).toBeTruthy()
+      expect(screen.queryByText('Session vidée')).toBeNull()
+
+      confirmSpy.mockRestore()
+    })
+
+    it("annuler la confirmation ne déclenche aucun état transitoire", () => {
+      const onNouveauPatient = vi.fn()
+      const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false)
+
+      render(<Header nav={NAV} onNouveauPatient={onNouveauPatient} />)
+      fireEvent.click(screen.getByText('Nouveau patient'))
+
+      expect(onNouveauPatient).not.toHaveBeenCalled()
+      expect(screen.queryByText('Session vidée')).toBeNull()
+      expect(screen.getByText('Nouveau patient')).toBeTruthy()
+
+      act(() => {
+        vi.runAllTimers()
+      })
+
+      expect(screen.queryByText('Session vidée')).toBeNull()
+      expect(screen.getByText('Nouveau patient')).toBeTruthy()
+
+      confirmSpy.mockRestore()
+    })
+
+    it('le bouton reste cliquable pendant l\'état transitoire (pas de `disabled`)', () => {
+      const onNouveauPatient = vi.fn()
+      const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
+
+      render(<Header nav={NAV} onNouveauPatient={onNouveauPatient} />)
+      fireEvent.click(screen.getByText('Nouveau patient'))
+
+      const button = screen.getByText('Session vidée').closest('button')
+      expect(button?.disabled).toBe(false)
+
+      confirmSpy.mockRestore()
+    })
   })
 })

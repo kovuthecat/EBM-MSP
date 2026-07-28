@@ -1,7 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Navigation } from '../navigation'
 import { AccountMenu } from './AccountMenu'
 import './Header.css'
+
+// T-034/P5 — durée d'affichage du retour transitoire après la purge « Nouveau patient ». Assez long pour
+// être remarqué au coin de l'œil, assez court pour ne pas gêner un second geste volontaire.
+const JUST_CLEARED_DURATION_MS = 1800
 
 interface HeaderProps {
   nav: Navigation
@@ -22,6 +26,21 @@ interface HeaderProps {
 export function Header({ nav, onNouveauPatient }: HeaderProps) {
   const [accountMenuOpen, setAccountMenuOpen] = useState(false)
 
+  // T-034/P5 — retour visuel transitoire après la purge : sans lui, rien à l'écran ne distingue
+  // « j'ai annulé » de « ça n'a rien fait » (BILAN-P4-2026-07-28.md §2bis). Local au bouton, comme
+  // `accountMenuOpen` juste au-dessus — pas de composant de dialogue ni de toast partagé.
+  const [justCleared, setJustCleared] = useState(false)
+  const justClearedTimeoutRef = useRef<number | null>(null)
+
+  // Nettoie le timeout si le composant démonte pendant l'état transitoire (évite un setState orphelin).
+  useEffect(() => {
+    return () => {
+      if (justClearedTimeoutRef.current !== null) {
+        window.clearTimeout(justClearedTimeoutRef.current)
+      }
+    }
+  }, [])
+
   // Geste DESTRUCTIF, à portée d'un clic parasite en consultation (D-13) : confirmation simple avant de
   // purger. `window.confirm` — l'application n'a aucun composant de dialogue existant, en installer un
   // pour ce seul geste serait disproportionné (S5.md T-026, étape 3).
@@ -29,7 +48,21 @@ export function Header({ nav, onNouveauPatient }: HeaderProps) {
     const confirme = window.confirm(
       'Vider la session en cours et repartir avec un nouveau patient ? Les valeurs saisies non enregistrées seront perdues.',
     )
-    if (confirme) onNouveauPatient()
+    if (!confirme) return
+
+    onNouveauPatient()
+
+    // Affiche le retour transitoire, puis revient à l'état normal après un court délai. Le bouton reste
+    // cliquable entre-temps (pas de `disabled`) : un praticien qui rouvre tout de suite doit pouvoir le
+    // refaire.
+    setJustCleared(true)
+    if (justClearedTimeoutRef.current !== null) {
+      window.clearTimeout(justClearedTimeoutRef.current)
+    }
+    justClearedTimeoutRef.current = window.setTimeout(() => {
+      setJustCleared(false)
+      justClearedTimeoutRef.current = null
+    }, JUST_CLEARED_DURATION_MS)
   }
 
   const isDecisionActive = nav.screen === 'decisionDomains' || nav.screen === 'decisionNode'
@@ -78,10 +111,14 @@ export function Header({ nav, onNouveauPatient }: HeaderProps) {
           réglage de profil : c'est un geste de fin de consultation, pas un réglage. */}
       <button
         type="button"
-        className="header__nouveau-patient"
+        className={
+          justCleared
+            ? 'header__nouveau-patient header__nouveau-patient--vide'
+            : 'header__nouveau-patient'
+        }
         onClick={handleNouveauPatientClick}
       >
-        Nouveau patient
+        {justCleared ? 'Session vidée' : 'Nouveau patient'}
       </button>
 
       <AccountMenu
