@@ -254,7 +254,7 @@ criteres_entree:
     # Écrit en forme normale disjonctive (AND lie plus fort que OR — même idiome que `palette_glycemique_
     # ouverte` ci-dessous). Le garde `DFG > 0` est indispensable : le défaut d'un nombre non saisi est 0, et
     # `DFG < 30` seul serait VRAI pour tout patient dont le DFG n'est pas renseigné.
-    derive: "HbA1c_actuelle > 0 AND HbA1c_actuelle < 6.5 OR HbA1c_actuelle > 0 AND HbA1c_actuelle < 7 AND DFG > 0 AND DFG < 30 AND traitements_en_cours contient glinide OR HbA1c_actuelle > 0 AND HbA1c_actuelle < 7 AND DFG > 0 AND DFG < 30 AND traitements_en_cours contient insuline_basale OR HbA1c_actuelle > 0 AND HbA1c_actuelle < 7 AND DFG > 0 AND DFG < 30 AND traitements_en_cours contient insuline_rapide"
+    derive: "HbA1c_actuelle > 0 AND HbA1c_actuelle < 6.5 OR intention != initier AND HbA1c_actuelle > 0 AND HbA1c_actuelle < 7 AND DFG > 0 AND DFG < 30 AND traitements_en_cours contient glinide OR intention != initier AND HbA1c_actuelle > 0 AND HbA1c_actuelle < 7 AND DFG > 0 AND DFG < 30 AND traitements_en_cours contient insuline_basale OR intention != initier AND HbA1c_actuelle > 0 AND HbA1c_actuelle < 7 AND DFG > 0 AND DFG < 30 AND traitements_en_cours contient insuline_rapide"
   - nom: cible_atteinte
     type: bool
     # R1 (GRAMMAIRE-NOEUD.md) : dérivé de l'ÉTAT déclaré (`position_vs_cible`), plus de l'intention.
@@ -303,7 +303,7 @@ criteres_entree:
     # exclusion) ; infections génito-urinaires récidivantes (son alerte d'option, « ne pas initier /
     # envisager l'arrêt ; risque de gangrène de Fournier »). Le garde `DFG > 0` est indispensable — le
     # défaut d'un nombre non saisi est 0, et `DFG < 20` seul serait vrai pour tout DFG non renseigné.
-    derive: "traitements_en_cours contient iSGLT2 OR DFG > 0 AND DFG < 20 OR infections_uro_genitales_recidivantes == true"
+    derive: "intention != initier AND traitements_en_cours contient iSGLT2 OR DFG > 0 AND DFG < 20 OR infections_uro_genitales_recidivantes == true"
   - nom: aglp1_indisponible
     type: bool
     # Reprise TERME POUR TERME des trois disjonctions que portait l'ancienne condition d'« Envisager
@@ -311,7 +311,7 @@ criteres_entree:
     # terrain de l'option AR GLP‑1). `IMC < 22` reste NON gardé, exactement comme dans l'exclusion d'origine
     # et comme partout où ce nœud lit l'IMC : le changer ici déplacerait des profils sans rapport avec
     # l'objection traitée.
-    derive: "traitements_en_cours contient aGLP1 OR denutrition == true OR IMC < 22"
+    derive: "intention != initier AND traitements_en_cours contient aGLP1 OR denutrition == true OR IMC < 22"
   - nom: palette_glycemique_ouverte
     type: bool
     # Séquençage (décision référent S8) : la palette glycémique PURE (ajout d'un 2e agent sans indication de
@@ -336,7 +336,7 @@ criteres_entree:
     # sur une seule destination exclue par le terrain. C'était exactement le défaut d'origine remonté par la
     # recette référent (patient IMC 20 sous gliptine + athérome : ajout d'un iSGLT2 en CONSERVANT la
     # gliptine, faute de verdict sur cette dernière).
-    derive: "traitements_en_cours contient sulfamide OR traitements_en_cours contient gliptine"
+    derive: "intention != initier AND traitements_en_cours contient sulfamide OR intention != initier AND traitements_en_cours contient gliptine"
   - nom: metformine_deprescriptible
     type: bool
     # DÉCISION RÉFÉRENT (2026-07-26, 2e série) : arbitrage resté ouvert depuis la capture 6 — « on peut la
@@ -364,7 +364,7 @@ criteres_entree:
     # « instaurer » supprimée à tort — rien à « déprescrire » chez qui n'a jamais eu la molécule. Trouvé en
     # rejouant le banc de 180 profils (`genererProfils`, profil #121 : iSGLT2+tirzépatide, fragile,
     # sous_objectif, aucun sulfamide/gliptine/glinide/insuline → carte socle exclue SANS remplacement).
-    derive: "traitements_en_cours contient metformine AND position_vs_cible == sous_objectif AND fragilite == true AND traitements_en_cours ne_contient_pas sulfamide AND traitements_en_cours ne_contient_pas gliptine AND traitements_en_cours ne_contient_pas glinide AND traitements_en_cours ne_contient_pas insuline_basale AND traitements_en_cours ne_contient_pas insuline_rapide"
+    derive: "intention != initier AND traitements_en_cours contient metformine AND position_vs_cible == sous_objectif AND fragilite == true AND traitements_en_cours ne_contient_pas sulfamide AND traitements_en_cours ne_contient_pas gliptine AND traitements_en_cours ne_contient_pas glinide AND traitements_en_cours ne_contient_pas insuline_basale AND traitements_en_cours ne_contient_pas insuline_rapide"
 # `familles` (correctif « ordre accidentel / badge multi-natures », 2026-07-25) : déclaration EXPLICITE
 # des sections du panneau de résultats, présentation pure (aucun effet moteur, cf.
 # schema/noeud.schema.json). L'ORDRE DE CE TABLEAU EST L'ORDRE D'AFFICHAGE — « urgence d'abord » (décision
@@ -467,7 +467,7 @@ options:
   - intitule: "Arrêter la metformine (DFG < 30 — contre‑indication rénale)"
     role: securite
     conditions:
-      - "traitements_en_cours contient metformine"
+      - "intention != initier AND traitements_en_cours contient metformine"
       - "DFG < 30"
     priorite: 1
     famille: "À faire d'emblée — sécurité"
@@ -497,8 +497,8 @@ options:
     # deux bandes, la comparaison reste INDÉTERMINÉE (D20) : l'option passe EN ATTENTE plutôt que d'être
     # affirmée à l'aveugle — vérifié par les vignettes P-39/P-57/P-58 du banc.
     conditions:
-      - "traitements_en_cours contient metformine"
-      - "DFG >= 45 AND DFG < 60 AND dose_metformine > 2000 OR DFG >= 30 AND DFG < 45 AND dose_metformine > 1000 OR intolerance_traitement == true AND nature_intolerance == digestive"
+      - "intention != initier AND traitements_en_cours contient metformine"
+      - "DFG >= 45 AND DFG < 60 AND dose_metformine > 2000 OR DFG >= 30 AND DFG < 45 AND dose_metformine > 1000 OR intention != initier AND intolerance_traitement == true AND nature_intolerance == digestive"
     # GARDE-FOU AJOUTÉ (2026-07-26, 4e série, red-team clinique sécurité HAUTE-2) : la branche « intolérance
     # digestive » est la SEULE des trois disjoncts indépendante du DFG — sans cette exclusion, elle
     # continuait de s'appliquer sous DFG < 30, où la metformine n'est plus « à réduire » mais CONTRE‑
@@ -529,7 +529,7 @@ options:
   - intitule: "Arrêter le sulfamide (DFG < 30 — contre‑indication rénale)"
     role: securite
     conditions:
-      - "traitements_en_cours contient sulfamide"
+      - "intention != initier AND traitements_en_cours contient sulfamide"
       - "DFG < 30"
     priorite: 1
     famille: "À faire d'emblée — sécurité"
@@ -579,7 +579,7 @@ options:
     # (invariant 7 du banc : les garde-fous d'urgence sont orthogonaux à la position vs objectif — un
     # patient peut être à sa cible, voire en dessous, et en cétose).
     conditions:
-      - "traitements_en_cours contient iSGLT2"
+      - "intention != initier AND traitements_en_cours contient iSGLT2"
       - "cetonemie == true"
     priorite: 1
     famille: "À faire d'emblée — sécurité"
@@ -847,7 +847,7 @@ options:
   - intitule: "Remplacer la gliptine (aucun bénéfice sur critère dur — préférer un agent qui en apporte)"
     role: geste
     conditions:
-      - "traitements_en_cours contient gliptine"
+      - "intention != initier AND traitements_en_cours contient gliptine"
     # R6 : garde-fous de cohérence (ne pas déjà prendre le remplaçant visé) — jamais montrés comme
     # justification (cf. option iSGLT2 plus haut).
     prerequis:
@@ -879,8 +879,8 @@ options:
   - intitule: "Arrêter la gliptine redondante (association gliptine + AR GLP‑1 / tirzépatide déjà en place)"
     role: geste
     conditions:
-      - "traitements_en_cours contient gliptine"
-      - "traitements_en_cours contient aGLP1 OR traitements_en_cours contient tirzepatide"
+      - "intention != initier AND traitements_en_cours contient gliptine"
+      - "intention != initier AND traitements_en_cours contient aGLP1 OR intention != initier AND traitements_en_cours contient tirzepatide"
     priorite: 3
     famille: "Traitement à corriger ou remplacer"
     avantages:
@@ -901,7 +901,7 @@ options:
   - intitule: "Remplacer le sulfamide (moins d'hypoglycémie, moins de poids, plus de bénéfice)"
     role: geste
     conditions:
-      - "traitements_en_cours contient sulfamide"
+      - "intention != initier AND traitements_en_cours contient sulfamide"
       - "hypoglycemie_recente == false"
       - "hba1c_sous_cible == false"
     exclusions:
@@ -928,7 +928,7 @@ options:
   - intitule: "Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer"
     role: geste
     conditions:
-      - "intolerance_traitement == true"
+      - "intention != initier AND intolerance_traitement == true"
     priorite: 2
     famille: "Traitement à alléger"
     avantages:
@@ -958,7 +958,7 @@ options:
       # terme à terme — même valeur de vérité, deux motifs désormais lisibles séparément : le terrain
       # gériatrique d'un côté, le schéma hypoglycémiant de l'autre.
       - "hba1c_sous_cible == true OR hypoglycemie_recente == true AND terrain_cible_assouplie == true OR hypoglycemie_recente == true AND risque_hypoglycemie_schema == eleve OR position_vs_cible == sous_objectif"
-      - "traitements_en_cours contient sulfamide OR traitements_en_cours contient glinide OR traitements_en_cours contient insuline_basale OR traitements_en_cours contient insuline_rapide"
+      - "intention != initier AND traitements_en_cours contient sulfamide OR intention != initier AND traitements_en_cours contient glinide OR intention != initier AND traitements_en_cours contient insuline_basale OR intention != initier AND traitements_en_cours contient insuline_rapide"
     priorite: 1
     famille: "Traitement à alléger"
     avantages:
@@ -979,8 +979,8 @@ options:
     # commentaire de « Désintensifier » plus haut pour la justification complète — même ajout, même
     # raison, sans exigence de fragilité.
     conditions:
-      - "traitements_en_cours contient insuline_basale OR traitements_en_cours contient insuline_rapide"
-      - "hba1c_sous_cible == true OR hypoglycemie_recente == true OR intolerance_traitement == true OR position_vs_cible == sous_objectif"
+      - "intention != initier AND traitements_en_cours contient insuline_basale OR intention != initier AND traitements_en_cours contient insuline_rapide"
+      - "hba1c_sous_cible == true OR hypoglycemie_recente == true OR intention != initier AND intolerance_traitement == true OR position_vs_cible == sous_objectif"
     priorite: 1
     famille: "Traitement à alléger"
     avantages:
@@ -992,8 +992,8 @@ options:
   - intitule: "Réduire la posologie de l'AR GLP‑1 (perte de poids excessive / intolérance digestive)"
     role: geste
     conditions:
-      - "traitements_en_cours contient aGLP1"
-      - "denutrition == true OR intolerance_traitement == true AND nature_intolerance == perte_poids OR intolerance_traitement == true AND nature_intolerance == digestive"
+      - "intention != initier AND traitements_en_cours contient aGLP1"
+      - "denutrition == true OR intention != initier AND intolerance_traitement == true AND nature_intolerance == perte_poids OR intention != initier AND intolerance_traitement == true AND nature_intolerance == digestive"
     priorite: 2
     famille: "Traitement à alléger"
     avantages:
@@ -1005,8 +1005,8 @@ options:
   - intitule: "Réduire la posologie du tirzépatide (perte de poids excessive / intolérance)"
     role: geste
     conditions:
-      - "traitements_en_cours contient tirzepatide"
-      - "denutrition == true OR intolerance_traitement == true AND nature_intolerance == perte_poids OR intolerance_traitement == true AND nature_intolerance == digestive"
+      - "intention != initier AND traitements_en_cours contient tirzepatide"
+      - "denutrition == true OR intention != initier AND intolerance_traitement == true AND nature_intolerance == perte_poids OR intention != initier AND intolerance_traitement == true AND nature_intolerance == digestive"
     priorite: 2
     famille: "Traitement à alléger"
     avantages:
@@ -1043,8 +1043,8 @@ options:
     # DÉCLARÉ de sur-traitement `sous_objectif` ouvre aussi cet allègement, sans exiger la fragilité, qui
     # ne conditionne que la déprescription de la metformine).
     conditions:
-      - "traitements_en_cours contient sulfamide"
-      - "intolerance_traitement == true OR hypoglycemie_recente == true OR position_vs_cible == sous_objectif"
+      - "intention != initier AND traitements_en_cours contient sulfamide"
+      - "intention != initier AND intolerance_traitement == true OR hypoglycemie_recente == true OR position_vs_cible == sous_objectif"
     # GARDE-FOU (2026-07-26, 4e série, red-team clinique sécurité HAUTE-1) : sans cette exclusion, cette
     # option coexistait avec « Arrêter le sulfamide (DFG < 30) » — deux gestes CONTRADICTOIRES affichés
     # ensemble sur le même agent (« réduire » suggère de le garder à dose moindre, « arrêter » dit qu'il
@@ -1063,8 +1063,8 @@ options:
   - intitule: "Réduire la posologie du glinide (tolérance, hypoglycémie légère)"
     role: geste
     conditions:
-      - "traitements_en_cours contient glinide"
-      - "intolerance_traitement == true OR hypoglycemie_recente == true OR position_vs_cible == sous_objectif"
+      - "intention != initier AND traitements_en_cours contient glinide"
+      - "intention != initier AND intolerance_traitement == true OR hypoglycemie_recente == true OR position_vs_cible == sous_objectif"
     # AUCUNE exclusion rénale, DÉLIBÉRÉMENT (cf. le commentaire de scission ci-dessus) : le RCP du
     # répaglinide ne porte aucune contre-indication rénale, et le geste qu'il recommande en insuffisance
     # rénale sévère EST la réduction de dose. L'alerte ci-dessous porte le fait de sécurité (exposition
@@ -1098,7 +1098,7 @@ options:
     # une précondition structurelle évidente (même convention que les autres options « Arrêter/Réduire la
     # metformine » ci-dessus), pas une 4e condition clinique.
     conditions:
-      - "traitements_en_cours contient metformine"
+      - "intention != initier AND traitements_en_cours contient metformine"
       - "metformine_deprescriptible == true"
     priorite: 3
     famille: "Traitement à alléger"
@@ -1119,7 +1119,7 @@ options:
   - intitule: "Reconsidérer un agent protecteur prescrit hors indication ET posant un risque (ex. iSGLT2 sans terrain + infections uro)"
     role: geste
     conditions:
-      - "traitements_en_cours contient iSGLT2 AND ASCVD_etablie == false AND insuffisance_cardiaque == false AND DFG >= 60 AND albuminurie == normo AND infections_uro_genitales_recidivantes == true"
+      - "intention != initier AND traitements_en_cours contient iSGLT2 AND ASCVD_etablie == false AND insuffisance_cardiaque == false AND DFG >= 60 AND albuminurie == normo AND infections_uro_genitales_recidivantes == true"
     priorite: 4
     famille: "Traitement à alléger"
     avantages:
@@ -1346,7 +1346,7 @@ alertes:
   # en conséquence — la RUPTURE THÉRAPEUTIQUE (arrêt, oubli, défaut d'administration, panne de pompe) est
   # désormais désignée comme la PREMIÈRE chose à rechercher devant ce tableau, avant d'orienter vers un
   # ajustement de schéma. Reste du message inchangé (seuil 3 mmol/L, suspicion de DT1, renvoi au nœud E).
-  - quand: "cetonemie == true AND traitements_en_cours contient insuline_basale OR cetonemie == true AND traitements_en_cours contient insuline_rapide"
+  - quand: "intention != initier AND cetonemie == true AND traitements_en_cours contient insuline_basale OR intention != initier AND cetonemie == true AND traitements_en_cours contient insuline_rapide"
     niveau: attention
     message: >-
       État catabolique (cétonémie) chez un patient DÉJÀ sous insuline : rare en pratique — la PREMIÈRE
@@ -1389,19 +1389,19 @@ alertes:
   # est un état du patient et non une supposition sur la sortie. La branche « on va en introduire un » est
   # devenue une alerte PORTÉE PAR L'OPTION (cf. `alertes` des options AR GLP‑1 et tirzépatide) : elle n'a
   # plus rien à deviner, elle s'affiche si et seulement si l'option est applicable.
-  - quand: "fragilite == true AND traitements_en_cours contient aGLP1 OR fragilite == true AND traitements_en_cours contient tirzepatide"
+  - quand: "intention != initier AND fragilite == true AND traitements_en_cours contient aGLP1 OR intention != initier AND fragilite == true AND traitements_en_cours contient tirzepatide"
     niveau: attention
     message: >-
       Sujet fragile déjà sous incrétine (AR GLP‑1 / tirzépatide) : surveiller le poids et l'état
       nutritionnel (risque de sarcopénie / anorexie). En cas de dénutrition ou d'IMC bas, réévaluer
       l'indication — réduire la posologie ou arrêter.
-  - quand: "infections_uro_genitales_recidivantes == true AND traitements_en_cours contient iSGLT2 OR infections_uro_genitales_recidivantes == true AND insuffisance_cardiaque == true OR infections_uro_genitales_recidivantes == true AND DFG < 60 OR infections_uro_genitales_recidivantes == true AND albuminurie != normo OR infections_uro_genitales_recidivantes == true AND ASCVD_etablie == true"
+  - quand: "intention != initier AND infections_uro_genitales_recidivantes == true AND traitements_en_cours contient iSGLT2 OR infections_uro_genitales_recidivantes == true AND insuffisance_cardiaque == true OR infections_uro_genitales_recidivantes == true AND DFG < 60 OR infections_uro_genitales_recidivantes == true AND albuminurie != normo OR infections_uro_genitales_recidivantes == true AND ASCVD_etablie == true"
     niveau: attention
     message: >-
       iSGLT2 (en cours ou indiqué par la comorbidité) + infections génito‑urinaires récidivantes : réévaluer
       l'indication (ne pas initier / envisager l'arrêt) ; risque de gangrène de Fournier. Préférer une autre
       classe si une protection est requise.
-  - quand: "intolerance_traitement == true AND nature_intolerance == digestive AND traitements_en_cours contient metformine AND traitements_en_cours contient aGLP1 OR intolerance_traitement == true AND nature_intolerance == digestive AND traitements_en_cours contient metformine AND traitements_en_cours contient tirzepatide"
+  - quand: "intention != initier AND intolerance_traitement == true AND nature_intolerance == digestive AND traitements_en_cours contient metformine AND traitements_en_cours contient aGLP1 OR intention != initier AND intolerance_traitement == true AND nature_intolerance == digestive AND traitements_en_cours contient metformine AND traitements_en_cours contient tirzepatide"
     niveau: attention
     message: >-
       Intolérance digestive : la metformine ET l'AR GLP‑1 / tirzépatide en sont deux sources. Privilégier
@@ -1423,7 +1423,7 @@ alertes:
       de 30 (dialyse incluse), la SFD 2025 nomme la vildagliptine 50 mg/j — la forme sitagliptine 25 mg
       n'est pas commercialisée en France. Sulfamide gliclazide/glimépiride à dose réduite mais
       CONTRE‑INDIQUÉ < 30 ; jamais de glibenclamide.
-  - quand: "traitements_en_cours contient insuline_basale AND traitements_en_cours contient sulfamide OR traitements_en_cours contient insuline_rapide AND traitements_en_cours contient sulfamide OR traitements_en_cours contient insuline_basale AND traitements_en_cours contient glinide OR traitements_en_cours contient insuline_rapide AND traitements_en_cours contient glinide"
+  - quand: "intention != initier AND traitements_en_cours contient insuline_basale AND traitements_en_cours contient sulfamide OR intention != initier AND traitements_en_cours contient insuline_rapide AND traitements_en_cours contient sulfamide OR intention != initier AND traitements_en_cours contient insuline_basale AND traitements_en_cours contient glinide OR intention != initier AND traitements_en_cours contient insuline_rapide AND traitements_en_cours contient glinide"
     niveau: attention
     message: >-
       Association insuline + sulfamide / glinide : risque d'hypoglycémie cumulée. Envisager d'arrêter le
@@ -1471,7 +1471,7 @@ alertes:
       qu'aucun critère saisi ne le déclenche à ce jour (agent hypoglycémiant en cours, sur‑contrôle,
       hypoglycémie récente chez le fragile) : consultez « Pourquoi pas d'autres options ? » pour le détail
       des options non retenues sur ce patient.
-  - quand: "traitements_en_cours contient insuline_basale AND risque_hypoglycemie_schema == eleve OR traitements_en_cours contient insuline_rapide AND risque_hypoglycemie_schema == eleve"
+  - quand: "intention != initier AND traitements_en_cours contient insuline_basale AND risque_hypoglycemie_schema == eleve OR intention != initier AND traitements_en_cours contient insuline_rapide AND risque_hypoglycemie_schema == eleve"
     niveau: attention
     message: >-
       Patient sous insuline à haut risque hypoglycémique : ÉVITER d'ajouter un sécrétagogue (sulfamide /
@@ -1481,7 +1481,7 @@ alertes:
   # « Introduire un AR GLP‑1 » (`ne_contient_pas gliptine`) — la non-association est désormais garantie par
   # l'affichage de cette alerte, dès que la gliptine est en cours. Texte dérivé mot pour mot de la prose déjà
   # sourcée dans l'option « Remplacer la gliptine » (règle dure Nauck/ADA/KDIGO/HAS).
-  - quand: "traitements_en_cours contient gliptine"
+  - quand: "intention != initier AND traitements_en_cours contient gliptine"
     niveau: attention
     message: >-
       Non-association incrétine : si un AR GLP‑1 ou le tirzépatide est introduit, la gliptine doit être
@@ -1801,8 +1801,38 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.33"
+  version: "0.34"
   changelog:
+    - date: "2026-07-28"
+      auteur: "Claude Code (P4/S1, T-018 + P4/S9, T-031) — en attente de relecture référent"
+      resume: >-
+        CORRECTIF TECHNIQUE (motif R8), PAS UNE DÉCISION CLINIQUE NOUVELLE. D30 (P4/S1, T-018) a inversé
+        le défaut de détermination des critères `bool`/`liste` (indéterminés par défaut, sauf
+        `presomption_non: true`) ; `traitements_en_cours` et `intolerance_traitement`, masqués par
+        `visible_si: "intention != initier"` sur ce nœud et non éligibles à `presomption_non` (ils gardent
+        de vraies `exclusions`/conditions d'option `role: securite`), sont devenus INDÉTERMINÉS plutôt que
+        déterminés à `[]`/`false` pour un patient INITIER — une vingtaine d'options qui portent sur un
+        traitement déjà en cours (arrêter/réduire/remplacer/désintensifier/optimiser) partaient EN ATTENTE
+        au lieu d'être proprement NON RETENUES, réclamant un champ que l'écran ne montre même pas à ce
+        patient (I10/I11 du banc, `VIOLATIONS_R8_CONNUES_T018` / `IMPASSES_CONNUES_T018`). Cette session
+        (P4/S9, T-031) répète mécaniquement le garde `intention != initier AND ` en tête de chaque terme
+        `OR` non protégé qui cite l'un des deux critères (motif déjà en place ailleurs dans ce fichier,
+        ex. `mcg_disponible` sur le nœud `insuline`) : `intolerance_traitement` est intégralement corrigé
+        (dette retirée) ; `traitements_en_cours` l'est sur ses citations POSITIVES (`contient X`, options
+        arrêter/réduire/remplacer/désintensifier/optimiser). ⚠ RESTE EN DETTE (dette rétrécie, pas
+        retirée) : les citations NÉGATIVES (`ne_contient_pas X`), utilisées comme garde-fous de
+        non-duplication sur les options d'AJOUT (Insuline d'initiation, Introduire iSGLT2/AR GLP‑1/
+        tirzépatide, Association, Envisager l'insuline, Gliptine/Sulfamide place résiduelle) — y répéter
+        le même garde en `AND` les exclurait à TORT pour tout patient initier (un naïf satisfait
+        trivialement « ne prend pas déjà X », le prérequis devrait donc valoir `true`, jamais `false`) ;
+        essayé puis reverté dans cette session après avoir fait apparaître une régression sur le banc
+        (I2′, `invariants.test.ts` : plus aucune option `applicable` sur des profils où un DFG effondré ou
+        une dénutrition rendaient une insulinothérapie ou un iSGLT2 nécessaires dès l'initiation). Corriger
+        cette part restante exigerait soit de revenir sur l'exclusion de `traitements_en_cours` de
+        `presomption_non` sur ce nœud (décision de T-018), soit une évolution du moteur/DSL — les deux
+        hors périmètre mécanique de cette session : cf. `VIOLATIONS_R8_CONNUES_T018`/`IMPASSES_CONNUES_T018`
+        (`engine/banc/invariants-contenu.test.ts` / `impasse.test.ts`) pour le détail complet, et le
+        rapport de tâche T-031 pour la liste des 8 options concernées.
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

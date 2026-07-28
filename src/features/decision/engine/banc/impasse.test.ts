@@ -49,6 +49,83 @@ interface Impasse {
   visibleSi: string | undefined
 }
 
+/**
+ * IMPASSES CONNUES — introduites par T-018 (P4/S1, D30, 2026-07-28), PAS des dispenses.
+ *
+ * D30 (amende D20) inverse le défaut de détermination des `bool`/`liste` : indéterminés par défaut, sauf
+ * `presomption_non: true` posé par le contenu. L'audit MÉCANIQUE de T-018 étape 4 (rapport de tâche) a
+ * dû EXCLURE `traitements_en_cours` et `intolerance_traitement` de `presomption_non` sur `prescription`
+ * spécifiquement : ces deux critères y gardent des `exclusions`/conditions d'option `role: securite`
+ * réelles (ex. « Arrêter la metformine (DFG < 30) », « Réduire la posologie… », « Suspendre l'iSGLT2 »),
+ * où les présumer « non »/« vide » serait exactement le défaut D-02 de la recette navigateur du
+ * 2026-07-28 (un fait de sécurité affirmé sur une donnée jamais recueillie).
+ *
+ * CONSÉQUENCE, RÉVÉLÉE PAR CET INVARIANT : les deux critères sont masqués (`visible_si: "intention !=
+ * initier"`) — pour un patient INITIER (naïf par construction), ils deviennent donc INDÉTERMINÉS plutôt
+ * que déterminés à `[]`/`false` comme avant D30. Une vingtaine d'options qui portent sur un TRAITEMENT
+ * DÉJÀ EN COURS (arrêter/réduire/remplacer/désintensifier…) — qui n'ont, par construction, aucun objet
+ * pour un patient INITIER — partent donc EN ATTENTE au lieu d'être proprement NON RETENUES, réclamant un
+ * champ que l'écran a masqué : exactement l'impasse que cet invariant existe pour détecter.
+ *
+ * CE N'EST PAS CORRIGÉ ICI. Deux réparations possibles, toutes deux du CONTENU clinique (répéter
+ * `intention != initier` dans chaque expression listée — R8 — ou distinguer autrement « pas de saisie »
+ * de « aucun traitement, par construction de l'intention »), hors périmètre de la session qui a POSÉ ce
+ * constat (S1 : moteur générique, aucun contenu clinique au-delà de la liste mécanique de son étape 4).
+ * Recensé mécaniquement (T-018 étape 6, cas (b) du rapport de tâche), laissé pour la session qui traitera
+ * le contenu de `prescription`.
+ *
+ * Clé = `${node.id} :: ${critere}` (le CRITÈRE masqué en cause, pas chaque option qu'il touche — le
+ * nombre d'options affectées peut varier au fil du contenu ; le critère, lui, est la partie stable).
+ * AUTO-EXPIRANTE comme les autres dettes du banc (`invariants-contenu.test.ts`) : si un jour AUCUNE
+ * impasse ne cite plus ce critère sur ce nœud, le test réclame le retrait de l'entrée.
+ *
+ * PARTIELLEMENT RÉSORBÉE le 2026-07-28 (P4/S9, T-031).
+ *
+ * `prescription :: intolerance_traitement` — RÉSOLU EN ENTIER, entrée retirée : ce critère n'est jamais
+ * cité que positivement (`intolerance_traitement == true`), et répéter `intention != initier AND ` en
+ * tête de chaque terme concerné (motif R8) le force correctement à `false` pour un patient INITIER — un
+ * naïf ne peut pas être intolérant à un traitement qu'il n'a jamais reçu, c'est exactement la sémantique
+ * voulue.
+ *
+ * `prescription :: traitements_en_cours` — RESTE EN DETTE, POUR UNE RAISON NOUVELLE ET PLUS ÉTROITE que
+ * celle qui a motivé T-018. Le motif R8 (répéter le garde EN TÊTE du terme, donc en `AND`) a bien résolu
+ * TOUTES les citations POSITIVES (`traitements_en_cours contient X`, sur les options qui portent sur un
+ * traitement déjà en cours — arrêter/réduire/remplacer/désintensifier/optimiser — cf. le fix appliqué).
+ * Il reste IMPUISSANT sur les citations NÉGATIVES (`traitements_en_cours ne_contient_pas X`), utilisées
+ * comme garde-fous de NON-DUPLICATION sur les options d'AJOUT (« Insuline d'initiation », « Introduire un
+ * iSGLT2 / un AR GLP‑1 / le tirzépatide », « Association iSGLT2+AR GLP‑1 », « Envisager l'insuline »,
+ * « Gliptine »/« Sulfamide — place résiduelle ») : pour ces options, un patient INITIER (naïf par
+ * construction) satisfait TRIVIALEMENT « ne prend pas déjà X » — le prérequis DEVRAIT donc valoir `true`,
+ * jamais `false`. Or `intention != initier AND traitements_en_cours ne_contient_pas X` vaut FALSE pour
+ * tout patient INITIER (le premier conjoint est faux), ce qui EXCLUT ENTIÈREMENT ces options d'ajout pour
+ * TOUT patient naïf — régression bien pire que l'impasse d'origine (confirmée sur le banc : profils #227/
+ * #763/#1230 d'`invariants.test.ts`, I2′, où plus AUCUNE option n'était `applicable` alors que le DFG très
+ * bas ou la dénutrition rendaient une insulinothérapie ou un iSGLT2 cliniquement nécessaires dès
+ * l'initiation). Essayé puis REVERTÉ dans cette session — cf. rapport de tâche T-031.
+ *
+ * La correction qui serait réellement nécessaire — que `traitements_en_cours` se résolve à `true` (pas
+ * `false`) sur ces prérequis pour un patient INITIER — n'est atteignable par la seule répétition
+ * mécanique du garde : elle exigerait soit de revenir sur l'exclusion de `traitements_en_cours` de
+ * `presomption_non` sur ce nœud (décision de T-018, motivée par les `role: securite` réels cités
+ * ci-dessus, qu'aucune règle mécanique ne permet de trancher seule), soit une évolution du moteur/DSL pour
+ * qu'un garde en tête de terme puisse s'écrire avec la POLARITÉ INVERSE (« si initier, présumer vrai »)
+ * sans faire remonter de faux positif ailleurs sur I10. Les deux sont hors périmètre de S9 (contenu
+ * mécanique seulement, aucune nouvelle logique clinique, aucun moteur). LAISSÉ EN DETTE, À REVOIR AVEC LE
+ * RÉFÉRENT : cf. rapport de tâche T-031 pour le détail des 8 options concernées et le raisonnement complet.
+ */
+const IMPASSES_CONNUES_T018 = new Map<string, string>([
+  [
+    'prescription :: traitements_en_cours',
+    'D30/T-018 puis P4/S9/T-031 (2026-07-28) : citations POSITIVES corrigées (R8, garde en tête de terme) ' +
+      '— seules restent en dette les citations NÉGATIVES (`ne_contient_pas X`, garde-fous de ' +
+      "non-duplication sur les options d'ajout : Insuline d'initiation, Introduire iSGLT2/AR GLP‑1/" +
+      "tirzépatide, Association, Envisager l'insuline, Gliptine/Sulfamide place résiduelle). Y répéter le " +
+      'garde en `AND` les exclurait à tort pour TOUT patient initier (régression pire que le défaut ' +
+      "d'origine, cf. docstring ci-dessus) — nécessite soit de revoir `presomption_non` (décision T-018), " +
+      'soit une évolution du moteur/DSL. Hors périmètre mécanique de S9/T-031.',
+  ],
+])
+
 describe('I11 — une option en attente ne réclame jamais un champ invisible (moteur × formulaire)', () => {
   it.each(noeuds.map((node) => [node.id, node] as const))('nœud %s', (_id, node) => {
     const gardes = new Map(node.criteres_entree.map((c) => [c.nom, c.visible_si]))
@@ -73,8 +150,26 @@ describe('I11 — une option en attente ne réclame jamais un champ invisible (m
     // brute noierait le diagnostic. Le NOMBRE de profils touchés n'ajoute rien — une seule impasse est
     // déjà une impasse.
     const uniques = [...new Map(impasses.map((i) => [`${i.option}§${i.critere}`, i])).values()]
+
+    // Sépare les impasses CONNUES (T-018, ci-dessus) des NOUVELLES : un critère connu qui expliquerait
+    // TOUTES ses impasses ne doit pas masquer une impasse sur un AUTRE critère, ni sur un autre nœud.
+    const critereConnu = (i: Impasse) => IMPASSES_CONNUES_T018.has(`${node.id} :: ${i.critere}`)
+    const nouvelles = uniques.filter((i) => !critereConnu(i))
     expect(
-      uniques.map((i) => `« ${i.critere} » réclamé par « ${i.option} » — masqué par : ${i.visibleSi ?? '(aucun visible_si)'}`),
+      nouvelles.map((i) => `« ${i.critere} » réclamé par « ${i.option} » — masqué par : ${i.visibleSi ?? '(aucun visible_si)'}`),
     ).toEqual([])
+
+    // Auto-expiration : une entrée de IMPASSES_CONNUES_T018 qui ne correspond plus à AUCUNE impasse
+    // réelle sur ce nœud est une dette résorbée — elle doit être retirée, pas oubliée ici.
+    for (const [cle] of IMPASSES_CONNUES_T018) {
+      if (!cle.startsWith(`${node.id} :: `)) continue
+      const critere = cle.slice(`${node.id} :: `.length)
+      const encoreValide = uniques.some((i) => i.critere === critere)
+      expect(
+        encoreValide,
+        `"${cle}" ne correspond plus à aucune impasse réelle sur "${node.id}" : dette résorbée, retirer ` +
+          `l'entrée de IMPASSES_CONNUES_T018.`,
+      ).toBe(true)
+    }
   })
 })

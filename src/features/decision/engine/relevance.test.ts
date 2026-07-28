@@ -142,6 +142,14 @@ describe('relevance — égalité de rang par défaut ne doit pas masquer un cri
       'hypoglycemie_recente',
       'nature_intolerance',
       'traitements_en_cours', // naïf par construction pour intention=initier (visible_si, T-2)
+      // Ajouté le 2026-07-28 (P4/S9, T-031) : correctif R8 sur `intolerance_traitement` (masqué par
+      // `intention != initier`, comme `traitements_en_cours` ci-dessus) — les conditions qui le lisent
+      // répètent désormais le garde (`intention != initier AND intolerance_traitement == true`), donc
+      // pour ce patient INITIER le terme est FAUX quelle que soit la valeur de `intolerance_traitement` :
+      // il devient légitimement INERTE (naïf par construction, ne peut être intolérant à un traitement
+      // jamais instauré), là où il paraissait à tort DÉCISIF avant le correctif (défaut même que celui
+      // documenté pour `traitements_en_cours`).
+      'intolerance_traitement',
       // Ajouté le 2026-07-26 avec le critère lui-même : `dose_metformine` porte un `visible_si` sur la
       // présence de la metformine dans `traitements_en_cours`. Ce profil étant naïf (intention=initier),
       // le champ est masqué, donc inerte — légitimement, et pour la même raison que la ligne au-dessus.

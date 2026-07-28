@@ -281,6 +281,84 @@ describe.each(noeuds.map((node) => [node.id, node] as const))('banc — invarian
 // laquelle il s'est présenté.
 // =====================================================================================================
 
+/**
+ * VIOLATIONS R8 CONNUES — introduites par T-018 (P4/S1, D30, 2026-07-28), PAS des dispenses.
+ *
+ * D30 (amende D20) rend `bool`/`liste` indéterminés par défaut (comme `nombre`/`enum`), sauf
+ * `presomption_non: true` posé mécaniquement par le contenu (audit T-018 étape 4, rapport de tâche).
+ * Deux critères, auparavant hors du périmètre d'I10 (déterminés par défaut, donc jamais dans `gardes`),
+ * y entrent désormais parce qu'ils N'ONT PAS reçu `presomption_non` (ils gardent une `exclusions`/
+ * condition d'option `role: securite` réelle sur le nœud cité, donc l'audit les a exclus à raison) :
+ *
+ * - `insuline :: mcg_disponible` / `insuline :: profil_glycemique` — masqués par
+ *   `situation_insuline != naif`. Les VIOLATIONS RÉELLES ne portent QUE sur des alertes de nœud et des
+ *   `derive` (`profil_nocturne_permet_titration`/`profil_nocturne_a_cible`), jamais sur une `conditions`/
+ *   `prerequis` d'option : les options qui pivotent sur ces dérivés portent, elles, un garde
+ *   `situation_insuline` propre (vérifié), donc AUCUNE option ne part réellement en attente sur un champ
+ *   invisible pour ces deux critères (I11, `banc/impasse.test.ts`, vert sur ce nœud) — l'impact réel est
+ *   qu'une alerte peut ne pas s'afficher pour un patient naïf, ce qu'elle ne fait de toute façon jamais
+ *   (le "naïf" ne prend pas encore d'insuline). Dette de FORME (I10 ne voit pas l'« acquis » d'un
+ *   `derive`/d'une alerte, qui ne vit dans aucune option), pas de fond.
+ * - `prescription :: traitements_en_cours` / `prescription :: intolerance_traitement` — masqués par
+ *   `intention != initier`. LÀ, la violation était RÉELLE et significative : une vingtaine d'options qui
+ *   portent sur un traitement déjà en cours (arrêter/réduire/remplacer…) partaient EN ATTENTE pour un
+ *   patient INITIER au lieu d'être NON RETENUES — confirmé par I11 (`banc/impasse.test.ts`), qui échouait
+ *   RÉELLEMENT sur ce nœud pour ce motif. CORRIGÉ le 2026-07-28 par P4/S9 (T-031) pour `intolerance_
+ *   traitement` EN ENTIER et pour `traitements_en_cours` sur ses citations POSITIVES (`contient X`)
+ *   uniquement — cf. docstring de `VIOLATIONS_R8_CONNUES_T018` ci-dessous pour la partie de
+ *   `traitements_en_cours` qui RESTE en dette (citations NÉGATIVES `ne_contient_pas X`, sur des
+ *   prérequis de non-duplication où répéter le garde en `AND` produirait une régression pire que le
+ *   défaut d'origine).
+ *
+ * Clé = `${node.id} :: ${nom}` (le CRITÈRE masqué, pas le terme précis — le nombre de termes affectés
+ * varie avec le contenu, le critère est la partie stable). AUTO-EXPIRANTE : si un jour AUCUNE violation
+ * ne cite plus ce critère sur ce nœud, le test réclame le retrait de l'entrée.
+ *
+ * `prescription :: traitements_en_cours` — PARTIELLEMENT RÉSORBÉE le 2026-07-28 (P4/S9, T-031), REDEVENUE
+ * une entrée à PÉRIMÈTRE PLUS ÉTROIT (pas retirée en entier). Le motif R8 (garde `intention != initier`
+ * répété EN TÊTE de chaque terme, donc en `AND`) résout correctement toute citation POSITIVE
+ * (`traitements_en_cours contient X`, sur les options qui portent sur un traitement déjà en cours) : pour
+ * un patient INITIER, forcer le terme à `false` est exactement le comportement voulu (un naïf ne « contient »
+ * rien). Il échoue en revanche sur les citations NÉGATIVES (`traitements_en_cours ne_contient_pas X`),
+ * utilisées comme garde-fous de NON-DUPLICATION sur les options d'AJOUT (« Insuline d'initiation »,
+ * « Introduire un iSGLT2 / un AR GLP‑1 / le tirzépatide », « Association iSGLT2+AR GLP‑1 », « Envisager
+ * l'insuline », « Gliptine »/« Sulfamide — place résiduelle ») : un patient INITIER satisfait TRIVIALEMENT
+ * « ne prend pas déjà X » (il ne prend rien), le prérequis DEVRAIT donc valoir `true` pour lui — jamais
+ * `false`. Prépendre `intention != initier AND ` à ces termes-là les force à `false` pour TOUT patient
+ * initier, ce qui EXCLUT ENTIÈREMENT ces options d'ajout pour un naïf — une régression, pas une
+ * correction : confirmée sur `invariants.test.ts` (I2′), profils #227/#763/#1230, où plus AUCUNE option
+ * n'était `applicable` alors qu'un DFG effondré ou une dénutrition rendaient une insulinothérapie ou un
+ * iSGLT2 cliniquement nécessaires dès l'initiation. Essayé puis REVERTÉ dans cette même session. Ce que
+ * ça exigerait réellement (résoudre `ne_contient_pas X` à `true`, pas `false`, pour un patient initier)
+ * dépasse la répétition mécanique d'un garde : soit revenir sur l'exclusion de `traitements_en_cours` de
+ * `presomption_non` sur ce nœud (décision de T-018, motivée par de vraies `exclusions`/options `role:
+ * securite`, qu'aucune règle mécanique ne permet de trancher seule), soit une évolution du moteur/DSL
+ * pour un garde de polarité inverse. Hors périmètre mécanique de S9 (aucune nouvelle logique clinique,
+ * aucun moteur) — laissé en dette, à revoir avec le référent : cf. rapport de tâche T-031.
+ */
+const VIOLATIONS_R8_CONNUES_T018 = new Map<string, string>([
+  [
+    'insuline :: mcg_disponible',
+    "D30/T-018 (2026-07-28) : masqué par `situation_insuline != naif`, non éligible à `presomption_non` " +
+      "sur ce nœud (garde une condition d'option `role: securite` réelle) — violations réelles limitées " +
+      "à des alertes de nœud (aucune option, I11 vert). Cf. docstring de VIOLATIONS_R8_CONNUES_T018.",
+  ],
+  [
+    'insuline :: profil_glycemique',
+    'D30/T-018 (2026-07-28) : même mécanisme que `mcg_disponible` ci-dessus, même nœud — violations ' +
+      'réelles limitées à des `derive` (aucune option, I11 vert).',
+  ],
+  [
+    'prescription :: traitements_en_cours',
+    'D30/T-018 puis P4/S9/T-031 (2026-07-28) : citations POSITIVES (`contient X`) corrigées par R8 — ' +
+      'seules restent en violation les citations NÉGATIVES (`ne_contient_pas X`) des prérequis de ' +
+      "non-duplication sur les options d'ajout (Insuline d'initiation, Introduire iSGLT2/AR GLP‑1/" +
+      "tirzépatide, Association, Envisager l'insuline, Gliptine/Sulfamide place résiduelle). Y répéter le " +
+      'garde en `AND` les exclurait à tort pour tout patient initier (régression confirmée sur I2′, cf. ' +
+      'docstring ci-dessus) — hors périmètre mécanique de S9/T-031.',
+  ],
+])
+
 /** Termes `OR` d'une expression DSL (la grammaire n'a pas de parenthèses ; `AND` lie plus fort). */
 function termesOr(expression: string): string[] {
   return expression.split(/\s+OR\s+/)
@@ -297,21 +375,32 @@ describe('I10 — le garde d’un critère à `visible_si` est répété dans ch
     for (const critere of node.criteres_entree) {
       if (!critere.visible_si) continue
       // (3) SEULS les critères dont le masquage produit réellement une INDÉTERMINATION sont concernés —
-      // même règle que `engine/deriveCritere.ts` `critereEstDetermine` (D20/SPEC §2.2) : `nombre` et
-      // `enum` sont indéterminés dès qu'ils ne sont pas saisis ; `bool` et `liste` gardent leur défaut
-      // (« non », « aucun »), QUI EST UNE RÉPONSE, sauf `confirmation_requise`.
+      // même règle que `engine/deriveCritere.ts` `critereEstDetermine` (D30, amende D20/SPEC §2.2) :
+      // DEPUIS LE 2026-07-28 (P4/S1, T-018), `nombre`/`enum`/`bool`/`liste` sont TOUS indéterminés dès
+      // qu'ils ne sont pas saisis — SAUF `presomption_non: true` (ex-`confirmation_requise`, sens
+      // INVERSÉ : c'est désormais l'EXCEPTION qui rend `bool`/`liste` déterminés PAR DÉFAUT, pas
+      // l'inverse).
       //
-      // Sans ce filtre, l'invariant réclamait un garde autour de chaque lecture de
-      // `traitements_en_cours` (`liste`, masquée à l'initiation) dans `prescription` — 9 faux positifs.
-      // Masquée, cette liste vaut `[]` : déterminée, aucune option ne part en attente. Le mécanisme que
-      // R8 décrit ne s'y applique tout simplement pas.
+      // Ce filtre reste NÉCESSAIRE (et son motif d'origine tient toujours) pour tout `bool`/`liste`
+      // portant `presomption_non: true` : masqué, un tel critère vaut sa valeur par défaut (« non »,
+      // `[]`) et reste DÉTERMINÉ — aucune option ne part en attente à cause de lui, R8 ne s'y applique
+      // pas. Exemple actuel : `traitements_en_cours` (`liste`, masquée à l'initiation) sur les nœuds où
+      // il porte `presomption_non: true` (`insuline`, `rhd-activite-physique`, `rhd-alimentation`).
       //
-      // ⚠ CE FILTRE EST DYNAMIQUE, et c'est voulu : le jour où l'arbitrage C posera
-      // `confirmation_requise: true` sur `profil_glycemique` (`liste` de `insuline`), ce critère entrera
-      // dans le périmètre et l'invariant réclamera ses gardes. C'est exactement le service attendu —
+      // ⚠ SUR `prescription`, CE MÊME `traitements_en_cours` NE PORTE PAS `presomption_non` (éligibilité
+      // mécanique différente : il y garde plusieurs `exclusions`/conditions `role: securite` réelles,
+      // cf. `content/noeuds/diabete-type-2/prescription.yaml`) — masqué à l'initiation, il devient donc
+      // désormais INDÉTERMINÉ comme n'importe quel autre critère non renseigné. C'est un changement de
+      // comportement RÉEL de ce lot (pas seulement de ce test) : à documenter dans le rapport de tâche
+      // T-018 comme cas (b) si un test exécutable (`evaluateNode.prescription.test.ts`, bancs) le révèle
+      // — hors périmètre de CE fichier, qui ne fait qu'en tirer la conséquence pour I10.
+      //
+      // ⚠ CE FILTRE EST DYNAMIQUE, et c'est voulu : le jour où l'arbitrage référent posera
+      // `presomption_non: true` sur `profil_glycemique` (`liste` de `insuline`), ce critère ENTRERA dans
+      // le périmètre et l'invariant réclamera ses gardes ; le jour où `presomption_non` disparaîtrait
+      // d'un critère qui le porte aujourd'hui, il en SORTIRA. C'est exactement le service attendu —
       // rendre visible ce que la décision d'hier ne pouvait pas prévoir.
-      const indeterminable =
-        critere.type === 'nombre' || critere.type === 'enum' || critere.confirmation_requise === true
+      const indeterminable = critere.type === 'nombre' || critere.type === 'enum' || critere.presomption_non !== true
       if (!indeterminable) continue
       gardes.set(critere.nom, extraireCriteres(critere.visible_si))
     }
@@ -343,6 +432,7 @@ describe('I10 — le garde d’un critère à `visible_si` est répété dans ch
     })
 
     const violations: string[] = []
+    const criteresEnViolation = new Set<string>()
     for (const fragment of fragmentsDuNoeud(node)) {
       // `affichage` exclu : un `visible_si` qui en lit un autre est une cascade de visibilité, pas une
       // lecture par le moteur de décision. `arithmetique` exclu : un `calculs` ne décide de rien — au
@@ -359,6 +449,8 @@ describe('I10 — le garde d’un critère à `visible_si` est répété dans ch
           if (criteresDuGarde.size === 0) continue // garde non tokenisable : rien à faire correspondre
           const protege = [...criteresDuGarde].some((g) => citeLeCritere(terme, g) || acquis.has(g))
           if (!protege) {
+            criteresEnViolation.add(nom)
+            if (VIOLATIONS_R8_CONNUES_T018.has(`${node.id} :: ${nom}`)) continue // dette connue, cf. ci-dessus
             violations.push(
               `nœud "${node.id}" :: ${fragment.chemin} :: le terme « ${terme.trim()} » lit ` +
                 `"${nom}" (masqué par \`visible_si\`) sans que son garde {${[...criteresDuGarde].join(', ')}} ` +
@@ -371,6 +463,18 @@ describe('I10 — le garde d’un critère à `visible_si` est répété dans ch
       }
     }
     expect(violations).toEqual([])
+
+    // Auto-expiration : une entrée de VIOLATIONS_R8_CONNUES_T018 qui ne correspond plus à AUCUNE
+    // violation réelle sur ce nœud est une dette résorbée — à retirer, pas à oublier ici.
+    for (const [cle] of VIOLATIONS_R8_CONNUES_T018) {
+      if (!cle.startsWith(`${node.id} :: `)) continue
+      const nom = cle.slice(`${node.id} :: `.length)
+      expect(
+        criteresEnViolation.has(nom),
+        `"${cle}" ne correspond plus à aucune violation réelle sur "${node.id}" : dette résorbée, retirer ` +
+          `l'entrée de VIOLATIONS_R8_CONNUES_T018.`,
+      ).toBe(true)
+    }
   })
 })
 
