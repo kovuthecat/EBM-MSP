@@ -27,8 +27,10 @@
  * mémoriser et rendre ; c'est l'auteur du contenu qui décide de quoi.
  *
  * ⚠ CE MODULE EST UN ÉTAT GLOBAL MUTABLE, la seule pièce de ce type du module Décision. C'est assumé et
- * borné : il ne contient que des valeurs de critères, il est vidé par `reinitialiserSession()` (appelé
- * par les tests, jamais par l'application), et rien ne le lit en dehors du pré-remplissage du formulaire.
+ * borné : il ne contient que des valeurs de critères, il est vidé par `reinitialiserSession()` — appelé
+ * par les tests (isolation d'un cas à l'autre) ET, depuis T-026/D33 (« Nouveau patient »), par
+ * l'application elle-même au clic sur ce bouton du header — et rien ne le lit en dehors du
+ * pré-remplissage du formulaire.
  */
 import type { CritereEntree } from '../content/node.types.ts'
 import type { Criteria, CriteriaValue } from '../engine/conditions.ts'
@@ -40,7 +42,18 @@ import type { Criteria, CriteriaValue } from '../engine/conditions.ts'
  */
 const memoire = new Map<string, CriteriaValue>()
 
-/** Vide la mémoire. Réservé aux tests : deux cas de test ne doivent pas se contaminer l'un l'autre. */
+/**
+ * Vide la mémoire — deux appelants légitimes, jamais un troisième :
+ *  - les tests, pour qu'un cas ne contamine pas le suivant ;
+ *  - le bouton « Nouveau patient » du header (T-026/D33) : le geste de fin de consultation qui manquait
+ *    à D28 (cf. `docs/decision/validation/recette-navigateur-2026-07-28.md` D-13/F-C — sans lui, la
+ *    cible d'un patient pouvait entrer dans le raisonnement affiché pour le suivant).
+ *
+ * Volontairement TRIVIALE : aucun événement, aucun abonnement. Vider la `Map` ne remet PAS à zéro un
+ * formulaire déjà monté à l'écran — c'est au composant racine (`App.tsx`) de forcer, EN PLUS, le
+ * remontage des écrans par `key` (même mécanisme que D28, pas un nouveau) ; cette fonction ne fait que
+ * garantir qu'un écran qui (re)monte APRÈS cet appel ne trouvera plus rien à reprendre.
+ */
 export function reinitialiserSession(): void {
   memoire.clear()
 }

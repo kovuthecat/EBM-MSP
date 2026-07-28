@@ -77,3 +77,18 @@
 .header__spacer {
   flex: 1;
 }
+
+/* T-026/D33 — bouton de fin de consultation. Même famille visuelle que les autres contrôles du header
+   (rayon/police alignés sur `.header__pill`), mais bordé comme `.account-menu__trigger` pour se lire
+   comme une ACTION plutôt qu'un lien de navigation — sans inventer de nouvelle teinte : uniquement des
+   tokens déjà utilisés ailleurs dans ce header. */
+.header__nouveau-patient {
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  color: var(--c-text-muted);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}

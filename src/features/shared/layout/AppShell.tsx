@@ -9,6 +9,13 @@ import './AppShell.css'
 interface AppShellProps {
   nav: Navigation
   children: ReactNode
+  /**
+   * T-026/D33 — relais vers `Header` (qui porte le bouton « Nouveau patient » et sa confirmation) : la
+   * purge elle-même et le remontage des écrans restent orchestrés par le composant racine (`App.tsx`),
+   * seul endroit qui connaît à la fois `sessionCriteres.ts` et le mécanisme de remontage par `key` (D28).
+   * Plomberie minimale, sans état ni logique propre à `AppShell`.
+   */
+  onNouveauPatient: () => void
 }
 
 /**
@@ -22,14 +29,14 @@ interface AppShellProps {
  * restent quasi statiques (liens de navigation) — risque de rendu jugé négligeable. À élargir si un
  * jour ces composants deviennent dynamiques (relevé en vérification red-team de D17).
  */
-export function AppShell({ nav, children }: AppShellProps) {
+export function AppShell({ nav, children, onNouveauPatient }: AppShellProps) {
   const showChrome = !isChromeless(nav.screen)
 
   return (
     <div className="app-shell">
       {showChrome && (
         <>
-          <Header nav={nav} />
+          <Header nav={nav} onNouveauPatient={onNouveauPatient} />
           {!isVeilleScreen(nav.screen) && <DisclaimerBar />}
         </>
       )}
