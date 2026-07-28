@@ -567,9 +567,9 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                       Autres pistes possibles ({nbRepliees})
                     </summary>
                     <p className="decision-node__repli-mention">
-                      Ces {nbRepliees} pistes s'appliquent à ce patient : elles ne sont pas écartées. Une
+                      {nbRepliees === 1 ? 'Cette' : 'Ces'} {nbRepliees} {nbRepliees === 1 ? 'piste' : 'pistes'} s'applique{nbRepliees === 1 ? '' : 'nt'} à ce patient : {nbRepliees === 1 ? 'elle' : 'elles'} ne {nbRepliees === 1 ? 'n\'est' : 'sont'} pas écartée{nbRepliees === 1 ? '' : 's'}. Une
                       consultation ne permet d'en négocier que deux ou trois, l'écran en déplie donc au
-                      plus {PLAFOND_PISTES} — celles qui répondent au plus grand nombre des éléments que
+                      plus {PLAFOND_PISTES} — {nbRepliees === 1 ? 'celle' : 'celles'} qui répond{nbRepliees === 1 ? '' : 'ent'} au plus grand nombre des éléments que
                       vous avez déclarés (les motifs listés sous chaque carte, « proposé parce que »). Les
                       gestes de sécurité et le socle ne sont jamais repliés.
                     </p>

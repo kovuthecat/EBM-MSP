@@ -97,8 +97,8 @@ titre: "Prescrire une statine dans le DT2"
 population_cible: >-
   Adulte DT2, hors DT1 et grossesse (statines contre-indiquées pendant la grossesse). Décision du volet
   lipidique de la prévention cardiovasculaire, indépendante de l'HbA1c et du traitement antidiabétique.
-  Couvre à la fois l'INITIATION et la POURSUITE d'une statine (`statine_deja_en_place`), ainsi que la
-  situation d'intolérance déclarée (`intolerance_statine`, désormais à TROIS valeurs : non / rapportée /
+  Couvre à la fois l'INITIATION et la POURSUITE d'une statine déjà en place, ainsi que la
+  situation d'intolérance aux statines déclarée (désormais à TROIS valeurs : non / rapportée /
   avérée — décision référent 2026-07-27) ainsi que la contre-indication biologique par des CK > 5 N avant
   initiation. Depuis le 2026-07-27, une option TERMINALE couvre le patient pour qui la statine n'est pas
   disponible et l'oriente vers les alternatives hypolipémiantes : il n'existe plus de profil à qui cet
@@ -107,7 +107,7 @@ population_cible: >-
   si la cible n'est pas atteinte sous statine maximale tolérée, séquence complète des alternatives au-delà
   de l'orientation, et PROTOCOLE de réintroduction en aveugle (lavage, seuils, paliers de dose) — sa seule
   source détaillée n'a pas pu être ouverte, et le red-team a demandé de ne pas l'encoder de seconde main
-  (cf. `incertitudes`).
+  (cf. Incertitudes).
 selection: ordered-first-match
 argumentaire_exhaustif: "statine.argumentaire.md"
 criteres_entree:
@@ -1027,8 +1027,16 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Claude Code"
   statut: brouillon
-  version: "1.14"
+  version: "1.15"
   changelog:
+    - date: "2026-07-28"
+      auteur: "Claude Code"
+      resume: >-
+        T-027 — D29 (I20 : tout identifiant affiché a un libellé rédigé) : trois identifiants techniques
+        exposés dans le champ `cadrage` (population_cible) sont remplacés par leurs formulations françaises
+        du dictionnaire `lib/labels.ts` — `statine_deja_en_place` → « statine déjà en place » ;
+        `intolerance_statine` → « intolérance aux statines déclarée » ; `incertitudes` (section du nœud) →
+        « Incertitudes ». Aucun changement clinique, rédactionnel seulement.
     - date: "2026-07-28"
       auteur: "Claude Code (P4/S1, T-018) — correctif mécanique, en attente de relecture référent"
       resume: >-
