@@ -168,12 +168,12 @@ describe('evaluerDeriveTernaire — ternaire (DECISIONS.md D20, SPEC-valeur-inde
   })
 })
 
-describe('determinesEffectifs — ensemble effectif des critères déterminés (DECISIONS.md D20, SPEC §2.2/§2.4)', () => {
+describe('determinesEffectifs — ensemble effectif des critères déterminés (DECISIONS.md D30, amende D20, SPEC §2.2/§2.4)', () => {
   const criteres: CritereEntree[] = [
     { nom: 'HbA1c_actuelle', type: 'nombre' },
     { nom: 'esperance_vie', type: 'enum', valeurs: ['longue', 'limitee'] },
     { nom: 'fragilite', type: 'bool' },
-    { nom: 'ASCVD_etablie', type: 'bool', confirmation_requise: true },
+    { nom: 'ASCVD_etablie', type: 'bool', presomption_non: true },
     { nom: 'traitements_en_cours', type: 'liste', valeurs: ['metformine'] },
     { nom: 'cible_atteinte', type: 'bool', derive: 'HbA1c_actuelle <= 7' },
   ]
@@ -194,17 +194,17 @@ describe('determinesEffectifs — ensemble effectif des critères déterminés (
   // `renseignes` QUE pour une clé présente dans `criteria`).
   const criteriaComplete: Criteria = { HbA1c_actuelle: 8, esperance_vie: 'longue', fragilite: false, ASCVD_etablie: false, traitements_en_cours: [] }
 
-  it('bool/liste SANS confirmation_requise sont déterminés PAR DÉFAUT, même absents de renseignes', () => {
+  it('bool/liste SANS presomption_non sont INDÉTERMINÉS PAR DÉFAUT (D30), même absents de renseignes', () => {
     const effectifs = determinesEffectifs(criteres, criteriaComplete, new Set())!
-    expect(effectifs.has('fragilite')).toBe(true)
-    expect(effectifs.has('traitements_en_cours')).toBe(true)
+    expect(effectifs.has('fragilite')).toBe(false)
+    expect(effectifs.has('traitements_en_cours')).toBe(false)
   })
 
-  it('bool avec confirmation_requise reste INDÉTERMINÉ tant que non explicitement renseigné', () => {
-    const sansConfirmation = determinesEffectifs(criteres, criteriaComplete, new Set())!
-    expect(sansConfirmation.has('ASCVD_etablie')).toBe(false)
-    const avecConfirmation = determinesEffectifs(criteres, criteriaComplete, new Set(['ASCVD_etablie']))!
-    expect(avecConfirmation.has('ASCVD_etablie')).toBe(true)
+  it('bool avec presomption_non: true reste DÉTERMINÉ par défaut, sans confirmation explicite (D30, exception au nouveau défaut)', () => {
+    const sansReponse = determinesEffectifs(criteres, criteriaComplete, new Set())!
+    expect(sansReponse.has('ASCVD_etablie')).toBe(true)
+    const avecReponse = determinesEffectifs(criteres, criteriaComplete, new Set(['ASCVD_etablie']))!
+    expect(avecReponse.has('ASCVD_etablie')).toBe(true)
   })
 
   it('un critère DÉRIVÉ est déterminé si les primitifs qu’il référence le sont', () => {

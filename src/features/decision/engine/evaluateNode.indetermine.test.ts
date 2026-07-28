@@ -161,23 +161,29 @@ describe("evaluateNode — ASYMÉTRIE condition/exclusion : une `exclusion` ind�
   })
 })
 
-describe('evaluateNode — bool/liste restent déterminés PAR DÉFAUT (SPEC §2.2), sauf `confirmation_requise`', () => {
-  it("un critère `bool` non renseigné (case non cochée) N'EST PAS indéterminé : l'option se tranche normalement", () => {
+describe('evaluateNode — bool/liste sont INDÉTERMINÉS PAR DÉFAUT (D30, amende SPEC §2.2), sauf `presomption_non`', () => {
+  // RENVERSÉ le 2026-07-28 (P4/S1, T-018, D30) : ce `describe` vérifiait l'INVERSE avant ce lot — un
+  // `bool` non renseigné était DÉTERMINÉ par défaut (une case non cochée EST une réponse), sauf
+  // `confirmation_requise: true`. La recette navigateur du 2026-07-28 (D-01/D-02, docs/decision/
+  // validation/recette-navigateur-2026-07-28.md) a montré le prix de ce défaut : un formulaire vierge
+  // affirmait des faits jamais déclarés. D30 inverse le défaut ; `presomption_non` (ex-
+  // `confirmation_requise`, sens inversé) devient l'exception qui autorise la présomption de « non ».
+  it("un critère `bool` non renseigné (case non cochée) EST indéterminé : l'option part EN ATTENTE, jamais tranchée sur un « non » présumé", () => {
     const criteres: CritereEntree[] = [{ nom: 'fragilite', type: 'bool' }]
     const a = opt('A', ['fragilite == false'])
     const node = makeNode([a], criteres)
     const res = evaluateNode(node, { fragilite: false }, new Set()) // fragilite absent de renseignes
-    expect(noms(res.applicable)).toEqual(['A'])
-    expect(res.enAttente.size).toBe(0)
+    expect(res.applicable).toEqual([])
+    expect(res.enAttente.has(a)).toBe(true)
   })
 
-  it("un critère `bool` `confirmation_requise: true` reste indéterminé tant qu'il n'est pas explicitement renseigné", () => {
-    const criteres: CritereEntree[] = [{ nom: 'ASCVD_etablie', type: 'bool', confirmation_requise: true }]
+  it("un critère `bool` `presomption_non: true` reste DÉTERMINÉ par défaut (exception D30), même non renseigné", () => {
+    const criteres: CritereEntree[] = [{ nom: 'ASCVD_etablie', type: 'bool', presomption_non: true }]
     const a = opt('A', ['ASCVD_etablie == false'])
     const node = makeNode([a], criteres)
     const res = evaluateNode(node, { ASCVD_etablie: false }, new Set())
-    expect(res.applicable).toEqual([])
-    expect(res.enAttente.has(a)).toBe(true)
+    expect(noms(res.applicable)).toEqual(['A'])
+    expect(res.enAttente.size).toBe(0)
 
     const resRenseigne = evaluateNode(node, { ASCVD_etablie: false }, new Set(['ASCVD_etablie']))
     expect(noms(resRenseigne.applicable)).toEqual(['A'])

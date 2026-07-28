@@ -23,7 +23,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
 Sortie :
   (aucune option applicable — sortie vide)
   Options EN ATTENTE (indétermination, R7/D20) :
-    - Cible ≤ 8 % :: à renseigner : esperance_vie
+    - Cible < 9 % :: à renseigner : esperance_vie, fragilite
 
 ### Profil #1 — 4 critère(s) masqué(s) (masque stratifié) : age, antecedent_cv, anciennete_diabete_annees, comorbidite_grave
 
@@ -51,9 +51,9 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - comorbidite_grave = false
 
 Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
-  - [recommandee] Cible < 9 %
-      proposé parce que : esperance_vie == limitee ; fragilite == true
+  (aucune option applicable — sortie vide)
+  Options EN ATTENTE (indétermination, R7/D20) :
+    - Cible < 9 % :: à renseigner : fragilite
 
 ### Profil #3 — 3 critère(s) masqué(s) (masque stratifié) : age, fragilite, esperance_vie
 
@@ -81,9 +81,9 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - comorbidite_grave = false
 
 Sortie :
-  Famille « (repli à plat) » (exclusive: n/a) :
-  - [recommandee] Cible ≤ 8 %
-      proposé parce que : fragilite == true
+  (aucune option applicable — sortie vide)
+  Options EN ATTENTE (indétermination, R7/D20) :
+    - Cible ≤ 8 % :: à renseigner : fragilite
 
 ### Profil #5 — 1 critère(s) masqué(s) (masque stratifié) : anciennete_diabete_annees
 
@@ -113,7 +113,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
 Sortie :
   (aucune option applicable — sortie vide)
   Options EN ATTENTE (indétermination, R7/D20) :
-    - Cible ≤ 8 % :: à renseigner : esperance_vie
+    - Cible < 9 % :: à renseigner : esperance_vie, fragilite
 
 ### Profil #7 — 3 critère(s) masqué(s) (masque stratifié) : age, anciennete_diabete_annees, comorbidite_grave
 

@@ -162,9 +162,15 @@ describe('CriteriaForm — marqueur « à confirmer » restreint aux `nombre` (t
 // ordinaire — son « non » par défaut ne peut pas être présumé sans risque, il porte donc le même
 // marqueur qu'un `nombre`, à la différence d'un `bool` classique (cf. suite précédente).
 describe('CriteriaForm — `bool` `confirmation_requise` porte le marqueur « à confirmer » (D20 R7)', () => {
+  // T-018 (P4/S1, D30, 2026-07-28) : `confirmation_requise: true` retiré du fixture ci-dessous — champ
+  // hors périmètre S1 (components/), touché seulement pour rester compilable après le renommage du champ
+  // de contenu. Sans effet sur CE test : `aConfirmer` est ici un Set FABRIQUÉ À LA MAIN (pas dérivé du
+  // moteur), le marqueur suit `aConfirmer.has(nom)` quel que soit le type — la distinction que ce fixture
+  // documentait (un bool `confirmation_requise` vs un bool ordinaire) est désormais côté MOTEUR
+  // (`presomption_non`, `deriveCritere.ts`), plus testable en HTML statique avec un `aConfirmer` fabriqué.
   const CRITERES: CritereEntree[] = [
     { nom: 'HbA1c_actuelle', type: 'nombre', groupe: 'Contrôle' },
-    { nom: 'diabete_complique', type: 'bool', confirmation_requise: true, groupe: 'Comorbidités' },
+    { nom: 'diabete_complique', type: 'bool', groupe: 'Comorbidités' },
     { nom: 'ASCVD_etablie', type: 'bool', groupe: 'Comorbidités' },
   ]
 
@@ -431,7 +437,10 @@ describe('CriteriaForm — contraintes de saisie violées (K3)', () => {
  */
 describe('CriteriaForm — texte d’aide de contenu (`aide`)', () => {
   const AVEC_AIDE: CritereEntree[] = [
-    { nom: 'signes_appel_tca', type: 'bool', confirmation_requise: true, aide: 'Au moins un de ces trois signes.' },
+    // T-018 (P4/S1, D30, 2026-07-28) : `confirmation_requise: true` retiré (champ hors périmètre S1,
+    // touché seulement pour rester compilable ; sans effet ici, `aConfirmer` n'est pas exercé dans ce
+    // describe — le test porte sur `aide`, indépendant du type de détermination).
+    { nom: 'signes_appel_tca', type: 'bool', aide: 'Au moins un de ces trois signes.' },
     { nom: 'age', type: 'nombre', aide: 'En années révolues.' },
     { nom: 'esperance_vie', type: 'enum', valeurs: ['longue', 'limitee'], aide: 'Estimation clinique.' },
     { nom: 'traitements_en_cours', type: 'liste', valeurs: ['metformine'], aide: 'Cocher tout ce qui est en cours.' },

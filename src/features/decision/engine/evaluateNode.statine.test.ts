@@ -181,37 +181,37 @@ describe('statine — F-05/F-08 : alertes (D15)', () => {
   })
 })
 
-describe('statine — F-09 : formulaire vierge, valeur indéterminée (D20)', () => {
-  // ⚠ VIGNETTE RÉVISÉE le 2026-07-27 (soir), passage A1+A2 — et c'est un CHANGEMENT DE COMPORTEMENT,
-  // pas une correction de test. Il est consigné ici parce qu'il touche ce que le praticien voit sur un
-  // formulaire `statine` VIERGE, que la recette visuelle venait de mesurer.
+describe('statine — F-09 : formulaire vierge, valeur indéterminée (D20, révisé D30)', () => {
+  // ⚠ VIGNETTE RÉVISÉE le 2026-07-27 (soir), passage A1+A2, PUIS À NOUVEAU le 2026-07-28 (P4/S1, T-018,
+  // D30) — et c'est de nouveau un CHANGEMENT DE COMPORTEMENT, pas une correction de test.
   //
-  // CE QUI CHANGE. La nouvelle option « Débuter la statine à dose plus faible » (bande 4-5 N avant
-  // initiation, arbitrage A1-b) est placée AVANT « haute intensité » — obligatoire en
-  // `ordered-first-match`, sans quoi un patient ASCVD à 4,5 N recevrait la dose forte que NG238 écarte
-  // précisément. Or sur formulaire vierge sa condition est INDÉTERMINÉE (`intolerance_statine` est un
-  // `enum`, `CK_x_normale` un `nombre`), et `statine_deja_en_place == false` est VRAI par défaut : aucun
-  // atome faux ne vient donc court-circuiter le terme. Le moteur HALTE là (D20/D11), avant d'atteindre
-  // « haute intensité » et « Discuter ».
+  // CE QUI A CHANGÉ ENTRE-TEMPS (D30, amende D20) : `bool`/`liste` sont désormais INDÉTERMINÉS PAR
+  // DÉFAUT, comme `nombre`/`enum`, sauf `presomption_non: true`. Sur `statine`, l'audit mécanique de
+  // T-018 (étape 4) a posé `presomption_non: true` sur `ASCVD_etablie` (n'y garde aucune `exclusions` ni
+  // condition d'option `role: securite`) mais PAS sur `dialyse` ni `statine_deja_en_place` — tous deux
+  // gardent une `exclusions`/condition `role: securite` réelle sur ce nœud, donc restent indéterminés
+  // tant que non renseignés. `diabete_complique` perd le champ `confirmation_requise` (devenu
+  // `presomption_non`, jamais posé sur lui) mais reste indéterminé par défaut, comme avant.
   //
-  // POURQUOI CE N'EST PAS UNE RÉGRESSION DE SÉCURITÉ. Avant ce passage, le formulaire vierge halte AUSSI
-  // — simplement plus loin, sur « Discuter ». Dans les deux cas `applicable` est VIDE : le nœud n'a jamais
-  // rien affirmé sur un formulaire vierge, et il ne le fait toujours pas. Ce qui change est la LISTE « en
-  // attente » affichée : elle nomme désormais `intolerance_statine` et `CK_x_normale` au lieu des trois
-  // critères de « Discuter ».
+  // CONSÉQUENCE SUR LA HALTE : la toute PREMIÈRE option du nœud, « Interrompre la statine 4 à 6 semaines
+  // et réévaluer », porte la condition « intolerance_statine == rapportee AND CK_x_normale > 5 AND
+  // statine_deja_en_place == true ». Auparavant, `statine_deja_en_place == false` (déterminé par défaut)
+  // rendait ce ET FAUX avec certitude (court-circuit), et le moteur passait à l'option suivante — jusqu'à
+  // « Débuter la statine à dose plus faible », où il finissait par haltrer sur `intolerance_statine`/
+  // `CK_x_normale`. `statine_deja_en_place` étant désormais INDÉTERMINÉ (aucune présomption possible), ce
+  // ET ne peut plus être tranché FAUX : le moteur HALTE dès la toute première option (D11 : l'ordre du
+  // nœud fait foi, il ne saute jamais une option indéterminée).
   //
-  // CE QU'IL FAUT SURVEILLER, et qui revient au référent : l'intitulé « Débuter la statine à dose plus
-  // faible » est la PREMIÈRE chose qu'un praticien lit en ouvrant le nœud, alors qu'elle ne le concerne
-  // probablement pas. C'est un point d'ergonomie, porté dans VALIDATION.md — pas un défaut du moteur, qui
-  // se comporte ici exactement comme il le doit.
-  it('F-09 — `renseignes` vide : aucun tier désigné, halte sur « Débuter à dose plus faible » (indéterminée), ni "haute intensité" ni "Discuter" ni le repli ne sont atteints', () => {
-    // D20 : `nombre`/`enum` non renseignés sont INDÉTERMINÉS ; `diabete_complique` porte
-    // `confirmation_requise: true` (F-statine §9.2) donc reste indéterminé même si "bool". Les autres
-    // bool (ASCVD_etablie, dialyse, statine_deja_en_place, intolerance_statine) gardent leur défaut
-    // "non" (une réponse clinique réelle, D20) : ils sont donc DÉTERMINÉS, à `false`, sans être dans
-    // `renseignes`. Les valeurs des champs `nombre` ci-dessous sont des PLACEHOLDERS non lus par le
-    // moteur (indéterminés avant toute lecture de leur valeur) — présentes seulement pour satisfaire
-    // `variable in criteria` (le moteur distingue "absent" -> erreur de "non renseigné" -> indéterminé).
+  // POURQUOI CE N'EST PAS UNE RÉGRESSION DE SÉCURITÉ, AU CONTRAIRE. `applicable` reste VIDE : le nœud
+  // n'a jamais rien affirmé sur un formulaire vierge, et il ne le fait toujours pas. Ce qui change est
+  // que le moteur cesse d'affirmer silencieusement « ce patient n'est pas déjà sous statine » — exactement
+  // le défaut de fond que D30 corrige (D-02 de la recette navigateur du 2026-07-28 portait précisément
+  // sur `statine_deja_en_place` lu comme « non » alors que jamais renseigné).
+  it('F-09 — `renseignes` vide : aucun tier désigné, halte dès « Interrompre la statine 4 à 6 semaines et réévaluer » (indéterminée, D30 : `statine_deja_en_place` ne peut plus être présumé), ni "haute intensité" ni "Discuter" ni le repli ne sont atteints', () => {
+    // D30 : `nombre`/`enum`/`bool`/`liste` non renseignés sont TOUS INDÉTERMINÉS, sauf `presomption_non:
+    // true` (seul `ASCVD_etablie` ici). Les valeurs ci-dessous sont des PLACEHOLDERS non lus par le
+    // moteur avant renseignement (indéterminés) — présentes seulement pour satisfaire `variable in
+    // criteria` (le moteur distingue "absent" -> erreur de "non renseigné" -> indéterminé).
     const vierge: Criteria = {
       age: 0,
       ASCVD_etablie: false,
@@ -220,31 +220,31 @@ describe('statine — F-09 : formulaire vierge, valeur indéterminée (D20)', ()
       diabete_complique: false,
       dialyse: false,
       statine_deja_en_place: false,
-      // PLACEHOLDERS depuis le 2026-07-27 : `intolerance_statine` est passé de `bool` à `enum`, il est donc
-      // désormais INDÉTERMINÉ sur formulaire vierge (D20 : seuls les `bool` gardent un défaut « non »
-      // cliniquement lisible). `CK_x_normale` est un nombre : indéterminé lui aussi sur formulaire vierge.
       intolerance_statine: 'non',
       CK_x_normale: 0,
     }
     const result = evaluateNode(node!, vierge, new Set())
 
-    // Le défaut 13.1 corrigé par D20 : sur formulaire vierge, AUCUN tier n'est désigné (ni "haute
+    // Le défaut 13.1 corrigé par D20/D30 : sur formulaire vierge, AUCUN tier n'est désigné (ni "haute
     // intensité", ni "Discuter", ni "intensité modérée" par défaut de convergence) — jamais un tier
     // affirmé sur des critères non renseignés.
     expect(result.applicable).toEqual([])
 
-    // LA HALTE A LIEU ICI, sur la nouvelle option de la bande 4-5 N : elle est EN ATTENTE, et elle nomme
-    // les deux critères qui la lèveraient. `CK_x_normale` y figure alors qu'il est masqué dès que
-    // l'intolérance vaut « non » — ce n'est PAS l'impasse que I11 interdit : tant que `intolerance_statine`
-    // est indéterminé, le champ CK est bien AFFICHÉ (R7, repli « fail open »), donc renseignable.
-    const OPT_DOSE_FAIBLE = node!.options.find((o) => o.intitule.startsWith('Débuter la statine à dose plus faible'))!
-    expect(result.enAttente.has(OPT_DOSE_FAIBLE)).toBe(true)
-    expect(new Set(result.enAttente.get(OPT_DOSE_FAIBLE))).toEqual(new Set(['intolerance_statine', 'CK_x_normale']))
+    // LA HALTE A LIEU ICI DÉSORMAIS, dès la première option du nœud : elle est EN ATTENTE, et elle nomme
+    // les trois critères qui la lèveraient (les trois opérandes de son ET sont indéterminés).
+    const OPT_INTERROMPRE_RAPPORTEE = node!.options.find((o) =>
+      o.intitule.startsWith('Interrompre la statine 4 à 6 semaines'),
+    )!
+    expect(result.enAttente.has(OPT_INTERROMPRE_RAPPORTEE)).toBe(true)
+    expect(new Set(result.enAttente.get(OPT_INTERROMPRE_RAPPORTEE))).toEqual(
+      new Set(['intolerance_statine', 'CK_x_normale', 'statine_deja_en_place']),
+    )
 
-    // Halte ordered-first-match sur indéterminé (D20) : TOUT ce qui suit dans l'ordre du nœud n'est jamais
-    // atteint — ni en attente, ni non retenu, ni applicable. Y compris « haute intensité » et « Discuter »,
-    // que la version précédente de cette vignette voyait encore (cf. l'en-tête du describe).
-    for (const option of [OPT_HAUTE, OPT_DISCUTER, OPT_MODEREE]) {
+    // Halte ordered-first-match sur indéterminé (D20/D11) : TOUT ce qui suit dans l'ordre du nœud n'est
+    // jamais atteint — ni en attente, ni non retenu, ni applicable. Y compris l'ancienne option de halte
+    // (« Débuter à dose plus faible ») et « haute intensité »/« Discuter ».
+    const OPT_DOSE_FAIBLE = node!.options.find((o) => o.intitule.startsWith('Débuter la statine à dose plus faible'))!
+    for (const option of [OPT_DOSE_FAIBLE, OPT_HAUTE, OPT_DISCUTER, OPT_MODEREE]) {
       expect(result.enAttente.has(option)).toBe(false)
       expect(result.nonRetenues.has(option)).toBe(false)
     }

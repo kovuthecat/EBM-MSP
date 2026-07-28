@@ -29,8 +29,9 @@
 # portent donc l'étiquette « recommandation officielle » ou « savoir-faire diététique (non EBM) ».
 #
 # GARDE-FOUS CLINIQUES — DES `exclusions`, PAS DES ALERTES (D21) :
-#   - repérage TCA / restriction cognitive (`signes_appel_tca`, `confirmation_requise: true` — un « non »
-#     présumé serait le vide lu dans le sens rassurant que R7/D20 proscrit ; les 3 signes de l'encadré 11
+#   - repérage TCA / restriction cognitive (`signes_appel_tca`, `presomption_non` ABSENT — D30/T-018,
+#     P4/S1, ex-`confirmation_requise: true` — un « non » présumé serait le vide lu dans le sens
+#     rassurant que R7/D20 proscrit ; les 3 signes de l'encadré 11
 #     HAS sont portés par son champ `aide` depuis la fusion du 2026-07-27, cf. sa déclaration) : depuis le
 #     2026-07-27, il N'EST PLUS UN BLOCAGE — c'est un DÉCLENCHEUR D'ORIENTATION.
 #     Décision référent, sur un principe qui recadre tout le nœud : « dans le cadre des RHD en médecine
@@ -119,6 +120,12 @@ criteres_entree:
     type: liste
     groupe: Terrain
     valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, insuline_basale, insuline_rapide, glinide]
+    # T-018 (P4/S1, D30) : éligible mécaniquement à presomption_non SUR CE NŒUD (ne participe ici à
+    # aucune condition d'option `role: securite` ni à aucune `exclusions` — seulement une `alerte` de
+    # nœud, canal distinct). Déjà connu DIVERGENT entre nœuds (`engine/banc/coherence-inter-noeuds.test.ts`
+    # — `valeurs` différentes sur `insuline`) : sur `prescription`, ce même nom NE reçoit PAS
+    # presomption_non (il y gate plusieurs options `role: securite` et exclusions rénales/cétose).
+    presomption_non: true
   # ── Socle — habitudes du quotidien (S1-S7 de la collecte) ──
   - nom: frequence_boissons_sucrees
     type: enum
@@ -195,12 +202,12 @@ criteres_entree:
   # l'est beaucoup moins pour un déclencheur d'orientation — un faux positif propose une orientation de
   # plus, là où il retirait auparavant des pistes au patient.
   #
-  # `confirmation_requise` conservé : un « non » qui n'a jamais été demandé ne peut pas être présumé sans
-  # risque (même famille de défaut que `diabete_complique` sur le nœud statine).
+  # `presomption_non` ABSENT (D30/T-018, P4/S1 — ex-`confirmation_requise: true`, même effet : indéterminé
+  # tant que non répondu) : un « non » qui n'a jamais été demandé ne peut pas être présumé sans risque
+  # (même famille de défaut que `diabete_complique` sur le nœud statine).
   - nom: signes_appel_tca
     type: bool
     groupe: Repérage — signes d’appel et orientation
-    confirmation_requise: true
     aide: >-
       Au moins un de ces trois signes (HAS, guide parcours surpoids-obésité de l'adulte, encadré 11
       p. 43) : restrictions suivies de craquages ; manger caché ou culpabilité après avoir mangé ;
@@ -678,8 +685,21 @@ meta:
   date_revue: "2026-07-26"
   auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
   statut: brouillon
-  version: "0.7"
+  version: "0.8"
   changelog:
+    - date: "2026-07-28"
+      auteur: "Claude Code (P4/S1, T-018) — correctif mécanique, en attente de relecture référent"
+      resume: >-
+        D30 (amende D20) inverse le défaut de détermination des critères `bool`/`liste` : indéterminés
+        par défaut, sauf `presomption_non: true` explicite, réservé aux critères qui ne participent à
+        aucune condition d'option `role: securite` ni à aucune `exclusions` du nœud. Audit mécanique de
+        l'étape 4 de T-018 : `traitements_en_cours` reçoit `presomption_non: true` (éligible SUR CE
+        NŒUD ; diverge sciemment de `prescription`, cf.
+        `engine/banc/coherence-inter-noeuds.test.ts`). `signes_appel_tca` perd `confirmation_requise`
+        (devenu inutile, son effet — indéterminé tant que non répondu — est désormais le défaut
+        universel) mais NE reçoit PAS `presomption_non` (repérage TCA, un « non » jamais demandé ne peut
+        pas être présumé sans risque). Aucun changement de logique clinique — oubli de bump/changelog
+        corrigé à la consolidation P4 (D5).
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

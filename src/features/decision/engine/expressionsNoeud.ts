@@ -150,7 +150,7 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
     valeurs_visible_si: 'affichage',
     partage: 'inerte', // K6 : drapeau de reprise entre nœuds, pas une expression
     preremplissage: 'inerte', // conteneur : cf. `reglePreremplissage`
-    confirmation_requise: 'inerte',
+    presomption_non: 'inerte', // renommé le 2026-07-28 (P4/S1, T-018), ex-`confirmation_requise`
     min: 'inerte',
     max: 'inerte',
   },

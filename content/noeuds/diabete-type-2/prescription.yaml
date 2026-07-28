@@ -146,9 +146,15 @@ criteres_entree:
   - nom: ASCVD_etablie
     type: bool
     groupe: Ce qui oriente le choix
+    # T-018 (P4/S1, D30) : éligible mécaniquement à presomption_non (ne participe ici à aucune condition
+    # d'option `role: securite` ni à aucune `exclusions` — seulement des `alertes`, canal distinct).
+    # Partagé avec `statine`, où il est ÉGALEMENT éligible (même conclusion sur les deux nœuds, pas de
+    # divergence I4/S7 à motiver).
+    presomption_non: true
   - nom: insuffisance_cardiaque
     type: bool
     groupe: Ce qui oriente le choix
+    presomption_non: true
   - nom: DFG
     type: nombre
     min: 3
@@ -177,12 +183,18 @@ criteres_entree:
     # INITIER = naïf de tout traitement : on ne peut pas être en hypoglycémie SOUS traitement quand
     # aucun traitement n'est encore prescrit (décision référent, recette 2026-07-25). Question sans objet.
     visible_si: "intention != initier"
+    # T-018 (P4/S1, D30) : éligible mécaniquement à presomption_non (ne participe à aucune condition
+    # d'option `role: securite` ni à aucune `exclusions` de ce nœud).
+    presomption_non: true
   - nom: denutrition
     type: bool
     groupe: Signaux d'alerte et tolérance
   - nom: infections_uro_genitales_recidivantes
     type: bool
     groupe: Signaux d'alerte et tolérance
+    # T-018 (P4/S1, D30) : éligible mécaniquement à presomption_non (ne participe qu'à des `alertes` de
+    # nœud sur ce critère, jamais à une condition d'option `role: securite` ni à une `exclusions`).
+    presomption_non: true
   - nom: intolerance_traitement
     type: bool
     groupe: Signaux d'alerte et tolérance
@@ -221,6 +233,9 @@ criteres_entree:
   - nom: classes_a_benefice_indisponibles
     type: bool
     groupe: Terrain et préférences
+    # T-018 (P4/S1, D30) : éligible mécaniquement à presomption_non (ne participe qu'à des `alertes` de
+    # nœud sur ce critère, jamais à une condition d'option `role: securite` ni à une `exclusions`).
+    presomption_non: true
   - nom: hba1c_sous_cible
     type: bool
     # DÉRIVÉ de l'HbA1c saisie (garde-fou ABSOLU, indépendant de la cible du nœud A). Le garde `> 0`

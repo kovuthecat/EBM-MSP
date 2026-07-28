@@ -187,12 +187,14 @@ describe.each(noeuds.map((node) => [node.id, node] as const))(
   (_id, node) => {
     const saisissables = node.criteres_entree.filter((c) => c.derive == null)
     // Seuls les critères dont l'OMISSION peut réellement produire une indétermination (SPEC §2.2, cf.
-    // `deriveCritere.ts` `critereEstDetermine`) : `nombre`/`enum` toujours ; `bool`/`liste` seulement
-    // s'ils déclarent `confirmation_requise` (absent de tout le contenu actuel, cf. `content/noeuds/`).
-    // Les autres critères restent déterminés par leur défaut (une réponse clinique réelle, D20) : les
-    // retirer de `renseignes` ne changerait rien à `evaluateNode` — pas un cas de ce chantier.
+    // `deriveCritere.ts` `critereEstDetermine`) : DEPUIS LE 2026-07-28 (D30, amende D20, P4/S1, T-018),
+    // `nombre`/`enum`/`bool`/`liste` sont TOUS indéterminés dès qu'absents de `renseignes`, SAUF
+    // `presomption_non: true` (ex-`confirmation_requise`, sens INVERSÉ — c'est désormais l'EXCEPTION qui
+    // rend `bool`/`liste` déterminés PAR DÉFAUT, plutôt que l'exception qui les rendait indéterminés).
+    // Les seuls critères qui restent déterminés par leur défaut sont donc les `bool`/`liste` portant
+    // `presomption_non: true` : les retirer de `renseignes` ne changerait rien à `evaluateNode`.
     const criteresIndeterminables = saisissables.filter(
-      (c) => c.type === 'nombre' || c.type === 'enum' || c.confirmation_requise === true,
+      (c) => c.type === 'nombre' || c.type === 'enum' || c.presomption_non !== true,
     )
 
     const testI3 = criteresIndeterminables.length > 0 ? it : it.skip

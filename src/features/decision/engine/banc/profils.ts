@@ -637,8 +637,13 @@ export interface ProfilPartiel {
  *    ci-dessus) — masqué SEUL (tous les autres critères restent renseignés), un profil par critère
  *    critique, dans l'ordre de `criteres_entree`. C'est le scénario Q2 du référent (garde-fou sur donnée
  *    manquante) à l'état le plus pur : un seul champ manque, et c'est justement celui qui commande un
- *    garde-fou. `bool`/`liste` ne peuvent PAS produire ce scénario (SPEC §2.2 : ils restent déterminés
- *    par défaut sauf `confirmation_requise`, absent de tout le contenu actuel) — non retenus ici.
+ *    garde-fou. `bool`/`liste` ne sont PAS retenus dans ce filtre CIBLÉ (le filtre ne teste que
+ *    `c.type === 'nombre' || c.type === 'enum'`, inchangé par D30) : depuis le 2026-07-28 (P4/S1, T-018)
+ *    un `bool`/`liste` SANS `presomption_non: true` PEUT produire le même scénario Q2 quand il est cité
+ *    par une `exclusions` (ex. `dialyse` sur `statine`, `denutrition` sur `prescription`) — mais cette
+ *    fonction ne les engendre pas encore comme profils CIBLÉS un par un ; ils restent couverts par le
+ *    régime 2 (masque stratifié plus large) ci-dessous. Extension éventuelle, hors périmètre de ce lot
+ *    (T-018 ne modifie pas la génération de profils du banc).
  * 2. Au-delà (nœud sans assez de critères critiques pour couvrir `count`, ex. `cible-glycemique`/`rhd`/
  *    `statine`, aucune `exclusions` déclarée) : un masque STRATIFIÉ plus large — une fraction du
  *    formulaire tirée dans [20 %, 70 %) à graine fixe (dérivée de l'INDICE du profil, jamais

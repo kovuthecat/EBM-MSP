@@ -26,8 +26,14 @@ criteres_entree:
     type: bool
   - nom: antecedent_cv
     type: bool
+    # T-018 (P4/S1, D30) : éligible mécaniquement à presomption_non (ne participe à aucune condition
+    # d'option `role: securite` ni à aucune `exclusions` de ce nœud). `fragilite`, partagé avec 4 autres
+    # nœuds DT2 où il EST disqualifié (`prescription`, `rhd-alimentation`), n'en reçoit pas — un critère
+    # partagé garde un encodage unique (I4/S7).
+    presomption_non: true
   - nom: comorbidite_grave
     type: bool
+    presomption_non: true
 options:
   - intitule: "Cible < 9 %"
     role: geste
@@ -188,8 +194,17 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude Code"
   statut: valide
-  version: "2.5"
+  version: "2.6"
   changelog:
+    - date: "2026-07-28"
+      auteur: "Claude Code (P4/S1, T-018) — correctif mécanique, en attente de relecture référent"
+      resume: >-
+        D30 (amende D20) inverse le défaut de détermination des critères `bool`/`liste` : indéterminés
+        par défaut, sauf `presomption_non: true` explicite, réservé aux critères qui ne participent à
+        aucune condition d'option `role: securite` ni à aucune `exclusions` du nœud. Audit mécanique de
+        l'étape 4 de T-018 : `antecedent_cv` et `comorbidite_grave` reçoivent `presomption_non: true`
+        (éligibles). Aucun changement de logique clinique — seule la source de vérité du silence change ;
+        oubli de bump/changelog corrigé à la consolidation P4 (D5).
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

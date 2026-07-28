@@ -260,15 +260,17 @@ export function calculerCriteresDerives(criteres: CritereEntree[], criteria: Cri
 }
 
 /**
- * Un critère est INDÉTERMINÉ (SPEC §2.2) si son nom n'est pas dans `renseignes` ET que son type ne
- * défend pas de valeur par défaut opposable : `nombre`/`enum` sont indéterminés dès qu'absents ;
- * `bool`/`liste` restent déterminés par leur défaut (une réponse clinique réelle), SAUF déclaration
- * explicite `confirmation_requise: true` par le contenu (réservé aux drapeaux dont le « non » ne peut
- * pas être présumé sans risque, DECISIONS.md D20).
+ * Un critère est INDÉTERMINÉ (SPEC §2.2, DECISIONS.md D30 — amende D20) si son nom n'est pas dans
+ * `renseignes` ET qu'aucune présomption de contenu ne l'autorise à valoir sa valeur par défaut :
+ * `nombre`/`enum`/`bool`/`liste` sont TOUS indéterminés dès qu'absents de `renseignes`, SAUF
+ * déclaration explicite `presomption_non: true` par le contenu — réservée aux `bool`/`liste` dont le
+ * défaut « non »/« aucun » PEUT être présumé sans risque (établi mécaniquement : ne participe à aucune
+ * condition d'option `role: securite` ni à aucune `exclusions` du nœud). `nombre`/`enum` n'ouvrent
+ * jamais ce cas : ils restent indéterminés d'office, sans possibilité de présomption.
  */
 function critereEstDetermine(critere: CritereEntree, renseignes: ReadonlySet<string>): boolean {
   if (renseignes.has(critere.nom)) return true
-  if (critere.type === 'bool' || critere.type === 'liste') return critere.confirmation_requise !== true
+  if (critere.type === 'bool' || critere.type === 'liste') return critere.presomption_non === true
   return false // nombre / enum non renseigné
 }
 
@@ -282,8 +284,8 @@ function critereEstDetermine(critere: CritereEntree, renseignes: ReadonlySet<str
  * Ce que cette fonction AJOUTE au `touched` brut, pour obtenir l'ensemble réellement consommable par
  * `evaluateCondition`/`evaluerDeriveTernaire` (qui, eux, ne connaissent aucun `type` de critère,
  * générique D8) :
- * 1. les `bool`/`liste` SANS `confirmation_requise` (déterminés par construction, cf.
- *    `critereEstDetermine`) ;
+ * 1. les `bool`/`liste` portant `presomption_non: true` (déterminés par construction, cf.
+ *    `critereEstDetermine` — D30 : c'est désormais l'EXCEPTION, plus le défaut) ;
  * 2. les critères DÉRIVÉS dont l'expression `derive` s'évalue à un booléen réel (jamais `INDETERMINE`)
  *    sur les PRIMITIFS déterminés à l'étape 1 — un seul passage suffit, aucun `derive` de ce contenu ne
  *    référence un autre `derive` (cf. docstring `calculerCriteresDerives` : « pas les uns des autres »).

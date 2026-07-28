@@ -122,6 +122,13 @@ criteres_entree:
   - nom: traitements_en_cours
     type: liste
     valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, glinide, gliptine, insuline_basale, insuline_rapide]
+    # T-018 (P4/S1, D30) : éligible mécaniquement à presomption_non SUR CE NŒUD (ne participe ici à aucune
+    # condition d'option `role: securite` ni à aucune `exclusions` — seulement des `alertes` de nœud,
+    # canal distinct). Ce critère est déjà connu DIVERGENT entre nœuds (`engine/banc/
+    # coherence-inter-noeuds.test.ts`, valeurs différentes sur `insuline`) : sur `prescription`, ce même
+    # nom NE reçoit PAS presomption_non (il y gate plusieurs options `role: securite` et exclusions
+    # rénales/cétose) — divergence assumée, cf. l'entrée existante.
+    presomption_non: true
     # A4/F (2026-07-27) — PREMIER USAGE de `valeurs_visible_si`, et le défaut qui l'a fait écrire : chez un
     # patient déclaré NAÏF d'insuline, les deux cases d'insuline restaient cochables. Le contenu ne pouvait
     # rien y faire et le disait déjà lui-même, quelques lignes plus bas sur `profil_glycemique` :
@@ -185,6 +192,9 @@ criteres_entree:
     # Ne se recueille QUE là où le geste correspondant existe (R5 : un critère qu'on demande doit agir).
     # En « basale seule » ou chez le naïf, il n'y a pas de bolus à réduire : la question n'est pas posée.
     visible_si: "situation_insuline == basale_plus_bolus OR situation_insuline == basal_bolus"
+    # T-018 (P4/S1, D30) : éligible mécaniquement à presomption_non (ne participe à aucune condition
+    # d'option `role: securite` ni à aucune `exclusions` de ce nœud).
+    presomption_non: true
   - nom: GAJ
     type: nombre
     min: 0.4
@@ -207,9 +217,10 @@ criteres_entree:
     # insuffisante). ⚠ VIGILANCE (référent) : une liste VIDE (aucune case cochée) n'est PAS un profil
     # « stable » — `contient` exige la valeur explicitement cochée, un profil non renseigné reste donc
     # `false` ici (ni rassurant, ni un motif de titrer) — c'est le défaut D20 (ne jamais lire l'absence de
-    # coche comme une réponse) qu'on évite ici SANS passer par le mécanisme `confirmation_requise` (qui ne
-    # s'applique qu'à l'indétermination D20 ; ceci est une question de contenu clinique, pas de saisie
-    # manquante — ce nœud ne déclare `confirmation_requise` sur aucun critère).
+    # coche comme une réponse) qu'on évite ici SANS passer par le mécanisme `presomption_non` (D30, ex-
+    # `confirmation_requise`) : ce dernier ne s'applique qu'aux critères SAISIS (`critereEstDetermine` ne
+    # l'évalue jamais sur un `derive`, cf. `engine/deriveCritere.ts`) ; `profil_nocturne_permet_titration`
+    # est lui-même un dérivé, la question est ici de contenu clinique, pas de saisie manquante.
     derive: "profil_glycemique contient stable OR profil_glycemique contient phenomene_aube"
   - nom: profil_nocturne_a_cible
     type: bool
@@ -1050,8 +1061,19 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Opus"
   statut: brouillon
-  version: "0.22"
+  version: "0.23"
   changelog:
+    - date: "2026-07-28"
+      auteur: "Claude Code (P4/S1, T-018) — correctif mécanique, en attente de relecture référent"
+      resume: >-
+        D30 (amende D20) inverse le défaut de détermination des critères `bool`/`liste` : indéterminés
+        par défaut, sauf `presomption_non: true` explicite, réservé aux critères qui ne participent à
+        aucune condition d'option `role: securite` ni à aucune `exclusions` du nœud. Audit mécanique de
+        l'étape 4 de T-018 : `traitements_en_cours` et `hypo_interprandiale` reçoivent
+        `presomption_non: true` (éligibles SUR CE NŒUD ; `traitements_en_cours` diverge sciemment de
+        `prescription`, où il gate des options `role: securite` réelles — cf.
+        `engine/banc/coherence-inter-noeuds.test.ts`). Aucun changement de logique clinique — seule la
+        source de vérité du silence change ; oubli de bump/changelog corrigé à la consolidation P4 (D5).
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

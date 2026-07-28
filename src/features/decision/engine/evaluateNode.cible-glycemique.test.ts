@@ -231,19 +231,28 @@ describe('evaluateNode — "cible-glycemique" (T-007bis · ordered-first-match, 
   // reverrouille comme garde-fou de non-régression pour ce nœud précis (vérifié en exécutant
   // réellement le moteur avant d'écrire l'assertion, pas déduit du mandat).
   //
-  // MISE À JOUR (2026-07-26, révision v2.1) : l'option bloquante reste « Cible ≤ 8 % » (SOUPLE), mais la
-  // liste des champs à renseigner pour lever l'indétermination a RÉTRÉCI de 3 à 1 élément. Vérifié en
-  // exécutant le moteur (pas déduit) : avec `risque_hypoglycemie_schema` retiré du nœud et la branche
-  // `anciennete_diabete_annees > 10 AND …` retirée avec lui (cf. changelog `cible-glycemique.yaml`), la
-  // condition de « Cible ≤ 8 % » ne référence plus ni l'un ni l'autre — seul `esperance_vie` (encore
-  // indéterminé sur formulaire vierge) reste à renseigner pour trancher cette option.
-  it('A-17 — formulaire vierge (renseignes = ∅) → aucune cible retenue, « Cible ≤ 8 % » en attente ' +
-    'faute d’espérance de vie renseignée', () => {
+  // MISE À JOUR (2026-07-26, révision v2.1) : l'option bloquante restait « Cible ≤ 8 % » (SOUPLE), et la
+  // liste des champs à renseigner pour lever l'indétermination avait RÉTRÉCI de 3 à 1 élément — seul
+  // `esperance_vie` restait à renseigner, `fragilite`/`comorbidite_grave` étant alors PRÉSUMÉS « non » par
+  // défaut (ancien D20).
+  //
+  // MISE À JOUR (2026-07-28, P4/S1, T-018, D30) : ce n'est plus vrai — `fragilite` est désormais
+  // INDÉTERMINÉ tant que non renseigné (aucune présomption : ce critère est PARTAGÉ avec `prescription`/
+  // `rhd-alimentation`, où il garde une `exclusions` réelle ; I4/S7 impose un encodage unique, donc pas de
+  // `presomption_non` sur ce nom nulle part). L'ordre du nœud (D11) fait foi : la première option
+  // rencontrée (« Cible < 9 % », MOINS_CONTRAIGNANTE), dont la 2ᵉ clause `fragilite == true OR
+  // comorbidite_grave == true` était auparavant tranchée FAUSSE avec confiance (les deux présumés « non »),
+  // est désormais elle-même INDÉTERMINÉE (fragilite ne peut plus être présumé) — le moteur halte donc UN
+  // CRAN PLUS TÔT qu'avant, sans jamais atteindre « Cible ≤ 8 % ». C'est exactement l'effet recherché par
+  // D30 : le moteur ne peut plus sauter silencieusement une option plus stricte sur une présomption non
+  // fondée. Revérifié en exécutant réellement le moteur (pas déduit).
+  it('A-17 — formulaire vierge (renseignes = ∅) → aucune cible retenue, « Cible < 9 % » en attente ' +
+    'faute de fragilité et d’espérance de vie renseignées', () => {
     const result = evaluateNode(node!, buildDefaultCriteria(node!.criteres_entree), new Set())
     expect(result.applicable).toEqual([])
     const enAttente = [...result.enAttente.entries()]
-    expect(enAttente.map(([option]) => option.intitule)).toEqual([SOUPLE])
-    expect(enAttente[0][1].slice().sort()).toEqual(['esperance_vie'])
+    expect(enAttente.map(([option]) => option.intitule)).toEqual([MOINS_CONTRAIGNANTE])
+    expect(enAttente[0][1].slice().sort()).toEqual(['esperance_vie', 'fragilite'])
   })
 
   // A-18 (« jeune sous sulfamide ») — SUPPRIMÉE (2026-07-26, mandat « Trois arbitrages du référent »,

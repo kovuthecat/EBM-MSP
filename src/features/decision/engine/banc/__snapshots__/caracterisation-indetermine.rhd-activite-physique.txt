@@ -29,25 +29,20 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - experience_activite_negative = false
 
 Sortie :
-  Famille « Rupture de sédentarité » (exclusive: false) :
-    -- groupe d'égalité #0 --
-  - [recommandee] Se lever et bouger quelques minutes à chaque heure de position assise prolongée
-      proposé parce que : rupture_sedentarite_habituelle == false
-    -- groupe d'égalité #1 --
-  - [recommandee] S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant)
-      proposé parce que : rupture_sedentarite_habituelle == false
-  - [recommandee] Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants
-      proposé parce que : rupture_sedentarite_habituelle == false
-  Famille « Orientation vers une ressource » (exclusive: false) :
-  - [recommandee] Orienter vers une structure d'activité physique adaptée pour un bilan et un accompagnement progressif
-      proposé parce que : offre_proximite_connue == false
+  (aucune option applicable — sortie vide)
   Options EN ATTENTE (indétermination, R7/D20) :
     - Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine :: à renseigner : mode_deplacement_courts_trajets
     - Pour les courses, préférer plusieurs petits déplacements actifs à un grand trajet motorisé :: à renseigner : mode_deplacement_courts_trajets
+    - Se lever et bouger quelques minutes à chaque heure de position assise prolongée :: à renseigner : temps_assis_quotidien, rupture_sedentarite_habituelle
+    - S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant) :: à renseigner : temps_assis_quotidien, rupture_sedentarite_habituelle
+    - Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants :: à renseigner : temps_assis_quotidien, rupture_sedentarite_habituelle
     - Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées) :: à renseigner : frequence_activite_structuree
     - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : duree_seance
     - Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente :: à renseigner : frequence_activite_structuree
     - Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel :: à renseigner : frequence_activite_structuree
+    - Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement) :: à renseigner : frequence_activite_structuree, rupture_sedentarite_habituelle
+    - Orienter vers une structure d'activité physique adaptée pour un bilan et un accompagnement progressif :: à renseigner : limitation_physique_connue, offre_proximite_connue
+    - Poursuivre les habitudes actuelles et rester attentif à la régularité :: à renseigner : frequence_activite_structuree, rupture_sedentarite_habituelle
 
 ### Profil #1 — 10 critère(s) masqué(s) (masque stratifié) : neuropathie_ou_mal_perforant_plantaire, retinopathie_non_stabilisee_ou_proliferante, mode_deplacement_courts_trajets, difficulte_acces_activite, rupture_sedentarite_habituelle, traitements_en_cours, duree_seance, fragilite, frequence_activite_structuree, offre_proximite_connue
 
@@ -87,7 +82,6 @@ Sortie :
       proposé parce que : experience_activite_negative == true
   Alertes de nœud :
     - Sous insuline, sulfamide ou glinide, toute augmentation de la dépense énergétique majore le risque d'hypoglycémie À L'EFFORT : signaler le risque au patient (resucrage à disposition, autosurveillance autour de l'effort) — arbitrage référent : alerte simple, pas un blocage des pistes proposées. [attention]
-    - Sujet fragile : éviter les activités physiques prolongées par forte chaleur, favoriser l'hydratation même en l'absence de sensation de soif, et éviter les activités de renforcement musculaire de forte intensité en ambiance chaude (HAS, guide des connaissances sur l'activité physique et la sédentarité). [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine :: à renseigner : mode_deplacement_courts_trajets
     - Pour les courses, préférer plusieurs petits déplacements actifs à un grand trajet motorisé :: à renseigner : mode_deplacement_courts_trajets
@@ -95,8 +89,8 @@ Sortie :
     - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : duree_seance
     - Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente :: à renseigner : frequence_activite_structuree
     - Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel :: à renseigner : frequence_activite_structuree
-    - Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement) :: à renseigner : frequence_activite_structuree
-    - Poursuivre les habitudes actuelles et rester attentif à la régularité :: à renseigner : frequence_activite_structuree
+    - Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement) :: à renseigner : frequence_activite_structuree, rupture_sedentarite_habituelle
+    - Poursuivre les habitudes actuelles et rester attentif à la régularité :: à renseigner : frequence_activite_structuree, rupture_sedentarite_habituelle
 
 ### Profil #2 — 9 critère(s) masqué(s) (masque stratifié) : duree_seance, frequence_activite_structuree, offre_proximite_connue, difficulte_acces_activite, rupture_sedentarite_habituelle, neuropathie_ou_mal_perforant_plantaire, temps_assis_quotidien, traitements_en_cours, mode_deplacement_courts_trajets
 
@@ -117,15 +111,6 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - experience_activite_negative = false
 
 Sortie :
-  Famille « Rupture de sédentarité » (exclusive: false) :
-    -- groupe d'égalité #0 --
-  - [recommandee] Se lever et bouger quelques minutes à chaque heure de position assise prolongée
-      proposé parce que : rupture_sedentarite_habituelle == false
-    -- groupe d'égalité #1 --
-  - [recommandee] S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant)
-      proposé parce que : rupture_sedentarite_habituelle == false
-  - [recommandee] Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants
-      proposé parce que : rupture_sedentarite_habituelle == false
   Famille « Orientation vers une ressource » (exclusive: false) :
   - [recommandee] Orienter vers une structure d'activité physique adaptée pour un bilan et un accompagnement progressif
       proposé parce que : difficulte_acces_activite == true ; offre_proximite_connue == false
@@ -134,10 +119,15 @@ Sortie :
   Options EN ATTENTE (indétermination, R7/D20) :
     - Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine :: à renseigner : mode_deplacement_courts_trajets
     - Pour les courses, préférer plusieurs petits déplacements actifs à un grand trajet motorisé :: à renseigner : mode_deplacement_courts_trajets
+    - Se lever et bouger quelques minutes à chaque heure de position assise prolongée :: à renseigner : temps_assis_quotidien, rupture_sedentarite_habituelle
+    - S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant) :: à renseigner : temps_assis_quotidien, rupture_sedentarite_habituelle
+    - Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants :: à renseigner : temps_assis_quotidien, rupture_sedentarite_habituelle
     - Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées) :: à renseigner : frequence_activite_structuree
     - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : duree_seance
     - Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente :: à renseigner : frequence_activite_structuree
     - Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel :: à renseigner : frequence_activite_structuree
+    - Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement) :: à renseigner : frequence_activite_structuree, rupture_sedentarite_habituelle
+    - Poursuivre les habitudes actuelles et rester attentif à la régularité :: à renseigner : frequence_activite_structuree, rupture_sedentarite_habituelle
 
 ### Profil #3 — 7 critère(s) masqué(s) (masque stratifié) : offre_proximite_connue, frequence_activite_structuree, traitements_en_cours, mode_deplacement_courts_trajets, symptomes_ischemie_effort, fragilite, difficulte_acces_activite
 
@@ -177,7 +167,6 @@ Sortie :
       proposé parce que : experience_activite_negative == true
   Alertes de nœud :
     - Neuropathie périphérique ou mal perforant plantaire : la source HAS restreint la limitation aux activités en CHARGE des membres inférieurs (marche prolongée, course) — les activités sollicitant les membres supérieurs et le travail en décharge (vélo assis, activités en position assise, renforcement du haut du corps, activités aquatiques après avis podologique) restent possibles. L'outil retire ici la famille « pratique structurée » dans son ensemble, faute de recueillir de quoi distinguer les pistes par segment corporel : orienter vers une pratique adaptée plutôt que de conclure à l'absence d'activité possible. Surveillance podologique et chaussage adaptés dans tous les cas. [attention]
-    - Sujet fragile : éviter les activités physiques prolongées par forte chaleur, favoriser l'hydratation même en l'absence de sensation de soif, et éviter les activités de renforcement musculaire de forte intensité en ambiance chaude (HAS, guide des connaissances sur l'activité physique et la sédentarité). [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine :: à renseigner : mode_deplacement_courts_trajets
     - Pour les courses, préférer plusieurs petits déplacements actifs à un grand trajet motorisé :: à renseigner : mode_deplacement_courts_trajets
@@ -318,6 +307,8 @@ Sortie :
     - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : duree_seance
     - Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente :: à renseigner : frequence_activite_structuree
     - Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel :: à renseigner : frequence_activite_structuree
+    - Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement) :: à renseigner : frequence_activite_structuree, rupture_sedentarite_habituelle
+    - Poursuivre les habitudes actuelles et rester attentif à la régularité :: à renseigner : frequence_activite_structuree, rupture_sedentarite_habituelle
 
 ### Profil #7 — 7 critère(s) masqué(s) (masque stratifié) : traitements_en_cours, rupture_sedentarite_habituelle, frequence_activite_structuree, duree_seance, limitation_physique_connue, difficulte_acces_activite, fragilite
 
@@ -353,12 +344,15 @@ Sortie :
   Alertes de nœud :
     - Sous insuline, sulfamide ou glinide, toute augmentation de la dépense énergétique majore le risque d'hypoglycémie À L'EFFORT : signaler le risque au patient (resucrage à disposition, autosurveillance autour de l'effort) — arbitrage référent : alerte simple, pas un blocage des pistes proposées. [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
+    - Se lever et bouger quelques minutes à chaque heure de position assise prolongée :: à renseigner : rupture_sedentarite_habituelle
+    - S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant) :: à renseigner : rupture_sedentarite_habituelle
+    - Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants :: à renseigner : rupture_sedentarite_habituelle
     - Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées) :: à renseigner : frequence_activite_structuree
     - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : duree_seance
     - Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente :: à renseigner : frequence_activite_structuree
     - Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel :: à renseigner : frequence_activite_structuree
-    - Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement) :: à renseigner : frequence_activite_structuree
-    - Poursuivre les habitudes actuelles et rester attentif à la régularité :: à renseigner : frequence_activite_structuree
+    - Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement) :: à renseigner : frequence_activite_structuree, rupture_sedentarite_habituelle
+    - Poursuivre les habitudes actuelles et rester attentif à la régularité :: à renseigner : frequence_activite_structuree, rupture_sedentarite_habituelle
 
 ### Profil #8 — 4 critère(s) masqué(s) (masque stratifié) : duree_seance, experience_activite_negative, mode_deplacement_courts_trajets, rupture_sedentarite_habituelle
 
@@ -398,6 +392,7 @@ Sortie :
     - Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine :: à renseigner : mode_deplacement_courts_trajets
     - Pour les courses, préférer plusieurs petits déplacements actifs à un grand trajet motorisé :: à renseigner : mode_deplacement_courts_trajets
     - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : duree_seance
+    - Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement) :: à renseigner : rupture_sedentarite_habituelle
 
 ### Profil #9 — 5 critère(s) masqué(s) (masque stratifié) : traitements_en_cours, duree_seance, offre_proximite_connue, limitation_physique_connue, frequence_activite_structuree
 
@@ -428,12 +423,8 @@ Sortie :
   - [recommandee] Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants
       proposé parce que : temps_assis_quotidien == quatre_a_huit_h
   Famille « Orientation vers une ressource » (exclusive: false) :
-    -- groupe d'égalité #0 --
   - [recommandee] Proposer un bilan avec un enseignant en activité physique adaptée avant toute reprise
       proposé parce que : experience_activite_negative == true
-    -- groupe d'égalité #1 --
-  - [recommandee] Orienter vers une structure d'activité physique adaptée pour un bilan et un accompagnement progressif
-      proposé parce que : limitation_physique_connue == true ; offre_proximite_connue == false
   Alertes de nœud :
     - Sous insuline, sulfamide ou glinide, toute augmentation de la dépense énergétique majore le risque d'hypoglycémie À L'EFFORT : signaler le risque au patient (resucrage à disposition, autosurveillance autour de l'effort) — arbitrage référent : alerte simple, pas un blocage des pistes proposées. [attention]
     - Sujet fragile : éviter les activités physiques prolongées par forte chaleur, favoriser l'hydratation même en l'absence de sensation de soif, et éviter les activités de renforcement musculaire de forte intensité en ambiance chaude (HAS, guide des connaissances sur l'activité physique et la sédentarité). [attention]
@@ -443,6 +434,7 @@ Sortie :
     - Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente :: à renseigner : frequence_activite_structuree
     - Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel :: à renseigner : frequence_activite_structuree
     - Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement) :: à renseigner : frequence_activite_structuree
+    - Orienter vers une structure d'activité physique adaptée pour un bilan et un accompagnement progressif :: à renseigner : limitation_physique_connue, offre_proximite_connue
     - Poursuivre les habitudes actuelles et rester attentif à la régularité :: à renseigner : frequence_activite_structuree
 
 ### Profil #10 — 5 critère(s) masqué(s) (masque stratifié) : retinopathie_non_stabilisee_ou_proliferante, duree_seance, experience_activite_negative, offre_proximite_connue, rupture_sedentarite_habituelle
@@ -486,6 +478,7 @@ Sortie :
     - Sous insuline, sulfamide ou glinide, toute augmentation de la dépense énergétique majore le risque d'hypoglycémie À L'EFFORT : signaler le risque au patient (resucrage à disposition, autosurveillance autour de l'effort) — arbitrage référent : alerte simple, pas un blocage des pistes proposées. [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : duree_seance
+    - Poursuivre les habitudes actuelles et rester attentif à la régularité :: à renseigner : rupture_sedentarite_habituelle
 
 ### Profil #11 — 10 critère(s) masqué(s) (masque stratifié) : duree_seance, frequence_activite_structuree, traitements_en_cours, neuropathie_ou_mal_perforant_plantaire, symptomes_ischemie_effort, fragilite, offre_proximite_connue, difficulte_acces_activite, rupture_sedentarite_habituelle, limitation_physique_connue
 
@@ -529,8 +522,8 @@ Sortie :
     - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : duree_seance
     - Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente :: à renseigner : frequence_activite_structuree
     - Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel :: à renseigner : frequence_activite_structuree
-    - Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement) :: à renseigner : frequence_activite_structuree
-    - Poursuivre les habitudes actuelles et rester attentif à la régularité :: à renseigner : frequence_activite_structuree
+    - Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement) :: à renseigner : frequence_activite_structuree, rupture_sedentarite_habituelle
+    - Poursuivre les habitudes actuelles et rester attentif à la régularité :: à renseigner : frequence_activite_structuree, rupture_sedentarite_habituelle
 
 ### Profil #12 — 9 critère(s) masqué(s) (masque stratifié) : neuropathie_ou_mal_perforant_plantaire, symptomes_ischemie_effort, rupture_sedentarite_habituelle, fragilite, difficulte_acces_activite, limitation_physique_connue, experience_activite_negative, temps_assis_quotidien, mode_deplacement_courts_trajets
 
@@ -551,15 +544,6 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - experience_activite_negative = false
 
 Sortie :
-  Famille « Rupture de sédentarité » (exclusive: false) :
-    -- groupe d'égalité #0 --
-  - [recommandee] Se lever et bouger quelques minutes à chaque heure de position assise prolongée
-      proposé parce que : rupture_sedentarite_habituelle == false
-    -- groupe d'égalité #1 --
-  - [recommandee] S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant)
-      proposé parce que : rupture_sedentarite_habituelle == false
-  - [recommandee] Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants
-      proposé parce que : rupture_sedentarite_habituelle == false
   Famille « Activité quotidienne » (exclusive: false) :
     -- groupe d'égalité #0 --
   - [recommandee] Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées)
@@ -571,12 +555,14 @@ Sortie :
       proposé parce que : duree_seance == moins_10_min
   Alertes de nœud :
     - Sous insuline, sulfamide ou glinide, toute augmentation de la dépense énergétique majore le risque d'hypoglycémie À L'EFFORT : signaler le risque au patient (resucrage à disposition, autosurveillance autour de l'effort) — arbitrage référent : alerte simple, pas un blocage des pistes proposées. [attention]
-    - Sujet fragile : éviter les activités physiques prolongées par forte chaleur, favoriser l'hydratation même en l'absence de sensation de soif, et éviter les activités de renforcement musculaire de forte intensité en ambiance chaude (HAS, guide des connaissances sur l'activité physique et la sédentarité). [attention]
   Options écartées (sécurité, R4) :
     - Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel :: verrou_effort == true
   Options EN ATTENTE (indétermination, R7/D20) :
     - Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine :: à renseigner : mode_deplacement_courts_trajets
     - Pour les courses, préférer plusieurs petits déplacements actifs à un grand trajet motorisé :: à renseigner : mode_deplacement_courts_trajets
+    - Se lever et bouger quelques minutes à chaque heure de position assise prolongée :: à renseigner : temps_assis_quotidien, rupture_sedentarite_habituelle
+    - S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant) :: à renseigner : temps_assis_quotidien, rupture_sedentarite_habituelle
+    - Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants :: à renseigner : temps_assis_quotidien, rupture_sedentarite_habituelle
     - Orienter vers une structure d'activité physique adaptée pour un bilan et un accompagnement progressif :: à renseigner : limitation_physique_connue
 
 ### Profil #13 — 7 critère(s) masqué(s) (masque stratifié) : duree_seance, limitation_physique_connue, offre_proximite_connue, fragilite, experience_activite_negative, retinopathie_non_stabilisee_ou_proliferante, difficulte_acces_activite

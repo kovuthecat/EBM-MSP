@@ -50,17 +50,23 @@ export interface CritereEntree {
    */
   visible_si?: string
   /**
-   * Valeur indéterminée (DECISIONS.md D20, `docs/decision/validation/chantier-2026-07-26/
-   * SPEC-valeur-indeterminee.md` §2.2) : réservé aux critères `bool`/`liste` dont le « non »/« aucun »
-   * par défaut NE PEUT PAS être présumé sans risque clinique (ex. une comorbidité qui, non cochée,
-   * pourrait n'avoir simplement pas encore été demandée plutôt qu'activement exclue). Quand `true`, le
-   * critère est traité comme `nombre`/`enum` : indéterminé tant qu'il n'a pas été explicitement
-   * renseigné par le praticien, plutôt que de garder sa valeur par défaut (`false`/`[]`). Absent ou
-   * `false` (repli) → comportement historique inchangé : `bool`/`liste` restent déterminés par défaut
-   * (une case non cochée EST une réponse clinique). Sans effet sur `nombre`/`enum`, déjà toujours
-   * indéterminés tant que non saisis.
+   * Valeur indéterminée (DECISIONS.md D30, amende D20 ; `docs/decision/validation/chantier-2026-07-26/
+   * SPEC-valeur-indeterminee.md` §2.2) — NOUVEAU DÉFAUT depuis D30 : un critère `bool`/`liste` non
+   * renseigné est INDÉTERMINÉ, exactement comme `nombre`/`enum`. `presomption_non: true` est
+   * l'EXCEPTION, réservée aux critères dont le défaut (`false`/`[]`) est une déclaration explicite de
+   * contenu sûre à présumer tant que non répondu — établi mécaniquement (ne participe à aucune
+   * condition d'option `role: securite` ni à aucune `exclusions` du nœud), jamais deviné. Absent ou
+   * `false` (repli, désormais le cas par défaut) → le critère reste indéterminé tant qu'il n'a pas été
+   * explicitement renseigné par le praticien. Sans effet sur `nombre`/`enum` (déjà toujours
+   * indéterminés tant que non saisis) ni sur un critère `derive` (`critereEstDetermine`,
+   * `engine/deriveCritere.ts`, ne l'évalue jamais sur un dérivé).
+   *
+   * RENOMMÉ le 2026-07-28 (P4/S1, T-018) depuis `confirmation_requise` — MÊME CHAMP, SENS INVERSÉ :
+   * `confirmation_requise: true` signifiait « ce bool reste indéterminé sauf confirmation » (exception
+   * à l'ancien défaut « déterminé ») ; `presomption_non: true` signifie l'inverse littéral, « ce bool
+   * PEUT être présumé faux » (exception au nouveau défaut « indéterminé »).
    */
-  confirmation_requise?: boolean
+  presomption_non?: boolean
   /**
    * TEXTE D'AIDE À LA SAISIE, affiché sous le champ. Ajouté le 2026-07-27 pour la fusion des trois signes
    * d'appel TCA de `rhd-alimentation` — le référent a arbitré qu'ils formaient UNE question de repérage et

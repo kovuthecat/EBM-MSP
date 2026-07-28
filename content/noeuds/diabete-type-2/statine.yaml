@@ -58,8 +58,16 @@
 # sous-groupe précis).
 # DÉFINITIONS (validées référent 2026-07-23, complétées §9.1 le 2026-07-26) : `diabete_complique` (bool) =
 # toute atteinte d'organe cible (rétinopathie, néphropathie / albuminurie, neuropathie) OU maladie
-# macrovasculaire non-ASCVD — SEUL booléen du domaine porté `confirmation_requise: true` (D20, F-statine
-# §9.2 ; `ASCVD_etablie`/`dialyse` explicitement écartés par le référent) ; `autres_FDRCV` = compte des
+# macrovasculaire non-ASCVD — SEUL booléen du domaine qui portait `confirmation_requise: true` (D20,
+# F-statine §9.2 ; `ASCVD_etablie`/`dialyse` explicitement écartés par le référent SOUS L'ANCIEN RÉGIME).
+# MISE À JOUR D30/T-018 (P4/S1, 2026-07-28) : le défaut « bool non répondu = déterminé » qui rendait cette
+# déclaration nécessaire est désormais INVERSÉ pour tout le domaine — `diabete_complique` perd le champ
+# (il reste indéterminé tant que non répondu, comme avant, mais par le NOUVEAU défaut universel, plus
+# besoin de le déclarer) ; `ASCVD_etablie` reçoit `presomption_non: true` (éligible mécaniquement — ne
+# garde aucune `exclusions`/option `role: securite` de ce nœud, cohérent avec le choix référent d'alors) ;
+# `dialyse`, en revanche, garde une `exclusions` réelle sur ce nœud (« Statine de haute intensité —
+# prévention secondaire ») et N'EST PLUS éligible sous le nouveau régime, plus strict — il devient
+# indéterminé tant que non répondu, alors qu'il était présumé « non » sous l'ancien régime. `autres_FDRCV` = compte des
 # facteurs de risque CV additionnels (HTA, tabac, dyslipidémie, hérédité CV précoce…) ;
 # `statine_deja_en_place` (bool) = statine déjà prescrite (distingue INITIATION de POURSUITE, F-statine
 # §9.1) ; `intolerance_statine` (ENUM depuis le 2026-07-27 : non / rapportee / averee) — `rapportee` =
@@ -118,6 +126,10 @@ criteres_entree:
     max: 105
   - nom: ASCVD_etablie
     type: bool
+    # T-018 (P4/S1, D30) : éligible mécaniquement à presomption_non (ne participe à aucune condition
+    # d'option `role: securite` ni à aucune `exclusions` de ce nœud — seulement des `alertes`, canal
+    # distinct). Partagé avec `prescription`, où il est ÉGALEMENT éligible (pas de divergence I4/S7).
+    presomption_non: true
   - nom: anciennete_diabete_annees
     type: nombre
     min: 0
@@ -133,7 +145,6 @@ criteres_entree:
     max: 6
   - nom: diabete_complique
     type: bool
-    confirmation_requise: true
   - nom: dialyse
     type: bool
   - nom: statine_deja_en_place
@@ -1016,8 +1027,21 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Claude Code"
   statut: brouillon
-  version: "1.13"
+  version: "1.14"
   changelog:
+    - date: "2026-07-28"
+      auteur: "Claude Code (P4/S1, T-018) — correctif mécanique, en attente de relecture référent"
+      resume: >-
+        D30 (amende D20) inverse le défaut de détermination des critères `bool`/`liste` : indéterminés
+        par défaut, sauf `presomption_non: true` explicite, réservé aux critères qui ne participent à
+        aucune condition d'option `role: securite` ni à aucune `exclusions` du nœud. Audit mécanique de
+        l'étape 4 de T-018 : `diabete_complique` perd `confirmation_requise: true` (devenu inutile, son
+        effet — indéterminé tant que non répondu — est désormais le défaut universel) ; `ASCVD_etablie`
+        reçoit `presomption_non: true` (éligible, cohérent avec `prescription` où il l'est également) ;
+        `dialyse`, qui garde une `exclusions` réelle sur ce nœud (« Statine de haute intensité —
+        prévention secondaire »), N'EST PAS éligible et reste indéterminé tant que non répondu (il était
+        présumé « non » sous l'ancien régime `confirmation_requise`, plus strict désormais). Aucun
+        changement de logique clinique — oubli de bump/changelog corrigé à la consolidation P4 (D5).
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

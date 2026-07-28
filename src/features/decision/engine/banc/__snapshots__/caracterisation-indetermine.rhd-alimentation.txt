@@ -47,7 +47,7 @@ Sortie :
     - Manger sans se presser :: à renseigner : alimentation_emotionnelle
     - Repérer un moment de grignotage récurrent et lui trouver une alternative :: à renseigner : frequence_grignotage
     - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
-    - Orienter vers le diététicien de la structure :: à renseigner : acces_alimentation, signes_appel_tca
+    - Orienter vers le diététicien de la structure :: à renseigner : fragilite, acces_alimentation, signes_appel_tca
     - Proposer aussi un avis spécialisé en trouble du comportement alimentaire :: à renseigner : signes_appel_tca
     - Continuer ce qui fonctionne déjà :: à renseigner : matiere_grasse_cuisson, frequence_fruits_a_coque
 
@@ -85,9 +85,6 @@ Sortie :
       proposé parce que : regularite_repas == irreguliers
   - [recommandee] Repérer un moment de grignotage récurrent et lui trouver une alternative
       proposé parce que : frequence_grignotage == quotidien
-  Famille « Orientation » (exclusive: false) :
-  - [recommandee] Orienter vers le diététicien de la structure
-      proposé parce que : fragilite == true
   Alertes de nœud :
     - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
@@ -99,6 +96,7 @@ Sortie :
     - Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats) :: à renseigner : frequence_viande_rouge_charcuterie
     - Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre :: à renseigner : frequence_poisson
     - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
+    - Orienter vers le diététicien de la structure :: à renseigner : fragilite, acces_alimentation, signes_appel_tca
     - Proposer aussi un avis spécialisé en trouble du comportement alimentaire :: à renseigner : signes_appel_tca
 
 ### Profil #2 — 11 critère(s) masqué(s) (masque stratifié) : traitements_en_cours, frequence_restauration_rapide, matiere_grasse_cuisson, frequence_poisson, signes_appel_tca, frequence_ultratransformes, difficulte_estimation_portions, frequence_fruits_a_coque, frequence_grignotage, alimentation_emotionnelle, frequence_boissons_sucrees
@@ -553,9 +551,6 @@ Sortie :
   Famille « Matières grasses » (exclusive: false) :
   - [recommandee] Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre
       proposé parce que : matiere_grasse_cuisson == melange
-  Famille « Viande et charcuterie » (exclusive: false) :
-  - [recommandee] Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats)
-      proposé parce que : frequence_viande_rouge_charcuterie == regulier
   Famille « Fruits à coque, légumineuses, poisson » (exclusive: false) :
     -- groupe d'égalité #0 --
   - [recommandee] Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine
@@ -573,11 +568,12 @@ Sortie :
     - Ne pas remplacer une boisson sucrée par des édulcorants intenses :: à renseigner : frequence_boissons_sucrees
     - Un repas simple fait maison de plus par semaine :: à renseigner : frequence_ultratransformes
     - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide
+    - Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats) :: à renseigner : fragilite
     - Ajouter un plat de légumineuses de plus par semaine :: à renseigner : frequence_legumineuses
     - Manger sans se presser :: à renseigner : alimentation_emotionnelle
     - Repérer un moment de grignotage récurrent et lui trouver une alternative :: à renseigner : frequence_grignotage
     - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
-    - Orienter vers le diététicien de la structure :: à renseigner : acces_alimentation, signes_appel_tca
+    - Orienter vers le diététicien de la structure :: à renseigner : fragilite, acces_alimentation, signes_appel_tca
     - Proposer aussi un avis spécialisé en trouble du comportement alimentaire :: à renseigner : signes_appel_tca
 
 ### Profil #12 — 10 critère(s) masqué(s) (masque stratifié) : difficulte_estimation_portions, signes_appel_tca, frequence_fruits_a_coque, regularite_repas, consommation_vin, fragilite, acces_alimentation, traitements_en_cours, frequence_legumineuses, alimentation_emotionnelle
@@ -611,9 +607,6 @@ Sortie :
   Famille « Structure des repas » (exclusive: false) :
   - [recommandee] Repérer un moment de grignotage récurrent et lui trouver une alternative
       proposé parce que : frequence_grignotage == frequent
-  Famille « Orientation » (exclusive: false) :
-  - [recommandee] Orienter vers le diététicien de la structure
-      proposé parce que : fragilite == true
   Alertes de nœud :
     - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
@@ -622,6 +615,7 @@ Sortie :
     - Se fixer des repas à des horaires à peu près réguliers :: à renseigner : regularite_repas
     - Manger sans se presser :: à renseigner : alimentation_emotionnelle
     - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
+    - Orienter vers le diététicien de la structure :: à renseigner : fragilite, acces_alimentation, signes_appel_tca
     - Proposer aussi un avis spécialisé en trouble du comportement alimentaire :: à renseigner : signes_appel_tca
 
 ### Profil #13 — 8 critère(s) masqué(s) (masque stratifié) : alimentation_emotionnelle, matiere_grasse_cuisson, difficulte_estimation_portions, frequence_poisson, frequence_restauration_rapide, frequence_viande_rouge_charcuterie, fragilite, frequence_fruits_a_coque

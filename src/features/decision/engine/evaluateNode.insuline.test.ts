@@ -95,22 +95,34 @@ function evalProfile(overrides: Partial<Criteria>) {
   return evaluateNode(node!, criteria)
 }
 
-/** Primitifs `nombre`/`enum` du nœud (seuls types réellement indéterminables tant que non saisis, D20
- * §2.2 — `bool`/`liste` restent déterminés par leur défaut, ce nœud ne déclare aucun
- * `confirmation_requise`). Sert à construire un `renseignes` réaliste pour les vignettes E-05/E-09. */
-const CRITERES_NOMBRE_ENUM = node!.criteres_entree
-  .filter((c) => c.derive == null && (c.type === 'nombre' || c.type === 'enum'))
-  .map((c) => c.nom)
+/**
+ * Primitifs SAISISSABLES du nœud (tous types). Sert à construire un `renseignes` réaliste pour les
+ * vignettes E-05/E-09.
+ *
+ * MISE À JOUR (2026-07-28, P4/S1, T-018, D30) : couvrait auparavant SEULEMENT `nombre`/`enum` — les
+ * seuls types réellement indéterminables tant que non saisis sous l'ANCIEN régime (D20 : `bool`/`liste`
+ * restaient déterminés par leur défaut). Depuis D30, `bool`/`liste` sont indéterminés par défaut EUX
+ * AUSSI, sauf `presomption_non: true` — et `insuline` en déclare désormais deux (`traitements_en_cours`,
+ * `hypo_interprandiale`), les autres (`mcg_disponible`, `profil_glycemique`…) restant indéterminables.
+ * Ne couvrir que `nombre`/`enum` ici aurait rendu ces critères PERPÉTUELLEMENT indéterminés dans TOUTE
+ * vignette utilisant ce helper, quelle que soit la valeur passée en `overrides` — défaut réel diagnostiqué
+ * sur E-05 (`profil_glycemique`/`mcg_disponible` explicitement renseignés dans la vignette, mais jamais
+ * marqués `renseignes`). Toutes les primitives sont donc désormais couvertes ; `presomption_non: true`
+ * les rend de toute façon déterminées qu'elles soient ou non dans `renseignes` (`critereEstDetermine`),
+ * donc les y inclure ne change rien pour elles — seul le comportement des critères SANS présomption est
+ * corrigé par cet élargissement.
+ */
+const CRITERES_SAISISSABLES = node!.criteres_entree.filter((c) => c.derive == null).map((c) => c.nom)
 
 /**
- * Mode TERNAIRE (D20) : simule un formulaire où seuls les champs `nombre`/`enum` NON listés dans
- * `nonRenseignes` ont été effectivement saisis par le praticien — même convention que
- * `evaluateNode.indetermine.test.ts` (une valeur placeholder dans `overrides` ne rend pas le champ
- * « renseigné » ; seule son absence de l'ensemble `renseignes` compte).
+ * Mode TERNAIRE (D20/D30) : simule un formulaire où seuls les champs NON listés dans `nonRenseignes` ont
+ * été effectivement saisis par le praticien — même convention que `evaluateNode.indetermine.test.ts` (une
+ * valeur placeholder dans `overrides` ne rend pas le champ « renseigné » ; seule son absence de l'ensemble
+ * `renseignes` compte).
  */
 function evalProfileTernaire(overrides: Partial<Criteria>, nonRenseignes: string[]) {
   const criteria = calculerCriteresDerives(node!.criteres_entree, { ...BASE, ...overrides } as Criteria)
-  const renseignes = new Set(CRITERES_NOMBRE_ENUM.filter((nom) => !nonRenseignes.includes(nom)))
+  const renseignes = new Set(CRITERES_SAISISSABLES.filter((nom) => !nonRenseignes.includes(nom)))
   return evaluateNode(node!, criteria, renseignes)
 }
 
@@ -396,7 +408,7 @@ describe('insuline — E-07/E-08 : « risque_hypoglycemique_eleve » inclut l\'�
  */
 describe('insuline — E-09 : formulaire vierge (`renseignes` vide, D20 révisé 2026-07-27)', () => {
   it('les options qui dépendent de `situation_insuline` passent EN ATTENTE, et le repli est SUSPENDU avec elles', () => {
-    const res = evalProfileTernaire({}, CRITERES_NOMBRE_ENUM)
+    const res = evalProfileTernaire({}, CRITERES_SAISISSABLES)
     const optNaif = node!.options.find((opt) => opt.intitule.includes(GLP1_NAIF))!
     const optTitrer = node!.options.find((opt) => opt.intitule.includes(TITRER))!
     const optDesintensifier = node!.options.find((opt) => opt.intitule.includes(DESINTENSIFIER))!

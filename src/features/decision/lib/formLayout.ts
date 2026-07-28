@@ -353,5 +353,18 @@ export function decisifsAConfirmer(
   // réclamé et estompé dérivent de la MÊME source pour rendre la contradiction impossible : la
   // visibilité devait suivre la même règle.
   const visibles = champsVisibles(criteresEntree, criteria, touched)
-  return [...pertinents].filter((nom) => !touched.has(nom) && visibles.has(nom))
+  // « À confirmer » = NON DÉTERMINÉ (correctif du 2026-07-28, P4/S1, T-018, D30) : ce filtre lisait
+  // auparavant `!touched.has(nom)` — un critère `bool`/`liste` répondu par sa seule valeur PAR DÉFAUT
+  // (jamais touché) comptait donc comme « à confirmer » MÊME quand le contenu déclare `presomption_non:
+  // true` (cas où le moteur, lui, le tient pour DÉTERMINÉ et ne réclame plus rien). Les deux couches
+  // divergeaient exactement comme ci-dessus, un cran plus loin : le compteur/marqueur de l'écran aurait
+  // pu réclamer un champ que le moteur avait déjà cessé d'attendre. `determinesEffectifs` — LA MÊME
+  // fonction que celle qu'`evaluateNode` appelle pour trancher `enAttente` — est donc désormais la SEULE
+  // source de vérité des deux côtés : un critère est à confirmer s'il n'est PAS dans l'ensemble qu'elle
+  // renvoie (ni renseigné, ni couvert par une présomption de contenu), et visible à l'écran. Les deux
+  // couches sont depuis structurellement incapables de diverger sur cette question : elles appellent le
+  // même code, pas deux copies qui pourraient un jour différer.
+  const derives = calculerCriteresDerives(criteresEntree, criteria)
+  const effectifs = determinesEffectifs(criteresEntree, derives, touched) ?? new Set<string>()
+  return [...pertinents].filter((nom) => !effectifs.has(nom) && visibles.has(nom))
 }

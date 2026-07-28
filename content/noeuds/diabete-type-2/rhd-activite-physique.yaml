@@ -37,9 +37,11 @@
 #      activité quotidienne puis pratique structurée (accompagnement, effort de mise en œuvre plus élevé).
 #
 # GARDE-FOUS — DES `exclusions`, PAS DES ALERTES (D21), ancrés HAS DT2 R.19/R.27/R.28 : le verrou
-# « sécurité à l'effort » (`verrou_effort`, dérivé de 4 signes, dont 3 `confirmation_requise: true` —
-# limitation physique connue, symptômes d'ischémie à l'effort, rétinopathie non stabilisée/proliférante,
-# neuropathie périphérique/mal perforant plantaire) bloque UNIQUEMENT la montée d'intensité/pratique
+# « sécurité à l'effort » (`verrou_effort`, dérivé de 4 signes, tous `presomption_non` ABSENT — D30/T-018,
+# P4/S1 : ce sont exactement les 4 signes qui gardent l'exclusion de la famille « pratique structurée »,
+# donc jamais éligibles à une présomption de « non » — limitation physique connue, symptômes d'ischémie à
+# l'effort, rétinopathie non stabilisée/proliférante, neuropathie périphérique/mal perforant plantaire)
+# bloque UNIQUEMENT la montée d'intensité/pratique
 # structurée (décision de bucketing du référent, CONCEPTION-module-rhd.md §4) ; il laisse passer
 # l'activité quotidienne, les déplacements actifs et la rupture de sédentarité. L'hypoglycémie sous
 # insuline/sulfamide/glinide reste une ALERTE simple, jamais un blocage (arbitrage référent explicite,
@@ -100,6 +102,12 @@ criteres_entree:
     type: liste
     groupe: Terrain
     valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, insuline_basale, insuline_rapide, glinide]
+    # T-018 (P4/S1, D30) : éligible mécaniquement à presomption_non SUR CE NŒUD (ne participe ici à
+    # aucune condition d'option `role: securite` ni à aucune `exclusions` — seulement une `alerte` de
+    # nœud, canal distinct). Déjà connu DIVERGENT entre nœuds (`engine/banc/coherence-inter-noeuds.test.ts`
+    # — `valeurs` différentes sur `insuline`) : sur `prescription`, ce même nom NE reçoit PAS
+    # presomption_non (il y gate plusieurs options `role: securite` et exclusions rénales/cétose).
+    presomption_non: true
   # ── Socle — habitudes d'activité physique (S1-S5) ──
   - nom: frequence_activite_structuree
     type: enum
@@ -120,26 +128,37 @@ criteres_entree:
   - nom: rupture_sedentarite_habituelle
     type: bool
     groupe: Habitudes d'activité physique
+    # T-018 (P4/S1, D30) — RETIRÉ après vérification empirique par I21 (`engine/banc/vierge.test.ts`,
+    # T-019) : ce critère satisfait la lecture LITTÉRALE de l'étape 4 (aucune condition d'option
+    # `role: securite`, aucune `exclusions`), mais I21 a montré que le poser reproduisait EXACTEMENT le
+    # défaut D-01 de la recette navigateur du 2026-07-28 (4 cartes « Recommandée » sur un formulaire
+    # vierge) — ce critère est lu comme `rupture_sedentarite_habituelle == false` dans une disjonction
+    # `OR` de 3 options « geste » (« Se lever et bouger… », « S'appuyer sur un repère… », « Transformer
+    # une pause… ») : présumé « non » (donc « false »), ce terme devient VRAI À LUI SEUL et suffit à
+    # rendre les 3 options applicables sans qu'aucune autre donnée n'ait été saisie. La lecture littérale
+    # de l'étape 4 (role: securite + exclusions) ne suffit donc pas à garantir « l'absence de réponse ne
+    # peut pas nuire » quand le défaut du critère sert de DÉCLENCHEUR positif d'un `OR` plutôt que d'un
+    # simple repli neutre — I21 est l'arbitre empirique final, cf. rapport de tâche T-018.
   # ── Verrou — sécurité à l'effort (S6 + G2/G4/G5, HAS R.19/R.27/R.28). Bloque UNIQUEMENT la pratique
   #    structurée (décision de bucketing du référent) ; laisse passer déplacements actifs, activité
-  #    quotidienne et rupture de sédentarité. Chaque signe `confirmation_requise` sauf le repère général
-  #    de limitation (déjà posé en 1re ligne du socle, question ouverte et attendue en consultation). ──
+  #    quotidienne et rupture de sédentarité. Chaque signe garde `presomption_non` ABSENT — aucun des
+  #    quatre n'est éligible mécaniquement (T-018, P4/S1) : ils gardent tous l'exclusion de la famille
+  #    « pratique structurée » (cf. `verrou_effort` ci-dessous et l'option qu'il exclut). Avant D30, ces
+  #    quatre portaient `confirmation_requise: true` (même effet : indéterminé tant que non répondu) ; le
+  #    renommage D30 inverse le SENS du champ (une déclaration positive présume désormais le « non », pas
+  #    l'inverse), donc ils PERDENT le champ plutôt que de le porter sous le nouveau nom. ──
   - nom: limitation_physique_connue
     type: bool
     groupe: Sécurité à l'effort
-    confirmation_requise: true
   - nom: symptomes_ischemie_effort
     type: bool
     groupe: Sécurité à l'effort
-    confirmation_requise: true
   - nom: retinopathie_non_stabilisee_ou_proliferante
     type: bool
     groupe: Sécurité à l'effort
-    confirmation_requise: true
   - nom: neuropathie_ou_mal_perforant_plantaire
     type: bool
     groupe: Sécurité à l'effort
-    confirmation_requise: true
   - nom: verrou_effort
     type: bool
     groupe: Sécurité à l'effort
@@ -147,15 +166,32 @@ criteres_entree:
       limitation_physique_connue == true OR symptomes_ischemie_effort == true
       OR retinopathie_non_stabilisee_ou_proliferante == true OR neuropathie_ou_mal_perforant_plantaire == true
   # ── Approfondissement (décisifs uniquement, R5) ──
+  # T-018 (P4/S1, D30) : éligible mécaniquement à presomption_non (aucune condition d'option
+  # `role: securite`, aucune `exclusions` de ce nœud) — et vérifié par I21 (`engine/banc/vierge.test.ts`,
+  # T-019) : sa seule lecture (« Orienter vers une structure… », condition `limitation_physique_connue ==
+  # true OR difficulte_acces_activite == true OR offre_proximite_connue == false ») l'utilise comme
+  # déclencheur POSITIF (`== true`) — présumé « non », ce terme reste FAUX et ne peut jamais, à lui seul,
+  # rendre l'option applicable sur un formulaire vierge.
   - nom: difficulte_acces_activite
     type: bool
     groupe: Approfondissement (si besoin)
+    presomption_non: true
   - nom: offre_proximite_connue
     type: bool
     groupe: Approfondissement (si besoin)
+    # T-018 (P4/S1, D30) — RETIRÉ après vérification empirique par I21 (`engine/banc/vierge.test.ts`,
+    # T-019) : satisfait la lecture littérale de l'étape 4, mais sa seule lecture (« Orienter vers une
+    # structure… ») le cite `OR offre_proximite_connue == false` — présumé « non » (donc `false`), ce
+    # terme devient VRAI À LUI SEUL et rend l'option applicable sur un formulaire vierge (même famille de
+    # défaut D-01 que `rupture_sedentarite_habituelle` ci-dessus). I21 est l'arbitre empirique final.
   - nom: experience_activite_negative
     type: bool
     groupe: Approfondissement (si besoin)
+    # T-018 (P4/S1, D30) : éligible mécaniquement à presomption_non, vérifié par I21 — sa seule lecture
+    # (« Proposer un bilan avec un enseignant en activité physique adaptée… ») l'utilise comme
+    # déclencheur POSITIF (`experience_activite_negative == true`), jamais comme terme `== false` : présumé
+    # « non », le terme reste FAUX, sans risque de rendre l'option applicable à tort.
+    presomption_non: true
 options:
   # ═══════════ FAMILLE DÉPLACEMENTS ACTIFS ═══════════
   - intitule: "Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine"
@@ -508,8 +544,24 @@ meta:
   date_revue: "2026-07-26"
   auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
   statut: brouillon
-  version: "0.6"
+  version: "0.7"
   changelog:
+    - date: "2026-07-28"
+      auteur: "Claude Code (P4/S1, T-018) — correctif mécanique, en attente de relecture référent"
+      resume: >-
+        D30 (amende D20) inverse le défaut de détermination des critères `bool`/`liste` : indéterminés
+        par défaut, sauf `presomption_non: true` explicite, réservé aux critères qui ne participent à
+        aucune condition d'option `role: securite` ni à aucune `exclusions` du nœud. Audit mécanique de
+        l'étape 4 de T-018 : `traitements_en_cours`, `difficulte_acces_activite` et
+        `experience_activite_negative` reçoivent `presomption_non: true` (éligibles). Les quatre signes
+        du verrou de sécurité à l'effort perdent `confirmation_requise` (devenu inutile, son effet —
+        indéterminé tant que non répondu — est désormais le défaut universel) mais ne reçoivent PAS
+        `presomption_non`. `rupture_sedentarite_habituelle` et `offre_proximite_connue` satisfont la
+        lecture littérale de l'étape 4 mais N'EN REÇOIVENT PAS NON PLUS : l'invariant I21
+        (`engine/banc/vierge.test.ts`, T-019) a montré empiriquement que les présumer « non » reproduit
+        le défaut D-01 (formulaire vierge → cartes « Recommandée ») — cf. commentaires en regard de
+        chaque critère pour le détail. Aucun changement de logique clinique sur les critères qui reçoivent
+        le champ — oubli de bump/changelog corrigé à la consolidation P4 (D5).
     - date: "2026-07-27"
       auteur: "référent DT2 + Claude Code"
       resume: >-

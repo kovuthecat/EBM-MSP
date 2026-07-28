@@ -48,7 +48,10 @@ function signatureCritere(critere: CritereEntree): string {
     derive: critere.derive,
     min: critere.min,
     max: critere.max,
-    confirmation_requise: critere.confirmation_requise ?? false,
+    // Renommé le 2026-07-28 (P4/S1, T-018), ex-`confirmation_requise` : même rôle dans la signature —
+    // deux nœuds qui présument différemment le même critère partagé encodent le même concept
+    // différemment (I4, étendu à l'inter-nœuds).
+    presomption_non: critere.presomption_non ?? false,
   })
 }
 
@@ -69,7 +72,11 @@ const CRITERES_DIVERGENTS_CONNUS = new Map<string, string>([
       'indifférencié. Conséquence : une règle `traitements_en_cours contient insuline` est ' +
       'structurellement fausse dans le nœud `insuline`. Demande un ARBITRAGE (unifier sur 9 valeurs et ' +
       "adapter les règles des 3 autres nœuds, ou introduire un dérivé `insuline` = basale OU rapide). " +
-      'Recoupe le défaut F de la recette référent (`visible_si` par valeur de liste).',
+      'Recoupe le défaut F de la recette référent (`visible_si` par valeur de liste). DEPUIS LE ' +
+      '2026-07-28 (P4/S1, T-018) : diverge AUSSI sur `presomption_non` — éligible mécaniquement sur ' +
+      '`insuline`/`rhd-activite-physique`/`rhd-alimentation`, PAS sur `prescription`, où ce critère garde ' +
+      "plusieurs conditions d'option `role: securite` et exclusions rénales/cétose. Seconde dimension du " +
+      'même dette : un concept partagé sous un nom déjà inconsistant.',
   ],
   [
     'cible_atteinte',

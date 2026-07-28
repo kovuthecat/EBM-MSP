@@ -34,8 +34,9 @@
  *
  * `renseignes`, à CE niveau, est déjà l'ensemble EFFECTIF des noms déterminés — pas nécessairement le
  * `touched` brut de l'écran : `evaluateAtomic` ne connaît pas le TYPE déclaré d'un critère (`nombre` vs
- * `bool`…), donc pas la règle de détermination par type (SPEC §2.2, `bool`/`liste` restent déterminés
- * par défaut sauf `confirmation_requise`). C'est aux appelants qui connaissent `CritereEntree[]`
+ * `bool`…), donc pas la règle de détermination par type (SPEC §2.2, D30 : `bool`/`liste` sont
+ * indéterminés par défaut comme `nombre`/`enum`, sauf `presomption_non: true`). C'est aux appelants qui
+ * connaissent `CritereEntree[]`
  * (`engine/deriveCritere.ts` `determinesEffectifs`, consommé par `evaluateNode.ts`/`lib/formLayout.ts`)
  * de construire ce `renseignes` effectif avant d'atteindre ce module — qui reste, lui, générique et
  * sans connaissance de type (comme le reste de ce fichier, D8).
