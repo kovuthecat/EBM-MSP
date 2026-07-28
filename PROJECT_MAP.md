@@ -2,66 +2,81 @@
 
 Carte synthétique du projet. Permet d'identifier les zones pertinentes sans explorer tout le repo.
 
-> **État actuel : projet initié, code non encore scaffoldé.** L'arborescence `src/` ci-dessous est
-> la structure **cible** (fixée au cadrage) ; elle sera créée au câblage (après la maquette). Seuls
-> existent aujourd'hui les fichiers de contexte, `docs/` (briefs sources) et `design/maquettes/`.
+> **État actuel (2026-07-28) : module Décision construit et déployé** (ebm-msp.vercel.app), domaine
+> DT2, 6 nœuds. **Module Veille : zéro code** — arborescence ci-dessous marquée `(cible)` là où rien
+> n'existe encore. Détail courant : `STATUS.md`.
 
 ---
 
 ## Vue d'ensemble
 
-- **Type** : web app Vite + React + TS, deux modules frères (Décision · Veille) dans un seul repo.
-- **Grandes zones** : *Décision* (moteur de règles déterministe **générique multi-domaine**, 100 %
-  statique ; DT2 = premier domaine) · *Veille* (liste filtrable + comptes Supabase) · *Shared*
-  (taxonomie, badges, pont article↔nœud) · *Contenu* (YAML versionné + JSON Schema).
-- **Flux principal** : accueil → module Décision (saisie critères → options + argumentaire) ou module
-  Veille (liste filtrable → détail article) ; pont bidirectionnel article ↔ nœud.
-- **Contraintes structurantes** : zéro donnée patient ; module Décision sans persistance ; moteur
-  déterministe (jamais de ML) ; contenu versionné en PR ; intégration veille→nœud validée par un humain.
+- **Type** : web app Vite + React + TS. Un seul module livré à ce jour : **Décision** (moteur de règles
+  déterministe **générique multi-domaine**, 100 % statique + mémoire de session en RAM, D28 ; DT2 =
+  premier domaine). *Veille* (liste filtrable + comptes Supabase) reste à l'état de roadmap (D8).
+- **Flux principal actuel** : accueil → domaine (DT2) → nœud ou module RHD → saisie critères → options
+  et argumentaire à 3 niveaux.
+- **Contraintes structurantes** : zéro donnée patient sur disque/réseau (mémoire de session RAM
+  autorisée, D28) ; moteur déterministe (jamais de ML) ; contenu versionné en PR ; intégration
+  veille→nœud validée par un humain (V, à venir).
 
 ---
 
-## Arborescence utile (cible)
+## Arborescence réelle
 
 ```text
 content/
-  noeuds/          # 1 YAML par nœud de décision (A→H)
-  veille/          # 1 YAML par entrée de veille
-schema/            # JSON Schema (nœud, entrée de veille)
+  noeuds/diabete-type-2/   # 6 YAML (nœud) + 1 .argumentaire.md chacun
+  modules/diabete-type-2/  # rhd.yaml — regroupe les 2 nœuds RHD (D22)
+schema/                    # noeud.schema.json, module.schema.json (Ajv)
 src/
   features/
-    decision/      # moteur de règles (TS pur, testé) + UI saisie/résultats + argumentaire
-    veille/        # liste filtrable + détail + auth Supabase + pour mémoire + profil
-    shared/        # taxonomie thèmes, badges (preuve/impact), types communs, pont, layout/nav
-  lib/             # chargement/compilation contenu, utilitaires
-  components/      # UI partagée bas niveau
-  types/
+    decision/
+      content/             # node.types.ts, loadNodes.ts, loadModules.ts, loadArgumentaires.ts
+      engine/               # moteur pur (conditions, evaluateNode, deriveCritere, contraintes, relevance)
+        banc/                # 3 couches de tests : vignettes, couverture, invariants génériques
+      lib/                  # vueDecision (modèle de vue), formLayout, labels, sessionCriteres (D28)
+      components/           # CriteriaForm, OptionCard, ArgumentPanel, AlertList…
+      screens/              # DecisionDomainsScreen, DecisionModuleScreen, DecisionNodeScreen
+    shared/
+      badges/                # niveau de preuve, distinction dur/substitution
+      layout/                # AppShell, DisclaimerBar, ScreenErrorBoundary
+      screens/                # Accueil, Méthode
+  styles/                   # tokens CSS (OKLCH)
 docs/
-  decision/        # cadrage + décisions cliniques par nœud (autorité du contenu)
-  veille/          # SOP, grille d'appréciation, méthodo (autorité du contenu)
-design/maquettes/  # exports Claude Design (un fichier par écran)
-tests/             # (ou *.test.ts colocalisés) — moteur de règles surtout
+  decision/
+    noeuds/                 # dossier de preuve PAR NŒUD (autorité du contenu clinique)
+    validation/              # chantiers de recherche/red-team/vérification, PAR CHANTIER DATÉ
+    GRAMMAIRE-NOEUD.md        # règles R1→R9, transverse, tous domaines
+    CONSTRUIRE-UN-MODULE.md   # procédé P0→P7 de construction d'un domaine/module
+  veille/                    # (cible) SOP, grille d'appréciation — module non démarré
+design/maquettes/           # exports Claude Design (un fichier par écran)
+plans/                      # P1, P2, P3-fusion — historique du COMMENT, un dossier par plan clos
 ```
+
+`src/features/veille/` : **n'existe pas**. `Supabase` : aucune dépendance dans `package.json` à ce
+jour — le module Veille n'a pas commencé.
 
 ---
 
-## Features principales (cible)
+## Features principales
 
-### Feature — decision
+### Feature — decision (livrée)
 
-Rôle : aide à la décision DT2 par moteur de règles déterministe.
-Points de vigilance : moteur générique (ne connaît aucun nœud par son nom) ; aucun score caché ;
-100 % statique, aucune persistance ; badges niveau de preuve + distinction dur/substitution.
+Rôle : aide à la décision DT2 par moteur de règles déterministe. 6 nœuds, ~770 tests.
+Points de vigilance : moteur générique (ne connaît aucun nœud/domaine par son nom, D8) ; aucun score
+caché ; contenu = seule source de vérité affichée (D29 : tout identifiant a un libellé rédigé) ; mémoire
+de session bornée (D28, `lib/sessionCriteres.ts`) — jamais une conclusion du moteur, jamais imposée.
 
-### Feature — veille
+### Feature — shared (livrée, périmètre restreint à Décision)
 
-Rôle : veille hebdomadaire filtrable, comptes légers, couplage aux nœuds.
-Points de vigilance : Supabase UE, données minimisées (RGPD) ; droit d'auteur (résumé + lien, jamais
-de texte intégral) ; marqueur « impacte un algorithme » → nœud.
+Rôle : badges niveau de preuve, layout/navigation, disclaimer, filet d'erreur d'écran. Pas encore de
+taxonomie de thèmes ni de pont article↔nœud (n'a de sens qu'une fois Veille démarré).
 
-### Feature — shared
+### Feature — veille (cible, non démarrée)
 
-Rôle : taxonomie de thèmes commune, badges, types, pont article↔nœud, layout/navigation, disclaimer.
+Rôle prévu : veille hebdomadaire filtrable, comptes légers, couplage aux nœuds.
+Points de vigilance prévus : Supabase UE, données minimisées (RGPD) ; droit d'auteur (résumé + lien,
+jamais de texte intégral) ; marqueur « impacte un algorithme » → nœud.
 
 ---
 

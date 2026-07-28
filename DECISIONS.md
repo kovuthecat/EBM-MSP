@@ -931,6 +931,154 @@ plutôt qu'à être répété nœud par nœud.
 
 ---
 
+## 2026-07-27 — D25 · Rôle d'une option (`Option.role`) et plafond d'affichage par rang
+
+### Décision
+
+Nouveau champ **requis** sur `option` : `role: socle | securite | geste | repli`. Lu par trois
+mécanismes qui, avant, devaient chacun deviner le rôle d'une carte à partir d'indices indirects
+(sentinelle `toujours`, position dans la liste, présence d'alertes) : le repli d'affichage (une carte
+ne se replie que si elle est un `geste` sans contre-indication ni alerte — `socle`/`securite`/`repli`
+restent toujours dépliées), le badge, et « pourquoi pas d'autres options ». Au-delà de **5 pistes**
+affichées (`PLAFOND_PISTES`), les gestes excédentaires passent sous « Autres pistes possibles (N) » ;
+rien d'autre ne se replie jamais.
+
+### Contexte
+
+Recette du 2026-07-27 : un nœud à forte cardinalité de pistes (`rhd-alimentation`) pouvait afficher
+jusqu'à dix cartes d'un coup à un patient chargé. Un premier plafond, posé sans connaître le rôle des
+options, avait été neutralisé par précaution (rien à cette date ne garantissait qu'il ne replierait
+jamais une carte de sécurité) — cf. `PLAN-CORRECTION.md`.
+
+### Raison du choix
+
+Décider *si* une carte peut se replier suppose de savoir ce qu'elle EST, pas seulement ce qu'elle
+CONTIENT à l'instant T (une carte de sécurité peut n'avoir, pour un patient donné, ni contre-indication
+ni alerte affichées — cela ne la rend pas repliable). Un champ déclaré, plutôt qu'une heuristique sur
+les alertes visibles, rend la propriété vraie par construction et testable (invariants I16-I19 :
+« une carte `securite` ne se replie jamais », vérifiés sur le banc, pas seulement sur les vignettes).
+
+### Conséquences
+
+Champ requis → les 27 options du domaine DT2 ont dû être qualifiées une à une (relecture complète,
+pas d'inférence automatique). `replierAffichage.ts` reste générique (aucun nom de nœud/critère).
+
+---
+
+## 2026-07-27 — D26 · `visible_si` sur une valeur de `liste`
+
+### Décision
+
+`CritereEntree.visible_si` accepte désormais une condition portant sur l'appartenance à une `liste`
+(`contient`/`ne_contient_pas`), pas seulement sur un `bool`/`enum`. Extension du DSL existant, aucun
+nouvel opérateur.
+
+### Raison du choix
+
+Premier besoin réel : un champ de détail (ex. dose d'un traitement) qui ne doit apparaître que si ce
+traitement précis a été coché dans `traitements_en_cours`. Sans l'extension, le contenu aurait dû soit
+dupliquer le critère en `bool` (violation I4, « un concept, un encodage »), soit renoncer à masquer le
+champ. Générique : sert tout futur nœud où un critère `liste` conditionne l'affichage d'un autre champ.
+
+---
+
+## 2026-07-27 — D27 · Contraintes de saisie déclaratives sur un nœud
+
+### Décision
+
+Nouveau champ optionnel `Noeud.contraintes` : liste de `{ expression, message }`, DSL identique aux
+autres conditions. Contrairement à `alertes` (D15, informe sur un patient réel) et `exclusions` (D13,
+retire une option), une **contrainte** signale une combinaison de critères **incohérente en tant que
+saisie** — ex. « une situation d'insulinothérapie "naïf" et une insuline déjà cochée dans les
+traitements en cours ne peuvent pas être vraies ensemble ». Le générateur de banc (`profils.ts`) filtre
+désormais les profils synthétiques qui violent une contrainte du nœud (`filtrerParContraintes`), avec
+sur-génération (`FACTEUR_SURGENERATION = 3`) pour compenser le rejet plutôt que de réduire la taille
+du banc.
+
+### Contexte
+
+Sans ce filtre, les profils *frozen* (fixtures gelées, `geler-profils.maintenance.test.ts`) pouvaient
+figer une combinaison de critères impossible en pratique et, à la faveur d'une évolution du contenu,
+perdre leur dernière option applicable — l'écran d'un patient qui ne peut pas exister aurait affiché
+une page vide, faussement comptée comme un trou de couverture clinique réel.
+
+### Conséquences
+
+`reparerFixtureProfils` remplace, dans une fixture gelée, uniquement les profils devenus invalides —
+jamais la fixture entière (préserve la reproductibilité des autres profils, `banc/geler-profils`).
+
+---
+
+## 2026-07-27 — D28 · Mémoire de session inter-nœuds (amende l'invariant CLAUDE.md 1)
+
+### Décision
+
+**Amende l'invariant CLAUDE.md 1** (« aucune persistance, aucun réseau » côté Décision) : une **mémoire
+de session en mémoire vive** (`lib/sessionCriteres.ts`, une `Map` de module) est autorisée pour
+reprendre, d'un nœud à l'autre de la même consultation, les valeurs qu'un critère déclaré `partage:
+true` a **saisies** — jamais une conclusion du moteur. Trois garanties : (1) seule une valeur
+**touchée** par le praticien est mémorisée (une valeur par défaut n'est pas une réponse, D20/R7) ; (2)
+un critère `derive` n'est **jamais** mémorisé (ce serait faire circuler une conclusion, pas une saisie
+— rouvrirait R1) ; (3) la reprise est **pré-remplie, jamais imposée**, et **compatible avec le
+récepteur** (mêmes bornes/type/énumération — `valeurCompatible`), sinon silencieusement ignorée. Vidée
+intégralement au rechargement de la page.
+
+### Contexte
+
+Chaque nœud est monté à neuf (remontage React par `key`) : sans ce mécanisme, un praticien ressaisit
+l'HbA1c, l'âge, le DFG à chaque écran d'une même consultation. Le référent a tranché explicitement :
+*« on peut garder une persistance par session — un reload de la page reset tout »*. Complète, sur un
+périmètre restreint et sûr, le *socle de critères de terrain partagé* qu'évoquait D22 sans le livrer
+(le chaînage obligatoire qu'il aurait supposé restait interdit par R1 — cette mémoire n'enchaîne rien,
+elle pré-remplit un champ qui reste un formulaire normal, modifiable, jamais lu par le moteur d'un
+autre nœud comme un prérequis).
+
+### Raison du choix
+
+« Aucune persistance » protège contre une donnée patient qui **survit** à la consultation (disque,
+réseau, `localStorage`) — c'est le risque nommé par l'invariant. Une `Map` de module, vidée au
+rechargement, n'a jamais cette propriété : elle ne survit même pas à un F5. La distinguer de ce que
+l'invariant interdit réellement évite de renoncer à une ergonomie réclamée par le seul référent
+clinique du projet, pour un risque qui ne se pose pas.
+
+### Conséquences
+
+`CritereEntree.partage` déclaré nœud par nœud (jamais deviné par le socle générique — D8) ; un premier
+lot de critères communs (`HbA1c_actuelle`, `HbA1c_cible`, `DFG`…) le porte. `preremplissage` (règles
+`{quand, valeur}` sur un critère saisi) est le mécanisme frère, pour dériver un point de départ depuis
+un AUTRE critère du même nœud plutôt que depuis la session — les deux se distinguent à l'écran (« repris
+de votre saisie » vs « calculé, à vérifier »).
+
+---
+
+## 2026-07-27 — D29 · Tout identifiant de contenu affiché a un libellé rédigé (invariant I20)
+
+### Décision
+
+Tout critère d'entrée et toute valeur d'énumération d'un nœud **publié** doit avoir un libellé rédigé
+dans `lib/labels.ts` (`libelleCritereCatalogue`/`libelleValeurCatalogue`, vérifié par
+`banc/libelles.test.ts`, invariant I20). Le repli mécanique `humanize()` (retire `_`/`-`, majuscule
+initiale, sans accent) reste en place pour le runtime, mais cesse d'être une sortie acceptable pour du
+contenu publié.
+
+### Contexte
+
+Les deux nœuds du module RHD sont arrivés en recette avec **zéro** de leurs 29 critères catalogué :
+l'écran affichait « Frequence boissons sucrees », « Retinopathie non stabilisee ou proliferante ».
+Rien n'échouait — le repli réussit toujours (`?? humanize(nom)`) — donc rien ne l'avait signalé avant
+une relecture à l'œil.
+
+### Raison du choix
+
+Une propriété testable plutôt qu'une discipline de relecture (même logique que D20/I3-I7) : un
+dictionnaire de libellés peut grossir en silence à chaque nœud ajouté, `humanize()` masque l'oubli en
+produisant toujours quelque chose de lisible-mais-faux (sans accent). Le test associé (I20bis) dénombre
+en plus les clés que plus aucun nœud ne déclare, sous un plafond mesuré (pas estimé) qui ne peut que
+descendre — garde-fou contre un dictionnaire qui se remplirait de libellés morts sans jamais être faux
+sur le critère principal.
+
+---
+
 ## Décisions ouvertes (à trancher avec le comité MSP)
 
 - **Méthode d'authentification veille** : magic link vs e-mail+mot de passe (reco : magic link + liste

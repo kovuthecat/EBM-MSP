@@ -52,9 +52,13 @@ npx tsc --noEmit
 
 ### Invariants non négociables
 
-1. **Zéro donnée patient**, partout. Module Décision : **aucune persistance, aucun réseau** au runtime
-   (saisie volatile). Module Veille : données personnelles minimisées (e-mail, profil, ids « pour
-   mémoire ») sur Supabase UE — cf. `DECISIONS.md` D4.
+1. **Zéro donnée patient**, partout. Module Décision : **aucun disque, aucun réseau** au runtime.
+   **Amendement du 2026-07-27 (`DECISIONS.md` D28)** : une **mémoire de session** est autorisée pour
+   pré-remplir, d'un nœud à l'autre, les critères que le contenu déclare `partage` — une simple `Map`
+   de module, vidée à chaque rechargement de page. Ça reste « aucune persistance » au sens de
+   l'invariant (rien ne survit à la session) ; ce n'est pas une exception à documenter au cas par cas.
+   Module Veille : données personnelles minimisées (e-mail, profil, ids « pour mémoire ») sur Supabase
+   UE — cf. `DECISIONS.md` D4.
 2. **Moteur déterministe** : filtrage par règles booléennes transparentes, **aucun score caché, jamais
    de ML** (`DECISIONS.md` D3).
 3. **Contenu = données versionnées** : YAML (`/content`) + JSON Schema (`/schema`), séparé de la
