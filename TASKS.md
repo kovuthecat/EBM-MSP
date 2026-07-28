@@ -20,14 +20,39 @@ T-012), la fusion `prescription` T-020 à T-027**, et les six règles de la gram
 résolues le 2026-07-25). Le détail de tout cela reste entier dans `git log` et dans les décisions
 correspondantes de `DECISIONS.md`. Ce qui suit est le backlog **réel et actuel**.
 
+## Backlog — clôture P4 (2026-07-28), exécutable sans arbitrage clinique
+
+> Trouvés par la passe de contrôle P4 (S8) et la recette « praticien naïf » complémentaire — détail dans
+> `docs/decision/validation/BILAN-P4-2026-07-28.md`. Candidats pour un plan P5 (à cadrer).
+
+- [ ] **Un champ segmenté (`enum`) ne revient jamais à « non répondu » une fois touché** — tous nœuds,
+      `src/features/decision/components/CriteriaForm.tsx` (le gestionnaire `onClick` du rendu segmenté
+      n'a pas de chemin de retrait, contrairement au champ numérique qui a `onEffacer` depuis le
+      2026-07-27). Aggravé par un reflow de page qui peut dévier un clic vers le mauvais champ, et par
+      D30 (une valeur touchée est désormais décisive) — défaut classé **grave**. `BILAN-P4-2026-07-28.md`
+      §2/§6 · modèle: Sonnet, effort: high · plan: —
+- [ ] **`mcg_disponible == false` doit masquer les 4 champs de capteur** sur `insuline` (`TBR`,
+      `TBR_severe`, `CV_glycemique`, `profil_glycemique`) — ils restent réclamés aujourd'hui sans capteur
+      déclaré. `BILAN-P4-2026-07-28.md` §3bis/§6 · modèle: Sonnet, effort: medium · plan: —
+- [ ] **La purge « Nouveau patient » n'a aucun retour visuel** — rien à l'écran ne distingue « annulé »
+      de « exécuté ». `BILAN-P4-2026-07-28.md` §2bis/§6 · modèle: Sonnet, effort: low · plan: —
+- [ ] Onglet **« Veille » rend une page blanche** (texte `top: 0`, caché sous la barre de nav fixe) —
+      défaut d'affichage isolé, trouvé par la recette praticien naïf · modèle: Haiku, effort: low · plan: —
+
 ## Backlog — recherche clinique (bloque un câblage, contenu que je ne rédige pas seul)
 
-- [ ] **Passe A — glycémie capillaire pour l'ajustement de l'insuline (nœud `insuline`, sans MCG)** :
-      seuils de titration/plafonnement de la basale sur glycémie à jeun ; seuils post-prandiaux pour le
-      bolus (champ à créer, `profil_glycemique` actuel suppose un capteur) ; sort des garde-fous
-      `TBR`/`TBR_severe`/`CV_glycemique` chez le patient non équipé. Cadrage :
+- [ ] **Passe A — glycémie capillaire pour l'ajustement de l'insuline (nœud `insuline`, sans MCG)** —
+      **reclassée bloquante pour l'usage** le 2026-07-28 (recette praticien naïf : un patient non naïf
+      sans capteur est aujourd'hui une impasse, le praticien invente des chiffres que le moteur traite
+      comme des mesures). Voie concrète donnée par le référent le 2026-07-28 (`BILAN-P4-2026-07-28.md`
+      §3bis) : `TBR` est obtenable au lecteur capillaire, `TBR_severe` ne l'est **pas** (un lecteur ne
+      distingue pas les deux seuils) ; piste de répartition horaire des hypoglycémies en 4 créneaux
+      (nuit/matinée/après-midi/soir), analogue capillaire de ce que `profil_glycemique` lit déjà par AGP.
+      Seuils de titration/plafonnement de la basale sur glycémie à jeun ; seuils post-prandiaux pour le
+      bolus (champ à créer). Cadrage :
       `docs/decision/validation/chantier-2026-07-27/ARBITRAGES-2026-07-27-nuit.md` §1,
-      `chantier-2026-07-27/diagnostic-K2-mesures-mcg.md` · modèle: Opus, effort: xhigh · plan: —
+      `chantier-2026-07-27/diagnostic-K2-mesures-mcg.md`, `BILAN-P4-2026-07-28.md` §3bis ·
+      modèle: Opus, effort: xhigh · plan: —
 - [ ] **Passe B — sécurité à l'effort (nœud `rhd-activite-physique`)** : même statut, cadrage au même
       endroit (`ARBITRAGES-2026-07-27-nuit.md` §1) · modèle: Opus, effort: high · plan: —
 
@@ -39,6 +64,26 @@ correspondantes de `DECISIONS.md`. Ce qui suit est le backlog **réel et actuel*
 - [ ] `docs/decision/sources/prescrire 12.pdf` vide — à re-fournir.
 - [ ] Politique de badge « Recommandée » quand la 1re option non-socle triée est une option `securite`
       plutôt qu'un choix d'agent (constat 2026-07-25, non retranché depuis D25).
+- [ ] **Portée clinique de la dette `prescription`/patient naïf** (P4/S9, T-031, commit `e2c112c`) : les
+      citations négatives de `traitements_en_cours` (garde-fous de non-duplication sur 8 options d'ajout —
+      insuline d'initiation, iSGLT2, AR GLP-1, tirzépatide, association, gliptine, sulfamide) restent
+      bloquées ; confirmé à l'écran y compris sur un profil catabolique (cétonémie + glucotoxicité + HbA1c
+      11 %) qui justifierait cliniquement une insuline d'initiation. Acceptable en l'état, ou faut-il
+      revenir sur l'exclusion de `traitements_en_cours` de `presomption_non` sur ce nœud (décision T-018) ?
+      `BILAN-P4-2026-07-28.md` §3.
+- [ ] **Asymétrie iSGLT2 / AR GLP-1 chez le sujet dénutri** (`prescription`, intention *Déprescrire*) : le
+      même terrain (IMC < 22 et dénutrition) exclut l'AR GLP-1 mais pas l'iSGLT2 — trouvé par la recette
+      praticien naïf (patient 86 ans, IMC 20,1, −4 kg/an, dénutri).
+- [ ] **Validité de l'HbA1c non questionnée** (anémie, cirrhose, hémoglobinopathie) : l'outil raisonne sur
+      une HbA1c sans jamais signaler qu'elle peut ne pas être interprétable — périmètre assumé, ou
+      signalement à ajouter ?
+- [ ] Carte **« Optimiser l'agent mal toléré »** affichée sans aucun traitement en cours coché — doute
+      sur si `intolerance_traitement` doit être conditionné à `traitements_en_cours` non vide.
+- [ ] **Descendre à la molécule et à la dose** hors du nœud `insuline` (aujourd'hui l'outil s'arrête à la
+      classe partout ailleurs) — élargissement de périmètre assumé, pas un correctif ; demandé par la
+      recette praticien naïf.
+- [ ] Afficher le statut `brouillon` / `valide` **sur l'écran de décision**, pas seulement sur la page
+      « Méthode » — le praticien croit aujourd'hui utiliser des algorithmes tous validés.
 
 ## Backlog — validation clinique finale (D5, passage à `statut: valide`)
 

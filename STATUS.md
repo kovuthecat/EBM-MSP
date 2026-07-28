@@ -3,7 +3,7 @@
 Photo à l'instant T. Mis à jour en fin de session. L'historique (comment on est arrivé ici) vit dans
 `git log`, `DECISIONS.md` et les changelogs de contenu — pas ici.
 
-> **Dernière mise à jour :** 2026-07-28
+> **Dernière mise à jour :** 2026-07-28 (soir, clôture P4)
 
 ## Ce qui existe
 
@@ -15,40 +15,91 @@ moteur ne connaît toujours aucun domaine ni module par son nom).
 
 | nœud | statut | dernière version |
 | --- | --- | --- |
-| `cible-glycemique` | `valide` | v2.5 |
-| `statine` | `brouillon` | v1.13 |
-| `prescription` | `brouillon` | v0.33 |
-| `insuline` | `brouillon` | v0.22 |
-| `rhd-alimentation` | `brouillon` | v0.7 |
-| `rhd-activite-physique` | `brouillon` | v0.6 |
+| `cible-glycemique` | `valide` | v2.6 |
+| `statine` | `brouillon` | v1.15 |
+| `prescription` | `brouillon` | v0.34 |
+| `insuline` | `brouillon` | v0.23 |
+| `rhd-alimentation` | `brouillon` | v0.8 |
+| `rhd-activite-physique` | `brouillon` | v0.7 |
+
+Bumps du 2026-07-28 (plan P4, D5) : mécanisme moteur/écran corrigé sur les six nœuds (D30 — présomption
+inversée), plus des correctifs propres à `statine` (D32, libellés) et `prescription` (garde R8, T-031).
+Aucun changement de **statut** `valide`/`brouillon` par P4 lui-même — P4 corrige des défauts de moteur et
+d'écran, pas le contenu clinique ; le passage à `valide` reste conditionné à la relecture référent de
+`STATUS.md` §Reste explicitement ouvert.
 
 Les deux nœuds RHD sont groupés sous un **module** (`content/modules/diabete-type-2/rhd.yaml`, D22) :
 une seule entrée dans la liste du domaine, cadrage partagé + primer d'orientation.
 
 **Le banc de tests** (`src/features/decision/engine/banc/`) est la garantie de non-régression du
 contenu : trois couches (vignettes cliniques, couverture mécanique, invariants génériques sur profils
-synthétiques) + I20 (libellés rédigés) + I16-I19 (rôle d'option/repli) + S8 (tout nœud publié porte des
-vignettes exécutables — désormais vrai pour les 6). **769 tests, typecheck et build verts.**
+synthétiques) + I20 (libellés rédigés) + I16-I19 (rôle d'option/repli) + I21 (formulaire vierge → zéro
+carte, D30) + I22/I23 (sécurité toujours atteignable, jamais d'écran muet, D32) + S8 (tout nœud publié
+porte des vignettes exécutables — vrai pour les 6). **797 tests, 11 skip, typecheck et build verts.**
 
 ## Chantier actif
 
-**Aucun en cours.** Le bloc de dette ouvert le 2026-07-27 (nuit) est **soldé** : les 9 items exécutables
-de `ARBITRAGES-2026-07-27-nuit.md` §1-5 sont livrés (rôle d'option D25, `visible_si` sur liste D26,
+**Aucun en cours.** Plan **P4** soldé le 2026-07-28 (`plans/P4/`, commits `6ddf97b`…`036f4aa`) : les
+trois mécanismes où l'écran affirmait ce que le moteur n'avait pas conclu sont corrigés (D30, D31, D32)
++ D33 (geste de fin de consultation) + remontée des contre-indications (T-025) + doctrine R7/R10. **Les
+six correctifs sont vérifiés CONFORME à l'écran sur le déployé**, pas seulement dans le code — cf.
+`docs/decision/validation/recette-navigateur-2026-07-28-controle-P4.md`. Une passe complémentaire
+« praticien naïf » (hors périmètre P4) a suivi dans la foulée et reclassé les priorités — synthèse dans
+`docs/decision/validation/BILAN-P4-2026-07-28.md`.
+
+Le bloc de dette ouvert le 2026-07-27 (nuit) reste **soldé** : les 9 items exécutables de
+`ARBITRAGES-2026-07-27-nuit.md` §1-5 sont livrés (rôle d'option D25, `visible_si` sur liste D26,
 contraintes de saisie D27, mémoire de session D28, pollution du « pourquoi pas d'autres options »,
 relecture rédactionnelle + I20 D29, dette S8 des vignettes RHD).
 
+**Trouvé par la clôture de P4, pas encore cadré (candidats P5)** :
+
+- **Un champ segmenté (`enum`), une fois touché, ne revient jamais à « non répondu »** — tous nœuds,
+  `CriteriaForm.tsx` (le gestionnaire `onClick` n'a pas de chemin de retrait, contrairement au champ
+  numérique qui a `onEffacer` depuis le 2026-07-27). Combiné à un reflow de page qui peut dévier un clic
+  vers le mauvais champ, et alourdi par D30 (une valeur touchée est désormais décisive) : classé
+  **défaut grave, exécutable sans arbitrage clinique**. Détail : `BILAN-P4-2026-07-28.md` §2/§6.
+- **`mcg_disponible == false` ne masque pas les 4 champs de capteur** sur `insuline` (`TBR`,
+  `TBR_severe`, `CV_glycemique`, `profil_glycemique`) — ils restent réclamés sans capteur déclaré.
+  Exécutable sans arbitrage clinique. `BILAN-P4-2026-07-28.md` §3bis/§6.
+- **La purge « Nouveau patient » n'a aucun retour visuel** : rien à l'écran ne distingue « annulé » de
+  « exécuté ». `BILAN-P4-2026-07-28.md` §2bis/§6.
+- Onglet **« Veille » rend une page blanche** (texte `top: 0`, caché sous la barre de nav fixe) — défaut
+  d'affichage isolé, trouvé par la recette praticien naïf.
+
+**Reclassé bloquant** (était « recherche, non bloquant ») :
+
+- **Passe de recherche A — nœud `insuline` sans capteur** : la recette praticien naïf montre qu'un
+  patient non naïf mais sans capteur est aujourd'hui une impasse (le praticien invente des chiffres, le
+  moteur les traite comme des mesures). Le référent a donné le 2026-07-28 une voie concrète : `TBR`
+  existe sans capteur (lecteur capillaire), `TBR_severe` n'existe **pas** (un lecteur ne distingue pas les
+  deux seuils) — et une piste de répartition horaire des hypoglycémies en 4 créneaux (nuit/matinée/
+  après-midi/soir), analogue capillaire de ce que `profil_glycemique` lit déjà par AGP. Deux volets
+  mécaniques exécutables sans arbitrage (masquer les 4 champs sans capteur, retirer `TBR_severe`) ; trois
+  volets cliniques encore à trancher (pivot de décision sans capteur, seuils des 4 créneaux, correspondance
+  avec `profil_glycemique`). Diagnostic : `chantier-2026-07-27/diagnostic-K2-mesures-mcg.md` +
+  `BILAN-P4-2026-07-28.md` §3bis.
+
 **Reste explicitement ouvert**, tel que consigné par `ARBITRAGES-2026-07-27-nuit.md` §6 :
 
-- **Passe de recherche A — glycémie capillaire pour l'ajustement de l'insuline** (sans MCG) : seuils de
-  titration/plafonnement de la basale sur glycémie à jeun, seuils post-prandiaux pour le bolus (champ
-  encore absent du nœud), sort des garde-fous `TBR`/`TBR_severe`/`CV_glycemique` sans capteur. Contenu
-  clinique — je ne le rédige pas seul. Diagnostic détaillé : `chantier-2026-07-27/diagnostic-K2-mesures-mcg.md`.
-- **Passe de recherche B — sécurité à l'effort** (nœud `rhd-activite-physique`), même statut.
+- **Passe de recherche B — sécurité à l'effort** (nœud `rhd-activite-physique`), inchangée.
 - `docs/decision/sources/prescrire 12.pdf` toujours **vide** — à re-fournir par le référent.
 - La **frontière `a_l_objectif` / `sous_objectif`** (nœud `prescription`) reste volontairement non
   pré-remplie par K6 (D28) : elle déclenche la déprescription, un seuil erroné serait dangereux dans les
   deux sens. Le référent n'a donné que le seuil du « nettement au-dessus ».
 - Le **seuil rénal de l'AR GLP-1** (30 ou 20 mL/min) — question posée, pas tranchée.
+- **Dette `prescription`/patient naïf** (P4/S9, T-031) : les citations négatives de `traitements_en_cours`
+  (garde-fous de non-duplication sur 8 options d'ajout — insuline d'initiation, iSGLT2, AR GLP-1…) restent
+  bloquées, confirmé à l'écran y compris sur un profil catabolique qui justifierait cliniquement une
+  insuline d'initiation. Portée clinique à trancher avec le référent — cf. `BILAN-P4-2026-07-28.md` §3.
+- **Asymétrie iSGLT2 / AR GLP-1 chez le sujet dénutri** (`prescription`, intention Déprescrire) — même
+  terrain (IMC<22 et dénutrition) exclut l'AR GLP-1 mais pas l'iSGLT2. Trouvé par la recette praticien
+  naïf, à trancher référent.
+- **Validité de l'HbA1c non questionnée** (anémie, cirrhose, hémoglobinopathie) — l'outil raisonne sur une
+  HbA1c sans jamais signaler qu'elle peut ne pas être interprétable. À trancher référent : périmètre assumé
+  ou signalement à ajouter ?
+- Carte **« Optimiser l'agent mal toléré »** affichée sans aucun traitement en cours coché — doute sur si
+  `intolerance_traitement` doit être conditionné à `traitements_en_cours` non vide. À trancher référent.
 - **Validation clinique référent finale** sur le déployé pour `prescription`, `insuline`,
   `rhd-alimentation`, `rhd-activite-physique` → passage à `statut: valide` (D5). Les 12 vignettes RHD
   écrites le 2026-07-27 verrouillent des arbitrages déjà rendus, elles ne remplacent pas cette relecture
@@ -66,10 +117,10 @@ relecture rédactionnelle + I20 D29, dette S8 des vignettes RHD).
 ## Comment vérifier l'état réel
 
 ```bash
-npm test          # 769 tests attendus, 6 skip
+npm test          # 797 tests attendus, 11 skip
 npx tsc --noEmit
 npm run build
 ```
 
-`git log --oneline -20` et `DECISIONS.md` (D1→D29) sont la source de vérité sur *comment* on est
+`git log --oneline -20` et `DECISIONS.md` (D1→D33) sont la source de vérité sur *comment* on est
 arrivé à cet état ; ce fichier ne dit que *où on en est*.

@@ -23,3 +23,24 @@ clinique ou une passe de recherche.
 
 Prochaine entrée : au prochain lot livré, un bloc daté, avec ce qui est nouveau à l'écran et les
 scénarios patients qui le vérifient — comme les blocs purgés ci-dessus, dont c'était la forme.
+
+## 2026-07-28 — Plan P4 (six correctifs D30-D33/T-025)
+
+Vérifié à l'écran sur `ebm-msp.vercel.app` (déploiement du commit `036f4aa`), pas seulement dans le code
+— deux passes : recette navigateur de contrôle (S8, protocole `PROMPT-recette-navigateur.md`) et recette
+« praticien naïf » complémentaire (8 vignettes patient écrites en aveugle, hors accès `content/`/`src/`).
+
+- [x] D30 (formulaire vierge → zéro carte) — CONFORME
+- [x] D32 (halte OFM n'écrase plus une option de sécurité) — CONFORME
+- [x] D31 (contrainte violée suspend tous les résultats) — CONFORME
+- [x] D-06 (pré-remplissage calculé applique ce qu'il annonce, jamais n'écrase une saisie) — CONFORME
+- [x] D33 (« Nouveau patient » purge la mémoire) — CONFORME, réserve méthodo : clic natif non testé tel
+      quel (outil de test), et la passe praticien naïf signale l'absence de retour visuel après la purge
+      (nouvel item, `TASKS.md`)
+- [x] T-025 (contre-indications remontées, registre de sécurité) — CONFORME, test des 20 secondes réussi
+
+Rapports complets : `docs/decision/validation/recette-navigateur-2026-07-28-controle-P4.md`,
+`docs/decision/validation/recette-praticien-naif-2026-07-28.md`,
+`docs/decision/validation/BILAN-P4-2026-07-28.md` (synthèse + réconciliation). Ce que la clôture a trouvé
+en plus (nouveau défaut grave, décisions référent, dette connue confirmée) est suivi dans `STATUS.md` et
+`TASKS.md` — ce n'est plus une checklist visuelle, c'est un arbitrage produit/clinique.
