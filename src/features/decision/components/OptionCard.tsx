@@ -93,6 +93,20 @@ export function OptionCard({ option, badge, reasons, calculs, calculsEnAttente, 
         </div>
       </div>
 
+      {/* T-025 (P4/S4, 2026-07-28) : remonté juste sous le titre/badges, AVANT tout le reste du socle
+          (doses, alertes, argumentaire) et avant le dépli (effet attendu, avantages/inconvénients) — la
+          recette navigateur du 2026-07-28 a mesuré ce bloc comme l'élément le moins saillant de la carte
+          (texte gris, sans bordure ni fond), derrière un lien décoratif, alors qu'il porte l'unique
+          interdiction de la carte. Registre visuel aligné en même temps (`OptionCard.css`) sur celui des
+          alertes de sécurité d'`AlertList.css` (`--c-disclaimer-*`) — PAS le registre ambre
+          `--c-attention*` de « à confirmer » / « Doses non calculées », qui signale une saisie
+          incomplète, pas une interdiction (cf. commentaire `tokens.css`). */}
+      {option.contre_indications && option.contre_indications.length > 0 && (
+        <div className="option-card__ci">
+          <span className="option-card__ci-label">Contre-indications : </span>
+          {option.contre_indications.join(' · ')}
+        </div>
+      )}
 
       {calculs.length > 0 && (
         <div className="option-card__calculs">
@@ -120,14 +134,6 @@ export function OptionCard({ option, badge, reasons, calculs, calculsEnAttente, 
               {index < calculsEnAttente.length - 1 ? ' · ' : ''}
             </span>
           ))}
-        </div>
-      )}
-
-
-      {option.contre_indications && option.contre_indications.length > 0 && (
-        <div className="option-card__ci">
-          <span className="option-card__ci-label">Contre-indications : </span>
-          {option.contre_indications.join(' · ')}
         </div>
       )}
 

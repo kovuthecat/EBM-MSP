@@ -95,10 +95,22 @@
   color: var(--c-text);
 }
 
+/* T-025 (P4/S4, 2026-07-28) : registre visuel de SÉCURITÉ, pas d'incomplétude — la recette navigateur
+   du 2026-07-28 a mesuré ce bloc comme le moins saillant de la carte (texte gris, sans bordure ni
+   fond), pour l'unique bloc qui porte une interdiction. Tokens réutilisés tels quels, aucun nouveau :
+   `--c-disclaimer-bg`/`--c-disclaimer-border`, EXACTEMENT ceux d'`AlertList.css`
+   (`.alert-list__item--attention`, le canal des alertes cliniques d'option, juste en dessous dans la
+   carte) — surtout PAS `--c-attention*` (`tokens.css`), réservé à « à confirmer » / « Doses non
+   calculées » : un état de saisie incomplète, jamais une interdiction clinique. */
 .option-card__ci {
   font-size: 13px;
-  color: var(--c-text-secondary);
-  margin-bottom: 12px;
+  line-height: 1.6;
+  color: var(--c-text);
+  background: var(--c-disclaimer-bg);
+  border: 1px solid var(--c-disclaimer-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 14px;
 }
 
 .option-card__ci-label {
