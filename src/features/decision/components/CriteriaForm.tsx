@@ -342,41 +342,58 @@ export function CriteriaForm({
           />
         ) : segmente ? (
           <div className="criteria-form__segmented" role="group" aria-label={labelForCritere(critere.nom)}>
-            {valeurs.map((valeur) => (
-              <button
-                key={valeur}
-                type="button"
-                className="criteria-form__segment"
-                // `touched` EXIGÉ (correctif du 2026-07-27, défaut A de la recette référent — le plus
-                // rentable du rapport : une condition, quatre symptômes en cascade).
-                //
-                // Sans lui, ce test allumait le segment sur la seule égalité de valeur. Or
-                // `valeurParDefaut` (`lib/formLayout.ts`) initialise tout `enum` à sa PREMIÈRE valeur
-                // déclarée : le premier segment s'affichait donc SÉLECTIONNÉ dès le chargement, sans
-                // qu'aucun clic n'ait eu lieu. `touched`, lui, n'est alimenté que par un `onChange` réel
-                // — le moteur tenait donc le critère pour INDÉTERMINÉ (D20/R7) pendant que l'écran
-                // affirmait le contraire.
-                //
-                // Ce que ça a produit en consultation : « Traitements en cours » restait affiché alors
-                // que l'intention était d'INITIER (le `visible_si: "intention != initier"` ne se
-                // déclenchait jamais) ; sur `insuline`, les 8 `visible_si` masquant le bloc MCG au
-                // patient naïf étaient intégralement neutralisés, les 9 options passaient « en attente »
-                // en réclamant un champ que l'écran montrait comme déjà répondu, et « Poursuivre le
-                // schéma d'insuline en cours » était proposé à un naïf.
-                data-on={(touched.has(critere.nom) && String(criteria[critere.nom] ?? '') === valeur) || undefined}
-                // A9 (arbitrage référent, 2026-07-27 soir) : `data-on` ne pilote QUE le style — rien
-                // n'exposait la valeur retenue à un lecteur d'écran, qui annonçait trois boutons
-                // indiscernables. C'est le même invariant que tout le lot 1, appliqué à qui ne voit pas
-                // l'écran : ce que l'interface affirme doit être ce que le moteur croit.
-                // `false` sur TOUS les segments quand le critère n'est pas `touched` — c'est exactement
-                // la représentation de l'indéterminé de D20, sans avoir à l'inventer.
-                aria-pressed={touched.has(critere.nom) && String(criteria[critere.nom] ?? '') === valeur}
-                title={describeEnumValue(valeur)}
-                onClick={() => onChange(critere.nom, valeur)}
-              >
-                {labelForEnumValue(valeur)}
-              </button>
-            ))}
+            {valeurs.map((valeur) => {
+              // `touched` EXIGÉ (correctif du 2026-07-27, défaut A de la recette référent — le plus
+              // rentable du rapport : une condition, quatre symptômes en cascade).
+              //
+              // Sans lui, ce test allumait le segment sur la seule égalité de valeur. Or
+              // `valeurParDefaut` (`lib/formLayout.ts`) initialise tout `enum` à sa PREMIÈRE valeur
+              // déclarée : le premier segment s'affichait donc SÉLECTIONNÉ dès le chargement, sans
+              // qu'aucun clic n'ait eu lieu. `touched`, lui, n'est alimenté que par un `onChange` réel
+              // — le moteur tenait donc le critère pour INDÉTERMINÉ (D20/R7) pendant que l'écran
+              // affirmait le contraire.
+              //
+              // Ce que ça a produit en consultation : « Traitements en cours » restait affiché alors
+              // que l'intention était d'INITIER (le `visible_si: "intention != initier"` ne se
+              // déclenchait jamais) ; sur `insuline`, les 8 `visible_si` masquant le bloc MCG au
+              // patient naïf étaient intégralement neutralisés, les 9 options passaient « en attente »
+              // en réclamant un champ que l'écran montrait comme déjà répondu, et « Poursuivre le
+              // schéma d'insuline en cours » était proposé à un naïf.
+              //
+              // P5 · S1 T-032 : ce booléen sert AUSSI à décider le GESTE (`onClick` ci-dessous), pas
+              // seulement le rendu — cf. sa docstring pour pourquoi la répétition du clic doit effacer.
+              const selectionne = touched.has(critere.nom) && String(criteria[critere.nom] ?? '') === valeur
+              return (
+                <button
+                  key={valeur}
+                  type="button"
+                  className="criteria-form__segment"
+                  data-on={selectionne || undefined}
+                  // A9 (arbitrage référent, 2026-07-27 soir) : `data-on` ne pilote QUE le style — rien
+                  // n'exposait la valeur retenue à un lecteur d'écran, qui annonçait trois boutons
+                  // indiscernables. C'est le même invariant que tout le lot 1, appliqué à qui ne voit pas
+                  // l'écran : ce que l'interface affirme doit être ce que le moteur croit.
+                  // `false` sur TOUS les segments quand le critère n'est pas `touched` — c'est exactement
+                  // la représentation de l'indéterminé de D20, sans avoir à l'inventer.
+                  aria-pressed={selectionne}
+                  title={describeEnumValue(valeur)}
+                  // P5 · S1 T-032 (BILAN-P4-2026-07-28.md §2/§6) : un clic sur le segment DÉJÀ sélectionné
+                  // EFFACE la réponse au lieu de la reposer — seul moyen de revenir à « non répondu »,
+                  // jusqu'ici réservé au champ `nombre` (`onEffacer` ci-dessus). C'est la répétition du
+                  // clic qui bascule, pas un second élément d'interface (design fixé, cf. "Décision clé").
+                  // Repli si `onEffacer` n'est pas fourni par l'appelant : ancien comportement inchangé
+                  // (`onChange`), même contrat de repli que le champ `nombre`, pour ne jamais casser un
+                  // appelant existant qui ne le passerait pas. Un clic sur un segment NON sélectionné
+                  // n'est pas concerné : comportement inchangé dans tous les cas.
+                  onClick={() => {
+                    if (selectionne && onEffacer) onEffacer(critere.nom)
+                    else onChange(critere.nom, valeur)
+                  }}
+                >
+                  {labelForEnumValue(valeur)}
+                </button>
+              )
+            })}
           </div>
         ) : (
           <select
