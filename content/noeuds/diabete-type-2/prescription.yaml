@@ -103,34 +103,84 @@ criteres_entree:
     max: 9.5
     groupe: Traitement actuel et contrôle
     partage: true
-  # Les deux gardes `> 0` sont indispensables : le défaut d'un nombre non saisi est 0, et l'écart calculé
-  # sur une cible à 0 vaudrait l'HbA1c elle-même — donc « nettement au-dessus » pour tout le monde. Le banc
-  # marque tous les critères comme renseignés, c'est donc lui, et non l'écran, que ces gardes protègent.
+  # Les gardes `> 0` sont indispensables sur les QUATRE dérivés d'écart : le défaut d'un nombre non saisi
+  # est 0, et l'écart calculé sur une cible à 0 vaudrait l'HbA1c elle-même — donc « nettement au-dessus »
+  # pour tout le monde. Le banc marque tous les critères comme renseignés, c'est donc lui, et non l'écran,
+  # que ces gardes protègent.
+  #
+  # LES QUATRE BANDES, écart = HbA1c_actuelle − HbA1c_cible (référent ; date de chaque seuil en regard) :
+  #   écart ≥ 1 point                 → nettement_au_dessus  (2026-07-27)
+  #   0 < écart < 1 point             → au_dessus            (2026-07-27)
+  #   −1 point < écart ≤ 0            → a_l_objectif         (2026-07-29)
+  #   écart ≤ −1 point                → sous_objectif        (2026-07-29)
+  # Elles sont exclusives deux à deux et couvrent tout le domaine : chaque dérivé porte SA bande entière,
+  # sans dépendre de l'ordre des règles de `preremplissage` qui les lisent.
   - nom: ecart_nettement_au_dessus_cible
     type: bool
     # SEUIL DONNÉ PAR LE RÉFÉRENT (2026-07-27) : « nettement au-dessus : HbA1c supérieure ou égale à
     # 1 point de plus que l'objectif ».
+    # ⚠ POINT SIGNALÉ, DÉLIBÉRÉMENT NON TRANCHÉ ICI (P7/SA1, 2026-07-29). La formulation du 2026-07-29
+    # dit « supérieur À 1 point » là où celle du 2026-07-27 disait « supérieure OU ÉGALE à 1 point » : les
+    # deux ne diffèrent qu'à exactement +1,0 (une HbA1c à 8,0 pour un objectif à 7,0). L'encodage
+    # d'origine (`>= 1`) est CONSERVÉ tel quel — il a été donné explicitement avec « ou égale », il est en
+    # production, et les snapshots du banc en dépendent. La question est reposée au référent en parallèle ;
+    # tant qu'elle n'est pas tranchée, ne pas changer cette expression.
     derive: "HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND HbA1c_actuelle - HbA1c_cible >= 1"
   - nom: ecart_au_dessus_cible
     type: bool
     derive: "HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND HbA1c_actuelle > HbA1c_cible"
+  # LES DEUX BANDES SOUS L'OBJECTIF, AJOUTÉES le 2026-07-29 (décision référent). Elles manquaient : le
+  # référent n'avait donné, le 2026-07-27, que le seuil du « nettement au-dessus », et la frontière entre
+  # `a_l_objectif` et `sous_objectif` ne pouvait pas se deviner — `sous_objectif` déclenche la
+  # déprescription. Le seuil rendu (1 point de MOINS que l'objectif) répond exactement à l'objection qui
+  # avait fait suspendre la décision : à 6,9 pour un objectif de 7,0, l'outil propose « à l'objectif », et
+  # non une déprescription ouverte sur un dixième de point.
+  - nom: ecart_sous_objectif_cible
+    type: bool
+    # SEUIL DONNÉ PAR LE RÉFÉRENT (2026-07-29) : « sous l'objectif » à partir d'un écart d'AU MOINS
+    # 1 point EN DESSOUS de l'objectif (écart ≤ −1). Écrit `HbA1c_cible - HbA1c_actuelle >= 1` plutôt
+    # qu'avec un littéral négatif : c'est le symétrique terme à terme du dérivé « nettement au-dessus »
+    # ci-dessus, et ça n'introduit aucun littéral nouveau dans le domaine de tirage du banc.
+    derive: "HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND HbA1c_cible - HbA1c_actuelle >= 1"
+  - nom: ecart_a_l_objectif_cible
+    type: bool
+    # SEUIL DONNÉ PAR LE RÉFÉRENT (2026-07-29) : « à l'objectif » de l'objectif atteint jusqu'à moins d'un
+    # point en dessous — borne haute INCLUSE (l'objectif lui-même, `HbA1c_actuelle <= HbA1c_cible`), borne
+    # basse EXCLUE (le point exact où commence `sous_objectif`, donc `< 1` et non `<= 1` : une HbA1c à
+    # 1 point pile sous l'objectif relève de `sous_objectif`, pas des deux bandes à la fois).
+    derive: "HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND HbA1c_actuelle <= HbA1c_cible AND HbA1c_cible - HbA1c_actuelle < 1"
   - nom: position_vs_cible
     type: enum
     groupe: Traitement actuel et contrôle
     # PRÉ-REMPLISSAGE (K6) — la première règle vraie l'emporte, d'où l'ordre : « nettement » avant
-    # « au-dessus », qui est moins spécifique et serait sinon toujours atteint le premier.
+    # « au-dessus », qui est moins spécifique et serait sinon toujours atteint le premier. Les deux
+    # bandes SOUS l'objectif suivent ; elles sont exclusives des deux premières comme l'une de l'autre
+    # (cf. les quatre dérivés d'écart ci-dessus), leur position en fin de liste ne change donc le
+    # résultat d'aucune des deux règles préexistantes.
     #
-    # ⚠ RIEN N'EST PRÉ-REMPLI SOUS L'OBJECTIF, et c'est délibéré : le référent a donné le seuil du
-    # « nettement au-dessus », pas la frontière entre `a_l_objectif` et `sous_objectif`. Or cette
-    # frontière n'est pas cosmétique — `sous_objectif` déclenche la déprescription. Proposer
-    # « à l'objectif » à un patient à 6,0 pour une cible à 7,5 masquerait un sur-traitement ; proposer
-    # « sous objectif » à 6,9 pour 7,0 ouvrirait une déprescription sur un dixième de point. Tant que la
-    # règle n'est pas donnée, le praticien déclare — comportement d'aujourd'hui, inchangé.
+    # LES QUATRE BANDES SONT DÉSORMAIS COUVERTES (décision référent du 2026-07-29, qui a donné les deux
+    # seuils qui manquaient) : nettement au-dessus (écart ≥ 1 point) · au-dessus (0 < écart < 1) · à
+    # l'objectif (−1 < écart ≤ 0) · sous l'objectif (écart ≤ −1). Le seuil d'un point sous l'objectif est
+    # ce qui rend `sous_objectif` proposable sans risque : il ne se déclenche pas sur un dixième de point,
+    # alors qu'il ouvre la déprescription.
+    #
+    # CE QUE LE PRÉ-REMPLISSAGE N'EST PAS. `position_vs_cible` reste un critère SAISI, et la position
+    # DÉCLARÉE par le praticien fait foi (R1, docs/decision/GRAMMAIRE-NOEUD.md) : un pré-remplissage est
+    # une PROPOSITION, jamais une décision. Trois propriétés le garantissent, aucune n'est modifiée ici —
+    # il ne s'applique qu'à un champ auquel PERSONNE n'a répondu et cesse définitivement dès que le
+    # praticien y touche (`lib/formLayout.ts`, `appliquerPreremplissage`) ; une expression INDÉTERMINÉE ne
+    # pré-remplit rien (R7/D20 : on ne devine pas sur une donnée manquante) ; l'écran signale tout champ
+    # pré-rempli. Et aucune règle de DÉCISION ne lit les dérivés d'écart : le `preremplissage` est leur
+    # seul consommateur.
     preremplissage:
       - quand: "ecart_nettement_au_dessus_cible == true"
         valeur: nettement_au_dessus
       - quand: "ecart_au_dessus_cible == true"
         valeur: au_dessus
+      - quand: "ecart_sous_objectif_cible == true"
+        valeur: sous_objectif
+      - quand: "ecart_a_l_objectif_cible == true"
+        valeur: a_l_objectif
     # R1 (docs/decision/GRAMMAIRE-NOEUD.md) : l'ÉTAT du contrôle est DÉCLARÉ par le praticien, jamais
     # déduit de son INTENTION — « optimiser » veut dire « améliorer le traitement », ce qui ne dit rien
     # de la position vs objectif (recette référent 2026-07-25). Le nœud « Fixer la cible » reste une AIDE
@@ -673,8 +723,17 @@ options:
     # Le seuil retenu est 30 et non 20, et c'est la métformine qui le fixe : sous 30 le SOCLE disparaît
     # (contre-indication RCP ANSM), donc une classe à bénéfice doit pouvoir prendre le relais. Entre 20 et
     # 29 l'iSGLT2 s'applique déjà par son indication rénale — l'AR GLP‑1 vient à côté, pas à sa place.
-    # ⚠ Ce seuil est le point arbitrable de cette règle : 20 le limiterait au seul trou constaté.
     # Garde `DFG > 0` obligatoire (défaut d'un nombre non saisi = 0, cf. `hba1c_sous_cible`).
+    #
+    # ⚠ ARBITRAGE RENDU le 2026-07-29 (référent) — ce seuil ne se présente plus comme ouvert. Il était
+    # signalé ici comme « le point arbitrable de cette règle » (30 vs 20) ; le référent a tranché pour le
+    # MAINTENIR À 30, en rappelant ce que ce nombre dit et ce qu'il ne dit pas : c'est le seuil de
+    # DISPARITION DE LA METFORMINE (le socle s'arrête, une classe à bénéfice doit prendre le relais), et
+    # non un seuil de sécurité de l'AR GLP‑1 — cette classe n'a aucune contre-indication rénale formelle
+    # au RCP des molécules commercialisées en France (vérifié par le référent le 2026-07-29). Le fait de
+    # sécurité réel — la classe est PEU ÉTUDIÉE sous 15 mL/min/1,73 m² — ne change donc pas les conditions
+    # d'affichage de l'option : il est porté par une ALERTE D'OPTION dédiée (R8, un fait de sécurité qui
+    # QUALIFIE un geste sans l'interdire ⇒ `options[].alertes`), cf. le bloc `alertes` plus bas.
     conditions:
       - "ASCVD_etablie == true OR IMC >= 30 OR palette_glycemique_ouverte == true OR remplacement_agent_sans_benefice == true OR DFG > 0 AND DFG < 30 AND cible_atteinte == false"
     # R6 : garde-fous de cohérence (ne pas déjà prendre la classe visée / une classe concurrente ;
@@ -730,12 +789,28 @@ options:
     # elle ne s'affiche donc que si cette option est réellement applicable, et disparaît d'elle-même quand
     # le terrain l'écarte (IMC < 22, dénutrition). Plus besoin de recopier `ASCVD OR IMC >= 30` pour
     # deviner « envisagé » : l'applicabilité de l'option EST le fait recherché.
+    #
+    # SECONDE ALERTE, AJOUTÉE le 2026-07-29 (décision référent — prudence rénale). Elle qualifie le geste,
+    # elle ne le retire pas : R8, un fait qui rend un geste contre-indiqué est une `exclusions`, un fait
+    # qui le QUALIFIE est une alerte — ici la classe n'a aucune contre-indication rénale (RCP vérifiés par
+    # le référent), seulement un manque de données à ce niveau de fonction rénale. Les `conditions` de
+    # l'option sont INCHANGÉES (cf. le commentaire du seuil 30 ci-dessus) : l'option continue de s'afficher
+    # normalement sous 15, avec cette réserve à côté. Garde `DFG > 0` obligatoire (défaut d'un nombre non
+    # saisi = 0 : sans lui, l'alerte s'afficherait pour tout patient dont le DFG n'est pas renseigné).
     alertes:
       - quand: "fragilite == true"
         niveau: attention
         message: >-
           Chez un sujet fragile, surveiller le poids et l'état nutritionnel à l'instauration d'un
           incrétine (risque de sarcopénie / anorexie).
+      - quand: "DFG > 0 AND DFG < 15"
+        niveau: attention
+        message: >-
+          Fonction rénale très altérée (DFG < 15 mL/min/1,73 m²) : les AR GLP‑1 commercialisés en France
+          restent utilisables à ce stade — leur résumé des caractéristiques du produit ne pose aucune
+          limite rénale —, mais ils y ont été PEU ÉTUDIÉS. Le recul manque, pas l'autorisation : proposer
+          la classe reste licite, en surveillant de près la tolérance (digestive, poids, état
+          nutritionnel) et en réévaluant tôt.
   - intitule: "Introduire le tirzépatide (obésité — prescription spécialisée)"
     role: geste
     action: ajouter
@@ -942,6 +1017,30 @@ options:
     role: geste
     conditions:
       - "intention != initier AND intolerance_traitement == true"
+    # GARDE-FOU AJOUTÉ le 2026-07-29 (décision référent) : cette carte parlait d'optimiser « l'agent mal
+    # toléré » chez un patient dont AUCUN traitement n'est déclaré en cours — l'intolérance seule la
+    # déclenchait. Un agent qui n'existe pas ne se réduit ni ne se remplace.
+    #
+    # DANS `prerequis` ET NON DANS `conditions` (R6, arbitrage indication/prérequis) : « le patient a un
+    # traitement en cours » est un garde-fou de COHÉRENCE, pas une indication clinique — affiché en
+    # justification (« Proposé parce que : le patient prend un traitement »), il n'apprendrait rien. Même
+    # emplacement, même nature que les `ne_contient_pas <classe>` des options d'ajout de ce nœud.
+    #
+    # NEUF TERMES PLUTÔT QU'UN TEST DE LISTE VIDE : le DSL n'a pas d'opérateur « est vide » — même
+    # contrainte, et même choix, que le bloc `contraintes` en tête de fichier, qui énumère les mêmes neuf
+    # classes en négatif. L'énumération a l'avantage d'être auditable ligne à ligne.
+    #
+    # GARDE `intention != initier` RÉPÉTÉ EN TÊTE DE CHAQUE TERME (motif R8, docs/decision/
+    # GRAMMAIRE-NOEUD.md ; même geste que P4/S9 · T-031 sur toutes les citations POSITIVES de
+    # `traitements_en_cours`, critère masqué par `visible_si: "intention != initier"` et non éligible à
+    # `presomption_non` sur ce nœud). Sans lui, le prérequis serait INDÉTERMINÉ pour un patient naïf
+    # (champ masqué ⇒ jamais renseigné) au lieu d'être FAUX — un naïf ne « contient » rien, c'est la
+    # sémantique voulue. Ce que ça ne change PAS pour un patient renseigné : `traitements_en_cours` NON
+    # RENSEIGNÉ (intention déclarée, champ visible, case jamais cochée) laisse bien le prérequis
+    # indéterminé, donc l'option EN ATTENTE — ni affirmée, ni écartée (D30/R7, comportement vérifié sur le
+    # moteur, pas supposé).
+    prerequis:
+      - "intention != initier AND traitements_en_cours contient metformine OR intention != initier AND traitements_en_cours contient iSGLT2 OR intention != initier AND traitements_en_cours contient aGLP1 OR intention != initier AND traitements_en_cours contient tirzepatide OR intention != initier AND traitements_en_cours contient sulfamide OR intention != initier AND traitements_en_cours contient gliptine OR intention != initier AND traitements_en_cours contient insuline_basale OR intention != initier AND traitements_en_cours contient insuline_rapide OR intention != initier AND traitements_en_cours contient glinide"
     priorite: 2
     famille: "Traitement à alléger"
     avantages:
@@ -1823,8 +1922,52 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.35"
+  version: "0.36"
   changelog:
+    - date: "2026-07-29"
+      auteur: "référent DT2 + Claude Code (P7/SA1, T-048 · T-049 · T-050)"
+      resume: >-
+        TROIS ARBITRAGES RÉFÉRENT DU 2026-07-29, encodés en un seul lot.
+        (1) PRÉ-REMPLISSAGE DE `position_vs_cible` COMPLÉTÉ (T-048, K6/D28). Les deux seuils qui manquaient
+        depuis le 2026-07-27 ont été donnés : « à l'objectif » de l'objectif atteint jusqu'à moins d'un
+        point en dessous (−1 < écart ≤ 0), « sous l'objectif » à partir d'un point complet en dessous
+        (écart ≤ −1). Deux dérivés d'écart ajoutés sur le modèle exact des deux existants, mêmes gardes
+        `> 0` (le défaut d'un nombre non saisi est 0 ; c'est le banc, qui marque tout comme renseigné, que
+        ces gardes protègent), et deux règles de `preremplissage` correspondantes. Les quatre bandes sont
+        exclusives deux à deux : l'ordre des règles ne change donc le résultat d'aucune des deux
+        préexistantes (« nettement au-dessus » reste évalué avant « au-dessus »). Le seuil d'un point sous
+        l'objectif est ce qui rend `sous_objectif` proposable sans risque — il ouvre la déprescription, et
+        ne se déclenche donc pas sur un dixième de point (6,9 pour un objectif de 7,0 ⇒ « à l'objectif »).
+        Le gros avertissement « ⚠ RIEN N'EST PRÉ-REMPLI SOUS L'OBJECTIF » est devenu faux : remplacé par ce
+        qui l'est — les quatre bandes, leur origine, et le rappel que la position DÉCLARÉE fait toujours foi
+        (R1 : un pré-remplissage ne s'applique qu'à un champ auquel personne n'a répondu, cesse dès que le
+        praticien y touche, ne devine jamais sur une donnée manquante, et est signalé à l'écran).
+        ⚠ POINT SIGNALÉ, NON TRANCHÉ : la formulation du 2026-07-29 dit « nettement au-dessus = supérieur À
+        1 point » là où celle du 2026-07-27 disait « supérieure OU ÉGALE à 1 point » — les deux ne diffèrent
+        qu'à exactement +1,0. L'encodage d'origine (`>= 1`) est CONSERVÉ (donné explicitement avec « ou
+        égale », en production, snapshots du banc dépendants) ; la question est reposée au référent.
+        (2) PRUDENCE RÉNALE SUR L'AR GLP‑1 (T-049). Le référent a vérifié les RCP des AR GLP‑1
+        commercialisés en France : AUCUNE contre-indication rénale formelle, mais classe PEU ÉTUDIÉE sous
+        15 mL/min/1,73 m². Encodé en ALERTE D'OPTION (R8 : un fait qui QUALIFIE un geste sans l'interdire
+        ⇒ `options[].alertes`, jamais une `exclusions`), garde `DFG > 0`. Les `conditions` de l'option sont
+        INCHANGÉES — elle continue de s'afficher normalement sous 15. Le seuil `DFG < 30` de son terme
+        rénal, jusqu'ici signalé dans le contenu comme « le point arbitrable de cette règle », est
+        MAINTENU par arbitrage explicite du référent : il marque la disparition de la METFORMINE
+        (contre-indication RCP ANSM, donc une classe à bénéfice doit prendre le relais), ce n'est pas un
+        seuil de sécurité de l'AR GLP‑1. Commentaire mis à jour en conséquence.
+        (3) « OPTIMISER L'AGENT MAL TOLÉRÉ » CONDITIONNÉ À UN TRAITEMENT EN COURS (T-050). La carte
+        s'affichait sur la seule intolérance, y compris quand aucun traitement n'est déclaré — elle
+        proposait d'optimiser un agent qui n'existe pas. `prerequis` (et non `conditions` : garde-fou de
+        cohérence, R6, qui n'apprendrait rien affiché en justification) exigeant que `traitements_en_cours`
+        ne soit pas vide, énuméré sur les neuf classes faute d'opérateur « est vide » dans le DSL — même
+        idiome que le bloc `contraintes` en tête de fichier. Garde `intention != initier` répété en tête de
+        chaque terme (motif R8, comme P4/S9 · T-031 sur les citations positives de ce critère).
+        COMPORTEMENT VÉRIFIÉ SUR LE MOTEUR, PAS SUPPOSÉ (D30/T-018, présomption) : traitement coché ⇒ carte
+        affichée comme avant ; liste renseignée VIDE ⇒ carte non retenue ; champ NON RENSEIGNÉ ⇒ carte EN
+        ATTENTE, ni affirmée ni écartée. `traitements_en_cours` reste délibérément exclu de
+        `presomption_non` sur ce nœud (exclusion reconfirmée par le référent le 2026-07-29).
+        AUCUNE autre `conditions`/`exclusions`/`priorite`/`famille`/valeur clinique touchée. STATUT
+        toujours `brouillon`.
     - date: "2026-07-28"
       auteur: "Claude Code (P6/SA1, T-038) — en attente de relecture référent"
       resume: >-

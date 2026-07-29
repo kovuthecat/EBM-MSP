@@ -91,6 +91,37 @@
   white-space: nowrap;
 }
 
+/* TROISIÈME REGISTRE DE BADGE (arbitrage référent 2026-07-29, `OptionCard.tsx` prop `badge`) — une carte
+   mise en avant parce qu'elle est une MESURE DE SÉCURITÉ, pas parce qu'elle serait le meilleur choix
+   parmi plusieurs. Les deux registres existants étaient tous deux inadéquats : l'accent PLEIN de
+   « Recommandée » dit « choix préférentiel » (le contresens même qu'on corrige), la pastille NEUTRE de
+   « Recommandation officielle » dit « pour information » et effacerait le signal.
+   D'où une TROISIÈME FORME — contour, pas aplat : fond de carte, bordure et texte en `--c-ci-warning`.
+   Aucun token nouveau : `--c-ci-warning` (ajouté par SB6 pour le registre de sécurité des
+   contre-indications, `tokens.css`) est déjà LE rouge « fait de sécurité » de cette carte — le réutiliser
+   fait lire les deux signaux comme un même registre, ce qu'ils sont.
+   POURQUOI PAS UN APLAT ROUGE : une pastille pleine cramoisie en tête de carte se lit « interdit » —
+   or la carte n'est pas interdite, elle est LA conduite à tenir. Le contour signale sans proscrire, et
+   reste franchement distinct des deux autres badges au premier coup d'œil (aplat bleu / aplat gris
+   clair / contour rouge). Contraste RECALCULÉ pour cet emploi précis (texte 11 px gras sur le fond de
+   carte, pas seulement sur le fond de page) : `--c-ci-warning` sur `--c-surface` = **8,65:1**, sur
+   `--c-bg` = 8,29:1 — au-dessus du seuil AAA (7:1), et du même ordre que le blanc sur
+   `--c-accent-decision` du badge « Recommandée » (7,13:1), donc pas de badge visuellement plus faible
+   que les autres. `background: var(--c-surface)` = exactement le fond de `.option-card` : la pastille se
+   réduit à son contour, elle n'ajoute pas un aplat de plus dans l'en-tête déjà chargé (titre + jusqu'à
+   deux pastilles). La lisibilité RÉELLE (taille, épaisseur du contour au rendu) reste à vérifier à
+   l'écran — N1 délégué à la vague de contrôle du plan. */
+.option-card__securite-badge {
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--c-surface);
+  color: var(--c-ci-warning);
+  border: 1px solid var(--c-ci-warning);
+  padding: 3px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
 .option-card__effet {
   font-size: 13px;
   color: var(--c-accent-veille);

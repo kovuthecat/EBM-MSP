@@ -9,14 +9,32 @@ import './OptionCard.css'
 interface OptionCardProps {
   option: Option
   /**
-   * Badge en tête de carte (T-006 étape 2 ; D16) :
-   * - `'recommandee'` — 1re option EBM la plus indiquée (hors socle « toujours ») ;
+   * Badge en tête de carte (T-006 étape 2 ; D16, étendu le 2026-07-29) :
+   * - `'recommandee'` — 1re option EBM la plus indiquée (hors socle « toujours ») : « c'est le meilleur
+   *   choix parmi plusieurs, d'après les données » ;
    * - `'reco-officielle'` — option « toujours » (ex. socle metformine) : maintenue par la reco
    *   officielle française, à distinguer du badge EBM ci-dessus (le socle n'est pas « la » sortie
    *   la plus indiquée par les données, juste ce que la reco officielle maintient en 1re intention) ;
+   * - `'securite'` — option `role: securite` (D25) mise en avant : « c'est ce qui reste quand le
+   *   traitement habituel est écarté », JAMAIS « c'est le meilleur choix parmi plusieurs » ;
    * - `null` — carte non mise en avant.
+   *
+   * ARBITRAGE RÉFÉRENT DU 2026-07-29 — pourquoi une QUATRIÈME valeur. Une carte de sécurité peut se
+   * retrouver en tête et recevait alors « Recommandée » (cas réel : `statine`, maladie CV établie +
+   * intolérance avérée → « Statine indisponible — alternatives hypolipémiantes », seule carte affichée).
+   * Ce badge disait alors autre chose que ce qui est vrai : le praticien lit « c'est le meilleur choix
+   * parmi plusieurs » là où il faut lire « c'est ce qui reste ». Décision : PAS de suppression du badge
+   * (la carte reste bien la conduite à tenir), mais un badge DISTINCT — exactement le précédent D16, qui
+   * avait séparé « Recommandation officielle » de « Recommandée » pour la même raison.
+   *
+   * LA DÉCISION NE SE PREND PAS ICI. Cette carte n'a jamais à connaître `option.role` pour choisir son
+   * badge : elle rend la valeur qu'on lui donne. Le calcul vit dans `lib/optionBadges.ts`
+   * (`computeBadges`), consommé par `lib/vueDecision.ts` puis passé tel quel par
+   * `screens/DecisionNodeScreen.tsx` — un `if (option.role === …)` greffé ici recréerait le couplage que
+   * cette séparation évite, et ferait diverger l'écran de la signature de pertinence
+   * (`engine/relevance.ts`, qui sérialise `badge` depuis le même modèle de vue).
    */
-  badge: 'recommandee' | 'reco-officielle' | null
+  badge: 'recommandee' | 'reco-officielle' | 'securite' | null
   /**
    * Justification SITUATIONNELLE (R6, `docs/decision/GRAMMAIRE-NOEUD.md`) : les termes réellement vrais
    * pour ce patient (`lib/vueDecision.ts` `OptionVue.reasons`), pas la règle recopiée telle quelle.
@@ -150,6 +168,11 @@ export function OptionCard({ option, badge, reasons, calculs, calculsEnAttente, 
           {badge === 'reco-officielle' && (
             <span className="option-card__official-badge">Recommandation officielle (France)</span>
           )}
+          {/* Arbitrage référent 2026-07-29 (cf. docstring de la prop `badge`) : une carte mise en avant
+              PARCE QU'ELLE EST UNE MESURE DE SÉCURITÉ, et non parce qu'elle serait le meilleur choix
+              parmi plusieurs. Libellé volontairement court (`OptionCard.css` `.option-card__badges` gère
+              déjà le retour à la ligne mobile, mais un 3e libellé long l'y forcerait presque toujours). */}
+          {badge === 'securite' && <span className="option-card__securite-badge">Mesure de sécurité</span>}
           <EvidenceBadge niveau={toSharedNiveauPreuve(option.niveau_preuve)} />
         </div>
       </div>

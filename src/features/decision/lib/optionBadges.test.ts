@@ -184,6 +184,152 @@ describe('computeBadges — familles EXCLUSIVES (`exclusive: true`) : badge rés
 })
 
 /**
+ * ARBITRAGE RÉFÉRENT DU 2026-07-29 — une option `role: securite` (D25) mise en avant ne porte PLUS
+ * « Recommandée » mais un badge distinct (`'securite'`, « Mesure de sécurité »). Motif : « c'est le
+ * meilleur choix parmi plusieurs » et « c'est ce qui reste quand le traitement habituel est écarté »
+ * sont deux situations très différentes pour le praticien. Même précédent, même solution que D16.
+ *
+ * CE QUI NE CHANGE PAS, et chaque test ci-dessous en garde une part : QUELLES options sont mises en
+ * avant, dans quel ordre, avec quel plafond — seule l'étiquette change. D'où le contre-exemple systématique
+ * dans chaque cas (une option `geste` de la même famille garde `'recommandee'`).
+ */
+describe('computeBadges — badge dédié aux options `role: securite` (arbitrage référent 2026-07-29)', () => {
+  it('repli historique : la 1re option non-socle est une carte de SÉCURITÉ → « securite », jamais « recommandee »', () => {
+    const securite = opt('Interrompre le traitement (contre-indication)', ['a == true'], { role: 'securite' })
+    const geste = opt('Introduire un agent', ['b == true'])
+    const applicable = [securite, geste]
+    const badges = computeBadges(famillesRepli(applicable, new Map()))
+    expect(badges.get(securite)).toBe('securite')
+    expect(badges.get(securite)).not.toBe('recommandee')
+    // Non-régression : la carte de sécurité occupe bien la place mise en avant (elle est en tête) —
+    // la suivante reste non badgée, exactement comme avant l'arbitrage.
+    expect(badges.get(geste)).toBe(null)
+  })
+
+  it('repli historique : une option `geste` en tête garde « recommandee » (comportement INCHANGÉ), une `securite` derrière reste `null`', () => {
+    const geste = opt('Introduire un agent', ['a == true'])
+    const securite = opt('Interrompre le traitement (contre-indication)', ['b == true'], { role: 'securite' })
+    const applicable = [geste, securite]
+    const badges = computeBadges(famillesRepli(applicable, new Map()))
+    expect(badges.get(geste)).toBe('recommandee')
+    // Hors du groupe mis en avant : `null` comme avant — l'arbitrage ne badge PAS toutes les cartes de
+    // sécurité, il renomme seulement le badge de celle qui en recevait déjà un.
+    expect(badges.get(securite)).toBe(null)
+  })
+
+  it('famille CUMULABLE : la carte de sécurité porte « securite », le geste cumulable garde « recommandee »', () => {
+    const securite = opt('Arrêter la metformine (DFG < 30)', ['default'], {
+      famille: 'Cumulable',
+      role: 'securite',
+    })
+    const geste = opt('Introduire un iSGLT2', ['default'], { famille: 'Cumulable' })
+    const node = { options: [securite, geste], familles: [{ libelle: 'Cumulable', exclusive: false }] }
+    const familles = groupesParFamille(node, [securite, geste], new Map())
+    const badges = computeBadges(familles)
+    expect(badges.get(securite)).toBe('securite')
+    expect(badges.get(geste)).toBe('recommandee')
+  })
+
+  it('famille EXCLUSIVE : « securite » sur le groupe de tête, `null` hors tête (le plafond et l’ordre sont inchangés)', () => {
+    const tete = opt('Tête (sécurité)', ['default'], { famille: 'Exclusive', role: 'securite' })
+    const suivante = opt('Suivante (sécurité)', ['default'], { famille: 'Exclusive', role: 'securite' })
+    const node = { options: [tete, suivante], familles: [{ libelle: 'Exclusive', exclusive: true }] }
+    const rangs = new Map([
+      [tete, 2],
+      [suivante, 5],
+    ])
+    const familles = groupesParFamille(node, [tete, suivante], rangs)
+    const badges = computeBadges(familles)
+    expect(badges.get(tete)).toBe('securite')
+    expect(badges.get(suivante)).toBe(null)
+  })
+
+  it('un socle reste « reco-officielle » (D16 inchangé) — `role` est une valeur unique, un socle n’est jamais `securite`', () => {
+    const socle = opt('Metformine (socle) — poursuivre', ['toujours'])
+    const securite = opt('Arrêter la metformine (DFG < 30)', ['a == true'], { role: 'securite' })
+    const badges = computeBadges(famillesRepli([socle, securite], new Map()))
+    expect(badges.get(socle)).toBe('reco-officielle')
+    expect(badges.get(securite)).toBe('securite')
+  })
+})
+
+/**
+ * LE CAS RÉEL qui a motivé l'arbitrage (`statine`, profil D-03/D32 de la recette navigateur du
+ * 2026-07-28, déjà caractérisé côté moteur par `engine/evaluateNode.statine.test.ts`) : maladie
+ * athéromateuse établie + intolérance AVÉRÉE + statine pas encore en place, ancienneté du diabète et
+ * autres FDRCV NON renseignés. Le parcours `ordered-first-match` fait halte sur « Discuter la statine »
+ * (indéterminé) et n'atteint plus que la carte terminale `role: securite` — SEULE option applicable,
+ * donc en tête, donc badgée. C'est ce badge-là que le référent a tranché.
+ *
+ * Nœud SANS `familles` déclarées ⇒ branche de REPLI de `computeBadges` : le cas se joue exactement sur la
+ * règle historique D16, pas sur une famille fabriquée pour l'occasion.
+ */
+describe('computeBadges — cas réel (nœud `statine`, profil D-03/D32 : la seule carte applicable est une carte de sécurité)', () => {
+  const node = getNoeudById('statine')
+  if (!node) throw new Error('Nœud "statine" introuvable.')
+
+  const RENSEIGNES = new Set([
+    'age',
+    'ASCVD_etablie',
+    'diabete_complique',
+    'dialyse',
+    'statine_deja_en_place',
+    'intolerance_statine',
+    'CK_x_normale',
+    // `anciennete_diabete_annees` et `autres_FDRCV` délibérément ABSENTS : c'est ce qui provoque la halte.
+  ])
+
+  function badgesPour(criteria: Criteria, renseignes?: ReadonlySet<string>) {
+    const derived = calculerCriteresDerives(node!.criteres_entree, criteria)
+    const res = evaluateNode(node!, derived, renseignes)
+    return { res, badges: computeBadges(groupesParFamille(node!, res.applicable, res.rangs)) }
+  }
+
+  it('la carte terminale « Statine indisponible » (role: securite) porte « securite » et NON « Recommandée »', () => {
+    const criteria = {
+      ...buildDefaultCriteria(node.criteres_entree),
+      age: 62,
+      ASCVD_etablie: true,
+      diabete_complique: false,
+      dialyse: false,
+      statine_deja_en_place: false,
+      intolerance_statine: 'averee',
+      CK_x_normale: 6,
+    } as Criteria
+    const { res, badges } = badgesPour(criteria, RENSEIGNES)
+
+    const terminale = res.applicable.find((o) => o.intitule.includes('Statine indisponible'))
+    expect(terminale).toBeDefined()
+    // Prémisse du cas : c'est bien la SEULE carte affichée, donc celle qui reçoit la mise en avant.
+    expect(res.applicable).toEqual([terminale])
+    expect(terminale!.role).toBe('securite')
+    expect(badges.get(terminale!)).toBe('securite')
+    expect(badges.get(terminale!)).not.toBe('recommandee')
+  })
+
+  it('profil ORDINAIRE du même nœud (ASCVD établie, sans intolérance) : « Recommandée » est INCHANGÉ sur la carte `geste`', () => {
+    const criteria = {
+      ...buildDefaultCriteria(node.criteres_entree),
+      age: 60,
+      ASCVD_etablie: true,
+      anciennete_diabete_annees: 8,
+      autres_FDRCV: 1,
+      diabete_complique: false,
+      dialyse: false,
+      statine_deja_en_place: false,
+      intolerance_statine: 'non',
+      CK_x_normale: 0,
+    } as Criteria
+    const { res, badges } = badgesPour(criteria)
+
+    const haute = res.applicable.find((o) => o.intitule.includes('Statine de haute intensité'))
+    expect(haute).toBeDefined()
+    expect(haute!.role).toBe('geste')
+    expect(badges.get(haute!)).toBe('recommandee')
+  })
+})
+
+/**
  * Scénarios sur le VRAI contenu (`getNoeudById('prescription')`) — décision référent « le badge, c'est
  * le PLAN » (2026-07-25) : « Recommandée » désigne tout ce qu'il faut faire, pas un vainqueur unique.
  * Deux gestes de natures différentes (une famille cumulable, une famille exclusive) doivent tous deux

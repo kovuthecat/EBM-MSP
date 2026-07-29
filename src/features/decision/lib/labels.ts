@@ -179,10 +179,12 @@ const CRITERE_LABELS: Record<string, string> = {
   // Écarts à la cible (K6) : lus par le SEUL `preremplissage`, jamais par une règle de décision. Ils ne
   // peuvent donc pas apparaître dans un « Proposé parce que » — mais ils sont catalogués comme les autres,
   // parce qu'une exception nominative dans l'invariant de couverture coûterait plus cher que ces lignes.
-  // `ecart_sous_objectif_cible` ajouté le 2026-07-29 (passe A, arbitrage référent E) : même nom et même
+  // Les QUATRE bandes depuis le 2026-07-29 (les deux seuils sous l'objectif ont été donnés par le référent).
+  // `ecart_sous_objectif_cible` ajouté côté nœud E (passe A, arbitrage référent) : même nom et même
   // dérivation que le critère déjà partagé avec `prescription` (I4 inter-nœuds).
   ecart_au_dessus_cible: "HbA1c au-dessus de l'objectif fixé",
   ecart_nettement_au_dessus_cible: "HbA1c à 1 point ou plus au-dessus de l'objectif fixé",
+  ecart_a_l_objectif_cible: "HbA1c à l'objectif fixé (jusqu'à moins d'un point en dessous)",
   ecart_sous_objectif_cible: "HbA1c à 1 point ou plus en dessous de l'objectif fixé",
   // Nœud F « Statine » — le champ qui dit si le geste est DÉJÀ FAIT (R9).
   statine_deja_en_place: 'Statine déjà en place',

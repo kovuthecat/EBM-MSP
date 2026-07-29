@@ -224,3 +224,123 @@ Suivi dans `plans/P7/index.md`.
 ## Fin de session
 
 Dérouler `/fin-de-tache` (mode vague parallèle — SB1 tourne en parallèle sur des fichiers disjoints).
+
+### Bilan de session (2026-07-29) — à reverser à la consolidation
+
+**Fichiers modifiés** : `content/noeuds/diabete-type-2/prescription.yaml` (v0.35 → **v0.36**, une seule
+entrée de changelog D5 pour les trois tâches) · `src/features/decision/lib/labels.ts` (2 libellés, exigés
+par l'invariant I20 sur les 2 nouveaux dérivés) · `banc/__snapshots__/caracterisation.prescription.txt` et
+`caracterisation-indetermine.prescription.txt`.
+
+**T-048 — les quatre bandes, vérifiées sur le moteur réel** (cible 7,0) : 9,0 et 8,0 →
+`nettement_au_dessus` ; 7,9 et 7,1 → `au_dessus` ; 7,0 · 6,9 · 6,01 → `a_l_objectif` ; 6,0 et 5,5 →
+`sous_objectif`. Cible non saisie → **rien** n'est pré-rempli (gardes `> 0` + indétermination R7).
+Position déjà déclarée → valeur conservée, `preremplis` vide : **aucun écrasement d'un choix manuel**.
+Deux dérivés ajoutés (`ecart_sous_objectif_cible`, `ecart_a_l_objectif_cible`), écrits comme les deux
+existants et sans littéral négatif (`HbA1c_cible - HbA1c_actuelle`), donc **aucun littéral nouveau** dans
+le domaine de tirage du banc pour l'HbA1c. Le gros avertissement « ⚠ RIEN N'EST PRÉ-REMPLI SOUS
+L'OBJECTIF » est remplacé par ce qui est vrai (les 4 bandes, leur origine, R1).
+*Nuance observée, pas un défaut* : dans la bande `a_l_objectif`, la valeur proposée coïncide avec la
+valeur par défaut du champ (1re valeur de l'énumération, choisie « inerte ») — `appliquerPreremplissage`
+ne signale alors rien, puisqu'il ne rapporte que les changements réels. L'écran ne montre donc pas de
+marqueur « pré-rempli » sur cette bande. Comportement existant du mécanisme K6, non modifié.
+
+**⚠ POINT D'AMBIGUÏTÉ SIGNALÉ, NON TRANCHÉ (comme demandé)** : « nettement au-dessus » vaut `>= 1` dans
+le contenu (formulation du 2026-07-27, « supérieure OU ÉGALE à 1 point ») ; la formulation du 2026-07-29
+dit « supérieur À 1 point ». Écart exact : une HbA1c à 8,0 pour un objectif à 7,0 — aujourd'hui
+`nettement_au_dessus`, `au_dessus` avec l'autre lecture. **Encodage existant conservé**, et l'ambiguïté est
+écrite noir sur blanc dans le YAML (commentaire du dérivé + changelog) pour ne pas se perdre. À trancher
+par le référent.
+
+**T-049 — alerte, pas exclusion, vérifié à l'écran (modèle de vue)** : DFG 12 → option AR GLP‑1
+**affichée**, badge « recommandee », **non écartée**, alerte présente. DFG 15 → affichée, pas d'alerte
+(borne stricte). DFG 25 → affichée, pas d'alerte (inchangé). DFG 0 → pas d'alerte (garde `DFG > 0`).
+Le commentaire du seuil `DFG < 30` ne se présente plus comme ouvert : l'arbitrage est écrit (seuil
+maintenu, motif metformine, ce n'est pas un seuil de sécurité de l'AR GLP‑1).
+
+**T-050 — les trois cas + un quatrième, vérifiés sur le moteur, pas supposés** : traitement coché →
+option **applicable** ; liste renseignée **vide** → **non retenue** ; champ **non renseigné** → **EN
+ATTENTE** (« à renseigner : traitements_en_cours »), ni affirmée ni écartée ; et — cas ajouté parce que
+c'est là que D30/T-018 s'est déjà fait piéger — patient **`initier`** → **non retenue**, jamais en
+attente (la `conditions` `intention != initier` est évaluée avant le prérequis et court-circuite).
+Posé en `prerequis` (R6) et non en `conditions` : « le patient a un traitement en cours » ne s'affiche
+pas comme justification. Garde `intention != initier` répété en tête des 9 termes (motif R8/T-031).
+
+**Validation N0 — suite COMPLÈTE en foreground** : `npx tsc --noEmit` → 0 erreur · `npm run build` → OK ·
+Ajv (`content.test.ts`) → 18/18 · `npm test` → **838 passés, 2 échecs**, tous deux le MÊME profil, et
+**pas une régression de cette session** (cf. ci-dessous).
+
+**Snapshots du banc — relus, pas régénérés à l'aveugle.** Delta propre à cette session isolé du travail de
+SB1 (référence prise après la régénération de SB1, avant toute modification de contenu) : **seuls les deux
+fichiers `*.prescription.txt` bougent** — `insuline`, `statine`, `cible-glycemique`, `rhd-*` sont
+inchangés par SA1.
+
+- `caracterisation.prescription.txt` : **5 profils sur 180** (#3, #8, #75, #132, #167), **un seul et même
+  changement** — retrait de « Optimiser l'agent mal toléré », rien d'ajouté nulle part. Attendu : c'est
+  exactement T-050. Quatre de ces profils ont `traitements_en_cours=[]`. Le cinquième (#3) porte
+  `traitements_en_cours=[insuline]` — **valeur périmée de la fixture figée** : `insuline` n'est plus une
+  valeur déclarée du critère depuis la fusion (le nœud distingue `insuline_basale`/`insuline_rapide`, et
+  `libelles.test.ts` recense déjà `insuline` comme libellé mort). Pour toutes les règles du nœud, cette
+  liste est indiscernable d'une liste vide ; le retrait est donc correct. Les 5 profils conservent des
+  options (aucun ne devient muet).
+- `caracterisation-indetermine.prescription.txt` : la même option passe **en attente** au lieu d'être
+  affirmée sur des profils où `traitements_en_cours` est masqué/non renseigné — c'est le défaut que T-050
+  corrige. Un profil (#9) passe à « aucune option applicable », mais avec un registre **EN ATTENTE** bien
+  fourni : R10/I23 tenu, l'écran dit ce qui manque au lieu d'affirmer sur un champ jamais rempli.
+
+### ⚠ Trou de couverture PRÉ-EXISTANT révélé (pas causé) par cette session — arbitrage clinique requis
+
+`npm test` finit **ROUGE** sur deux invariants, tous deux sur le **profil #1576** du banc dynamique de
+`prescription` : **I2′** (`banc/invariants.test.ts`, jamais `applicable` vide quand tout est renseigné) et
+**I23** (`banc/securite-atteignable.test.ts`, jamais `applicable` et `enAttente` vides ensemble).
+
+**Ce n'est pas une régression de contenu, c'est un rééchantillonnage du banc.** Preuve mesurée, pas
+déduite : (a) ce patient exact, évalué contre le contenu **HEAD** (avant mes trois changements), est
+**également muet** — `applicable: []`, `enAttente: 0` ; (b) il **n'existait pas** dans le banc engendré par
+le contenu HEAD (recherche par signature : index −1), qui comptait **0 profil muet** ; (c) la cause du
+déplacement est mécanique et connue — `seuilsNumeriques` (`banc/profils.ts`) extrait les littéraux des
+règles, donc le `15` de la nouvelle alerte T-049 ajoute {14, 15, 16} au domaine de tirage du DFG
+(23 → 26 valeurs distinctes) et redistribue les séquences stratifiées. Aucune des trois règles encodées ne
+retire d'option à ce patient : « Optimiser l'agent mal toléré » y échoue sur sa **`conditions`**
+(`intolerance_traitement == false`), pas sur le prérequis ajouté.
+
+**Le trou lui-même** (conjonction, mesurée par balayage ciblé — **108 combinaisons muettes sur 3 840** du
+sous-espace exploré, soit ~2,8 %) : `intention == initier` (le repli « Poursuivre le traitement en cours »
+est fermé par son prérequis) **ET** position au-dessus / nettement au-dessus (le repli « Aucun traitement
+médicamenteux — MHD seules » est fermé par `cible_atteinte == true`) **ET** `symptomes_glucotoxicite ==
+true` avec `HbA1c < 10` et `cetonemie == false` — **l'asymétrie décisive** : le gate catabolique EXCLUT les
+places résiduelles gliptine/sulfamide sur la seule glucotoxicité, alors que « Insuline d'initiation »
+EXIGE `HbA1c >= 10 AND glucotoxicité OR cétonémie` — **ET** `DFG < 30` (socle metformine exclu) **ET**
+`classes_a_benefice_indisponibles == true` (les 4 options « Introduire… » fermées par prérequis), l'AR
+GLP‑1 restant par ailleurs disponible au sens du dérivé (IMC ≥ 22, pas de dénutrition), ce qui ferme aussi
+« Envisager l'insuline ». Basculer **un seul** de ces critères rend le patient non muet (vérifié terme à
+terme) ; `infections_uro_genitales_recidivantes` n'en fait pas partie.
+
+**Non corrigé, délibérément** : boucher ce trou demande de décider **ce qu'on propose** à ce patient
+(naïf, symptômes de glucotoxicité à HbA1c < 10, DFG < 30, classes à bénéfice déclarées indisponibles) —
+c'est un arbitrage clinique, hors du périmètre explicite de cette session (« n'introduis aucune règle
+clinique qui ne soit pas littéralement écrite ci-dessous »). Et il n'a pas été **silencié** :
+`NOEUDS_AVEC_SORTIE_VIDE_CONNUE` (`banc/invariants.test.ts`) bascule le test en `it.fails` pour le nœud
+**entier** — l'y inscrire aveuglerait I2′ sur tout `prescription`, ce qui coûterait plus que le trou.
+**À router vers le référent avant le commit du plan.**
+
+### N1 / N2 à faire (reversés à la consolidation)
+
+- **N1** : `—` pour SA1 (aucun navigateur ici). L'effet à l'écran des 3 changements — champ
+  `position_vs_cible` pré-rempli et signalé comme tel sur les 4 bandes, alerte rénale rendue sous la carte
+  AR GLP‑1, disparition de « Optimiser l'agent mal toléré » sans traitement en cours — est à vérifier par
+  **S2, vague 3**, comme prévu par le cadrage.
+- **N2 (jugement humain, à porter dans `VALIDATION.md` à la consolidation)** : le texte de l'alerte rénale
+  AR GLP‑1 dit-il « utilisable, mais peu documenté » sans se lire comme un feu rouge ? C'est le seul point
+  du lot qu'aucun test ne peut trancher — l'encodage garantit que l'option reste affichée, pas que le
+  praticien le comprenne ainsi.
+- **Décision de périmètre, signalée** : aucune vignette permanente n'a été ajoutée à
+  `evaluateNode.prescription.test.ts` (la section « Modifier » de cette session ne listait que le YAML).
+  Les trois comportements ont été vérifiés par une sonde temporaire, supprimée. L'usage du dépôt veut
+  qu'un arbitrage encodé reçoive sa vignette : **à ouvrir en tâche de suite** si l'orchestrateur le
+  souhaite (T-050 en particulier — le cas « champ non renseigné ⇒ en attente » n'est verrouillé
+  aujourd'hui que par le snapshot d'indétermination).
+- **Couplage inter-sessions, pour information** : les snapshots de caractérisation sont partagés avec SB1.
+  Ma régénération finale porte **les deux** deltas (badge `securite` de SB1 + retrait d'option de SA1) ;
+  c'est l'état correct pour le commit de fin de plan, mais aucune des deux sessions ne peut produire son
+  delta seule.

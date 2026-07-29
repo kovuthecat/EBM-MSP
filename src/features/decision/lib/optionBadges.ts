@@ -18,8 +18,40 @@ function estSocle(option: Option): boolean {
   return option.role === 'socle'
 }
 
-/** Badge de mise en avant d'une carte d'option (D16). `null` = carte non mise en avant. */
-export type OptionBadge = 'recommandee' | 'reco-officielle' | null
+/**
+ * Badge de mise en avant d'une carte d'option (D16, étendu le 2026-07-29). `null` = carte non mise en
+ * avant. Les quatre valeurs et leur sens sont documentés sur la prop `badge` de
+ * `components/OptionCard.tsx` — seul endroit où elles deviennent du texte à l'écran.
+ */
+export type OptionBadge = 'recommandee' | 'reco-officielle' | 'securite' | null
+
+/**
+ * Badge d'une option MISE EN AVANT (celle qui, jusqu'au 2026-07-29, recevait invariablement
+ * `'recommandee'`) — arbitrage référent du 2026-07-29, MÊME PROBLÈME ET MÊME SOLUTION QUE D16.
+ *
+ * LE DÉFAUT. « Recommandée » veut dire « c'est le meilleur choix parmi plusieurs, d'après les données ».
+ * Une option `role: securite` (D25) n'est pas un choix d'agent thérapeutique : c'est ce qui reste quand
+ * le traitement habituel est écarté (ex. `statine`, profil D-03 : maladie CV établie + intolérance
+ * avérée → « Statine indisponible — alternatives hypolipémiantes », seule carte affichée, donc en tête,
+ * donc badgée « Recommandée »). Les deux situations sont très différentes pour le praticien, et le même
+ * badge pour les deux induit en erreur.
+ *
+ * LE PRÉCÉDENT SUIVI. D16 avait déjà distingué le socle (`'reco-officielle'`) de l'option EBM la plus
+ * indiquée (`'recommandee'`) plutôt que de lui retirer son badge — le référent tranche ici de la même
+ * façon : PAS de suppression du badge (la carte reste la conduite à tenir), une VALEUR DE BADGE de plus,
+ * décidée ici, avec son libellé et son registre visuel propres dans `OptionCard`.
+ *
+ * PORTÉE STRICTEMENT LIMITÉE À L'ÉTIQUETTE : cette fonction ne s'insère qu'aux endroits où
+ * `'recommandee'` était déjà attribué. Ni le tri, ni le plafond de 5 pistes, ni le repli d'affichage
+ * (D25, `lib/replierAffichage.ts`) ne la consultent — ce qui est affiché, et dans quel ordre, est
+ * inchangé. Une option `securite` HORS du groupe mis en avant reste `null`, comme avant.
+ *
+ * `socle` n'est jamais concerné (`role` est une valeur unique : une option socle n'est pas `securite`),
+ * et `repli` garde `'recommandee'` — l'arbitrage ne porte que sur `securite`.
+ */
+function badgeMiseEnAvant(option: Option): OptionBadge {
+  return option.role === 'securite' ? 'securite' : 'recommandee'
+}
 
 /**
  * Calcule le badge de chaque option applicable, FAMILLE PAR FAMILLE (correctif « le badge, c'est le
@@ -34,12 +66,16 @@ export type OptionBadge = 'recommandee' | 'reco-officielle' | null
  * Règle par famille (`GroupeFamille.exclusive`) :
  * - option de SOCLE (`role: socle`, ex. metformine) → `'reco-officielle'`, INCHANGÉ,
  *   prioritaire sur toute logique de famille ;
- * - famille CUMULABLE (`exclusive: false`) : tout ce qui est affiché est à faire → `'recommandee'` sur
+ * - famille CUMULABLE (`exclusive: false`) : tout ce qui est affiché est à faire → mise en avant de
  *   TOUTES les options de la famille, indépendamment de leur rang respectif ;
- * - famille EXCLUSIVE (`exclusive: true`) : options ALTERNATIVES (on en choisit une) → `'recommandee'`
- *   réservé au groupe d'égalité de TÊTE de la famille (`groupes[0]`), les autres options restent `null` ;
+ * - famille EXCLUSIVE (`exclusive: true`) : options ALTERNATIVES (on en choisit une) → mise en avant
+ *   réservée au groupe d'égalité de TÊTE de la famille (`groupes[0]`), les autres options restent `null` ;
  * - famille de REPLI (`exclusive: undefined`, nœud sans `Noeud.familles` déclarées) : règle HISTORIQUE
- *   inchangée (D16/S7‑ui Lot 3) — badge sur le groupe d'égalité contenant la 1re option non-socle.
+ *   inchangée (D16/S7‑ui Lot 3) — mise en avant du groupe d'égalité contenant la 1re option non-socle.
+ *
+ * « Mise en avant » = `'recommandee'`, SAUF sur une option `role: securite`, qui reçoit `'securite'`
+ * depuis l'arbitrage référent du 2026-07-29 (cf. `badgeMiseEnAvant` ci-dessus). Rien d'autre ne change :
+ * QUELLES options sont mises en avant, et dans quel ordre elles s'affichent, est identique.
  *
  * Prend directement le résultat de `groupesParFamille` (et non `applicable`/`rangs` bruts) : c'est
  * exactement ce que l'écran affiche par section, la même source que la signature de pertinence
@@ -55,7 +91,7 @@ export function computeBadges(familles: GroupeFamille[]): Map<Option, OptionBadg
     if (famille.exclusive === false) {
       // Cumulable : tout ce qui est affiché dans cette famille est à faire.
       for (const option of toutesOptions) {
-        badges.set(option, estSocle(option) ? 'reco-officielle' : 'recommandee')
+        badges.set(option, estSocle(option) ? 'reco-officielle' : badgeMiseEnAvant(option))
       }
       continue
     }
@@ -67,7 +103,7 @@ export function computeBadges(familles: GroupeFamille[]): Map<Option, OptionBadg
         if (estSocle(option)) {
           badges.set(option, 'reco-officielle')
         } else if (groupeTete?.includes(option)) {
-          badges.set(option, 'recommandee')
+          badges.set(option, badgeMiseEnAvant(option))
         } else {
           badges.set(option, null)
         }
@@ -85,7 +121,7 @@ export function computeBadges(familles: GroupeFamille[]): Map<Option, OptionBadg
       if (estSocle(option)) {
         badges.set(option, 'reco-officielle')
       } else if (groupeTete?.includes(option)) {
-        badges.set(option, 'recommandee')
+        badges.set(option, badgeMiseEnAvant(option))
       } else {
         badges.set(option, null)
       }

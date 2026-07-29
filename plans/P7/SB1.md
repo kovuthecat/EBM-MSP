@@ -108,3 +108,48 @@ Suivi dans `plans/P7/index.md`.
 ## Fin de session
 
 Dérouler `/fin-de-tache` (mode vague parallèle — SA1 tourne en parallèle sur des fichiers disjoints).
+
+### Bilan de session (2026-07-29) — à reverser à la consolidation
+
+**Le cas EST atteignable** (clause « Si bloqué » levée, pas déclenchée). Vérifié sur le contenu réel,
+pas supposé : 6 options `role: securite` recevaient « Recommandée » sur les profils du banc — 3 sur
+`prescription` (arrêt metformine DFG < 30, arrêt sulfamide DFG < 30, suspension iSGLT2 sur cétonémie),
+1 sur `insuline` (correction d'hypoglycémie/variabilité), 1 sur `statine` (carte terminale D-03/D32),
+1 sur `prescription` encore (insuline d'initiation, état catabolique).
+
+**Écart de cadrage assumé — le badge n'est PAS calculé dans `DecisionNodeScreen.tsx`.** Le fichier de
+session le désignait comme l'endroit du calcul ; ce n'est plus vrai depuis l'extraction du modèle de vue
+unique : l'écran ne calcule plus rien (`lib/vueDecision.ts` docstring de tête), il passe `optionVue.badge`
+tel quel. Le calcul vit dans `lib/optionBadges.ts` (`computeBadges`), consommé par `lib/vueDecision.ts`.
+La quatrième valeur y a donc été ajoutée — l'intention du cadrage (décider hors de la carte, aux trois
+mêmes endroits que les autres valeurs) est tenue, l'adresse seule change. `OptionCard.tsx` ne lit
+toujours pas `option.role` ; un test le verrouille explicitement.
+
+**Libellé et registre retenus** : « **Mesure de sécurité** », pastille à **contour** `--c-ci-warning`
+(fond de carte, bordure et texte), aucun token nouveau. Ni l'aplat bleu de « Recommandée » (dirait
+« choix préférentiel », le contresens qu'on corrige), ni la pastille grise de « Recommandation
+officielle » (dirait « pour information »), ni un aplat rouge plein (se lirait « interdit », alors que la
+carte EST la conduite à tenir). `--c-ci-warning` est déjà le rouge « fait de sécurité » de cette carte
+(SB6, `<summary>` des contre-indications) : même registre, ce qui est voulu. Contraste recalculé pour cet
+emploi : 8,65:1 sur `--c-surface`, 8,29:1 sur `--c-bg` (AAA), du même ordre que le blanc sur
+`--c-accent-decision` du badge « Recommandée » (7,13:1).
+
+**Snapshots de caractérisation régénérés — diff RELU, pas accepté à l'aveugle** (exigence de la docstring
+de `banc/caracterisation.test.ts`). 6 fichiers, 299 lignes changées, **1:1** : vérification mécanique que
+chaque ligne modifiée ne diffère QUE par le jeton de badge (`recommandee` → `securite`), et que les
+6 options concernées portent bien `role: securite` dans le YAML. Régénérés à un instant où
+`prescription.yaml` était encore à HEAD — le diff est donc pur, sans mélange avec le travail de SA1.
+
+### N1 / N2 à faire (reversés à la consolidation)
+
+- **N1** : lisibilité réelle de la pastille à l'écran (épaisseur du contour à 11 px, tenue en mobile
+  étroit à côté d'`EvidenceBadge`, distinction immédiate d'avec les deux autres badges au test des
+  20 secondes). Déjà prévu par le cadrage : S2, vague 3.
+- **N2 (jugement humain, à porter dans `VALIDATION.md` à la consolidation)** : le libellé
+  « Mesure de sécurité » dit-il au praticien ce que le référent voulait qu'il dise — « c'est ce qui reste
+  quand le traitement habituel est écarté » — sans se lire comme une mise en garde CONTRE la carte ?
+  C'est le seul point que ni un test ni un navigateur ne peuvent trancher.
+- **Point ouvert, hors périmètre, signalé plutôt que traité** : une carte badgée `securite` reçoit
+  toujours la classe `.option-card--primary` (bordure bleue `--c-accent-decision`), exactement comme
+  avant — le cadrage disait « seule l'étiquette change ». Si la vérification visuelle trouve que cette
+  bordure bleue contredit le badge, c'est une décision de suite, pas un oubli.

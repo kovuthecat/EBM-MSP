@@ -55,7 +55,7 @@ Sortie :
     - Remplacer la gliptine (aucun bénéfice sur critère dur — préférer un agent qui en apporte) :: à renseigner : intention, traitements_en_cours
     - Arrêter la gliptine redondante (association gliptine + AR GLP‑1 / tirzépatide déjà en place) :: à renseigner : intention, traitements_en_cours
     - Remplacer le sulfamide (moins d'hypoglycémie, moins de poids, plus de bénéfice) :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, DFG
-    - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : intention, intolerance_traitement
+    - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : intention, traitements_en_cours, intolerance_traitement
     - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, position_vs_cible, DFG
     - Réduire la posologie de l'insuline (sur‑basalisation / hypoglycémie) :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, position_vs_cible, DFG, intolerance_traitement
     - Réduire la posologie de l'AR GLP‑1 (perte de poids excessive / intolérance digestive) :: à renseigner : intention, traitements_en_cours, denutrition, intolerance_traitement, nature_intolerance
@@ -182,14 +182,11 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
 
 Sortie :
   Famille « À faire d'emblée — sécurité » (exclusive: false) :
-  - [recommandee] Insuline d'initiation (souvent transitoire — état catabolique)
+  - [securite] Insuline d'initiation (souvent transitoire — état catabolique)
       proposé parce que : cetonemie == true
   Famille « Socle du traitement » (exclusive: false) :
   - [reco-officielle] Metformine (socle du traitement) — instaurer ou poursuivre
       proposé parce que : toujours
-  Famille « Traitement à alléger » (exclusive: false) :
-  - [recommandee] Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer
-      proposé parce que : intention != initier AND intolerance_traitement == true
   Alertes de nœud :
     - Contrôler la cétonémie capillaire (β‑hydroxybutyrate) : décompensation catabolique possible malgré une HbA1c non franchement élevée. ≥ 0,6 mmol/L → insuline d'initiation ; ≥ 3 mmol/L → urgence (insuline + hospitalisation). [attention]
   Options écartées (sécurité, R4) :
@@ -231,7 +228,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
 
 Sortie :
   Famille « À faire d'emblée — sécurité » (exclusive: false) :
-  - [recommandee] Insuline d'initiation (souvent transitoire — état catabolique)
+  - [securite] Insuline d'initiation (souvent transitoire — état catabolique)
       proposé parce que : HbA1c_actuelle >= 10 AND symptomes_glucotoxicite == true
   Famille « Socle du traitement » (exclusive: false) :
   - [reco-officielle] Metformine (socle du traitement) — instaurer ou poursuivre
@@ -283,9 +280,6 @@ Sortie :
   Famille « Socle du traitement » (exclusive: false) :
   - [reco-officielle] Metformine (socle du traitement) — instaurer ou poursuivre
       proposé parce que : toujours
-  Famille « Traitement à alléger » (exclusive: false) :
-  - [recommandee] Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer
-      proposé parce que : intention != initier AND intolerance_traitement == true
   Alertes de nœud :
     - Contrôler la cétonémie capillaire (β‑hydroxybutyrate) : décompensation catabolique possible malgré une HbA1c non franchement élevée. ≥ 0,6 mmol/L → insuline d'initiation ; ≥ 3 mmol/L → urgence (insuline + hospitalisation). [attention]
     - Metformine : dose maximale 1 000 mg/j, initiation ≤ 500 mg si DFG 30‑44 (RCP ANSM). [attention]
@@ -298,6 +292,7 @@ Sortie :
     - Association iSGLT2 + AR GLP‑1 (deux indications distinctes) :: à renseigner : traitements_en_cours
     - Remplacer la gliptine (aucun bénéfice sur critère dur — préférer un agent qui en apporte) :: à renseigner : traitements_en_cours
     - Arrêter la gliptine redondante (association gliptine + AR GLP‑1 / tirzépatide déjà en place) :: à renseigner : traitements_en_cours
+    - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : traitements_en_cours
     - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : traitements_en_cours
     - Réduire la posologie de l'insuline (sur‑basalisation / hypoglycémie) :: à renseigner : traitements_en_cours
     - Réduire la posologie de l'AR GLP‑1 (perte de poids excessive / intolérance digestive) :: à renseigner : traitements_en_cours, denutrition
@@ -387,7 +382,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
 
 Sortie :
   Famille « À faire d'emblée — sécurité » (exclusive: false) :
-  - [recommandee] Insuline d'initiation (souvent transitoire — état catabolique)
+  - [securite] Insuline d'initiation (souvent transitoire — état catabolique)
       proposé parce que : cetonemie == true
   Alertes de nœud :
     - Contrôler la cétonémie capillaire (β‑hydroxybutyrate) : décompensation catabolique possible malgré une HbA1c non franchement élevée. ≥ 0,6 mmol/L → insuline d'initiation ; ≥ 3 mmol/L → urgence (insuline + hospitalisation). [attention]
@@ -436,9 +431,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - classes_a_benefice_indisponibles = false
 
 Sortie :
-  Famille « Traitement à alléger » (exclusive: false) :
-  - [recommandee] Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer
-      proposé parce que : intention != initier AND intolerance_traitement == true
+  (aucune option applicable — sortie vide)
   Alertes de nœud :
     - Contrôler la cétonémie capillaire (β‑hydroxybutyrate) : décompensation catabolique possible malgré une HbA1c non franchement élevée. ≥ 0,6 mmol/L → insuline d'initiation ; ≥ 3 mmol/L → urgence (insuline + hospitalisation). [attention]
   Options écartées (sécurité, R4) :
@@ -500,7 +493,7 @@ Sortie :
     - Suspendre l'iSGLT2 (cétonémie confirmée — suspicion d'acidocétose euglycémique) :: à renseigner : traitements_en_cours
     - Remplacer la gliptine (aucun bénéfice sur critère dur — préférer un agent qui en apporte) :: à renseigner : traitements_en_cours
     - Arrêter la gliptine redondante (association gliptine + AR GLP‑1 / tirzépatide déjà en place) :: à renseigner : traitements_en_cours
-    - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : intolerance_traitement
+    - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : traitements_en_cours, intolerance_traitement
     - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : traitements_en_cours
     - Réduire la posologie de l'insuline (sur‑basalisation / hypoglycémie) :: à renseigner : traitements_en_cours
     - Réduire la posologie de l'AR GLP‑1 (perte de poids excessive / intolérance digestive) :: à renseigner : traitements_en_cours
@@ -595,7 +588,7 @@ Sortie :
     - Remplacer la gliptine (aucun bénéfice sur critère dur — préférer un agent qui en apporte) :: à renseigner : intention, traitements_en_cours
     - Arrêter la gliptine redondante (association gliptine + AR GLP‑1 / tirzépatide déjà en place) :: à renseigner : intention, traitements_en_cours
     - Remplacer le sulfamide (moins d'hypoglycémie, moins de poids, plus de bénéfice) :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle
-    - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : intention, intolerance_traitement
+    - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : intention, traitements_en_cours, intolerance_traitement
     - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, position_vs_cible
     - Réduire la posologie de l'insuline (sur‑basalisation / hypoglycémie) :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, position_vs_cible, intolerance_traitement
     - Réduire la posologie de l'AR GLP‑1 (perte de poids excessive / intolérance digestive) :: à renseigner : intention, traitements_en_cours, intolerance_traitement
@@ -649,7 +642,7 @@ Sortie :
     - Remplacer la gliptine (aucun bénéfice sur critère dur — préférer un agent qui en apporte) :: à renseigner : intention, traitements_en_cours
     - Arrêter la gliptine redondante (association gliptine + AR GLP‑1 / tirzépatide déjà en place) :: à renseigner : intention, traitements_en_cours
     - Remplacer le sulfamide (moins d'hypoglycémie, moins de poids, plus de bénéfice) :: à renseigner : intention, traitements_en_cours
-    - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : intention, intolerance_traitement
+    - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : intention, traitements_en_cours, intolerance_traitement
     - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : intention, traitements_en_cours
     - Réduire la posologie de l'insuline (sur‑basalisation / hypoglycémie) :: à renseigner : intention, traitements_en_cours
     - Réduire la posologie de l'AR GLP‑1 (perte de poids excessive / intolérance digestive) :: à renseigner : intention, traitements_en_cours, denutrition, intolerance_traitement, nature_intolerance
@@ -688,7 +681,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
 
 Sortie :
   Famille « À faire d'emblée — sécurité » (exclusive: false) :
-  - [recommandee] Insuline d'initiation (souvent transitoire — état catabolique)
+  - [securite] Insuline d'initiation (souvent transitoire — état catabolique)
       proposé parce que : HbA1c_actuelle >= 10 AND symptomes_glucotoxicite == true ; cetonemie == true
   Famille « Socle du traitement » (exclusive: false) :
   - [reco-officielle] Metformine (socle du traitement) — instaurer ou poursuivre
@@ -737,9 +730,6 @@ Sortie :
   Famille « Socle du traitement » (exclusive: false) :
   - [reco-officielle] Metformine (socle du traitement) — instaurer ou poursuivre
       proposé parce que : toujours
-  Famille « Traitement à alléger » (exclusive: false) :
-  - [recommandee] Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer
-      proposé parce que : intention != initier AND intolerance_traitement == true
   Alertes de nœud :
     - Contrôler la cétonémie capillaire (β‑hydroxybutyrate) : décompensation catabolique possible malgré une HbA1c non franchement élevée. ≥ 0,6 mmol/L → insuline d'initiation ; ≥ 3 mmol/L → urgence (insuline + hospitalisation). [attention]
     - Metformine : dose maximale 2 000 mg/j si DFG 45‑59 (RCP ANSM) ; revoir au préalable les facteurs de risque d'acidose lactique. [attention]
@@ -752,6 +742,7 @@ Sortie :
     - Association iSGLT2 + AR GLP‑1 (deux indications distinctes) :: à renseigner : traitements_en_cours
     - Remplacer la gliptine (aucun bénéfice sur critère dur — préférer un agent qui en apporte) :: à renseigner : traitements_en_cours
     - Arrêter la gliptine redondante (association gliptine + AR GLP‑1 / tirzépatide déjà en place) :: à renseigner : traitements_en_cours
+    - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : traitements_en_cours
     - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : traitements_en_cours
     - Réduire la posologie de l'insuline (sur‑basalisation / hypoglycémie) :: à renseigner : traitements_en_cours
     - Réduire la posologie de l'AR GLP‑1 (perte de poids excessive / intolérance digestive) :: à renseigner : traitements_en_cours

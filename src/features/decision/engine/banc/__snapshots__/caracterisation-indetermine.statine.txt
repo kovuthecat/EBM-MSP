@@ -151,7 +151,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
 
 Sortie :
   Famille « (repli à plat) » (exclusive: n/a) :
-  - [recommandee] Statine indisponible (intolérance avérée ou contre-indication) — alternatives hypolipémiantes
+  - [securite] Statine indisponible (intolérance avérée ou contre-indication) — alternatives hypolipémiantes
       proposé parce que : intolerance_statine == averee
       alertes d'option : Ce patient a une maladie cardiovasculaire ÉTABLIE : il relève de la prévention SECONDAIRE, où le bénéfice de l'abaissement du LDL est le mieux démontré et le NNT le plus bas. L'indisponibilité de la statine ne diminue en rien son risque absolu — elle rend seulement plus difficile de le réduire. Ne pas laisser ce patient sans traitement hypolipémiant au motif que la statine est écartée. [attention]
   Options écartées (sécurité, R4) :

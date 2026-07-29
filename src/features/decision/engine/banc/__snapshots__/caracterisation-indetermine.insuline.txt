@@ -415,7 +415,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
 
 Sortie :
   Famille « Sécurité — à corriger d'abord » (exclusive: false) :
-  - [recommandee] Corriger l'hypoglycémie ou la variabilité (réduire la dose, passer en 2ᵉ génération, relâcher la cible)
+  - [securite] Corriger l'hypoglycémie ou la variabilité (réduire la dose, passer en 2ᵉ génération, relâcher la cible)
       proposé parce que : situation_insuline == basale_seule ; mcg_disponible == true AND TBR > 4 ; mcg_disponible == true AND profil_glycemique contient hypo_nocturne
   Alertes de nœud :
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
