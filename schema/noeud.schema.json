@@ -330,6 +330,17 @@
           ],
           "description": "CE QUE L'OPTION EST, declare par le contenu (arbitrage A3 du 2026-07-27). Ajoute parce que le contenu n'avait AUCUN moyen de dire la nature d'une option : `priorite` portait trois sens incompatibles a la fois (ordre de tri D13/D14, porte d'affichage pour le repli, marqueur de socle via le rang 0), et le seul indice restant de la nature d'une carte etait un LIBELLE DE FAMILLE en francais — que le moteur a interdiction de lire (invariant CLAUDE.md 5 / D8, aucun nom de domaine ni de noeud). Cinq constats de recette convergeaient sur ce manque : le socle metformine preemptait tout l'ecran, le repli d'affichage a cache une carte de securite, l'option terminale de `statine` n'est protegee que par sa POSITION, le « pourquoi pas d'autres options » est pollue, et deux options `default` coexistent sur `prescription`. VALEURS : `socle` = le geste de fond, propose quel que soit le reste (sentinelle `conditions: [\"toujours\"]`) ; `securite` = a faire d'emblee, jamais replie ni plafonne — un fait de securite ne se negocie pas contre la place a l'ecran ; `geste` = une piste therapeutique ordinaire, le cas courant ; `repli` = ce qu'on propose quand rien d'autre ne s'applique (sentinelle `conditions: [\"default\"]`). La coherence entre `role` et les deux sentinelles est verifiee par un invariant du banc, dans les DEUX sens : une declaration qui derive de la mecanique serait pire que pas de declaration du tout."
         },
+        "action": {
+          "type": "string",
+          "enum": [
+            "ajouter",
+            "remplacer",
+            "arreter",
+            "reduire",
+            "maintenir"
+          ],
+          "description": "Verbe d'action pour piloter un badge couleur a l'ecran (SB3) — RESERVE aux noeud dont le contenu emploie deja ce vocabulaire (prescription, insuline). Pas un champ a remplir par defaut sur tout noeud futur : les 4 autres noeud (cible-glycemique, statine, rhd-alimentation, rhd-activite-physique) n'ont pas ce vocabulaire dans leur contenu et ne doivent jamais le recevoir de force. Optionnel."
+        },
         "conditions": {
           "type": "array",
           "minItems": 1,

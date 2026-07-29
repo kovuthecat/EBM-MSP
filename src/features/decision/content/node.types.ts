@@ -189,6 +189,14 @@ export interface Calcul {
  */
 export type RoleOption = 'socle' | 'securite' | 'geste' | 'repli'
 
+/**
+ * Verbe d'action pour piloter un badge couleur à l'écran (SB3) — réservé aux nœuds dont le contenu
+ * emploie déjà ce vocabulaire (`prescription`, `insuline`). Les 4 autres nœuds (cible-glycemique,
+ * statine, rhd-alimentation, rhd-activite-physique) n'ont pas ce vocabulaire et ne doivent jamais
+ * le recevoir de force.
+ */
+export type ActionOption = 'ajouter' | 'remplacer' | 'arreter' | 'reduire' | 'maintenir'
+
 export interface Option {
   intitule: string
   /**
@@ -197,6 +205,12 @@ export interface Option {
    * DEUX SENS : une déclaration qui dérive de la mécanique serait pire que pas de déclaration du tout.
    */
   role: RoleOption
+  /**
+   * Verbe d'action pour piloter un badge couleur à l'écran (SB3) — réservé aux nœuds dont le contenu
+   * emploie déjà ce vocabulaire (`prescription`, `insuline`). Optionnel : les 4 autres nœuds
+   * n'emploient pas ce vocabulaire et n'en auront jamais besoin.
+   */
+  action?: ActionOption
   avantages: string[]
   inconvenients: string[]
   /** Effet absolu / NNT / NNH, sinon la chaîne `"non chiffrable"`. */
