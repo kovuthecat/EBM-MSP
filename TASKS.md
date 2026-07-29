@@ -20,6 +20,27 @@ T-012), la fusion `prescription` T-020 à T-027**, et les six règles de la gram
 résolues le 2026-07-25). Le détail de tout cela reste entier dans `git log` et dans les décisions
 correspondantes de `DECISIONS.md`. Ce qui suit est le backlog **réel et actuel**.
 
+## Plan P6 — clos (cadré 2026-07-28, clos 2026-07-29)
+
+> Généralise le shell accordéon + colonne sticky (maquette `Traiter`) aux 6 nœuds, + badge verbe
+> d'action sur `prescription`/`insuline`. Détail : `plans/P6/index.md`. Recette navigateur locale
+> CONFORME (point 3 après correctif SB6 ; point 1c CONFORME avec réserve mineure, cf. ligne
+> ci-dessous). Commits : `90e2849`…`7f6ff12`.
+
+- [x] T-035 — Schéma + types : `Option.action` · modèle: Haiku, effort: low · plan: → plans/P6/S0.md
+- [x] T-036 — Shell deux colonnes (formulaire + résultats sticky) · modèle: Sonnet, effort: high · plan: → plans/P6/SB1.md
+- [x] T-037 — Formulaire en accordéon (générique, `groupe`) · modèle: Sonnet, effort: high · plan: → plans/P6/SB2.md
+- [x] T-038 — Qualifier `action` sur `prescription` (27 options) · modèle: Sonnet, effort: high · plan: → plans/P6/SA1.md
+- [x] T-039 — Qualifier `action` sur `insuline` (12 options) · modèle: Sonnet, effort: medium · plan: → plans/P6/SA2.md
+- [x] T-040 — Carte compacte : bordure verbe + contre-indications dans le dépli · modèle: Sonnet, effort: high · plan: → plans/P6/SB3.md
+- [x] T-041 — Vérification inter-nœuds et finition · modèle: Sonnet, effort: high · plan: → plans/P6/SB4.md
+- [x] T-042 — Doctrine (ARCHITECTURE.md, DECISIONS.md, `action`) · modèle: Sonnet, effort: medium · plan: → plans/P6/SB5.md
+- [x] T-044 — `insuline` : grouper les champs pour l'accordéon (ajoutée en cours, découverte SB4) · modèle: Sonnet, effort: medium · plan: → plans/P6/SA3.md
+- [x] T-043 — Recette navigateur des 6 nœuds · modèle: Claude + navigateur, effort: high, env: Desktop · plan: → plans/P6/S6.md
+- [x] T-045 — Défaut grave S6 (point 3) : habiller le résumé fermé des CI (icône/couleur/décompte) · modèle: Sonnet, effort: high · plan: → plans/P6/SB6.md
+- [x] T-046 — Défaut mineur S6 (point 1c) : CTA flottant vs bouton « Suivant » en mobile · modèle: Sonnet, effort: medium · plan: → plans/P6/SB7.md
+- [x] T-047 — Revérification ciblée SB6/SB7 (points 3 et 1c), en local · modèle: Claude + navigateur, effort: medium, env: Desktop · plan: → plans/P6/S7.md
+
 ## Backlog — clôture P4/P5 (2026-07-28), exécutable sans arbitrage clinique
 
 > Trouvés par la passe de contrôle P4 (S8) et la recette « praticien naïf » complémentaire — détail dans
@@ -29,6 +50,19 @@ correspondantes de `DECISIONS.md`. Ce qui suit est le backlog **réel et actuel*
 
 - [ ] Onglet **« Veille » rend une page blanche** (texte `top: 0`, caché sous la barre de nav fixe) —
       défaut d'affichage isolé, trouvé par la recette praticien naïf, pas repris dans P5 · modèle: Haiku,
+      effort: low · plan: —
+- [ ] **CTA flottant mobile (P6) : réserve mineure résiduelle** — après correctif SB7, le chevauchement
+      avec le bouton « Suivant » ne se produit plus en usage normal, mais réapparaît si l'utilisateur
+      pousse volontairement le défilement au-delà du point d'arrêt naturel (marge de 9,4px seulement sur
+      la section la plus chargée, `Insulinothérapie`/« Surveillance glycémique »). Aucun scénario de
+      lecture ordinaire ne le déclenche — durcir la marge (`padding-bottom` 140px→~180px) si ça se
+      confirme gênant en usage réel · modèle: Haiku, effort: low · plan: —
+- [ ] **`GAJ` (nœud `insuline`) reste réclamé même quand `mcg_disponible` est coché** — trouvé par la
+      recette navigateur P6/S6 (2026-07-29). `content/noeuds/diabete-type-2/insuline.yaml:187` ne porte
+      aucun `visible_si` conditionné à `mcg_disponible`, alors que le commentaire du référent dans ce
+      même fichier dit l'inverse (« la GAJ est le cas de repli quand il n'y a pas de MCG ») et que le
+      pivot de décision sous MCG ne lit jamais ce champ. Masquage à ajouter, symétrique de celui déjà
+      livré pour `TBR`/`TBR_severe`/`CV_glycemique`/`profil_glycemique` (P5/S2, T-033) · modèle: Haiku,
       effort: low · plan: —
 
 ## Backlog — recherche clinique (bloque un câblage, contenu que je ne rédige pas seul)
@@ -41,7 +75,12 @@ correspondantes de `DECISIONS.md`. Ce qui suit est le backlog **réel et actuel*
       voie concrète donnée par le référent le 2026-07-28 (`BILAN-P4-2026-07-28.md` §3bis) : `TBR` est
       obtenable au lecteur capillaire, `TBR_severe` ne l'est **pas** (un lecteur ne distingue pas les deux
       seuils) ; piste de répartition horaire des hypoglycémies en 4 créneaux (nuit/matinée/après-midi/
-      soir), analogue capillaire de ce que `profil_glycemique` lit déjà par AGP. Seuils de titration/
+      soir), analogue capillaire de ce que `profil_glycemique` lit déjà par AGP. **Précision du référent,
+      2026-07-29** : `TBR_severe` reste hors de portée en consultation même chez un patient **équipé**
+      d'un capteur (`mcg_disponible = oui`) — la répartition TBR/TBR sévère ne se lit pas directement sur
+      le lecteur, elle suppose de télécharger les données sur ordinateur, un geste rarement fait pendant
+      la consultation. Le champ n'est donc pas seulement inatteignable *sans* capteur, il l'est aussi en
+      pratique *avec* capteur au moment de la décision. Seuils de titration/
       plafonnement de la basale sur glycémie à jeun ; seuils post-prandiaux pour le bolus (champ à créer).
       Cadrage : `docs/decision/validation/chantier-2026-07-27/ARBITRAGES-2026-07-27-nuit.md` §1,
       `chantier-2026-07-27/diagnostic-K2-mesures-mcg.md`, `BILAN-P4-2026-07-28.md` §3bis ·

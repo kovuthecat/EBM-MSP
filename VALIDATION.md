@@ -59,3 +59,25 @@ le déployé est possible.
       équivalent) doit être visible ~2 secondes.
 
 Commits : `bc59e2a`, `7657f4a`, `806fdb9`. Détail des sessions : `plans/P5/`.
+
+## 2026-07-29 — Plan P6 (shell accordéon + colonne sticky, badge verbe, 6 nœuds)
+
+Vérifié à l'écran en **local** (`npm run dev`), pas sur le déployé — le code a été poussé après cette
+validation, pas avant (à la différence de P4). Deux passes : recette initiale (S6) sur les 6 nœuds, puis
+complément ciblé (S7) après correctifs des deux défauts trouvés.
+
+- [x] Shell deux colonnes + accordéon + chips de navigation, 6 nœuds vierges, desktop et mobile (375px) —
+      CONFORME
+- [x] Badge verbe d'action (bordure colorée) sur `Traiter`/`Insulinothérapie`, absent ailleurs — CONFORME
+- [x] Colonne sticky sur nœud à un seul gagnant (`statine`), rejeu du profil de sécurité D32 — CONFORME
+- [x] Groupement `Insulinothérapie` en 6 sections (première apparition à l'écran) — CONFORME
+- [!] Contre-indications repliées dans le `<details>` (test des 20 secondes) — **DÉFAUT grave initial**
+      (rien retenu sur « ce que je ne dois pas faire »), corrigé (icône, couleur d'alerte dédiée,
+      décompte) puis **revérifié CONFORME**
+- [!] CTA flottant mobile recouvrant le bouton « Suivant » — **DÉFAUT mineur initial**, corrigé (padding
+      réservé), **CONFORME en usage normal avec une réserve mineure résiduelle** (défilement forcé
+      au-delà du point d'arrêt naturel — suivi dans `TASKS.md`, non bloquant)
+
+Rapport complet : `docs/decision/validation/recette-navigateur-2026-07-29-P6.md`. À faire à la prochaine
+occasion (pas bloquant) : confirmer sur le déployé une fois poussé — S6/S7 ont déjà couvert le shell en
+détail, une repasse complète n'est pas nécessaire, un contrôle rapide suffit.
