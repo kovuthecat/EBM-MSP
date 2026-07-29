@@ -519,7 +519,9 @@ déclarer :
 
 ## Additions au schéma (`schema/noeud.schema.json`)
 
-Quatre champs optionnels au schéma, aucun changement de la boucle de résolution du moteur.
+Cinq champs optionnels au schéma listés ici (liste non exhaustive des additions depuis — `role`, requis,
+D25 ; `presomption_non`, cf. R7 ci-dessus, D30 — vivent ailleurs dans ce document), aucun changement de la
+boucle de résolution du moteur.
 
 | champ | emplacement | type | effet moteur |
 |---|---|---|---|
@@ -527,6 +529,7 @@ Quatre champs optionnels au schéma, aucun changement de la boucle de résolutio
 | `delai_benefice` | `options[]` | string | **aucun** — affichage seul (R2) |
 | `alertes` | `options[]` | même forme que `Noeud.alertes` | rendues **seulement si l'option est applicable** |
 | `cadrage` | racine du nœud | `string[]` | **aucun** — positions de lecture rendues en tête, sans condition (D24) |
+| `action` | `options[]` | enum `ajouter`\|`remplacer`\|`arreter`\|`reduire`\|`maintenir` | **aucun** — pilote une bordure colorée sur la carte (badge verbe, D35) ; réservé aux nœuds dont le contenu porte déjà ce vocabulaire (`prescription`, `insuline`), jamais posé de force ailleurs |
 
 Les alertes portées par une option répondent à deux besoins d'un coup : la réserve
 délai/horizon de R2, et le défaut constaté en recette où une alerte de nœud s'affichait à propos d'un

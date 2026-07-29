@@ -208,3 +208,29 @@ recopié ici ; ne pas renvoyer vers d'autres fichiers.
 - Moteur du nœud « cible » esquissé en dur (`decideTier`, 4 bandes) → à généraliser en évaluateur de
   `conditions` (moteur générique, cf. `DECISIONS.md` D3/D8).
 - Multi-domaine **présent** dans le prototype (chips DT2 actif + CV/BPCO/Gériatrie « à venir »).
+
+### Shell d'écran de nœud de décision : accordéon + colonne sticky (P6, 2026-07-28)
+
+Second pattern visuel, **en plus** du prototype « neuf écrans » ci-dessus — pas un remplacement. Le
+prototype « neuf écrans » reste la base visuelle générale (tokens OKLCH, cartes, badges, système de
+couleurs). Ce second pattern est le **shell de l'écran de nœud de décision spécifiquement**
+(`screens/DecisionNodeScreen.tsx`) : source `design/maquettes/Maquette upgrade UI.zip` (export Claude
+Design, dessiné pour le seul nœud `prescription`), **généralisé aux 6 nœuds DT2 par le plan P6** (le
+moteur produisait déjà `familles`/`groupes` de façon identique pour les 6 — une seule disposition
+générique, pas une redisposition par nœud).
+
+- **Deux colonnes ≥ 960px** : formulaire à gauche (défilant), résultats à droite (**sticky**, toujours
+  visibles pendant la saisie). Une seule colonne empilée en dessous de 960px, avec un bouton flottant
+  « Voir les recommandations (N) » qui scrolle jusqu'au début de la colonne résultats (P6/SB1, T-036).
+- **Formulaire en accordéon**, piloté par le `groupe` du contenu (aucun nom de section en dur, invariant
+  5) : une section ouverte à la fois, barre de chips de navigation avec badge de compteur « à confirmer »,
+  résumé générique `Libellé : valeur` (pas une phrase rédigée par nœud) quand une section est repliée. Un
+  nœud à un seul groupe n'a ni accordéon ni chips — comportement historique inchangé (P6/SB2, T-037).
+- **Carte d'option compacte** : bordure gauche colorée selon `option.action` quand ce champ est présent
+  (`ajouter`/`remplacer`/`arreter`/`reduire`/`maintenir`, cf. `DECISIONS.md` D35) ; contre-indications
+  déplacées dans le `<details>` déjà existant, en tête, avec indicateur dans le libellé du `<summary>`
+  (amendement de T-025, cf. `DECISIONS.md` D34) (P6/SB3, T-040).
+
+**Ce shell est désormais le pattern attendu pour tout futur écran de nœud de décision** (nouveau domaine,
+nouveau nœud) — les tokens/cartes/badges du prototype « neuf écrans » restent la référence pour tout le
+reste de l'application (accueil, liste de domaines, module Veille…).
