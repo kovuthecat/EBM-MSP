@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>*,*::before,*::after{box-sizing:border-box;}</style>
+</helmet>
+<div style="{{ pageStyle }}font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Helvetica,Arial,sans-serif;background:oklch(98% 0.006 240);color:oklch(24% 0.02 245);">
+
+  <div style="flex:none;background:oklch(93% 0.025 254);color:oklch(46% 0.09 254);padding:10px 32px;font-size:12px;font-weight:600;">Proposition d'ergonomie — module Traiter (Diabète de type 2) : un seul champ déplié à la fois (situation globale toujours visible), recommandations compactes avec code couleur, contre-indications au survol (ⓘ).</div>
+
+  <div style="flex:none;padding:20px 32px 14px;border-bottom:1px solid oklch(89% 0.012 240);">
+    <button type="button" style="border:none;background:transparent;color:oklch(50% 0.018 245);font-size:13px;cursor:pointer;padding:0;margin-bottom:12px;font-family:inherit;">← Domaine : Diabète de type 2</button>
+    <h1 style="font-size:24px;margin:0 0 14px;">Traiter : initier, optimiser, intensifier</h1>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button type="button" onClick="{{ scrollToSectionFns.intention }}" style="{{ stepStyles.intention }}">1 · Intention</button>
+      <button type="button" onClick="{{ scrollToSectionFns.traitement }}" style="{{ stepStyles.traitement }}">2 · Traitement actuel<sc-if value="{{ missingHas.traitement }}" hint-placeholder-val="{{ false }}"> <span style="color:oklch(48% 0.09 85);">⚠{{ missingCounts.traitement }}</span></sc-if></button>
+      <button type="button" onClick="{{ scrollToSectionFns.profil }}" style="{{ stepStyles.profil }}">3 · Profil clinique<sc-if value="{{ missingHas.profil }}" hint-placeholder-val="{{ false }}"> <span style="color:oklch(48% 0.09 85);">⚠{{ missingCounts.profil }}</span></sc-if></button>
+      <button type="button" onClick="{{ scrollToSectionFns.alertes }}" style="{{ stepStyles.alertes }}">4 · Alertes</button>
+      <button type="button" onClick="{{ scrollToSectionFns.terrain }}" style="{{ stepStyles.terrain }}">5 · Terrain</button>
+    </div>
+  </div>
+
+  <div style="{{ bodyStyle }}">
+    <div style="{{ formColStyle }}" ref="{{ formColRef }}">
+
+      <div ref="{{ sectionRefIntention }}" style="background:oklch(99.5% 0.002 240);border:1px solid oklch(89% 0.012 240);border-radius:16px;margin-bottom:12px;overflow:hidden;">
+        <button type="button" onClick="{{ toggleSectionFns.intention }}" style="width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 20px;background:transparent;border:none;cursor:pointer;text-align:left;font-family:inherit;">
+          <span style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:oklch(62% 0.015 245);">1 · Intention thérapeutique</span>
+          <span style="{{ chevrons.intention }}">▾</span>
+        </button>
+        <sc-if value="{{ openSections.intention }}" hint-placeholder-val="{{ true }}">
+          <div style="padding:0 20px 20px;">
+            <div style="font-size:12px;font-weight:600;color:oklch(50% 0.018 245);margin-bottom:10px;">Intention thérapeutique (« je souhaite... »)</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;">
+              <button type="button" onClick="{{ setIntentionFns.initier }}" style="{{ stylesIntention.initier }}">Initier un traitement</button>
+              <button type="button" onClick="{{ setIntentionFns.optimiser }}" style="{{ stylesIntention.optimiser }}">Optimiser (améliorer le rapport bénéfice/risque)</button>
+              <button type="button" onClick="{{ setIntentionFns.intensifier }}" style="{{ stylesIntention.intensifier }}">Intensifier (renforcer le contrôle glycémique)</button>
+              <button type="button" onClick="{{ setIntentionFns.deprescrire }}" style="{{ stylesIntention.deprescrire }}">Déprescrire (alléger ou retirer un traitement)</button>
+            </div>
+            <div style="margin-top:16px;text-align:right;">
+              <button type="button" onClick="{{ nextSectionFns.toTraitement }}" style="border:1px solid oklch(46% 0.09 254);background:oklch(46% 0.09 254);color:white;padding:8px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Suivant : Traitement actuel →</button>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ collapsed.intention }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:0 20px 16px;font-size:13px;color:oklch(50% 0.018 245);">{{ summaryIntention }}</div>
+        </sc-if>
+      </div>
+
+      <div ref="{{ sectionRefTraitement }}" style="background:oklch(99.5% 0.002 240);border:1px solid oklch(89% 0.012 240);border-radius:16px;margin-bottom:12px;overflow:hidden;">
+        <button type="button" onClick="{{ toggleSectionFns.traitement }}" style="width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 20px;background:transparent;border:none;cursor:pointer;text-align:left;font-family:inherit;">
+          <span style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:oklch(62% 0.015 245);">2 · Traitement actuel et contrôle</span>
+            <sc-if value="{{ missingHas.traitement }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;color:oklch(48% 0.09 85);background:oklch(97% 0.035 85);border:1px solid oklch(76% 0.12 85);padding:2px 8px;border-radius:20px;">{{ missingCounts.traitement }} à confirmer</span></sc-if>
+          </span>
+          <span style="{{ chevrons.traitement }}">▾</span>
+        </button>
+        <sc-if value="{{ openSections.traitement }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:0 20px 20px;">
+            <div style="font-size:12px;font-weight:600;color:oklch(50% 0.018 245);margin-bottom:10px;">Traitements en cours</div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;">
+              <label style="{{ stylesTx.metformine }}"><input type="checkbox" checked="{{ tx.metformine }}" onChange="{{ toggleTxFns.metformine }}" style="width:16px;height:16px;" /><span style="font-size:13px;font-weight:500;">{{ txLabels.metformine }}</span></label>
+              <label style="{{ stylesTx.isglt2 }}"><input type="checkbox" checked="{{ tx.isglt2 }}" onChange="{{ toggleTxFns.isglt2 }}" style="width:16px;height:16px;" /><span style="font-size:13px;font-weight:500;">{{ txLabels.isglt2 }}</span></label>
+              <label style="{{ stylesTx.arglp1 }}"><input type="checkbox" checked="{{ tx.arglp1 }}" onChange="{{ toggleTxFns.arglp1 }}" style="width:16px;height:16px;" /><span style="font-size:13px;font-weight:500;">{{ txLabels.arglp1 }}</span></label>
+              <label style="{{ stylesTx.tirzepatide }}"><input type="checkbox" checked="{{ tx.tirzepatide }}" onChange="{{ toggleTxFns.tirzepatide }}" style="width:16px;height:16px;" /><span style="font-size:13px;font-weight:500;">{{ txLabels.tirzepatide }}</span></label>
+              <label style="{{ stylesTx.sulfamide }}"><input type="checkbox" checked="{{ tx.sulfamide }}" onChange="{{ toggleTxFns.sulfamide }}" style="width:16px;height:16px;" /><span style="font-size:13px;font-weight:500;">{{ txLabels.sulfamide }}</span></label>
+              <label style="{{ stylesTx.gliptine }}"><input type="checkbox" checked="{{ tx.gliptine }}" onChange="{{ toggleTxFns.gliptine }}" style="width:16px;height:16px;" /><span style="font-size:13px;font-weight:500;">{{ txLabels.gliptine }}</span></label>
+              <label style="{{ stylesTx.insulineBasale }}"><input type="checkbox" checked="{{ tx.insulineBasale }}" onChange="{{ toggleTxFns.insulineBasale }}" style="width:16px;height:16px;" /><span style="font-size:13px;font-weight:500;">{{ txLabels.insulineBasale }}</span></label>
+              <label style="{{ stylesTx.insulineRapide }}"><input type="checkbox" checked="{{ tx.insulineRapide }}" onChange="{{ toggleTxFns.insulineRapide }}" style="width:16px;height:16px;" /><span style="font-size:13px;font-weight:500;">{{ txLabels.insulineRapide }}</span></label>
+              <label style="{{ stylesTx.glinide }}"><input type="checkbox" checked="{{ tx.glinide }}" onChange="{{ toggleTxFns.glinide }}" style="width:16px;height:16px;" /><span style="font-size:13px;font-weight:500;">{{ txLabels.glinide }}</span></label>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px 16px;margin-bottom:16px;">
+              <div>
+                <div style="font-size:12px;font-weight:600;color:oklch(50% 0.018 245);margin-bottom:6px;">Dose metformine</div>
+                <input type="number" value="{{ doseMetformine }}" onChange="{{ setDoseMetformine }}" style="width:100%;padding:9px 12px;border:1px solid oklch(89% 0.012 240);border-radius:8px;font-size:15px;background:oklch(99.5% 0.002 240);color:oklch(24% 0.02 245);font-family:inherit;" />
+              </div>
+              <div>
+                <div style="font-size:12px;font-weight:600;color:oklch(50% 0.018 245);margin-bottom:6px;">HbA1c actuelle (%) <span style="font-weight:400;font-style:italic;opacity:.8;">· repris de votre saisie</span></div>
+                <input type="number" value="{{ hba1cActuelle }}" onChange="{{ setHba1cActuelle }}" style="width:100%;padding:9px 12px;border:1px solid oklch(89% 0.012 240);border-radius:8px;font-size:15px;background:oklch(99.5% 0.002 240);color:oklch(24% 0.02 245);font-family:inherit;" />
+              </div>
+              <div>
+                <div style="font-size:12px;font-weight:600;color:oklch(50% 0.018 245);margin-bottom:6px;">HbA1c cible (%) <span style="font-weight:400;font-style:italic;opacity:.8;">· repris de votre saisie</span></div>
+                <input type="number" value="{{ hba1cCible }}" onChange="{{ setHba1cCible }}" style="width:100%;padding:9px 12px;border:1px solid oklch(89% 0.012 240);border-radius:8px;font-size:15px;background:oklch(99.5% 0.002 240);color:oklch(24% 0.02 245);font-family:inherit;" />
+              </div>
+            </div>
+            <div style="font-size:12px;font-weight:600;color:oklch(50% 0.018 245);margin-bottom:8px;">Par rapport à l'objectif fixé pour ce patient</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              <button type="button" onClick="{{ setObjectifFns.objectif }}" style="{{ stylesObjectif.objectif }}">À l'objectif</button>
+              <button type="button" onClick="{{ setObjectifFns.dessus }}" style="{{ stylesObjectif.dessus }}">Au-dessus de l'objectif</button>
+              <button type="button" onClick="{{ setObjectifFns.nettementDessus }}" style="{{ stylesObjectif.nettementDessus }}">Nettement au-dessus de l'objectif</button>
+              <button type="button" onClick="{{ setObjectifFns.dessous }}" style="{{ stylesObjectif.dessous }}">En dessous de l'objectif (sur-traitement probable)</button>
+            </div>
+            <div style="margin-top:16px;text-align:right;">
+              <button type="button" onClick="{{ nextSectionFns.toProfil }}" style="border:1px solid oklch(46% 0.09 254);background:oklch(46% 0.09 254);color:white;padding:8px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Suivant : Profil clinique →</button>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ collapsed.traitement }}" hint-placeholder-val="{{ true }}">
+          <div style="padding:0 20px 16px;font-size:13px;color:oklch(50% 0.018 245);">
+            <sc-if value="{{ missingHas.traitement }}" hint-placeholder-val="{{ false }}"><span style="color:oklch(48% 0.09 85);font-weight:700;">{{ missingCounts.traitement }} champ(s) à confirmer · </span></sc-if>{{ summaryTraitement }}
+          </div>
+        </sc-if>
+      </div>
+
+      <div ref="{{ sectionRefProfil }}" style="background:oklch(99.5% 0.002 240);border:1px solid oklch(89% 0.012 240);border-radius:16px;margin-bottom:12px;overflow:hidden;">
+        <button type="button" onClick="{{ toggleSectionFns.profil }}" style="width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 20px;background:transparent;border:none;cursor:pointer;text-align:left;font-family:inherit;">
+          <span style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:oklch(62% 0.015 245);">3 · Ce qui oriente le choix</span>
+            <sc-if value="{{ missingHas.profil }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:700;color:oklch(48% 0.09 85);background:oklch(97% 0.035 85);border:1px solid oklch(76% 0.12 85);padding:2px 8px;border-radius:20px;">{{ missingCounts.profil }} à confirmer</span></sc-if>
+          </span>
+          <span style="{{ chevrons.profil }}">▾</span>
+        </button>
+        <sc-if value="{{ openSections.profil }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:0 20px 20px;">
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
+              <label style="{{ stylesFlag.mcv }}"><input type="checkbox" checked="{{ mcv }}" onChange="{{ toggleMcv }}" style="width:16px;height:16px;" /><span style="font-size:13px;font-weight:500;">Maladie cardiovasculaire athéromateuse établie</span></label>
+              <label style="{{ stylesFlag.ic }}"><input type="checkbox" checked="{{ ic }}" onChange="{{ toggleIc }}" style="width:16px;height:16px;" /><span style="font-size:13px;font-weight:500;">Insuffisance cardiaque</span></label>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px 16px;">
+              <div>
+                <div style="font-size:12px;font-weight:600;color:oklch(50% 0.018 245);margin-bottom:6px;">DFG (mL/min/1,73 m²)</div>
+                <input type="number" value="{{ dfg }}" onChange="{{ setDfg }}" style="width:100%;padding:9px 12px;border:1px solid oklch(89% 0.012 240);border-radius:8px;font-size:15px;background:oklch(99.5% 0.002 240);color:oklch(24% 0.02 245);font-family:inherit;" />
+              </div>
+              <div>
+                <div style="font-size:12px;font-weight:600;color:oklch(50% 0.018 245);margin-bottom:6px;">IMC (kg/m²)</div>
+                <input type="number" value="{{ imc }}" onChange="{{ setImc }}" style="width:100%;padding:9px 12px;border:1px solid oklch(89% 0.012 240);border-radius:8px;font-size:15px;background:oklch(99.5% 0.002 240);color:oklch(24% 0.02 245);font-family:inherit;" />
+              </div>
+              <div style="grid-column:1 / -1;">
+                <div style="font-size:12px;font-weight:600;color:oklch(50% 0.018 245);margin-bottom:6px;">Albuminurie</div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                  <button type="button" onClick="{{ setAlbuminurieFns.normo }}" style="{{ stylesAlbuminurie.normo }}">Normoalbuminurie</button>
+                  <button type="button" onClick="{{ setAlbuminurieFns.micro }}" style="{{ stylesAlbuminurie.micro }}">Microalbuminurie</button>
+                  <button type="button" onClick="{{ setAlbuminurieFns.macro }}" style="{{ stylesAlbuminurie.macro }}">Macroalbuminurie</button>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top:16px;text-align:right;">
+              <button type="button" onClick="{{ nextSectionFns.toAlertes }}" style="border:1px solid oklch(46% 0.09 254);background:oklch(46% 0.09 254);color:white;padding:8px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Suivant : Alertes →</button>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ collapsed.profil }}" hint-placeholder-val="{{ true }}">
+          <div style="padding:0 20px 16px;font-size:13px;color:oklch(50% 0.018 245);">
+            <sc-if value="{{ missingHas.profil }}" hint-placeholder-val="{{ false }}"><span style="color:oklch(48% 0.09 85);font-weight:700;">{{ missingCounts.profil }} champ(s) à confirmer · </span></sc-if>{{ summaryProfil }}
+          </div>
+        </sc-if>
+      </div>
+
+      <div ref="{{ sectionRefAlertes }}" style="background:oklch(99.5% 0.002 240);border:1px solid oklch(89% 0.012 240);border-radius:16px;margin-bottom:12px;overflow:hidden;">
+        <button type="button" onClick="{{ toggleSectionFns.alertes }}" style="width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 20px;background:transparent;border:none;cursor:pointer;text-align:left;font-family:inherit;">
+          <span style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:oklch(62% 0.015 245);">4 · Signaux d'alerte et tolérance</span>
+          <span style="{{ chevrons.alertes }}">▾</span>
+        </button>
+        <sc-if value="{{ openSections.alertes }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:0 20px 20px;">
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
+              <label style="{{ stylesAlertes.glucotox }}"><input type="checkbox" checked="{{ alertes.glucotox }}" onChange="{{ toggleAlerteFns.glucotox }}" style="width:16px;height:16px;flex:none;" /><span style="font-size:13px;font-weight:500;">{{ alerteLabels.glucotox }}</span></label>
+              <label style="{{ stylesAlertes.cetonemie }}"><input type="checkbox" checked="{{ alertes.cetonemie }}" onChange="{{ toggleAlerteFns.cetonemie }}" style="width:16px;height:16px;flex:none;" /><span style="font-size:13px;font-weight:500;">{{ alerteLabels.cetonemie }}</span></label>
+              <label style="{{ stylesAlertes.hypoRecente }}"><input type="checkbox" checked="{{ alertes.hypoRecente }}" onChange="{{ toggleAlerteFns.hypoRecente }}" style="width:16px;height:16px;flex:none;" /><span style="font-size:13px;font-weight:500;">{{ alerteLabels.hypoRecente }}</span></label>
+              <label style="{{ stylesAlertes.denutrition }}"><input type="checkbox" checked="{{ alertes.denutrition }}" onChange="{{ toggleAlerteFns.denutrition }}" style="width:16px;height:16px;flex:none;" /><span style="font-size:13px;font-weight:500;">{{ alerteLabels.denutrition }}</span></label>
+              <label style="{{ stylesAlertes.infections }}"><input type="checkbox" checked="{{ alertes.infections }}" onChange="{{ toggleAlerteFns.infections }}" style="width:16px;height:16px;flex:none;" /><span style="font-size:13px;font-weight:500;">{{ alerteLabels.infections }}</span></label>
+              <label style="{{ stylesAlertes.intolerance }}"><input type="checkbox" checked="{{ alertes.intolerance }}" onChange="{{ toggleAlerteFns.intolerance }}" style="width:16px;height:16px;flex:none;" /><span style="font-size:13px;font-weight:500;">{{ alerteLabels.intolerance }}</span></label>
+            </div>
+            <div style="margin-top:16px;text-align:right;">
+              <button type="button" onClick="{{ nextSectionFns.toTerrain }}" style="border:1px solid oklch(46% 0.09 254);background:oklch(46% 0.09 254);color:white;padding:8px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Suivant : Terrain →</button>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ collapsed.alertes }}" hint-placeholder-val="{{ true }}">
+          <div style="padding:0 20px 16px;font-size:13px;color:oklch(50% 0.018 245);">{{ summaryAlertes }}</div>
+        </sc-if>
+      </div>
+
+      <div ref="{{ sectionRefTerrain }}" style="background:oklch(99.5% 0.002 240);border:1px solid oklch(89% 0.012 240);border-radius:16px;margin-bottom:12px;overflow:hidden;">
+        <button type="button" onClick="{{ toggleSectionFns.terrain }}" style="width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px 20px;background:transparent;border:none;cursor:pointer;text-align:left;font-family:inherit;">
+          <span style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:oklch(62% 0.015 245);">5 · Terrain et préférences</span>
+          <span style="{{ chevrons.terrain }}">▾</span>
+        </button>
+        <sc-if value="{{ openSections.terrain }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:0 20px 20px;">
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px 16px;margin-bottom:16px;">
+              <div>
+                <div style="font-size:12px;font-weight:600;color:oklch(50% 0.018 245);margin-bottom:6px;">Âge <span style="font-weight:400;font-style:italic;opacity:.8;">· sans effet sur la reco actuelle</span></div>
+                <input type="number" value="{{ age }}" onChange="{{ setAge }}" style="width:100%;padding:9px 12px;border:1px solid oklch(89% 0.012 240);border-radius:8px;font-size:15px;background:oklch(99.5% 0.002 240);color:oklch(24% 0.02 245);font-family:inherit;" />
+              </div>
+              <div style="display:flex;align-items:flex-end;">
+                <label style="{{ stylesFragilite.fragilite }}"><input type="checkbox" checked="{{ fragilite }}" onChange="{{ toggleFragilite }}" style="width:16px;height:16px;" /><span style="font-size:13px;font-weight:500;">Fragilité</span></label>
+              </div>
+            </div>
+            <div style="font-size:12px;font-weight:600;color:oklch(50% 0.018 245);margin-bottom:8px;">Espérance de vie</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
+              <button type="button" onClick="{{ setEsperanceFns.longue }}" style="{{ stylesEsperance.longue }}">Longue</button>
+              <button type="button" onClick="{{ setEsperanceFns.intermediaire }}" style="{{ stylesEsperance.intermediaire }}">Intermédiaire</button>
+              <button type="button" onClick="{{ setEsperanceFns.limitee }}" style="{{ stylesEsperance.limitee }}">Limitée</button>
+            </div>
+            <div style="font-size:12px;font-weight:600;color:oklch(50% 0.018 245);margin-bottom:8px;">Risque hypoglycémique du schéma</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;">
+              <button type="button" onClick="{{ setRisqueFns.faible }}" style="{{ stylesRisque.faible }}">Faible</button>
+              <button type="button" onClick="{{ setRisqueFns.eleve }}" style="{{ stylesRisque.eleve }}">Élevé</button>
+            </div>
+            <div style="font-size:12px;font-weight:600;color:oklch(50% 0.018 245);margin-bottom:8px;">Préférence vis-à-vis de l'injectable</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+              <button type="button" onClick="{{ setPrefFns.indifferent }}" style="{{ stylesPref.indifferent }}">Indifférent</button>
+              <button type="button" onClick="{{ setPrefFns.accepte }}" style="{{ stylesPref.accepte }}">Accepte</button>
+              <button type="button" onClick="{{ setPrefFns.refuse }}" style="{{ stylesPref.refuse }}">Refuse</button>
+            </div>
+            <label style="display:flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid oklch(89% 0.012 240);border-radius:10px;cursor:pointer;background:oklch(99.5% 0.002 240);width:fit-content;">
+              <input type="checkbox" checked="{{ bothUnusable }}" onChange="{{ toggleBothUnusable }}" style="width:16px;height:16px;" />
+              <span style="font-size:13px;font-weight:500;">iSGLT2 et AR GLP-1 tous deux inutilisables (contre-indication, intolérance ou refus)</span>
+            </label>
+          </div>
+        </sc-if>
+        <sc-if value="{{ collapsed.terrain }}" hint-placeholder-val="{{ true }}">
+          <div style="padding:0 20px 16px;font-size:13px;color:oklch(50% 0.018 245);">{{ summaryTerrain }}</div>
+        </sc-if>
+      </div>
+
+    </div>
+
+    <div style="{{ recoColStyle }}" ref="{{ recoColRef }}">
+      <div style="position:sticky;top:0;background:oklch(98% 0.006 240);padding-bottom:10px;margin-bottom:8px;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+        <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:oklch(62% 0.015 245);">Recommandations<sc-if value="{{ notCetoneStop }}" hint-placeholder-val="{{ true }}"> · {{ recoCount }} option(s)</sc-if></div>
+        <div style="display:flex;gap:10px;font-size:11px;color:oklch(50% 0.018 245);">
+          <span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;background:oklch(46% 0.09 254);display:inline-block;"></span>Maintenir</span>
+          <span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;background:oklch(55% 0.15 145);display:inline-block;"></span>Ajouter</span>
+          <span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;background:oklch(60% 0.16 55);display:inline-block;"></span>Remplacer</span>
+          <span style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;background:oklch(55% 0.18 25);display:inline-block;"></span>Arrêter</span>
+        </div>
+      </div>
+
+      <sc-if value="{{ cetoneStop }}" hint-placeholder-val="{{ false }}">
+        <div style="border:1px solid oklch(87% 0.03 230);background:oklch(95% 0.02 230);border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.6;">
+          <div style="font-weight:700;text-transform:uppercase;font-size:12px;letter-spacing:.03em;margin-bottom:8px;">Hors périmètre de ce module</div>
+          Cétonémie cochée : décompensation aiguë suspectée (cétose ≥ 3 mmol/L) = urgence. Ce module ne couvre pas l'ajustement dans ce contexte — orienter vers une prise en charge en urgence (insuline + hospitalisation).
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ notCetoneStop }}" hint-placeholder-val="{{ true }}">
+        <sc-if value="{{ hasOtherAlert }}" hint-placeholder-val="{{ false }}">
+          <div style="border:1px solid oklch(87% 0.03 230);background:oklch(95% 0.02 230);border-radius:10px;padding:10px 14px;font-size:12px;line-height:1.5;margin-bottom:12px;">{{ otherAlertText }}</div>
+        </sc-if>
+
+        <div style="font-size:11px;font-weight:700;color:oklch(62% 0.015 245);text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px;">Socle — gestes cumulables</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid oklch(89% 0.012 240);border-left:4px solid oklch(46% 0.09 254);border-radius:10px;background:oklch(99.5% 0.002 240);margin-bottom:16px;cursor:help;" title="{{ metformineTooltip }}">
+          <span style="font-size:11px;font-weight:700;color:oklch(46% 0.09 254);background:oklch(93% 0.025 254);padding:3px 8px;border-radius:20px;white-space:nowrap;">{{ metformineActionLabel }}</span>
+          <span style="flex:1;font-size:13px;font-weight:600;">Metformine — socle du traitement</span>
+          <span style="font-size:11px;font-weight:700;background:oklch(90% 0.03 254);color:oklch(24% 0.02 245);padding:3px 8px;border-radius:20px;white-space:nowrap;">Preuve faible</span>
+          <span style="font-size:13px;color:oklch(62% 0.015 245);">ⓘ</span>
+        </div>
+
+        <div style="font-size:11px;font-weight:700;color:oklch(62% 0.015 245);text-transform:uppercase;letter-spacing:.03em;margin-bottom:6px;">Agent à ajouter — en choisir un</div>
+
+        <sc-if value="{{ showIsglt2 }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid oklch(89% 0.012 240);border-left:4px solid {{ agentActionBar }};border-radius:10px;background:oklch(99.5% 0.002 240);margin-bottom:8px;cursor:help;" title="{{ isglt2Tooltip }}">
+            <span style="font-size:11px;font-weight:700;color:{{ agentActionText }};background:{{ agentActionBg }};padding:3px 8px;border-radius:20px;white-space:nowrap;">{{ agentActionLabel }}</span>
+            <span style="flex:1;font-size:13px;font-weight:600;">iSGLT2 (gliflozines) — protection cardio-rénale</span>
+            <span style="font-size:11px;font-weight:700;background:oklch(46% 0.09 254);color:white;padding:3px 8px;border-radius:20px;white-space:nowrap;">Preuve élevée</span>
+            <span style="font-size:13px;color:oklch(62% 0.015 245);">ⓘ</span>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showArGlp1 }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid oklch(89% 0.012 240);border-left:4px solid {{ agentActionBar }};border-radius:10px;background:oklch(99.5% 0.002 240);margin-bottom:8px;cursor:help;" title="{{ arglp1Tooltip }}">
+            <span style="font-size:11px;font-weight:700;color:{{ agentActionText }};background:{{ agentActionBg }};padding:3px 8px;border-radius:20px;white-space:nowrap;">{{ agentActionLabel }}</span>
+            <span style="flex:1;font-size:13px;font-weight:600;">AR GLP-1 (agonistes du récepteur GLP-1) — protection cardiovasculaire et perte de poids</span>
+            <span style="font-size:11px;font-weight:700;background:oklch(75% 0.06 254);color:oklch(24% 0.02 245);padding:3px 8px;border-radius:20px;white-space:nowrap;">Preuve modérée</span>
+            <span style="font-size:13px;color:oklch(62% 0.015 245);">ⓘ</span>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showTirzepatide }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid oklch(89% 0.012 240);border-left:4px solid {{ agentActionBar }};border-radius:10px;background:oklch(99.5% 0.002 240);margin-bottom:8px;cursor:help;" title="{{ tirzepatideTooltip }}">
+            <span style="font-size:11px;font-weight:700;color:{{ agentActionText }};background:{{ agentActionBg }};padding:3px 8px;border-radius:20px;white-space:nowrap;">{{ agentActionLabel }}</span>
+            <span style="flex:1;font-size:13px;font-weight:600;">Tirzépatide (agoniste double GIP/GLP-1) — perte de poids, prescription spécialisée</span>
+            <span style="font-size:11px;font-weight:700;background:oklch(75% 0.06 254);color:oklch(24% 0.02 245);padding:3px 8px;border-radius:20px;white-space:nowrap;">Preuve modérée</span>
+            <span style="font-size:13px;color:oklch(62% 0.015 245);">ⓘ</span>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ bothUnusable }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:12px;color:oklch(50% 0.018 245);font-style:italic;padding:4px 2px 8px;">iSGLT2 et AR GLP-1 écartés — case « tous deux inutilisables » cochée.</div>
+        </sc-if>
+
+        <div style="font-size:11px;font-weight:700;color:oklch(46% 0.09 254);text-transform:uppercase;letter-spacing:.03em;margin:14px 0 6px;">À égalité — même niveau de priorité</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid oklch(89% 0.012 240);border-left:4px solid {{ agentActionBar }};border-radius:10px;background:oklch(99.5% 0.002 240);margin-bottom:8px;cursor:help;" title="{{ gliptineTooltip }}">
+          <span style="font-size:11px;font-weight:700;color:{{ agentActionText }};background:{{ agentActionBg }};padding:3px 8px;border-radius:20px;white-space:nowrap;">{{ agentActionLabel }}</span>
+          <span style="flex:1;font-size:13px;font-weight:600;">Gliptine (iDPP4) — option orale de bas rang</span>
+          <span style="font-size:11px;font-weight:700;background:oklch(75% 0.06 254);color:oklch(24% 0.02 245);padding:3px 8px;border-radius:20px;white-space:nowrap;">Preuve modérée</span>
+          <span style="font-size:13px;color:oklch(62% 0.015 245);">ⓘ</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid oklch(89% 0.012 240);border-left:4px solid {{ agentActionBar }};border-radius:10px;background:oklch(99.5% 0.002 240);margin-bottom:16px;cursor:help;" title="{{ sulfamideTooltip }}">
+          <span style="font-size:11px;font-weight:700;color:{{ agentActionText }};background:{{ agentActionBg }};padding:3px 8px;border-radius:20px;white-space:nowrap;">{{ agentActionLabel }}</span>
+          <span style="flex:1;font-size:13px;font-weight:600;">Sulfamide (insulinosécréteur) — bas rang, derrière la gliptine</span>
+          <span style="font-size:11px;font-weight:700;background:oklch(75% 0.06 254);color:oklch(24% 0.02 245);padding:3px 8px;border-radius:20px;white-space:nowrap;">Preuve modérée</span>
+          <span style="font-size:13px;color:oklch(62% 0.015 245);">ⓘ</span>
+        </div>
+
+        <button type="button" onClick="{{ toggleEcartees }}" style="border:1px solid oklch(89% 0.012 240);background:transparent;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;color:oklch(50% 0.018 245);font-family:inherit;">{{ ecarteesLabel }}</button>
+        <sc-if value="{{ showEcartees }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:10px;padding-left:14px;border-left:2px solid oklch(89% 0.012 240);">
+            <p style="font-size:12px;color:oklch(62% 0.015 245);line-height:1.5;margin:0 0 4px;">Insuline basale — hors périmètre : pas d'état catabolique ni d'urgence identifié.</p>
+            <p style="font-size:12px;color:oklch(62% 0.015 245);line-height:1.5;margin:0;">Glinide — écarté : place résiduelle marginale, disponibilité limitée en France.</p>
+          </div>
+        </sc-if>
+      </sc-if>
+    </div>
+  </div>
+
+  <sc-if value="{{ isNarrow }}" hint-placeholder-val="{{ false }}">
+    <button type="button" onClick="{{ scrollToRecos }}" style="position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:oklch(46% 0.09 254);color:white;border:none;border-radius:24px;padding:12px 22px;font-size:14px;font-weight:700;box-shadow:0 4px 16px oklch(24% 0.02 245 / 0.25);cursor:pointer;z-index:10;font-family:inherit;">Voir les recommandations ({{ recoCount }}) ↓</button>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    isNarrow: (typeof window !== 'undefined' && window.innerWidth < 960),
+    openSections: { intention: true, traitement: false, profil: false, alertes: false, terrain: false },
+    intention: 'intensifier',
+    tx: { metformine: true, isglt2: false, arglp1: false, tirzepatide: false, sulfamide: false, gliptine: false, insulineBasale: false, insulineRapide: false, glinide: false },
+    doseMetformine: 2000,
+    hba1cActuelle: 9,
+    hba1cCible: 8,
+    objectifRapport: 'nettementDessus',
+    mcv: true,
+    ic: false,
+    dfg: 65,
+    albuminurie: 'micro',
+    imc: 32,
+    alertes: { glucotox: false, cetonemie: false, hypoRecente: false, denutrition: false, infections: false, intolerance: false },
+    age: '',
+    fragilite: false,
+    esperanceVie: 'intermediaire',
+    risqueHypo: 'faible',
+    prefInjectable: 'indifferent',
+    bothUnusable: false,
+    showEcartees: false,
+  };
+
+  formColRef = React.createRef();
+  recoColRef = React.createRef();
+  sectionRefs = {
+    intention: React.createRef(),
+    traitement: React.createRef(),
+    profil: React.createRef(),
+    alertes: React.createRef(),
+    terrain: React.createRef(),
+  };
+
+  componentDidMount() {
+    this.onResize = () => this.setState({ isNarrow: window.innerWidth < 960 });
+    window.addEventListener('resize', this.onResize);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.onResize);
+  }
+
+  closedAll = { intention: false, traitement: false, profil: false, alertes: false, terrain: false };
+
+  openOnly = (id) => this.setState({ openSections: { ...this.closedAll, [id]: true } });
+
+  toggleSection = (id) => {
+    if (this.state.openSections[id]) this.setState((s) => ({ openSections: { ...s.openSections, [id]: false } }));
+    else this.openOnly(id);
+  };
+
+  scrollToSection = (id) => {
+    this.openOnly(id);
+    setTimeout(() => {
+      const el = this.sectionRefs[id].current;
+      if (!el) return;
+      if (this.state.isNarrow) {
+        const rect = el.getBoundingClientRect();
+        window.scrollTo({ top: rect.top + window.scrollY - 12, behavior: 'smooth' });
+      } else {
+        const container = this.formColRef.current;
+        if (container) container.scrollTo({ top: el.offsetTop - 12, behavior: 'smooth' });
+      }
+    }, 60);
+  };
+
+  scrollToRecos = () => {
+    const el = this.recoColRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    window.scrollTo({ top: rect.top + window.scrollY - 12, behavior: 'smooth' });
+  };
+
+  setIntention = (v) => this.setState({ intention: v });
+  toggleTx = (key) => this.setState((s) => ({ tx: { ...s.tx, [key]: !s.tx[key] } }));
+  setObjectifRapport = (v) => this.setState({ objectifRapport: v });
+  toggleMcv = () => this.setState((s) => ({ mcv: !s.mcv }));
+  toggleIc = () => this.setState((s) => ({ ic: !s.ic }));
+  setAlbuminurie = (v) => this.setState({ albuminurie: v });
+  toggleAlerte = (key) => this.setState((s) => ({ alertes: { ...s.alertes, [key]: !s.alertes[key] } }));
+  toggleFragilite = () => this.setState((s) => ({ fragilite: !s.fragilite }));
+  setEsperanceVie = (v) => this.setState({ esperanceVie: v });
+  setRisqueHypo = (v) => this.setState({ risqueHypo: v });
+  setPrefInjectable = (v) => this.setState({ prefInjectable: v });
+  toggleBothUnusable = () => this.setState((s) => ({ bothUnusable: !s.bothUnusable }));
+  toggleEcartees = () => this.setState((s) => ({ showEcartees: !s.showEcartees }));
+
+  setDoseMetformine = (e) => this.setState({ doseMetformine: e.target.value });
+  setHba1cActuelle = (e) => this.setState({ hba1cActuelle: e.target.value });
+  setHba1cCible = (e) => this.setState({ hba1cCible: e.target.value });
+  setDfg = (e) => this.setState({ dfg: e.target.value });
+  setImc = (e) => this.setState({ imc: e.target.value });
+  setAge = (e) => this.setState({ age: e.target.value });
+
+  renderVals() {
+    const s = this.state;
+
+    const seg = (active) => ({
+      padding: '9px 14px', borderRadius: '10px', fontSize: '13px', cursor: 'pointer',
+      whiteSpace: 'nowrap', flex: '1 1 auto', fontFamily: 'inherit', textAlign: 'center',
+      border: '1px solid ' + (active ? 'oklch(93% 0.025 254)' : 'oklch(89% 0.012 240)'),
+      background: active ? 'oklch(93% 0.025 254)' : 'oklch(99.5% 0.002 240)',
+      color: active ? 'oklch(46% 0.09 254)' : 'oklch(62% 0.015 245)',
+      fontWeight: active ? 700 : 500,
+    });
+    const chip = (active) => ({
+      display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 14px', borderRadius: '10px', cursor: 'pointer',
+      border: '1px solid ' + (active ? 'oklch(93% 0.025 254)' : 'oklch(89% 0.012 240)'),
+      background: active ? 'oklch(93% 0.025 254)' : 'oklch(99.5% 0.002 240)',
+    });
+
+    const stylesIntention = { initier: seg(s.intention === 'initier'), optimiser: seg(s.intention === 'optimiser'), intensifier: seg(s.intention === 'intensifier'), deprescrire: seg(s.intention === 'deprescrire') };
+    const setIntentionFns = { initier: () => this.setIntention('initier'), optimiser: () => this.setIntention('optimiser'), intensifier: () => this.setIntention('intensifier'), deprescrire: () => this.setIntention('deprescrire') };
+
+    const txLabels = { metformine: 'Metformine', isglt2: 'iSGLT2 (gliflozine)', arglp1: 'AR GLP-1', tirzepatide: 'Tirzépatide', sulfamide: 'Sulfamide', gliptine: 'Gliptine (iDPP4)', insulineBasale: 'Insuline basale', insulineRapide: 'Insuline rapide', glinide: 'Glinide' };
+    const stylesTx = {}; const toggleTxFns = {};
+    Object.keys(s.tx).forEach((k) => { stylesTx[k] = chip(s.tx[k]); toggleTxFns[k] = () => this.toggleTx(k); });
+
+    const objectifLabels = { objectif: "À l'objectif", dessus: "Au-dessus de l'objectif", nettementDessus: "Nettement au-dessus de l'objectif", dessous: "En dessous de l'objectif (sur-traitement probable)" };
+    const stylesObjectif = { objectif: seg(s.objectifRapport === 'objectif'), dessus: seg(s.objectifRapport === 'dessus'), nettementDessus: seg(s.objectifRapport === 'nettementDessus'), dessous: seg(s.objectifRapport === 'dessous') };
+    const setObjectifFns = { objectif: () => this.setObjectifRapport('objectif'), dessus: () => this.setObjectifRapport('dessus'), nettementDessus: () => this.setObjectifRapport('nettementDessus'), dessous: () => this.setObjectifRapport('dessous') };
+
+    const stylesFlag = { mcv: chip(s.mcv), ic: chip(s.ic) };
+
+    const albuminurieLabels = { normo: 'Normoalbuminurie', micro: 'Microalbuminurie', macro: 'Macroalbuminurie' };
+    const stylesAlbuminurie = { normo: seg(s.albuminurie === 'normo'), micro: seg(s.albuminurie === 'micro'), macro: seg(s.albuminurie === 'macro') };
+    const setAlbuminurieFns = { normo: () => this.setAlbuminurie('normo'), micro: () => this.setAlbuminurie('micro'), macro: () => this.setAlbuminurie('macro') };
+
+    const alerteLabels = { glucotox: 'Symptômes de glucotoxicité (polyuro-polydipsie, amaigrissement)', cetonemie: 'Cétonémie', hypoRecente: 'Hypoglycémie récente', denutrition: "Dénutrition / carence (possible même chez l'obèse)", infections: 'Infections génito-urinaires récidivantes', intolerance: 'Intolérance à un traitement en cours' };
+    const stylesAlertes = {}; const toggleAlerteFns = {};
+    Object.keys(s.alertes).forEach((k) => { stylesAlertes[k] = chip(s.alertes[k]); toggleAlerteFns[k] = () => this.toggleAlerte(k); });
+
+    const stylesFragilite = { fragilite: chip(s.fragilite) };
+
+    const esperanceLabels = { longue: 'Longue', intermediaire: 'Intermédiaire', limitee: 'Limitée' };
+    const stylesEsperance = { longue: seg(s.esperanceVie === 'longue'), intermediaire: seg(s.esperanceVie === 'intermediaire'), limitee: seg(s.esperanceVie === 'limitee') };
+    const setEsperanceFns = { longue: () => this.setEsperanceVie('longue'), intermediaire: () => this.setEsperanceVie('intermediaire'), limitee: () => this.setEsperanceVie('limitee') };
+
+    const risqueLabels = { faible: 'Faible', eleve: 'Élevé' };
+    const stylesRisque = { faible: seg(s.risqueHypo === 'faible'), eleve: seg(s.risqueHypo === 'eleve') };
+    const setRisqueFns = { faible: () => this.setRisqueHypo('faible'), eleve: () => this.setRisqueHypo('eleve') };
+
+    const prefLabels = { indifferent: 'Indifférent', accepte: 'Accepte', refuse: 'Refuse' };
+    const stylesPref = { indifferent: seg(s.prefInjectable === 'indifferent'), accepte: seg(s.prefInjectable === 'accepte'), refuse: seg(s.prefInjectable === 'refuse') };
+    const setPrefFns = { indifferent: () => this.setPrefInjectable('indifferent'), accepte: () => this.setPrefInjectable('accepte'), refuse: () => this.setPrefInjectable('refuse') };
+
+    const intentionLabels = { initier: 'Initier un traitement', optimiser: 'Optimiser (améliorer le rapport bénéfice/risque)', intensifier: 'Intensifier (renforcer le contrôle glycémique)', deprescrire: 'Déprescrire (alléger ou retirer un traitement)' };
+
+    const txChecked = Object.keys(s.tx).filter((k) => s.tx[k]).map((k) => txLabels[k]);
+    const alertesChecked = Object.keys(s.alertes).filter((k) => s.alertes[k]).map((k) => alerteLabels[k]);
+
+    const summaryIntention = intentionLabels[s.intention];
+    const summaryTraitement = (txChecked.length ? txChecked.join(', ') : 'Aucun traitement en cours') + ' · HbA1c ' + s.hba1cActuelle + '% → cible ' + s.hba1cCible + '% · ' + objectifLabels[s.objectifRapport];
+    const summaryProfil = (s.mcv ? 'MCV établie' : 'Pas de MCV') + (s.ic ? ' · IC' : '') + ' · DFG ' + s.dfg + ' · ' + albuminurieLabels[s.albuminurie] + ' · IMC ' + s.imc;
+    const summaryAlertes = alertesChecked.length ? (alertesChecked.length + " signal(aux) coché(s)") : "Aucun signal d'alerte";
+    const summaryTerrain = 'Espérance de vie ' + esperanceLabels[s.esperanceVie] + ' · Risque hypo ' + risqueLabels[s.risqueHypo] + ' · Injectable : ' + prefLabels[s.prefInjectable];
+
+    // Champs décisifs manquants — marquage "à confirmer"
+    const missingCounts = {
+      traitement: [s.doseMetformine, s.hba1cActuelle, s.hba1cCible].filter((v) => v === '').length,
+      profil: [s.dfg, s.imc].filter((v) => v === '').length,
+    };
+    const missingHas = { traitement: missingCounts.traitement > 0, profil: missingCounts.profil > 0 };
+
+    const cetoneStop = !!s.alertes.cetonemie;
+    const otherAlertesChecked = alertesChecked.filter((l) => l !== alerteLabels.cetonemie);
+    const hasOtherAlert = otherAlertesChecked.length > 0;
+    const otherAlertText = 'Signal(aux) à réévaluer avant de valider : ' + otherAlertesChecked.join(', ') + '.';
+
+    const showIsglt2 = !s.bothUnusable;
+    const showArGlp1 = !s.bothUnusable && s.prefInjectable !== 'refuse';
+    const showTirzepatide = Number(s.imc) >= 30 && s.prefInjectable !== 'refuse';
+    const recoCount = 1 + (showIsglt2 ? 1 : 0) + (showArGlp1 ? 1 : 0) + (showTirzepatide ? 1 : 0) + 2;
+
+    // Code couleur des recommandations : vert=ajouter, orange=remplacer, rouge=arrêter — piloté par l'intention
+    const actionByIntention = { initier: 'ajouter', intensifier: 'ajouter', optimiser: 'remplacer', deprescrire: 'arreter' };
+    const agentAction = actionByIntention[s.intention] || 'ajouter';
+    const actionStyles = {
+      ajouter: { bar: 'oklch(55% 0.15 145)', text: 'oklch(30% 0.1 145)', bg: 'oklch(93% 0.05 145)', label: 'Ajouter' },
+      remplacer: { bar: 'oklch(60% 0.16 55)', text: 'oklch(38% 0.12 55)', bg: 'oklch(93% 0.06 55)', label: 'Remplacer' },
+      arreter: { bar: 'oklch(55% 0.18 25)', text: 'oklch(38% 0.14 25)', bg: 'oklch(93% 0.06 25)', label: 'Arrêter' },
+    };
+    const agentActionBar = actionStyles[agentAction].bar;
+    const agentActionText = actionStyles[agentAction].text;
+    const agentActionBg = actionStyles[agentAction].bg;
+    const agentActionLabel = actionStyles[agentAction].label;
+    const metformineActionLabel = s.intention === 'deprescrire' ? 'Poursuivre' : 'Maintenir';
+
+    const chevron = (open) => ({ display: 'inline-block', transform: open ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform .15s', color: 'oklch(62% 0.015 245)', fontSize: '12px' });
+    const chevrons = { intention: chevron(s.openSections.intention), traitement: chevron(s.openSections.traitement), profil: chevron(s.openSections.profil), alertes: chevron(s.openSections.alertes), terrain: chevron(s.openSections.terrain) };
+
+    const stepStyle = (id) => ({
+      padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'inherit',
+      border: '1px solid ' + (s.openSections[id] ? 'oklch(46% 0.09 254)' : 'oklch(89% 0.012 240)'),
+      background: s.openSections[id] ? 'oklch(46% 0.09 254)' : 'oklch(99.5% 0.002 240)',
+      color: s.openSections[id] ? 'white' : 'oklch(50% 0.018 245)',
+    });
+    const stepStyles = { intention: stepStyle('intention'), traitement: stepStyle('traitement'), profil: stepStyle('profil'), alertes: stepStyle('alertes'), terrain: stepStyle('terrain') };
+    const scrollToSectionFns = { intention: () => this.scrollToSection('intention'), traitement: () => this.scrollToSection('traitement'), profil: () => this.scrollToSection('profil'), alertes: () => this.scrollToSection('alertes'), terrain: () => this.scrollToSection('terrain') };
+    const toggleSectionFns = { intention: () => this.toggleSection('intention'), traitement: () => this.toggleSection('traitement'), profil: () => this.toggleSection('profil'), alertes: () => this.toggleSection('alertes'), terrain: () => this.toggleSection('terrain') };
+    const nextSectionFns = { toTraitement: () => this.scrollToSection('traitement'), toProfil: () => this.scrollToSection('profil'), toAlertes: () => this.scrollToSection('alertes'), toTerrain: () => this.scrollToSection('terrain') };
+
+    const collapsed = { intention: !s.openSections.intention, traitement: !s.openSections.traitement, profil: !s.openSections.profil, alertes: !s.openSections.alertes, terrain: !s.openSections.terrain };
+
+    const bodyStyle = s.isNarrow
+      ? { flex: 1, display: 'flex', flexDirection: 'column', overflow: 'visible' }
+      : { flex: 1, display: 'grid', gridTemplateColumns: 'minmax(420px,1fr) minmax(380px,1fr)', overflow: 'hidden' };
+    const formColStyle = s.isNarrow
+      ? { overflowY: 'visible', padding: '20px 20px 100px' }
+      : { overflowY: 'auto', padding: '24px 32px', borderRight: '1px solid oklch(89% 0.012 240)' };
+    const recoColStyle = s.isNarrow
+      ? { overflowY: 'visible', padding: '20px' }
+      : { overflowY: 'auto', padding: '24px 32px' };
+    const pageStyle = s.isNarrow
+      ? 'min-height:100vh;display:flex;flex-direction:column;'
+      : 'height:100vh;display:flex;flex-direction:column;overflow:hidden;';
+
+    const ecarteesLabel = s.showEcartees ? 'Masquer les options écartées' : 'Voir les options écartées';
+
+    const metformineTooltip = "Recommandation officielle (France).\n\nContre-indications : CONTRE-INDIQUÉE si DFG < 30 (RCP ANSM) ; à écarter en insuffisance cardiaque décompensée, IDM récent, insuffisance hépatique, alcoolisme. À suspendre : déshydratation, sepsis, jeûne, produit de contraste iodé, chirurgie.\n\nProposé parce que : socle maintenu par la recommandation officielle, quelles que soient les comorbidités.\n\nEffet attendu : réduction HbA1c ~1 pt en 6-12 semaines. Avantages : neutre pondéral, faible coût. Inconvénients : troubles digestifs initiaux.";
+    const isglt2Tooltip = "Recommandée — preuve élevée.\n\nContre-indications : ne pas initier si DFG < 20 (poursuivre jusqu'à la dialyse si déjà en cours — KDIGO 2024) · infections génito-urinaires récidivantes ; antécédent de gangrène de Fournier ; prudence si artériopathie évoluée/amputation. En cas d'IC avec saxagliptine en cours : arrêter la saxagliptine, ne pas se contenter d'ajouter l'iSGLT2.\n\nProposé parce que : Albuminurie ≠ Normoalbuminurie et MCV établie et palette glycémique ouverte.\n\nEffet attendu : protection cardio-rénale démontrée + réduction HbA1c modérée. Avantages : perte de poids modeste. Inconvénients : risque d'infections génito-urinaires, acidocétose euglycémique rare.";
+    const arglp1Tooltip = "Preuve modérée.\n\nContre-indications : antécédent de pancréatite ; antécédent personnel/familial de cancer médullaire de la thyroïde ou NEM2. Refus des injections : préférer le sémaglutide oral. Rétinopathie proliférante non stabilisée : prudence. IMC bas/dénutrition : contre-indication de terrain.\n\nProposé parce que : MCV établie et IMC ≥ 30 et palette glycémique ouverte.\n\nEffet attendu : réduction HbA1c marquée + perte de poids significative en 8-12 semaines. Inconvénients : troubles digestifs initiaux, voie injectable (sauf sémaglutide oral).";
+    const tirzepatideTooltip = "Preuve modérée — prescription spécialisée.\n\nContre-indications : antécédent de pancréatite ; cancer médullaire de la thyroïde/NEM2 ; refus des injections ; dénutrition.\n\nProposé parce que : IMC ≥ 30.\n\nEffet attendu : réduction HbA1c et perte de poids importantes en 8-12 semaines. Inconvénients : troubles digestifs, voie injectable, coût.";
+    const gliptineTooltip = "Preuve modérée — place résiduelle.\n\nContre-indications : SITAGLIPTINE (dose au DFG : 100mg si ≥45 ; 50mg si 30-44). Sous 30 (dialyse incluse) : VILDAGLIPTINE 50mg/j. Ne pas utiliser saxagliptine (IC + retrait FR) ni lina/alogliptine (non commercialisées FR). Éruption bulleuse → évoquer pemphigoïde, arrêter.\n\nProposé parce que : palette glycémique ouverte et objectif ≠ en dessous (sur-traitement probable).\n\nEffet attendu : réduction HbA1c modeste, bonne tolérance, faible risque hypoglycémique.";
+    const sulfamideTooltip = "Preuve modérée — bas rang, derrière la gliptine.\n\nContre-indications : CONTRE-INDIQUÉ si DFG < 30. Déconseillé si risque d'hypoglycémie élevé (âgé, fragile, alimentation irrégulière) : préférer la gliptine. Molécule : gliclazide MR ou glimépiride, jamais le glibenclamide.\n\nProposé parce que : palette glycémique ouverte et objectif ≠ en dessous (sur-traitement probable).\n\nEffet attendu : réduction HbA1c modérée à rapide. Inconvénients : risque hypoglycémique, prise de poids.";
+
+    return {
+      ...s,
+      stylesIntention, setIntentionFns, txLabels, stylesTx, toggleTxFns,
+      objectifLabels, stylesObjectif, setObjectifFns, stylesFlag,
+      albuminurieLabels, stylesAlbuminurie, setAlbuminurieFns,
+      alerteLabels, stylesAlertes, toggleAlerteFns, stylesFragilite,
+      esperanceLabels, stylesEsperance, setEsperanceFns,
+      risqueLabels, stylesRisque, setRisqueFns,
+      prefLabels, stylesPref, setPrefFns,
+      summaryIntention, summaryTraitement, summaryProfil, summaryAlertes, summaryTerrain,
+      missingCounts, missingHas,
+      cetoneStop, notCetoneStop: !cetoneStop, hasOtherAlert, otherAlertText,
+      showIsglt2, showArGlp1, showTirzepatide, recoCount, ecarteesLabel,
+      agentAction, agentActionBar, agentActionText, agentActionBg, agentActionLabel, metformineActionLabel,
+      metformineTooltip, isglt2Tooltip, arglp1Tooltip, tirzepatideTooltip, gliptineTooltip, sulfamideTooltip,
+      chevrons, stepStyles, scrollToSectionFns, toggleSectionFns, nextSectionFns, collapsed,
+      bodyStyle, formColStyle, recoColStyle, pageStyle,
+      toggleMcv: this.toggleMcv, toggleIc: this.toggleIc,
+      toggleFragilite: this.toggleFragilite, toggleBothUnusable: this.toggleBothUnusable, toggleEcartees: this.toggleEcartees,
+      setDoseMetformine: this.setDoseMetformine, setHba1cActuelle: this.setHba1cActuelle, setHba1cCible: this.setHba1cCible,
+      setDfg: this.setDfg, setImc: this.setImc, setAge: this.setAge,
+      scrollToRecos: this.scrollToRecos,
+      formColRef: this.formColRef, recoColRef: this.recoColRef,
+      sectionRefIntention: this.sectionRefs.intention, sectionRefTraitement: this.sectionRefs.traitement,
+      sectionRefProfil: this.sectionRefs.profil, sectionRefAlertes: this.sectionRefs.alertes, sectionRefTerrain: this.sectionRefs.terrain,
+    };
+  }
+}
+</script>
+</body>
+</html>
