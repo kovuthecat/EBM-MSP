@@ -76,6 +76,14 @@ const BASE: Criteria = {
   // elle n'est donc recueillie que dans les schémas qui en comportent un. Valeur inerte ici.
   hypo_interprandiale: false,
   GAJ: 1.0,
+  // Pivot « avant les repas » (arbitrage référent B, 2026-07-29). ⚠ CE CHAMP DOIT FIGURER ICI même
+  // quand la vignette ne s'y intéresse pas : les dérivés `pre_repas_haute`/`pre_repas_basse` le
+  // comparent numériquement, et `deriveCritere` résout un nom ABSENT du jeu de critères en la CHAÎNE de
+  // son propre nom — d'où un `ConditionError` sur `>` entre valeurs non numériques, et non un simple
+  // « faux ». Le formulaire réel ne rencontre pas ce cas (`buildDefaultCriteria` déclare tous les
+  // critères) ; c'est le profil neutre écrit à la main qui doit rester exhaustif. Valeur À LA CIBLE,
+  // donc inerte : ni `pre_repas_haute` ni `pre_repas_basse` ne se déclenchent.
+  glycemie_pre_repas: 1.0,
   poids: 75,
   dose_basale_actuelle: 20,
   dose_rapide_actuelle: 5,
@@ -437,12 +445,12 @@ describe(
     'aucun garde-fou d\'hypoglycémie sur les 2 options d\'escalade — 401/401 profils à risque du banc',
   () => {
     it(
-      'profil EXACT du rapport (âge 105, TBR=1 %, TBR sévère=0 %, hypo_severe_recurrente=true, ' +
-        'GLP-1/tirzépatide déjà en place) : « Ajouter un bolus » — seule sortie observée avant ce lot — ' +
-        'est désormais EXCLUE (aucun signal MCG ne la bloquait, seul l\'antécédent le fait) ; ' +
-        '« Ajouter un GLP-1... » restait de toute façon hors jeu (prérequis : tirzépatide déjà en cours) ; ' +
-        '« Corriger l\'hypoglycémie ou la variabilité... », réutilisée pour cette situation (même lot), ' +
-        'reste offerte — l\'exclusion ne se traduit jamais par un silence (R4).',
+      'profil EXACT du rapport (âge 105, TBR=1 %, hypo_severe_recurrente=true, GLP-1/tirzépatide déjà ' +
+        'en place) — ATTENTE RÉÉCRITE le 2026-07-29 : « Ajouter un bolus » n\'est PLUS exclue. Un ' +
+        'antécédent d\'hypoglycémie sévère sous un schéma antérieur ne présume pas du risque sous le ' +
+        'schéma actuel et ne retire plus aucun geste (arbitrage référent, passe A). L\'escalade reste ' +
+        'donc offerte, et « Corriger l\'hypoglycémie... » ne l\'est plus sur ce seul signal ; c\'est ' +
+        'désormais une ALERTE de nœud qui porte la prudence.',
       () => {
         const o = {
           situation_insuline: 'basale_plus_bolus',
@@ -452,20 +460,28 @@ describe(
           fragilite: false,
           hypo_severe_recurrente: true,
           TBR: 1,
-          TBR_severe: 0,
           traitements_en_cours: ['iSGLT2', 'tirzepatide', 'sulfamide'],
         } as Partial<Criteria>
         const t = titles(o)
         const excl = excludedTitles(o)
-        // Escalade bloquée : « Ajouter un bolus » écartée par exclusion (sécurité, R4 — motif tracé) ;
-        // « Ajouter un GLP-1... » jamais candidate (prérequis : tirzépatide déjà en cours).
-        expect(has(excl, AJOUTER_BOLUS)).toBe(true)
-        expect(has(t, AJOUTER_BOLUS)).toBe(false)
+        // ─────────────────────────────────────────────────────────────────────────────────────────
+        // POURQUOI CETTE VIGNETTE A CHANGÉ DE SENS, et pourquoi ce n'est pas un affaiblissement.
+        // Écrite le 2026-07-26 (finding F3), elle figeait le fait que `hypo_severe_recurrente` EXCLUAIT
+        // les 2 options d'escalade en « basale_plus_bolus ». Cette extension portait dès son écriture la
+        // mention « choix référent À CONFIRMER (invariant 6) » — elle n'a jamais été confirmée, et le
+        // référent l'a INFIRMÉE le 2026-07-29 : « un antécédent d'hypoglycémie sévère sous un ANCIEN
+        // schéma ne présume pas du risque sous le schéma ACTUEL. Il ne doit pas empêcher de titrer. »
+        // Le fait de sécurité n'a pas disparu : il a changé de canal (R8) — d'`exclusions`, qui retire,
+        // vers une `alertes` de nœud, qui qualifie. Le patient de ce profil voit donc l'escalade ET
+        // l'avertissement, au lieu de voir l'escalade retirée sans pouvoir la rouvrir.
+        // ─────────────────────────────────────────────────────────────────────────────────────────
+        expect(has(excl, AJOUTER_BOLUS)).toBe(false)
+        expect(has(t, AJOUTER_BOLUS)).toBe(true)
+        // Inchangé et indépendant de l'arbitrage : jamais candidate, tirzépatide déjà en cours (prérequis).
         expect(has(t, AJOUTER_GLP1_BB)).toBe(false)
-        // Ce qui reste offert : le geste de sécurité (réutilisé depuis « basale seule », même lot) et
-        // l'optimisation des doses actuelles (réutilisée depuis « basal_bolus », finding F2 du même lot) —
-        // jamais un silence pur.
-        expect(has(t, CORRIGER_HYPO)).toBe(true)
+        // Le geste correctif n'est plus déclenché par le seul antécédent (arbitrage A) ; l'optimisation
+        // des doses actuelles (finding F2, même lot de 2026-07-26) reste offerte — jamais un silence.
+        expect(has(t, CORRIGER_HYPO)).toBe(false)
         expect(has(t, OPTIMISER_BB)).toBe(true)
       },
     )
@@ -549,19 +565,35 @@ describe(
 describe('insuline — arbitrages référent du 2026-07-27', () => {
   // `CORRIGER_HYPO` / `OPTIMISER_BB` sont déjà déclarés en tête de fichier — réutilisés tels quels.
   it(
-    'A27-1 — basale SEULE, antécédent d\'hypo sévère récurrente pour SEUL signal (MCG rassurante) : ' +
-      'le geste correctif est proposé (généralisation référent — le signal est une propriété du patient, ' +
-      'pas du schéma)',
+    'A27-1 — RÉÉCRITE le 2026-07-29 : basale SEULE, antécédent d\'hypo sévère récurrente pour SEUL ' +
+      'signal (MCG rassurante) — le geste correctif n\'est PLUS proposé sur ce seul signal, et une ' +
+      'ALERTE de nœud porte désormais la prudence',
     () => {
       const o = {
         situation_insuline: 'basale_seule',
         hypo_severe_recurrente: true,
-        // Les 4 signaux MCG sont explicitement RASSURANTS : sans la généralisation, aucun d'eux ne
-        // déclenchait l'option, et ce patient restait sans réponse sous basale seule.
-        mcg_disponible: true, TBR: 1, TBR_severe: 0, CV_glycemique: 20,
+        // Les 4 signaux MCG sont explicitement RASSURANTS : rien d'autre que l'antécédent ne parle.
+        mcg_disponible: true, TBR: 1, CV_glycemique: 20,
         profil_glycemique: ['stable'],
       } as Partial<Criteria>
-      expect(has(titles(o), CORRIGER_HYPO)).toBe(true)
+      // ───────────────────────────────────────────────────────────────────────────────────────────
+      // DEUX ARBITRAGES SUCCESSIFS SUR LE MÊME PROFIL, et le second amende le premier.
+      // 2026-07-27 : « un antécédent d'hypo sévère récurrente est une propriété DU PATIENT, pas du
+      //   schéma » → le geste correctif est généralisé à toutes les situations. Cette vignette figeait
+      //   ce gain.
+      // 2026-07-29 : « un antécédent sous un ANCIEN schéma ne présume pas du risque sous le schéma
+      //   ACTUEL. Il ne doit pas empêcher de titrer. » → le signal cesse de COMMANDER une baisse de
+      //   dose.
+      // Les deux se réconcilient sur la PORTÉE, qui reste universelle : ce qui change est le CANAL.
+      // Une alerte de nœud n'est gatée par aucune situation — l'avertissement suit donc le patient
+      // partout, ce que voulait l'arbitrage de 2026-07-27, sans prescrire un geste que le seul
+      // antécédent ne justifie pas. C'est aussi ce qui lève la contradiction de la vignette V-A2
+      // (« réduire la basale » et « +2 U » affichés ensemble).
+      // ───────────────────────────────────────────────────────────────────────────────────────────
+      expect(has(titles(o), CORRIGER_HYPO)).toBe(false)
+      // La prudence n'a pas disparu : elle est passée dans les alertes, et elle y est INCONDITIONNELLE
+      // vis-à-vis de la situation.
+      expect(alertMsgs(o).some((m) => m.includes('sous un schéma antérieur'))).toBe(true)
     },
   )
 

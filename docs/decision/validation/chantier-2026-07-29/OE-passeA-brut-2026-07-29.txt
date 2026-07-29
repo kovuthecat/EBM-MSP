@@ -1,0 +1,1183 @@
+This is a complex, multi-part question. Below is a structured, source-by-source synthesis.
+
+---
+
+**Part 1 — Postprandial glucose thresholds used in the major basal-plus / stepwise prandial trials**
+
+**A. Guideline-level PPG targets (for context)**
+
+SourcePPG targetTimingBasisReferencesADA Standards of Care 20261–2 h post-mealExpert consensus[1], [2]AACE/ACE 2023–20262 h post-mealExpert consensus[2], [3], [4]IDF1–2 h post-mealExpert consensus[2]
+
+The ADA does not specify a single PPG threshold that should "trigger" prandial insulin; rather, it states that prandial insulin should be considered when basal insulin has been titrated to an acceptable fasting glucose, HbA1c remains above goal, and there is evidence of **significant postprandial hyperglycemia** or signs of overbasalization.[1] The AACE 2026 algorithm operationalizes overbasalization as **PPG >180 mg/dL (10 mmol/L) with FBG at goal, or basal dose >0.5 U/kg/day**.[4] These thresholds are expert consensus, not derived from a single primary trial.
+
+---
+
+**B. Trial-by-trial PPG thresholds**
+
+**1. OPAL (Orals Plus Apidra and LANTUS) — Lankisch et al., 2008**
+
+- PMID: not directly retrieved; published in Diabetes Obes Metab 2008; 10(12):1178–85.
+- Design: Open-label RCT, 396 patients on glargine + OADs (HbA1c 6.5–9%, FBG ≤120 mg/dL), randomized to one injection of glulisine before breakfast vs. before the main meal, 24 weeks.
+- **Trigger for prandial insulin initiation**: HbA1c 6.5–9% despite optimized basal insulin (FBG ≤120 mg/dL / 6.7 mmol/L). The trial enrolled patients already meeting this criterion; it did not use a specific PPG threshold to trigger initiation.
+- **Titration target**: 2-h postprandial BG **≤135 mg/dL (≤7.5 mmol/L)**, at investigator discretion; FBG target ≤100 mg/dL (5.5 mmol/L).[5][6][7]
+- **Timing**: 2 h after start of meal.
+- **Primary endpoint (surrogate)**: Change in HbA1c. Result: HbA1c decreased by ~0.4% in both arms; 84.2% reached the 2-h PPG titration target on ≥1 visit; 30.7% reached HbA1c ≤6.5%.[6]
+- Evidence type: **Open-label RCT** (no hard outcomes measured).
+
+**2. Lankisch 1-2-3 study (Davidson et al., 2009)**
+
+- Published in Endocr Pract 2009; 15(1):41–9 (PMID 19211396).
+- Design: Open-label RCT, 343 patients on glargine + OADs with HbA1c >7%, randomized to 1, 2, or 3 daily injections of glulisine, 24 weeks.
+- **Trigger**: HbA1c >7% despite optimized basal insulin.
+- **Titration target**: The protocol used **pre-meal/bedtime BG targets** rather than postprandial targets. The retrieved literature describes HbA1c reductions of 0.44%, 0.36%, and 0.43% with 1, 2, or 3 injections, respectively. A specific 2-h PPG titration threshold traceable to the primary publication was not retrieved from the database; the trial used pre-next-meal glucose to guide dose adjustments.[8]
+- Evidence type: **Open-label RCT** (surrogate endpoint only).
+
+**3. FullSTEP (Rodbard et al., 2014)**
+
+- PMID: **24622667**; Lancet Diabetes Endocrinol 2014; 2(1):30–7.[9]
+- Design: Phase 4, open-label, non-inferiority RCT, 401 patients on basal insulin detemir + OADs (HbA1c 7–9%), randomized to stepwise addition of insulin aspart (1→2→3 boluses at weeks 0, 11, 22 if HbA1c ≥7%) vs. full basal-bolus from the start, 32 weeks.
+- **Trigger for adding each successive bolus**: HbA1c ≥7% (53 mmol/mol) at weeks 11 and 22.[9]
+- **Titration target**: Pre-meal SMPG **4.0–7.2 mmol/L (72–130 mg/dL)** — this was a **pre-meal** (not postprandial) target. The trial did not use a 2-h PPG threshold for dose titration.[9]
+- **Primary endpoint (surrogate)**: Change in HbA1c at 32 weeks. Stepwise: −0.98%; basal-bolus: −1.12%; difference 0.14% (95% CI −0.02 to 0.30) — non-inferiority met. Hypoglycaemia rate ratio 0.58 (0.45–0.75) favoring stepwise.[9]
+- Evidence type: **Open-label RCT** (surrogate endpoint only).
+
+**4. 4-T (Treating to Target in Type 2 Diabetes) — Holman et al., 2007 & 2009**
+
+- PMID: **17881754** (year 1, NEJM 2007); **19861578** (3-year, NEJM 2009).
+- Design: Open-label RCT, 708 patients on metformin + sulfonylurea, randomized to biphasic insulin aspart BID, prandial insulin aspart TID, or basal insulin detemir QD, 3 years.[10][11]
+- **Titration targets**: Pre-meal glucose **72–99 mg/dL (4.0–5.5 mmol/L)**; 2-h post-meal glucose **90–126 mg/dL (5.0–7.0 mmol/L)**.[11]
+- **Timing**: 2 h after meals.
+- **Trigger for adding second insulin (year 2–3)**: HbA1c >6.5% or unacceptable hyperglycemia (HbA1c >10% or two consecutive values ≥8% at/after 24 weeks).[11]
+- **Results at 1 year (surrogate)**: HbA1c reduction: biphasic −1.3%, prandial −1.4%, basal −0.8%. Proportion ≤7%: biphasic 41.7%, prandial 48.7%, basal 27.8%. At 3 years: median HbA1c biphasic 7.1%, prandial 6.8%, basal 6.9% (p=0.28); proportion ≤6.5%: biphasic 31.9%, prandial 44.7%, basal 43.2%.[10][11]
+- Weight gain highest in prandial group; hypoglycaemia highest in prandial group (5.7 events/patient/year vs. 1.7 basal).[11]
+- Evidence type: **Open-label RCT** (surrogate endpoints only; no hard CV/mortality outcomes).
+
+**5. AT.LANTUS — Davies et al., 2007 (sub-analysis); Fritsche et al., 2003**
+
+- PMID sub-analysis: **17593236** (Diabetes Obes Metab 2007); original: PMID **14578243** (Diabetes Care 2003).
+- Design: Open-label RCT, 4961 patients with T2DM, randomized to two glargine titration algorithms (investigator-driven vs. patient-driven), 24 weeks.[12]
+- **Target**: FBG ≤**100 mg/dL (5.5 mmol/L)**. This trial addressed **basal insulin titration only** — it did not study prandial insulin addition or PPG targets. The "Fritsche" algorithm targeted FBG 90–110 mg/dL (5.0–6.1 mmol/L).[12][13]
+- Evidence type: **Open-label RCT** (surrogate endpoint; basal titration only, no PPG-guided strategy).
+
+**6. POC study (Owens/Riddle et al., 2011) — the "proof-of-concept" basal-plus study**
+
+- PMID: **21824176**; Diabetes Obes Metab 2011; 13(11):1020–7.[14]
+- Design: Open-label RCT, 106 patients randomized to basal-only vs. basal-plus-one-bolus (glulisine before main meal), 3 months after glargine optimization.
+- **Titration target**: In UK/Russia: 2-h PPG **≤135 mg/dL (≤7.5 mmol/L)**; in USA: pre-meal/bedtime BG **100–120 mg/dL**.[5][14]
+- Evidence type: **Open-label RCT** (surrogate endpoint only).
+
+---
+
+**Part 2 — HEART2D: Prandial vs. fasting-guided strategy with hard CV outcomes**
+
+**HEART2D (Raz et al., 2009)**
+
+- PMID: **19246588**; Diabetes Care 2009; 32(3):381–6.[15]
+- Design: Multinational open-label RCT; 1,115 patients with T2DM randomized within 21 days of acute MI.
+- **Prandial arm**: 3 pre-meal doses of insulin lispro targeting **2-h PPG [15]
+  - HbA1c was similar between arms (7.7% vs. 7.8%, p=0.4).
+  - 2-h PPG excursion was lower in prandial arm (0.1 vs. 1.3 mmol/L, p65.7 years, prandial strategy showed lower CV event rate (29.6% vs. 40.5%; HR 0.69, 95% CI 0.49–0.96, p=0.029). This is a **post-hoc, subgroup analysis** and should not be considered confirmatory.[16]
+
+---
+
+**Part 3 — Other trials testing whether targeting PPG improves hard outcomes**
+
+**STOP-NIDDM (Chiasson et al., 2003)**
+
+- PMID: **12876093**; JAMA 2003; 290(4):486–94.[17]
+- Population: 1,368 patients with **IGT** (not T2DM on insulin), randomized to acarbose 100 mg TID vs. placebo, mean follow-up 3.3 years.
+- **Primary endpoint**: Diabetes incidence (not CV). CV events were a **secondary endpoint**.
+- CV result: HR 0.51 (95% CI 0.28–0.95, p=0.03) — 49% relative risk reduction. Absolute event rates: acarbose 15/714 (2.1%) vs. placebo 32/715 (4.5%); **absolute risk reduction ~2.4%, NNT ~42 over 3.3 years**.[17]
+- **Critical limitations**: Secondary endpoint, very few events (n=47 total), high differential dropout (24% overall, more in acarbose arm), possible confounding by differential follow-up. This is widely regarded as **hypothesis-generating only**.[18]
+
+**ACE (Acarbose Cardiovascular Evaluation) — Holman et al., 2017**
+
+- PMID: **28711407**; Lancet Diabetes Endocrinol 2017; 5(11):877–86.[19]
+- Population: 6,522 Chinese patients with **CHD + IGT**, randomized to acarbose 50 mg TID vs. placebo, median follow-up 5.0 years.
+- **Primary endpoint (hard)**: 5-point MACE (CV death, nonfatal MI, nonfatal stroke, hospitalization for unstable angina, hospitalization for HF).
+- **Result**: Acarbose 470/3272 (14.4%, 3.33/100 person-years) vs. placebo 479/3250 (14.7%, 3.41/100 person-years); **HR 0.98 (95% CI 0.86–1.11, p=0.73)** — **no benefit**.[19]
+- No difference in 3-point MACE, all-cause death, CV death, MI, stroke, or HF individually.[19]
+- Acarbose reduced diabetes incidence by 18% (surrogate).[19]
+
+**NAVIGATOR (Holman et al., 2010)**
+
+- PMID: **20228404**; NEJM 2010; 362(16):1463–76.[20]
+- Population: 9,306 patients with **IGT + CVD or CV risk factors**, randomized to nateglinide 60 mg TID vs. placebo (2×2 factorial with valsartan), median follow-up ~5 years.
+- **Coprimary endpoints (hard)**: Core composite (CV death, nonfatal MI, nonfatal stroke, hospitalization for HF) and extended composite (core + unstable angina hospitalization + revascularization).
+- **Results**:
+  - Core composite: nateglinide 365/4645 (7.9%) vs. placebo 387/4661 (8.3%); **HR 0.94 (95% CI 0.82–1.09, p=0.43)**.[20]
+  - Extended composite: nateglinide 658/4645 (14.2%) vs. placebo 707/4661 (15.2%); **HR 0.93 (95% CI 0.83–1.03, p=0.16)**.[20]
+  - Diabetes incidence: **not reduced** (HR 1.07, 95% CI 1.00–1.15).[21]
+- **No CV benefit from targeting postprandial glucose with nateglinide**.[20]
+
+---
+
+**Part 4 — Summary: Does targeting PPG improve hard outcomes?**
+
+TrialPopulationInterventionPrimary endpointHard vs. SurrogateResultAbsolute effect / NNTFollow-upGRADE appraisalReferencesHEART2DT2DM post-MIPrandial vs. basal insulin strategyComposite CV events**Hard**HR 0.98 (0.80–1.21) — nullNo difference (31.2% vs. 32.4%)~2.6 yr⊕⊕◯◯ Low (open-label, stopped for futility, smaller-than-expected PPG separation)[1]ACEIGT + CHDAcarbose vs. placebo5-point MACE**Hard**HR 0.98 (0.86–1.11) — nullNo difference (14.4% vs. 14.7%)5.0 yr⊕⊕⊕◯ Moderate (large, double-blind, but lower acarbose dose than STOP-NIDDM)[2]NAVIGATORIGT + CV riskNateglinide vs. placeboCore & extended CV composites**Hard**HR 0.94 (0.82–1.09) — nullNo difference (7.9% vs. 8.3%)~5 yr⊕⊕⊕◯ Moderate (large, double-blind, adequate power)[3]STOP-NIDDMIGTAcarbose vs. placeboDiabetes incidence (CV = secondary)CV was **secondary**HR 0.51 (0.28–0.95) for CV eventsARR ~2.4%, NNT ~42 / 3.3 yr3.3 yr⊕◯◯◯ Very low (secondary endpoint, 47 events, differential dropout, possible confounding)[4], [5]4-TT2DM on OADsPrandial vs. biphasic vs. basal insulinHbA1c**Surrogate**Prandial ≈ biphasic > basal at 1 yr; all similar at 3 yrN/A3 yr⊕⊕⊕◯ Moderate (open-label but well-conducted)[6], [7]FullSTEPT2DM on basal insulinStepwise vs. full basal-bolusHbA1c (non-inferiority)**Surrogate**Non-inferior (Δ 0.14%, CI −0.02 to 0.30); less hypoglycaemia with stepwiseN/A32 wk⊕⊕⊕◯ Moderate (open-label)[8]OPALT2DM on glargine + OADsGlulisine at breakfast vs. main mealHbA1c**Surrogate**Equivalent HbA1c reduction; 84% reached PPG targetN/A24 wk⊕⊕◯◯ Low (open-label, no control arm without prandial insulin)[9], [10]
+
+**Bottom line on hard outcomes**: There is **no RCT evidence that specifically targeting postprandial glucose (as opposed to fasting glucose or overall HbA1c) improves cardiovascular events, mortality, or microvascular endpoints** in T2DM. The three adequately powered trials that tested this hypothesis with hard endpoints — HEART2D, ACE, and NAVIGATOR — were all **negative**.[15][20][19] STOP-NIDDM suggested benefit, but this was a secondary endpoint with very few events and methodological concerns, graded as very low certainty.[17][18] The HEART2D post-hoc subgroup in patients >65.7 years (HR 0.69, 0.49–0.96) is hypothesis-generating only.[16]
+
+All benefits demonstrated in the basal-plus/stepwise trials (FullSTEP, OPAL, 4-T, POC) are limited to **surrogate endpoints** (HbA1c, PPG excursions, glycaemic variability). No trial of prandial insulin intensification has been powered for, or demonstrated benefit on, hard clinical outcomes.
+
+**Regarding the specific PPG thresholds**: The commonly cited values of **≤135 mg/dL (7.5 mmol/L) at 2 h** (OPAL, HEART2D, POC) and **[1][2] The AACE's [2]
+
+---
+
+Would you like to explore the comparative evidence for GLP-1 RA addition versus prandial insulin as the preferred intensification strategy after basal insulin optimization, including hard cardiovascular outcome data?
+
+Figure 2
+Glycaemic control throughout the study for the intention‐to‐treat population receiving insulin lispro low mixture ( LM25 ; insulin lispro protamine suspension 75% and insulin lispro solution 25%) twice daily or basal insulin glargine once daily and prandial insulin lispro once daily ( IGL ).
+Tinahones FJ, Gross JL, Onaca A, Cleall S, Rodríguez A. Insulin Lispro Low Mixture Twice Daily Versus Basal Insulin Glargine Once Daily and Prandial Insulin Lispro Once Daily in Patients With Type 2 Diabetes Requiring Insulin Intensification: A Randomized Phase IV Trial. Diabetes, Obesity & Metabolism. 2014;16(10):963-70. doi:10.1111/dom.12303.
+
+Figure 3
+Mean (±SE) Percentage Change from Baseline to 1 Year in Glycated Hemoglobin, Fasting Plasma Glucose, Postprandial Glucose, and Body Weight (Panel A) and Mean (+SD) Hypoglycemic-Event Rate (Panel B).
+Holman RR, Thorne KI, Farmer AJ, et al. Addition of Biphasic, Prandial, or Basal Insulin to Oral Therapy in Type 2 Diabetes. The New England Journal of Medicine. 2007;357(17):1716-30. doi:10.1056/NEJMoa075392.
+
+Figure 2
+Summary plot for GLP‐1RAs versus placebo and outcomes.
+Kunutsor SK, Zaccardi F, Balasubramanian VG, et al. Glycaemic Control and Macrovascular and Microvascular Outcomes in Type 2 Diabetes: Systematic Review and Meta-Analysis of Cardiovascular Outcome Trials of Novel Glucose-Lowering Agents. Diabetes, Obesity & Metabolism. 2024;26(5):1837-1849. doi:10.1111/dom.15500.
+
+Figure 3
+Proportions of participants achieving A, ≥ 70% dTIR, B, The triple target (dTIR > 70%, dTBR Time-in-Range Derived From Self-Measured Blood Glucose in People With Type 2 Diabetes Advancing to iGlarLixi: A Participant-Level Pooled Analysis of Three Phase 3 LixiLan Randomized Controlled Trials. Diabetes, Obesity & Metabolism. 2024;26(11):5046-5055. doi:10.1111/dom.15811.
+
+Figure 1
+Response to therapy ( mITT population).
+Yuan X, Guo X, Zhang J, et al. Improved Glycaemic Control and Weight Benefit With iGlarLixi Versus Insulin Glargine 100 u/mL in Chinese People With Type 2 Diabetes Advancing Their Therapy From Basal Insulin Plus Oral Antihyperglycaemic Drugs: Results From the LixiLan-L-CN Randomized Controlled Trial. Diabetes, Obesity & Metabolism. 2022;24(11):2182-2191. doi:10.1111/dom.14803.
+
+Figure 2
+Effect of Tirzepatide vs Insulin Lispro on Hemoglobin A1c (HbA1c) and Body Weight
+Rosenstock J, Frías JP, Rodbard HW, et al. Tirzepatide vs Insulin Lispro Added to Basal Insulin in Type 2 Diabetes: The SURPASS-6 Randomized Clinical Trial. Jama. 2023;330(17):1631-1640. doi:10.1001/jama.2023.20294.
+
+Figure 3
+Bayesian network meta‐analysis results of HbA1c outcomes at 24‐30 weeks.
+Home P, Blonde L, Kalra S, et al. Insulin Glargine/Lixisenatide Fixed-Ratio Combination (iGlarLixi) Compared With Premix or Addition of Meal-Time Insulin to Basal Insulin in People With Type 2 Diabetes: A Systematic Review and Bayesian Network Meta-Analysis. Diabetes, Obesity & Metabolism. 2020;22(11):2179-2188. doi:10.1111/dom.14148.
+
+Figure 1
+Glycaemic outcomes after 24 weeks of treatment stratified by baseline haemoglobin A1c ( HbA1c ) category shown for mean change from baseline (A), percent of patients achieving HbA1c ≤ 7.0% (B), and incidence (C) and event rate (D) of confirmed (Baseline HbA1c Predicts Attainment of 7.0% HbA1c Target With Structured Titration of Insulin Glargine in Type 2 Diabetes: A Patient-Level Analysis of 12 Studies. Diabetes, Obesity & Metabolism. 2013;15(9):819-25. doi:10.1111/dom.12096.
+
+Figure 1
+A, glycated haemoglobin (HbA1c) least squares (LS) means change between baseline and week 24.
+Russell-Jones D, Dauchy A, Delgado E, et al. Take Control: A Randomized Trial Evaluating the Efficacy and Safety of Self- Versus Physician-Managed Titration of Insulin Glargine 300 u/mL in Patients With Uncontrolled Type 2 Diabetes. Diabetes, Obesity & Metabolism. 2019;21(7):1615-1624. doi:10.1111/dom.13697.
+
+Figure 2
+Chiasson JL, Josse RG, Gomis R, et al. Acarbose Treatment and the Risk of Cardiovascular Disease and Hypertension in Patients With Impaired Glucose Tolerance: The STOP-NIDDM Trial. Jama. 2003;290(4):486-94. doi:10.1001/jama.290.4.486.
+
+Figure 2
+Kaplan–Meier Curves for the Coprimary and Two Exploratory Outcomes in the Nateglinide and Placebo Groups.
+NAVIGATOR Study Group, Holman RR, Haffner SM, et al. Effect of Nateglinide on the Incidence of Diabetes and Cardiovascular Events. The New England Journal of Medicine. 2010;362(16):1463-76. doi:10.1056/NEJMoa1001122.
+
+### References
+
+1. 9. Pharmacologic Approaches to Glycemic Treatment: Standards of Care in Diabetes-2026. American Diabetes Association Professional Practice Committee for Diabetes*. Diabetes Care. 2026;49(Suppl 1):S183-S215. doi:10.2337/dc26-S009.
+2. Glycaemic Management in Diabetes: Old and New Approaches. Ceriello A, Prattichizzo F, Phillip M, et al. The Lancet. Diabetes & Endocrinology. 2022;10(1):75-84. doi:10.1016/S2213-8587(21)00245-X.
+3. American Association of Clinical Endocrinology Consensus Statement: Comprehensive Type 2 Diabetes Management Algorithm - 2023 Update. Samson SL, Vellanki P, Blonde L, et al. Endocrine Practice : Official Journal of the American College of Endocrinology and the American Association of Clinical Endocrinologists. 2023;29(5):305-340. doi:10.1016/j.eprac.2023.02.001.
+4. American Association of Clinical Endocrinology Consensus Statement: Algorithm for Management of Adults With Type 2 Diabetes - 2026 Update. Samson SL, Vellanki P, Blonde L, et al. Endocrine Practice : Official Journal of the American College of Endocrinology and the American Association of Clinical Endocrinologists. 2026;32(4):473-518. doi:10.1016/j.eprac.2026.01.006.
+5. Composite efficacy parameters and predictors of hypoglycaemia in basal‐plus insulin therapy—a combined analysis of 713 type 2 diabetic patients. Seufert J, Brath H, Pscherer S, et al. Diabetes, Obesity & Metabolism. 2014;16(3):248-54. doi:10.1111/dom.12211.
+6. Options for the intensification of insulin therapy when basal insulin is not enough in type 2 diabetes mellitus. Raccah D. Diabetes, Obesity & Metabolism. 2008;10 Suppl 2:76-82. doi:10.1111/j.1463-1326.2008.00846.x.
+7. Introducing a simplified approach to insulin therapy in type 2 diabetes: a comparison of two single‐dose regimens of insulin glulisine plus insulin glargine and oral antidiabetic drugs. Lankisch MR, Ferlinz KC, Leahy JL, Scherbaum WA, Orals Plus Apidra and LANTUS (OPAL) study group. Diabetes, Obesity & Metabolism. 2008;10(12):1178-85. doi:10.1111/j.1463-1326.2008.00967.x.
+8. Insulin Therapy for Type 2 Diabetes Mellitus. Wallia A, Molitch ME. JAMA. 2014;311(22):2315-25. doi:10.1001/jama.2014.5951.
+9. Treatment Intensification With Stepwise Addition of Prandial Insulin Aspart Boluses Compared With Full Basal-Bolus Therapy (FullSTEP Study): A Randomised, Treat-to-Target Clinical Trial. Rodbard HW, Visco VE, Andersen H, Hiort LC, Shu DH. The Lancet. Diabetes & Endocrinology. 2014;2(1):30-7. doi:10.1016/S2213-8587(13)70090-1.
+10. Addition of Biphasic, Prandial, or Basal Insulin to Oral Therapy in Type 2 Diabetes. Holman RR, Thorne KI, Farmer AJ, et al. The New England Journal of Medicine. 2007;357(17):1716-30. doi:10.1056/NEJMoa075392.
+11. Three-Year Efficacy of Complex Insulin Regimens in Type 2 Diabetes. Holman RR, Farmer AJ, Davies MJ, et al. The New England Journal of Medicine. 2009;361(18):1736-47. doi:10.1056/NEJMoa0905479.
+12. Initiation of insulin glargine in suboptimally controlled patients with type 2 diabetes: sub‐analysis of the AT.LANTUS trial comparing treatment outcomes in subjects from primary and secondary care in the UK. Davies M, Evans R, Storms F, Gomis R, Khunti K. Diabetes, Obesity & Metabolism. 2007;9(5):706-13. doi:10.1111/j.1463-1326.2006.00652.x.
+13. Titration and optimization trial for the initiation of insulin glargine 100 U/mL in patients with inadequately controlled type 2 diabetes on oral antidiabetic drugs. Seufert J, Fritsche A, Pscherer S, et al. Diabetes, Obesity & Metabolism. 2019;21(2):439-443. doi:10.1111/dom.13535.
+14. Effects of initiation and titration of a single pre‐prandial dose of insulin glulisine while continuing titrated insulin glargine in type 2 diabetes: a 6‐month ‘proof‐of‐concept' study. Owens DR, Luzio SD, Sert-Langeron C, Riddle MC. Diabetes, Obesity & Metabolism. 2011;13(11):1020-7. doi:10.1111/j.1463-1326.2011.01459.x.
+15. Effects of Prandial Versus Fasting Glycemia on Cardiovascular Outcomes in Type 2 Diabetes: The HEART2D Trial. Raz I, Wilson PW, Strojek K, et al. Diabetes Care. 2009;32(3):381-6. doi:10.2337/dc08-1671.
+16. Post Hoc Subgroup Analysis of the HEART2D Trial Demonstrates Lower Cardiovascular Risk in Older Patients Targeting Postprandial Versus Fasting/Premeal Glycemia. Raz I, Ceriello A, Wilson PW, et al. Diabetes Care. 2011;34(7):1511-3. doi:10.2337/dc10-2375.
+17. Acarbose Treatment and the Risk of Cardiovascular Disease and Hypertension in Patients With Impaired Glucose Tolerance: The STOP-NIDDM Trial. Chiasson JL, Josse RG, Gomis R, et al. JAMA. 2003;290(4):486-94. doi:10.1001/jama.290.4.486.
+18. Alpha-Glucosidase Inhibitors for Prevention or Delay of Type 2 Diabetes Mellitus and Its Associated Complications in People at Increased Risk of Developing Type 2 Diabetes Mellitus. Moelands SV, Lucassen PL, Akkermans RP, De Grauw WJ, Van de Laar FA. The Cochrane Database of Systematic Reviews. 2018;12:CD005061. doi:10.1002/14651858.CD005061.pub3.
+19. Effects of Acarbose on Cardiovascular and Diabetes Outcomes in Patients With Coronary Heart Disease and Impaired Glucose Tolerance (ACE): A Randomised, Double-Blind, Placebo-Controlled Trial. Holman RR, Coleman RL, Chan JCN, et al. The Lancet. Diabetes & Endocrinology. 2017;5(11):877-886. doi:10.1016/S2213-8587(17)30309-1.
+20. Effect of Nateglinide on the Incidence of Diabetes and Cardiovascular Events. NAVIGATOR Study Group, Holman RR, Haffner SM, et al. The New England Journal of Medicine. 2010;362(16):1463-76. doi:10.1056/NEJMoa1001122.
+21. Pharmacological interventions for preventing or delaying onset of type 2 diabetes mellitus. Bethel MA, Xu W, Theodorakis MJ. Diabetes, Obesity & Metabolism. 2015;17(3):231-44. doi:10.1111/dom.12401.
+22. Insulin lispro low mixture twice daily versus basal insulin glargine once daily and prandial insulin lispro once daily in patients with type 2 diabetes requiring insulin intensification: a randomized phase IV trial. Tinahones FJ, Gross JL, Onaca A, Cleall S, Rodríguez A. Diabetes, Obesity & Metabolism. 2014;16(10):963-70. doi:10.1111/dom.12303.
+23. Glycaemic control and macrovascular and microvascular outcomes in type 2 diabetes: Systematic review and meta‐analysis of cardiovascular outcome trials of novel glucose‐lowering agents. Kunutsor SK, Zaccardi F, Balasubramanian VG, et al. Diabetes, Obesity & Metabolism. 2024;26(5):1837-1849. doi:10.1111/dom.15500.
+24. Time‐in‐range derived from self‐measured blood glucose in people with type 2 diabetes advancing to iGlarLixi : A participant‐level pooled analysis of three phase 3 LixiLan randomized controlled trials. Haluzík M, Al-Sofiani ME, Cheng AYY, et al. Diabetes, Obesity & Metabolism. 2024;26(11):5046-5055. doi:10.1111/dom.15811.
+25. Improved glycaemic control and weight benefit with iGlarLixi versus insulin glargine 100 U/ mL in Chinese people with type 2 diabetes advancing their therapy from basal insulin plus oral antihyperglycaemic drugs: Results from the LixiLan‐L‐CN randomized controlled trial. Yuan X, Guo X, Zhang J, et al. Diabetes, Obesity & Metabolism. 2022;24(11):2182-2191. doi:10.1111/dom.14803.
+26. Tirzepatide vs Insulin Lispro Added to Basal Insulin in Type 2 Diabetes: The SURPASS-6 Randomized Clinical Trial. Rosenstock J, Frías JP, Rodbard HW, et al. JAMA. 2023;330(17):1631-1640. doi:10.1001/jama.2023.20294.
+27. Insulin glargine/lixisenatide fixed‐ratio combination ( iGlarLixi ) compared with premix or addition of meal‐time insulin to basal insulin in people with type 2 diabetes: A systematic review and Bayesian network meta‐analysis. Home P, Blonde L, Kalra S, et al. Diabetes, Obesity & Metabolism. 2020;22(11):2179-2188. doi:10.1111/dom.14148.
+28. Baseline HbA1c predicts attainment of 7.0% HbA1c target with structured titration of insulin glargine in type 2 diabetes: a patient‐level analysis of 12 studies. Riddle MC, Vlajnic A, Zhou R, Rosenstock J. Diabetes, Obesity & Metabolism. 2013;15(9):819-25. doi:10.1111/dom.12096.
+29. Take Control: A randomized trial evaluating the efficacy and safety of self‐ versus physician‐managed titration of insulin glargine 300 U/mL in patients with uncontrolled type 2 diabetes. Russell-Jones D, Dauchy A, Delgado E, et al. Diabetes, Obesity & Metabolism. 2019;21(7):1615-1624. doi:10.1111/dom.13697.
+
+
+This is a comprehensive, structured response organized by trial, then addressing the three specific questions.
+
+The following figure from Khunti et al. (2020) provides a visual comparison of titration algorithms across the major RCTs discussed below:
+
+Figure 3
+Titration algorithms in randomized controlled trials of basal insulins. For the EDITION 1–3 studies, if a blood glucose (BG) of [2]
+
+- Design: Open-label RCT, 756 patients on 1–2 OADs (HbA1c >7.5%), randomized to bedtime glargine vs. NPH, 24 weeks.
+- **FBG target**: ≤100 mg/dL (≤5.6 mmol/L).[2]
+- **Up-titration**: Physician-led, weekly, based on mean FPG of previous 2–3 days:[3][4]
+
+Mean FPGDose changeReferences≥180 mg/dL (≥10.0 mmol/L)+6–8 U[1]140–+4 U[1]120–+2 U[1]100–+0–2 U[1]
+
+- **Down-titration rule**: The protocol specified that **no dose increase was made if any plasma glucose was [5][4]
+- **Results (surrogates)**: ~60% reached HbA1c ≤7% in both arms. HbA1c ≤7% **without documented nocturnal hypoglycemia**: glargine **33.2%** vs. NPH **26.7%** (p[2]
+- **Hard outcomes**: None measured. Severe hypoglycemia was rare (not separately quantified per arm in the primary publication).
+- GRADE: ⊕⊕⊕◯ Moderate (open-label, surrogate endpoints, well-conducted).
+
+---
+
+**2. AT.LANTUS (Davies et al., 2005; sub-analyses 2007)**
+
+- PMID: **16306275** (primary, Diabetes Res Clin Pract 2005); **17593236** (sub-analysis, Diabetes Obes Metab 2007).[3]
+- Design: Open-label RCT, **4,961 patients**, randomized to two glargine titration algorithms, 24 weeks.
+
+**Algorithm 1 — Physician-managed ("Fritsche" / clinic-driven)**: Identical to Treat-to-Target. FBG target **90–110 mg/dL (5.0–6.1 mmol/L)**. Dose adjusted every 3–5 days by physician based on mean of 3 FBG values:[6]
+
+Mean FBGDose changeReferences>180 mg/dL (>10.0 mmol/L)+8 U[1]>160–180 mg/dL (>8.9–10.0)+6 U[1]>140–160 mg/dL (>7.8–8.9)+4 U[1]>110–140 mg/dL (>6.1–7.8)+2 U[1]90–110 mg/dL (5.0–6.1)No change[1]**−2 U**[1]
+
+**Algorithm 2 — Patient-managed ("Davies" / self-titration)**: FBG target **90–110 mg/dL (5.0–6.1 mmol/L)**. Patient increases by **+2 U every 3 days** if mean FBG >110 mg/dL, in the absence of BG [6][3]
+
+- **Results (surrogates)**: Patient-managed achieved greater HbA1c reduction (−1.22% vs. −1.08%, p[3]
+- **Hard outcomes**: None measured. Severe hypoglycemia was rare in both arms.
+- GRADE: ⊕⊕◯◯ Low (open-label, cluster-randomized sites, surrogate endpoints).
+
+---
+
+**3. INSIGHT (Gerstein et al., 2006)**
+
+- PMID: **16842477**; Diabet Med 2006; 23(7):736–42.[7]
+- Design: Open-label RCT, 405 patients (drug-naïve or on submaximal OADs, HbA1c 7.5–11%), randomized to evening glargine + self-titration vs. conventional OAD adjustment, 24 weeks.
+- **FBG target**: ≤100 mg/dL (≤5.5 mmol/L).[7][8]
+- **Titration**: **Patient-led**, increase by **+1 U daily** until FPG ≤5.5 mmol/L.[7][8]
+- **Down-titration rule**: The primary publication does not specify a formal down-titration step size. The instruction was to stop increasing if FPG was at target; the protocol did not publish an explicit "reduce by X units if FBG [7]
+- **Hard outcomes**: None measured.
+- GRADE: ⊕⊕◯◯ Low (open-label, small, surrogate endpoints).
+
+---
+
+**4. LANMET (Yki-Järvinen et al., 2006)**
+
+- PMID: **16456680**; Diabetologia 2006; 49(3):442–51.[9]
+- Design: Investigator-initiated, open-label RCT, 110 insulin-naïve patients (HbA1c ≥8%, on OADs), randomized to bedtime glargine + metformin vs. bedtime NPH + metformin, 36 weeks.
+- **FBG target**: **72–100 mg/dL (4.0–5.5 mmol/L)**.[9][8]
+- **Titration**: **Patient-led self-adjustment** with modem-transmitted home glucose data. Dose adjusted every 3 days: increase by **+2 U** if FPG >5.5 mmol/L; increase by **+4 U** if FPG >10 mmol/L (>180 mg/dL). Starting dose: 10–20 U.[8][9]
+- **Down-titration rule**: The primary publication states the goal was FPG 4.0–5.5 mmol/L but does not publish an explicit fixed-unit dose reduction rule for hypoglycemia. **A specific down-titration step cannot be grounded in the primary LANMET publication.**
+- **Results (surrogates)**: Final HbA1c: glargine 7.14% vs. NPH 7.16% (NS). Final FPG: glargine 5.75 mmol/L vs. NPH 5.96 mmol/L (p[9]
+- **Hard outcomes**: None measured.
+- GRADE: ⊕⊕◯◯ Low (open-label, small, surrogate endpoints).
+
+---
+
+**5. PREDICTIVE 303 (Meneghini et al., 2007)**
+
+- PMID: **17924873**; Diabetes Obes Metab 2007; 9(6):902–13.[10]
+- Design: Cluster-randomized (by site), open-label, **5,604 patients** with T2DM, randomized to the "303 Algorithm" (patient self-titration) vs. standard-of-care (physician-driven), 26 weeks. Insulin detemir once daily.
+- **FBG target**: **80–110 mg/dL (4.4–6.1 mmol/L)**.[10]
+- **303 Algorithm (patient-led)**: Every 3 days, based on mean of 3 adjusted FPG values:[10]
+
+Mean aFPGDose changeReferences>110 mg/dL (>6.1 mmol/L)**+3 U**[1]80–110 mg/dL (4.4–6.1)No change[1]**−3 U**[1]
+
+- **Down-titration rule**: Explicitly defined — **reduce by 3 U if mean aFPG [10]
+- **Results (surrogates)**: HbA1c: 303 Algorithm −0.6% vs. standard-of-care −0.5% (p=0.0106). FPG: 303 Algorithm 141 mg/dL vs. standard-of-care 152 mg/dL (p[10]
+- **Hard outcomes**: None measured.
+- GRADE: ⊕⊕◯◯ Low (cluster-randomized by site, open-label, surrogate endpoints).
+
+---
+
+**6. ATLAS (Garg et al., 2015)**
+
+- PMID: **25297660**; Endocr Pract 2015; 21(2):143–57.[12]
+- Design: Open-label, multinational RCT, **552 Asian patients** on 2 OADs, randomized to patient-led vs. physician-led titration of once-daily glargine U-100, 24 weeks.
+- **FBG target**: **≤110 mg/dL (≤6.1 mmol/L)**.[12]
+- **Titration algorithm**: Same algorithm in both arms; the difference was who executed it. The figure from Khunti et al. shows the ATLAS algorithm used dose adjustments at clinic visits (baseline, weeks 2, 6, 12, 16, 24) with telephone contacts in between. The down-titration rule: if BG ≤56 mg/dL (≤3.1 mmol/L), dose was reduced **at physician's discretion** (no fixed unit decrement specified in the protocol).[1]
+- **Results (surrogates)**: Patient-led: HbA1c −1.40% vs. physician-led −1.25% (p=0.043). FPG decrease greater in patient-led (−2.85 vs. −2.48 mmol/L, p=0.001). HbA1c [12]
+- **Hard outcomes**: None measured.
+- GRADE: ⊕⊕◯◯ Low (open-label, surrogate endpoints).
+
+---
+
+**7. EDITION 3 (Bolli et al., 2015) — Glargine U-300 vs. U-100**
+
+- PMID: **25065091**; Diabetes Obes Metab 2015; 17(4):386–94.[13]
+- **FBG target**: **80–100 mg/dL (4.4–5.6 mmol/L)**. Dose adjusted weekly in multiples of 3 U: +3 U if SMPG >5.6 and [13]
+
+---
+
+**8. TAKE CONTROL (Russell-Jones et al., 2019) — Glargine U-300**
+
+- PMID: **30697946**; Diabetes Obes Metab 2019; 21(7):1615–24.[14]
+- **FBG target**: **80–130 mg/dL (4.4–7.2 mmol/L)** per 2015 ADA recommendations. Self-managed arm titrated every 3–4 days; physician-managed arm titrated at visits. **Down-titration**: −3 U if SMPG [1][14]
+
+---
+
+**9. SENIOR (Ritzel et al., 2018) — Elderly-specific trial**
+
+- PMID: **29895556**; Diabetes Care 2018; 41(8):1672–80.[15]
+- Design: Open-label RCT, **1,014 patients ≥65 years** (~20% ≥75 years), randomized to glargine U-300 vs. U-100, 26 weeks.
+- **FBG target**: **90–130 mg/dL (5.0–7.2 mmol/L)** — notably **higher lower bound** than most other trials (90 vs. 80 mg/dL).[15][1]
+- **Down-titration**: −3 U if SMPG [1]
+- **Results (surrogates)**: HbA1c reduction comparable: Gla-300 −0.89% vs. Gla-100 −0.91%. In the **≥75 years subgroup**: documented symptomatic hypoglycemia (≤3.9 mmol/L) annualized rate: Gla-300 **1.12** vs. Gla-100 **2.71** events/patient/year; rate ratio **0.45 (95% CI 0.25–0.83)** — significant benefit for Gla-300.[15]
+- **Hard outcomes**: None measured (26-week duration).
+- GRADE: ⊕⊕◯◯ Low (open-label, surrogate endpoints, prespecified subgroup).
+
+---
+
+**10. Home et al. (2015) — Hypoglycemia-sensitive algorithm**
+
+- PMID: not retrieved directly; Diabetes Obes Metab 2015; 17(1):97–104.[16]
+- **FBG target**: **80–100 mg/dL (4.4–5.5 mmol/L)** at both pre-breakfast and nocturnal timepoints.
+- **Down-titration**: −2 U if any measurement [16]
+
+---
+
+**PART 2 — THE THREE SPECIFIC QUESTIONS**
+
+**Question 1: The down-titration rule**
+
+TrialTrigger for dose reductionReduction amountReferencesTreat-to-Target (Riddle 2003)Any PG Fixed units (−2 to −4 U)[1], [2]AT.LANTUS — Fritsche armFBG **−2 U**[3]AT.LANTUS — Davies armFBG **−2 U**[3]INSIGHT (Gerstein 2006)**Not explicitly published** in primary documentCannot be grounded[4]LANMET (Yki-Järvinen 2006)**Not explicitly published** in primary documentCannot be grounded[5]PREDICTIVE 303Mean aFPG **−3 U**[6]ATLASBG ≤56 mg/dL (≤3.1 mmol/L)At physician's discretion (no fixed amount)[7]EDITION 3 (Gla-300)SMPG 60–**−3 U**; [8]TAKE CONTROL (Gla-300)SMPG **−3 U**[7]SENIOR (elderly)SMPG **−3 U**[7]Home 2015 (hypo-sensitive)Any measurement **−2 U**; if [9]
+
+**Key finding**: Down-titration rules are **heterogeneous and often incompletely reported**. The INSIGHT and LANMET primary publications do not specify a fixed dose-reduction step. Most trials use fixed-unit reductions (−2 to −3 U), not percentage-based reductions. The AACE 2022–2026 guidelines recommend a **percentage-based** approach: reduce by 10–20% for FBG [17][18]
+
+---
+
+**Question 2: Stopping rules / ceiling dose**
+
+The **0.5 U/kg/day** threshold is cited by both the AACE 2023 and 2026 algorithms as a marker of potential overbasalization, at which point prandial insulin or other intensification should be considered.[18][17] A second AACE criterion is a **bedtime-minus-morning glucose differential >50 mg/dL**.[17]
+
+**Evidence base for the 0.5 U/kg/day threshold**: A post-hoc dose-response analysis by Umpierrez et al. (2019) of 12 RCTs of glargine U-100 (n=3,014) demonstrated that the **HbA1c-lowering effect per 0.1 U/kg dose increment diminishes markedly above 0.5 U/kg/day**, with a clear plateau in glycemic benefit.[19] This provides pharmacologic rationale but is a **post-hoc pooled analysis**, not a prospective trial endpoint.
+
+Figure 2
+Effect of 0.1‐IU/kg/d increases in insulin dose on the change in glycated haemoglobin (HbA1c)
+
+However, **no RCT has prospectively randomized patients to "stop at 0.5 U/kg" vs. "continue titrating"** to test whether this ceiling improves outcomes. The threshold is therefore best characterized as **expert consensus supported by pharmacokinetic/dose-response data** (GRADE: ⊕◯◯◯ Very low for the specific cutoff). Practical guidance suggests that basal insulin doses can reach **0.5–1.0 U/kg/day** in some patients, particularly those with significant insulin resistance, but that continued escalation without FPG improvement constitutes overbasalization and should prompt reassessment.[20][21]
+
+---
+
+**Question 3: The older / frail patient — slower titration, higher targets**
+
+**Trial evidence**: The **SENIOR trial** (Ritzel 2018) is the only RCT specifically designed for patients ≥65 years. It used a **higher FBG target lower bound of 90 mg/dL** (vs. 80 mg/dL in most other trials) and a **lower down-titration trigger of [15] However, the SENIOR trial did not test a slower titration interval or a different step size for elderly patients — it used the same weekly titration schedule as other EDITION trials.
+
+**No RCT has prospectively tested a slower titration step, a longer interval, or a higher fasting target specifically in patients ≥75 years or with frailty.** All recommendations in this area are **expert consensus only**:
+
+- The **ADA 2026 Standards of Care** recommend less stringent HbA1c goals (180 mg/dL to prevent dehydration, infection, and hyperglycemic crises.[22]
+- The **Endocrine Society 2019 guideline** recommends HbA1c targets of 7.5–8.5% depending on health status in patients ≥65 years, with the overarching recommendation to **minimize hypoglycemia** (GRADE 1|⊕⊕⊕◯). It does not specify a different titration step or interval.[23]
+- The **FDA glargine label** states that in geriatric patients, "initial dosing, dosage increments, and maintenance dosage should be conservative to avoid hypoglycemic reactions."[24]
+- A 2025 ADA position statement (Bolli et al.) recommends that for patients at higher risk of hypoglycemia, **conservative algorithms should be preferred** with "no more than 2 units of insulin dose change per week" and a **target FPG of 100–120 mg/dL (5.5–6.6 mmol/L)** rather than the tighter 80–100 mg/dL used in many trials.[21]
+
+**GRADE appraisal for elderly/frail titration recommendations**: ⊕◯◯◯ Very low — based entirely on expert consensus, extrapolation from the SENIOR subgroup, and general principles of hypoglycemia avoidance. No trial has tested a specific titration algorithm in frail patients.
+
+---
+
+**PART 3 — HEAD-TO-HEAD COMPARISONS OF TITRATION ALGORITHMS (Network Meta-Analysis)**
+
+A 2025 systematic review and network meta-analysis (Boonpattharatthiti et al., Diabetes Care 2025) compared titration strategies across multiple RCTs and found that **self-titration at least twice weekly with healthcare provider support** achieved the greatest HbA1c reduction compared with all other strategies (e.g., vs. conventional physician-led: mean difference −1.19%, 95% CI −1.67 to −0.72), **without increasing severe hypoglycemia risk**.[25]
+
+---
+
+**PART 4 — HARD vs. SURROGATE OUTCOMES SUMMARY**
+
+All of the titration trials above (Treat-to-Target, AT.LANTUS, INSIGHT, LANMET, PREDICTIVE 303, ATLAS, SENIOR, TAKE CONTROL, EDITION series) measured **surrogate endpoints only** (HbA1c, FPG, hypoglycemia rates). None was powered for or reported cardiovascular events, mortality, or microvascular endpoints. Severe hypoglycemia — the closest to a "hard" safety outcome — was rare across all trials (The importance of the initial period of basal insulin titration in people with diabetes. Khunti K, Giorgino F, Berard L, Mauricio D, Harris SB. Diabetes, Obesity & Metabolism. 2020;22(5):722-733. doi:10.1111/dom.13946.
+2. The Treat-to-Target Trial: Randomized Addition of Glargine or Human NPH Insulin to Oral Therapy of Type 2 Diabetic Patients. Riddle MC, Rosenstock J, Gerich J. Diabetes Care. 2003;26(11):3080-6. doi:10.2337/diacare.26.11.3080.
+3. Dosing of Insulin Glargine in the Treatment of Type 2 Diabetes. Barnett A. Clinical Therapeutics. 2007;29(6):987-99. doi:10.1016/j.clinthera.2007.06.018.
+4. Reporting of hypoglycaemia in clinical trials of basal insulins: A need for consensus. Frier BM, Ratzki-Leewing A, Harris SB. Diabetes, Obesity & Metabolism. 2019;21(7):1529-1542. doi:10.1111/dom.13732.
+5. Comparison of insulin lispro protamine suspension versus insulin glargine once daily added to oral antihyperglycaemic medications and exenatide in type 2 diabetes: a prospective randomized open‐label trial. Arakaki RF, Blevins TC, Wise JK, et al. Diabetes, Obesity & Metabolism. 2014;16(6):510-8. doi:10.1111/dom.12242.
+6. Titration and optimization trial for the initiation of insulin glargine 100 U/mL in patients with inadequately controlled type 2 diabetes on oral antidiabetic drugs. Seufert J, Fritsche A, Pscherer S, et al. Diabetes, Obesity & Metabolism. 2019;21(2):439-443. doi:10.1111/dom.13535.
+7. A Randomized Trial of Adding Insulin Glargine vs. Avoidance of Insulin in People With Type 2 Diabetes on Either No Oral Glucose-Lowering Agents or Submaximal Doses of Metformin and/or Sulphonylureas. The Canadian INSIGHT (Implementing New Strategies With Insulin Glargine for Hyperglycaemia Treatment) Study. Gerstein HC, Yale JF, Harris SB, et al. Diabetic Medicine : A Journal of the British Diabetic Association. 2006;23(7):736-42. doi:10.1111/j.1464-5491.2006.01881.x.
+8. Reaching glycaemic targets while minimizing hypoglycaemia in insulin‐treated type 2 diabetes patients. Mathieu C, Robbrecht S. Diabetes, Obesity & Metabolism. 2008;10 Suppl 2:14-23. doi:10.1111/j.1463-1326.2008.00841.x.
+9. Insulin Glargine or NPH Combined With Metformin in Type 2 Diabetes: The LANMET Study. Yki-Järvinen H, Kauppinen-Mäkelin R, Tiikkainen M, et al. Diabetologia. 2006;49(3):442-51. doi:10.1007/s00125-005-0132-0.
+10. The usage of a simplified self‐titration dosing guideline (303 Algorithm) for insulin detemir in patients with type 2 diabetes – results of the randomized, controlled PREDICTIVE™ 303 study. Meneghini L, Koenen C, Weng W, Selam JL. Diabetes, Obesity & Metabolism. 2007;9(6):902-13. doi:10.1111/j.1463-1326.2007.00804.x.
+11. The Usage of a Simplified Self-Titration Dosing Guideline (303 Algorithm) for Insulin Detemir in Patients With Type 2 Diabetes--Results of the Randomized, Controlled PREDICTIVE 303 Study. Meneghini L, Koenen C, Weng W, Selam JL. Diabetes, Obesity & Metabolism. 2007;9(6):902-13. doi:10.1111/j.1463-1326.2007.00804.x.
+12. Patient-Led Versus Physician-Led Titration of Insulin Glargine in Patients With Uncontrolled Type 2 Diabetes: A Randomized Multinational ATLAS Study. Garg SK, Admane K, Freemantle N, et al. Endocrine Practice : Official Journal of the American College of Endocrinology and the American Association of Clinical Endocrinologists. 2015;21(2):143-57. doi:10.4158/EP14079.OR.
+13. New insulin glargine 300 U/ml compared with glargine 100 U/ml in insulin‐naïve people with type 2 diabetes on oral glucose‐lowering drugs: a randomized controlled trial (EDITION 3). Bolli GB, Riddle MC, Bergenstal RM, et al. Diabetes, Obesity & Metabolism. 2015;17(4):386-94. doi:10.1111/dom.12438.
+14. Take Control: A randomized trial evaluating the efficacy and safety of self‐ versus physician‐managed titration of insulin glargine 300 U/mL in patients with uncontrolled type 2 diabetes. Russell-Jones D, Dauchy A, Delgado E, et al. Diabetes, Obesity & Metabolism. 2019;21(7):1615-1624. doi:10.1111/dom.13697.
+15. A Randomized Controlled Trial Comparing Efficacy and Safety of Insulin Glargine 300 Units/mL Versus 100 Units/mL in Older People With Type 2 Diabetes: Results From the SENIOR Study. Ritzel R, Harris SB, Baron H, et al. Diabetes Care. 2018;41(8):1672-1680. doi:10.2337/dc18-0168.
+16. Modulation of insulin dose titration using a hypoglycaemia‐sensitive algorithm: insulin glargine versus neutral protamine Hagedorn insulin in insulin‐naïve people with type 2 diabetes. Home PD, Bolli GB, Mathieu C, et al. Diabetes, Obesity & Metabolism. 2015;17(1):15-22. doi:10.1111/dom.12329.
+17. American Association of Clinical Endocrinology Consensus Statement: Comprehensive Type 2 Diabetes Management Algorithm - 2023 Update. Samson SL, Vellanki P, Blonde L, et al. Endocrine Practice : Official Journal of the American College of Endocrinology and the American Association of Clinical Endocrinologists. 2023;29(5):305-340. doi:10.1016/j.eprac.2023.02.001.
+18. American Association of Clinical Endocrinology Consensus Statement: Algorithm for Management of Adults With Type 2 Diabetes - 2026 Update. Samson SL, Vellanki P, Blonde L, et al. Endocrine Practice : Official Journal of the American College of Endocrinology and the American Association of Clinical Endocrinologists. 2026;32(4):473-518. doi:10.1016/j.eprac.2026.01.006.
+19. When basal insulin is not enough: A dose–response relationship between insulin glargine 100 units/mL and glycaemic control. Umpierrez GE, Skolnik N, Dex T, et al. Diabetes, Obesity & Metabolism. 2019;21(6):1305-1310. doi:10.1111/dom.13653.
+20. Practical Guidance on the Initiation, Titration, and Switching of Basal Insulins: A Narrative Review for Primary Care. Mehta R, Goldenberg R, Katselnik D, Kuritzky L. Annals of Medicine. 2021;53(1):998-1009. doi:10.1080/07853890.2021.1925148.
+21. The Modern Role of Basal Insulin in Advancing Therapy in People With Type 2 Diabetes. Bolli GB, Home PD, Porcellati F, et al. Diabetes Care. 2025;48(5):671-681. doi:10.2337/dci24-0104.
+22. 13. Older Adults: Standards of Care in Diabetes-2026. American Diabetes Association Professional Practice Committee for Diabetes*. Diabetes Care. 2026;49(Suppl 1):S277-S296. doi:10.2337/dc26-S013.
+23. Treatment of Diabetes in Older Adults: An Endocrine Society* Clinical Practice Guideline. LeRoith D, Biessels GJ, Braithwaite SS, et al. The Journal of Clinical Endocrinology and Metabolism. 2019;104(5):1520-1574. doi:10.1210/jc.2019-00198.
+24. Insulin Glargine. Food and Drug Administration. Updated date: 2025-03-03.
+25. Comparison of Insulin Titration Strategies for Glycemic Control in Type 2 Diabetes: A Systematic Review and Network Meta-Analysis. Boonpattharatthiti K, Wechkunanukul K, Mayang N, et al. Diabetes Care. 2025;48(5):837-845. doi:10.2337/dc24-2661.
+
+This is a comprehensive, structured synthesis organized by population, then addressing the specific questions on minimum SMBG density and nocturnal hypoglycemia detection.
+
+---
+
+**PART A — NON-INSULIN-TREATED TYPE 2 DIABETES**
+
+The evidence consistently shows that routine SMBG in non-insulin-treated T2DM produces **statistically significant but clinically marginal HbA1c reductions** (~0.15–0.30%), with the effect driven almost entirely by **structured** SMBG programs that link results to treatment changes. No trial has demonstrated hard outcomes (CV events, mortality, microvascular endpoints). Below are the key trials.
+
+---
+
+**1. ESMON (O'Kane et al., 2008)**
+
+- PMID: **18420662**; BMJ 2008; 336(7654):1174–7.[1]
+- Design: Open-label RCT, 184 patients with **newly diagnosed** T2DM (age [1]
+- **Primary endpoint (surrogate)**: HbA1c at 12 months. SMBG 6.9% (0.8) vs. control 6.9% (1.2); **difference −0.07% (95% CI −0.25 to 0.38, p=0.69)** — no difference.[1]
+- **Psychological harm**: SMBG group scored **6% higher on the depression subscale** of the well-being questionnaire (p=0.01).[1]
+- **Hypoglycemia**: No difference in reported incidence.
+- **Hard outcomes**: None measured.
+- GRADE: ⊕⊕◯◯ Low (open-label, small, surrogate endpoint, single-center).
+
+---
+
+**2. DiGEM (Farmer et al., 2007)**
+
+- PMID: **17591623**; BMJ 2007; 335(7611):132.[2]
+- Design: Three-arm open-label RCT, 453 patients with non-insulin-treated T2DM (mean HbA1c 7.5%, median diabetes duration 3 years), 48 UK general practices, 12 months.
+- **Arms and testing schedules**:
+  - **Control**: Standardized usual care, HbA1c measured every 3 months, no SMBG.
+  - **Less intensive SMBG**: Self-monitoring with advice to contact physician for interpretation. Testing schedule: **2 days/week with 2 tests/day** (fasting + one other) = ~4 tests/week.
+  - **More intensive SMBG**: Self-monitoring with additional training in self-interpretation and lifestyle modification. Same testing frequency but with structured interpretation training.[2]
+- **Primary endpoint (surrogate)**: HbA1c at 12 months. Adjusted difference vs. control: less intensive SMBG **−0.14% (95% CI −0.35 to 0.07)**; more intensive SMBG **−0.17% (95% CI −0.37 to 0.03)**; overall p=0.12 — **not significant**.[2]
+- **Cost-effectiveness analysis** (Simon et al., 2008; PMID 18420663): SMBG was associated with higher costs and **lower quality of life** (EQ-5D difference: less intensive −0.027; more intensive −0.075, 95% CI −0.119 to −0.031). Concluded SMBG is **unlikely to be cost-effective**.[3]
+- **Hard outcomes**: None measured.
+- GRADE: ⊕⊕⊕◯ Moderate (open-label but well-conducted, multicenter, adequate size).
+
+---
+
+**3. STeP — Structured Testing Program (Polonsky et al., 2011)**
+
+- PMID: **21270183**; Diabetes Care 2011; 34(2):262–7.[4]
+- Design: Cluster-randomized (by practice), 483 **poorly controlled** (HbA1c ≥7.5%), insulin-naïve T2DM patients from 34 US primary care practices, 12 months.
+- **Arms and testing schedules**:
+  - **Active control group (ACG)**: Enhanced usual care, no structured SMBG protocol.
+  - **Structured testing group (STG)**: At least quarterly use of **7-point glucose profiles** (fasting, pre- and 2-h post-breakfast, pre- and 2-h post-lunch, pre- and 2-h post-dinner) over **3 consecutive days** = **21 tests over 3 days, repeated quarterly**. Patients and physicians were trained to use a paper tool to detect glucose patterns and make treatment changes.[4][5]
+- **Primary endpoint (surrogate)**: HbA1c at 12 months. ITT: STG **−1.2% (0.09)** vs. ACG **−0.9% (0.10)**; **Δ = −0.3%, p=0.04**. Per-protocol: **Δ = −0.5%, p[4]
+- **Key mechanism**: 75.5% of STG patients received a treatment change recommendation at month 1 vs. 28.0% of ACG patients (p[5]
+- **Hypoglycemia**: Not significantly different between groups.
+- **Hard outcomes**: None measured.
+- GRADE: ⊕⊕⊕◯ Moderate (cluster-randomized, open-label, but well-designed with active control; the effect is attributable to the combined intervention of structured testing + physician action protocol, not SMBG alone).
+
+---
+
+**4. PRISMA (Bosi et al., 2013)**
+
+- PMID: **23735724**; Diabetes Care 2013; 36(10):2887–94.[6]
+- Design: Open-label RCT, 1,024 patients with non-insulin-treated T2DM (median baseline HbA1c 7.3%), 39 Italian diabetes clinics, 12 months.
+- **Testing schedule**: Intensive structured monitoring (ISM): **4-point profiles** (fasting, preprandial, 2-h postprandial, postabsorptive) performed **3 days/week** = **12 tests/week**. Active control (AC): same 4-point profiles performed only at baseline, 6, and 12 months.[6]
+- **Primary endpoint (surrogate)**: HbA1c change at 12 months. ISM −0.39% vs. AC −0.27%; **between-group difference −0.12% (95% CI −0.21 to −0.024, p=0.013)**. Per-protocol: **−0.21% (95% CI −0.33 to −0.089, p=0.0007)**.[6]
+- **Key mechanism**: Diabetes medications were changed more often in ISM patients at visits 2, 3, and 4 (p[6]
+- **Hard outcomes**: None measured.
+- GRADE: ⊕⊕⊕◯ Moderate (large, multicenter, but open-label; modest effect size).
+
+---
+
+**5. Monitor Trial (Young et al., 2017)**
+
+- PMID: **28600913**; JAMA Intern Med 2017; 177(7):920–9.[7]
+- Design: Pragmatic open-label RCT, 450 patients with non-insulin-treated T2DM (HbA1c 6.5–9.5%), 15 US primary care practices, 12 months.
+- **Arms**: No SMBG vs. once-daily SMBG vs. once-daily SMBG with enhanced patient feedback (tailored messages via meter).
+- **Primary endpoint (surrogate)**: HbA1c at 52 weeks. **No significant differences** across all 3 groups (p=0.74). SMBG with messaging vs. no SMBG: **−0.09% (95% CI −0.31 to 0.14)**; SMBG vs. no SMBG: **−0.05% (95% CI −0.27 to 0.17)**.[7]
+- **HRQOL**: No differences. No differences in hypoglycemia frequency.
+- The following figure illustrates the transient early benefit that dissipated as testing adherence declined:
+
+Figure 2
+Mean Hemoglobin A1c by Study Arm Over Time and Daily Proportions of Patients Testing in the SMBG Groups
+
+- GRADE: ⊕⊕⊕◯ Moderate (pragmatic, well-powered, but open-label).
+
+---
+
+**6. Farmer IPD Meta-Analysis (2012)**
+
+- PMID: **22371867**; BMJ 2012; 344:e486.[8]
+- Design: Individual patient data meta-analysis of **6 RCTs, 2,552 patients** with non-insulin-treated T2DM.
+- **Results**: SMBG vs. no SMBG: HbA1c reduction **−0.25% (95% CI −0.36 to −0.15)** at 6 months; **−0.35% (95% CI −0.38 to −0.08)** at 12 months (3 trials). No differences in blood pressure or cholesterol. Effect was consistent across subgroups (age, sex, baseline HbA1c, diabetes duration).[8]
+- **Conclusion**: "Evidence was not convincing for a clinically meaningful effect."[8]
+- GRADE: ⊕⊕⊕◯ Moderate (IPD meta-analysis, but all component trials open-label).
+
+---
+
+**7. Malanda Cochrane Review (2012)**
+
+- Cochrane Database Syst Rev 2012; 1:CD005060.[9]
+- Design: Systematic review of **12 RCTs** in non-insulin-treated T2DM.
+- **Key conclusions**: SMBG in **newly diagnosed** T2DM was beneficial in lowering HbA1c. In patients with diabetes duration >1 year, glycemic effects were **small at short-term and subsided after 1 year**. SMBG had **no relevant effect on general well-being or health-related quality of life**. SMBG **increased reported hypoglycemic episodes** (though definitions varied).[9]
+- **Hard outcomes**: None of the included trials measured CV events, mortality, or microvascular endpoints.
+- GRADE: ⊕⊕◯◯ Low (heterogeneous interventions, all open-label component trials, surrogate endpoints only).
+
+---
+
+**8. Zou et al. Meta-Analysis (2023) — Optimal frequency**
+
+- PMID: **36403159**; J Gen Intern Med 2023; 38(2):416–27.[10]
+- Design: Systematic review and meta-analysis of **22 RCTs, 6,204 participants**.
+- **Key frequency finding**: SMBG at **8–11 times/week** produced the greatest HbA1c reduction: **MD −0.35% (95% CI −0.51 to −0.20)**. Testing ≤7 times/week or >11 times/week showed smaller or non-significant effects.[10]
+- **Structured vs. unstructured**: Structured SMBG was superior to unstructured: **MD −0.23% (95% CI −0.38 to −0.07)**.[10]
+- **Lifestyle adjustment**: SMBG with lifestyle adjustments based on results: **MD −0.37% (95% CI −0.50 to −0.23)** vs. no adjustments.[10]
+
+---
+
+**Summary table — Non-insulin-treated T2DM**
+
+TrialPMIDYearnTesting scheduleHbA1c effect (vs. control)Hard outcomesGRADEReferencesESMON1842066220081848 tests/wk (4/day × 2 days)−0.07% (NS)None⊕⊕◯◯[1]DiGEM175916232007453~4 tests/wk−0.14 to −0.17% (NS)None⊕⊕⊕◯[2]STeP2127018320114837-point × 3 days quarterly−0.3% (p=0.04)None⊕⊕⊕◯[3]PRISMA2373572420131,02412 tests/wk (4-point × 3 days)−0.12% (p=0.013)None⊕⊕⊕◯[4]Monitor2860091320174501/day (7/wk)−0.05 to −0.09% (NS)None⊕⊕⊕◯[4]Farmer IPD MA2237186720122,552Various−0.25% at 6 moNone⊕⊕⊕◯[5]Malanda Cochrane—201212 RCTsVariousSmall, subsides at 1 yrNone⊕⊕◯◯[6]
+
+[6][8][7][1][2][4][9]
+
+---
+
+**PART B — INSULIN-TREATED TYPE 2 DIABETES**
+
+**1. Nauck et al. (2014) — The only RCT of SMBG frequency in conventional insulin-treated T2DM**
+
+- PMID: **24445534**; Diabetologia 2014; 57(5):886–96.[17]
+- Design: Open-label, 2×2 factorial RCT, **300 patients** with T2DM on conventional insulin (basal or premixed ± OADs), 12 months.
+- **Arms**: SMBG+ (once-weekly **4-point profiles**: fasting, pre-lunch, pre-dinner, bedtime = 4 tests/week) vs. SMBG− (no SMBG); crossed with HbA1c disclosure vs. non-disclosure.
+- **Primary endpoint (surrogate)**: HbA1c at 12 months. SMBG+ reduced HbA1c by 0.3% from baseline; SMBG− also reduced by 0.3%. **Between-group difference: 0.0% (95% CI −0.2 to 0.2, p=0.93)** — no difference.[17]
+- **Key finding**: Once-weekly 4-point profiles did **not** improve glycemic control in patients on conventional insulin, although indicators of hyperglycemia did increase the likelihood of therapy intensification.[17]
+- **Hard outcomes**: None measured.
+- GRADE: ⊕⊕◯◯ Low (open-label, moderate size, surrogate endpoint; the testing frequency may have been too low to detect an effect).
+
+**2. Structured profiles in insulin titration trials**
+
+No RCT has directly compared different SMBG frequencies (e.g., daily vs. every-3-days vs. weekly fasting glucose) for basal insulin titration. The evidence for SMBG in insulin-treated T2DM comes **indirectly** from the titration trials discussed in the previous response (Treat-to-Target, AT.LANTUS, PREDICTIVE 303, etc.), all of which required **daily fasting SMBG** as the basis for dose adjustment. The 2025 network meta-analysis by Boonpattharatthiti et al. (Diabetes Care 2025) found that self-titration **at least twice weekly** with healthcare provider support achieved the greatest HbA1c reduction, implying a minimum of **2–3 fasting glucose measurements per titration interval** (i.e., at least daily or every-other-day testing during active titration).[18]
+
+**3. ADA/AACE guideline recommendations for insulin-treated patients**
+
+- **Basal insulin only**: The ADA 2026 Standards and the JAMA review (Kalyani et al., 2025) state that **once-daily fasting BGM can suffice** to achieve fasting glucose targets and reduce HbA1c.[19][20]
+- **Multiple daily injections (MDI)**: BGM should be performed **at a minimum prior to meals and at bedtime** (i.e., ≥4 tests/day) to guide insulin dosing and avoid hypoglycemia.[19]
+- **CGM**: Should be offered to all people with T2DM taking insulin.[19]
+
+---
+
+**PART C — MINIMUM SMBG DENSITY FOR SAFE INSULIN TITRATION**
+
+**There is no RCT that has directly tested a "minimum SMBG density" below which basal insulin titration becomes unsafe.** The answer is therefore **pragmatic, not evidence-based**:
+
+- All major basal insulin titration algorithms (Treat-to-Target, AT.LANTUS, PREDICTIVE 303, INSIGHT, LANMET) required **daily fasting SMBG** as the data input for dose adjustment. The titration intervals ranged from every 3 days (INSIGHT, AT.LANTUS patient arm) to weekly (Treat-to-Target), meaning **3–7 fasting values per titration cycle** were used to calculate the mean FBG that drove dose changes.[18]
+- The Boonpattharatthiti NMA (2025) provides the strongest indirect evidence: titration **at least twice weekly** (requiring at minimum 2–3 FBG values between adjustments) was superior to less frequent titration. This implies that **fewer than ~3 fasting glucose measurements per week during active titration** is likely insufficient to safely guide dose changes, though this threshold has never been prospectively validated.[18]
+- The ADA 2026 Technology Standards explicitly state: "The evidence is insufficient regarding when to prescribe BGM and how often monitoring is needed for insulin-treated people with diabetes who do not use intensive insulin therapy."[20]
+
+**GRADE for the "minimum density" question**: ⊕◯◯◯ Very low — no direct evidence; the threshold is entirely pragmatic, derived from the testing protocols embedded in titration trial designs.
+
+---
+
+**PART D — CAPILLARY SMBG MISSING NOCTURNAL HYPOGLYCEMIA**
+
+This is one of the most clinically important limitations of SMBG. Multiple studies demonstrate that routine capillary testing **dramatically underdetects nocturnal hypoglycemia** compared with CGM.
+
+**1. HYPOAGE (Boureau et al., 2023)**
+
+- PMID: **36965179**; J Am Geriatr Soc 2023; 71(7):2107–17.[21]
+- Population: 141 patients **≥75 years** with insulin-treated T2DM performing ≥2 SMBG/day, wearing blinded CGM (FreeStyle Libre Pro) for 28 days.
+- **Key finding**: **65.2% of patients experienced nocturnal level 2 hypoglycemia** ([21]
+- Risk factors for nocturnal hypoglycemia: cognitive impairment (OR 9.31), heart failure (OR 4.81).[21]
+
+**2. Galindo et al. (2020) — Hospitalized T2DM**
+
+- PMID: **32641372**; Diabetes Care 2020; 43(11):2730–5.[22]
+- Population: Hospitalized patients with T2DM on basal-bolus insulin, monitored with POC (before meals + bedtime = 4 tests/day) and concurrent CGM.
+- **Key findings**: Proportion of patients with glucose [22]
+- POC missed approximately **75% of patients with any hypoglycemia** and **~90% of patients with level 2 hypoglycemia** compared with CGM.[22]
+
+**3. Hypo-METRICS (Divilly et al., 2024)**
+
+- PMID: **39207738**; Diabetes Care 2024; 47(10):1862–70.[23]
+- Population: 321 patients with insulin-treated T2DM wearing blinded CGM for 10 weeks while recording person-reported hypoglycemia (PRH) via an app.
+- **Key findings**: Median sensor-detected hypoglycemia (SDH) [23]
+
+**4. Buzzetti et al. (ITAS post-hoc, 2022) — Glucometer downloads vs. patient diaries**
+
+The following figure illustrates the systematic underreporting of hypoglycemia in patient diaries compared with glucometer-downloaded data, with nocturnal events at Figure 1
+A, Incidence, and B, Annual rates of confirmed and/or severe hypoglycaemic events derived from glucometer versus eCRF/diary data. CI, confidence interval; eCRF, electronic case report form; OR, odds ratio; RR, rate ratio
+
+**Summary on nocturnal hypoglycemia detection**:
+
+StudyPopulationSMBG detection rateCGM detection rateProportion missed by SMBGReferencesHYPOAGE (2023)≥75 yr, insulin-treated T2DM37.6% (any hypo 65.2% (nocturnal Majority of nocturnal events undetected[1]Galindo (2020)Hospitalized T2DM, basal-bolus14% (56% (~75% of patients with hypo missed; ~90% of level 2[2]Hypo-METRICS (2024)Insulin-treated T2DM, outpatient22% of SDH 2.1 episodes/wk ~75–78% of all episodes asymptomatic/unreported[3]
+
+[22][23][21]
+
+---
+
+**OVERALL GRADE SUMMARY**
+
+QuestionEvidence baseGRADEReferencesSMBG in non-insulin-treated T2DM → HbA1cMultiple RCTs, IPD MA⊕⊕⊕◯ Moderate for a small (~0.25%) effect; ⊕⊕⊕◯ for structured SMBG (~0.3–0.5%)[1], [2], [3], [4]SMBG in non-insulin-treated T2DM → hard outcomesNo dataCannot be graded—SMBG in insulin-treated T2DM (conventional) → HbA1c1 RCT (Nauck 2014)⊕⊕◯◯ Low[4]Minimum SMBG density for safe insulin titrationNo direct evidence; pragmatic⊕◯◯◯ Very low[5]SMBG missing nocturnal hypoglycemia vs. CGMMultiple prospective studies⊕⊕⊕◯ Moderate (consistent, large effect)[6], [7], [8]
+
+[10][6][8][18][22][23][21][17]
+
+**No trial of SMBG in any population has demonstrated improvement in hard outcomes** (CV events, mortality, microvascular endpoints). All demonstrated effects are on **surrogate endpoints** (HbA1c, glycemic variability). The Choosing Wisely campaigns of the AAFP and SGIM explicitly recommend against routine SMBG in non-insulin-treated T2DM.[27]
+
+Would you like to explore the comparative evidence for CGM versus SMBG specifically in basal-insulin-treated T2DM, including the MOBILE study (Martens et al., JAMA 2021) and its implications for replacing fingerstick-based titration?
+
+### References
+
+1. Efficacy of Self Monitoring of Blood Glucose in Patients With Newly Diagnosed Type 2 Diabetes (ESMON Study): Randomised Controlled Trial. O'Kane MJ, Bunting B, Copeland M, Coates VE, ESMON study group. BMJ (Clinical Research Ed.). 2008;336(7654):1174-7. doi:10.1136/bmj.39534.571644.BE.
+2. Impact of Self Monitoring of Blood Glucose in the Management of Patients With Non-Insulin Treated Diabetes: Open Parallel Group Randomised Trial. Farmer A, Wade A, Goyder E, et al. BMJ (Clinical Research Ed.). 2007;335(7611):132. doi:10.1136/bmj.39247.447431.BE.
+3. Cost Effectiveness of Self Monitoring of Blood Glucose in Patients With Non-Insulin Treated Type 2 Diabetes: Economic Evaluation of Data From the DiGEM Trial. Simon J, Gray A, Clarke P, et al. BMJ (Clinical Research Ed.). 2008;336(7654):1177-80. doi:10.1136/bmj.39526.674873.BE.
+4. Structured Self-Monitoring of Blood Glucose Significantly Reduces A1C Levels in Poorly Controlled, Noninsulin-Treated Type 2 Diabetes: Results From the Structured Testing Program Study. Polonsky WH, Fisher L, Schikman CH, et al. Diabetes Care. 2011;34(2):262-7. doi:10.2337/dc10-1732.
+5. A Structured Self-Monitoring of Blood Glucose Approach in Type 2 Diabetes Encourages More Frequent, Intensive, and Effective Physician Interventions: Results From the STeP Study. Polonsky WH, Fisher L, Schikman CH, et al. Diabetes Technology & Therapeutics. 2011;13(8):797-802. doi:10.1089/dia.2011.0073.
+6. Intensive Structured Self-Monitoring of Blood Glucose and Glycemic Control in Noninsulin-Treated Type 2 Diabetes: The PRISMA Randomized Trial. Bosi E, Scavini M, Ceriello A, et al. Diabetes Care. 2013;36(10):2887-94. doi:10.2337/dc13-0092.
+7. Glucose Self-monitoring in Non–Insulin-Treated Patients With Type 2 Diabetes in Primary Care Settings. Young LA, Buse JB, Weaver MA, et al. JAMA Internal Medicine. 2017;177(7):920-929. doi:10.1001/jamainternmed.2017.1233.
+8. Meta-Analysis of Individual Patient Data in Randomised Trials of Self Monitoring of Blood Glucose in People With Non-Insulin Treated Type 2 Diabetes. Farmer AJ, Perera R, Ward A, et al. BMJ (Clinical Research Ed.). 2012;344:e486. doi:10.1136/bmj.e486.
+9. Self-Monitoring of Blood Glucose in Patients With Type 2 Diabetes Mellitus Who Are Not Using Insulin. Malanda UL, Welschen LM, Riphagen II, et al. The Cochrane Database of Systematic Reviews. 2012;1:CD005060. doi:10.1002/14651858.CD005060.pub3.
+10. The Efficacy and Frequency of Self-Monitoring of Blood Glucose in Non-Insulin-Treated T2D Patients: A Systematic Review and Meta-Analysis. Zou Y, Zhao S, Li G, Zhang C. Journal of General Internal Medicine. 2023;38(3):755-764. doi:10.1007/s11606-022-07864-z.
+11. 9. Pharmacologic Approaches to Glycemic Treatment: Standards of Care in Diabetes-2026. American Diabetes Association Professional Practice Committee for Diabetes*. Diabetes Care. 2026;49(Suppl 1):S183-S215. doi:10.2337/dc26-S009.
+12. Glycaemic Management in Diabetes: Old and New Approaches. Ceriello A, Prattichizzo F, Phillip M, et al. The Lancet. Diabetes & Endocrinology. 2022;10(1):75-84. doi:10.1016/S2213-8587(21)00245-X.
+13. American Association of Clinical Endocrinology Consensus Statement: Comprehensive Type 2 Diabetes Management Algorithm - 2023 Update. Samson SL, Vellanki P, Blonde L, et al. Endocrine Practice : Official Journal of the American College of Endocrinology and the American Association of Clinical Endocrinologists. 2023;29(5):305-340. doi:10.1016/j.eprac.2023.02.001.
+14. American Association of Clinical Endocrinology Consensus Statement: Algorithm for Management of Adults With Type 2 Diabetes - 2026 Update. Samson SL, Vellanki P, Blonde L, et al. Endocrine Practice : Official Journal of the American College of Endocrinology and the American Association of Clinical Endocrinologists. 2026;32(4):473-518. doi:10.1016/j.eprac.2026.01.006.
+15. Composite efficacy parameters and predictors of hypoglycaemia in basal‐plus insulin therapy—a combined analysis of 713 type 2 diabetic patients. Seufert J, Brath H, Pscherer S, et al. Diabetes, Obesity & Metabolism. 2014;16(3):248-54. doi:10.1111/dom.12211.
+16. Options for the intensification of insulin therapy when basal insulin is not enough in type 2 diabetes mellitus. Raccah D. Diabetes, Obesity & Metabolism. 2008;10 Suppl 2:76-82. doi:10.1111/j.1463-1326.2008.00846.x.
+17. A Randomised, Controlled Trial of Self-Monitoring of Blood Glucose in Patients With Type 2 Diabetes Receiving Conventional Insulin Treatment. Nauck MA, Haastert B, Trautner C, et al. Diabetologia. 2014;57(5):868-77. doi:10.1007/s00125-014-3168-1.
+18. Comparison of Insulin Titration Strategies for Glycemic Control in Type 2 Diabetes: A Systematic Review and Network Meta-Analysis. Boonpattharatthiti K, Wechkunanukul K, Mayang N, et al. Diabetes Care. 2025;48(5):837-845. doi:10.2337/dc24-2661.
+19. Diagnosis and Treatment of Type 2 Diabetes in Adults. Kalyani RR, Neumiller JJ, Maruthur NM, Wexler DJ. JAMA. 2025;334(11):984-1002. doi:10.1001/jama.2025.5956.
+20. 7. Diabetes Technology: Standards of Care in Diabetes-2026. American Diabetes Association Professional Practice Committee for Diabetes*. Diabetes Care. 2026;49(Suppl 1):S150-S165. doi:10.2337/dc26-S007.
+21. Nocturnal Hypoglycemia Is Underdiagnosed in Older People With Insulin-Treated Type 2 Diabetes: The HYPOAGE Observational Study. Boureau AS, Guyomarch B, Gourdy P, et al. Journal of the American Geriatrics Society. 2023;71(7):2107-2119. doi:10.1111/jgs.18341.
+22. Comparison of the FreeStyle Libre Pro Flash Continuous Glucose Monitoring (CGM) System and Point-of-Care Capillary Glucose Testing in Hospitalized Patients With Type 2 Diabetes Treated With Basal-Bolus Insulin Regimen. Galindo RJ, Migdal AL, Davis GM, et al. Diabetes Care. 2020;43(11):2730-2735. doi:10.2337/dc19-2073.
+23. Relationship Between Sensor-Detected Hypoglycemia and Patient-Reported Hypoglycemia in People With Type 1 and Insulin-Treated Type 2 Diabetes: The Hypo-Metrics Study. Divilly P, Martine-Edith G, Zaremba N, et al. Diabetes Care. 2024;47(10):1769-1777. doi:10.2337/dc23-2332.
+24. Underestimation of hypoglycaemia using patients' diaries compared with downloaded glucometer data: an ITAS post hoc analysis. Buzzetti R, Bonadonna RC, Giaccari A, et al. Diabetes, Obesity & Metabolism. 2022;24(2):327-331. doi:10.1111/dom.14560.
+25. Introducing a simplified approach to insulin therapy in type 2 diabetes: a comparison of two single‐dose regimens of insulin glulisine plus insulin glargine and oral antidiabetic drugs. Lankisch MR, Ferlinz KC, Leahy JL, Scherbaum WA, Orals Plus Apidra and LANTUS (OPAL) study group. Diabetes, Obesity & Metabolism. 2008;10(12):1178-85. doi:10.1111/j.1463-1326.2008.00967.x.
+26. Insulin Therapy for Type 2 Diabetes Mellitus. Wallia A, Molitch ME. JAMA. 2014;311(22):2315-25. doi:10.1001/jama.2014.5951.
+27. Self-Monitoring of Blood Glucose in Patients With Non–Insulin-Dependent Diabetes Mellitus. Di Bartolo IM, Gordon M. American Family Physician. 2023;107(3):312-314.
+
+This is a structured, source-by-source synthesis addressing all three components of the question.
+
+---
+
+**PART A — ATTRIBUTION LOGIC: MAPPING TIMING OF HYPOGLYCEMIA TO THE RESPONSIBLE INSULIN COMPONENT**
+
+The classic "pre-meal attribution" logic — which insulin component to adjust based on when hypoglycemia occurs — is codified most explicitly in the **AACE 2022 Clinical Practice Guideline** (Blonde et al., Endocr Pract 2022). This guideline provides a table titled "Recommended Steps for the Intensification of Insulin Therapy When Prandial Control Is Needed" that maps hypoglycemia timing to dose adjustment as follows:[1]
+
+Timing of low BGInsulin component to reduceDose changeReferencesLow **fasting** BGReduce **bedtime (HS) basal** dose−10% to −20%[1]Low **pre-midday meal** BGReduce **breakfast prandial** dose−10% to −20%[1]Low **pre-evening meal** BGReduce **midday prandial** dose−10% to −20%[1]Low **bedtime** BGReduce **evening prandial** dose−10% to −20%[1]
+
+[1]
+
+The same logic is applied in reverse for hyperglycemia (up-titration): elevated fasting BG → increase HS basal; elevated pre-midday BG → increase breakfast prandial; elevated pre-evening BG → increase midday prandial; elevated bedtime BG → increase dinner prandial.[1]
+
+The **AACE 2023 algorithm** (Samson et al.) provides a similar prandial titration scheme:[3]
+
+- Pre-midday meal glucose >110 mg/dL → increase morning meal dose by 10–20%
+- Pre-evening glucose >140 mg/dL → increase midday meal dose by 10–20%
+- Bedtime glucose >140 mg/dL → increase pre-evening meal dose by 10%
+
+The **JAMA 2025 review** (Kalyani et al.) states: "Basal insulin can be used to target elevated fasting glucose levels (>80–130 mg/dL). Prandial insulin can be used to target elevated postprandial glucose levels within 1–2 h after meal (>180 mg/dL)." The ADA 2026 Standards note that "when significant additions to the prandial insulin dose are made, particularly with the evening meal, consideration should be given to decreasing basal insulin to reduce risk of hypoglycemia."[4][2]
+
+**Critical appraisal: This attribution logic rests entirely on physiological reasoning, not on empirical data.** The principle is that each insulin component's pharmacodynamic peak corresponds to a specific time window, and therefore hypoglycemia occurring in that window is attributed to that component. **No RCT has tested whether adjusting insulin according to this time-based attribution logic produces better outcomes (fewer hypoglycemic events, better HbA1c) than any alternative approach.** The logic is plausible — rapid-acting insulin peaks 1–3 hours post-injection, so pre-next-meal hypoglycemia is likely attributable to the preceding prandial dose — but this has never been validated prospectively. GRADE: ⊕◯◯◯ Very low (expert consensus based on pharmacokinetic reasoning).
+
+**The four-period day division**: The AACE table above effectively uses a **four-period day** (fasting/overnight → morning-to-midday → midday-to-evening → evening-to-bedtime), anchored to meals rather than clock time. **No guideline or trial retrieved uses a fixed clock-time four-period division** (e.g., 00:00–06:00, 06:00–12:00, 12:00–18:00, 18:00–24:00) for insulin dose attribution. The meal-anchored approach is universal in clinical practice, which introduces variability depending on individual meal timing. The in-hospital DIATEC trial (Olsen et al., 2025) used a two-period division — nocturnal (fasting) glucose to guide basal insulin and daytime (nonfasting) glucose to guide prandial insulin — but not a four-period scheme.[5]
+
+---
+
+**PART B — EPIDEMIOLOGY OF TIMING OF HYPOGLYCEMIA IN INSULIN-TREATED T2DM**
+
+**1. Global HAT Study (Khunti et al., 2016)**
+
+- PMID: **27059700**; Diabetes Obes Metab 2016; 18(9):907–15.[6]
+- Design: Multinational, non-interventional, observational study; 27,585 insulin-treated patients (T1DM + T2DM) from 24 countries; 4-week retrospective + 4-week prospective self-reported diary.
+- **Nocturnal window definition**: The HAT study defined nocturnal hypoglycemia as events occurring **between midnight and 06:00 AM** (00:00–06:00).[6][7]
+- **T2DM results (prospective 4-week period)**:
+  - Any hypoglycemia: **46.5%** of T2DM patients (95% CI 45.8–47.2); rate **19.3 events/patient-year** (95% CI 19.1–19.6).[6]
+  - **Nocturnal hypoglycemia: 15.9%** (95% CI 15.4–16.5); rate **3.7 events/patient-year** (95% CI 3.6–3.8).[6]
+  - Severe hypoglycemia: 8.9% (95% CI 8.5–9.3); rate 2.5 events/patient-year.[6]
+  - **Nocturnal events as a proportion of all events**: 3.7/19.3 = ~19% of all hypoglycemic events were nocturnal.
+- **Predictors of nocturnal hypoglycemia in T2DM**: Duration of insulin therapy (significant), fear of hypoglycemia (significant); HbA1c was not a significant predictor.[6]
+
+The following figure from the Global HAT study illustrates the relationship between hypoglycemia rates and insulin therapy duration, as well as the predictors of nocturnal and severe hypoglycemia:
+
+Figure 2
+Relationship between estimated rates of any hypoglycaemia and ( A ) duration of insulin treatment and ( B ) duration of diabetes. Fully adjusted negative binomial modelling of the associations between patient characteristics and incidence rate ratios for ( C ) any, ( D ) nocturnal or ( E ) severe hypoglycaemia in the global trial population. Part A shows duration of insulin therapy for type 1 diabetes ( T1D ), lower quartile 7.0 years, median 15.0 years, upper quartile 24.0 years; for type 2 diabetes ( T2D ), lower quartile 2.0 years, median 5.0 years, upper quartile 9.0 years. Part B shows duration of diabetes for T1D , lower quartile 8.0 years, median 15.0 years, upper quartile 24.0 years; for T2D , lower quartile 8.0 years, median 12.0 years, upper quartile 18.0 years. HbA1c , glycated haemoglobin; PPY , per patient‐year.
+
+---
+
+**2. UK Hypoglycaemia Study Group — Dunkley et al. (2019)**
+
+- PMID: **30697946** (note: this is the Dunkley et al. UK multisite study, which extends the UK Hypoglycaemia Study Group's work); Diabetes Obes Metab 2019; 21(7):1585–95.[8]
+- Design: Prospective observational study, 274 patients with T2DM across UK primary care, 12 months. Patients performed ≥3 capillary BG readings/week and recorded hypoglycemia episodes with date, time, and BG.
+- **Nocturnal definition**: Not explicitly stated as a clock-time window in the retrieved text; episodes were classified as "nocturnal" based on patient self-report of timing.
+- **T2DM insulin-treated results (12 months)**:
+  - Any hypoglycemia: **56.4%** (95% CI 45.2–67.0).[8]
+  - **Nocturnal hypoglycemia: 41.0%** of insulin-treated patients.[8]
+  - Severe hypoglycemia: 11.5%.[8]
+  - Symptomatic BG [8]
+
+---
+
+**3. DEVOTE (Marso et al., NEJM 2017)**
+
+- PMID: **28854752**; NEJM 2017; 377(8):723–32.[9]
+- Design: Double-blind, treat-to-target, event-driven CVOT; 7,637 patients with T2DM at high CV risk, randomized to degludec vs. glargine U100, median follow-up ~2 years.
+- **Nocturnal window definition**: **Midnight to 05:59 AM** (00:00–05:59).[9]
+- **Primary endpoint (hard)**: 3-point MACE (CV death, nonfatal MI, nonfatal stroke). Degludec 325/3818 (8.5%) vs. glargine 356/3819 (9.3%); **HR 0.91 (95% CI 0.78–1.06)** — noninferiority confirmed.[9]
+- **Severe hypoglycemia (prespecified secondary, hard)**: Degludec 187/3818 (4.9%) vs. glargine 252/3819 (6.6%); **rate ratio 0.60 (95% CI 0.48–0.76, p[9]
+- **Nocturnal severe hypoglycemia**: Rate ratio **0.47 (95% CI 0.31–0.73, p[9]
+- GRADE: ⊕⊕⊕⊕ High (double-blind, large, event-driven, hard endpoints).
+
+The following figure from DEVOTE shows the cumulative severe hypoglycemia and nocturnal severe hypoglycemia curves:
+
+Figure 2
+Severe Hypoglycemia and Glucose Control.
+
+---
+
+**4. SWITCH 2 (Wysham et al., JAMA 2017)**
+
+- PMID: **28672318**; JAMA 2017; 318(1):45–56.[10]
+- Design: Double-blind, randomized, crossover trial; 721 patients with T2DM with ≥1 hypoglycemia risk factor, comparing degludec vs. glargine U100, 32-week treatment periods.
+- **Nocturnal window definition**: **00:01 AM to 05:59 AM** (both inclusive).[10]
+- **Primary endpoint (surrogate)**: Rate of overall symptomatic hypoglycemia (severe or BG-confirmed [10]
+- **Nocturnal symptomatic hypoglycemia (maintenance)**: Degludec 9.7% vs. glargine 14.7%; **difference −5.1% (95% CI −8.1 to −2.0, p=0.001)**. Rate: ERR **0.58 (95% CI 0.44–0.78, p[10]
+- **Severe hypoglycemia (full treatment period)**: ERR **0.49 (95% CI 0.26–0.94, p=0.03)**.[10]
+- GRADE: ⊕⊕⊕⊕ High (double-blind crossover, well-powered).
+
+The following figure from SWITCH 2 shows cumulative hypoglycemia rates across all categories:
+
+Figure 2
+Cumulative Rates of Hypoglycemia per Patient
+
+---
+
+**5. CONCLUDE (Philis-Tsimikas et al., Diabetologia 2020)**
+
+- PMID: **31984443**.[11]
+- Design: Open-label, treat-to-target RCT; 1,609 patients with T2DM, degludec U200 vs. glargine U300, 88 weeks.
+- **Nocturnal window definition**: **00:01 to 05:59 h**.[11]
+- **Primary endpoint**: Overall symptomatic hypoglycemia during maintenance (36 weeks). Rate ratio 0.88 (95% CI 0.73–1.06) — **not significant**.[11]
+- **Nocturnal symptomatic hypoglycemia (exploratory)**: RR **0.63 (95% CI 0.48–0.84)** — nominally significant, favoring degludec.[11]
+
+---
+
+**6. Bolli et al. (2019) — 24-hour distribution and nocturnal window analysis**
+
+- PMID: **30338618**; Diabetes Obes Metab 2019; 21(2):378–87.[12]
+- Design: Post-hoc pooled analysis of EDITION 2, 3, and JP 2 trials (N=1,922, basal-only insulin), comparing Gla-300 vs. Gla-100.
+- **Key finding**: Hypoglycemic events were **most frequent between 06:00 and 08:00 AM** — immediately after the standard nocturnal window ends. The predefined 00:00–05:59 AM window captured only a fraction of overnight/fasting hypoglycemia. Expanding the window to include 06:00–07:59 AM **approximately doubled** the number of captured events.[12]
+- **Four nocturnal windows tested**: (1) Predefined: 00:00–05:59 AM; (2) Evening extension: 22:00–05:59; (3) Morning extension: 00:00–07:59; (4) Individualized: 22:00 to pre-breakfast SMPG (median ~07:30).[12]
+
+The following figure illustrates the 24-hour distribution of hypoglycemic events, demonstrating the peak at 06:00–08:00 AM that falls outside the standard nocturnal window:
+
+Figure 1
+Percentage of participants with at least one confirmed or severe hypoglycaemic event at both the (A) ≤ 3.9 mmol/L (≤70 mg/dL) threshold and the (B) [12]
+
+---
+
+**Summary of nocturnal window definitions across studies**:
+
+StudyNocturnal windowProportion nocturnal (T2DM)ReferencesGlobal HAT00:00–06:0015.9% of patients; ~19% of events[1], [2]DEVOTE00:00–05:59Not separately reported as proportion; rate ratio 0.47 for severe nocturnal[3]SWITCH 200:01–05:599.7% vs. 14.7% (degludec vs. glargine)[4]CONCLUDE00:01–05:59RR 0.63 (degludec vs. Gla-300)[4]Bolli 2019 (EDITION pool)00:00–05:59 (predefined); also tested 22:00–05:59, 00:00–07:59, 22:00–pre-breakfastEvents ~doubled with morning extension[5]Dunkley/UKPatient-reported timing41.0% of insulin-treated patients[6]SoliMix00:00–06:00 (and bedtime–waking)See figure below[7]
+
+[18][6][10][11][9][8][12]
+
+The SoliMix trial (McCrimmon et al., 2022) uniquely reported hypoglycemia using **two** nocturnal definitions — the standard 00:00–06:00 window and a patient-individualized "bedtime-to-waking" window — and found consistent results across both:
+
+Figure 1
+Incidence and event rates of hypoglycaemia at any time of day (24 h, first panel; adapted from Rosenstock et al, 18 during the daytime (6:01 am –11:59 pm , second panel), and nocturnally (12:00 am –6:00 am , third panel; bedtime–waking, fourth panel) over the 26‐week treatment period (safety population). *Relative odds reduction for incidence; relative rate reduction for rates. Some hypoglycaemia events could not be classified as either daytime or nocturnal due to their time of occurrence not being recorded. American Diabetes Association (ADA) Level 1 hypoglycaemia: [19]
+
+- **Galindo et al.** (2020; PMID 32641372): In hospitalized T2DM on basal-bolus insulin, POC testing (4×/day) detected hypoglycemia [20]
+- **Hypo-METRICS** (Divilly et al., 2024; PMID 39207738): Only **22% of sensor-detected hypoglycemia [21]
+- **Graveling & Frier** (2017; PMID 28888993): "Over half of all episodes of severe hypoglycaemia (requiring external help) occur during sleep, but nocturnal hypoglycaemia is often asymptomatic and unrecognised."[22]
+- **Bae et al.** (2017; PMID 28781218): Pooled analysis of 18 RCTs (7,341 insulin-treated T2DM patients): **43% experienced ≥1 nocturnal hypoglycemic episode** over a mean 6-month period (1.1 events/month), despite these being clinical trial populations with structured monitoring.[23]
+
+GRADE for SMBG underdetection of nocturnal hypoglycemia: ⊕⊕⊕◯ Moderate (consistent findings across multiple prospective studies using blinded CGM as reference standard; no RCT directly comparing clinical outcomes of CGM-detected vs. SMBG-detected nocturnal hypoglycemia management).
+
+---
+
+**PART D — HARD vs. SURROGATE OUTCOMES SUMMARY**
+
+OutcomeClassificationEvidenceReferences3-point MACE (DEVOTE)**Hard**HR 0.91 (0.78–1.06), noninferiority confirmed[1]Severe hypoglycemia (DEVOTE)**Hard**RR 0.60 (0.48–0.76); ARD −1.7%; NNT ~59/2 yr[1]Nocturnal severe hypoglycemia (DEVOTE)**Hard**RR 0.47 (0.31–0.73)[2]Overall symptomatic hypoglycemia (SWITCH 2)Surrogate (BG-confirmed)ERR 0.70 (0.61–0.80)[3]Nocturnal symptomatic hypoglycemia (SWITCH 2)Surrogate (BG-confirmed)ERR 0.58 (0.44–0.78)[3]Severe hypoglycemia (SWITCH 2, full period)**Hard**ERR 0.49 (0.26–0.94)[3]Nocturnal hypoglycemia detection by SMBG vs. CGMSurrogate (detection rate)SMBG misses ~75–90% of events[4]Attribution logic (timing → insulin component)N/A — no outcome testedExpert consensus / physiological reasoning only[5]
+
+[10][1][9][20][19]
+
+---
+
+**OVERALL GRADE APPRAISAL**
+
+QuestionEvidence baseGRADEKey limitationReferencesAttribution of hypoglycemia timing to insulin componentExpert consensus (AACE 2022)⊕◯◯◯ Very lowPhysiological reasoning only; never validated in an RCT[1]Epidemiology of nocturnal hypoglycemia in insulin-treated T2DMMultiple large observational studies + RCTs⊕⊕⊕◯ ModerateHeterogeneous nocturnal window definitions; self-report bias[2], [3]Standard nocturnal window (00:00–05:59) underestimates basal-insulin hypoglycemiaPost-hoc pooled analysis (Bolli 2019)⊕⊕◯◯ LowPost-hoc; peak at 06:00–08:00 may partly reflect protocol-mandated pre-breakfast testing[4]SMBG misses nocturnal hypoglycemia vs. CGMMultiple prospective studies⊕⊕⊕◯ ModerateConsistent, large effect; no RCT of clinical outcomes from detection[4], [5]Degludec reduces severe/nocturnal hypoglycemia vs. glargine U100 (DEVOTE)Double-blind CVOT⊕⊕⊕⊕ HighHard endpoint; well-powered[6]
+
+[6][10][1][19][12][9]
+
+Would you like to explore the evidence for CGM-guided basal insulin titration algorithms (e.g., the MOBILE study and ITERATE trial) as a replacement for SMBG-based titration, including their impact on time in range and hypoglycemia detection?
+
+### References
+
+1. American Association of Clinical Endocrinology Clinical Practice Guideline: Developing a Diabetes Mellitus Comprehensive Care Plan-2022 Update. Blonde L, Umpierrez GE, Reddy SS, et al. Endocrine Practice : Official Journal of the American College of Endocrinology and the American Association of Clinical Endocrinologists. 2022;28(10):923-1049. doi:10.1016/j.eprac.2022.08.002.
+2. 9. Pharmacologic Approaches to Glycemic Treatment: Standards of Care in Diabetes-2026. American Diabetes Association Professional Practice Committee for Diabetes*. Diabetes Care. 2026;49(Suppl 1):S183-S215. doi:10.2337/dc26-S009.
+3. American Association of Clinical Endocrinology Consensus Statement: Comprehensive Type 2 Diabetes Management Algorithm - 2023 Update. Samson SL, Vellanki P, Blonde L, et al. Endocrine Practice : Official Journal of the American College of Endocrinology and the American Association of Clinical Endocrinologists. 2023;29(5):305-340. doi:10.1016/j.eprac.2023.02.001.
+4. Diagnosis and Treatment of Type 2 Diabetes in Adults. Kalyani RR, Neumiller JJ, Maruthur NM, Wexler DJ. JAMA. 2025;334(11):984-1002. doi:10.1001/jama.2025.5956.
+5. In-Hospital Diabetes Management by a Diabetes Team and Insulin Titration Algorithms Based on Continuous Glucose Monitoring or Point-of-Care Glucose Testing in Patients With Type 2 Diabetes (DIATEC): A Randomized Controlled Trial. Olsen MT, Klarskov CK, Jensen SH, et al. Diabetes Care. 2025;48(4):569-578. doi:10.2337/dc24-2222.
+6. Rates and predictors of hypoglycaemia in 27 585 people from 24 countries with insulin‐treated type 1 and type 2 diabetes: the global HAT study. Khunti K, Alsifri S, Aronson R, et al. Diabetes, Obesity & Metabolism. 2016;18(9):907-15. doi:10.1111/dom.12689.
+7. Comparison of the HAT study, the largest global hypoglycaemia study to date, with similar large real‐world studies. Pedersen-Bjergaard U, Alsifri S, Aronson R, et al. Diabetes, Obesity & Metabolism. 2019;21(4):844-853. doi:10.1111/dom.13588.
+8. Incidence and severity of hypoglycaemia in type 2 diabetes by treatment regimen: A UK multisite 12‐month prospective observational study. Dunkley AJ, Fitzpatrick C, Gray LJ, et al. Diabetes, Obesity & Metabolism. 2019;21(7):1585-1595. doi:10.1111/dom.13690.
+9. Efficacy and Safety of Degludec versus Glargine in Type 2 Diabetes. Marso SP, McGuire DK, Zinman B, et al. The New England Journal of Medicine. 2017;377(8):723-732. doi:10.1056/NEJMoa1615692.
+10. Effect of Insulin Degludec vs Insulin Glargine U100 on Hypoglycemia in Patients With Type 2 Diabetes. Wysham C, Bhargava A, Chaykin L, et al. JAMA. 2017;318(1):45-56. doi:10.1001/jama.2017.7117.
+11. Risk of Hypoglycaemia With Insulin Degludec Versus Insulin Glargine U300 in Insulin-Treated Patients With Type 2 Diabetes: The Randomised, Head-to-Head CONCLUDE Trial. Philis-Tsimikas A, Klonoff DC, Khunti K, et al. Diabetologia. 2020;63(4):698-710. doi:10.1007/s00125-019-05080-9.
+12. A post‐hoc pooled analysis to evaluate the risk of hypoglycaemia with insulin glargine 300 U/mL (Gla‐300) versus 100 U/mL (Gla‐100) over wider nocturnal windows in individuals with type 2 diabetes on a basal‐only insulin regimen. Bolli GB, Wysham C, Fisher M, et al. Diabetes, Obesity & Metabolism. 2019;21(2):402-407. doi:10.1111/dom.13515.
+13. Glycaemic Management in Diabetes: Old and New Approaches. Ceriello A, Prattichizzo F, Phillip M, et al. The Lancet. Diabetes & Endocrinology. 2022;10(1):75-84. doi:10.1016/S2213-8587(21)00245-X.
+14. American Association of Clinical Endocrinology Consensus Statement: Algorithm for Management of Adults With Type 2 Diabetes - 2026 Update. Samson SL, Vellanki P, Blonde L, et al. Endocrine Practice : Official Journal of the American College of Endocrinology and the American Association of Clinical Endocrinologists. 2026;32(4):473-518. doi:10.1016/j.eprac.2026.01.006.
+15. Composite efficacy parameters and predictors of hypoglycaemia in basal‐plus insulin therapy—a combined analysis of 713 type 2 diabetic patients. Seufert J, Brath H, Pscherer S, et al. Diabetes, Obesity & Metabolism. 2014;16(3):248-54. doi:10.1111/dom.12211.
+16. Options for the intensification of insulin therapy when basal insulin is not enough in type 2 diabetes mellitus. Raccah D. Diabetes, Obesity & Metabolism. 2008;10 Suppl 2:76-82. doi:10.1111/j.1463-1326.2008.00846.x.
+17. Introducing a simplified approach to insulin therapy in type 2 diabetes: a comparison of two single‐dose regimens of insulin glulisine plus insulin glargine and oral antidiabetic drugs. Lankisch MR, Ferlinz KC, Leahy JL, Scherbaum WA, Orals Plus Apidra and LANTUS (OPAL) study group. Diabetes, Obesity & Metabolism. 2008;10(12):1178-85. doi:10.1111/j.1463-1326.2008.00967.x.
+18. Hypoglycaemia events with iGlarLixi versus premix biphasic insulin aspart 30 ( BIAsp 30) in people with type 2 diabetes advancing from basal insulin: An analysis of the SoliMix trial. McCrimmon RJ, Home P, Cheng A, et al. Diabetes, Obesity & Metabolism. 2022;24(12):2391-2399. doi:10.1111/dom.14825.
+19. Nocturnal Hypoglycemia Is Underdiagnosed in Older People With Insulin-Treated Type 2 Diabetes: The HYPOAGE Observational Study. Boureau AS, Guyomarch B, Gourdy P, et al. Journal of the American Geriatrics Society. 2023;71(7):2107-2119. doi:10.1111/jgs.18341.
+20. Comparison of the FreeStyle Libre Pro Flash Continuous Glucose Monitoring (CGM) System and Point-of-Care Capillary Glucose Testing in Hospitalized Patients With Type 2 Diabetes Treated With Basal-Bolus Insulin Regimen. Galindo RJ, Migdal AL, Davis GM, et al. Diabetes Care. 2020;43(11):2730-2735. doi:10.2337/dc19-2073.
+21. Relationship Between Sensor-Detected Hypoglycemia and Patient-Reported Hypoglycemia in People With Type 1 and Insulin-Treated Type 2 Diabetes: The Hypo-Metrics Study. Divilly P, Martine-Edith G, Zaremba N, et al. Diabetes Care. 2024;47(10):1769-1777. doi:10.2337/dc23-2332.
+22. The Risks of Nocturnal Hypoglycaemia in Insulin-Treated Diabetes. Graveling AJ, Frier BM. Diabetes Research and Clinical Practice. 2017;133:30-39. doi:10.1016/j.diabres.2017.08.012.
+23. Risk Factors for Nocturnal Hypoglycemia in Insulin-Treated Patients With Type 2 Diabetes: A Secondary Analysis of Observational Data Derived From an Integrated Clinical Trial Database. Bae JP, Duan R, Fu H, Hoogwerf BJ. Clinical Therapeutics. 2017;39(9):1790-1798.e7. doi:10.1016/j.clinthera.2017.07.037.
+
+**CGM improves glycemic control compared with SMBG in basal-insulin-treated T2DM**, with consistent HbA1c reductions of **−0.4% to −0.6%** and TIR improvements of **+15 percentage points** across the key RCTs, while simultaneously **reducing hypoglycemia**. However, all evidence to date remains on **surrogate endpoints** — no RCT has demonstrated hard outcomes (CV events, mortality). Below is the trial-by-trial evidence.
+
+---
+
+**PART 1 — KEY RCTs: CGM vs. SMBG IN BASAL-INSULIN-TREATED T2DM**
+
+**1. MOBILE (Martens et al., JAMA 2021)**
+
+- PMID: **34077499**; JAMA 2021; 325(22):2262–72.[1]
+- Design: Open-label, multicenter RCT, **175 adults** with T2DM on basal insulin without prandial insulin, managed in **primary care**, 8 months. Randomized 2:1 to real-time CGM (Dexcom G6) vs. BGM.
+- Population: Mean age 57 years; 50% female; 53% racial/ethnic minority; mean baseline HbA1c **9.1%**; only **27%** on SGLT2i or GLP-1 RA.[1][2]
+- **Primary endpoint (surrogate)**: HbA1c at 8 months: CGM **8.0%** vs. BGM **8.4%**; adjusted difference **−0.4% (95% CI −0.8 to −0.1; p=0.02)**.[1]
+- **Key secondary endpoints (surrogates)**: TIR 70–180 mg/dL: CGM **59%** vs. BGM **43%** (adjusted difference **+15%, 95% CI 8 to 23; p250 mg/dL: CGM **11%** vs. BGM **27%** (adjusted difference **−16%; p[1]
+- **Hypoglycemia (surrogate)**: Time [1]
+- **Mechanism**: The MOBILE study did not mandate a specific CGM-based titration algorithm. Improvements were driven by patient behavioral changes informed by real-time glucose data and clinician treatment adjustments.[1]
+- **Subgroup analysis** (Davis et al., 2022; PMID 34962151): The greatest CGM benefit was in those with worst baseline control — participants with HbA1c ≥10% had a **32 percentage-point greater TIR increase** with CGM vs. BGM.[3]
+
+The following table from the MOBILE study summarizes the glycemic outcomes:
+
+Table 2
+Glycemic Outcomesa
+
+- **Hard outcomes**: None measured (8-month duration).
+- GRADE: ⊕⊕⊕◯ Moderate (open-label, moderate size, surrogate endpoints; diverse population, primary care setting).
+
+---
+
+**2. FreeDM2 (Wilmot et al., Lancet Diabetes Endocrinol 2026)**
+
+- PMID: **42035781**; Lancet Diabetes Endocrinol 2026; 14(6):463–74.[2]
+- Design: Open-label, multicenter RCT, **303 adults** with T2DM on basal insulin + SGLT2i and/or GLP-1 RA/dual GIP/GLP-1 RA (95% on these agents), 24 UK primary and secondary care centers, 32 weeks. Two-phase design: weeks 1–16 (self-management with basal insulin self-titration), weeks 17–32 (clinician-supported with therapy escalation permitted). Randomized 2:1 to real-time CGM (FreeStyle Libre 3) vs. SMBG.
+- Population: Mean age 60.7 years; 67% male; mean baseline HbA1c **8.8%**; mean diabetes duration **16.7 years**.[2]
+- **Primary endpoint (surrogate)**: HbA1c at 16 weeks: CGM **8.0%** vs. SMBG **8.7%**; adjusted difference **−0.6% (95% CI −0.8 to −0.3; p[2]
+- **Key secondary endpoint (surrogate)**: HbA1c at 32 weeks: CGM **7.8%** vs. SMBG **8.3%**; adjusted difference **−0.5% (95% CI −0.7 to −0.2; p[2]
+- **Mechanism**: During the self-management phase (weeks 1–16), there were **no between-group differences in insulin doses**, suggesting that glycemic improvements were driven by **lifestyle changes** (increased physical activity, healthier dietary choices) informed by real-time CGM data. CGM users reported being more active and making healthier dietary choices.[2]
+- **Hypoglycemia**: Two severe hypoglycemic events occurred — both in the **SMBG control group**. No severe hypoglycemia in the CGM group.[2]
+- **Sensor adherence**: Median sensor usage **97.6%** (phase 1) and **98.2%** (phase 2).[2]
+- **Hard outcomes**: None measured (32-week duration).
+- GRADE: ⊕⊕⊕◯ Moderate (open-label, well-powered, contemporary population on modern therapies; surrogate endpoints).
+
+---
+
+**3. Steno2tech (Lind et al., Diabetes Care 2024)**
+
+- PMID: **38489032**; Diabetes Care 2024; 47(5):869–78.[4]
+- Design: Single-center, open-label RCT, **76 adults** with inadequately controlled insulin-treated T2DM (median baseline HbA1c 8.3%), 12 months. CGM (Dexcom G6) vs. BGM.
+- **Primary endpoint (surrogate)**: TIR 3.9–10.0 mmol/L: between-group difference **+15.2% (95% CI 4.6 to 25.9)** favoring CGM.[4]
+- **Additional surrogates**: HbA1c: between-group difference **−0.9% (95% CI −1.4 to −0.3)**. Total daily insulin dose: **−10.6 U/day (95% CI −19.9 to −1.3)**. Weight: **−3.3 kg (95% CI −5.5 to −1.1)**. BMI: **−1.1 kg/m² (95% CI −1.8 to −0.3)**.[4]
+- **Notable**: This is the only RCT showing simultaneous improvements in glycemia, insulin dose reduction, **and weight loss** with CGM in T2DM.
+- **Hard outcomes**: None measured.
+- GRADE: ⊕⊕◯◯ Low (single-center, small, open-label, surrogate endpoints).
+
+---
+
+**4. Kim et al. (Diabetologia 2024) — isCGM + structured education in MDI-treated T2DM**
+
+- PMID: **38639876**; Diabetologia 2024; 67(7):1223–34.[5]
+- Design: Open-label, multicenter RCT, **159 adults** with T2DM on MDI (HbA1c 7.5–12%), 24 weeks. Three arms: isCGM + structured education on pattern interpretation vs. isCGM + conventional education vs. BGM + conventional education.
+- **Primary endpoint (surrogate)**: HbA1c change at 24 weeks: isCGM + structured education **−1.00%** vs. isCGM alone **−0.63%** (p=0.037) vs. BGM **−0.58%** (p=0.019 vs. structured education group).[5]
+- **Key finding**: isCGM alone (without structured education) was **not superior** to BGM. The benefit required **structured education on CGM pattern interpretation** — paralleling the STeP finding that structured SMBG only works when linked to an action protocol.
+- GRADE: ⊕⊕◯◯ Low (open-label, moderate size, surrogate endpoints).
+
+---
+
+**PART 2 — CGM-BASED INSULIN TITRATION ALGORITHMS**
+
+**5. El Fathi et al. (Diabetes Technol Ther 2026) — Algorithmic CGM-based titration**
+
+- PMID: **41651803**; Diabetes Technol Ther 2026.[6]
+- Design: Two-site, open-label RCT, **30 adults** with T2DM (HbA1c 7–9%) on degludec ± noninsulin agents, without rapid-acting insulin, 16 weeks. Randomized 2:1 to weekly algorithmic CGM-based dose changes with open CGM (EXP) vs. weekly SMBG-based titration with blinded CGM (CTR).
+- **CGM titration algorithm**: Weekly dose adjustments based on CGM-derived metrics (specific algorithm details in protocol). Both groups received dose notifications via phone.
+- **Primary endpoint (surrogate)**: TIR change: EXP **+20.3 percentage points** (54.1% → 75.3%) vs. CTR **+8.3 percentage points** (50.2% → 55.3%). Estimated treatment difference: **+14.6 percentage points (one-sided 95% CI lower bound +4.0; p[6]
+- **Hypoglycemia**: Time [6]
+- **Hard outcomes**: None measured.
+- GRADE: ⊕⊕◯◯ Low (very small, open-label, feasibility trial, surrogate endpoints).
+
+**6. Martens et al. (2025) — CGM "1-h AM nadir" as FBG surrogate for titration**
+
+- PMID: **40683222**; Diabetes Metab Syndr 2025.[7]
+- Design: Retrospective analysis of 7,354 paired FBG/blinded CGM data points from 68 patients with T2DM.
+- **Key finding**: The **median of the 3 lowest CGM values in the hour preceding the FBG timepoint** ("1-h AM nadir") was essentially equivalent to FBG for basal insulin titration across three standard algorithms (INSIGHT, Treat-to-Target, AT.LANTUS). Relative dose errors were mostly within ±10%, indicating high agreement and low clinical risk.[7]
+- **Implication**: CGM can replace fasting fingerstick for basal insulin titration using existing algorithms, without requiring new titration rules.
+
+---
+
+**PART 3 — META-ANALYTIC EVIDENCE**
+
+**7. Lian et al. (Front Endocrinol 2025) — Systematic review and meta-analysis**
+
+- PMID: **41659334**; Front Endocrinol 2025; 16:1530780.[8]
+- 11 RCTs, 789 participants (CGM n=437, SMBG n=352).
+- **Results**: CGM vs. SMBG: HbA1c **MD −0.20%**; TIR **MD +7.41%**; time above range **MD −6.93%**; time below range **MD −0.26%**; glucose variability (CV) **MD −1.06%**. No significant differences in cardiometabolic or psychosocial outcomes.[8]
+
+**8. Bergenstal et al. (JAMA 2025) — CGM review**
+
+- JAMA 2025; 334(24):2175–86.[9]
+- Summarizes: In the basal-insulin-only population (MOBILE), HbA1c improved from 9.1% to 8.0% with CGM vs. 9.0% to 8.4% with BGM (p=0.02). A meta-analysis of 12 RCTs (1,248 participants) across the spectrum of T2DM regimens reported a mean HbA1c difference of **−0.31% (95% CI −0.43 to −0.19)** favoring CGM.[9]
+
+---
+
+**PART 4 — DOES CGM IMPROVE HARD OUTCOMES?**
+
+**No RCT has demonstrated that CGM improves hard outcomes (CV events, mortality, microvascular endpoints) in T2DM.** However, two large observational studies provide suggestive evidence:
+
+**9. Reaven et al. (Diabetes Technol Ther 2025) — VA cohort**
+
+- PMID: **40432529**; Diabetes Technol Ther 2025; 27(10):715–24.[10]
+- Design: Propensity-score-matched retrospective cohort, **12,729 CGM initiators** matched 1:1 with non-CGM users, VA Health Care System, 18-month follow-up.
+- Population: 94% male, mean age 66, insulin-treated T2DM.
+- **Results (hard outcomes)**:
+  - **All-cause mortality**: HR **0.79 (95% CI 0.73–0.86)** — 21% relative reduction.
+  - **All-cause hospitalization**: HR **0.91 (95% CI 0.86–0.96)**.
+  - **Cardiovascular events**: HR **0.84 (95% CI 0.73–0.96)**.
+  - **Hyperglycemia-related admissions**: HR **0.88 (95% CI 0.81–0.95)**.
+  - Results persisted after accounting for early deaths, COVID-19, subsequent use of insulin pumps or newer medications, and when stratified by frailty index or mortality risk.[10]
+- **Limitations**: Observational; unmeasured confounders (healthy-user bias) cannot be excluded.
+- GRADE: ⊕⊕◯◯ Low (observational, propensity-matched but residual confounding likely).
+
+**10. Karter et al. (JAMA 2021) — Kaiser Permanente cohort**
+
+- PMID: **34077502**; JAMA 2021; 325(22):2273–84.[11]
+- Design: Retrospective difference-in-differences analysis, 41,753 insulin-treated patients (5,673 T1DM + 36,080 T2DM), 12-month pre/post comparison.
+- **Results**: CGM initiation associated with HbA1c reduction **−0.40% (95% CI −0.48 to −0.32; p[11]
+- GRADE: ⊕⊕◯◯ Low (observational, selection bias likely).
+
+---
+
+**PART 5 — TIR AS A SURROGATE FOR HARD OUTCOMES**
+
+The clinical relevance of CGM-derived TIR improvements is supported by observational data linking TIR to hard outcomes:
+
+**11. Lu et al. (Diabetes Care 2021)**
+
+- PMID: **33097560**; Diabetes Care 2021; 44(2):549–55.[12]
+- Design: Prospective cohort, **6,225 adults** with T2DM, baseline CGM, median follow-up **6.9 years**.
+- **Results**: Compared with TIR >85%, TIR ≤50% was associated with: all-cause mortality HR **1.83 (95% CI 1.48–2.28)**; CV mortality HR **1.85 (95% CI 1.25–2.72)**. Dose-response relationship: p for trend [12]
+
+**12. Qu et al. (J Clin Med 2026) — Meta-analysis**
+
+- PMID: **42513627**; J Clin Med 2026.[13]
+- 24 observational studies, 35,916 participants. Each **10% increment in TIR** was associated with: all-cause mortality OR **0.88 (95% CI 0.82–0.93)**; diabetic retinopathy OR **0.92 (95% CI 0.89–0.95)**; peripheral neuropathy OR **0.77 (95% CI 0.71–0.84)**; lower extremity atherosclerotic disease OR **0.86 (95% CI 0.82–0.91)**.[13]
+
+The following figure illustrates the continuous inverse relationship between time in tight range and all-cause mortality:
+
+Figure 1
+Hazard ratios (HRs) of all‐cause mortality by different levels of time in tight range (TITR) among patients with type 2 diabetes. TITR of 50.0% was set as the reference. Purple shading indicates 95% confidence interval. Adjusted variables in the model included age, sex, diabetes duration, body mass index, systolic blood pressure, triglycerides, total cholesterol, current smoking status, history of cancer, history of cardiovascular diseases, the use of insulin, oral hypoglycaemic drugs, antihypertensive drugs and statins.
+
+---
+
+**PART 6 — GUIDELINE RECOMMENDATIONS**
+
+The **ADA 2026 Standards of Care** recommend that CGM be **offered to all people with T2DM taking insulin** and considered for those on noninsulin therapies, with a goal of achieving **>70% TIR (70–180 mg/dL)** for most nonpregnant adults.[15][16] The **JAMA 2025 review** (Kalyani et al.) states that for patients on basal insulin only, once-daily fasting BGM can suffice, but CGM provides additional benefits including reduced hypoglycemia and improved TIR.[15]
+
+---
+
+**SUMMARY TABLE**
+
+TrialPMIDYearnPopulationHbA1c effect (CGM vs. SMBG)TIR effectHard outcomesGRADEReferencesMOBILE340774992021175Basal insulin, primary care−0.4% (p=0.02)+15% (pNone⊕⊕⊕◯[1]FreeDM2420357812026303Basal + SGLT2i/GLP-1 RA−0.6% at 16 wk; −0.5% at 32 wk (pNot separately reportedNone⊕⊕⊕◯[2]Steno2tech38489032202476Insulin-treated T2DM−0.9% (p+15.2% (p=0.006)None⊕⊕◯◯[3]Kim 2024386398762024159MDI-treated T2DM−1.00% (with structured education)Not reportedNone⊕⊕◯◯[4]El Fathi 202641651803202630Degludec ± OADsTIR +20.3 vs. +8.3 pp+14.6 pp (p=0.03)None⊕⊕◯◯[5]Reaven 2025 (VA)40432529202525,458Insulin-treated T2DM——Mortality HR 0.79; CV HR 0.84⊕⊕◯◯[6]
+
+[1][2][4][5][6][10]
+
+---
+
+**BOTTOM LINE**
+
+CGM consistently improves surrogate glycemic outcomes (HbA1c −0.4 to −0.9%, TIR +15 percentage points) compared with SMBG in basal-insulin-treated T2DM, while simultaneously reducing hypoglycemia. The FreeDM2 trial extends this to patients on modern combination therapy (basal insulin + SGLT2i/GLP-1 RA). CGM-derived metrics can replace fasting fingerstick for basal insulin titration with >90% dose-agreement. However, **all RCT evidence remains on surrogate endpoints**. The observational VA cohort (Reaven 2025) showing a mortality HR of 0.79 is hypothesis-generating but cannot establish causality. The ADA now recommends offering CGM to all insulin-treated T2DM patients, and the evidence supports this as a replacement for — not merely a supplement to — SMBG-based titration.[15][16]
+
+Would you like to explore the emerging evidence for automated insulin delivery (closed-loop) systems in T2DM, including the recent meta-analysis showing ~18 percentage-point TIR improvements?
+
+### References
+
+1. Effect of Continuous Glucose Monitoring on Glycemic Control in Patients With Type 2 Diabetes Treated With Basal Insulin. Martens T, Beck RW, Bailey R, et al. JAMA. 2021;325(22):2262-2272. doi:10.1001/jama.2021.7444.
+2. Continuous Glucose Monitoring Versus Self-Monitoring of Blood Glucose in Individuals With Type 2 Diabetes: A Randomised, Multicentre, Open-Label, Superiority Trial. Wilmot EG, Moore P, Sathyapalan T, et al. The Lancet. Diabetes & Endocrinology. 2026;14(6):463-474. doi:10.1016/S2213-8587(26)00076-8.
+3. Magnitude of Glycemic Improvement in Patients With Type 2 Diabetes Treated With Basal Insulin: Subgroup Analyses From the MOBILE Study. Davis G, Bailey R, Calhoun P, Price D, Beck RW. Diabetes Technology & Therapeutics. 2022;24(5):324-331. doi:10.1089/dia.2021.0489.
+4. Comparing Continuous Glucose Monitoring and Blood Glucose Monitoring in Adults With Inadequately Controlled, Insulin-Treated Type 2 Diabetes (Steno2tech Study): A 12-Month, Single-Center, Randomized Controlled Trial. Lind N, Christensen MB, Hansen DL, Nørgaard K. Diabetes Care. 2024;47(5):881-889. doi:10.2337/dc23-2194.
+5. Continuous Glucose Monitoring With Structured Education in Adults With Type 2 Diabetes Managed by Multiple Daily Insulin Injections: A Multicentre Randomised Controlled Trial. Kim JY, Jin SM, Sim KH, et al. Diabetologia. 2024;67(7):1223-1234. doi:10.1007/s00125-024-06152-1.
+6. Safety and Feasibility of Algorithmic Continuous Glucose Monitoring-Based Titration in People With Type 2 Diabetes Using Insulin Degludec, With or Without Noninsulin Glucose-Lowering Drugs: A 16-Week Randomized Controlled Trial. El Fathi A, Nass R, Levy CJ, et al. Diabetes Technology & Therapeutics. 2026;:15209156261420193. doi:10.1177/15209156261420193.
+7. Continuous Glucose Monitoring Versus Fasting Blood Glucose Basal Insulin Titration: A Retrospective Analysis. Martens TW, Johnson J, Katz ML, et al. Diabetes & Metabolic Syndrome. 2025;19(6):103266. doi:10.1016/j.dsx.2025.103266.
+8. Impact of Real-Time Continuous Glucose Monitoring on Glycaemic Control in Adults With Type 2 Diabetes: Systematic Review and Meta-Analysis. Lian X, Cheng LJ, Teo CJY, et al. Frontiers in Endocrinology. 2025;16:1761579. doi:10.3389/fendo.2025.1761579.
+9. Continuous Glucose Monitoring. Bergenstal RM, Martens TW, Beck RW. JAMA. 2025;334(24):2220-2222. doi:10.1001/jama.2025.19197.
+10. Initiation of Continuous Glucose Monitoring and Mortality in Type 2 Diabetes. Reaven PD, Macwan S, Newell M, et al. Diabetes Technology & Therapeutics. 2025;27(10):778-789. doi:10.1089/dia.2025.0227.
+11. Association of Real-time Continuous Glucose Monitoring With Glycemic Control and Acute Metabolic Events Among Patients With Insulin-Treated Diabetes. Karter AJ, Parker MM, Moffet HH, Gilliam LK, Dlott R. JAMA. 2021;325(22):2273-2284. doi:10.1001/jama.2021.6530.
+12. Time in Range in Relation to All-Cause and Cardiovascular Mortality in Patients With Type 2 Diabetes: A Prospective Cohort Study. Lu J, Wang C, Shen Y, et al. Diabetes Care. 2021;44(2):549-555. doi:10.2337/dc20-1862.
+13. Time in Range and Adverse Outcomes in Type 2 Diabetes: A Quantitative Synthesis. Qu F, Yang Q, Zeng Q, Li Z, Li J. Journal of Clinical Medicine. 2026;15(14):5713. doi:10.3390/jcm15145713.
+14. Impact of time in tight range on all‐cause and cardiovascular mortality in type 2 diabetes: A prospective cohort study. Cai J, Liu J, Lu J, et al. Diabetes, Obesity & Metabolism. 2025;27(4):2154-2162. doi:10.1111/dom.16212.
+15. Diagnosis and Treatment of Type 2 Diabetes in Adults. Kalyani RR, Neumiller JJ, Maruthur NM, Wexler DJ. JAMA. 2025;334(11):984-1002. doi:10.1001/jama.2025.5956.
+16. 6. Glycemic Goals, Hypoglycemia, and Hyperglycemic Crises: Standards of Care in Diabetes-2026. American Diabetes Association Professional Practice Committee for Diabetes*. Diabetes Care. 2026;49(Supplement_1):S132-S149. doi:10.2337/dc26-S006.
+17. The importance of the initial period of basal insulin titration in people with diabetes. Khunti K, Giorgino F, Berard L, Mauricio D, Harris SB. Diabetes, Obesity & Metabolism. 2020;22(5):722-733. doi:10.1111/dom.13946.
+18. The Treat-to-Target Trial: Randomized Addition of Glargine or Human NPH Insulin to Oral Therapy of Type 2 Diabetic Patients. Riddle MC, Rosenstock J, Gerich J. Diabetes Care. 2003;26(11):3080-6. doi:10.2337/diacare.26.11.3080.
+19. Dosing of Insulin Glargine in the Treatment of Type 2 Diabetes. Barnett A. Clinical Therapeutics. 2007;29(6):987-99. doi:10.1016/j.clinthera.2007.06.018.
+20. Reporting of hypoglycaemia in clinical trials of basal insulins: A need for consensus. Frier BM, Ratzki-Leewing A, Harris SB. Diabetes, Obesity & Metabolism. 2019;21(7):1529-1542. doi:10.1111/dom.13732.
+21. Comparison of insulin lispro protamine suspension versus insulin glargine once daily added to oral antihyperglycaemic medications and exenatide in type 2 diabetes: a prospective randomized open‐label trial. Arakaki RF, Blevins TC, Wise JK, et al. Diabetes, Obesity & Metabolism. 2014;16(6):510-8. doi:10.1111/dom.12242.
+22. Titration and optimization trial for the initiation of insulin glargine 100 U/mL in patients with inadequately controlled type 2 diabetes on oral antidiabetic drugs. Seufert J, Fritsche A, Pscherer S, et al. Diabetes, Obesity & Metabolism. 2019;21(2):439-443. doi:10.1111/dom.13535.
+
+
+
+Below is a structured, source-by-source synthesis of what the major indexed international guidelines actually state, with evidence grades as printed in each source, and explicit flagging of what rests on trial data versus expert consensus.
+
+---
+
+**1 — RECOMMENDED SMBG FREQUENCY BY INSULIN REGIMEN**
+
+**ADA Standards of Care 2026 (Section 7, "Diabetes Technology")**
+
+The ADA **does not prescribe a specific number of daily tests** for patients on basal insulin only. The relevant recommendations are:
+
+- **Rec 7.11 (Grade B)**: "People who are taking insulin and using BGM should be encouraged to check their blood glucose levels when appropriate based on their insulin therapy. This may include checking when fasting, prior to meals and snacks, after meals, at bedtime, in the middle of the night, prior to, during, and after exercise, when hypoglycemia is suspected, after treating low blood glucose levels until achieving normoglycemia, when hyperglycemia is suspected, and prior to and while performing critical tasks such as driving."[1]
+- For **basal insulin ± OADs/noninsulin injectables**: "The evidence is insufficient regarding when to prescribe BGM and how often monitoring is needed for insulin-treated people with diabetes who do not use intensive insulin therapy." However, "for those taking basal insulin, assessing fasting glucose with BGM to inform dose adjustments to achieve blood glucose goals results in lower A1C levels."[1]
+- For **intensive insulin therapy (MDI or pump)**: "Most individuals on intensive insulin therapies should be encouraged to assess glucose levels using BGM (and preferably CGM with BGM backup) prior to meals and snacks, at bedtime, occasionally postprandially, prior to, during, and after physical activity, when they suspect hypoglycemia or hyperglycemia, after treating hypoglycemia until they are normoglycemic, and prior to and while performing critical tasks such as driving. For many individuals using BGM alone, this requires doing finger sticks **6–10 times daily**, although individual needs may vary."[1]
+
+The JAMA 2025 review (Kalyani et al.) synthesizes this as: "For patients only taking basal insulin, **once-daily fasting BGM** can suffice to achieve fasting glucose targets (80–130 mg/dL) and reduce HbA1C." For MDI: "BGM be performed **at a minimum prior to meals and at bedtime** to guide insulin dosing and avoid hypoglycemia."[2]
+
+**AACE 2022 Clinical Practice Guideline (Blonde et al.)**
+
+- **Rec 3.2 (Grade A, BEL 1)**: "All persons who use insulin should use CGM or perform BGM **a minimum of twice daily** and ideally before any insulin injection. More frequent BGM may be needed by persons who are taking multiple insulin injections, persons not at A1C targets, or those with history of hypoglycemia."[3]
+
+**ADA/EASD 2022 Consensus Report (Davies et al., PMID 36151309)**
+
+The retrieved text of the ADA/EASD 2022 consensus report does not contain a specific SMBG frequency recommendation for insulin-treated T2DM. The report focuses on CGM as the preferred monitoring modality and defers to the ADA Standards of Care for BGM specifics. **A specific SMBG testing schedule cannot be grounded in this document from the text retrieved.**[4]
+
+GuidelineBasal insulin onlyMDI / basal-bolusEvidence gradeReferencesADA 2026Fasting BGM to guide titration; no specific frequency stated; "evidence is insufficient"6–10 tests/day (pre-meals, bedtime, as needed)B (Rec 7.11)[1], [2]AACE 2022Minimum 2×/day, ideally before each injectionMore frequent if MDI, not at target, or history of hypoglycemiaA (BEL 1)[3]ADA/EASD 2022No specific SMBG frequency stated in retrieved textDefers to ADA StandardsConsensus report[4]JAMA 2025 (Kalyani)Once-daily fasting BGMPre-meals + bedtime (minimum)Review[5]
+
+[1][2][4][3]
+
+---
+
+**2 — RECOMMENDED FASTING AND POSTPRANDIAL CAPILLARY TARGETS**
+
+**ADA 2026 (Section 6, Table 6.3)**
+
+The ADA 2026 Standards reference **Table 6.3** for glycemic goals in nonpregnant adults. The exact numeric targets as cited in the Cochrane review (Kataoka et al., 2025) and the JAMA review (Kalyani et al., 2025), which directly reproduce the ADA table values, are:[10][2]
+
+- **Preprandial capillary plasma glucose**: **80–130 mg/dL (4.4–7.2 mmol/L)**
+- **Peak postprandial capillary plasma glucose**: **[2]
+- **HbA1c**: [11]
+
+**AACE 2022/2023/2026**
+
+The AACE recommends more stringent targets:[12][13]
+
+- **Fasting glucose**: **[14]
+
+**Comparative table of capillary targets across guidelines**
+
+GuidelineFasting / preprandial targetPostprandial targetTimingHbA1c goalEvidence basis for capillary targetsReferencesADA 202680–130 mg/dL (4.4–7.2 mmol/L)1–2 h post-mealExpert consensus (correlate of HbA1c [1], [2]AACE 2022–20262 h post-meal≤6.5%Expert consensus (correlate of HbA1c ≤6.5%); no separate RCT[3], [4]IDF—Not specifiedExpert consensus[5]
+
+[2][14][10][12]
+
+**Critical appraisal**: No RCT has ever randomized patients to a specific preprandial or postprandial capillary glucose target and measured outcomes. These thresholds are **mathematical correlates** of HbA1c goals that were themselves validated in DCCT/EDIC (T1DM) and UKPDS (T2DM). The capillary targets are therefore **expert consensus** (despite the HbA1c goal being Grade A), and the two must not be conflated.
+
+---
+
+**3 — DE-INTENSIFICATION / OVERTREATMENT IN OLDER ADULTS**
+
+**ADA 2026 (Section 13, "Older Adults")**
+
+The ADA provides **HbA1c-based and CGM-based thresholds** stratified by health status, but **does not specify a capillary glucose threshold below which insulin must be reduced**:
+
+- **Healthy older adults** (few comorbidities, intact cognition/function): HbA1c **[15]
+- **Intermediate/complex health**: HbA1c **[15]
+- **Very complex/poor health**: "Clinicians should focus on avoiding hypoglycemia and symptomatic hyperglycemia." No numeric HbA1c floor is stated. **Grade C.**[15]
+- **Rec 13.14a (Grade B)**: "Deintensify hypoglycemia-causing medications (e.g., insulin, sulfonylureas, or meglitinides) or switch to a medication class with low hypoglycemia risk for individuals who are at high risk for hypoglycemia."[15]
+- **Rec 13.14c (Grade B)**: "Simplify complex treatment plans (especially insulin) to reduce the risk of hypoglycemia and polypharmacy and to decrease treatment burden."[15]
+- The ADA explicitly identifies **intensive glycemic management in older adults with complex health using insulin and/or sulfonylureas** as "overtreatment" that "is common in clinical practice and may increase the risk of mortality."[15]
+
+**Critically, the ADA 2026 does not define a specific fasting glucose floor (e.g., "reduce insulin if fasting glucose [15]
+
+**ADA 2026 (Section 6, "Glycemic Goals")**
+
+- **Rec 6.6 (Grade B)**: "Deintensify hypoglycemia-causing medications (insulin, sulfonylureas, or meglitinides), or switch to a medication class with lower hypoglycemia risk, for individuals who are at high risk for hypoglycemia, within individualized glycemic goals."[11]
+- **Rec 6.3c (Grade B)**: For CGM users, if time [11]
+
+**ACP 2018 Guidance Statement (Qaseem et al., PMID 29507945)**
+
+The American College of Physicians provides the most explicit de-intensification threshold:
+
+- **Guidance Statement 3**: "Clinicians should consider **deintensifying pharmacologic therapy** in patients with type 2 diabetes who achieve **HbA1c levels less than 6.5%**."[16]
+- **Guidance Statement 4**: "Clinicians should treat patients with type 2 diabetes to minimize symptoms related to hyperglycemia and **avoid targeting an HbA1c level** in patients with a life expectancy less than 10 years due to advanced age (80 years or older), residence in a nursing home, or chronic conditions."[16]
+
+The ACP rationale is based on ACCORD (increased mortality with intensive control targeting HbA1c [17]
+
+**VA/DoD 2023 Clinical Practice Guideline**
+
+- HbA1c **6–7%** for patients with life expectancy >10–15 years and absent/mild microvascular complications.
+- HbA1c **7–8.5%** for patients with established complications, comorbidities, or life expectancy 5–10 years.[18]
+- No specific capillary glucose de-intensification threshold is stated.
+
+**Summary of de-intensification thresholds**
+
+GuidelineDe-intensification triggerSpecific glucose floor?Evidence gradeEvidence basisReferencesADA 2026HbA1c below individualized goal on hypoglycemia-causing meds; TBR >4% (>1% in elderly)No specific capillary glucose floorB–CObservational data on overtreatment harms; expert consensus[1], [2]ACP 2018HbA1c No specific capillary glucose floorGuidance statementACCORD, ADVANCE trial data[3], [4]VA/DoD 2023HbA1c below individualized rangeNo specific capillary glucose floorConsensusUKPDS, ACCORD, ADVANCE, VADT[5]AACE 2026FBG Yes: ConsensusExpert consensus (titration algorithm)[6]
+
+[11][15][12][18][16][17]
+
+The AACE 2023/2026 algorithm is the only guideline that provides **explicit capillary glucose thresholds for insulin dose reduction**: reduce by 10–20% if FBG [12][13]
+
+---
+
+**4 — BASAL INSULIN DOSE CEILING**
+
+**No guideline defines a hard pharmacological ceiling** for basal insulin dose. However, two guidelines define **overbasalization** as a signal to stop up-titrating and intensify differently:
+
+**ADA 2026 (Section 9)**
+
+- "Clinicians should also be aware of the potential for **overbasalization** with insulin therapy (i.e., use of higher than clinically necessary and appropriate dose of basal insulin, typically masking insufficient mealtime insulin)."[20]
+- **No numeric dose ceiling is stated.** The ADA does not specify a U/kg/day threshold. The concept is defined qualitatively, not quantitatively. **Grade: not graded** — this is a narrative statement, not a numbered recommendation.
+
+**AACE 2023/2026**
+
+The AACE provides the most explicit numeric threshold:
+
+- "So-called overbasalization may be an issue if there are elevated PPG levels (>180 mg/dL or 10 mmol/L) but the FBG is at goal **or if the basal insulin dose is >0.5 units/kg/day**."[12][13]
+- At that point, prandial insulin should be considered. The AACE 2023 adds: "If the basal insulin dose is >0.5 units/kg/day **or the bedtime minus morning prebreakfast glucose score is >50 mg/dL**, prandial insulin should be considered."[13]
+- **Evidence basis**: This 0.5 U/kg/day threshold is **expert consensus**. It is not derived from a specific RCT that tested outcomes above vs. below this dose. It reflects the clinical observation that beyond ~0.5 U/kg/day, further basal insulin increases yield diminishing returns on fasting glucose while increasing hypoglycemia risk and weight gain, and that residual hyperglycemia is increasingly postprandial rather than fasting.
+
+**Mehta et al. (2021, PMID 34165382) — Narrative review**
+
+- "The dose of basal insulin should be increased as required up to approximately **0.5–1.0 units/kg/day** in some cases. Overbasalization (continuing to escalate dose without a meaningful reduction in fasting plasma glucose) is not recommended."[21]
+
+**Bolli et al. (Diabetes Care 2025)**
+
+- "The final BI dose may vary considerably from 0.2 to 0.3 units/kg to hundreds of units per day, requiring bigger steps and longer titration." This explicitly acknowledges that **no absolute ceiling exists** and that highly insulin-resistant patients may require doses well above 0.5 U/kg/day.[22]
+
+SourceDose ceiling / overbasalization thresholdEvidence basisReferencesADA 2026No numeric threshold; qualitative definition onlyExpert consensus (not graded)[1]AACE 2023/2026>0.5 U/kg/day (or BHS >50 mg/dL, or PPG >180 with FBG at goal)Expert consensus[2], [3]Mehta 20210.5–1.0 U/kg/day range; overbasalization = dose escalation without FBG improvementExpert consensus[4]Bolli 2025No ceiling; doses may reach "hundreds of units" in insulin-resistant patientsExpert opinion[5]
+
+[22][21][20][12][13]
+
+---
+
+**OVERALL EVIDENCE GRADE SUMMARY**
+
+RecommendationSourcePrinted evidence gradeRests on RCT or consensus?ReferencesHbA1c ADA 2026 (Rec 6.3a)**A**RCT (DCCT/EDIC, UKPDS)[1]Preprandial 80–130 mg/dLADA 2026 (Table 6.3)Not separately gradedExpert consensus (correlate of HbA1c [2]Postprandial ADA 2026 (Table 6.3)Not separately gradedExpert consensus (correlate of HbA1c [2]TIR >70%ADA 2026 (Rec 6.3b)**B**Observational + CGM RCTs (surrogate)[1]TBR ADA 2026 (Rec 6.3c)**B**Expert consensus + observational[1]BGM frequency for basal insulinADA 2026 (Rec 7.11)**B**Indirect (titration trials used daily FBG)[3]BGM minimum 2×/day for insulin usersAACE 2022 (Rec 3.2)**A (BEL 1)**Titration trial protocols[4]Fasting target AACE 2022–2026Not separately gradedExpert consensus (correlate of HbA1c ≤6.5%)[5]PPG target AACE 2022–2026Not separately gradedExpert consensus (correlate of HbA1c ≤6.5%)[5]De-intensify if HbA1c ACP 2018Guidance statementACCORD, ADVANCE (RCT-based reasoning)[6]Older adults: HbA1c ADA 2026 (Rec 13.7a–c)**C**Expert consensus[7]Overbasalization threshold >0.5 U/kg/dayAACE 2023/2026Not gradedExpert consensus[7]
+
+[11][15][20][12][10][13][3][16]
+
+---
+
+**KEY TAKE-AWAYS**
+
+The most important finding across all four questions is the **gap between what guidelines recommend and what trial evidence actually supports**:
+
+1. **SMBG frequency**: The ADA explicitly acknowledges that "the evidence is insufficient" for how often to test in basal-insulin-only T2DM. The recommendation for once-daily fasting BGM is pragmatic, derived from the testing protocols embedded in titration trials, not from an RCT comparing different testing frequencies.[1]
+2. **Capillary glucose targets**: The preprandial 80–130 mg/dL and postprandial [10][12]
+3. **De-intensification**: No guideline provides a specific capillary glucose floor for insulin reduction in older adults. The ACP's HbA1c [16][15]
+4. **Basal insulin dose ceiling**: The 0.5 U/kg/day threshold (AACE) is expert consensus, never validated in an RCT. The ADA deliberately avoids a numeric ceiling.[20][12]
+
+Would you like to explore the evidence for specific de-intensification protocols in older adults with insulin-treated T2DM, including the REVERT and SUGAR-MAP trials?
+
+### References
+
+1. 7. Diabetes Technology: Standards of Care in Diabetes-2026. American Diabetes Association Professional Practice Committee for Diabetes*. Diabetes Care. 2026;49(Suppl 1):S150-S165. doi:10.2337/dc26-S007.
+2. Diagnosis and Treatment of Type 2 Diabetes in Adults. Kalyani RR, Neumiller JJ, Maruthur NM, Wexler DJ. JAMA. 2025;334(11):984-1002. doi:10.1001/jama.2025.5956.
+3. American Association of Clinical Endocrinology Clinical Practice Guideline: Developing a Diabetes Mellitus Comprehensive Care Plan-2022 Update. Blonde L, Umpierrez GE, Reddy SS, et al. Endocrine Practice : Official Journal of the American College of Endocrinology and the American Association of Clinical Endocrinologists. 2022;28(10):923-1049. doi:10.1016/j.eprac.2022.08.002.
+4. Management of Hyperglycaemia in Type 2 Diabetes, 2022. A Consensus Report by the American Diabetes Association (ADA) and the European Association for the Study of Diabetes (EASD). Davies MJ, Aroda VR, Collins BS, et al. Diabetologia. 2022;65(12):1925-1966. doi:10.1007/s00125-022-05787-2.
+5. Efficacy of Self Monitoring of Blood Glucose in Patients With Newly Diagnosed Type 2 Diabetes (ESMON Study): Randomised Controlled Trial. O'Kane MJ, Bunting B, Copeland M, Coates VE, ESMON study group. BMJ (Clinical Research Ed.). 2008;336(7654):1174-7. doi:10.1136/bmj.39534.571644.BE.
+6. Impact of Self Monitoring of Blood Glucose in the Management of Patients With Non-Insulin Treated Diabetes: Open Parallel Group Randomised Trial. Farmer A, Wade A, Goyder E, et al. BMJ (Clinical Research Ed.). 2007;335(7611):132. doi:10.1136/bmj.39247.447431.BE.
+7. Cost Effectiveness of Self Monitoring of Blood Glucose in Patients With Non-Insulin Treated Type 2 Diabetes: Economic Evaluation of Data From the DiGEM Trial. Simon J, Gray A, Clarke P, et al. BMJ (Clinical Research Ed.). 2008;336(7654):1177-80. doi:10.1136/bmj.39526.674873.BE.
+8. Structured Self-Monitoring of Blood Glucose Significantly Reduces A1C Levels in Poorly Controlled, Noninsulin-Treated Type 2 Diabetes: Results From the Structured Testing Program Study. Polonsky WH, Fisher L, Schikman CH, et al. Diabetes Care. 2011;34(2):262-7. doi:10.2337/dc10-1732.
+9. A Structured Self-Monitoring of Blood Glucose Approach in Type 2 Diabetes Encourages More Frequent, Intensive, and Effective Physician Interventions: Results From the STeP Study. Polonsky WH, Fisher L, Schikman CH, et al. Diabetes Technology & Therapeutics. 2011;13(8):797-802. doi:10.1089/dia.2011.0073.
+10. Continuous Glucose Monitoring Systems for Adolescents and Adults Living With Type 2 Diabetes Mellitus. Kataoka SY, Tsuge T, Kataoka Y, et al. The Cochrane Database of Systematic Reviews. 2025;10:CD016111. doi:10.1002/14651858.CD016111.
+11. 6. Glycemic Goals, Hypoglycemia, and Hyperglycemic Crises: Standards of Care in Diabetes-2026. American Diabetes Association Professional Practice Committee for Diabetes*. Diabetes Care. 2026;49(Supplement_1):S132-S149. doi:10.2337/dc26-S006.
+12. American Association of Clinical Endocrinology Consensus Statement: Algorithm for Management of Adults With Type 2 Diabetes - 2026 Update. Samson SL, Vellanki P, Blonde L, et al. Endocrine Practice : Official Journal of the American College of Endocrinology and the American Association of Clinical Endocrinologists. 2026;32(4):473-518. doi:10.1016/j.eprac.2026.01.006.
+13. American Association of Clinical Endocrinology Consensus Statement: Comprehensive Type 2 Diabetes Management Algorithm - 2023 Update. Samson SL, Vellanki P, Blonde L, et al. Endocrine Practice : Official Journal of the American College of Endocrinology and the American Association of Clinical Endocrinologists. 2023;29(5):305-340. doi:10.1016/j.eprac.2023.02.001.
+14. Glycaemic Management in Diabetes: Old and New Approaches. Ceriello A, Prattichizzo F, Phillip M, et al. The Lancet. Diabetes & Endocrinology. 2022;10(1):75-84. doi:10.1016/S2213-8587(21)00245-X.
+15. 13. Older Adults: Standards of Care in Diabetes-2026. American Diabetes Association Professional Practice Committee for Diabetes*. Diabetes Care. 2026;49(Suppl 1):S277-S296. doi:10.2337/dc26-S013.
+16. Hemoglobin A1c Targets for Glycemic Control With Pharmacologic Therapy for Nonpregnant Adults With Type 2 Diabetes Mellitus: A Guidance Statement Update From the American College of Physicians. Qaseem A, Wilt TJ, Kansagara D, et al. Annals of Internal Medicine. 2018;168(8):569-576. doi:10.7326/M17-0939.
+17. Glycemic Control in Nonpregnant Adults With Type 2 Diabetes. Tung EL, Davis AM, Laiteerapong N. JAMA. 2018;319(23):2430-2431. doi:10.1001/jama.2018.6798.
+18. Management of Type 2 Diabetes Mellitus (2023). Brian Burke MD, Paul R. Conlin MD, Angela Giles DBH LCSW DAPA, et al. Department of Veterans Affairs.
+19. Intensive Structured Self-Monitoring of Blood Glucose and Glycemic Control in Noninsulin-Treated Type 2 Diabetes: The PRISMA Randomized Trial. Bosi E, Scavini M, Ceriello A, et al. Diabetes Care. 2013;36(10):2887-94. doi:10.2337/dc13-0092.
+20. 9. Pharmacologic Approaches to Glycemic Treatment: Standards of Care in Diabetes-2026. American Diabetes Association Professional Practice Committee for Diabetes*. Diabetes Care. 2026;49(Suppl 1):S183-S215. doi:10.2337/dc26-S009.
+21. Practical Guidance on the Initiation, Titration, and Switching of Basal Insulins: A Narrative Review for Primary Care. Mehta R, Goldenberg R, Katselnik D, Kuritzky L. Annals of Medicine. 2021;53(1):998-1009. doi:10.1080/07853890.2021.1925148.
+22. The Modern Role of Basal Insulin in Advancing Therapy in People With Type 2 Diabetes. Bolli GB, Home PD, Porcellati F, et al. Diabetes Care. 2025;48(5):671-681. doi:10.2337/dci24-0104.
+23. Glucose Self-monitoring in Non–Insulin-Treated Patients With Type 2 Diabetes in Primary Care Settings. Young LA, Buse JB, Weaver MA, et al. JAMA Internal Medicine. 2017;177(7):920-929. doi:10.1001/jamainternmed.2017.1233.

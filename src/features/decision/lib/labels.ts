@@ -108,6 +108,10 @@ const CRITERE_LABELS: Record<string, string> = {
   // Nœud E « Insuline » (docs/decision/noeuds/E-insuline.md §1)
   situation_insuline: "Situation d'insulinothérapie",
   cible_atteinte: 'HbA1c à la cible',
+  // Passe A, 2026-07-29 : le nœud `insuline` déclare désormais `ecart_sous_objectif_cible`, le MÊME nom
+  // et la MÊME dérivation que `prescription` (I4 inter-nœuds) — son libellé est donc celui déjà catalogué
+  // plus bas, aucun ajout ici. À ne pas confondre avec `hba1c_sous_cible`, qui est le plancher ABSOLU
+  // (< 6,5 %) de `prescription` et un concept distinct.
   // ⚠ DEUX dérivés voisins, à ne pas confondre. `risque_hypoglycemique_eleve` = « ce patient est exposé à
   // l'hypoglycémie » → pilote le CHOIX DU TRAITEMENT. `terrain_cible_assouplie` = « ce patient a peu à
   // gagner d'un contrôle strict » (âge / fragilité / horizon de vie) → pilote la CIBLE.
@@ -123,13 +127,28 @@ const CRITERE_LABELS: Record<string, string> = {
   mcg_disponible: 'MCG disponible',
   TIR: 'TIR — temps dans la cible 70-180 mg/dL (%)',
   TBR: 'TBR — temps sous 70 mg/dL (%)',
-  TBR_severe: 'TBR sévère — temps sous 54 mg/dL (%)',
+  // `TBR_severe` : libellé RETIRÉ le 2026-07-29 avec le critère (passe A, arbitrage référent — la
+  // répartition TBR / TBR sévère n'est pas lisible en consultation, même avec capteur). Le laisser ici
+  // aurait fait monter le compte de libellés morts d'I20bis, dont le plafond ne peut que descendre.
   TAR: 'TAR — temps au-dessus de 180 mg/dL (%)',
   CV_glycemique: 'Coefficient de variation glycémique (%)',
   GMI: 'GMI — indicateur de gestion du glucose (%)',
   profil_glycemique: 'Profil glycémique (lecture AGP)',
-  GAJ: 'Glycémie à jeun (g/L)',
+  // « habituelle » est porté par le LIBELLÉ à dessein (arbitrage référent 2026-07-29) : la règle de
+  // descente retenue (ebmfrance) ne réagit pas à une valeur isolée. Cf. le champ `aide` du critère.
+  GAJ: 'Glycémie à jeun habituelle (g/L)',
+  // Passe A, 2026-07-29 : trois états là où il n'y avait qu'une appartenance à l'intervalle.
+  // Bande 0,70-1,30 g/L — borne basse HAS (et seuil international d'hypoglycémie, donc déclencheur de
+  // correction), borne haute SFD 2025 / ADA 2026. Divergence avec HAS (1,20) déclarée dans le nœud.
   gaj_a_cible: 'Glycémie à jeun à la cible',
+  gaj_basse: 'Glycémie à jeun sous la cible (< 0,70 g/L)',
+  gaj_haute: 'Glycémie à jeun au-dessus de la cible (> 1,30 g/L)',
+  // Pivot « avant les repas » (arbitrage référent B, 2026-07-29) : la cible 0,70-1,30 est PRÉ-prandiale,
+  // la glycémie du matin n'en est qu'un cas particulier. Le même seuil, avant un autre repas, juge le
+  // bolus du repas précédent — c'est ainsi que FullSTEP a titré.
+  glycemie_pre_repas: 'Glycémie avant le repas suivant, au repas le moins bien couvert (g/L)',
+  pre_repas_haute: 'Glycémie avant le repas au-dessus de la cible (> 1,30 g/L) — bolus insuffisant',
+  pre_repas_basse: 'Glycémie avant le repas sous la cible (< 0,70 g/L) — bolus trop fort',
   poids: 'Poids (kg)',
   dose_basale_actuelle: 'Dose de basale actuelle (U/j)',
   dose_rapide_actuelle: 'Dose de rapide actuelle (U/j)',
@@ -159,9 +178,12 @@ const CRITERE_LABELS: Record<string, string> = {
     "Metformine déprescriptible (fragilité, en dessous de l'objectif, sans sulfamide, glinide, gliptine ni insuline)",
   // Écarts à la cible (K6) : lus par le SEUL `preremplissage`, jamais par une règle de décision. Ils ne
   // peuvent donc pas apparaître dans un « Proposé parce que » — mais ils sont catalogués comme les autres,
-  // parce qu'une exception nominative dans l'invariant de couverture coûterait plus cher que ces deux lignes.
+  // parce qu'une exception nominative dans l'invariant de couverture coûterait plus cher que ces lignes.
+  // `ecart_sous_objectif_cible` ajouté le 2026-07-29 (passe A, arbitrage référent E) : même nom et même
+  // dérivation que le critère déjà partagé avec `prescription` (I4 inter-nœuds).
   ecart_au_dessus_cible: "HbA1c au-dessus de l'objectif fixé",
   ecart_nettement_au_dessus_cible: "HbA1c à 1 point ou plus au-dessus de l'objectif fixé",
+  ecart_sous_objectif_cible: "HbA1c à 1 point ou plus en dessous de l'objectif fixé",
   // Nœud F « Statine » — le champ qui dit si le geste est DÉJÀ FAIT (R9).
   statine_deja_en_place: 'Statine déjà en place',
   // Nœud E « Insuline » — complément AGP.
