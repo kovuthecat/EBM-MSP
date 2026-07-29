@@ -18,7 +18,7 @@
  * `touched` d'avant le premier, et le test ne distinguerait pas un correctif réel d'un correctif qui se
  * contente d'appeler la bonne fonction sans que l'écran en tienne compte.
  */
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
 import { useState } from 'react'
 import { afterEach, describe, expect, it } from 'vitest'
 import type { CritereEntree } from '../content/node.types'
@@ -113,5 +113,65 @@ describe('CriteriaForm — reclic sur un segment déjà sélectionné désélect
     fireEvent.click(eleve)
     expect(faible.getAttribute('aria-pressed')).toBe('false')
     expect(eleve.getAttribute('aria-pressed')).toBe('true')
+  })
+})
+
+/**
+ * P6 · SB2 — accordéon par groupe : le DYNAMIQUE (« ouvrir une section referme les autres »), qu'un HTML
+ * statique ne peut pas rejouer — `CriteriaForm.test.tsx` vérifie déjà, en statique, l'état INITIAL (une
+ * seule grille au premier rendu) et le résumé générique d'une section repliée ; ce fichier vérifie le
+ * GESTE : cliquer sur une autre chip fait bien basculer LAQUELLE des sections est ouverte, jamais s'en
+ * ajouter une deuxième à côté.
+ */
+describe('CriteriaForm — accordéon : ouvrir une section referme les autres (P6 · SB2)', () => {
+  const CRITERES: CritereEntree[] = [
+    { nom: 'a', type: 'bool', groupe: 'Alpha' },
+    { nom: 'b', type: 'bool', groupe: 'Beta' },
+    { nom: 'c', type: 'bool', groupe: 'Gamma' },
+  ]
+
+  function Harnais() {
+    const [criteria, setCriteria] = useState<Criteria>(() => buildDefaultCriteria(CRITERES))
+    const [touched, setTouched] = useState<ReadonlySet<string>>(new Set())
+    const onChange = (nom: string, valeur: CriteriaValue) => {
+      setCriteria((c) => ({ ...c, [nom]: valeur }))
+      setTouched((t) => new Set(t).add(nom))
+    }
+    return <CriteriaForm criteresEntree={CRITERES} criteria={criteria} touched={touched} onChange={onChange} />
+  }
+
+  it('cliquer sur la chip « Beta » ouvre Beta et referme Alpha — une seule `.criteria-form__grid` à la fois', () => {
+    const { container } = render(<Harnais />)
+    const nav = container.querySelector('.criteria-form__group-nav')
+    if (!nav) throw new Error('barre de chips introuvable')
+
+    // État initial : « Alpha » (premier groupe déclaré) ouvert par défaut.
+    expect(container.querySelectorAll('.criteria-form__grid').length).toBe(1)
+    expect(container.querySelectorAll('.criteria-form__group-resume').length).toBe(2)
+    expect(within(nav as HTMLElement).getByRole('button', { name: 'Alpha' }).getAttribute('aria-pressed')).toBe(
+      'true',
+    )
+
+    fireEvent.click(within(nav as HTMLElement).getByRole('button', { name: 'Beta' }))
+
+    // Toujours UNE seule grille — Beta a REMPLACÉ Alpha, pas ajouté une deuxième section ouverte.
+    expect(container.querySelectorAll('.criteria-form__grid').length).toBe(1)
+    expect(container.querySelectorAll('.criteria-form__group-resume').length).toBe(2)
+    expect(within(nav as HTMLElement).getByRole('button', { name: 'Alpha' }).getAttribute('aria-pressed')).toBe(
+      'false',
+    )
+    expect(within(nav as HTMLElement).getByRole('button', { name: 'Beta' }).getAttribute('aria-pressed')).toBe(
+      'true',
+    )
+    // « Alpha », redevenu replié, porte désormais son propre résumé générique (jamais touché → vierge).
+    // Isolé par SA section (pas par la chip, qui existe aussi dans la nav sous le même nom accessible) :
+    // repéré via le bouton d'ouverture propre à la section repliée (`.criteria-form__group-header-bouton`,
+    // hors de la barre de chips).
+    const sections = [...container.querySelectorAll('section.criteria-form__group')]
+    const alphaSection = sections.find(
+      (section) => section.querySelector('.criteria-form__group-header-bouton')?.textContent === 'Alpha',
+    )
+    if (!alphaSection) throw new Error('section « Alpha » introuvable')
+    expect(alphaSection.textContent).toContain('Aucun champ renseigné')
   })
 })

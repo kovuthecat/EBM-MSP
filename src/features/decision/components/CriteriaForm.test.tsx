@@ -71,10 +71,14 @@ describe('CriteriaForm — critère de type `liste`', () => {
 // apparaître que sur les critères de type `nombre` — une case décoche non cochée EST une réponse
 // clinique complète (« non »), la marquer « à confirmer » suggère à tort qu'il faut la cocher.
 describe('CriteriaForm — marqueur « à confirmer » restreint aux `nombre` (tâche 3)', () => {
+  // MÊME `groupe` pour les trois (P6 · SB2, accordéon) : ce describe teste le marqueur PAR CHAMP, pas le
+  // groupement — deux groupes distincts replieraient le second par défaut et retireraient ses champs du
+  // HTML statique (`react-dom/server` ne rejoue aucun clic pour rouvrir une section). Le regroupement en
+  // sections est couvert ailleurs (`lib/formLayout.test.ts`).
   const CRITERES: CritereEntree[] = [
-    { nom: 'HbA1c_actuelle', type: 'nombre', groupe: 'Contrôle' },
-    { nom: 'ASCVD_etablie', type: 'bool', groupe: 'Comorbidités' },
-    { nom: 'albuminurie', type: 'enum', valeurs: ['normo', 'macro'], groupe: 'Comorbidités' },
+    { nom: 'HbA1c_actuelle', type: 'nombre', groupe: 'Section' },
+    { nom: 'ASCVD_etablie', type: 'bool', groupe: 'Section' },
+    { nom: 'albuminurie', type: 'enum', valeurs: ['normo', 'macro'], groupe: 'Section' },
   ]
 
   const rendre = (aConfirmer: Set<string>) =>
@@ -168,10 +172,13 @@ describe('CriteriaForm — `bool` `confirmation_requise` porte le marqueur « à
   // moteur), le marqueur suit `aConfirmer.has(nom)` quel que soit le type — la distinction que ce fixture
   // documentait (un bool `confirmation_requise` vs un bool ordinaire) est désormais côté MOTEUR
   // (`presomption_non`, `deriveCritere.ts`), plus testable en HTML statique avec un `aConfirmer` fabriqué.
+  // MÊME `groupe` pour les trois (P6 · SB2, accordéon) — même raison que le describe précédent : ce
+  // test porte sur le marqueur PAR CHAMP, pas sur le groupement, et un HTML statique (react-dom/server)
+  // ne peut pas rouvrir une section repliée par défaut.
   const CRITERES: CritereEntree[] = [
-    { nom: 'HbA1c_actuelle', type: 'nombre', groupe: 'Contrôle' },
-    { nom: 'diabete_complique', type: 'bool', groupe: 'Comorbidités' },
-    { nom: 'ASCVD_etablie', type: 'bool', groupe: 'Comorbidités' },
+    { nom: 'HbA1c_actuelle', type: 'nombre', groupe: 'Section' },
+    { nom: 'diabete_complique', type: 'bool', groupe: 'Section' },
+    { nom: 'ASCVD_etablie', type: 'bool', groupe: 'Section' },
   ]
 
   const rendre = (aConfirmer: Set<string>) =>
@@ -481,5 +488,93 @@ describe('CriteriaForm — texte d’aide de contenu (`aide`)', () => {
     const finLabel = debut.indexOf('</label>')
     const posAide = debut.indexOf('Au moins un de ces trois signes.')
     expect(posAide).toBeGreaterThan(finLabel)
+  })
+})
+
+/**
+ * P6 · SB2 — accordéon par groupe. Trois propriétés verrouillées par la Décision clé de la tâche : une
+ * seule section ouverte à la fois (ici, vérifié à l'état INITIAL — le dynamique, « cliquer sur une chip
+ * en ferme une autre », est couvert côté RTL par `CriteriaForm.interaction.test.tsx`, ce fichier restant
+ * en HTML statique) ; le résumé d'une section repliée est GÉNÉRIQUE (`Libellé : valeur`, jamais une
+ * phrase rédigée pour un nœud) ; la visibilité `visible_si` n'est ni court-circuitée ni redondée par le
+ * pli/dépli.
+ */
+describe('CriteriaForm — accordéon par groupe (P6 · SB2)', () => {
+  const CRITERES: CritereEntree[] = [
+    { nom: 'intention', type: 'enum', valeurs: ['initier', 'optimiser'], groupe: 'Intention' },
+    { nom: 'HbA1c_actuelle', type: 'nombre', groupe: 'Contrôle' },
+    { nom: 'ASCVD_etablie', type: 'bool', groupe: 'Contrôle' },
+    {
+      nom: 'traitements_en_cours',
+      type: 'liste',
+      valeurs: ['metformine'],
+      groupe: 'Contrôle',
+      visible_si: 'intention != initier',
+    },
+  ]
+
+  it('une seule grille de champs dans le HTML rendu : le premier groupe (Intention) est ouvert, « Contrôle » replié avec un résumé', () => {
+    const html = renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={CRITERES}
+        criteria={buildDefaultCriteria(CRITERES)}
+        touched={new Set()}
+        onChange={() => {}}
+      />,
+    )
+    expect(html.match(/criteria-form__grid/g)?.length).toBe(1)
+    expect(html).toContain('criteria-form__group-resume')
+    // Groupe « Contrôle » entièrement vierge → texte fixe générique, le même quel que soit le nœud.
+    expect(html).toContain('Aucun champ renseigné')
+  })
+
+  it('résumé générique d’une section repliée : « Libellé : valeur » par champ RENSEIGNÉ, jamais une phrase rédigée à la main', () => {
+    const criteria = { ...buildDefaultCriteria(CRITERES), HbA1c_actuelle: 9, ASCVD_etablie: true }
+    const html = renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={CRITERES}
+        criteria={criteria}
+        touched={new Set(['HbA1c_actuelle', 'ASCVD_etablie'])}
+        onChange={() => {}}
+      />,
+    )
+    // « Contrôle » reste le groupe replié (« Intention » est premier, ouvert par défaut) : son résumé
+    // réutilise EXACTEMENT `labelForCritere`/la valeur brute pour un `nombre` — aucun texte composé.
+    expect(html).toContain('HbA1c actuelle (%) : 9')
+    expect(html).toContain('Maladie cardiovasculaire athéromateuse établie : Oui')
+  })
+
+  it("un champ masqué par `visible_si` reste absent — l'accordéon ne court-circuite ni ne contourne la visibilité (D30, R7/R8)", () => {
+    // `traitements_en_cours` est TOUCHÉ (une vraie valeur cochée) mais son `visible_si` est FAUX
+    // (`intention` déterminé à `initier`) : il doit disparaître intégralement, y compris du résumé
+    // générique d'une section repliée — pas seulement de la grille d'une section ouverte.
+    const criteria = { ...buildDefaultCriteria(CRITERES), intention: 'initier', traitements_en_cours: ['metformine'] }
+    const html = renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={CRITERES}
+        criteria={criteria}
+        touched={new Set(['intention', 'traitements_en_cours'])}
+        onChange={() => {}}
+      />,
+    )
+    expect(html).not.toContain('Traitements en cours')
+  })
+
+  it('nœud à un seul groupe : ni barre de chips, ni bouton « Suivant » — la section reste toujours ouverte', () => {
+    const UN_SEUL_GROUPE: CritereEntree[] = [
+      { nom: 'age', type: 'nombre', groupe: 'Section' },
+      { nom: 'fragilite', type: 'bool', groupe: 'Section' },
+    ]
+    const html = renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={UN_SEUL_GROUPE}
+        criteria={buildDefaultCriteria(UN_SEUL_GROUPE)}
+        touched={new Set()}
+        onChange={() => {}}
+      />,
+    )
+    expect(html).not.toContain('criteria-form__group-nav')
+    expect(html).not.toContain('Suivant :')
+    expect(html).toContain('criteria-form__grid')
   })
 })

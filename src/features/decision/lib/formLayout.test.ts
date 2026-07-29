@@ -262,6 +262,65 @@ describe('decisifsAConfirmer — le contenu réel du nœud `prescription`', () =
   })
 })
 
+/**
+ * P6/SA3 (T-044) — SB4 avait constaté que `insuline` était le seul nœud DT2 sans aucun `groupe` déclaré :
+ * `grouperChamps` y renvoyait donc un groupe unique, désactivant l'accordéon générique (P6/SB2,
+ * `CriteriaForm.tsx` : `accordeon = groupes.length > 1`). Cette session pose `groupe` sur les 22 critères
+ * saisissables du nœud, en 6 sections ; ce test vérifie l'effet mesurable — plusieurs groupes, dans l'ordre
+ * clinique voulu — sur le contenu RÉEL, pas une reconstitution synthétique.
+ */
+describe('grouperChamps — le contenu réel du nœud `insuline` (P6/SA3)', () => {
+  const node = getNoeudById('insuline')
+  if (!node) throw new Error('Nœud "insuline" introuvable.')
+
+  const GROUPES_ATTENDUS = [
+    "Situation d'insulinothérapie",
+    'Profil et objectif glycémique',
+    'Traitement actuel',
+    'Surveillance glycémique',
+    "Signaux d'alerte et tolérance",
+    'Terrain',
+  ]
+
+  it('produit désormais PLUSIEURS groupes (pas un seul) — condition d’activation de l’accordéon', () => {
+    const groupes = grouperChamps(node.criteres_entree, buildDefaultCriteria(node.criteres_entree))
+    expect(groupes.length).toBeGreaterThan(1)
+  })
+
+  it('ordonne les 6 sections selon le raisonnement clinique (ordre de 1re apparition)', () => {
+    // Formulaire vierge + situation != naif pour que les groupes masqués par défaut (surveillance,
+    // traitement en cours) soient comptés eux aussi : `situation_insuline` vaut sa 1re valeur déclarée
+    // (`naif`) sur un formulaire vierge, ce qui masquerait `traitements_en_cours`/`mcg_disponible`/etc.
+    const criteria = { ...buildDefaultCriteria(node.criteres_entree), situation_insuline: 'basale_plus_bolus' }
+    const groupes = grouperChamps(node.criteres_entree, criteria)
+    expect(groupes.map((g) => g.libelle)).toEqual(GROUPES_ATTENDUS)
+  })
+
+  it('chaque champ rendu (formulaire vierge) appartient à l’un des 6 groupes attendus', () => {
+    const groupes = grouperChamps(node.criteres_entree, buildDefaultCriteria(node.criteres_entree))
+    for (const groupe of groupes) {
+      expect(GROUPES_ATTENDUS).toContain(groupe.libelle)
+    }
+  })
+
+  it('ne rend jamais un critère `derive` — les 7 dérivés du nœud restent hors formulaire', () => {
+    const rendus = grouperChamps(node.criteres_entree, buildDefaultCriteria(node.criteres_entree)).flatMap((g) =>
+      g.champs.map((c) => c.nom),
+    )
+    for (const derive of [
+      'cible_atteinte',
+      'risque_hypoglycemique_eleve',
+      'terrain_cible_assouplie',
+      'gaj_a_cible',
+      'profil_nocturne_permet_titration',
+      'profil_nocturne_a_cible',
+      'over_basalisation',
+    ]) {
+      expect(rendus).not.toContain(derive)
+    }
+  })
+})
+
 describe('tous les nœuds du contenu', () => {
   it('déclarent des `visible_si` évaluables sur leurs valeurs par défaut', () => {
     for (const id of ['cible-glycemique', 'prescription', 'insuline', 'rhd-alimentation', 'rhd-activite-physique', 'statine']) {

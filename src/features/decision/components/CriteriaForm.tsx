@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import type { Contrainte, CritereEntree } from '../content/node.types'
 import type { Criteria, CriteriaValue } from '../engine/conditions'
 import { criteresPilotes, grouperChamps, valeursProposeesDepuisSaisie } from '../lib/formLayout'
@@ -105,12 +105,20 @@ const MAX_VALEURS_SEGMENTE = 4
 export { buildDefaultCriteria } from '../lib/formLayout'
 
 /**
- * Formulaire de critères (T-006 étape 1, refondu en P3 · S7‑ui Lot 2). Ordonné par le CONTENU : sections
- * `groupe` dans l'ordre de première apparition, champs dans l'ordre de déclaration, champs sans objet
- * masqués par `visible_si` (`lib/formLayout.ts`). Le type d'input dérive du `type` de contenu (`nombre` →
- * input number, `enum` court → boutons segmentés, `enum` long → select, `bool` → case, `liste` → cases
- * multiples). Générique : aucun nom de critère ni de nœud connu d'avance (DECISIONS.md D8) — le
- * raisonnement clinique qui dicte l'ordre vit dans le YAML, pas ici.
+ * Formulaire de critères (T-006 étape 1, refondu en P3 · S7‑ui Lot 2, accordéon en P6 · SB2). Ordonné par
+ * le CONTENU : sections `groupe` dans l'ordre de première apparition, champs dans l'ordre de déclaration,
+ * champs sans objet masqués par `visible_si` (`lib/formLayout.ts`). Le type d'input dérive du `type` de
+ * contenu (`nombre` → input number, `enum` court → boutons segmentés, `enum` long → select, `bool` →
+ * case, `liste` → cases multiples). Générique : aucun nom de critère ni de nœud connu d'avance
+ * (DECISIONS.md D8) — le raisonnement clinique qui dicte l'ordre vit dans le YAML, pas ici.
+ *
+ * ACCORDÉON (P6 · SB2) : au-delà d'UN groupe, les sections deviennent repliables — une seule ouverte à la
+ * fois, une barre de chips en tête pour naviguer, un résumé générique quand une section est repliée
+ * (`resumeGroupe` ci-dessous, dérivé de `labelForCritere`/`labelForEnumValue`, jamais une phrase rédigée
+ * à la main pour un nœud particulier — invariant 5). Un nœud à UN SEUL groupe n'a ni accordéon ni barre de
+ * chips : la section reste toujours ouverte, comportement historique inchangé. Pure présentation, comme
+ * le reste de ce fichier : la visibilité `visible_si` (`grouperChamps`, calculée AVANT ce découpage) n'est
+ * ni recalculée ni contournée par le pli/dépli — un champ masqué le reste, ouvert ou replié.
  */
 export function CriteriaForm({
   criteresEntree,
@@ -132,6 +140,72 @@ export function CriteriaForm({
   // `champEstVisible`, `lib/formLayout.ts`), jamais masqué sur une donnée qu'on ignore encore — cf.
   // `criteriaGroupement`/`touched` ci-dessus : même source que partout ailleurs dans cet écran.
   const groupes = grouperChamps(criteresEntree, criteriaGroupement ?? criteria, touched)
+
+  // ACCORDÉON (P6 · SB2). Clé stable d'un groupe = son libellé, avec le MÊME repli que la `key` React du
+  // `<section>` ci-dessous (`__sans-groupe-${index}`) pour un nœud sans `groupe` déclaré — dans ce cas il
+  // n'y a de toute façon qu'UN groupe, donc jamais d'accordéon (cf. `accordeon` ci-dessous).
+  const clesGroupes = groupes.map((groupe, index) => groupe.libelle ?? `__sans-groupe-${index}`)
+  // Décision clé (SB2.md) : « Nœud à une seule section : pas d'accordéon ni de barre de chips — la
+  // section reste simplement toujours ouverte. »
+  const accordeon = groupes.length > 1
+
+  // `null` tant que le praticien n'a rien cliqué : le groupe ouvert par défaut est TOUJOURS le premier de
+  // `groupes` (repli calculé à chaque rendu, pas figé une fois pour toutes) — s'il disparaît (tous ses
+  // champs redevenus masqués, `grouperChamps` retire le groupe entier), le repère de départ suit
+  // naturellement le nouveau premier groupe plutôt que de pointer sur une section qui n'existe plus.
+  const [groupeOuvertManuel, setGroupeOuvertManuel] = useState<string | null>(null)
+  const groupeOuvert = accordeon
+    ? groupeOuvertManuel != null && clesGroupes.includes(groupeOuvertManuel)
+      ? groupeOuvertManuel
+      : clesGroupes[0]
+    : null
+
+  // Sections déjà montées (persistent qu'elles soient ouvertes ou repliées, seul leur CONTENU change) :
+  // permet de scroller vers une section tout juste choisie sans attendre le prochain rendu.
+  const sectionsMontees = useRef(new Map<string, HTMLElement>())
+  const ouvrirGroupe = (cle: string) => {
+    setGroupeOuvertManuel(cle)
+    sectionsMontees.current.get(cle)?.scrollIntoView?.({ behavior: 'smooth', block: 'start' })
+  }
+
+  /** Nombre de champs « à confirmer » (même définition que le marqueur par champ, `estAConfirmer` plus
+   *  bas) dans un groupe — pour le badge de la barre de chips. Trivial à dériver de ce qui existe déjà
+   *  (`aConfirmer`, `groupes`) : pas besoin de toucher `lib/formLayout.ts` pour ce compteur. */
+  const compteurAConfirmer = (champs: CritereEntree[]) =>
+    aConfirmer ? champs.filter((c) => aConfirmer.has(c.nom)).length : 0
+
+  /**
+   * Valeur affichée d'un champ RENSEIGNÉ, pour le résumé d'une section repliée. `null` si rien à montrer
+   * (champ jamais `touched`, ou `liste` cochée puis entièrement décochée). Formatage GÉNÉRIQUE par type,
+   * même registre que le rendu du champ ouvert (`labelForEnumValue` déjà utilisé plus bas) — aucune
+   * phrase composée à la main pour un nœud particulier (Décision clé, SB2.md).
+   */
+  const valeurResumeChamp = (critere: CritereEntree): string | null => {
+    if (!touched.has(critere.nom)) return null
+    const valeur = criteria[critere.nom]
+    if (critere.type === 'liste') {
+      const valeurs = Array.isArray(valeur) ? valeur : []
+      if (valeurs.length === 0) return null
+      return valeurs.map(labelForEnumValue).join(', ')
+    }
+    if (critere.type === 'bool') return valeur ? 'Oui' : 'Non'
+    if (critere.type === 'nombre') return valeur === '' || valeur == null ? null : String(valeur)
+    // `enum` : la valeur par défaut (première déclarée) ne peut pas apparaître ici sans `touched`, déjà
+    // écarté par la garde ci-dessus.
+    return valeur ? labelForEnumValue(String(valeur)) : null
+  }
+
+  /** Résumé d'une ligne pour une section repliée : `Libellé : valeur` par champ renseigné, séparés par
+   *  « · ». Texte fixe si aucun champ du groupe n'est renseigné — le même quel que soit le nœud. */
+  const resumeGroupe = (champs: CritereEntree[]): string => {
+    const parties = champs
+      .map((c) => {
+        const v = valeurResumeChamp(c)
+        return v == null ? null : `${labelForCritere(c.nom)} : ${v}`
+      })
+      .filter((partie): partie is string => partie != null)
+    return parties.length > 0 ? parties.join(' · ') : 'Aucun champ renseigné'
+  }
 
   // A7 (arbitrage référent, 2026-07-27 soir) : REPÈRE DE DÉPART. Propriété structurelle du nœud, donc
   // calculée une fois — `criteresPilotes` ne lit ni `criteria` ni `touched` (cf. sa docstring).
@@ -433,6 +507,34 @@ export function CriteriaForm({
           ))}
         </div>
       )}
+      {/* Barre de chips (SB2) : UNIQUEMENT au-delà d'un groupe (Décision clé, « Nœud à une seule
+          section : pas d'accordéon ni de barre de chips »). Même registre `aria-pressed` que les boutons
+          segmentés du champ `enum` ci-dessus (A9) plutôt que le pattern ARIA `tab`/`tablist` — celui-ci
+          suppose une navigation clavier (flèches, roving tabindex) que ce composant n'implémente pas ; un
+          rôle `tab` sans ce comportement serait une promesse d'accessibilité non tenue. */}
+      {accordeon && (
+        <div className="criteria-form__group-nav" role="group" aria-label="Sections du formulaire">
+          {groupes.map((groupe, index) => {
+            const cle = clesGroupes[index]
+            const compte = compteurAConfirmer(groupe.champs)
+            const estOuvert = cle === groupeOuvert
+            return (
+              <button
+                key={cle}
+                type="button"
+                className="criteria-form__group-nav-item"
+                data-on={estOuvert || undefined}
+                aria-pressed={estOuvert}
+                onClick={() => ouvrirGroupe(cle)}
+              >
+                {groupe.libelle ?? 'Critères du patient'}
+                {compte > 0 && <span className="criteria-form__group-nav-badge">{compte}</span>}
+              </button>
+            )
+          })}
+        </div>
+      )}
+
       {groupes.map((groupe, index) => {
         // Pied de section (tâches 4 & 5) : entièrement dérivé du TYPE + de `aConfirmer`, aucun nom de
         // champ ni de section en dur (invariant 5). Deux informations indépendantes, qui peuvent cohabiter :
@@ -451,29 +553,73 @@ export function CriteriaForm({
         const confirmerBools = boolsAConfirmer.length >= 1 ? onConfirmerChamps : undefined
         const afficherPiedDeSection = nombresARenseigner.length > 0 || confirmerBools != null
 
-        return (
-          <section key={groupe.libelle ?? `__sans-groupe-${index}`} className="criteria-form__group">
-            {/* Repli sans `groupe` déclaré : intitulé historique unique, pour ne pas laisser la section nue. */}
-            <div className="criteria-form__label">{groupe.libelle ?? 'Critères du patient'}</div>
-            <div className="criteria-form__grid">{groupe.champs.map(renderChamp)}</div>
+        const cle = clesGroupes[index]
+        // Sans accordéon (un seul groupe) : TOUJOURS ouvert, comportement historique inchangé.
+        const estOuvert = !accordeon || cle === groupeOuvert
+        const groupeSuivant = accordeon && index < groupes.length - 1 ? groupes[index + 1] : null
 
-            {afficherPiedDeSection && (
-              <div className="criteria-form__group-footer">
-                {nombresARenseigner.length > 0 && (
-                  <p className="criteria-form__group-reminder">
-                    À renseigner dans cette section : {nombresARenseigner.map((c) => labelForCritere(c.nom)).join(', ')}
-                  </p>
+        return (
+          <section
+            key={cle}
+            className="criteria-form__group"
+            ref={(el) => {
+              if (el) sectionsMontees.current.set(cle, el)
+              else sectionsMontees.current.delete(cle)
+            }}
+          >
+            {/* Repli sans `groupe` déclaré : intitulé historique unique, pour ne pas laisser la section nue. */}
+            {estOuvert ? (
+              <div className="criteria-form__label">{groupe.libelle ?? 'Critères du patient'}</div>
+            ) : (
+              // Section repliée : le libellé devient LUI-MÊME un bouton d'ouverture — le « bouton pour
+              // l'ouvrir » de la Décision clé, distinct du clic sur la barre de chips (qui couvre déjà
+              // l'ouverture, mais depuis le haut du formulaire plutôt que depuis la section elle-même).
+              <button
+                type="button"
+                className="criteria-form__label criteria-form__group-header-bouton"
+                onClick={() => ouvrirGroupe(cle)}
+              >
+                {groupe.libelle ?? 'Critères du patient'}
+              </button>
+            )}
+
+            {estOuvert ? (
+              <>
+                <div className="criteria-form__grid">{groupe.champs.map(renderChamp)}</div>
+
+                {afficherPiedDeSection && (
+                  <div className="criteria-form__group-footer">
+                    {nombresARenseigner.length > 0 && (
+                      <p className="criteria-form__group-reminder">
+                        À renseigner dans cette section : {nombresARenseigner.map((c) => labelForCritere(c.nom)).join(', ')}
+                      </p>
+                    )}
+                    {confirmerBools != null && (
+                      <button
+                        type="button"
+                        className="criteria-form__group-rien"
+                        onClick={() => confirmerBools(boolsAConfirmer.map((c) => c.nom))}
+                      >
+                        Rien à signaler
+                      </button>
+                    )}
+                  </div>
                 )}
-                {confirmerBools != null && (
-                  <button
-                    type="button"
-                    className="criteria-form__group-rien"
-                    onClick={() => confirmerBools(boolsAConfirmer.map((c) => c.nom))}
-                  >
-                    Rien à signaler
-                  </button>
+
+                {groupeSuivant && (
+                  <div className="criteria-form__group-suivant">
+                    <button
+                      type="button"
+                      className="criteria-form__group-suivant-bouton"
+                      onClick={() => ouvrirGroupe(clesGroupes[index + 1])}
+                    >
+                      Suivant : {groupeSuivant.libelle ?? 'section suivante'} →
+                    </button>
+                  </div>
                 )}
-              </div>
+              </>
+            ) : (
+              <div className="criteria-form__group-resume">{resumeGroupe(groupe.champs)}</div>
             )}
           </section>
         )
