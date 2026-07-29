@@ -38,11 +38,18 @@ changement de modèle/effort = séparation ; une **gate humaine** après S2 avan
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [S1](S1.md) | T-011 | Inventaire mécanique (extraction) | Haiku | low | — | `docs/decision/validation/inventaire.json` | [x] |
 | [S2](S2.md) | T-012 | Audit de cohérence des **valeurs** + carte | Sonnet | medium | S1 | `docs/decision/validation/carte-coherence.md` | [x] |
-| [S3](S3.md) | T-013 | Red-team **données inter-nœuds** (validité EBM globale) | Opus | max | S1, S2 | `docs/decision/validation/findings-donnees.md` | [ ] |
-| [S4](S4.md) | T-014 | Vignettes cliniques (génération + confrontation) | Opus | xhigh | S1, S2 | `docs/decision/validation/vignettes/`, `findings-parcours.md` | [ ] |
-| [S5](S5.md) | T-015 | Red-team contradictoire (personas hostiles) | Opus | high | S1, S2 | `docs/decision/validation/findings-contradictoire.md` | [ ] |
-| [S6](S6.md) | T-016 | Vérification adversariale des findings (anti-faux-positif) | Opus | xhigh | S3, S4, S5 | `docs/decision/validation/findings-confirmes.md` | [ ] |
-| [S7](S7.md) | T-017 | Synthèse, priorisation + squelettes de défendabilité | Opus | xhigh | S6 | `docs/decision/validation/RAPPORT.md`, `registres/` | [ ] |
+| [S3](S3.md) | T-013 | Red-team **données inter-nœuds** (validité EBM globale) | Opus | max | S1, S2 | `docs/decision/validation/findings-donnees.md` | [x]¹ |
+| [S4](S4.md) | T-014 | Vignettes cliniques (génération + confrontation) | Opus | xhigh | S1, S2 | `docs/decision/validation/vignettes/`, `findings-parcours.md` | [x]¹ |
+| [S5](S5.md) | T-015 | Red-team contradictoire (personas hostiles) | Opus | high | S1, S2 | `docs/decision/validation/findings-contradictoire.md` | [x]¹ |
+| [S6](S6.md) | T-016 | Vérification adversariale des findings (anti-faux-positif) | Opus | xhigh | S3, S4, S5 | `docs/decision/validation/findings-confirmes.md` | [x]¹ |
+| [S7](S7.md) | T-017 | Synthèse, priorisation + squelettes de défendabilité | Opus | xhigh | S6 | `docs/decision/validation/RAPPORT.md`, `registres/` | [x]¹ |
+
+¹ **Tranché par Thibault le 2026-07-29** : coché avec renvoi plutôt qu'exécuté tel quel — l'objet a été
+couvert dans les faits par un chemin différent : T-013 par le red-team clinique nœud par nœud
+(2026-07-26/27, `docs/decision/validation/chantier-2026-07-27/`) ; T-014 par les bancs de vignettes par
+nœud (`engine/banc/`) ; T-015 par les passes de recette « praticien naïf » (2026-07-28) ; T-016 par les
+vérifications bi-agents des nœuds C/D/E/F/H (2026-07-23/24) ; T-017 par les rapports
+`verif-finale-*`/`BILAN-*` par nœud (pas un rapport systémique unique).
 
 ## Ordonnancement
 

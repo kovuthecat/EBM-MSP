@@ -28,3 +28,6 @@ collecte/*.json
 
 # Sources cliniques (PDF Prescrire/SFD/HAS) : droit d'auteur + binaire — hors repo, cf. docs/decision/sources/prescrire-dt2.md
 docs/decision/sources/*.pdf
+
+# Marqueur local de vague parallèle (WORKFLOW.md §4b) — jamais versionné
+.claude/wave.lock
