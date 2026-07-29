@@ -51,13 +51,16 @@ argumentaire_exhaustif: "insuline.argumentaire.md"
 criteres_entree:
   - nom: situation_insuline
     type: enum
+    groupe: Situation d'insulinothérapie
     valeurs: [naif, basale_seule, basale_plus_bolus, basal_bolus]
   - nom: age
     type: nombre
+    groupe: Profil et objectif glycémique
     min: 18
     max: 105
   - nom: HbA1c_actuelle
     type: nombre
+    groupe: Profil et objectif glycémique
     min: 4
     max: 18
     # K6 (décision référent, 2026-07-27) : cette valeur SAISIE est reprise d'un nœud à l'autre dans la
@@ -67,6 +70,7 @@ criteres_entree:
     partage: true
   - nom: HbA1c_cible
     type: nombre
+    groupe: Profil et objectif glycémique
     min: 6
     max: 9.5
     partage: true
@@ -75,52 +79,12 @@ criteres_entree:
     derive: "HbA1c_actuelle <= HbA1c_cible"
   - nom: DFG
     type: nombre
+    groupe: Profil et objectif glycémique
     min: 3
     max: 150
-  - nom: fragilite
-    type: bool
-  - nom: esperance_vie
-    type: enum
-    valeurs: [longue, intermediaire, limitee]
-  - nom: risque_hypoglycemie_schema
-    type: enum
-    valeurs: [faible, eleve]
-  # DEUX dérivés de terrain, volontairement DISTINCTS (arbitrage référent 2026-07-27). Ce ne sont pas
-  # deux encodages d'un même concept (ce que I4 interdit) mais deux concepts que la fusion confondait :
-  #   - `risque_hypoglycemique_eleve` = « ce patient est exposé à l'hypoglycémie » → pilote le CHOIX DU TRAITEMENT
-  #     (analogue de 2ᵉ génération, désintensification) ;
-  #   - `terrain_cible_assouplie` = « ce patient a peu à gagner d'un contrôle strict » → pilote la CIBLE.
-  # Principe référent, énoncé le 2026-07-27 : « la cible doit être assouplie en fonction des comorbidités
-  # et de l'impact supposé des complications à long terme. Des hypos sévères appellent à une OPTIMISATION
-  # DU TRAITEMENT, pas à un assouplissement des cibles. » C'est le même principe qui lui avait déjà fait
-  # retirer `risque_hypoglycemie_schema` du nœud A (cible glycémique) : un risque hypoglycémique est une
-  # propriété du SCHÉMA, qu'on corrige — jamais une raison de renoncer au contrôle.
-  - nom: risque_hypoglycemique_eleve
-    type: bool
-    # I3/F4 (redteam-clinique-silences.md, 2026-07-26, 4ᵉ lot) : `hypo_severe_recurrente` ajouté ici.
-    # CONFIRMÉ par le référent le 2026-07-27 POUR CET USAGE (choix du traitement) : le signal était déjà
-    # décisif plus loin dans le nœud (déclencheur indépendant de « Désintensifier / alléger le schéma »),
-    # mais jamais lu par « Choisir un analogue basal de 2ᵉ génération » — même concept de sécurité, deux
-    # encodages (invariant I4). Fusion conservée ici, mais son effet de bord sur les CIBLES MCG a été
-    # écarté par le référent : celles-ci lisent désormais `terrain_cible_assouplie` (ci-dessous).
-    # ⚠ NOMMAGE : ce dérivé désigne en réalité un RISQUE HYPOGLYCÉMIQUE, pas une « fragilité » au sens
-    # gériatrique — le nom est trompeur depuis qu'il porte les deux signaux d'hypoglycémie. Renommage
-    # (`risque_hypoglycemique_eleve`) signalé au référent, non fait : sans gain clinique immédiat.
-    derive: "fragilite OR esperance_vie == limitee OR age >= 75 OR risque_hypoglycemie_schema == eleve OR hypo_severe_recurrente == true"
-  - nom: terrain_cible_assouplie
-    type: bool
-    # Terrain qui justifie de RELÂCHER LA CIBLE : âge, fragilité, horizon de vie — c'est-à-dire un
-    # bénéfice attendu du contrôle strict amoindri par les comorbidités et l'horizon. EXCLUT délibérément
-    # les deux signaux d'hypoglycémie (`risque_hypoglycemie_schema`, `hypo_severe_recurrente`) : ils
-    # appellent une correction du traitement, pas une cible plus permissive. C'est le miroir exact des
-    # déclencheurs de relaxation du nœud A, dont ce nœud doit rester cohérent (cf. incertitudes).
-    derive: "fragilite OR esperance_vie == limitee OR age >= 75"
-  - nom: hypo_severe_recurrente
-    type: bool
-  - nom: symptomes_glucotoxicite
-    type: bool
   - nom: traitements_en_cours
     type: liste
+    groupe: Traitement actuel
     valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, glinide, gliptine, insuline_basale, insuline_rapide]
     # T-018 (P4/S1, D30) : éligible mécaniquement à presomption_non SUR CE NŒUD (ne participe ici à aucune
     # condition d'option `role: securite` ni à aucune `exclusions` — seulement des `alertes` de nœud,
@@ -148,6 +112,7 @@ criteres_entree:
       insuline_rapide: "situation_insuline != naif"
   - nom: preference_injection
     type: enum
+    groupe: Traitement actuel
     valeurs: [accepte, refuse, indifferent]
   # T4/(a) (chantier visible_si, capture 7) : ce groupe de 7 champs n'a d'objet que pour un patient DÉJÀ
   # sous insuline (surveillance/titration) — un patient « naïf » n'a ni dose en cours ni MCG à interpréter.
@@ -157,9 +122,11 @@ criteres_entree:
   # `mcg_disponible == false` (piège actif, corrigée ci-dessous par un second terme de situation).
   - nom: mcg_disponible
     type: bool
+    groupe: Surveillance glycémique
     visible_si: "situation_insuline != naif"
   - nom: TBR
     type: nombre
+    groupe: Surveillance glycémique
     min: 0
     max: 100
     # T-033 (P5/S2, 2026-07-28, BILAN-P4 §3bis) : second terme ajouté. `mcg_disponible` existait déjà
@@ -169,6 +136,7 @@ criteres_entree:
     visible_si: "situation_insuline != naif AND mcg_disponible == true"
   - nom: TBR_severe
     type: nombre
+    groupe: Surveillance glycémique
     min: 0
     max: 100
     # Piège P1 : également lu par l'alerte non filtrée `hypo_severe_recurrente == true OR CV_glycemique >
@@ -183,6 +151,7 @@ criteres_entree:
     visible_si: "situation_insuline != naif AND mcg_disponible == true"
   - nom: CV_glycemique
     type: nombre
+    groupe: Surveillance glycémique
     min: 0
     max: 100
     # Même piège, même conclusion que TBR_severe ci-dessus (0 n'est jamais > 36) — y compris après T-033
@@ -190,6 +159,7 @@ criteres_entree:
     visible_si: "situation_insuline != naif AND mcg_disponible == true"
   - nom: profil_glycemique
     type: liste
+    groupe: Surveillance glycémique
     # `hypo_interprandiale` A ÉTÉ RETIRÉ de cette liste le 2026-07-27 (arbitrage référent) et promu en
     # critère PROPRE, ci-dessous. Motif clinique : une hypoglycémie interprandiale accuse le BOLUS (dose
     # trop importante par rapport au repas), pas la basale — elle n'a donc de sens que dans un schéma qui
@@ -201,6 +171,7 @@ criteres_entree:
     visible_si: "situation_insuline != naif AND mcg_disponible == true"
   - nom: hypo_interprandiale
     type: bool
+    groupe: Surveillance glycémique
     # Ne se recueille QUE là où le geste correspondant existe (R5 : un critère qu'on demande doit agir).
     # En « basale seule » ou chez le naïf, il n'y a pas de bolus à réduire : la question n'est pas posée.
     visible_si: "situation_insuline == basale_plus_bolus OR situation_insuline == basal_bolus"
@@ -209,6 +180,7 @@ criteres_entree:
     presomption_non: true
   - nom: GAJ
     type: nombre
+    groupe: Surveillance glycémique
     min: 0.4
     max: 5
     visible_si: "situation_insuline != naif"
@@ -244,10 +216,12 @@ criteres_entree:
     derive: "profil_glycemique contient excursions_postprandiales"
   - nom: poids
     type: nombre
+    groupe: Profil et objectif glycémique
     min: 35
     max: 250
   - nom: dose_basale_actuelle
     type: nombre
+    groupe: Traitement actuel
     min: 0
     max: 150
     # T4/(a) : un naïf n'a par définition aucune dose de basale en cours (12.10/capture 7) — pourtant
@@ -257,6 +231,7 @@ criteres_entree:
     visible_si: "situation_insuline != naif"
   - nom: dose_rapide_actuelle
     type: nombre
+    groupe: Traitement actuel
     min: 0
     max: 150
     # Seul le `calculs` de « Optimiser la répartition du basal-bolus » lit ce champ (dose totale = basale +
@@ -268,6 +243,58 @@ criteres_entree:
   - nom: over_basalisation
     type: bool
     derive: "situation_insuline != naif AND dose_basale_actuelle / poids > 0.5"
+  # P6/SA3 (2026-07-29) : les 5 champs ci-dessous (+ leurs 2 dérivés) étaient auparavant intercalés juste
+  # après `DFG`, avant `traitements_en_cours` — reportés ici, à la fin de `criteres_entree`, uniquement
+  # pour que l'ORDRE D'AFFICHAGE des groupes suive le raisonnement clinique (situation → profil → traitement
+  # actuel → surveillance → signaux d'alerte → terrain) plutôt que l'ordre d'écriture d'origine. Aucun champ
+  # renommé, supprimé, ni de logique modifiée — seul le classement en groupe d'affichage change (D5).
+  - nom: risque_hypoglycemie_schema
+    type: enum
+    groupe: Signaux d'alerte et tolérance
+    valeurs: [faible, eleve]
+  - nom: hypo_severe_recurrente
+    type: bool
+    groupe: Signaux d'alerte et tolérance
+  - nom: symptomes_glucotoxicite
+    type: bool
+    groupe: Signaux d'alerte et tolérance
+  - nom: fragilite
+    type: bool
+    groupe: Terrain
+  - nom: esperance_vie
+    type: enum
+    groupe: Terrain
+    valeurs: [longue, intermediaire, limitee]
+  # DEUX dérivés de terrain, volontairement DISTINCTS (arbitrage référent 2026-07-27). Ce ne sont pas
+  # deux encodages d'un même concept (ce que I4 interdit) mais deux concepts que la fusion confondait :
+  #   - `risque_hypoglycemique_eleve` = « ce patient est exposé à l'hypoglycémie » → pilote le CHOIX DU TRAITEMENT
+  #     (analogue de 2ᵉ génération, désintensification) ;
+  #   - `terrain_cible_assouplie` = « ce patient a peu à gagner d'un contrôle strict » → pilote la CIBLE.
+  # Principe référent, énoncé le 2026-07-27 : « la cible doit être assouplie en fonction des comorbidités
+  # et de l'impact supposé des complications à long terme. Des hypos sévères appellent à une OPTIMISATION
+  # DU TRAITEMENT, pas à un assouplissement des cibles. » C'est le même principe qui lui avait déjà fait
+  # retirer `risque_hypoglycemie_schema` du nœud A (cible glycémique) : un risque hypoglycémique est une
+  # propriété du SCHÉMA, qu'on corrige — jamais une raison de renoncer au contrôle.
+  - nom: risque_hypoglycemique_eleve
+    type: bool
+    # I3/F4 (redteam-clinique-silences.md, 2026-07-26, 4ᵉ lot) : `hypo_severe_recurrente` ajouté ici.
+    # CONFIRMÉ par le référent le 2026-07-27 POUR CET USAGE (choix du traitement) : le signal était déjà
+    # décisif plus loin dans le nœud (déclencheur indépendant de « Désintensifier / alléger le schéma »),
+    # mais jamais lu par « Choisir un analogue basal de 2ᵉ génération » — même concept de sécurité, deux
+    # encodages (invariant I4). Fusion conservée ici, mais son effet de bord sur les CIBLES MCG a été
+    # écarté par le référent : celles-ci lisent désormais `terrain_cible_assouplie` (ci-dessous).
+    # ⚠ NOMMAGE : ce dérivé désigne en réalité un RISQUE HYPOGLYCÉMIQUE, pas une « fragilité » au sens
+    # gériatrique — le nom est trompeur depuis qu'il porte les deux signaux d'hypoglycémie. Renommage
+    # (`risque_hypoglycemique_eleve`) signalé au référent, non fait : sans gain clinique immédiat.
+    derive: "fragilite OR esperance_vie == limitee OR age >= 75 OR risque_hypoglycemie_schema == eleve OR hypo_severe_recurrente == true"
+  - nom: terrain_cible_assouplie
+    type: bool
+    # Terrain qui justifie de RELÂCHER LA CIBLE : âge, fragilité, horizon de vie — c'est-à-dire un
+    # bénéfice attendu du contrôle strict amoindri par les comorbidités et l'horizon. EXCLUT délibérément
+    # les deux signaux d'hypoglycémie (`risque_hypoglycemie_schema`, `hypo_severe_recurrente`) : ils
+    # appellent une correction du traitement, pas une cible plus permissive. C'est le miroir exact des
+    # déclencheurs de relaxation du nœud A, dont ce nœud doit rester cohérent (cf. incertitudes).
+    derive: "fragilite OR esperance_vie == limitee OR age >= 75"
 # FAMILLES DÉCLARÉES (D22/correctif « ordre accidentel », arbitrage référent 2026-07-27). Motif : les
 # rangs `priorite` 1-2-3 sont RÉUTILISÉS par les quatre blocs de situation de ce nœud, si bien que deux
 # gestes de nature opposée pouvaient s'afficher sous la mention « à égalité » — typiquement « Corriger
@@ -327,6 +354,7 @@ options:
   # ═══════════ SITUATION 1 — NAÏF D'INSULINE ═══════════
   - intitule: "Envisager un GLP-1 (ou une association fixe basale + GLP-1) avant ou avec l'insuline"
     role: geste
+    action: ajouter
     famille: "Instaurer l'insuline"
     conditions:
       - "situation_insuline == naif"
@@ -356,6 +384,7 @@ options:
       - dual-vii
   - intitule: "Initier une insuline basale (en maintenant les antidiabétiques en cours)"
     role: geste
+    action: ajouter
     famille: "Instaurer l'insuline"
     conditions:
       - "situation_insuline == naif"
@@ -606,6 +635,7 @@ options:
   # par le référent, non testé par une vignette ; signalé comme limite plutôt que généralisé sans mandat.
   - intitule: "Ajouter un GLP-1 / une association fixe d'abord (si non encore fait)"
     role: geste
+    action: ajouter
     famille: "Intensifier le traitement"
     conditions:
       - "situation_insuline == basale_plus_bolus OR situation_insuline == basale_seule"
@@ -668,6 +698,7 @@ options:
       - "situation_insuline == basale_plus_bolus AND hypo_severe_recurrente == true"
   - intitule: "Ajouter un bolus au repas principal (basal-plus, par étapes)"
     role: geste
+    action: ajouter
     famille: "Intensifier le traitement"
     conditions:
       - "situation_insuline == basale_plus_bolus OR situation_insuline == basale_seule"
@@ -737,6 +768,7 @@ options:
   # ═══════════ SITUATION 4 — BASAL-BOLUS COMPLET ═══════════
   - intitule: "Désintensifier / alléger le schéma"
     role: geste
+    action: reduire
     famille: "Alléger le schéma"
     # Arbitrage référent 2026-07-26 (2ᵉ série, 12.6/12.7) : condition alignée sur `risque_hypoglycemique_eleve` — même
     # décision que ci-dessus pour « Choisir un analogue... » (situation « naïf »). Cas vérifié : patient de
@@ -814,6 +846,7 @@ options:
       - { libelle: "Dose totale quotidienne", expression: "dose_basale_actuelle + dose_rapide_actuelle", unite: "U/j" }
   - intitule: "Poursuivre le schéma d'insuline en cours et réévaluer"
     role: repli
+    action: maintenir
     famille: "Aucun geste — surveiller"
     conditions:
       - "default"
@@ -1099,8 +1132,75 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Opus"
   statut: brouillon
-  version: "0.24"
+  version: "0.26"
   changelog:
+    - date: "2026-07-29"
+      auteur: "Claude Code (P6/SA3, T-044) — réorganisation d'affichage, en attente de relecture référent"
+      resume: >-
+        RÉORGANISATION D'AFFICHAGE PURE, AUCUN EFFET CLINIQUE (SB4 avait constaté que ce nœud, seul parmi
+        les 6 nœuds DT2, ne déclarait aucun `groupe` : l'accordéon générique de P6/SB2 — chips de
+        navigation, sections repliables — restait donc désactivé, repliant le formulaire sur une longue
+        liste plate d'environ 22 champs, précisément celui où la recette « praticien naïf » du 2026-07-28
+        avait le plus hésité). Ajout du champ `groupe` (présentation pure, classé `inerte` dans
+        `CHAMPS_DU_SCHEMA`, aucune expression, aucun effet moteur) sur les 22 `criteres_entree` saisissables
+        du nœud, en 6 sections dans l'ordre du raisonnement clinique : « Situation d'insulinothérapie »
+        (`situation_insuline`, repère de départ) → « Profil et objectif glycémique » (`age`,
+        `HbA1c_actuelle`, `HbA1c_cible`, `DFG`, `poids`) → « Traitement actuel » (`traitements_en_cours`,
+        `preference_injection`, `dose_basale_actuelle`, `dose_rapide_actuelle`) → « Surveillance
+        glycémique » (`mcg_disponible`, `TBR`, `TBR_severe`, `CV_glycemique`, `profil_glycemique`,
+        `hypo_interprandiale`, `GAJ`) → « Signaux d'alerte et tolérance » (`risque_hypoglycemie_schema`,
+        `hypo_severe_recurrente`, `symptomes_glucotoxicite`) → « Terrain » (`fragilite`, `esperance_vie`).
+        Les 7 champs `derive` (`cible_atteinte`, `gaj_a_cible`, `profil_nocturne_permet_titration`,
+        `profil_nocturne_a_cible`, `over_basalisation`, `risque_hypoglycemique_eleve`,
+        `terrain_cible_assouplie`) ne reçoivent PAS de `groupe` : vérifié sur `grouperChamps`
+        (`lib/formLayout.ts`) qu'un critère `derive` n'est jamais rendu comme champ de saisie (`if
+        (critere.derive != null) continue`), même convention que `prescription.yaml` (aucun de ses 10
+        dérivés n'en porte non plus). SEUL réordonnancement effectué (`grouperChamps` groupe les sections
+        par ordre de PREMIÈRE apparition dans `criteres_entree`) : les 5 champs `risque_hypoglycemie_schema`
+        / `hypo_severe_recurrente` / `symptomes_glucotoxicite` / `fragilite` / `esperance_vie` (+ leurs 2
+        dérivés `risque_hypoglycemique_eleve` / `terrain_cible_assouplie`), auparavant intercalés juste
+        après `DFG`, sont déplacés à la fin de `criteres_entree` — avec, à l'intérieur de ce bloc, les 3
+        champs « Signaux d'alerte » remontés avant les 2 champs « Terrain » (les deux groupes échangeaient
+        de rang par rapport à l'ordre voulu). AUCUN AUTRE CHAMP DÉPLACÉ : `poids`, `dose_basale_actuelle`
+        et `dose_rapide_actuelle` restent à leur emplacement d'écriture d'origine (`grouperChamps` n'exige
+        pas la contiguïté physique — seul l'ordre de première apparition du LIBELLÉ de groupe compte) ; un
+        commentaire de bornage (« P6/SA3 ») signale le déplacement à l'endroit d'arrivée. Pour chaque groupe
+        concerné, l'ordre RELATIF des champs déplacés entre eux est rigoureusement inchangé (contrainte de
+        la tâche T-044). Aucun critère renommé, supprimé, ni de `conditions`/`exclusions`/`prerequis`/
+        `derive`/`visible_si` touché : golden master et snapshots de caractérisation non modifiés. Nouveau
+        test `lib/formLayout.test.ts` (« grouperChamps — le contenu réel du nœud insuline (P6/SA3) ») :
+        confirme que `grouperChamps` produit désormais 6 groupes (pas 1) dans cet ordre, et que chaque champ
+        rendu appartient à l'un des 6 libellés attendus.
+    - date: "2026-07-28"
+      auteur: "Claude Code (P6/SA2, T-039) — qualification descriptive, en attente de relecture référent"
+      resume: >-
+        Champ optionnel `action` (5 verbes : ajouter/remplacer/arreter/reduire/maintenir, ajouté au schéma
+        par S0) posé sur les options d'`insuline` dont l'intitulé ET l'effet réel désignent sans ambiguïté
+        l'un des 5 — même méthode que `plans/P6/SA1.md` (T-038, table de correspondance des synonymes),
+        appliquée ici. Champ optionnel OPTION PAR OPTION : aucun mappage approximatif forcé. 6 options sur
+        12 qualifiées : `ajouter` — « Envisager un GLP-1... avant ou avec l'insuline », « Initier une
+        insuline basale... », « Ajouter un GLP-1 / une association fixe d'abord... », « Ajouter un bolus
+        au repas principal... » (4, chacune gatée par un `prerequis` `ne_contient_pas` confirmant qu'il
+        s'agit bien d'un traitement absent qu'on introduit) ; `reduire` — « Désintensifier / alléger le
+        schéma » (synonyme direct de la table SA1 : « Désintensifier = allègement, pas arrêt ») ;
+        `maintenir` — « Poursuivre le schéma d'insuline en cours et réévaluer » (repli `role: repli`, son
+        `prerequis situation_insuline != naif` exclut structurellement toute lecture « instaurer », donc
+        aucune ambiguïté du type « socle metformine » signalée par SA1). 6 options laissées SANS `action`,
+        motif détaillé dans le rapport de tâche T-039 : « Choisir un analogue basal de 2ᵉ génération... »
+        (choix de molécule au sein du même geste que « Initier une insuline basale », pas une addition
+        distincte) ; « Corriger l'hypoglycémie ou la variabilité (réduire la dose, passer en 2ᵉ génération,
+        relâcher la cible) » (3 mécanismes hétérogènes énumérés dans l'intitulé lui-même) ; « Ne pas
+        sur-titrer la basale — intensifier autrement (GLP-1 puis bolus) » (mêle « ne pas augmenter » et
+        « ajouter autre chose ») ; « Titrer la basale (augmenter la dose) » (AUCUN des 5 verbes ne couvre
+        une augmentation de dose d'un traitement déjà en place — `reduire` est l'antonyme, pas un
+        synonyme ; gap de vocabulaire signalé, non comblé ici — hors périmètre) ; « Insuline prémélangée —
+        option dégradée, dernier recours » (substitution clinique implicite mais aucun verbe explicite ni
+        prérequis codant un remplacement) ; « Optimiser la répartition du basal-bolus... » (ajustement
+        BIDIRECTIONNEL selon le profil AGP — réduit ou augmente basale/bolus selon le signal). Aucune
+        logique clinique nouvelle : `conditions`/`exclusions`/`prerequis`/`priorite`/`effet_attendu`/
+        `calculs` inchangés sur les 12 options. Aucun effet moteur (`evaluateNode` ignore `action` — champ
+        de présentation pur, réservé au badge SB3) : golden master / snapshots de caractérisation non
+        modifiés.
     - date: "2026-07-28"
       auteur: "Claude Code (P5/S2, T-033) — correctif mécanique, en attente de relecture référent"
       resume: >-
