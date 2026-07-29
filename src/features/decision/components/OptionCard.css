@@ -10,6 +10,35 @@
   border-color: var(--c-accent-decision);
 }
 
+/* SB3 (P6, 2026-07-28) — bordure GAUCHE colorée selon `option.action`, reprise du prototype Claude
+   Design (`design/maquettes/Maquette upgrade UI.zip`, bloc `agentColors`). Placées APRÈS
+   `.option-card--primary` à dessein : même spécificité de sélecteur (une classe chacune), donc à
+   `border-left-color` égal c'est l'ORDRE DANS LA FEUILLE qui tranche — ces règles doivent gagner sur
+   le `border-color` (4 côtés) de `--primary` quand une carte "recommandée" porte aussi un verbe
+   d'action. Sans `option.action` (les 4 autres nœuds, options volontairement laissées sans verbe) :
+   aucune de ces classes n'est posée (`OptionCard.tsx`), la bordure reste celle d'aujourd'hui. */
+.option-card--action-ajouter {
+  border-left: 4px solid var(--c-action-ajouter);
+}
+
+.option-card--action-remplacer {
+  border-left: 4px solid var(--c-action-remplacer);
+}
+
+.option-card--action-arreter {
+  border-left: 4px solid var(--c-action-arreter);
+}
+
+.option-card--action-reduire {
+  border-left: 4px solid var(--c-action-reduire);
+}
+
+/* `maintenir` n'a pas de token propre (`tokens.css`) : même teinte que `--c-accent-decision`, pas une
+   nouvelle couleur — cf. `Option.action` docstring, `node.types.ts`. */
+.option-card--action-maintenir {
+  border-left: 4px solid var(--c-accent-decision);
+}
+
 .option-card__header {
   display: flex;
   justify-content: space-between;
@@ -25,8 +54,15 @@
   color: var(--c-text);
 }
 
+/* P6/SB4 — même famille de risque que le débordement mobile de `CriteriaForm.css` (`.criteria-form__segment`/
+   `.criteria-form__group-nav-item`) : `.option-card__official-badge` (« Recommandation officielle
+   (France) », 35 caractères) cumulé à `EvidenceBadge` (jusqu'à « Preuve très faible ») peut dépasser la
+   largeur de carte disponible en mobile étroit (~283 px de contenu à 375 px de viewport, cf. calcul dans
+   le rapport de tâche SB4). `flex-wrap: wrap` (ajouté) : les deux pastilles passent sur deux lignes au
+   lieu de pousser la carte en largeur — sans effet en desktop, où elles tiennent déjà sur une ligne. */
 .option-card__badges {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   align-items: center;
 }
@@ -95,28 +131,6 @@
   color: var(--c-text);
 }
 
-/* T-025 (P4/S4, 2026-07-28) : registre visuel de SÉCURITÉ, pas d'incomplétude — la recette navigateur
-   du 2026-07-28 a mesuré ce bloc comme le moins saillant de la carte (texte gris, sans bordure ni
-   fond), pour l'unique bloc qui porte une interdiction. Tokens réutilisés tels quels, aucun nouveau :
-   `--c-disclaimer-bg`/`--c-disclaimer-border`, EXACTEMENT ceux d'`AlertList.css`
-   (`.alert-list__item--attention`, le canal des alertes cliniques d'option, juste en dessous dans la
-   carte) — surtout PAS `--c-attention*` (`tokens.css`), réservé à « à confirmer » / « Doses non
-   calculées » : un état de saisie incomplète, jamais une interdiction clinique. */
-.option-card__ci {
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--c-text);
-  background: var(--c-disclaimer-bg);
-  border: 1px solid var(--c-disclaimer-border);
-  border-radius: var(--radius-sm);
-  padding: 12px 14px;
-  margin-bottom: 14px;
-}
-
-.option-card__ci-label {
-  font-weight: 700;
-}
-
 .option-card__pourquoi {
   font-size: 13px;
   color: var(--c-text-muted);
@@ -154,7 +168,10 @@
    La recette visuelle a mesuré 0,71 à 1,06 écran par carte en largeur étroite, cinq cartes sur un
    profil banal. Ce qui fait ce volume, ce sont les avantages/inconvénients et l'effet attendu — pas les
    contre-indications (11 à 18 %). D'où : tout ce sur quoi on AGIT reste au-dessus, tout ce qui INSTRUIT
-   passe ici, fermé par défaut.
+   passe ici, fermé par défaut — et depuis SB3 (P6, 2026-07-28), les contre-indications elles-mêmes, en
+   tête (voir `.option-card__ci` ci-dessous ; tension avec T-025 tranchée par Thibault : compactage
+   accepté, mais pas au prix de l'accessibilité — d'où le libellé du `<summary>` qui change selon leur
+   présence, cf. `OptionCard.tsx`).
    Placé en FIN de carte à dessein : l'ouvrir ajoute du contenu SOUS le socle de sécurité, sans jamais
    le repousser hors de l'écran. */
 .option-card__detail {
@@ -177,7 +194,43 @@
   text-decoration: underline;
 }
 
-/* Le premier bloc du dépli ne doit pas coller au résumé une fois ouvert. */
-.option-card__detail[open] .option-card__effet {
+/* SB6 (P6, 2026-07-29) — défaut GRAVE de S6 point 3 : le résumé fermé annonçait des contre-indications
+   avec la même couleur bleu-lien que « en savoir plus », rien retenu au test des 20 secondes. Le
+   `<summary>` fermé passe dans le registre d'alerte dédié (`--c-ci-warning`, `tokens.css`) UNIQUEMENT
+   quand des contre-indications existent (`OptionCard.tsx` ajoute cette classe seulement dans ce cas) —
+   `font-weight`, `cursor` et `:hover` restent ceux de la règle générale ci-dessus, non redéfinis ici. */
+.option-card__detail-summary--ci {
+  color: var(--c-ci-warning);
+}
+
+/* Le premier bloc du dépli ne doit pas coller au résumé une fois ouvert — cible le premier élément
+   après le <summary>, QUEL QU'IL SOIT (`.option-card__ci` s'il existe, sinon `.option-card__effet`
+   directement) plutôt que de nommer un bloc précis, pour ne pas se déphaser du DOM selon la présence
+   des contre-indications (SB3, P6, 2026-07-28 — avant cette session, seul `.option-card__effet`
+   pouvait être le premier bloc). */
+.option-card__detail[open] summary + * {
   margin-top: 8px;
+}
+
+/* SB3 (P6, 2026-07-28) : contre-indications déplacées ici DEPUIS le socle (T-025, P4/S4, même jour,
+   qui les avait remontées juste sous le titre) — désormais EN PREMIÈRE POSITION du dépli, registre
+   visuel INCHANGÉ. Tokens réutilisés tels quels, aucun nouveau : `--c-disclaimer-bg`/
+   `--c-disclaimer-border`, EXACTEMENT ceux d'`AlertList.css` (`.alert-list__item--attention`, le canal
+   des alertes cliniques d'option) — surtout PAS `--c-attention*` (`tokens.css`), réservé à « à
+   confirmer » / « Doses non calculées » : un état de saisie incomplète, jamais une interdiction
+   clinique. Le compensateur d'accessibilité de ce déplacement n'est pas visuel mais textuel — le
+   libellé du `<summary>` ci-dessus, seul indicateur requis carte fermée (`OptionCard.tsx`). */
+.option-card__ci {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--c-text);
+  background: var(--c-disclaimer-bg);
+  border: 1px solid var(--c-disclaimer-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+
+.option-card__ci-label {
+  font-weight: 700;
 }

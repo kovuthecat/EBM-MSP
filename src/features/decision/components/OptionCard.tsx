@@ -1,5 +1,5 @@
 import { EvidenceBadge } from '../../shared/badges/EvidenceBadge'
-import type { Alerte, Option } from '../content/node.types'
+import type { ActionOption, Alerte, Option } from '../content/node.types'
 import { describeReasons } from '../lib/conditionText'
 import { labelForCritere, toSharedNiveauPreuve } from '../lib/labels'
 import type { CalculAffiche, CalculEnAttente } from '../lib/vueDecision'
@@ -48,6 +48,21 @@ interface OptionCardProps {
 }
 
 /**
+ * Bordure gauche par verbe d'action (SB3, P6) : une classe dédiée par verbe, chacune posant
+ * `border-left` sur son token `--c-action-*` (`tokens.css`) — sauf `maintenir`, qui n'a pas de token
+ * propre et réutilise directement `--c-accent-decision` (`OptionCard.css`). `option.action` absent
+ * (les 4 autres nœuds, et les options de `prescription`/`insuline` volontairement laissées sans
+ * verbe) : aucune classe n'est ajoutée, la bordure reste celle d'aujourd'hui.
+ */
+const ACTION_BORDER_CLASS: Record<ActionOption, string> = {
+  ajouter: 'option-card--action-ajouter',
+  remplacer: 'option-card--action-remplacer',
+  arreter: 'option-card--action-arreter',
+  reduire: 'option-card--action-reduire',
+  maintenir: 'option-card--action-maintenir',
+}
+
+/**
  * Carte d'option applicable (T-006 étape 2), ALLÉGÉE le 2026-07-27 — arbitrage référent A5.
  *
  * POURQUOI. La recette visuelle a mesuré une carte à **0,71 à 1,06 écran** en largeur étroite : il faut
@@ -58,9 +73,9 @@ interface OptionCardProps {
  * DEUX REGISTRES, ET LA FRONTIÈRE N'EST PAS « COURT / LONG » MAIS « AGIR / S'INSTRUIRE ».
  *
  * SOCLE, jamais repliable — ce sur quoi le praticien AGIT dans la minute :
- *   - intitulé et badges (quel geste, avec quelle force et quel niveau de preuve) ;
- *   - `contre_indications` — D21 : un fait de sécurité s'affiche avec son motif, il ne se déplie pas ;
- *   - `option.alertes` — même canal, même raison ;
+ *   - intitulé et badges (quel geste, avec quelle force et quel niveau de preuve), et depuis SB3 (P6,
+ *     2026-07-28) une bordure gauche colorée selon `option.action` quand ce verbe existe ;
+ *   - `option.alertes` — un fait de sécurité s'affiche avec son motif, il ne se déplie pas ;
  *   - `calculsEnAttente` (« Doses non calculées : … à renseigner : Poids ») — la pousser derrière un
  *     dépli ferait revenir le défaut J le jour même où A5 est livré ;
  *   - `calculs` (« Doses indicatives : 8 U/j ») — MON ARBITRAGE, à confirmer : une dose est ce qu'on
@@ -68,20 +83,66 @@ interface OptionCardProps {
  *   - « Proposé parce que » et, quand il compte, le motif du rang (R6) : une ligne chacun, et c'est ce
  *     qui rend la carte auditable en consultation.
  *
- * DÉPLI (`<details>`), ce qui INSTRUIT la décision une fois qu'on veut l'approfondir : effet attendu,
- * délai du bénéfice, avantages, inconvénients.
+ * `contre_indications` — DÉPLACÉ le 2026-07-28 (SB3, P6) DANS le dépli, en tête. Historique : T-025
+ * (P4/S4, même jour) l'avait remonté ici même, hors dépli, avec un registre visuel de sécurité —
+ * mesure directe d'un défaut de recette (« ce que je ne dois surtout pas faire » invisible au test des
+ * 20 secondes, trois fois sur trois). SB3 rouvre cette tension pour compacter la carte plus loin, et
+ * Thibault l'a tranchée le 2026-07-28 : compactage accepté, MAIS PAS AU PRIX DE L'ACCESSIBILITÉ — la CI
+ * quitte le socle mais reste (a) en PREMIÈRE position du dépli, avant l'effet attendu, (b) dans le même
+ * registre visuel (`--c-disclaimer-*`, inchangé), (c) annoncée carte FERMÉE par le libellé du
+ * `<summary>` (calculé depuis `aDesContreIndications` ci-dessous), qui change selon sa présence —
+ * c'est l'unique indicateur requis fermé, aucun nouveau composant, aucune infobulle au survol. Le
+ * test des 20 secondes doit être REJOUÉ (S6, vague de contrôle du plan) : c'est la mesure qui dira si
+ * ce compactage a coûté ce que T-025 avait gagné.
+ *
+ * DÉPLI (`<details>`), ce qui INSTRUIT la décision une fois qu'on veut l'approfondir : contre-indications
+ * (en tête, depuis SB3), effet attendu, délai du bénéfice, avantages, inconvénients.
  *
  * `<details>` NATIF, et c'est un choix, pas une facilité : ouverture au clic/tap (jamais au survol —
  * A5 l'exige, un survol est inutilisable au doigt en consultation), état géré par le navigateur donc
  * aucun `useState` à synchroniser, et accessibilité clavier + lecteur d'écran acquise sans code — la
  * même exigence que A9 vient de poser sur les boutons segmentés.
  *
- * GARDE-FOU : `banc/carte-affichage.test.ts` vérifie sur les six nœuds RÉELS qu'aucun texte de
- * contre-indication, d'alerte d'option ou de dose n'atterrit jamais à l'intérieur du dépli.
+ * GARDE-FOU : `banc/carte-affichage.test.ts` (I12) vérifie sur les six nœuds RÉELS qu'aucun texte
+ * d'alerte d'option ou de dose n'atterrit jamais à l'intérieur du dépli — et, depuis SB3, que toute
+ * contre-indication est bien présente et précède l'effet attendu DANS le dépli (elle n'y est plus
+ * absente, elle y est en tête).
+ *
+ * SUITE SB6 (P6, 2026-07-29) — le libellé neutre du `<summary>` ci-dessus (« Contre-indications, effet
+ * attendu et plus », même couleur qu'« en savoir plus ») s'est révélé insuffisant : la recette de
+ * contrôle S6 (point 3) a rejoué le test des 20 secondes et n'a RIEN retenu, alors que T-025 le faisait
+ * retenir quasi mot pour mot. Le `<summary>` fermé porte désormais une affordance de danger explicite
+ * (icône ⚠, couleur dédiée `--c-ci-warning`, décompte) quand `aDesContreIndications` — cf. plus bas.
  */
 export function OptionCard({ option, badge, reasons, calculs, calculsEnAttente, motifRang, alertes }: OptionCardProps) {
+  const classeCarte = [
+    'option-card',
+    badge && 'option-card--primary',
+    option.action && ACTION_BORDER_CLASS[option.action],
+  ]
+    .filter(Boolean)
+    .join(' ')
+
+  // SB3 : présence des contre-indications — pilote à la fois leur rendu (dans le dépli, cf. plus bas)
+  // et le libellé du <summary>, seul indicateur requis carte FERMÉE (pas de nouvelle infobulle).
+  const contreIndications = option.contre_indications ?? []
+  const aDesContreIndications = contreIndications.length > 0
+
+  // SB6 (P6, 2026-07-29) — libellé + classe conditionnelle du <summary> fermé. Le décompte se déduit de
+  // `contreIndications.length` : chaque `contre_indications` du YAML est UNE phrase (règle de contenu),
+  // `.length` du tableau donne donc un compte clinique correct, pas un artefact de découpage de texte.
+  const classeSummary = [
+    'option-card__detail-summary',
+    aDesContreIndications && 'option-card__detail-summary--ci',
+  ]
+    .filter(Boolean)
+    .join(' ')
+  const libelleSummary = aDesContreIndications
+    ? `${contreIndications.length} ${contreIndications.length > 1 ? 'contre-indications' : 'contre-indication'}, effet attendu et plus`
+    : 'Effet attendu, avantages et inconvénients'
+
   return (
-    <div className={badge ? 'option-card option-card--primary' : 'option-card'}>
+    <div className={classeCarte}>
       <div className="option-card__header">
         <div className="option-card__title">{option.intitule}</div>
         <div className="option-card__badges">
@@ -92,21 +153,6 @@ export function OptionCard({ option, badge, reasons, calculs, calculsEnAttente, 
           <EvidenceBadge niveau={toSharedNiveauPreuve(option.niveau_preuve)} />
         </div>
       </div>
-
-      {/* T-025 (P4/S4, 2026-07-28) : remonté juste sous le titre/badges, AVANT tout le reste du socle
-          (doses, alertes, argumentaire) et avant le dépli (effet attendu, avantages/inconvénients) — la
-          recette navigateur du 2026-07-28 a mesuré ce bloc comme l'élément le moins saillant de la carte
-          (texte gris, sans bordure ni fond), derrière un lien décoratif, alors qu'il porte l'unique
-          interdiction de la carte. Registre visuel aligné en même temps (`OptionCard.css`) sur celui des
-          alertes de sécurité d'`AlertList.css` (`--c-disclaimer-*`) — PAS le registre ambre
-          `--c-attention*` de « à confirmer » / « Doses non calculées », qui signale une saisie
-          incomplète, pas une interdiction (cf. commentaire `tokens.css`). */}
-      {option.contre_indications && option.contre_indications.length > 0 && (
-        <div className="option-card__ci">
-          <span className="option-card__ci-label">Contre-indications : </span>
-          {option.contre_indications.join(' · ')}
-        </div>
-      )}
 
       {calculs.length > 0 && (
         <div className="option-card__calculs">
@@ -152,9 +198,32 @@ export function OptionCard({ option, badge, reasons, calculs, calculsEnAttente, 
           Fermé par défaut : c'est l'allègement lui-même, une carte ouverte n'allège rien. `<details>`
           natif (cf. docstring de tête) — le navigateur porte l'état, le clavier et le lecteur d'écran. */}
       <details className="option-card__detail">
-        <summary className="option-card__detail-summary">
-          Effet attendu, délai, avantages et inconvénients
+        <summary className={classeSummary}>
+          {/* Icône décorative : le décompte + le mot « contre-indication(s) » qui suivent portent déjà
+              l'information en texte (lu par tout lecteur d'écran) — l'icône n'ajoute qu'un repère
+              visuel, elle est donc masquée aux technologies d'assistance plutôt que doublée. */}
+          {aDesContreIndications && (
+            <span className="option-card__detail-summary-icon" aria-hidden="true">
+              ⚠{' '}
+            </span>
+          )}
+          {libelleSummary}
         </summary>
+
+        {/* SB3 (P6, 2026-07-28) : contre-indications déplacées ici depuis le socle (où T-025, P4/S4,
+            les avait remontées le même jour) — EN PREMIÈRE POSITION du dépli, avant l'effet attendu.
+            Tension tranchée par Thibault le 2026-07-28 : compactage accepté, MAIS PAS AU PRIX DE
+            L'ACCESSIBILITÉ — d'où le libellé du <summary> ci-dessus, seul indicateur requis carte
+            FERMÉE. Registre visuel INCHANGÉ (`OptionCard.css`, `--c-disclaimer-*`, identique à
+            `.alert-list__item--attention` d'`AlertList.css`) — surtout pas le registre ambre
+            `--c-attention*` de « à confirmer » / « Doses non calculées », qui signale une saisie
+            incomplète, jamais une interdiction clinique. */}
+        {aDesContreIndications && (
+          <div className="option-card__ci">
+            <span className="option-card__ci-label">Contre-indications : </span>
+            {contreIndications.join(' · ')}
+          </div>
+        )}
 
         <div className="option-card__effet">{option.effet_attendu}</div>
 

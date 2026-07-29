@@ -21,6 +21,24 @@
  * que `DecisionNodeScreen` affiche) et l'on découpe le HTML sur `<details>`. Tout ce que le socle doit
  * porter doit se trouver AVANT. Le test ne connaît ni nœud ni critère par son nom (D8) : il lit les
  * `contre_indications`, les alertes et les doses depuis le contenu chargé.
+ *
+ * AMENDEMENT SB3 (P6, 2026-07-28) — LES CONTRE-INDICATIONS NE SONT PLUS DANS CE PÉRIMÈTRE. Décision
+ * référent (Thibault, même jour, tension avec T-025 explicitement tranchée) : elles rejoignent
+ * délibérément le dépli, EN PREMIÈRE POSITION, compensées par le libellé du `<summary>` qui annonce
+ * leur présence carte FERMÉE (`OptionCard.tsx`) — l'énoncé « le dépli n'avale jamais un fait de
+ * sécurité » ne s'applique donc plus littéralement aux contre-indications : le dépli les porte
+ * DÉLIBÉRÉMENT. Ce que ce test vérifie pour elles a changé de forme (§1 ci-dessous, dans la boucle) :
+ * non plus « avant `<details>` », mais « toujours présentes, et toujours EN TÊTE du dépli, jamais
+ * reléguées derrière l'effet attendu » — la garantie « jamais silencieusement absente » survit,
+ * seule sa position de référence change. Les alertes d'option et les doses (§2-3), elles, restent
+ * intégralement dans le socle, hors du dépli — I12 continue de les protéger sans changement.
+ *
+ * AMENDEMENT SB6 (P6, 2026-07-29) — LE COMPENSATEUR TEXTUEL DE SB3 NE SUFFISAIT PAS. La recette de
+ * contrôle S6 (point 3) a rejoué le test des 20 secondes sur le libellé neutre laissé par SB3 et n'a
+ * RIEN retenu (le `<summary>` fermé avait la même couleur bleu-lien qu'« en savoir plus », aucune
+ * icône). §1b ci-dessous vérifie donc, en plus, que le rendu COMPLET (pas seulement `avantDepli`, la
+ * carte fermée elle-même) porte l'icône ⚠ et le décompte exact quand des contre-indications existent —
+ * et ne porte AUCUNE trace de ce registre d'alerte quand il n'y en a pas.
  */
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
@@ -105,13 +123,42 @@ describe('I12 — le dépli d’une carte n’avale jamais un fait de sécurité
             )
             const avantDepli = socle(html)
 
-            // (1) CONTRE-INDICATIONS — D21 : un fait de sécurité s'affiche avec son motif.
+            // (1) CONTRE-INDICATIONS — D21 : un fait de sécurité s'affiche avec son motif. AMENDEMENT
+            // SB3 (voir docstring de tête) : la contre-indication vit désormais DANS le dépli, en
+            // PREMIÈRE position — ce test ne cherche donc plus `avantDepli` pour elle, mais vérifie
+            // qu'elle est (a) toujours présente dans le rendu complet, jamais absente en silence, et
+            // (b) toujours EN TÊTE du dépli, avant l'effet attendu (`option-card__effet`), jamais
+            // reléguée derrière lui.
+            const indexEffet = html.indexOf('option-card__effet')
             for (const ci of optionVue.option.contre_indications ?? []) {
               // Un extrait suffit et évite les faux négatifs sur la ponctuation typographique.
               const extrait = echappe(ci.slice(0, 40))
-              if (!avantDepli.includes(extrait)) {
-                manquements.push(`contre-indication repliée — « ${optionVue.option.intitule} » : ${ci.slice(0, 60)}…`)
+              const indexCi = html.indexOf(extrait)
+              if (indexCi === -1) {
+                manquements.push(`contre-indication absente du rendu — « ${optionVue.option.intitule} » : ${ci.slice(0, 60)}…`)
+              } else if (indexEffet !== -1 && indexCi > indexEffet) {
+                manquements.push(
+                  `contre-indication reléguée après l'effet attendu — « ${optionVue.option.intitule} » : ${ci.slice(0, 60)}…`,
+                )
               }
+            }
+
+            // (1b) SB6 — le résumé fermé du dépli doit porter l'icône ⚠ et le décompte EXACT quand des
+            // contre-indications existent (défaut GRAVE mesuré par S6, voir docstring de tête), et
+            // n'afficher AUCUNE trace de ce registre d'alerte en leur absence (le libellé neutre reste
+            // inchangé — carte non affectée).
+            const nombreCi = (optionVue.option.contre_indications ?? []).length
+            if (nombreCi > 0) {
+              if (!html.includes('⚠')) {
+                manquements.push(`résumé fermé sans icône d'alerte alors que des CI existent — « ${optionVue.option.intitule} »`)
+              }
+              if (!html.includes(`${nombreCi} contre-indication`)) {
+                manquements.push(
+                  `résumé fermé sans décompte exact (attendu ${nombreCi}) — « ${optionVue.option.intitule} »`,
+                )
+              }
+            } else if (html.includes('⚠')) {
+              manquements.push(`résumé fermé porte une icône d'alerte sans aucune CI — « ${optionVue.option.intitule} »`)
             }
 
             // (2) ALERTES D'OPTION — même canal, même raison (D21).

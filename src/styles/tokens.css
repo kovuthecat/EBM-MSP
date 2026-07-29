@@ -49,6 +49,33 @@
   --c-badge-impact-informatif-bg: var(--c-border);
   --c-badge-impact-informatif-text: var(--c-text-muted);
 
+  /* Bordure gauche par verbe d'action (`Option.action`, SB3, P6) — réservée aux nœuds dont le contenu
+     emploie ce vocabulaire (`prescription`, `insuline`). Trois valeurs reprises TELLES QUELLES du
+     prototype Claude Design (`design/maquettes/Maquette upgrade UI.zip`, bloc `agentColors` de
+     `Traiter - Refonte ergonomie.dc.html`) : vert/orange/rouge. `maintenir` n'a pas de token propre :
+     il réutilise `--c-accent-decision` ci-dessus, déjà la même teinte que « Maintenir » dans le
+     prototype. `--c-action-reduire` est ABSENTE du prototype (qui ne portait que 4 verbes sur 5) :
+     teinte construite dans le même espace OKLCH, même luminosité/chroma approximative, à une teinte
+     clairement séparée des 4 autres (violet/magenta) pour rester discriminable. */
+  --c-action-ajouter: oklch(55% 0.15 145);
+  --c-action-remplacer: oklch(60% 0.16 55);
+  --c-action-arreter: oklch(55% 0.18 25);
+  --c-action-reduire: oklch(58% 0.16 330);
+
+  /* Résumé fermé des contre-indications (SB6, P6, 2026-07-29) — défaut GRAVE remonté par S6 point 3 :
+     le `<summary>` fermé du dépli d'`OptionCard` annonçait des contre-indications sans AUCUNE
+     signalétique de danger (même bleu-gris neutre qu'« en savoir plus »), 0 information retenue sur 3
+     au test des 20 secondes rejoué. Aucun token existant ne convient à un signal d'alerte lisible
+     CARTE FERMÉE : `--c-disclaimer-*` est le registre neutre du CONTENU une fois déplié, pas une
+     alerte ; `--c-attention*` (ambre) est réservé par convention à « ce que l'outil attend de vous »
+     (saisie incomplète), jamais à une interdiction clinique ; `--c-action-arreter` est SCOPÉ au verbe
+     « Arrêter » — le reprendre tel quel donnerait à une carte « Réduire » (bordure violette) une icône
+     de la même teinte que « Arrêter » ailleurs, laissant croire à tort à cette action-là. D'où un rouge
+     dédié à la seule alerte « contre-indications », à une teinte délibérément écartée de celle
+     d'`--c-action-arreter` (25 → 10, plus proche du cramoisi) pour ne jamais se lire comme le même
+     signal — vérifié à ≥ 8:1 de contraste sur `--c-surface`/`--c-bg` (WCAG AA largement dépassé). */
+  --c-ci-warning: oklch(42% 0.19 10);
+
   /* Rayons */
   --radius-sm: 8px;
   --radius-md: 10px;

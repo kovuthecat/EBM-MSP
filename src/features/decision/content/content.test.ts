@@ -79,3 +79,39 @@ describe('intégrité référentielle Noeud.familles ↔ Option.famille', () => 
     },
   )
 })
+
+/**
+ * P6/SB4 (T-041) — le badge verbe (bordure gauche colorée, `OptionCard.tsx` `ACTION_BORDER_CLASS`) n'a
+ * de sens QUE là où le vocabulaire à 5 verbes est réellement celui du contenu : `plans/P6/index.md`
+ * documente la mesure qui a tranché (« quasi-totalité des intitulés commencent déjà par ce verbe » sur
+ * `prescription`/`insuline` ; `statine`/`cible-glycemique`/`rhd-*` n'ont pas ce vocabulaire ou ne
+ * l'ont que partiellement) — décision de contenu délibérément SCOPÉE à deux nœuds NOMMÉS, pas une
+ * propriété structurelle que le schéma pourrait dériver seul (contrairement au reste de ce fichier,
+ * générique par construction). Ce test verrouille mécaniquement cette frontière plutôt que de la
+ * laisser reposer sur la seule discipline des sessions de contenu à venir : si un `action` apparaissait
+ * un jour par erreur sur un des 4 autres nœuds, `OptionCard.tsx` lui donnerait quand même une bordure
+ * colorée (générique, il ne connaît aucun nom de nœud) — la seule protection possible est ICI, côté
+ * contenu.
+ */
+describe('P6/SB4 — `Option.action` (badge verbe) réservé aux nœuds `prescription`/`insuline`', () => {
+  const NOEUDS_AVEC_VERBE = new Set(['prescription', 'insuline'])
+
+  it.each(noeuds.filter((n) => !NOEUDS_AVEC_VERBE.has(n.id)).map((n) => [n.domaine, n.id, n] as const))(
+    'nœud "%s/%s" : aucune option ne porte `action` (vocabulaire verbe non applicable à ce nœud)',
+    (_domaine, id, noeud) => {
+      const optionsAvecAction = noeud.options.filter((o) => o.action != null).map((o) => o.intitule)
+      expect(
+        optionsAvecAction,
+        `Nœud "${id}" : ${optionsAvecAction.length} option(s) porte(nt) \`action\` alors que ce nœud n'est ` +
+          `pas dans le périmètre du badge verbe (plans/P6/index.md) : ${optionsAvecAction.join(', ')}`,
+      ).toEqual([])
+    },
+  )
+
+  it('au moins un des deux nœuds au vocabulaire verbe porte effectivement `action` sur au moins une option (le test ci-dessus ne serait pas mordant sur un contenu vidé par erreur)', () => {
+    const auMoinsUn = noeuds
+      .filter((n) => NOEUDS_AVEC_VERBE.has(n.id))
+      .some((n) => n.options.some((o) => o.action != null))
+    expect(auMoinsUn).toBe(true)
+  })
+})
