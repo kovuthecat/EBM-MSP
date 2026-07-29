@@ -83,39 +83,51 @@ correspondantes de `DECISIONS.md`. Ce qui suit est le backlog **réel et actuel*
       pratique *avec* capteur au moment de la décision. Seuils de titration/
       plafonnement de la basale sur glycémie à jeun ; seuils post-prandiaux pour le bolus (champ à créer).
       Cadrage : `docs/decision/validation/chantier-2026-07-27/ARBITRAGES-2026-07-27-nuit.md` §1,
-      `chantier-2026-07-27/diagnostic-K2-mesures-mcg.md`, `BILAN-P4-2026-07-28.md` §3bis ·
-      modèle: Opus, effort: xhigh · plan: —
+      `chantier-2026-07-27/diagnostic-K2-mesures-mcg.md`, `BILAN-P4-2026-07-28.md` §3bis.
+      **Prompt de démarrage prêt** (session neuve, à lancer en parallèle de tout autre chantier) :
+      `docs/decision/PROMPT-passe-A-insuline-sans-capteur.md` · modèle: Opus, effort: xhigh · plan: —
 - [ ] **Passe B — sécurité à l'effort (nœud `rhd-activite-physique`)** : même statut, cadrage au même
       endroit (`ARBITRAGES-2026-07-27-nuit.md` §1) · modèle: Opus, effort: high · plan: —
 
-## Backlog — arbitrages référent (attente réponse, pas de blocage technique)
+## Plan P7 — en cours (cadré 2026-07-29)
 
-- [ ] Frontière `a_l_objectif` / `sous_objectif` (nœud `prescription`) : seuil non donné, déclenche la
-      déprescription — délibérément non pré-rempli par K6/D28.
-- [ ] Seuil rénal de l'AR GLP-1 : 30 ou 20 mL/min/1,73 m² (`aglp1_indisponible`, `prescription.yaml`).
-- [ ] `docs/decision/sources/prescrire 12.pdf` vide — à re-fournir.
-- [ ] Politique de badge « Recommandée » quand la 1re option non-socle triée est une option `securite`
-      plutôt qu'un choix d'agent (constat 2026-07-25, non retranché depuis D25).
-- [ ] **Portée clinique de la dette `prescription`/patient naïf** (P4/S9, T-031, commit `e2c112c`) : les
-      citations négatives de `traitements_en_cours` (garde-fous de non-duplication sur 8 options d'ajout —
-      insuline d'initiation, iSGLT2, AR GLP-1, tirzépatide, association, gliptine, sulfamide) restent
-      bloquées ; confirmé à l'écran y compris sur un profil catabolique (cétonémie + glucotoxicité + HbA1c
-      11 %) qui justifierait cliniquement une insuline d'initiation. Acceptable en l'état, ou faut-il
-      revenir sur l'exclusion de `traitements_en_cours` de `presomption_non` sur ce nœud (décision T-018) ?
-      `BILAN-P4-2026-07-28.md` §3.
-- [ ] **Asymétrie iSGLT2 / AR GLP-1 chez le sujet dénutri** (`prescription`, intention *Déprescrire*) : le
-      même terrain (IMC < 22 et dénutrition) exclut l'AR GLP-1 mais pas l'iSGLT2 — trouvé par la recette
-      praticien naïf (patient 86 ans, IMC 20,1, −4 kg/an, dénutri).
-- [ ] **Validité de l'HbA1c non questionnée** (anémie, cirrhose, hémoglobinopathie) : l'outil raisonne sur
-      une HbA1c sans jamais signaler qu'elle peut ne pas être interprétable — périmètre assumé, ou
-      signalement à ajouter ?
-- [ ] Carte **« Optimiser l'agent mal toléré »** affichée sans aucun traitement en cours coché — doute
-      sur si `intolerance_traitement` doit être conditionné à `traitements_en_cours` non vide.
-- [ ] **Descendre à la molécule et à la dose** hors du nœud `insuline` (aujourd'hui l'outil s'arrête à la
-      classe partout ailleurs) — élargissement de périmètre assumé, pas un correctif ; demandé par la
-      recette praticien naïf.
-- [ ] Afficher le statut `brouillon` / `valide` **sur l'écran de décision**, pas seulement sur la page
-      « Méthode » — le praticien croit aujourd'hui utiliser des algorithmes tous validés.
+> Encode les cinq arbitrages tranchés par Thibault en session dédiée le 2026-07-29. Aucune recherche
+> EBM nouvelle : les décisions sont rendues, ce plan les met dans le contenu et dans l'écran. Même
+> nature que P5. Détail : `plans/P7/index.md`.
+
+- [ ] T-048 — Frontière `a_l_objectif`/`sous_objectif` : compléter le pré-remplissage K6/D28 (écart
+      ≤ −1 → `sous_objectif`, qui déclenche la déprescription ; entre −1 et 0 → `a_l_objectif` ; les
+      deux bandes au-dessus inchangées) · modèle: Sonnet, effort: high · plan: → plans/P7/SA1.md
+- [ ] T-049 — Seuil rénal AR GLP-1 : seuil de déclenchement maintenu à `DFG < 30` (il marque la
+      disparition du socle metformine, pas la sécurité de la classe — confirmé référent 2026-07-29) +
+      alerte de prudence sous 15 mL/min (RCP : pas de CI formelle, peu étudié) · modèle: Sonnet,
+      effort: high · plan: → plans/P7/SA1.md
+- [ ] T-050 — « Optimiser l'agent mal toléré » conditionné à `traitements_en_cours` non vide ·
+      modèle: Sonnet, effort: high · plan: → plans/P7/SA1.md
+- [ ] T-051 — Badge distinct pour une option `role: securite` triée en tête (ne porte plus
+      « Recommandée », pensé pour un choix d'agent) · modèle: Sonnet, effort: medium · plan: →
+      plans/P7/SB1.md
+- [ ] T-052 — Signalement de validité de l'HbA1c (anémie, cirrhose, hémoglobinopathie) via `cadrage`
+      D24, sur les nœuds qui la lisent · modèle: Sonnet, effort: medium · plan: → plans/P7/SA2.md
+- [ ] T-053 — Doctrine : consigner les arbitrages du 2026-07-29 dans `DECISIONS.md`, y compris ceux
+      tranchés sans action · modèle: Sonnet, effort: medium · plan: → plans/P7/SA2.md
+- [ ] T-054 — Recette navigateur locale des quatre changements · modèle: Claude + navigateur,
+      effort: medium, env: Desktop · plan: → plans/P7/S2.md
+
+## Backlog — arbitrages référent tranchés le 2026-07-29, sans action (clos)
+
+- Portée clinique de la dette `prescription`/patient naïf (T-018) : **garder l'état actuel** — ne
+  jamais présumer qu'un traitement n'est pas en cours reste la position de sécurité.
+- Asymétrie iSGLT2/AR GLP-1 chez le sujet dénutri : **garder l'asymétrie** — différence pharmacologique
+  jugée réelle par le référent.
+- Statut `brouillon`/`valide` sur l'écran de décision : **non**, reste sur la page Méthode seule.
+- Réserve mineure résiduelle du CTA mobile (P6) : **laisser tel quel**, aucun usage ordinaire ne la
+  déclenche.
+- `docs/decision/sources/prescrire 12.pdf` : **n'existe pas** — référence retirée de
+  `docs/decision/sources/prescrire-dt2.md` (entrée P12).
+- **Descendre à la molécule et à la dose** hors du nœud `insuline` : **doctrine, pas un chantier** — au
+  cas par cas quand c'est cliniquement décisif (ex. dose d'insuline, déjà fait), jamais une extension
+  systématique à tout le domaine.
 
 ## Backlog — validation clinique finale (D5, passage à `statut: valide`)
 
@@ -123,25 +135,26 @@ correspondantes de `DECISIONS.md`. Ce qui suit est le backlog **réel et actuel*
       bout en bout sur le déployé, condition du passage à `valide`. Les vignettes RHD écrites le
       2026-07-27 verrouillent des arbitrages déjà rendus (statut documenté en tête de
       `evaluateNode.rhd-alimentation.test.ts`/`evaluateNode.rhd-activite-physique.test.ts`) — elles ne
-      remplacent pas cette relecture patient par patient.
+      remplacent pas cette relecture patient par patient. **Thibault a demandé de programmer une
+      session dédiée prochainement (2026-07-29)** — reste à caler, pas encore fait.
 
-## Dette de réconciliation (constat 2026-07-28, pas un chantier)
+## Backlog (P2 — Validation systémique DT2, cohérence inter-nœuds) — couvert autrement, coché avec renvoi
 
-- [ ] `TASKS.md` §Backlog (P2 — validation systémique, ci-dessous) porte encore T-013 à T-017 non
-      cochées alors que leur objet (red-team données, vignettes, red-team contradictoire, vérification,
-      rapport) a été couvert dans les faits par les chantiers 2026-07-26/27, nœud par nœud, par un chemin
-      différent de celui cadré dans `plans/P2/`. À trancher : cocher avec renvoi, ou retirer.
+> Méthode d'origine : `docs/decision/VALIDATION_COHERENCE.md`. Cadrage T-013→T-017 jamais exécuté tel
+> quel — **tranché par Thibault le 2026-07-29** : coché avec renvoi plutôt que retiré, l'objet ayant été
+> couvert dans les faits par les chantiers 2026-07-26/27 (red-team clinique par nœud, bancs de
+> vignettes, rapports `verif-finale-*`), par un chemin différent de celui cadré dans `plans/P2/`.
 
-## Backlog (P2 — Validation systémique DT2, cohérence inter-nœuds) — cadré dans `plans/P2/`
-
-> Méthode : `docs/decision/VALIDATION_COHERENCE.md`. S1/S2 exécutées (2026-07-24) ; S3-S7 non exécutées
-> **selon ce cadrage précis** — leur objet a été couvert autrement, cf. dette de réconciliation ci-dessus.
-
-- [ ] T-013 — Red-team données EBM inter-nœuds (validité globale) · modèle: Opus, effort: max · plan: → plans/P2/S3.md
-- [ ] T-014 — Banc de vignettes + confrontation des trajectoires · modèle: Opus, effort: xhigh · plan: → plans/P2/S4.md
-- [ ] T-015 — Red-team contradictoire (personas hostiles) · modèle: Opus, effort: high · plan: → plans/P2/S5.md
-- [ ] T-016 — Vérification adversariale des findings (anti-faux-positif) · modèle: Opus, effort: xhigh · plan: → plans/P2/S6.md
-- [ ] T-017 — Rapport de validation + registres de défendabilité + spec tests · modèle: Opus, effort: xhigh · plan: → plans/P2/S7.md
+- [x] T-013 — Red-team données EBM inter-nœuds → couvert par le red-team clinique nœud par nœud
+      (2026-07-26/27, `docs/decision/validation/chantier-2026-07-27/`) · plan: → plans/P2/S3.md
+- [x] T-014 — Banc de vignettes + confrontation des trajectoires → couvert par les bancs de vignettes
+      par nœud (`engine/banc/`) · plan: → plans/P2/S4.md
+- [x] T-015 — Red-team contradictoire (personas hostiles) → couvert par les passes de recette
+      « praticien naïf » (2026-07-28) · plan: → plans/P2/S5.md
+- [x] T-016 — Vérification adversariale des findings → couvert par les vérifications bi-agents des
+      nœuds C/D/E/F/H (2026-07-23/24) · plan: → plans/P2/S6.md
+- [x] T-017 — Rapport de validation + registres de défendabilité → couvert par les rapports
+      `verif-finale-*`/`BILAN-*` par nœud, pas un rapport systémique unique · plan: → plans/P2/S7.md
 
 ## Backlog (Phases suivantes — non cadré)
 

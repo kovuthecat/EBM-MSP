@@ -168,10 +168,6 @@ de nombreux effets indésirables* ». Pas de comparaison directe dapagliflozine 
 - Metformine : « *n'a pas apporté d'avantage clinique aux personnes à risque de diabète* ».
 - Réf primaire = **DPP Research Group, *Lancet Diabetes Endocrinol* 2015;3(11):866-875** (DPPOS 15 ans).
 
-## P12 — [fichier `prescrire 12.pdf` VIDE — à re-fournir]
-
-*`Downloads/prescrire 12.pdf` = PDF vide (889 octets, page blanche), y compris relu explicitement. Aucun contenu exploitable → ré-exporter/re-scanner et relancer sur ce seul fichier pour compléter P12.*
-
 ## P13 — « Prévenir ou retarder le diabète de type 2 : diététique et activité physique… » (Stratégies, **oct. 2006**, 26(276):676-684)
 
 *= MÊME article que **P2** (P2 en est le résumé). Ici les chiffres détaillés absents de P2.* Nœud : **H** (prévention).

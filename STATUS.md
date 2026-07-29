@@ -96,38 +96,35 @@ relecture rédactionnelle + I20 D29, dette S8 des vignettes RHD).
   avec `profil_glycemique`). Diagnostic : `chantier-2026-07-27/diagnostic-K2-mesures-mcg.md` +
   `BILAN-P4-2026-07-28.md` §3bis.
 
-**Reste explicitement ouvert**, tel que consigné par `ARBITRAGES-2026-07-27-nuit.md` §6 :
+**Reste explicitement ouvert** :
 
 - **Passe de recherche B — sécurité à l'effort** (nœud `rhd-activite-physique`), inchangée.
-- `docs/decision/sources/prescrire 12.pdf` toujours **vide** — à re-fournir par le référent.
-- La **frontière `a_l_objectif` / `sous_objectif`** (nœud `prescription`) reste volontairement non
-  pré-remplie par K6 (D28) : elle déclenche la déprescription, un seuil erroné serait dangereux dans les
-  deux sens. Le référent n'a donné que le seuil du « nettement au-dessus ».
-- Le **seuil rénal de l'AR GLP-1** (30 ou 20 mL/min) — question posée, pas tranchée.
-- **Dette `prescription`/patient naïf** (P4/S9, T-031) : les citations négatives de `traitements_en_cours`
-  (garde-fous de non-duplication sur 8 options d'ajout — insuline d'initiation, iSGLT2, AR GLP-1…) restent
-  bloquées, confirmé à l'écran y compris sur un profil catabolique qui justifierait cliniquement une
-  insuline d'initiation. Portée clinique à trancher avec le référent — cf. `BILAN-P4-2026-07-28.md` §3.
-- **Asymétrie iSGLT2 / AR GLP-1 chez le sujet dénutri** (`prescription`, intention Déprescrire) — même
-  terrain (IMC<22 et dénutrition) exclut l'AR GLP-1 mais pas l'iSGLT2. Trouvé par la recette praticien
-  naïf, à trancher référent.
-- **Validité de l'HbA1c non questionnée** (anémie, cirrhose, hémoglobinopathie) — l'outil raisonne sur une
-  HbA1c sans jamais signaler qu'elle peut ne pas être interprétable. À trancher référent : périmètre assumé
-  ou signalement à ajouter ?
-- Carte **« Optimiser l'agent mal toléré »** affichée sans aucun traitement en cours coché — doute sur si
-  `intolerance_traitement` doit être conditionné à `traitements_en_cours` non vide. À trancher référent.
-- **Validation clinique référent finale** sur le déployé pour `prescription`, `insuline`,
-  `rhd-alimentation`, `rhd-activite-physique` → passage à `statut: valide` (D5). Les 12 vignettes RHD
-  écrites le 2026-07-27 verrouillent des arbitrages déjà rendus, elles ne remplacent pas cette relecture
-  patient par patient (même statut que F-01…F-09 sur `statine`, en mieux).
 
-## Dette technique connue
+## Arbitrages du 2026-07-29 (session dédiée, hors plan)
 
-- `TASKS.md` — plusieurs tâches P2 (T-013 à T-017, red-team/vignettes/rapport de validation systémique)
-  restent `[ ]` alors que leur objet a été couvert, dans les faits, par les chantiers du 2026-07-26/27
-  (red-team clinique par nœud, bancs de vignettes, rapports `verif-finale-*`). À réconcilier : soit
-  cocher rétroactivement avec un renvoi, soit les retirer comme absorbées par un chemin différent de
-  celui prévu au cadrage P2.
+Neuf points en attente de réponse référent (`TASKS.md` §Backlog) ont été tranchés par Thibault en une
+session dédiée, après clôture de P6. Détail complet dans `TASKS.md`, deux nouvelles sections :
+
+**Prêts à exécuter** (candidats à un plan P7, mécanique/contenu ciblé, sur le modèle de P5) :
+- Seuils `a_l_objectif`/`sous_objectif` (`prescription`) : donnés, à coder.
+- Seuil rénal AR GLP-1 : pas de contre-indication formelle, prudence sous 15 mL/min — probable ajout
+  d'une alerte plutôt que changement du seuil de déclenchement existant (`DFG < 30`), confirmation en
+  cours.
+- Badge « Recommandée » sur une option `role: securite` triée en tête : remplacé par un badge dédié.
+- Validité de l'HbA1c : signalement à ajouter (portée à cadrer).
+- « Optimiser l'agent mal toléré » : conditionné à `traitements_en_cours` non vide.
+
+**Sans action** (clos, décision = garder l'état actuel) : dette `prescription`/patient naïf (T-018),
+asymétrie iSGLT2/AR GLP-1 chez le dénutri, statut `brouillon`/`valide` hors écran de décision, réserve
+CTA mobile P6, `prescrire 12.pdf` (n'existe pas, référence retirée), molécule/dose (doctrine : cas par
+cas, pas un chantier).
+
+**Programmé, pas encore fait** : la validation clinique référent finale (`prescription`, `insuline`,
+`rhd-alimentation`, `rhd-activite-physique` → `statut: valide`) — Thibault a demandé de caler une
+session dédiée prochainement.
+
+**Réconcilié** : T-013→T-017 (P2) cochés avec renvoi vers les chantiers qui ont couvert leur objet
+autrement (2026-07-26/27) — la dette de réconciliation notée le 2026-07-28 est soldée.
 - Module Veille : zéro code. Reste une ligne de roadmap (D8), pas un chantier entamé.
 
 ## Comment vérifier l'état réel
