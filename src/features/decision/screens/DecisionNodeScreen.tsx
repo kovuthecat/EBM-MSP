@@ -1,4 +1,4 @@
-import { useDeferredValue, useMemo, useState } from 'react'
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import type { Navigation } from '../../shared/navigation'
 import { AlertList } from '../components/AlertList'
 import { ArgumentPanel } from '../components/ArgumentPanel'
@@ -228,6 +228,48 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
     [node, criteriaDiffere, criteresRenseignes, pertinents],
   )
 
+  // P6/SB1 — DEUX COLONNES (formulaire à gauche, résultats sticky à droite sur écran large, empilés en
+  // dessous de 960px). `isNarrow` PILOTE UNIQUEMENT LA MISE EN PAGE (bouton flottant, cf. plus bas) —
+  // aucune des règles D30/D31/D32/D25/T-024 ne lit cet état : elles restent décidées par `vue`/
+  // `violations` seuls, inchangés par cette session. `matchMedia` plutôt qu'un listener `resize` brut
+  // (repris de la maquette `design/maquettes/Maquette upgrade UI.zip`, script du nœud `prescription`) :
+  // ne redéclenche un rendu qu'au franchissement du seuil, pas à chaque pixel redimensionné.
+  // `typeof window.matchMedia === 'function'` (pas seulement `typeof window !== 'undefined'`) : jsdom
+  // (tests d'interaction, `DecisionNodeScreen.interaction.test.tsx`) fournit un objet `window` mais
+  // n'implémente pas `matchMedia` — sans cette garde, CHAQUE test qui monte l'écran plantait au premier
+  // rendu (`TypeError: window.matchMedia is not a function`), bien avant la moindre assertion sur
+  // D30/D31/D32/D25/T-024. Repli à `false` (écran large) : c'est le comportement historique, celui que
+  // ces tests vérifiaient déjà avant cette session.
+  const supportsMatchMedia = typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+  const [isNarrow, setIsNarrow] = useState(() =>
+    supportsMatchMedia ? window.matchMedia('(max-width: 959px)').matches : false,
+  )
+  useEffect(() => {
+    if (!supportsMatchMedia) return
+    const mql = window.matchMedia('(max-width: 959px)')
+    const onChange = (event: MediaQueryListEvent) => setIsNarrow(event.matches)
+    mql.addEventListener('change', onChange)
+    return () => mql.removeEventListener('change', onChange)
+  }, [supportsMatchMedia])
+  // Cible du bouton flottant mobile (« Voir les recommandations (N) ↓ ») : le DÉBUT de la colonne
+  // résultats, pas un élément particulier à l'intérieur — qu'elle contienne des cartes, le bloc de
+  // suspension D31 ou le registre « en attente », le point d'arrivée est toujours le même.
+  const resultatsColRef = useRef<HTMLDivElement>(null)
+  const scrollVersResultats = () => {
+    resultatsColRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+  // N du bouton flottant : nombre d'options RÉELLEMENT rendues comme cartes dans la colonne droite à cet
+  // instant — `vue.familles` aplati (`familles[].groupes[]` est `OptionVue[][]`, cf. `lib/vueDecision.ts`
+  // `FamilleVue`), PAS une estimation. Zéro dès qu'une contrainte suspend le panneau (D31) : dans cet
+  // état, `vue.familles` n'est de toute façon jamais consulté par le rendu (Étape 2 ci-dessous).
+  const optionsRenduesCount = useMemo(() => {
+    if (violations.length > 0 || !vue) return 0
+    return vue.familles.reduce(
+      (total, famille) => total + famille.groupes.reduce((sousTotal, groupe) => sousTotal + groupe.length, 0),
+      0,
+    )
+  }, [violations, vue])
+
   if (!node) {
     return (
       <div className="decision-node decision-node--missing">
@@ -386,32 +428,41 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
         </div>
       ) : (
         <>
-          <CriteriaForm
-            criteresEntree={node.criteres_entree}
-            criteria={criteria}
-            criteriaGroupement={criteriaDiffere}
-            // T-023/D-06 (P4/S3) : `criteresRenseignes` (`touched` ∪ `preremplis`), pas `touched` seul —
-            // sinon un segment pré-rempli par le contenu (K6) reste affiché `aria-pressed="false"` alors
-            // que sa valeur a bien été posée (cf. la fusion ci-dessus, docstring complète sur `vue`).
-            touched={criteresRenseignes}
-            pertinents={pertinents}
-            aConfirmer={new Set(decisifsManquants)}
-            repris={repris}
-            preremplis={preremplis}
-            hints={
-              hasEsperanceVieCritere(node.criteres_entree) && !touched.has('esperance_vie')
-                ? { esperance_vie: 'Suggestion auto (âge, fragilité, comorbidité grave, antécédent CV) — à valider' }
-                : undefined
-            }
-            onConfirmerChamps={handleConfirmerChamps}
-            onEffacer={handleCriteriaEffacer}
-            // T-022 (D31) : `contraintesViolees` n'est PLUS transmis ici — le bandeau que `CriteriaForm`
-            // en tirait s'affichait en tête de formulaire, 848 px au-dessus du champ fautif (D-15), ET en
-            // double avec le bloc de suspension ci-dessous (« un bloc unique », Étape 1). Une contrainte
-            // violée est désormais rendue UNE SEULE fois, à la place du panneau de résultats.
-            onChange={handleCriteriaChange}
-          />
+          {/* P6/SB1 — DEUX COLONNES génériques (formulaire à gauche, résultats sticky à droite ≥ 960px ;
+              empilées en dessous, cf. CSS). Le moteur produit `familles`/`groupes` de façon identique
+              pour les 6 nœuds DT2 : une seule disposition, pas une redisposition par nœud. AUCUNE des
+              conditions ci-dessous n'a été réordonnée ni dupliquée par rapport au flux vertical précédent
+              — seul leur conteneur DOM change (T-036 "Hors périmètre" : ne pas toucher au comportement). */}
+          <div className="decision-node__body">
+            <div className="decision-node__form-col">
+              <CriteriaForm
+                criteresEntree={node.criteres_entree}
+                criteria={criteria}
+                criteriaGroupement={criteriaDiffere}
+                // T-023/D-06 (P4/S3) : `criteresRenseignes` (`touched` ∪ `preremplis`), pas `touched` seul —
+                // sinon un segment pré-rempli par le contenu (K6) reste affiché `aria-pressed="false"` alors
+                // que sa valeur a bien été posée (cf. la fusion ci-dessus, docstring complète sur `vue`).
+                touched={criteresRenseignes}
+                pertinents={pertinents}
+                aConfirmer={new Set(decisifsManquants)}
+                repris={repris}
+                preremplis={preremplis}
+                hints={
+                  hasEsperanceVieCritere(node.criteres_entree) && !touched.has('esperance_vie')
+                    ? { esperance_vie: 'Suggestion auto (âge, fragilité, comorbidité grave, antécédent CV) — à valider' }
+                    : undefined
+                }
+                onConfirmerChamps={handleConfirmerChamps}
+                onEffacer={handleCriteriaEffacer}
+                // T-022 (D31) : `contraintesViolees` n'est PLUS transmis ici — le bandeau que `CriteriaForm`
+                // en tirait s'affichait en tête de formulaire, 848 px au-dessus du champ fautif (D-15), ET en
+                // double avec le bloc de suspension ci-dessous (« un bloc unique », Étape 1). Une contrainte
+                // violée est désormais rendue UNE SEULE fois, à la place du panneau de résultats.
+                onChange={handleCriteriaChange}
+              />
+            </div>
 
+            <div className="decision-node__results-col" ref={resultatsColRef}>
           {/* Alertes de NŒUD (D15, faits de sécurité) : restent visibles MÊME quand une contrainte de
               saisie suspend le reste du panneau juste en dessous (T-022 "Si bloqué" : suspendre les
               résultats ne doit jamais faire disparaître un fait de sécurité qui aurait dû rester — un
@@ -667,6 +718,22 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
 
           {argOpen && <ArgumentPanel node={node} />}
             </>
+          )}
+            </div>
+          </div>
+
+          {/* Bouton flottant mobile (< 960px) — masqué ≥ 960px, où la colonne résultats est `sticky`
+              (toujours dans le viewport pendant la saisie, cf. CSS) : y dupliquer ce raccourci n'aurait
+              aucun usage. Compte `optionsRenduesCount` dérivé de `vue.familles` aplati (défini plus haut),
+              jamais une valeur inventée — 0 pendant une suspension D31, comme le panneau qu'il cible. */}
+          {isNarrow && (
+            <button
+              type="button"
+              className="decision-node__floating-recos"
+              onClick={scrollVersResultats}
+            >
+              Voir les recommandations ({optionsRenduesCount}) ↓
+            </button>
           )}
         </>
       )}

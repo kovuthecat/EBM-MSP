@@ -546,4 +546,64 @@ describe('statine — T-020 (D32) : une halte OFM ne masque plus la carte de sé
     // halte) reste ÉCARTÉE avec son motif, comme avant ce lot (non-régression D21).
     expect(result.excluded.has(OPT_HAUTE)).toBe(true)
   })
+
+  /**
+   * P6/SB4 (T-041, 2026-07-28/29) — REJEU DU MÊME PROFIL À TRAVERS `construireVueDecision`, le modèle de
+   * vue qui alimente RÉELLEMENT la colonne sticky de `DecisionNodeScreen.tsx` (P6/SB1) — jusqu'ici seul
+   * `evaluateNode` (couche moteur) avait été rejoué sur ce profil (test ci-dessus). SB4 doit vérifier que
+   * le nouveau shell (formulaire + colonne résultats sticky) n'introduit aucun filtrage supplémentaire
+   * entre le moteur et l'écran pour ce cas précis (D32) : la carte de sécurité doit apparaître dans
+   * `vue.familles` (ce que la colonne résultats rend comme carte, `DecisionNodeScreen.tsx`
+   * `rendreFamilles`) EN MÊME TEMPS que la halte reste nommée dans `vue.enAttente` (le registre « en
+   * attente », rendu dans LA MÊME colonne depuis SB1 — ni l'un ni l'autre n'est plus hors de la colonne
+   * sticky, cf. lecture du JSX). `DecisionNodeScreen.tsx` ne fait plus AUCUN calcul propre (il consomme
+   * `VueDecision` telle quelle, cf. docstring de tête de `lib/vueDecision.ts`) : si cette assertion passe
+   * ICI, le rendu DOM ne peut pas différer — pas besoin d'un navigateur pour ce point précis (S6 fait la
+   * vérification visuelle réelle, cf. `plans/P6/SB4.md`).
+   */
+  it('P6/SB4 — le même profil, vu par `construireVueDecision` (modèle de la colonne sticky) : la carte de sécurité est bien dans `familles`, la halte reste dans `enAttente`, les deux dans le même panneau', () => {
+    const renseignes = new Set([
+      'age',
+      'ASCVD_etablie',
+      'diabete_complique',
+      'dialyse',
+      'statine_deja_en_place',
+      'intolerance_statine',
+      'CK_x_normale',
+    ])
+    const o = {
+      age: 62,
+      ASCVD_etablie: true,
+      diabete_complique: false,
+      dialyse: false,
+      statine_deja_en_place: false,
+      intolerance_statine: 'averee',
+      CK_x_normale: 6,
+    } as Partial<Criteria>
+    const vue = construireVueDecision(
+      node!,
+      calculerCriteresDerives(node!.criteres_entree, { ...BASE, ...o } as Criteria),
+      renseignes,
+    )
+
+    // La carte de sécurité est bien dans `familles` — ce que la colonne résultats rend comme carte
+    // (`OptionCard`) — et nulle part ailleurs (ni écartée, ni non retenue) : c'est ELLE que le praticien
+    // voit, pas seulement une entrée de registre.
+    const optionsRendues = vue.familles.flatMap((famille) => famille.groupes.flat()).map((ov) => ov.option)
+    expect(optionsRendues).toEqual([OPT_TERMINALE])
+    expect(vue.ecartees.some((e) => e.option === OPT_TERMINALE)).toBe(false)
+    expect(vue.nonRetenues.some((nr) => nr.option === OPT_TERMINALE)).toBe(false)
+
+    // La halte reste nommée, dans le MÊME modèle de vue (donc le même panneau sticky, SB1) : le praticien
+    // voit à la fois le filet ET pourquoi la décision principale reste ouverte.
+    const enAttenteDiscuter = vue.enAttente.find((ea) => ea.option === OPT_DISCUTER)
+    expect(enAttenteDiscuter).toBeTruthy()
+    expect(new Set(enAttenteDiscuter?.manquants)).toEqual(new Set(['anciennete_diabete_annees', 'autres_FDRCV']))
+
+    // `statine` ne déclare pas `familles` (repli à plat, D11 — nœud `ordered-first-match`) : une famille
+    // unique SANS libellé, jamais le texte « — en choisir un » pensé pour un `multi-options` (cf.
+    // `DecisionNodeScreen.tsx`, qui ne rend la mention QUE si `famille.libelle != null`).
+    expect(vue.familles).toHaveLength(1)
+    expect(vue.familles[0].libelle).toBeUndefined()
+  })
 })

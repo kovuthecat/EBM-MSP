@@ -9,6 +9,85 @@
   padding-top: 96px;
 }
 
+/* P6/SB1 — DEUX COLONNES génériques (formulaire à gauche, résultats sticky à droite), remplace le flux
+   vertical unique (jusqu'à 3 écrans de défilement pour voir les 5 cartes d'un nœud multi-options, recette
+   du 2026-07-28). Une seule disposition pour les 6 nœuds DT2 — le moteur produit `familles`/`groupes` de
+   façon identique quel que soit le nœud (T-036 "Décision clé"), ce n'est pas une redisposition par nœud.
+   Mobile-first : empilée par défaut (`display: block`), grille à deux colonnes à partir de 960px (seuil
+   de la maquette `design/maquettes/Maquette upgrade UI.zip`, nœud `prescription`). */
+.decision-node__body {
+  display: block;
+}
+
+.decision-node__form-col {
+  min-width: 0;
+}
+
+.decision-node__results-col {
+  min-width: 0;
+  margin-top: 24px;
+}
+
+@media (min-width: 960px) {
+  .decision-node__body {
+    display: grid;
+    grid-template-columns: minmax(420px, 1fr) minmax(380px, 1fr);
+    align-items: start;
+    gap: 32px;
+  }
+
+  .decision-node__results-col {
+    margin-top: 0;
+    /* Toujours visible pendant que le formulaire défile à gauche (la demande initiale de cette tâche).
+       `top` compense le header sticky existant (`Header.css` `.header`, `position: sticky; top: 0`,
+       ~72px de hauteur réelle : padding 14px + pills 33px + leur propre padding 4px + bordure) — sans
+       cette compensation, le haut de la colonne (les alertes de nœud, D15) resterait masqué dessous. */
+    position: sticky;
+    top: 72px;
+    align-self: start;
+  }
+}
+
+/* T-046 (P6/SB7, défaut S6 point 1c) — RÉSERVE D'ESPACE pour le bouton flottant ci-dessous, sur toute la
+   plage mobile où il existe (même seuil `max-width: 959px` que `isNarrow` côté JS, cf. `DecisionNodeScreen.tsx`
+   et `@media (min-width: 960px)` ci-dessus). Le CTA est `position: fixed` : il ne participe jamais au flux
+   du document, donc rien ne l'empêche de se superposer au dernier contenu visible quand la page atteint le
+   bas de son défilement. Mesuré en recette (S6, 375×812, nœud Insulinothérapie) : bouton flottant top 724 /
+   bottom 796 dans un viewport de 812px, soit une empreinte de 88px depuis le bas du viewport (72px de
+   hauteur + 16px de `bottom`) — le bouton « Suivant » de fin de section (`CriteriaForm.css`
+   `.criteria-form__group-suivant-bouton`) s'y trouvait recouvert à 69 % (chevauchement mesuré : 33 des
+   48px de sa hauteur). En réservant, en pied de page mobile, une marge supérieure à cette empreinte (88px
+   + respiration), le document peut toujours défiler plus loin que ce point : plus aucun contenu réel ne
+   peut rester coincé dans la bande que le CTA recouvre en permanence. Remplace le `padding-bottom: 80px`
+   de la règle de base ci-dessus, seulement en dessous de 960px — au-dessus, le CTA n'existe pas (masqué,
+   cf. commentaire du bouton lui-même). */
+@media (max-width: 959px) {
+  .decision-node {
+    padding-bottom: 140px;
+  }
+}
+
+/* Bouton flottant mobile (< 960px, cf. `DecisionNodeScreen.tsx` `isNarrow`) — saute au début de la
+   colonne résultats. Masqué à partir de 960px : la colonne résultats y est `sticky` (ci-dessus), donc
+   déjà dans le viewport en permanence pendant la saisie — dupliquer le raccourci n'y aurait aucun usage. */
+.decision-node__floating-recos {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: none;
+  background: var(--c-accent-decision);
+  color: white;
+  border-radius: 24px;
+  padding: 12px 22px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 4px 16px oklch(24% 0.02 245 / 0.25);
+  cursor: pointer;
+  z-index: 10;
+}
+
 .decision-node__back {
   border: none;
   background: transparent;

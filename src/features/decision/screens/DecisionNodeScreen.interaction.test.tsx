@@ -344,6 +344,21 @@ function entreesEnAttente(container: HTMLElement): string[] {
   return [...container.querySelectorAll('.decision-node__en-attente-item')].map((el) => el.textContent ?? '')
 }
 
+/**
+ * Accordéon du formulaire (P6 · SB2, `CriteriaForm.tsx`) : ouvre un groupe via SA CHIP dans la barre de
+ * navigation en tête du formulaire — `NODE` (ci-dessus) porte 3 groupes (Bilan/Sécurité/Antécédents),
+ * « Bilan » ouvert par défaut, les deux autres repliés. Scope la recherche à `.criteria-form__group-nav`
+ * plutôt qu'un `screen.getByRole('button', { name })` global : le libellé d'une section repliée est
+ * LUI-MÊME un second bouton portant le même nom accessible (le « bouton pour l'ouvrir » propre à la
+ * section, distinct de la chip) — sans ce scope, `getByRole` trouve les deux et échoue (« multiple
+ * elements »).
+ */
+function ouvrirGroupeFormulaire(container: HTMLElement, libelleGroupe: string) {
+  const nav = container.querySelector('.criteria-form__group-nav')
+  if (!nav) throw new Error('barre de chips introuvable (accordéon absent ? un seul groupe ?)')
+  fireEvent.click(within(nav as HTMLElement).getByRole('button', { name: new RegExp(libelleGroupe, 'i') }))
+}
+
 describe('DecisionNodeScreen — comportement 1 : un `nombre` vidé quitte `renseignes` (D20 R7, défauts de recette 12.2/13.3)', () => {
   it('saisir puis effacer nb_facteurs_risque fait réapparaître le registre « en attente » et disparaître l’option qui en dépendait', () => {
     const { container } = renderNode()
@@ -385,6 +400,10 @@ describe('DecisionNodeScreen — comportement 2 : le registre « en attente » a
 describe('DecisionNodeScreen — comportement 3 : « Rien à signaler » apparaît dès UN booléen décisif isolé (seuil à 1, D20 R7)', () => {
   it('le bouton est présent dans la section « Sécurité » (un seul `confirmation_requise`), et le confirme sans le cocher', () => {
     const { container } = renderNode()
+    // P6 · SB2 (accordéon) : le nœud porte 3 groupes (Bilan/Sécurité/Antécédents) → une seule section
+    // ouverte à la fois, « Bilan » par défaut. Ouvrir « Sécurité » avant d'y chercher un champ — ses
+    // champs ne sont pas dans le DOM tant que la section reste repliée.
+    ouvrirGroupeFormulaire(container, 'Sécurité')
     const checkbox = screen.getByLabelText('Evenement grave', { exact: false }) as HTMLInputElement
     const section = checkbox.closest('section')
     if (!section) throw new Error('section introuvable')
@@ -432,7 +451,9 @@ describe('DecisionNodeScreen — comportement 4 : le marqueur « à confirmer »
   })
 
   it('marque le `bool` `confirmation_requise` décisif non renseigné', () => {
-    renderNode()
+    const { container } = renderNode()
+    // P6 · SB2 (accordéon) : ouvrir « Sécurité » (repliée par défaut, seule « Bilan » l'est).
+    ouvrirGroupeFormulaire(container, 'Sécurité')
     const checkbox = screen.getByLabelText('Evenement grave', { exact: false })
     const label = checkbox.closest('label')
     if (!label) throw new Error('label introuvable')
@@ -440,7 +461,9 @@ describe('DecisionNodeScreen — comportement 4 : le marqueur « à confirmer »
   })
 
   it('marque AUSSI le `bool` ORDINAIRE décisif non renseigné — et sa section propose toujours « Rien à signaler » pour le résoudre', () => {
-    renderNode()
+    const { container } = renderNode()
+    // P6 · SB2 (accordéon) : ouvrir « Antécédents » (repliée par défaut, seule « Bilan » l'est).
+    ouvrirGroupeFormulaire(container, 'Antécédents')
     const checkbox = screen.getByLabelText('Ascvd etablie', { exact: false })
     const label = checkbox.closest('label')
     if (!label) throw new Error('label introuvable')
@@ -493,6 +516,13 @@ describe('DecisionNodeScreen — T-022 : une contrainte de saisie violée suspen
     expect(champs).toContain('Tbr')
     expect(champs).toContain('Tbr severe')
 
+    // P6/SB4 (T-041) — le bloc de suspension (D31) doit vivre DANS la colonne résultats sticky (SB1),
+    // pas être resté à l'extérieur par un oubli de déplacement : c'est elle qui reste visible pendant que
+    // le formulaire défile, à gauche.
+    expect(
+      container.querySelector('.decision-node__results-col .decision-node__contrainte-suspension'),
+    ).toBeTruthy()
+
     // CORRIGER la saisie fait réapparaître le panneau normal (la contrainte n'est pas un blocage figé).
     fireEvent.change(inputs[1], { target: { value: '1' } }) // tbr_severe redevient <= tbr
     expect(container.querySelector('.decision-node__contrainte-suspension')).toBeNull()
@@ -517,6 +547,8 @@ describe('DecisionNodeScreen — T-023(a) : zéro option applicable ne produit j
     expect(bloc?.textContent).toMatch(/suspendue/i)
     // Le détail (option + critère manquant, en libellé rédigé) reste porté par le registre « en attente ».
     expect(entreesEnAttente(container)).toContain('Option suspendue — à renseigner : Critere x')
+    // P6/SB4 (T-041) — ce bloc « zéro carte » doit lui aussi vivre DANS la colonne résultats sticky (SB1).
+    expect(container.querySelector('.decision-node__results-col .decision-node__suspendu')).toBeTruthy()
   })
 
   it("ni option applicable ni option en attente : l'écran dit explicitement que l'outil n'a rien à proposer", () => {
@@ -526,6 +558,8 @@ describe('DecisionNodeScreen — T-023(a) : zéro option applicable ne produit j
     const bloc = container.querySelector('.decision-node__empty')
     expect(bloc).toBeTruthy()
     expect(bloc?.textContent).toMatch(/aucune conduite à proposer/i)
+    // P6/SB4 (T-041) — même vérification que ci-dessus, pour l'autre bloc « zéro carte ».
+    expect(container.querySelector('.decision-node__results-col .decision-node__empty')).toBeTruthy()
   })
 })
 
