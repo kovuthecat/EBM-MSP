@@ -469,6 +469,13 @@ options:
     contre_indications:
       - "Molécules de haute intensité (baisse de LDL ≥ 50 %, SFE/SFD/NSFA/SFC 2026 Table 4) : atorvastatine 40-80 mg ou rosuvastatine 10-20 mg. Prudence d'interaction via le CYP3A4 avec l'atorvastatine (macrolides, azolés, amiodarone, vérapamil/diltiazem, inhibiteurs de protéase) ; préférer la rosuvastatine en cas de co-prescription à risque."
       - "Ne pas INITIER de statine chez un patient déjà en dialyse sans statine en cours (exclusion structurelle ci-dessous, voir alerte) ; grossesse."
+    # T-076 (P9/S9) — aperçu affiché dans le titre du dépli REPLIÉ, reprenant exactement les molécules/
+    # doses déjà écrites dans `contre_indications` ci-dessus (séparateur « / » au lieu de « ou », pour
+    # tenir sur une ligne de titre — aucune information ajoutée ni recalculée). Cas exact cité par le
+    # rapport de recette S9 : « la bonne réponse est là, et l'écran me la cache derrière un mauvais
+    # titre ». Application volontairement limitée à CETTE option pour ce lot (hors périmètre S9 :
+    # généraliser à d'autres options).
+    apercu: "atorvastatine 40-80 mg / rosuvastatine 10-20 mg"
     # D21 (2026-07-26, F-statine §9.1) : l'alerte dialyse interdisait ce que rien ne retirait — cette
     # exclusion corrige la contradiction la plus sévère relevée en recette (« ne pas INITIER » affiché à
     # côté de « Statine de haute intensité »). Bornée à l'INITIATION (`statine_deja_en_place == false`) :
@@ -1046,8 +1053,21 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Claude Code"
   statut: brouillon
-  version: "1.18"
+  version: "1.19"
   changelog:
+    - date: "2026-07-30"
+      auteur: "Claude Code (P9/S9, T-076)"
+      resume: >-
+        Ajout du champ optionnel et générique `apercu` (schéma + `node.types.ts` + `OptionCard.tsx`) :
+        un court aperçu du contenu d'une option, affiché dans le titre du `<summary>` REPLIÉ, avant même
+        de l'ouvrir. Renseigné SUR CETTE SEULE OPTION (« Statine de haute intensité — prévention
+        secondaire ») avec « atorvastatine 40-80 mg / rosuvastatine 10-20 mg » — reprise exacte des
+        molécules/doses déjà écrites dans ses `contre_indications`, aucune valeur clinique nouvelle ni
+        recalculée. Motif : rapport de recette S9, la posologie de haute intensité était déjà présente
+        dans le contenu mais cachée derrière un titre de dépli qui ne promettait qu'un compte de
+        contre-indications. Aucune contre-indication, condition ni dose existante modifiée ; application
+        volontairement non généralisée aux autres options de ce nœud ni des autres nœuds (hors périmètre
+        S9).
     - date: "2026-07-30"
       auteur: "Claude Code (P9/S2, T-069) — en attente de relecture référent"
       resume: >-

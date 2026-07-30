@@ -219,9 +219,16 @@ export function OptionCard({
   ]
     .filter(Boolean)
     .join(' ')
+  // T-076 (P9/S9) — aperçu OPTIONNEL et générique du contenu de l'option (ex. molécules/doses déjà
+  // citées dans `contre_indications`), concaténé au libellé du <summary> REPLIÉ quand il est présent :
+  // le compte de contre-indications dit qu'il faut ouvrir, l'aperçu dit une partie de ce qu'on y
+  // trouverait, sans avoir à cliquer (cas cité par S9 : un praticien qui cherche une posologie n'a
+  // aucune raison d'ouvrir sur la seule promesse de contre-indications). Absent → suffixe vide, rendu
+  // du titre rigoureusement inchangé (aucune régression sur les options qui ne le portent pas).
+  const apercuSuffix = option.apercu ? ` · ${option.apercu}` : ''
   const libelleSummary = aDesContreIndications
-    ? `${ciAffichees.length} ${ciAffichees.length > 1 ? 'contre-indications' : 'contre-indication'}, effet attendu et plus`
-    : 'Effet attendu, avantages et inconvénients'
+    ? `${ciAffichees.length} ${ciAffichees.length > 1 ? 'contre-indications' : 'contre-indication'}${apercuSuffix}, effet attendu et plus`
+    : `Effet attendu, avantages et inconvénients${apercuSuffix}`
 
   return (
     <div className={classeCarte}>

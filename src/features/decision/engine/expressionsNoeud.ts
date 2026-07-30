@@ -128,6 +128,7 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
     // `{ texte, condition }` — cf. la définition `contreIndication` ci-dessous, qui porte la seule
     // expression du lot. Le champ lui-même ne porte donc rien, comme `alertes`.
     contre_indications: 'inerte',
+    apercu: 'inerte', // T-076 (P9/S9) : prose d'affichage pure (titre du <summary> replié), aucune expression
     priorite: 'decision', // entier (D13) ou liste de règles `{ quand, rang }` (D14) — seul `quand` est une expression
     exclusions: 'decision',
     calculs: 'arithmetique',

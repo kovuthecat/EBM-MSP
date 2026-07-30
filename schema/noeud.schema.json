@@ -411,6 +411,11 @@
           },
           "description": "Prose destinee au lecteur (affichage). Distincte de `exclusions`, qui RETIRE l'option (DECISIONS.md D13) — une contre-indication, elle, reste TOUJOURS affichee. DEUX FORMES depuis T-068 (P9) : une CHAINE (forme historique, contre-indication non verifiable automatiquement, ex. « alcoolisme ») ou un OBJET `{ texte, condition }` (cf. definitions/contreIndication) dont la `condition` est une expression du MEME DSL que `exclusions`. La condition ne retire RIEN : elle change seulement l'ETAT VISUEL de la contre-indication (active / levee / indeterminee, cf. `engine/evaluateNode.ts` `evaluerContreIndications`). Les deux formes cohabitent dans le meme tableau ; une chaine equivaut exactement a un objet sans `condition`."
         },
+        "apercu": {
+          "type": "string",
+          "minLength": 1,
+          "description": "T-076 (P9/S9). Court apercu du contenu de l'option (une ligne, pas une prose), affiche dans le titre du <summary> REPLIE, avant meme de l'ouvrir — ex. les molecules/doses deja citees dans `contre_indications`, jamais un texte different ni un chiffre recalcule. Motif : le titre du deplier ne portait jusqu'ici qu'un compte de contre-indications ou un libelle generique, jamais un extrait du contenu utile — un praticien qui cherche une posologie n'avait aucune raison de l'ouvrir sur la seule promesse de contre-indications. Optionnel et generique, applique au cas par cas par le contenu : une option qui ne le porte pas garde le rendu actuel du titre, rigoureusement inchange."
+        },
         "priorite": {
           "description": "Rang en mode multi-options : options triees par rang croissant (tri stable ; absente = rang faible). Entier = rang FIXE (D13) ; liste de regles {quand, rang} = rang CONDITIONNEL (D14, 1re regle dont `quand` — condition DSL ou 'default' — est vraie ; placer 'default' EN DERNIER, sinon les regles suivantes sont mortes). Ignore en ordered-first-match.",
           "oneOf": [

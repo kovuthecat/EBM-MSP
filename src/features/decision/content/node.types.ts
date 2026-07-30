@@ -376,6 +376,25 @@ export interface Option {
    */
   contre_indications?: (string | ContreIndication)[]
   /**
+   * COURT APERÇU DU CONTENU DE L'OPTION (T-076, P9/S9), affiché dans le titre du `<summary>` REPLIÉ,
+   * avant même de l'ouvrir — ex. les molécules/doses déjà citées dans `contre_indications`, jamais un
+   * texte différent ni un chiffre recalculé.
+   *
+   * MOTIF : le titre du dépli ne portait jusqu'ici qu'un compte de contre-indications (« ⚠ N
+   * contre-indication(s), effet attendu et plus ») ou un libellé générique, jamais un extrait du
+   * contenu utile — un praticien qui cherche une posologie n'avait aucune raison de l'ouvrir sur la
+   * seule promesse de contre-indications (rapport de recette cité par S9).
+   *
+   * UNE LIGNE COURTE, PAS UNE PROSE : ce champ est fait pour tenir sur la même ligne que le compte de
+   * contre-indications (`OptionCard.tsx`, `libelleSummary`).
+   *
+   * OPTIONNEL ET GÉNÉRIQUE, appliqué au cas par cas par le contenu — T-076 ne l'a renseigné QUE sur
+   * l'option statine haute intensité de `statine.yaml`, pour valider le principe avant une éventuelle
+   * généralisation (hors périmètre de cette session). Une option qui ne le porte pas garde le rendu
+   * actuel du titre, rigoureusement inchangé.
+   */
+  apercu?: string
+  /**
    * Rang de priorité en mode `multi-options` : les options applicables sont triées par rang
    * croissant (tri stable ; absente = rang le plus faible). Soit un **entier** (rang FIXE, D13),
    * soit une **liste de règles** `{ quand, rang }` (rang CONDITIONNEL, D14 : 1re règle dont `quand`
