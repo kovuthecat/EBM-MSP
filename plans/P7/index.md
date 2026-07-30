@@ -37,8 +37,8 @@ Source : `TASKS.md` §« Backlog — arbitrages référent tranchés le 2026-07-
 
 | Session | Tâches | Titre | Modèle | Effort | Env. | Dépend de | Zone modifiée | Statut |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [SA1](SA1.md) | T-048, T-049, T-050 | `prescription` : seuils de position, prudence rénale AR GLP-1, garde sur l'agent mal toléré | Sonnet | high | — | — | `content/noeuds/diabete-type-2/prescription.yaml` | [ ] |
-| [SB1](SB1.md) | T-051 | Badge dédié pour une option de sécurité triée en tête | Sonnet | medium | — | — | `src/features/decision/screens/DecisionNodeScreen.tsx`, `components/OptionCard.tsx`, `.css` | [ ] |
+| [SA1](SA1.md) | T-048, T-049, T-050 | `prescription` : seuils de position, prudence rénale AR GLP-1, garde sur l'agent mal toléré | Sonnet | high | — | — | `content/noeuds/diabete-type-2/prescription.yaml` | [x] — T-048 rendu obsolète le 2026-07-29 (`position_vs_cible` retiré, cf. changelog) ; T-049/T-050 tiennent |
+| [SB1](SB1.md) | T-051 | Badge dédié pour une option de sécurité triée en tête | Sonnet | medium | — | — | `src/features/decision/screens/DecisionNodeScreen.tsx`, `components/OptionCard.tsx`, `.css` | [x] |
 | [SA2](SA2.md) | T-052, T-053 | Signalement de validité de l'HbA1c + doctrine | Sonnet | medium | — | SA1, SB1 | `content/noeuds/diabete-type-2/*.yaml`, `DECISIONS.md` | [ ] |
 | [S2](S2.md) | T-054 | Recette navigateur locale des quatre changements | Claude + navigateur | medium | Desktop | tout ce qui précède | `docs/decision/validation/` | [ ] |
 

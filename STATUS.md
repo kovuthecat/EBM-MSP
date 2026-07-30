@@ -46,8 +46,6 @@ Passage à `valide` conditionné à la relecture référent finale (`TASKS.md` �
 
 ## Dette technique / recherche bloquante
 
-- **Passe A — insuline sans capteur** (bloquant l'usage, `modèle: Opus, effort: xhigh`) : prompt de
-  démarrage prêt, `docs/decision/PROMPT-passe-A-insuline-sans-capteur.md`.
 - **Passe B — sécurité à l'effort** (`rhd-activite-physique`, `modèle: Opus, effort: high`).
 - **Validation clinique référent finale** (`prescription`, `insuline`, RHD ×2 → `statut: valide`) :
   session dédiée à programmer, cf. `TASKS.md`.

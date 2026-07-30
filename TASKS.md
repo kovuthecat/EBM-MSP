@@ -12,16 +12,11 @@ Le dossier `plans/P<n>/` n'est créé qu'au **démarrage** du plan.
 **Entrée dans un plan** (statut dans l'`index.md` du plan, pas ici) : `- T-ID — titre · → plans/P<n>/S<k>.md`.
 Modèles/efforts : `WORKFLOW.md` §2-3. `env: Desktop` si la tâche exige le navigateur in-app (N1).
 
-## Plan P7 — en cours (cadré 2026-07-29)
+## Plan P7 — en cours (statut/détail : `plans/P7/index.md`)
 
-> Encode 5 arbitrages référent déjà tranchés, aucune recherche EBM nouvelle. Détail : `plans/P7/index.md`.
-
-- T-048 — Frontière `a_l_objectif`/`sous_objectif` (`prescription`) · → plans/P7/SA1.md
-- T-049 — Seuil rénal AR GLP-1 : alerte de prudence sous DFG 15 · → plans/P7/SA1.md
-- T-050 — « Optimiser l'agent mal toléré » conditionné à `traitements_en_cours` · → plans/P7/SA1.md
-- T-051 — Badge dédié option `role: securite` triée en tête · → plans/P7/SB1.md
-- T-052 — Signalement de validité de l'HbA1c via `cadrage` (D24) · → plans/P7/SA2.md
-- T-053 — Doctrine : consigner les arbitrages du 2026-07-29 · → plans/P7/SA2.md
+- T-048/T-049/T-050 — Frontière position, seuil rénal AR GLP-1, agent mal toléré · → plans/P7/SA1.md
+- T-051 — Badge dédié option `role: securite` · → plans/P7/SB1.md
+- T-052/T-053 — Validité HbA1c (cadrage) + doctrine · → plans/P7/SA2.md
 - T-054 — Recette navigateur locale, env: Desktop · → plans/P7/S2.md
 
 ## Backlog — mécanique, exécutable sans arbitrage clinique
@@ -32,12 +27,17 @@ Modèles/efforts : `WORKFLOW.md` §2-3. `env: Desktop` si la tâche exige le nav
 - [ ] Onglet **Veille** rend une page blanche (`top: 0` sous nav fixe) · modèle: Haiku, effort: low
 - [ ] `GAJ` (nœud `insuline`) reste réclamé quand `mcg_disponible` est coché — masquage manquant,
       symétrique de `TBR`/`TBR_severe` (P5/S2, T-033) · modèle: Haiku, effort: low
+- [ ] Banc `securite-atteignable.test.ts` (I23) timeout sur `rhd-activite-physique` (>120s, perf
+      du banc, pré-existant) · modèle: Sonnet, effort: medium
 
 ## Backlog — recherche clinique (contenu que je ne rédige pas seul)
 
-- [ ] **Passe A — insuline sans capteur** (bloquant l'usage) : prompt prêt
-      `docs/decision/PROMPT-passe-A-insuline-sans-capteur.md` · modèle: Opus, effort: xhigh
 - [ ] **Passe B — sécurité à l'effort** (`rhd-activite-physique`) · modèle: Opus, effort: high
+- [ ] **Contre-indications liées à des conditions vérifiables** (schéma+moteur puis ré-encodage
+      prescription/statine/insuline/cible-glycemique — texte libre aujourd'hui, toujours en alerte
+      même quand les critères saisis l'excluent) · modèle: Opus, effort: high
+- [ ] **`insuline` — repli manquant, patient naïf déjà à la cible** (banc I2′/I23, profil #1213 :
+      écran muet, texte à valider référent) · modèle: Opus, effort: medium
 
 ## Backlog — validation clinique finale (D5, passage à `statut: valide`)
 
