@@ -152,6 +152,12 @@ criteres_entree:
     type: nombre
     min: 0
     max: 6
+    # `aide` ajouté T-069 (P9/S2, 2026-07-30) : liste reprise du commentaire déjà présent en tête de fichier
+    # (« autres_FDRCV = compte des facteurs de risque CV additionnels »), pour qu'elle soit lisible à
+    # l'écran et non plus seulement en commentaire.
+    aide: >-
+      Facteurs de risque cardiovasculaire additionnels à compter, au-delà du diabète lui-même :
+      hypertension artérielle, tabac, dyslipidémie, antécédent familial cardiovasculaire précoce.
   - nom: diabete_complique
     type: bool
   - nom: dialyse
@@ -1040,8 +1046,15 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Claude Code"
   statut: brouillon
-  version: "1.17"
+  version: "1.18"
   changelog:
+    - date: "2026-07-30"
+      auteur: "Claude Code (P9/S2, T-069) — en attente de relecture référent"
+      resume: >-
+        Ajout d'un `aide` sur `autres_FDRCV` (rédactionnel seul, aucun changement clinique ni de logique) :
+        liste les facteurs de risque cardiovasculaire additionnels comptés (HTA, tabac, dyslipidémie,
+        antécédent familial cardiovasculaire précoce), reprise du commentaire déjà présent en tête de
+        fichier — jusqu'ici invisible à l'écran, un `#` YAML ne s'affichant jamais.
     - date: "2026-07-29"
       auteur: "Claude Code"
       resume: >-

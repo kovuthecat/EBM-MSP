@@ -167,9 +167,9 @@ const CRITERE_LABELS: Record<string, string> = {
   // ne cite plus que les termes vrais, donc un dérivé sans libellé s'affichait sous son nom de variable
   // humanisé (« Remplacement agent sans benefice », sans accents). Ils ont besoin d'un libellé au même
   // titre qu'un critère saisi.
-  palette_glycemique_ouverte: "Palette glycémique ouverte (place pour un agent de contrôle en plus)",
+  palette_glycemique_ouverte: "Place disponible pour un agent de contrôle glycémique supplémentaire",
   remplacement_agent_sans_benefice:
-    "Remplacement d'un agent sans bénéfice sur critère dur (gliptine, sulfamide, glinide)",
+    "Accès à un agent de contrôle glycémique, en ajout ou en remplacement d'un agent sans bénéfice sur critère dur (gliptine, sulfamide, glinide)",
   denutrition: 'Dénutrition / carence (possible même chez l’obèse)',
   infections_uro_genitales_recidivantes: 'Infections génito-urinaires récidivantes',
   intolerance_traitement: 'Intolérance à un traitement en cours',
@@ -396,6 +396,15 @@ const ENUM_VALUE_DESCRIPTIONS: Record<string, string> = {
   hausse_entre_repas: "Pic glycémique après un repas alors que la glycémie à jeun est correcte → GLP-1 puis bolus, ou augmenter le bolus déjà en place, au repas le plus hyperglycémiant.",
   baisse_entre_repas: "Hypoglycémie entre les repas → réduire le bolus correspondant.",
   pas_de_signal: "Aucun signal notable entre les repas.",
+  // Espérance de vie (critère partagé `esperance_vie`, cible-glycémique/prescription/insuline) —
+  // T-069 (P9/S2, 2026-07-30). Seules deux des trois valeurs ont une définition chiffrée trouvée dans le
+  // contenu déjà versé : `longue` (HAS 2024, `cible-glycemique.yaml` reco_officielle.position, « EV>15 ans »)
+  // et `limitee` (synthèse Prescrire, `cible-glycemique.yaml` synthese_critique.donnee, « espérance de vie
+  // < 5 ans »). `intermediaire` n'a de seuil chiffré nulle part dans le contenu versé (ni HAS, ni la
+  // synthèse Prescrire, ni l'argumentaire) — pas d'entrée ici plutôt qu'un chiffre inventé (cf. bilan de
+  // session P9/S2).
+  longue: "Espérance de vie estimée supérieure à 15 ans (HAS) — avec un diagnostic récent et l'absence de maladie cardiovasculaire, c'est la situation où la cible la plus stricte (≤ 6,5 %) est envisagée.",
+  limitee: "Espérance de vie estimée inférieure à 5 ans — un facteur d'assouplissement de la cible (jusqu'à 8-9 %) : le bénéfice d'un contrôle strict n'a pas le temps de se manifester, face au risque d'hypoglycémie.",
 }
 
 export function describeEnumValue(valeur: string): string | undefined {

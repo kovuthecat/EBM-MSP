@@ -283,7 +283,7 @@ options:
     avantages:
       - "Provenance : recommandation officielle. Contribue au volume global d'activité recommandée sans nécessiter de pratique structurée — un guide EBM européen (grade A, triple référence) considère que cela contribue autant qu'une séance planifiée à la gestion du poids et de la dépense énergétique (un critère de SUBSTITUTION, pas un critère cardiovasculaire dur)."
     inconvenients:
-      - "Le bénéfice porte sur la gestion du poids et de la dépense énergétique, pas sur un critère cardiovasculaire dur (voir la réserve majeure de ce nœud, en tête de fichier)."
+      - "Le bénéfice porte sur la gestion du poids et de la dépense énergétique : aucun essai contrôlé randomisé d'exercice isolé n'a démontré de bénéfice sur un critère cardiovasculaire dur dans le diabète de type 2."
     effet_attendu: "Contribue au volume d'activité quotidienne recommandée ; effet propre non chiffrable."
     niveau_preuve: modere
     references:
@@ -343,11 +343,12 @@ options:
       - "Provenance : recommandation officielle. Rapproche de la structure d'un programme recommandé (endurance et renforcement musculaire, encadrement) — une reprise cadrée plutôt qu'une reprise seule et non structurée."
       - "L'activité physique adaptée est une prise en charge réglementée (article D. 1172-1 du code de la santé publique), dispensée par un professionnel formé."
     inconvenients:
-      - "Réservée par construction aux patients sans contre-indication à l'effort connue (voir le verrou de sécurité) ; nécessite un accompagnement, donc un délai et une disponibilité de l'offre locale."
+      - "Réservée par construction aux patients sans limitation physique connue, symptôme d'ischémie à l'effort, rétinopathie non stabilisée/proliférante, ni neuropathie périphérique/mal perforant plantaire (contre-indications à l'effort) ; nécessite un accompagnement, donc un délai et une disponibilité de l'offre locale."
     effet_attendu: >-
       Rapproche de la structure d'un programme d'activité physique adaptée recommandé (endurance +
-      renforcement musculaire) ; effet propre de ce geste isolé sur un critère dur non démontré (voir la
-      réserve majeure de ce nœud).
+      renforcement musculaire) ; effet propre de ce geste isolé sur un critère cardiovasculaire dur non
+      démontré à ce jour (aucun essai contrôlé randomisé d'exercice isolé ne l'a établi dans le diabète de
+      type 2).
     niveau_preuve: faible
   - intitule: "Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement)"
     role: geste
@@ -359,7 +360,7 @@ options:
       - "Provenance : recommandation officielle. La régularité de l'activité physique est le repère le mieux établi comme prédicteur d'un bon résultat à long terme — mieux que la perte de poids rapide en début de prise en charge (guide EBM européen, grade A)."
       - "Reformulation en « maintenir/renforcer » plutôt qu'« améliorer » : évite le conseil condescendant à un patient qui fait déjà l'effort — s'il n'associe pas encore endurance et renforcement musculaire, en discuter la diversification."
     inconvenients:
-      - "Pas de bénéfice cardiovasculaire dur propre à l'exercice à revendiquer (voir la réserve majeure de ce nœud) : le bénéfice mis en avant ici est la régularité elle-même, un facteur prédictif, pas un événement évité."
+      - "Pas de bénéfice cardiovasculaire dur propre à l'exercice à revendiquer (aucun essai contrôlé randomisé d'exercice isolé ne l'a démontré dans le diabète de type 2) : le bénéfice mis en avant ici est la régularité elle-même, un facteur prédictif, pas un événement évité."
     effet_attendu: "Non chiffrable — renforcement positif d'une pratique déjà régulière."
     niveau_preuve: modere
     references:
@@ -565,8 +566,17 @@ meta:
   date_revue: "2026-07-26"
   auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
   statut: brouillon
-  version: "0.9"
+  version: "0.10"
   changelog:
+    - date: "2026-07-30"
+      auteur: "Claude Code (P9/S2, T-069) — en attente de relecture référent"
+      resume: >-
+        PURGE DU JARGON DE PROJET AFFICHÉ AU CLINICIEN (rédactionnel seul, aucun changement de logique ni de
+        condition). Trois renvois « voir la réserve majeure de ce nœud, en tête de fichier » (invisible : un
+        commentaire YAML ne s'affiche jamais) remplacés par la substance elle-même (aucun essai contrôlé
+        randomisé d'exercice isolé n'a démontré de bénéfice sur critère cardiovasculaire dur dans le DT2),
+        déjà dite par ailleurs dans l'`argumentaire` du nœud. Un renvoi « voir le verrou de sécurité »
+        remplacé par la liste des contre-indications à l'effort elles-mêmes.
     - date: "2026-07-30"
       auteur: "Claude Code (P8/S4, T-062 — relance corrigée) — en attente de relecture référent"
       resume: >-

@@ -37,7 +37,8 @@ population_cible: >-
   d'hygiène de vie (metformine socle), déjà traité à optimiser, ou candidat à une désintensification. Couvre
   l'ajout d'un agent protecteur, le switch d'un agent de faible valeur (sulfamide/gliptine) ou mal toléré, la
   désintensification, la place résiduelle des sulfamides/gliptines, et l'insuline d'INITIATION (état
-  catabolique). Hors périmètre : ajustement fin des doses d'insuline (nœud E) ; décompensation aiguë
+  catabolique). Hors périmètre : ajustement fin des doses d'insuline déjà en place (titration, schéma) ;
+  décompensation aiguë
   (cétose/hyperosmolarité ≥ 3 mmol/L) = urgence (insuline + hospitalisation).
 selection: multi-options
 argumentaire_exhaustif: "prescription.argumentaire.md"
@@ -697,7 +698,7 @@ options:
       - "Corrige rapidement la glucotoxicité en cas d'hyperglycémie sévère symptomatique / catabolique ; le plus souvent transitoire (relais possible une fois la glucotoxicité levée)."
     inconvenients:
       - "Sans catabolisme franc, un AR GLP‑1 / tirzépatide (± insuline basale) est de plus en plus préféré (SIMPLE, ADA 2026)."
-      - "Contrainte (injections, auto‑surveillance), hypoglycémie, prise de poids. L'ajustement fin relève du nœud E."
+      - "Contrainte (injections, auto‑surveillance), hypoglycémie, prise de poids. Le schéma (doses, titration) devra ensuite être ajusté et suivi dans la durée."
     effet_attendu: >-
       Lève la glucotoxicité ; aucun bénéfice sur critère dur démontré (accord d'experts). Suspecter un DT1
       devant une cétose / un amaigrissement rapide chez un sujet non obèse.
@@ -932,7 +933,7 @@ options:
     effet_attendu: >-
       Additivité glycémique/pondérale acquise (DURATION‑8) ; bénéfice dur additif non confirmé par un ECR dédié.
     niveau_preuve: faible
-  - intitule: "Envisager l'insuline (palette non‑insulinique épuisée — ajustement fin → nœud E)"
+  - intitule: "Envisager l'insuline (palette non‑insulinique épuisée — schéma à titrer et suivre dans la durée)"
     role: geste
     action: ajouter
     # CONDITION GÉNÉRALISÉE le 2026-07-27 (objection du référent, cf. `isglt2_indisponible` en tête de
@@ -958,7 +959,7 @@ options:
     avantages:
       - "Quand les options non insuliniques sont épuisées ou contre‑indiquées, l'insuline est le levier glycémique le plus puissant et souvent nécessaire. Cas types : metformine + iSGLT2 + AR GLP‑1 toujours déséquilibré ; incrétines exclues par le terrain (dénutrition / IMC bas) chez un patient déjà sous iSGLT2 non contrôlé. (En insuffisance rénale sévère, un AR GLP‑1 ou la sitagliptine à dose adaptée restent souvent utilisables : la palette n'est pas forcément épuisée.)"
     inconvenients:
-      - "Contrainte (injections, auto‑surveillance), hypoglycémie, prise de poids ; aucun bénéfice CV (ORIGIN). Débuter par une basale ± AR GLP‑1 si possible. L'AJUSTEMENT FIN (titration, schéma) relève du nœud E."
+      - "Contrainte (injections, auto‑surveillance), hypoglycémie, prise de poids ; aucun bénéfice CV (ORIGIN). Débuter par une basale ± AR GLP‑1 si possible. LE SCHÉMA (titration, doses) devra ensuite être ajusté et suivi dans la durée."
     effet_attendu: >-
       Baisse d'HbA1c dose‑dépendante ; aucun bénéfice sur critère dur. Distinct du gate catabolique (qui ne
       dépend pas de l'atteinte de l'objectif).
@@ -1215,7 +1216,7 @@ options:
     priorite: 1
     famille: "Traitement à alléger"
     avantages:
-      - "Réduire plutôt qu'arrêter : diminue le risque d'hypoglycémie (sur‑basalisation, sujet fragile) sans sevrer un patient qui en a besoin. Le praticien juge la dose (aucun dosage imposé). L'ajustement fin relève du nœud E."
+      - "Réduire plutôt qu'arrêter : diminue le risque d'hypoglycémie (sur‑basalisation, sujet fragile) sans sevrer un patient qui en a besoin. Le praticien juge la dose (aucun dosage imposé). Le réglage fin du schéma se poursuit ensuite au long cours."
     inconvenients:
       - "Surveiller la glycémie après la baisse ; contrôle volontairement un peu moins strict (assumé)."
     effet_attendu: "Moins d'hypoglycémie sans sevrage complet ; effet non chiffrable."
@@ -1714,8 +1715,8 @@ alertes:
     niveau: attention
     message: >-
       Patient sous insuline à haut risque hypoglycémique : ÉVITER d'ajouter un sécrétagogue (sulfamide /
-      glinide). Privilégier un agent sans hypoglycémie (iSGLT2 / AR GLP‑1) ou l'ajustement de l'insuline
-      (nœud E).
+      glinide). Privilégier un agent sans hypoglycémie (iSGLT2 / AR GLP‑1) ou l'ajustement du schéma
+      insulinique (titration, doses).
   # LEVÉE DU VERROU GLIPTINE (référent, 2026-07-25) : remplace la garantie structurelle retirée de l'option
   # « Introduire un AR GLP‑1 » (`ne_contient_pas gliptine`) — la non-association est désormais garantie par
   # l'affichage de cette alerte, dès que la gliptine est en cours. Texte dérivé mot pour mot de la prose déjà
@@ -1744,7 +1745,7 @@ argumentaire: >
   Un gating négatif de terrain empêche les erreurs du sujet fragile : AR GLP‑1 et tirzépatide exclus chez le
   maigre (IMC < 22) ou le dénutri (même obèse), tirzépatide réservé à l'obésité, iSGLT2 déconseillé en cas
   d'infections génito‑urinaires récidivantes. En état catabolique, une insuline d'initiation (transitoire)
-  s'impose ; son ajustement fin relève du nœud E. NB EBM : lorsqu'iSGLT2/AR GLP‑1 sont proposés au SEUL titre
+  s'impose ; son schéma (titration, doses) est ensuite ajusté et suivi dans la durée. NB EBM : lorsqu'iSGLT2/AR GLP‑1 sont proposés au SEUL titre
   glycémique (sans comorbidité), leur bénéfice attendu est glycémique (absence d'hypoglycémie, poids), PAS le
   bénéfice d'organe des populations enrichies des CVOT (EMPA-REG OUTCOME ; DAPA-CKD, NNT 19/2,4 ans ;
   EMPEROR-Reduced, NNT 19) — d'où une place plus restreinte pour la dapagliflozine hors indication d'organe
@@ -1942,19 +1943,17 @@ sources:
   reco_officielle:
     source: >-
       HAS 2024 (Stratégie thérapeutique DT2, R.45‑R.105) ; SFD 2025 (Med Mal Metab 2025;19:630‑662, Avis
-      3/5/5bis/6/11‑15) ; ADA Standards of Care 2026 ; KDIGO 2022 ; RCP metformine/iSGLT2/incrétines (ANSM)
-      AJOUTÉ le 2026-07-27, volet RÉNAL (collecte + red-team, sources primaires rouvertes une à une) : SFD,
-      prise de position 2025 (Méd Mal Métab 2025;19(8):630-662, DOI 10.1016/j.mmm.2025.10.002) — Tableau I
-      notes 1-2, note 6, Avis n° 12 et n° 12 bis : c'est ELLE, et non la KDIGO, qui porte le seuil de 30 des
-      sulfamides, le plancher d'HbA1c de 7 % sous glinide ou insuline en IRC sévère, le « ne jamais utiliser »
-      chez le sujet âgé dépendant, et la liste fermée des molécules utilisables sous DFG 15 (dont le
-      répaglinide, et la vildagliptine 50 mg/j — la sitagliptine 25 mg n'étant pas commercialisée en France,
-      VÉRIFIÉ par le référent le 2026-07-27). HAS 2024, R.78 (grade C) : nomme le répaglinide pour sa demi-vie
-      courte et sa « non-CI » en maladie rénale. ⚠ KDIGO 2022 : NE PORTE AUCUN chiffre sur les sulfamides
-      (vérifié deux fois, dont la Figure 23) — l'attribution « convention KDIGO » a été retirée du nœud.
-      Endocrine Society 2019 (PMID 30903688) : porte bien des seuils chiffrés par molécule (glimépiride < 30,
-      glyburide < 60), ÉCARTÉE délibérément — source non française, périmètre ≥ 65 ans, gliclazide absent, et
-      ses seuils contrediraient les RCP français.
+      3/5/5bis/6/11‑15) ; ADA Standards of Care 2026 ; KDIGO 2022 ; RCP metformine/iSGLT2/incrétines (ANSM).
+      Sur le volet rénal : SFD, prise de position 2025 (Méd Mal Métab 2025;19(8):630-662, DOI
+      10.1016/j.mmm.2025.10.002) — Tableau I notes 1-2, note 6, Avis n° 12 et n° 12 bis : c'est elle, et non
+      la KDIGO, qui porte le seuil de 30 des sulfamides, le plancher d'HbA1c de 7 % sous glinide ou insuline
+      en IRC sévère, le « ne jamais utiliser » chez le sujet âgé dépendant, et la liste fermée des molécules
+      utilisables sous DFG 15 (dont le répaglinide, et la vildagliptine 50 mg/j — la sitagliptine 25 mg n'étant
+      pas commercialisée en France). HAS 2024, R.78 (grade C) : nomme le répaglinide pour sa demi-vie courte et
+      sa « non-CI » en maladie rénale. La KDIGO 2022 ne porte aucun chiffre sur les sulfamides : le seuil de
+      30 n'est pas une convention KDIGO. Endocrine Society 2019 (PMID 30903688) : porte bien des seuils
+      chiffrés par molécule (glimépiride < 30, glyburide < 60), écartée délibérément — source non française,
+      périmètre ≥ 65 ans, gliclazide absent, et ses seuils contrediraient les RCP français.
     position: >-
       Sur socle metformine + mode de vie : en cas de maladie CV établie, IC ou MRC, prescrire d'emblée un
       iSGLT2 ou un AR GLP‑1 (ou tirzépatide) à bénéfice prouvé, quel que soit l'HbA1c ; en obésité (IMC ≥ 30),
@@ -2082,8 +2081,21 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.38"
+  version: "0.39"
   changelog:
+    - date: "2026-07-30"
+      auteur: "Claude Code (P9/S2, T-069) — en attente de relecture référent"
+      resume: >-
+        PURGE DU JARGON DE PROJET AFFICHÉ AU CLINICIEN (rédactionnel seul, aucun changement de logique ni de
+        condition). Cinq occurrences rendues de « nœud E » listées par le plan P9/S2 (intitulé de l'option
+        « Envisager l'insuline », `inconvenients` × 3, `argumentaire`) remplacées par la substance clinique
+        (le schéma insulinique est titré et suivi dans la durée), sans renvoyer à un autre écran par un nom
+        de code. DEUX occurrences supplémentaires du même motif, trouvées hors de la liste du plan lors de
+        la relecture (`population_cible` l.40, alerte de nœud « risque hypoglycémique sous insuline » l.1718),
+        corrigées par le même principe et signalées à l'orchestrateur (cf. bilan P9/S2). `reco_officielle.
+        source` : retrait de « AJOUTÉ le 2026-07-27, volet RÉNAL (collecte + red-team...) », « VÉRIFIÉ par le
+        référent le 2026-07-27 » et des mentions de méthode de vérification interne — la source et ce
+        qu'elle établit sont conservés intégralement, rien de clinique retiré.
     - date: "2026-07-30"
       auteur: "référent DT2 + Claude Code (T-063, plan P8·S5, relance après collecte de preuve dédiée)"
       resume: >-

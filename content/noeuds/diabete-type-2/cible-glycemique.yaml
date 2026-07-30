@@ -186,28 +186,29 @@ incertitudes:
   - "Mécanisme de la surmortalité d'ACCORD (inexpliqué)."
   - "Transposabilité à l'ère des GLP-1 RA / iSGLT2 (essais pré-2015)."
   - >-
-    Ancienneté du diabète > 10 ans SEULE (sans autre facteur) : NE déclenche PLUS ≤ 8 % depuis la
-    révision 2026-07-26 (elle ne le faisait auparavant qu'associée à `risque_hypoglycemie_schema ==
-    eleve`, retiré du nœud — cf. changelog). Ce retrait est un choix CONSERVATEUR non explicitement
-    tranché par le référent (qui n'a arbitré que le sort du critère `risque_hypoglycemie_schema`, pas
-    celui de la branche ancienneté qu'il co-gardait) : par précaution, l'ancienneté seule n'a pas été
-    reconduite comme déclencheur autonome — la HAS elle-même ne l'associe qu'« avec hypos », jamais
-    seule (cf. `argumentaire`, tableau HAS), et le référent a explicitement écarté, sur le nœud voisin
-    `statine`, un gate mono-facteur comparable (« tout dépend de l'ancienneté du diabète ET des
-    atteintes d'organe. On colle à la grille. », F-statine §9.4). `anciennete_diabete_annees` reste un
-    critère actif du nœud (il gate la borne stricte ~6,5 % via `< 5`), simplement plus comme
-    déclencheur autonome du cran ≤ 8 %. RECONFIRMÉ par le référent le 2026-07-27 : l'ancienneté SEULE ne
-    relâche pas la cible. Le choix conservateur devient donc une décision assumée, sur le motif déjà
-    invoqué pour la statine — « tout dépend de l'ancienneté du diabète ET des atteintes d'organe, on
-    colle à la grille » — et cohérent avec la HAS, qui ne mentionne l'ancienneté qu'associée aux
-    hypoglycémies, jamais isolée. Aucun changement de code : l'incertitude est levée telle quelle.
+    Le rôle de l'ancienneté du diabète prise ISOLÉMENT (> 10 ans, sans autre facteur) sur l'assouplissement
+    de la cible reste incertain : cet outil ne l'utilise pas seule pour relâcher la cible à ≤ 8 % — position
+    prudente, cohérente avec la HAS, qui elle non plus n'associe l'ancienneté à un relâchement de cible qu'en
+    présence d'hypoglycémies, jamais isolément (cf. `argumentaire`, tableau HAS), et avec la même exigence
+    retenue pour la statine (l'ancienneté seule n'y suffit pas non plus, il faut aussi une atteinte d'organe).
+    `anciennete_diabete_annees` continue d'agir ailleurs dans ce nœud (borne stricte ~6,5 % via `< 5 ans`).
+    Aucun essai ne teste directement l'ancienneté isolée comme critère de relâchement de cible : le choix
+    reste donc prudent plutôt que définitivement validé par la preuve.
 veille_liee: []
 meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude Code"
   statut: valide
-  version: "2.7"
+  version: "2.8"
   changelog:
+    - date: "2026-07-30"
+      auteur: "Claude Code (P9/S2, T-069) — en attente de relecture référent"
+      resume: >-
+        PURGE DU JARGON DE PROJET AFFICHÉ AU CLINICIEN (rédactionnel seul, aucun changement de logique ni de
+        condition). L'entrée `incertitudes` sur l'ancienneté du diabète isolée est réécrite : retrait de « le
+        référent », « retiré du nœud », des dates de révision et du renvoi au nœud voisin par son nom de
+        fichier — la substance clinique (l'ancienneté seule ne relâche pas la cible dans cet outil, position
+        prudente cohérente avec la HAS et avec le nœud statine) est conservée intégralement.
     - date: "2026-07-29"
       auteur: "référent DT2 + Claude Code (recette navigateur, item F)"
       resume: >-
