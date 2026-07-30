@@ -427,12 +427,25 @@ export function construireVueDecision(node: Noeud, criteria: Criteria, renseigne
  * change QUE l'alerte d'une option (aucune autre dimension affichée ne bouge) reste vu DÉCISIF par
  * `engine/relevance.ts` — exactement le piège que l'unification écran/signature a fermé pour les autres
  * dimensions (cf. docstring de tête de ce fichier).
+ *
+ * `calculsEnAttente` (T-059, P8 · S3, 2026-07-30) — MÊME totalité, corrigeant un oubli symétrique de
+ * `calculs` : deux jeux de critères où un calcul reste également IMPOSSIBLE dans les deux cas (`calculs`
+ * inchangé, vide) peuvent pourtant réclamer des critères MANQUANTS différents (ex. une dose = basale +
+ * rapide, un seul des deux champs renseigné selon le jeu) — c'était jusqu'ici invisible à la signature,
+ * donc à `engine/relevance.ts` : le champ manquant restant se voyait à tort « sans effet sur la reco »
+ * (mesuré en recette, N11, § « Défaut net » — `docs/decision/validation/
+ * recette-praticien-naif-2026-07-30.md`). `criteresManquants` est sérialisé tel quel : son ORDRE est
+ * déterministe pour un même contenu (`calculsEnAttente` ci-dessus le construit par un filtrage successif
+ * de `node.criteres_entree`, un tableau figé à l'ordre de déclaration YAML — jamais un `Set` dont l'ordre
+ * d'itération dépendrait de l'historique d'insertion), condition nécessaire pour ne pas faire clignoter
+ * l'estompage du formulaire à signature équivalente.
  */
 function serialiseOption(ov: OptionVue): string {
   const reasons = ov.reasons.join('&')
   const calculs = ov.calculs.map((c) => `${c.libelle}=${c.valeur}${c.unite ?? ''}`).join('&')
+  const calculsEnAttente = ov.calculsEnAttente.map((c) => `${c.libelle}:${c.criteresManquants.join(',')}`).join('&')
   const alertes = ov.alertes.map((a) => `${a.message}~${a.niveau ?? ''}`).join('|')
-  return `${ov.option.intitule}@${ov.badge ?? ''}«${reasons}»[${calculs}]¦${ov.motifRang ?? ''}‖${alertes}`
+  return `${ov.option.intitule}@${ov.badge ?? ''}«${reasons}»[${calculs}]{${calculsEnAttente}}¦${ov.motifRang ?? ''}‖${alertes}`
 }
 
 function serialiseFamille(famille: FamilleVue): string {
@@ -461,8 +474,9 @@ function serialiseEnAttente(enAttente: OptionEnAttenteVue): string {
 /**
  * Sérialise une `VueDecision` en chaîne STABLE et TOTALE : deux vues égales produisent la même
  * chaîne, et RIEN du modèle de vue n'est omis (familles, groupes d'égalité, badges, raisons, doses
- * calculées, alertes, options écartées, non retenues et EN ATTENTE — R4/D20) — c'est cette totalité qui
- * garantit qu'aucun critère décisif à l'écran ne peut plus être estompé à tort par `engine/relevance.ts`.
+ * calculées ET doses EN ATTENTE — `calculsEnAttente`, T-059 — alertes, options écartées, non retenues et
+ * EN ATTENTE — R4/D20) — c'est cette totalité qui garantit qu'aucun critère décisif à l'écran ne peut
+ * plus être estompé à tort par `engine/relevance.ts`.
  */
 export function signatureVue(vue: VueDecision): string {
   const familles = vue.familles.map(serialiseFamille).join('§§')

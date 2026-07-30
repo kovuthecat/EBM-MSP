@@ -579,6 +579,73 @@ describe('construireVueDecision — `enAttente` (DECISIONS.md D20, SPEC-valeur-i
 })
 
 /**
+ * T-059 (P8 · S3, 2026-07-30) — `calculsEnAttente` doit entrer dans `signatureVue` au même titre que
+ * `calculs` (totalité, docstring de tête). Reproduit le « Défaut net » de la recette référent (N11,
+ * `docs/decision/validation/recette-praticien-naif-2026-07-30.md`) : sur `insuline.yaml`, l'option
+ * « Optimiser la répartition du basal-bolus » calcule `"Dose totale quotidienne"` par
+ * `dose_basale_actuelle + dose_rapide_actuelle` — DEUX critères. Tant qu'un SEUL des deux est renseigné,
+ * le calcul reste IMPOSSIBLE dans tous les cas (`calculs` reste vide, AUCUN changement visible sur cette
+ * dimension déjà sérialisée) — mais la liste des critères qui MANQUENT ENCORE (`calculsEnAttente`), elle,
+ * change bel et bien selon LEQUEL des deux est déjà répondu. Avant ce correctif, cette dimension n'entrait
+ * pas dans `signatureVue` : `engine/relevance.ts` ne voyait donc AUCUNE différence entre « rien de
+ * renseigné » et « un seul des deux champs renseigné », et concluait à tort que CHACUN des deux champs de
+ * dose était « sans effet sur la reco actuelle » — alors que la carte, elle, réclamait déjà nommément le
+ * champ manquant restant (« Doses non calculées — à renseigner : … »). C'est la contradiction « qui croire
+ * de l'écran ou de l'écran » relevée en N11.
+ */
+describe('signatureVue — T-059 : `calculsEnAttente` entre dans la signature de vue', () => {
+  // Même expression que le calcul réel d'`insuline.yaml` (« Dose totale quotidienne »,
+  // `dose_basale_actuelle + dose_rapide_actuelle`) — deux critères `nombre`, aucune borne déclarée ici
+  // (non nécessaire pour ce test, qui ne perturbe pas via le banc mais compare directement des `renseignes`).
+  const socle = opt('Optimiser', ['toujours'], {
+    calculs: [{ libelle: 'Dose totale quotidienne', expression: 'dose_basale_actuelle + dose_rapide_actuelle', unite: 'U/j' }],
+  })
+  const node = makeNode(
+    [socle],
+    [
+      { nom: 'dose_basale_actuelle', type: 'nombre' },
+      { nom: 'dose_rapide_actuelle', type: 'nombre' },
+    ],
+  )
+  // Valeurs quelconques (non nulles) : seul `renseignes` (D20) pilote l'indétermination ici, jamais la
+  // valeur stockée — cf. `evaluerNombre`/`effectifs`, déjà vérifié par les tests « défaut J » ci-dessus.
+  const criteria = { dose_basale_actuelle: 10, dose_rapide_actuelle: 8 }
+
+  it('rien de renseigné vs seule `dose_basale_actuelle` renseignée : `calculs` reste VIDE dans les DEUX cas, mais `calculsEnAttente` nomme un critère manquant différent', () => {
+    const vueRien = construireVueDecision(node, criteria, new Set())
+    const vueBasaleSeule = construireVueDecision(node, criteria, new Set(['dose_basale_actuelle']))
+    const carteRien = vueRien.familles[0].groupes[0][0]
+    const carteBasale = vueBasaleSeule.familles[0].groupes[0][0]
+    // La dimension DÉJÀ sérialisée avant ce correctif ne bouge pas — le défaut n'est pas là.
+    expect(carteRien.calculs).toEqual([])
+    expect(carteBasale.calculs).toEqual([])
+    // La dimension QUI MANQUAIT, elle, diffère bien : deux critères manquants d'un côté, un seul de l'autre.
+    expect(carteRien.calculsEnAttente).toEqual([
+      { libelle: 'Dose totale quotidienne', criteresManquants: ['dose_basale_actuelle', 'dose_rapide_actuelle'] },
+    ])
+    expect(carteBasale.calculsEnAttente).toEqual([
+      { libelle: 'Dose totale quotidienne', criteresManquants: ['dose_rapide_actuelle'] },
+    ])
+  })
+
+  it('LE DÉFAUT (verrou) : ces deux vues, qui ne diffèrent QUE par `calculsEnAttente`, produisent désormais des signatures DIFFÉRENTES', () => {
+    const vueRien = construireVueDecision(node, criteria, new Set())
+    const vueBasaleSeule = construireVueDecision(node, criteria, new Set(['dose_basale_actuelle']))
+    // Rien d'autre ne bouge (même option, même badge, mêmes raisons) — seule `calculsEnAttente` diffère ;
+    // avant ce correctif, `signatureVue` des deux vues était donc IDENTIQUE.
+    expect(vueRien.familles[0].groupes[0][0].badge).toBe(vueBasaleSeule.familles[0].groupes[0][0].badge)
+    expect(vueRien.familles[0].groupes[0][0].reasons).toEqual(vueBasaleSeule.familles[0].groupes[0][0].reasons)
+    expect(signatureVue(vueRien)).not.toBe(signatureVue(vueBasaleSeule))
+  })
+
+  it('`criteresPertinents` (engine/relevance.ts) voit désormais CHACUN des deux champs de dose comme DÉCISIF quand l’autre seul est renseigné — conforme au profil N11, plus « sans effet » sur un champ que la carte réclame déjà', () => {
+    const pertinentsRienRenseigne = criteresPertinents(node, criteria, new Set())
+    expect(pertinentsRienRenseigne.has('dose_basale_actuelle')).toBe(true)
+    expect(pertinentsRienRenseigne.has('dose_rapide_actuelle')).toBe(true)
+  })
+})
+
+/**
  * Défaut I (recette navigateur du 2026-07-27) — « pourquoi pas d'autres options » pollué par le
  * hors-périmètre. Sur `prescription`, un patient voyait 18,7 lignes en moyenne, dont 60 % de la forme
  * « Traitements en cours comprend Sulfamide / Gliptine / Insuline… » chez quelqu'un qui n'en prend aucun.
