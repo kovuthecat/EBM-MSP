@@ -21,7 +21,7 @@ import {
   reinitialiserChampsMasques,
   valeurParDefaut,
 } from '../lib/formLayout'
-import { memoriserCriteres, valeursReprises } from '../lib/sessionCriteres'
+import { memoriserCriteres, reinitialiserSession, valeursReprises } from '../lib/sessionCriteres'
 import { plafonnerPistes, PLAFOND_PISTES } from '../lib/replierAffichage'
 import type { FamilleVue } from '../lib/vueDecision'
 import { construireVueDecision } from '../lib/vueDecision'
@@ -141,6 +141,15 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   // information d'EXPLICATION, consultée sur demande — fermée par défaut, jamais poussée à l'écran
   // (contrairement aux options ÉCARTÉES par une exclusion, information de SÉCURITÉ, toujours visibles).
   const [nonRetenuesOpen, setNonRetenuesOpen] = useState(false)
+  // T-057 (P8 · S2, 2026-07-30) — FRONTIÈRE DE RE-ENTRÉE (D28). `frontiereReprise`/`afficherChoixReprise`
+  // ci-dessous (calculés plus bas, une fois `criteresRenseignes` en main) décident SI le choix « Reprendre
+  // / Repartir de zéro » doit remplacer le panneau de résultats. `frontiereLevee` mémorise qu'IL A DÉJÀ ÉTÉ
+  // LEVÉ pour CE montage de nœud (clic sur « Reprendre les valeurs de ce patient ») : sans cet état
+  // dédié, il n'existe aucune façon de distinguer un clic d'acquiescement (qui ne touche AUCUN champ) d'une
+  // frontière encore active — la condition de frontière, elle, resterait vraie indéfiniment (`repris` ne
+  // change pas suite à ce clic). Local à ce composant, jamais dans `sessionCriteres.ts` (« Si bloqué »
+  // T-057 : aucun nouvel état global).
+  const [frontiereLevee, setFrontiereLevee] = useState(false)
 
   // Les critères dérivés (ex. cible_atteinte = HbA1c_actuelle <= HbA1c_cible ; over_basalisation =
   // dose_basale_actuelle / poids > 0,5) sont recalculés depuis les primitives saisies AVANT l'évaluation
@@ -179,6 +188,38 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   // ci-dessous) et les quatre calculs de `renseignes` du moteur (`vue`, `pertinents`, `violations`,
   // `decisifsManquants`).
   const criteresRenseignes = useMemo(() => new Set([...touched, ...preremplis]), [touched, preremplis])
+
+  // T-057 (P8 · S2, 2026-07-30) — FRONTIÈRE DE RE-ENTRÉE (D28). CE N'EST PAS UN BUG DE DÉMONTAGE : c'est
+  // la conjonction de deux choses correctes prises séparément — (1) une valeur REPRISE compte comme
+  // SAISIE (`touched`, arbitrage assumé au-dessus, ≈ l.111-117 : la laisser hors de `touched` afficherait
+  // une valeur remplie tout en la traitant comme indéterminée) ; (2) certains nœuds déclarent `partage:
+  // true` sur LA TOTALITÉ de leurs critères décisifs (ex. `cible-glycemique` : `age`,
+  // `anciennete_diabete_annees`, `esperance_vie`, `fragilite`). La mémoire de session suffit alors, À
+  // ELLE SEULE, à reconstituer toute la réponse — un nœud RÉ-OUVERT peut afficher une recommandation
+  // BADGÉE ET FINIE, calculée pour le patient PRÉCÉDENT, avec « repris de votre saisie », SANS que rien
+  // n'ait été saisi SUR CET écran. Reproduit en 3 clics dans la recette du 2026-07-30 (§« DÉFAUT MAJEUR
+  // découvert entre N2 et N3 ») : sortir par « ← Domaine », ré-ouvrir le même nœud, lire le résultat de la
+  // patiente précédente — « en consultation de 15 minutes, on lit le résultat, pas le formulaire ».
+  //
+  // LE CORRECTIF EST UNE FRONTIÈRE, PAS UN RETRAIT (D28 reste vivant, la reprise elle-même n'est pas
+  // défaite — cf. le formulaire, inchangé). Condition de déclenchement ÉTROITE, à respecter À LA LETTRE
+  // (S2.md T-057 "Étapes" 2, citée mot pour mot) : « `repris` non vide ET aucun élément de `touched` qui
+  // ne soit dans `repris` » — autrement dit, `repris` ET `touched` calculés à partir de ce que l'écran a
+  // DÉJÀ en main (aucun nouvel état global, `sessionCriteres.ts` non touché). Se lit : au moins UNE valeur
+  // vient de la mémoire, et RIEN d'autre n'a été touché ici — ni un nouveau champ (`touched` grossirait
+  // au-delà de `repris`), ni un champ reprise ÉDITÉ (il quitterait `repris` — cf. `handleCriteriaChange`,
+  // « la mention "repris" cesse dès que le praticien touche au champ » — tout en restant dans `touched`,
+  // cassant l'inclusion). DÈS QU'UN SEUL CHAMP EST SAISI SUR CE NŒUD, l'une des deux branches de la
+  // condition devient fausse et le comportement actuel est RIGOUREUSEMENT INCHANGÉ — c'est ce qui
+  // préserve le gain salué en N3/N4 (arriver sur un nœud avec 3 champs déjà remplis). Sur un nœud sans
+  // AUCUNE reprise (premier patient, ou aucun critère `partage`), `repris` est vide et la frontière ne se
+  // déclenche jamais.
+  //
+  // `frontiereLevee` (état dédié, ci-dessus) écarte la frontière pour le RESTE de ce montage une fois
+  // « Reprendre les valeurs de ce patient » cliqué — sans lui, un clic d'acquiescement qui ne touche AUCUN
+  // champ laisserait la condition vraie indéfiniment.
+  const frontiereReprise = repris.size > 0 && [...touched].every((nom) => repris.has(nom))
+  const afficherChoixReprise = frontiereReprise && !frontiereLevee
 
   const vue = useMemo(() => {
     if (!node) return undefined
@@ -262,14 +303,15 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   // N du bouton flottant : nombre d'options RÉELLEMENT rendues comme cartes dans la colonne droite à cet
   // instant — `vue.familles` aplati (`familles[].groupes[]` est `OptionVue[][]`, cf. `lib/vueDecision.ts`
   // `FamilleVue`), PAS une estimation. Zéro dès qu'une contrainte suspend le panneau (D31) : dans cet
-  // état, `vue.familles` n'est de toute façon jamais consulté par le rendu (Étape 2 ci-dessous).
+  // état, `vue.familles` n'est de toute façon jamais consulté par le rendu (Étape 2 ci-dessous). T-057 :
+  // ZÉRO aussi pendant la frontière de re-entrée — même principe, aucune carte n'est réellement rendue.
   const optionsRenduesCount = useMemo(() => {
-    if (violations.length > 0 || !vue) return 0
+    if (violations.length > 0 || afficherChoixReprise || !vue) return 0
     return vue.familles.reduce(
       (total, famille) => total + famille.groupes.reduce((sousTotal, groupe) => sousTotal + groupe.length, 0),
       0,
     )
-  }, [violations, vue])
+  }, [violations, afficherChoixReprise, vue])
 
   if (!node) {
     return (
@@ -290,10 +332,37 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
     // Suggestion auto d'`esperance_vie` (non sourcée, cf. lib/esperanceVieDefault.ts) : ne
     // s'applique que tant que le praticien n'a pas choisi cette valeur lui-même, et se recalcule
     // seulement quand un critère dont elle dépend change (pas à chaque frappe non liée).
+    //
+    // T-061 (P8 · S2, 2026-07-30) — LE DÉFAUT CORRIGÉ ICI : la valeur suggérée était bien écrite dans
+    // `next.esperance_vie` ci-dessous, mais jamais ajoutée ni à `touched` ni à `preremplis` — donc
+    // invisible au formulaire (`CriteriaForm` n'allume `aria-pressed`/`data-on` que sur
+    // `criteresRenseignes.has(nom)`, cf. plus bas) ET ignorée du moteur (`criteresRenseignes` ne la
+    // contenait pas non plus). Mesuré en recette sur trois patients, dont le cas d'école que la ligne
+    // nomme elle-même (88 ans, fragilité ET comorbidité grave cochées) : « elle n'a jamais rien
+    // proposé ».
+    //
+    // LE CORRECTIF N'AJOUTE PAS `esperance_vie` À `touched` : ce serait faire passer une valeur
+    // CALCULÉE pour une réponse du PRATICIEN, exactement ce que D20 interdit (« une valeur par défaut
+    // n'est pas une réponse ») — le coût déjà payé pour cette confusion est documenté dans
+    // `CriteriaForm.tsx` autour d'`aria-pressed`/`estAConfirmer`. Le véhicule correct est celui déjà
+    // éprouvé par le CONTENU pour `preremplissage` (K6, `lib/formLayout.ts` `appliquerPreremplissage`) :
+    // afficher la valeur, dire d'où elle vient (`preremplis` → « · calculé, à vérifier »,
+    // `CriteriaForm.tsx` `renderOrigine`), la compter comme renseignée (`criteresRenseignes` = `touched`
+    // ∪ `preremplis`, cf. plus bas) et la laisser modifiable — MÊME statut, MÊME mention, MÊMES règles de
+    // retrait qu'un pré-remplissage de contenu (ex. la position vs objectif). `nomsAPreremplirEsp` est
+    // fusionné avec `nouveaux` (pré-remplissage de CONTENU) plus bas : une seule écriture de
+    // `preremplis` par appel, pas deux mentions distinctes pour une même case.
+    //
+    // La mention affichée en dessous du champ (`hints`, plus bas dans le JSX) reste « à valider » —
+    // inchangée par ce correctif : c'est une aide au remplissage non sourcée (docstring
+    // `esperanceVieDefault.ts` : « pas un fait clinique », CLAUDE.md invariant 6), jamais une
+    // affirmation.
     const espChoisieAMain = touched.has('esperance_vie') || nom === 'esperance_vie'
     const dependClicheEsp = (ESPERANCE_VIE_DRIVERS as readonly string[]).includes(nom)
+    const nomsAPreremplirEsp: string[] = []
     if (!espChoisieAMain && dependClicheEsp && hasEsperanceVieCritere(node.criteres_entree)) {
       next.esperance_vie = suggestEsperanceVie(next)
+      nomsAPreremplirEsp.push('esperance_vie')
     }
 
     // `renseignes` APRÈS ce changement (D20) : `nom` vient d'être répondu — calculé AVANT
@@ -320,8 +389,13 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
     )
     setCriteria(avecPrerempli)
     setTouched(touchedApres)
-    if (nouveaux.length > 0) {
-      setPreremplis((previous) => new Set([...previous, ...nouveaux]))
+    // T-061 : fusion des DEUX sources de pré-remplissage — celui du CONTENU (`nouveaux`, ci-dessus) et
+    // la suggestion d'ÉCRAN (`nomsAPreremplirEsp`, calculée en tête de fonction) — dans un seul appel :
+    // `preremplis` ne distingue pas leur origine, seule la mention affichée le fait déjà (identique pour
+    // les deux, « · calculé, à vérifier »).
+    const aPreremplir = [...nouveaux, ...nomsAPreremplirEsp]
+    if (aPreremplir.length > 0) {
+      setPreremplis((previous) => new Set([...previous, ...aPreremplir]))
     }
     // Le champ que le praticien vient de saisir cesse d'être « pré-rempli ».
     if (preremplis.has(nom)) {
@@ -381,6 +455,48 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
       for (const nom of noms) suivant.add(nom)
       return suivant
     })
+
+    // T-061 (Étape 5) — « Rien à signaler » ne passe PAS par `handleCriteriaChange` : sans ce relais, la
+    // suggestion d'`esperance_vie` restait muette quand `fragilite`/`comorbidite_grave`/`antecedent_cv`
+    // étaient soldés par ce bouton plutôt que cliqués un par un — pourtant LE geste réel du praticien
+    // mesuré en recette (N2, N7). Même garde-fou qu'à la saisie directe (`espChoisieAMain` ci-dessus) :
+    // ne recalcule rien si le praticien a déjà choisi lui-même `esperance_vie`. Les drapeaux confirmés
+    // restent à leur valeur INCHANGÉE (`false`, la présomption de contenu) — seul `touched` bouge — donc
+    // `suggestEsperanceVie` se relit sur `criteria` tel quel, sans fusion supplémentaire.
+    const espChoisieAMain = touched.has('esperance_vie')
+    const declencheSuggestionEsp = noms.some((nom) => (ESPERANCE_VIE_DRIVERS as readonly string[]).includes(nom))
+    if (!espChoisieAMain && declencheSuggestionEsp && hasEsperanceVieCritere(node.criteres_entree)) {
+      const suggestion = suggestEsperanceVie(criteria)
+      if (criteria.esperance_vie !== suggestion) {
+        setCriteria((previous) => ({ ...previous, esperance_vie: suggestion }))
+      }
+      setPreremplis((previous) => new Set(previous).add('esperance_vie'))
+    }
+  }
+
+  /**
+   * T-057 (P8 · S2) — « Repartir de zéro » : lève la frontière de re-entrée EN VIDANT ce qui l'a
+   * déclenchée, plutôt qu'en se contentant de la masquer. Deux effets, EXACTEMENT comme « Nouveau
+   * patient » (T-026/D33) :
+   *  - la MÉMOIRE DE SESSION est purgée par `reinitialiserSession()` — LA MÊME fonction que le bouton du
+   *    header, réutilisée telle quelle (S2.md T-057 "Étapes" 4 : « n'invente pas un second chemin de
+   *    purge ») ;
+   *  - le FORMULAIRE DE CE NŒUD revient à son état vierge. Le remontage par `key` que le bouton du header
+   *    obtient via `App.tsx` (`resetEpoch`) n'est PAS accessible depuis cet écran (`DecisionNodeScreen` ne
+   *    reçoit que `nodeId`/`go`, jamais `resetEpoch`/`setResetEpoch` — header hors périmètre de cette
+   *    session, cf. "Hors périmètre") : un remontage RÉEL exigerait de faire remonter cet état jusqu'à
+   *    `App.tsx`, une décision d'architecture, pas une correction d'écran. Vider directement l'état LOCAL
+   *    (`criteria`/`touched`/`repris`/`preremplis`) obtient le même résultat VISIBLE pour ce nœud sans
+   *    inventer un second mécanisme de purge de la SESSION (qui, lui, reste unique) — seule la manière
+   *    d'obtenir un formulaire vierge diffère, pas ce qui est vidé.
+   */
+  const handleRepartirDeZero = () => {
+    reinitialiserSession()
+    setCriteria(buildDefaultCriteria(node.criteres_entree))
+    setTouched(new Set())
+    setRepris(new Set())
+    setPreremplis(new Set())
+    setFrontiereLevee(false)
   }
 
   // Aucun nœud « à venir » n'existe réellement en contenu (P1 ne livre que cible-glycemique) : la
@@ -516,6 +632,39 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                   </div>
                 )
               })}
+            </div>
+          ) : afficherChoixReprise ? (
+            // T-057 (P8 · S2, 2026-07-30) — FRONTIÈRE DE RE-ENTRÉE (D28, cf. le calcul de
+            // `frontiereReprise`/`afficherChoixReprise` en tête de composant pour la condition exacte et
+            // sa justification). MÊME PARTI PRIS que la suspension D31 juste au-dessus : ce bloc REMPLACE
+            // tout le panneau (ni cartes, ni écartées, ni en attente, ni argumentaire) — c'est le REGARD
+            // PORTÉ SUR LE RÉSULTAT qu'il faut intercepter, pas le formulaire (qui continue d'afficher
+            // « repris de votre saisie », inchangé). Les alertes de nœud et le cadrage restent visibles
+            // (rendus hors de ce bloc, ci-dessus/en tête de page) : une information de sécurité ne se
+            // cache jamais, comme pendant une suspension D31.
+            <div className="decision-node__reprise-frontiere">
+              <div className="decision-node__reprise-frontiere-titre">Ce nœud a déjà été ouvert dans cette consultation</div>
+              <p className="decision-node__reprise-frontiere-texte">
+                Les critères déjà renseignés proviennent de votre saisie sur un autre écran de cette
+                consultation (« repris de votre saisie », dans le formulaire) ; rien n'a encore été saisi
+                ici. Avant d'afficher une recommandation, confirmez qu'il s'agit bien du même patient.
+              </p>
+              <div className="decision-node__reprise-frontiere-actions">
+                <button
+                  type="button"
+                  className="decision-node__reprise-frontiere-bouton"
+                  onClick={() => setFrontiereLevee(true)}
+                >
+                  Reprendre les valeurs de ce patient
+                </button>
+                <button
+                  type="button"
+                  className="decision-node__reprise-frontiere-bouton decision-node__reprise-frontiere-bouton--secondaire"
+                  onClick={handleRepartirDeZero}
+                >
+                  Repartir de zéro
+                </button>
+              </div>
             </div>
           ) : (
             <>
@@ -666,6 +815,52 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
               <div className="decision-node__en-attente-titre">
                 En attente — critère{vue.enAttente.length > 1 ? 's' : ''} à renseigner pour trancher
               </div>
+              {(() => {
+                // T-060 (P8 · S2, 2026-07-30) — le titre ci-dessus s'affichait SEUL, « rien dessous »
+                // (constaté 4 fois en recette, N1/N2/N7/N13b — « un encadré coloré vide se lit comme un
+                // bug »). La donnée était pourtant déjà là et EXACTE (pas une heuristique) :
+                // `vue.enAttente[].manquants` vient du registre `enAttente` d'`evaluateNode`, désigné
+                // comme source de vérité par `engine/relevance.ts` (« cite TOUJOURS tous les critères
+                // manquants d'une option, y compris en conjonction »). `manquants` ne contient QUE des
+                // primitifs de `criteres_entree` (jamais un dérivé — `engine/evaluateNode.ts`
+                // `primitivesReferencees` les déroule toujours vers leurs primitifs), donc CHACUN est
+                // couvert par l'invariant I20 (`engine/banc/libelles.test.ts`, qui exige un libellé
+                // rédigé pour TOUT `criteres_entree` d'un nœud publié) : `labelForCritere` ne peut pas
+                // laisser sortir un identifiant brut ici pour un nœud publié — un `manquants` sans
+                // libellé serait une violation d'I20 en amont, pas un défaut d'affichage à intercepter.
+                //
+                // DEUX FORMES POSSIBLES (Étape 2 de la tâche), UNE SEULE RETENUE PAR RENDU — jamais les
+                // deux en même temps. En dessous d'un petit nombre de critères DISTINCTS (≤ 3, seuil
+                // choisi parce que c'est le cas dominant en recette : une ou deux questions qui reviennent
+                // sur plusieurs options), une phrase unique dédoublonnée est plus lisible qu'une liste
+                // option par option qui répéterait le même nom de critère sous plusieurs intitulés — du
+                // bruit, pas l'information cherchée (cf. N13b : « il manque : les traitements en cours »,
+                // une phrase, pas un tableau). Au-delà, la liste par option (même registre que le bloc
+                // « écartées » juste en dessous, jugé « excellent » par le rapport) redevient nécessaire :
+                // des options différentes peuvent réclamer des critères différents, et les fondre en une
+                // seule phrase perdrait cette distinction.
+                const distincts: string[] = []
+                const vus = new Set<string>()
+                for (const enAttente of vue.enAttente) {
+                  for (const nom of enAttente.manquants) {
+                    if (vus.has(nom)) continue
+                    vus.add(nom)
+                    distincts.push(nom)
+                  }
+                }
+                if (distincts.length <= 3) {
+                  return (
+                    <p className="decision-node__en-attente-item">
+                      À renseigner pour trancher : {distincts.map(labelForCritere).join(', ')}.
+                    </p>
+                  )
+                }
+                return vue.enAttente.map((enAttente, index) => (
+                  <p key={`${index}-${enAttente.option.intitule}`} className="decision-node__en-attente-item">
+                    {enAttente.option.intitule} — à renseigner : {enAttente.manquants.map(labelForCritere).join(', ')}
+                  </p>
+                ))
+              })()}
             </div>
           )}
 

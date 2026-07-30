@@ -238,6 +238,62 @@
   color: var(--c-text-muted);
 }
 
+/* T-057 (P8 · S2, 2026-07-30) — FRONTIÈRE DE RE-ENTRÉE (D28) : un nœud ré-ouvert dont TOUS les critères
+   renseignés viennent de la mémoire de session, sans qu'aucun n'ait été saisi SUR CET écran, ne rend
+   pas de carte tant que le praticien n'a pas confirmé qu'il s'agit du même patient. MÊME REGISTRE que
+   la suspension D31 ci-dessus (`--c-disclaimer-*`) : ni une alerte clinique (`AlertList`), ni une
+   question de saisie incomplète (`--c-attention*`, réservé à « ce que l'outil attend de vous ») — un
+   point de contrôle de confiance sur l'identité du patient affiché, analogue à une suspension de saisie. */
+.decision-node__reprise-frontiere {
+  display: grid;
+  gap: 12px;
+  margin: 0 0 20px;
+  padding: 14px 16px;
+  border: 1px solid var(--c-disclaimer-border);
+  background: var(--c-disclaimer-bg);
+  border-radius: var(--radius-md);
+}
+
+.decision-node__reprise-frontiere-titre {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--c-text);
+}
+
+.decision-node__reprise-frontiere-texte {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--c-text);
+}
+
+.decision-node__reprise-frontiere-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.decision-node__reprise-frontiere-bouton {
+  border: none;
+  background: var(--c-accent-decision);
+  color: white;
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.decision-node__reprise-frontiere-bouton--secondaire {
+  background: transparent;
+  border: 1px solid var(--c-border);
+  color: var(--c-text);
+  font-weight: 600;
+}
+
 /* T-023 Étape 1 (P4/S3, 2026-07-28) — zéro option APPLICABLE mais une décision reste EN ATTENTE (halte
    possible depuis S2). Même registre AMBRE que `.decision-node__en-attente` juste en dessous (même
    nature d'information — une question posée au praticien, pas une alerte de sécurité ni un cadrage) :
