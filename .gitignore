@@ -31,3 +31,6 @@ docs/decision/sources/*.pdf
 
 # Marqueur local de vague parallèle (WORKFLOW.md §4b) — jamais versionné
 .claude/wave.lock
+
+# Worktrees temporaires des agents Claude Code (isolation:"worktree") — jamais versionnés
+.claude/worktrees/
