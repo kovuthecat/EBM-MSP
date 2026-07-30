@@ -50,7 +50,7 @@
  * INDÉTERMINÉE part dans le nouveau registre `enAttente` — ni `applicable`, ni `excluded`, ni
  * `nonRetenues` (Q1/Q2 du référent, §0 de la spec).
  */
-import type { Alerte, CritereEntree, Noeud, Option } from '../content/node.types.ts'
+import type { Alerte, ContreIndication, CritereEntree, Noeud, Option } from '../content/node.types.ts'
 import type { Criteria, Ternaire } from './conditions.ts'
 import { ConditionError, INDETERMINE, atomesIndetermines, evaluateCondition } from './conditions.ts'
 import { determinesEffectifs } from './deriveCritere.ts'
@@ -537,6 +537,68 @@ export function evaluateAlertesDeListe(
   return alertes.filter(
     (alerte) => alerte.quand === 'default' || evaluateCondition(alerte.quand, criteria, renseignes) === true,
   )
+}
+
+/**
+ * ÉTAT d'une contre-indication pour CE patient (T-068, P9) :
+ * - `active` — elle s'applique (sa `condition` est vraie), ou elle n'est pas vérifiable automatiquement
+ *   (aucune `condition` déclarée : c'est le cas de TOUT le contenu antérieur à ce champ) ;
+ * - `levee` — sa `condition` est FAUSSE : les critères saisis montrent que ce risque ne concerne pas ce
+ *   patient. Elle reste affichée, désamorcée — jamais effacée (même principe de transparence que R4 pour
+ *   les options écartées : une information de sécurité ne disparaît pas sans explication) ;
+ * - `indetermine` — sa `condition` n'est ni vraie ni fausse (un critère qu'elle lit n'est pas renseigné,
+ *   D20). Le moteur ne se prononce pas : l'affichage retombe sur l'état par défaut (comme `active`).
+ */
+export type EtatContreIndication = 'active' | 'levee' | 'indetermine'
+
+/** Une contre-indication prête à l'affichage : son texte (les deux formes de contenu sont ramenées à
+ * une seule ici) et son état pour ce patient. */
+export interface ContreIndicationEvaluee {
+  texte: string
+  etat: EtatContreIndication
+}
+
+/**
+ * ÉTAT de chaque contre-indication d'une option pour ces critères (T-068, P9). Ramène les DEUX formes de
+ * contenu (chaîne historique, objet `{ texte, condition }`) à une seule structure — les consommateurs
+ * (`lib/vueDecision.ts`, `components/OptionCard.tsx`) n'ont jamais à connaître qu'une forme.
+ *
+ * RÉTROCOMPATIBILITÉ, par construction : une chaîne, ou un objet sans `condition`, donne `active` — donc
+ * exactement le rendu d'avant ce champ pour tout le contenu existant (aucun nœud ne déclarait de
+ * `condition` au jour de cette livraison). Il n'y a pas d'état « absent » : une contre-indication est
+ * toujours rendue, seul son registre visuel change.
+ *
+ * PAS UN SECOND INTERPRÉTEUR DSL : réutilise `evaluateCondition` tel quel, avec la MÊME sémantique
+ * ternaire que les `exclusions` (D20) — `true` ⇒ le fait est là, `false` ⇒ il ne l'est pas, `INDETERMINE`
+ * ⇒ on ne sait pas, et on ne se prononce donc pas (repli sur l'état par défaut, jamais sur `levee` : lever
+ * une contre-indication sur un critère non renseigné reviendrait à conclure sur ce qu'on ignore, R7).
+ * Propage `ConditionError` sur une expression malformée, comme le reste du moteur (jamais de faux
+ * silencieux, brief §7).
+ *
+ * ÉVALUÉE HORS d'`evaluateNode`, exactement comme `evaluateAlertesDeListe` pour les alertes d'option, et
+ * pour la même raison : l'état d'une contre-indication ne change RIEN à l'applicabilité (elle ne retire
+ * jamais l'option — c'est le rôle d'`exclusions`), il ne concerne que ce qui est RENDU. `evaluateNode`
+ * tourne des centaines de fois par frappe via la boucle de perturbation (`engine/relevance.ts`) ; le
+ * modèle de vue, lui, une fois par cycle de rendu (`lib/vueDecision.ts`, qui appelle cette fonction).
+ *
+ * `effectifs` : ATTENDU DÉJÀ EFFECTIF (fold bool/liste + dérivés déterminés, `deriveCritere.ts`
+ * `determinesEffectifs`) — même contrat que `evaluateAlertesDeListe`. Absent ⇒ repli « tout est
+ * renseigné » : aucune contre-indication ne peut alors être `indetermine`.
+ */
+export function evaluerContreIndications(
+  contreIndications: (string | ContreIndication)[] | undefined,
+  criteria: Criteria,
+  effectifs?: ReadonlySet<string>,
+): ContreIndicationEvaluee[] {
+  if (!contreIndications || contreIndications.length === 0) return []
+  return contreIndications.map((ci) => {
+    if (typeof ci === 'string') return { texte: ci, etat: 'active' as const }
+    if (ci.condition == null) return { texte: ci.texte, etat: 'active' as const }
+    const valeur = evaluateCondition(ci.condition, criteria, effectifs)
+    if (valeur === false) return { texte: ci.texte, etat: 'levee' as const }
+    if (valeur === INDETERMINE) return { texte: ci.texte, etat: 'indetermine' as const }
+    return { texte: ci.texte, etat: 'active' as const }
+  })
 }
 
 /**

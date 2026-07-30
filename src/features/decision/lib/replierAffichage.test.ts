@@ -39,6 +39,10 @@ function opt(intitule: string, forme: Forme = {}): OptionVue {
     motifRang: undefined,
     alertes: Array.from({ length: forme.alertes ?? 0 }, () => ({ quand: 'x', message: 'alerte' })),
     rang: forme.rang,
+    // T-068 (P9) : `OptionVue` porte désormais les contre-indications ÉVALUÉES. `plafonnerPistes` ne les
+    // lit pas (il lit `option.contre_indications`, le champ de contenu — cf. `estRepliable`), on reflète
+    // donc simplement ici l'état par défaut de toute contre-indication non conditionnelle : ACTIVE.
+    contreIndications: (forme.contreIndications ?? []).map((texte) => ({ texte, etat: 'active' as const })),
   }
 }
 

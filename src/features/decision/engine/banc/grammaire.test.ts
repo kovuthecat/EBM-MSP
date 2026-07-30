@@ -132,6 +132,10 @@ const MARQUEURS = {
   contrainte: 'MARQUEUR_contrainte <= 10',
   valeurVisibleSi: 'MARQUEUR_valeur_visible_si == 11',
   preremplissage: 'MARQUEUR_preremplissage == 12',
+  // T-068 (P9, 2026-07-30) : `contre_indications` peut porter une expression depuis sa forme objet
+  // `{ texte, condition }`. C'est exactement le cas de figure que G1/G2 existent pour attraper — le champ
+  // a été classé (`CHAMPS_DU_SCHEMA.contreIndication`) ET le collecteur le visite, sinon le banc tombe.
+  contreIndicationCondition: 'MARQUEUR_contre_indication == 13',
 } as const
 
 function noeudSynthetique(): Noeud {
@@ -173,6 +177,9 @@ function noeudSynthetique(): Noeud {
         priorite: [{ quand: MARQUEURS.prioriteQuand, rang: 1 }],
         alertes: [{ quand: MARQUEURS.alerteOption, message: 'marqueur' }],
         calculs: [{ libelle: 'marqueur', expression: MARQUEURS.calcul }],
+        // T-068 : les DEUX formes côte à côte — la chaîne (historique, inerte, aucun fragment attendu)
+        // et l'objet conditionnel (dont la `condition` DOIT être récoltée).
+        contre_indications: ['marqueur en prose, sans condition', { texte: 'marqueur', condition: MARQUEURS.contreIndicationCondition }],
       },
     ],
     alertes: [{ quand: MARQUEURS.alerteNoeud, message: 'marqueur' }],
@@ -215,6 +222,11 @@ describe('G2 — le collecteur visite tous les emplacements porteurs d’express
       [MARQUEURS.valeurVisibleSi, 'affichage'],
       // Décide d'une valeur de DÉPART dans le formulaire, jamais de l'applicabilité d'une option.
       [MARQUEURS.preremplissage, 'affichage'],
+      // T-068 : `decision` bien qu'elle ne change AUCUNE option retenue — elle change ce que l'écran
+      // affiche d'un fait de sécurité, et cet état entre dans `signatureVue` (cf. la justification du
+      // classement dans `CHAMPS_DU_SCHEMA.contreIndication`). Ses seuils doivent donc être tirés par le
+      // banc comme des frontières cliniques, à la différence d'un `visible_si`.
+      [MARQUEURS.contreIndicationCondition, 'decision'],
     ]
 
     const violations: string[] = []
@@ -240,11 +252,12 @@ describe('G2 — le collecteur visite tous les emplacements porteurs d’express
         if (nature !== 'inerte') porteurs.push(`${definition}.${champ}`)
       }
     }
-    // 11 emplacements de schéma pour 12 marqueurs : `alerte.quand` est la MÊME définition de schéma,
+    // 12 emplacements de schéma pour 13 marqueurs : `alerte.quand` est la MÊME définition de schéma,
     // exercée à deux endroits (nœud et option) — c'est précisément la confusion qui a produit le défaut.
     expect(porteurs.sort()).toEqual(
       [
         'alerte.quand',
+        'contreIndication.condition',
         'contrainte.expression',
         'critereEntree.derive',
         'critereEntree.valeurs_visible_si',

@@ -646,6 +646,76 @@ describe('signatureVue — T-059 : `calculsEnAttente` entre dans la signature de
 })
 
 /**
+ * T-068 (P9 · S1, 2026-07-30) — l'ÉTAT des contre-indications remonte jusqu'au modèle de vue, et entre
+ * dans `signatureVue` au même titre que les autres dimensions affichées (totalité, docstring de tête).
+ *
+ * POURQUOI CETTE DIMENSION DOIT Y ENTRER. Une contre-indication qui se désamorce ne change NI l'option
+ * retenue, NI son badge, NI son rang, NI ses raisons : sur toutes les dimensions déjà sérialisées, les
+ * deux vues sont identiques. Sans ce lot, le critère qui commande la contre-indication (ex. `DFG`) serait
+ * donc vu « sans effet sur la reco » par `engine/relevance.ts` et estompé dans le formulaire — pendant
+ * que la carte, elle, afficherait bel et bien un avertissement de moins. Exactement la contradiction
+ * « qui croire, de l'écran ou de l'écran » déjà rencontrée sur `calculsEnAttente` (T-059, ci-dessus).
+ */
+describe('construireVueDecision / signatureVue — T-068 : état des contre-indications', () => {
+  const optionAvecCi = (contreIndications: Option['contre_indications']) =>
+    opt('Metformine', ['toujours'], { contre_indications: contreIndications })
+
+  it('`OptionVue.contreIndications` porte le texte ET l’état, pour les deux formes de contenu', () => {
+    const option = optionAvecCi(['Alcoolisme.', { texte: 'Insuffisance rénale sévère.', condition: 'DFG < 30' }])
+    const node = makeNode([option], [{ nom: 'DFG', type: 'nombre' }])
+
+    expect(construireVueDecision(node, { DFG: 90 }).familles[0].groupes[0][0].contreIndications).toEqual([
+      { texte: 'Alcoolisme.', etat: 'active' },
+      { texte: 'Insuffisance rénale sévère.', etat: 'levee' },
+    ])
+    expect(construireVueDecision(node, { DFG: 20 }).familles[0].groupes[0][0].contreIndications).toEqual([
+      { texte: 'Alcoolisme.', etat: 'active' },
+      { texte: 'Insuffisance rénale sévère.', etat: 'active' },
+    ])
+  })
+
+  it('D20 : sur un critère NON renseigné, l’état est `indetermine` — jamais `levee`', () => {
+    const option = optionAvecCi([{ texte: 'Insuffisance rénale sévère.', condition: 'DFG < 30' }])
+    const node = makeNode([option], [{ nom: 'DFG', type: 'nombre' }])
+    const vue = construireVueDecision(node, { DFG: 90 }, new Set())
+    expect(vue.familles[0].groupes[0][0].contreIndications).toEqual([
+      { texte: 'Insuffisance rénale sévère.', etat: 'indetermine' },
+    ])
+  })
+
+  it('LE VERROU : deux vues qui ne diffèrent QUE par l’état d’une contre-indication ont des signatures DIFFÉRENTES', () => {
+    const option = optionAvecCi([{ texte: 'Insuffisance rénale sévère.', condition: 'DFG < 30' }])
+    const node = makeNode([option], [{ nom: 'DFG', type: 'nombre' }])
+    const vueActive = construireVueDecision(node, { DFG: 20 })
+    const vueLevee = construireVueDecision(node, { DFG: 90 })
+
+    // Rien d'autre ne bouge : même option, même badge, mêmes raisons, mêmes doses.
+    expect(vueActive.familles[0].groupes[0][0].badge).toBe(vueLevee.familles[0].groupes[0][0].badge)
+    expect(vueActive.familles[0].groupes[0][0].reasons).toEqual(vueLevee.familles[0].groupes[0][0].reasons)
+    expect(signatureVue(vueActive)).not.toBe(signatureVue(vueLevee))
+  })
+
+  it('`criteresPertinents` voit le critère d’une contre-indication comme DÉCISIF (il ne sera plus estompé à tort)', () => {
+    const option = optionAvecCi([{ texte: 'Insuffisance rénale sévère.', condition: 'DFG < 30' }])
+    const node = makeNode([option], [{ nom: 'DFG', type: 'nombre', min: 5, max: 120 }])
+    expect(criteresPertinents(node, { DFG: 90 }).has('DFG')).toBe(true)
+  })
+
+  it('NON-RÉGRESSION : sur un contenu SANS `condition`, la signature ne porte AUCUN segment de contre-indication', () => {
+    // Cette propriété n'est pas cosmétique : c'est elle qui garantit que le golden master de
+    // caractérisation (`engine/banc/__snapshots__/`, qui liste des `signatureVue` complètes) reste byte à
+    // byte identique tant qu'aucun nœud n'encode de contre-indication conditionnelle.
+    const node = makeNode([optionAvecCi(['Alcoolisme.', { texte: 'Grossesse.' }])])
+    expect(signatureVue(construireVueDecision(node, {}))).not.toContain('‡')
+    // ... et la signature est bien celle d'une option SANS contre-indication du tout : la dimension
+    // n'existe dans la chaîne que lorsqu'un état s'écarte de `active`.
+    expect(signatureVue(construireVueDecision(node, {}))).toBe(
+      signatureVue(construireVueDecision(makeNode([opt('Metformine', ['toujours'])]), {})),
+    )
+  })
+})
+
+/**
  * Défaut I (recette navigateur du 2026-07-27) — « pourquoi pas d'autres options » pollué par le
  * hors-périmètre. Sur `prescription`, un patient voyait 18,7 lignes en moyenne, dont 60 % de la forme
  * « Traitements en cours comprend Sulfamide / Gliptine / Insuline… » chez quelqu'un qui n'en prend aucun.

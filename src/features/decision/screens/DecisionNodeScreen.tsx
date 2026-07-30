@@ -712,6 +712,7 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                       calculsEnAttente={optionVue.calculsEnAttente}
                       motifRang={optionVue.motifRang}
                       alertes={optionVue.alertes}
+                      contreIndications={optionVue.contreIndications}
                     />
                   ))
                   if (groupe.length < 2) return cartes

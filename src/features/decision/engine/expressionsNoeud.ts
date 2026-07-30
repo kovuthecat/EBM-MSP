@@ -124,7 +124,10 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
     references: 'inerte',
     conditions: 'decision',
     prerequis: 'decision',
-    contre_indications: 'inerte', // prose ; le pendant évaluable est `exclusions` (D13)
+    // Conteneur depuis T-068 (P9) : le tableau mêle des CHAÎNES (prose seule, inerte) et des objets
+    // `{ texte, condition }` — cf. la définition `contreIndication` ci-dessous, qui porte la seule
+    // expression du lot. Le champ lui-même ne porte donc rien, comme `alertes`.
+    contre_indications: 'inerte',
     priorite: 'decision', // entier (D13) ou liste de règles `{ quand, rang }` (D14) — seul `quand` est une expression
     exclusions: 'decision',
     calculs: 'arithmetique',
@@ -137,6 +140,20 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
     quand: 'decision',
     message: 'inerte',
     niveau: 'inerte',
+  },
+  contreIndication: {
+    texte: 'inerte',
+    // T-068 (P9) : `decision`, et le classement mérite d'être justifié parce qu'il n'est pas évident.
+    // Cette expression ne décide PAS de l'applicabilité d'une option (une contre-indication n'a jamais
+    // retiré quoi que ce soit — c'est le rôle d'`exclusions`) : elle décide de l'ÉTAT AFFICHÉ d'un fait
+    // de sécurité. `affichage` serait pourtant le mauvais classement : cette nature existe pour les
+    // expressions dont les littéraux ne déplacent AUCUNE sortie (`visible_si` — « `signatureVue` ne
+    // contient pas la visibilité des champs », cf. `NatureChamp`). Ici c'est l'inverse : l'état d'une
+    // contre-indication ENTRE dans `signatureVue` (`lib/vueDecision.ts` `serialiseContreIndications`),
+    // donc un seuil écrit ici EST une frontière clinique — franchir « DFG < 30 » change ce que le
+    // praticien lit. Le banc doit engendrer des profils de part et d'autre, sinon aucun profil ne verrait
+    // jamais la contre-indication se désamorcer.
+    condition: 'decision',
   },
   critereEntree: {
     nom: 'inerte',
@@ -215,6 +232,13 @@ export function fragmentsDuNoeud(node: Noeud): FragmentExpression[] {
     // à part entière (D21) : son `quand` est une expression du même DSL, évaluée par la même brique
     // (`evaluateAlertesDeListe`) que celui d'une alerte de nœud.
     ;(option.alertes ?? []).forEach((alerte, j) => pousser(alerte.quand, 'decision', `${base}.alertes[${j}].quand`))
+    // T-068 (P9) : seules les contre-indications de la FORME OBJET portant une `condition` sont récoltées
+    // — une chaîne (forme historique) n'est que de la prose, il n'y a rien à récolter.
+    ;(option.contre_indications ?? []).forEach((ci, j) => {
+      if (typeof ci !== 'string' && ci.condition != null) {
+        pousser(ci.condition, 'decision', `${base}.contre_indications[${j}].condition`)
+      }
+    })
     ;(option.calculs ?? []).forEach((c, j) => pousser(c.expression, 'arithmetique', `${base}.calculs[${j}].expression`))
   })
 

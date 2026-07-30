@@ -186,6 +186,26 @@
         }
       }
     },
+    "contreIndication": {
+      "type": "object",
+      "additionalProperties": false,
+      "$comment": "T-068 (P9) — FORME LONGUE de `option.contre_indications` (la forme courte reste la simple chaine, strictement equivalente a un objet sans `condition`). Cette definition ne cree PAS un second mecanisme d'exclusion : une contre-indication n'a jamais retire une option et ne le fait toujours pas — `exclusions` (D13) est le seul champ qui retire. La seule chose que `condition` change est l'ETAT VISUEL de la contre-indication a l'ecran.",
+      "required": [
+        "texte"
+      ],
+      "properties": {
+        "texte": {
+          "type": "string",
+          "minLength": 1,
+          "description": "La contre-indication elle-meme, en prose, telle qu'elle s'affiche — exactement ce que portait la forme chaine."
+        },
+        "condition": {
+          "type": "string",
+          "minLength": 1,
+          "description": "OPTIONNEL. Expression DSL (MEME grammaire que `conditions`/`exclusions`, meme evaluateur — `engine/conditions.ts`) decrivant le cas ou cette contre-indication S'APPLIQUE reellement a ce patient (meme polarite qu'une `exclusion` : vraie = le fait est la). Ne retire RIEN, ni l'option ni la contre-indication : elle fixe seulement son ETAT (`engine/evaluateNode.ts` `evaluerContreIndications`) — VRAIE = alerte active, affichee comme aujourd'hui ; FAUSSE = contre-indication DESAMORCEE, affichee en retrait avec la mention qu'elle ne s'applique pas ici (jamais effacee : meme principe de transparence que R4 pour les options ecartees) ; INDETERMINEE (un critere qu'elle lit n'est pas renseigne) = affichee normalement, l'etat par defaut (D20 : le moteur ne se prononce jamais sur ce qu'il ignore). ABSENTE = contre-indication non verifiable automatiquement (ex. « alcoolisme ») : toujours affichee, comportement historique."
+        }
+      }
+    },
     "critereEntree": {
       "type": "object",
       "additionalProperties": false,
@@ -379,9 +399,17 @@
         "contre_indications": {
           "type": "array",
           "items": {
-            "type": "string"
+            "oneOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "$ref": "#/definitions/contreIndication"
+              }
+            ]
           },
-          "description": "Prose destinee au lecteur (affichage). Distincte de `exclusions`, evaluee par le moteur (DECISIONS.md D13)."
+          "description": "Prose destinee au lecteur (affichage). Distincte de `exclusions`, qui RETIRE l'option (DECISIONS.md D13) — une contre-indication, elle, reste TOUJOURS affichee. DEUX FORMES depuis T-068 (P9) : une CHAINE (forme historique, contre-indication non verifiable automatiquement, ex. « alcoolisme ») ou un OBJET `{ texte, condition }` (cf. definitions/contreIndication) dont la `condition` est une expression du MEME DSL que `exclusions`. La condition ne retire RIEN : elle change seulement l'ETAT VISUEL de la contre-indication (active / levee / indeterminee, cf. `engine/evaluateNode.ts` `evaluerContreIndications`). Les deux formes cohabitent dans le meme tableau ; une chaine equivaut exactement a un objet sans `condition`."
         },
         "priorite": {
           "description": "Rang en mode multi-options : options triees par rang croissant (tri stable ; absente = rang faible). Entier = rang FIXE (D13) ; liste de regles {quand, rang} = rang CONDITIONNEL (D14, 1re regle dont `quand` — condition DSL ou 'default' — est vraie ; placer 'default' EN DERNIER, sinon les regles suivantes sont mortes). Ignore en ordered-first-match.",

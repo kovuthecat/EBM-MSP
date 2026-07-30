@@ -265,3 +265,31 @@
 .option-card__ci-label {
   font-weight: 700;
 }
+
+/* T-068 (P9, 2026-07-30) — CONTRE-INDICATION DÉSAMORCÉE. Sa `condition` est FAUSSE pour ce patient : le
+   fait clinique reste vrai en général, il ne le concerne pas. Deux exigences opposées à tenir ensemble :
+   elle doit rester LISIBLE (R4 — un fait de sécurité ne disparaît pas en silence, le praticien doit
+   pouvoir vérifier que l'outil l'a vue) et cesser d'ALERTER (c'est tout l'objet de la tâche). D'où :
+   - AUCUN des tokens `--c-disclaimer-*` du bloc actif ci-dessus, ni bordure, ni fond — ce registre est
+     celui de l'interdiction clinique, et une CI levée n'interdit rien ;
+   - texte estompé (`--c-text-muted`) et BARRÉ : le barré dit « annulée », pas « atténuée » — c'est ce qui
+     évite la lecture ambiguë d'un simple gris (« important mais secondaire »).
+   Le libellé, lui, n'est PAS barré : c'est la phrase qui porte la raison, elle doit se lire normalement.
+   Visibilité jugée en N2 (S10) : « assez visible pour rester vérifiable, assez discrète pour ne plus
+   alerter à tort » est un arbitrage humain, pas une valeur qu'on fixe ici. */
+.option-card__ci--levee {
+  background: none;
+  border: none;
+  color: var(--c-text-muted);
+  padding: 0;
+  margin-bottom: 14px;
+}
+
+.option-card__ci--levee .option-card__ci-label {
+  /* Moins appuyé que le libellé du bloc actif (700) : même structure de phrase, moindre insistance. */
+  font-weight: 600;
+}
+
+.option-card__ci-levee-texte {
+  text-decoration: line-through;
+}

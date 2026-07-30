@@ -272,6 +272,32 @@ export type RoleOption = 'socle' | 'securite' | 'geste' | 'repli'
  */
 export type ActionOption = 'ajouter' | 'remplacer' | 'arreter' | 'reduire' | 'maintenir'
 
+/**
+ * FORME LONGUE d'une contre-indication (T-068, P9) : le texte **et**, optionnellement, la `condition`
+ * qui dit quand ce risque s'applique réellement à ce patient. La forme courte (une simple chaîne) reste
+ * valide et strictement équivalente à `{ texte }` sans `condition`.
+ *
+ * CE N'EST PAS UN SECOND MÉCANISME D'EXCLUSION, et c'est la seule chose à retenir avant d'en écrire une :
+ * `exclusions` (D13) RETIRE une option quand elle est vraie ; une `condition` de contre-indication ne
+ * retire rien — ni l'option, ni la contre-indication elle-même, qui reste affichée dans tous les cas.
+ * Elle ne fixe que son ÉTAT VISUEL (`engine/evaluateNode.ts` `evaluerContreIndications`) :
+ *
+ * | `condition` | sens clinique | rendu |
+ * | --- | --- | --- |
+ * | absente | non vérifiable automatiquement (ex. « alcoolisme ») | affichée, comme avant ce champ |
+ * | vraie | s'applique à ce patient | affichée — c'est l'alerte active |
+ * | fausse | le critère saisi l'exclut | **désamorcée, pas effacée** : en retrait, avec la mention |
+ * | indéterminée | un critère qu'elle lit n'est pas renseigné | affichée normalement (D20) |
+ *
+ * La POLARITÉ est celle d'une `exclusion` (vraie = le fait est là), pas celle d'une `condition`
+ * d'applicabilité de l'option : `condition: "DFG < 30"` se lit « cette contre-indication vaut pour un
+ * DFG < 30 », jamais « cette option n'est proposée qu'en dessous de 30 ».
+ */
+export interface ContreIndication {
+  texte: string
+  condition?: string
+}
+
 export interface Option {
   intitule: string
   /**
@@ -337,9 +363,18 @@ export interface Option {
    * champ.
    */
   prerequis?: string[]
-  /** Optionnel : omis dans le gabarit §11 pour les options sans contre-indication propre. Prose
-   * d'affichage destinée au lecteur — distincte de `exclusions`, qui est évaluée par le moteur (D13). */
-  contre_indications?: string[]
+  /**
+   * Optionnel : omis dans le gabarit §11 pour les options sans contre-indication propre. Prose
+   * d'affichage destinée au lecteur — distincte de `exclusions`, qui RETIRE l'option (D13) ; une
+   * contre-indication, elle, reste toujours affichée.
+   *
+   * DEUX FORMES depuis T-068 (P9) : une **chaîne** (forme historique — contre-indication non vérifiable
+   * automatiquement, ex. « alcoolisme ») ou un **objet** `{ texte, condition }` dont la `condition`
+   * (même DSL qu'`exclusions`) ne retire rien mais fixe l'ÉTAT VISUEL de la contre-indication
+   * (`ContreIndication` ci-dessus, `engine/evaluateNode.ts` `evaluerContreIndications`). Les deux formes
+   * cohabitent dans le même tableau ; une chaîne équivaut exactement à un objet sans `condition`.
+   */
+  contre_indications?: (string | ContreIndication)[]
   /**
    * Rang de priorité en mode `multi-options` : les options applicables sont triées par rang
    * croissant (tri stable ; absente = rang le plus faible). Soit un **entier** (rang FIXE, D13),

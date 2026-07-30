@@ -60,7 +60,13 @@ import type { Alerte, CritereEntree, Noeud, Option } from '../content/node.types
 import type { Criteria } from '../engine/conditions.ts'
 import { evaluateCondition, termesVrais } from '../engine/conditions.ts'
 import { calculerCriteresDerives, determinesEffectifs, evaluerNombre } from '../engine/deriveCritere.ts'
-import { evaluateAlertesDeListe, evaluateNode, groupesParFamille } from '../engine/evaluateNode.ts'
+import {
+  type ContreIndicationEvaluee,
+  evaluateAlertesDeListe,
+  evaluateNode,
+  evaluerContreIndications,
+  groupesParFamille,
+} from '../engine/evaluateNode.ts'
 import { computeBadges, type OptionBadge } from './optionBadges.ts'
 
 /** Une dose/valeur calculée déjà évaluée, prête à l'affichage (câblage P3, `Option.calculs`). */
@@ -141,6 +147,21 @@ export interface OptionVue {
    * moteur ne connaît pas cette notion — c'est bien une décision d'affichage, et elle doit le rester.
    */
   rang: number | undefined
+  /**
+   * Contre-indications de cette option AVEC LEUR ÉTAT pour ce patient (T-068, P9 —
+   * `engine/evaluateNode.ts` `evaluerContreIndications`). Remplace, pour l'affichage, la lecture directe
+   * de `option.contre_indications` : la carte n'a plus à connaître les deux formes de contenu (chaîne
+   * historique / objet `{ texte, condition }`), elle reçoit un texte et un état.
+   *
+   * Calculées ICI et non dans `evaluateNode`, exactement comme `alertes` ci-dessus et pour la même
+   * raison : une contre-indication ne retire jamais l'option (c'est le rôle d'`exclusions`, D13), elle ne
+   * concerne donc que ce qui est RENDU — une fois par cycle de rendu, jamais par perturbation.
+   *
+   * JAMAIS FILTRÉES : une contre-indication `levee` reste dans cette liste (elle s'affiche, désamorcée),
+   * la retirer ici reproduirait sous une autre forme le défaut que T-068 corrige — R4, une information de
+   * sécurité ne disparaît pas en silence.
+   */
+  contreIndications: ContreIndicationEvaluee[]
 }
 
 /** Une section de l'écran : une famille clinique (ou le repli à plat, `libelle: undefined`). */
@@ -390,6 +411,10 @@ export function construireVueDecision(node: Noeud, criteria: Criteria, renseigne
             motifRang: motifRangPertinent ? rangMotifs.get(option) : undefined,
             alertes: evaluateAlertesDeListe(option.alertes, derived, effectifs),
             rang: rangs.get(option),
+            // T-068 : mêmes critères DÉRIVÉS et même ensemble EFFECTIF que les alertes d'option
+            // ci-dessus — une `condition` de contre-indication est une expression du même DSL, lue par
+            // le même évaluateur, elle doit donc voir exactement les mêmes valeurs.
+            contreIndications: evaluerContreIndications(option.contre_indications, derived, effectifs),
           }),
         ),
       ),
@@ -445,7 +470,30 @@ function serialiseOption(ov: OptionVue): string {
   const calculs = ov.calculs.map((c) => `${c.libelle}=${c.valeur}${c.unite ?? ''}`).join('&')
   const calculsEnAttente = ov.calculsEnAttente.map((c) => `${c.libelle}:${c.criteresManquants.join(',')}`).join('&')
   const alertes = ov.alertes.map((a) => `${a.message}~${a.niveau ?? ''}`).join('|')
-  return `${ov.option.intitule}@${ov.badge ?? ''}«${reasons}»[${calculs}]{${calculsEnAttente}}¦${ov.motifRang ?? ''}‖${alertes}`
+  return `${ov.option.intitule}@${ov.badge ?? ''}«${reasons}»[${calculs}]{${calculsEnAttente}}¦${ov.motifRang ?? ''}‖${alertes}${serialiseContreIndications(ov.contreIndications)}`
+}
+
+/**
+ * Contre-indications NON `active` d'une option (T-068, P9), pour `serialiseOption` ci-dessus — MÊME
+ * totalité que les autres dimensions affichées : un critère qui ne change QUE l'état d'une
+ * contre-indication (une CI qui se désamorce, ou qui cesse de l'être) doit rester DÉCISIF pour
+ * `engine/relevance.ts`, faute de quoi le champ qui la commande serait estompé à tort comme « sans effet
+ * sur la reco » — le défaut récurrent que la docstring de tête de ce fichier décrit.
+ *
+ * SEGMENT OMIS QUAND TOUTES LES CI SONT `active` (le cas de 100 % du contenu au jour de T-068 : aucun
+ * nœud ne déclare encore de `condition`). Ce n'est pas une optimisation, c'est ce qui rend la dimension
+ * additive SANS toucher au golden master de caractérisation (`engine/banc/__snapshots__/`, qui liste des
+ * `signatureVue` complètes profil par profil) : sur un contenu sans `condition`, la signature reste BYTE À
+ * BYTE celle d'avant ce champ. La totalité n'en souffre pas — l'ensemble des contre-indications d'une
+ * option est FIXE (seul leur état varie avec les critères), donc « segment vide » y désigne sans ambiguïté
+ * l'état « toutes actives », et deux vues qui diffèrent par un état produisent bien deux chaînes
+ * différentes. Le jour où une CI conditionnelle est encodée (S3-S6), le segment apparaît et le diff de
+ * snapshot est alors le signal ATTENDU, pas un dommage collatéral.
+ */
+function serialiseContreIndications(contreIndications: ContreIndicationEvaluee[]): string {
+  const nonActives = contreIndications.filter((ci) => ci.etat !== 'active')
+  if (nonActives.length === 0) return ''
+  return `‡${nonActives.map((ci) => `${ci.texte}=${ci.etat}`).join('&')}`
 }
 
 function serialiseFamille(famille: FamilleVue): string {
@@ -474,9 +522,10 @@ function serialiseEnAttente(enAttente: OptionEnAttenteVue): string {
 /**
  * Sérialise une `VueDecision` en chaîne STABLE et TOTALE : deux vues égales produisent la même
  * chaîne, et RIEN du modèle de vue n'est omis (familles, groupes d'égalité, badges, raisons, doses
- * calculées ET doses EN ATTENTE — `calculsEnAttente`, T-059 — alertes, options écartées, non retenues et
- * EN ATTENTE — R4/D20) — c'est cette totalité qui garantit qu'aucun critère décisif à l'écran ne peut
- * plus être estompé à tort par `engine/relevance.ts`.
+ * calculées ET doses EN ATTENTE — `calculsEnAttente`, T-059 — alertes, ÉTAT DES CONTRE-INDICATIONS —
+ * T-068, cf. `serialiseContreIndications` — options écartées, non retenues et EN ATTENTE — R4/D20) —
+ * c'est cette totalité qui garantit qu'aucun critère décisif à l'écran ne peut plus être estompé à tort
+ * par `engine/relevance.ts`.
  */
 export function signatureVue(vue: VueDecision): string {
   const familles = vue.familles.map(serialiseFamille).join('§§')

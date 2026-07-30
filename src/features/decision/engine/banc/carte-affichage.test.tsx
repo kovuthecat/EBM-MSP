@@ -119,6 +119,7 @@ describe('I12 — le dépli d’une carte n’avale jamais un fait de sécurité
                 calculsEnAttente={optionVue.calculsEnAttente}
                 motifRang={optionVue.motifRang}
                 alertes={optionVue.alertes}
+                contreIndications={optionVue.contreIndications}
               />,
             )
             const avantDepli = socle(html)
@@ -129,16 +130,25 @@ describe('I12 — le dépli d’une carte n’avale jamais un fait de sécurité
             // qu'elle est (a) toujours présente dans le rendu complet, jamais absente en silence, et
             // (b) toujours EN TÊTE du dépli, avant l'effet attendu (`option-card__effet`), jamais
             // reléguée derrière lui.
+            //
+            // T-068 (P9, 2026-07-30) : la liste lue est désormais `optionVue.contreIndications`
+            // (texte + état, `lib/vueDecision.ts`) et non plus le champ brut du contenu — qui accepte
+            // depuis ce lot DEUX formes (chaîne / objet `{ texte, condition }`). L'exigence est
+            // INCHANGÉE et vaut pour les TROIS états, y compris `levee` : une contre-indication
+            // désamorcée est affichée en retrait, jamais retirée du rendu (c'est précisément ce que ce
+            // test empêche de régresser — « désamorcée, pas effacée »).
             const indexEffet = html.indexOf('option-card__effet')
-            for (const ci of optionVue.option.contre_indications ?? []) {
+            for (const { texte } of optionVue.contreIndications) {
               // Un extrait suffit et évite les faux négatifs sur la ponctuation typographique.
-              const extrait = echappe(ci.slice(0, 40))
+              const extrait = echappe(texte.slice(0, 40))
               const indexCi = html.indexOf(extrait)
               if (indexCi === -1) {
-                manquements.push(`contre-indication absente du rendu — « ${optionVue.option.intitule} » : ${ci.slice(0, 60)}…`)
+                manquements.push(
+                  `contre-indication absente du rendu — « ${optionVue.option.intitule} » : ${texte.slice(0, 60)}…`,
+                )
               } else if (indexEffet !== -1 && indexCi > indexEffet) {
                 manquements.push(
-                  `contre-indication reléguée après l'effet attendu — « ${optionVue.option.intitule} » : ${ci.slice(0, 60)}…`,
+                  `contre-indication reléguée après l'effet attendu — « ${optionVue.option.intitule} » : ${texte.slice(0, 60)}…`,
                 )
               }
             }
@@ -147,7 +157,14 @@ describe('I12 — le dépli d’une carte n’avale jamais un fait de sécurité
             // contre-indications existent (défaut GRAVE mesuré par S6, voir docstring de tête), et
             // n'afficher AUCUNE trace de ce registre d'alerte en leur absence (le libellé neutre reste
             // inchangé — carte non affectée).
-            const nombreCi = (optionVue.option.contre_indications ?? []).length
+            //
+            // T-068 : le décompte annoncé ne porte que sur les contre-indications NON LEVÉES — celles
+            // que le dépli montre effectivement dans le registre d'alerte. Une contre-indication levée
+            // (`condition` fausse pour ce patient) est affichée en retrait et ne doit plus gonfler ce
+            // chiffre ; l'écrire ici avec `.length` du champ brut ferait échouer le test le jour où une
+            // contre-indication conditionnelle est encodée (S3-S6), alors que ce serait le comportement
+            // ATTENDU.
+            const nombreCi = optionVue.contreIndications.filter((ci) => ci.etat !== 'levee').length
             if (nombreCi > 0) {
               if (!html.includes('⚠')) {
                 manquements.push(`résumé fermé sans icône d'alerte alors que des CI existent — « ${optionVue.option.intitule} »`)
