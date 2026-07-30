@@ -84,7 +84,8 @@ options:
     effet_attendu: "Gain surtout microvasculaire (substitution) ; bénéfice dur différé (legacy) chez le sujet jeune récemment diagnostiqué."
     niveau_preuve: faible
     contre_indications:
-      - "Antécédent cardiovasculaire établi"
+      - texte: "Antécédent cardiovasculaire établi"
+        condition: "antecedent_cv == true"
       - "Schéma à risque d'hypoglycémie"
       - "Rétinopathie préexistante : éviter une baisse rapide de l'HbA1c (risque d'aggravation)"
   - intitule: "Cible ≤ 7 %"
@@ -199,8 +200,20 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude Code"
   statut: valide
-  version: "2.8"
+  version: "2.9"
   changelog:
+    - date: "2026-07-30"
+      auteur: "Claude Code (P9/S6, T-073) — en attente de relecture référent"
+      resume: >-
+        Contre-indications vérifiables converties dans le mécanisme `{texte, condition}` livré par T-068
+        (P9/S1). Inventaire de l'option « Cible ~6,5 % » (seule option du nœud à porter
+        `contre_indications`) : sur les 3 contre-indications déclarées, une seule est vérifiable contre un
+        critère déjà saisi dans ce nœud — « Antécédent cardiovasculaire établi » reçoit
+        `condition: antecedent_cv == true`. « Schéma à risque d'hypoglycémie » référence un critère
+        (`risque_hypoglycemie_schema`) retiré de ce nœud le 2026-07-26 (propriété du schéma thérapeutique,
+        déplacée côté prescription) : aucun critère correspondant ici, laissée en texte libre. « Rétinopathie
+        préexistante » n'a aucun critère équivalent dans ce nœud (`criteres_entree`) : laissée en texte
+        libre. Aucun changement clinique, aucune `conditions`/`exclusions`/`priorite` existante modifiée.
     - date: "2026-07-30"
       auteur: "Claude Code (P9/S2, T-069) — en attente de relecture référent"
       resume: >-
