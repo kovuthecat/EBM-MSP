@@ -290,7 +290,8 @@ describe.each(noeuds.map((node) => [node.id, node] as const))('banc — invarian
  * y entrent désormais parce qu'ils N'ONT PAS reçu `presomption_non` (ils gardent une `exclusions`/
  * condition d'option `role: securite` réelle sur le nœud cité, donc l'audit les a exclus à raison) :
  *
- * - `insuline :: mcg_disponible` / `insuline :: profil_glycemique` — masqués par
+ * - `insuline :: mcg_disponible` / `insuline :: profil_nocturne` (ex-`profil_glycemique`, renommé
+ *   2026-07-30, P8/S7) — masqués par
  *   `situation_insuline != naif`. Les VIOLATIONS RÉELLES ne portent QUE sur des alertes de nœud et des
  *   `derive` (`profil_nocturne_permet_titration`/`profil_nocturne_a_cible`), jamais sur une `conditions`/
  *   `prerequis` d'option : les options qui pivotent sur ces dérivés portent, elles, un garde
@@ -344,9 +345,11 @@ const VIOLATIONS_R8_CONNUES_T018 = new Map<string, string>([
       "à des alertes de nœud (aucune option, I11 vert). Cf. docstring de VIOLATIONS_R8_CONNUES_T018.",
   ],
   [
-    'insuline :: profil_glycemique',
+    'insuline :: profil_nocturne',
     'D30/T-018 (2026-07-28) : même mécanisme que `mcg_disponible` ci-dessus, même nœud — violations ' +
-      'réelles limitées à des `derive` (aucune option, I11 vert).',
+      'réelles limitées à des `derive` (aucune option, I11 vert). Clé renommée le 2026-07-30 (P8/S7) : ce ' +
+      "critère s'appelait `profil_glycemique` (`liste`) avant sa scission en deux `enum` — même dette, " +
+      'même critère, cf. `insuline.yaml` changelog v0.34.',
   ],
   [
     'prescription :: traitements_en_cours',
@@ -396,11 +399,15 @@ describe('I10 — le garde d’un critère à `visible_si` est répété dans ch
       // T-018 comme cas (b) si un test exécutable (`evaluateNode.prescription.test.ts`, bancs) le révèle
       // — hors périmètre de CE fichier, qui ne fait qu'en tirer la conséquence pour I10.
       //
-      // ⚠ CE FILTRE EST DYNAMIQUE, et c'est voulu : le jour où l'arbitrage référent posera
-      // `presomption_non: true` sur `profil_glycemique` (`liste` de `insuline`), ce critère ENTRERA dans
-      // le périmètre et l'invariant réclamera ses gardes ; le jour où `presomption_non` disparaîtrait
-      // d'un critère qui le porte aujourd'hui, il en SORTIRA. C'est exactement le service attendu —
-      // rendre visible ce que la décision d'hier ne pouvait pas prévoir.
+      // ⚠ CE FILTRE EST DYNAMIQUE, et c'est voulu : le jour où `presomption_non` disparaîtrait d'un
+      // critère `bool`/`liste` qui le porte aujourd'hui (ex. `traitements_en_cours` sur `insuline`), il
+      // ENTRERAIT dans le périmètre et l'invariant réclamerait ses gardes. Exemple VÉCU en sens inverse le
+      // 2026-07-30 (P8/S7) : `profil_glycemique` (`liste`, ex-`presomption_non` INAPPLICABLE — seul
+      // `hypo_interprandiale` le portait, comme critère propre) a été scindé en deux `enum`
+      // (`profil_nocturne`/`profil_entre_repas`), un type que `presomption_non` ne concerne JAMAIS
+      // (`critereEstDetermine`) — sans effet sur ce filtre, qui ne teste `presomption_non` que pour
+      // `bool`/`liste`, mais la clé `insuline :: profil_glycemique` de `VIOLATIONS_R8_CONNUES_T018`
+      // (ci-dessous) a dû être renommée `profil_nocturne` avec le critère.
       const indeterminable = critere.type === 'nombre' || critere.type === 'enum' || critere.presomption_non !== true
       if (!indeterminable) continue
       gardes.set(critere.nom, extraireCriteres(critere.visible_si))

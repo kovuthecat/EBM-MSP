@@ -17,7 +17,8 @@
  *  - E-02 — une situation « naïf » ET une « insuline basale » cochée dans les traitements est une
  *    incohérence de SAISIE ; une alerte de nœud le DIT désormais, plutôt que de seulement s'abstenir de
  *    proposer.
- *  - E-03 — le pivot de la situation « basale seule » devient le PROFIL NOCTURNE (`profil_glycemique`)
+ *  - E-03 — le pivot de la situation « basale seule » devient le PROFIL NOCTURNE (`profil_glycemique`,
+ *    renommé `profil_nocturne` le 2026-07-30, P8/S7 — cf. changelog `insuline.yaml` v0.34)
  *    quand `mcg_disponible == true` ; la glycémie à jeun (`gaj_a_cible`) reste le pivot du repli sans MCG.
  *  - E-06 (et le second volet d'E-04) — sécurité (réduire la basale / ne pas sur-titrer) et efficacité
  *    (traitement non insulinique ou ajout d'un bolus) sont désormais CUMULABLES : les 2 options
@@ -71,10 +72,12 @@ const BASE: Criteria = {
   TBR: 2,
   TBR_severe: 0,
   CV_glycemique: 20,
-  profil_glycemique: ['stable'],
-  // Critère propre depuis le 2026-07-27 (arbitrage référent) : une hypo interprandiale accuse le BOLUS,
-  // elle n'est donc recueillie que dans les schémas qui en comportent un. Valeur inerte ici.
-  hypo_interprandiale: false,
+  // P8/S7 (2026-07-30) : `profil_glycemique` (liste) scindé en deux `enum` — `profil_nocturne` (masqué ici
+  // par `mcg_disponible: false`) et `profil_entre_repas` (masqué ici par `situation_insuline:
+  // 'basale_seule'`, ex-`hypo_interprandiale`, qui accuse le BOLUS et n'est donc recueilli que dans les
+  // schémas qui en comportent un). Valeurs inertes.
+  profil_nocturne: 'courbe_plate',
+  profil_entre_repas: 'pas_de_signal',
   GAJ: 1.0,
   // Pivot « avant les repas » (arbitrage référent B, 2026-07-29). ⚠ CE CHAMP DOIT FIGURER ICI même
   // quand la vignette ne s'y intéresse pas : les dérivés `pre_repas_haute`/`pre_repas_basse` le
@@ -110,11 +113,13 @@ function evalProfile(overrides: Partial<Criteria>) {
  * MISE À JOUR (2026-07-28, P4/S1, T-018, D30) : couvrait auparavant SEULEMENT `nombre`/`enum` — les
  * seuls types réellement indéterminables tant que non saisis sous l'ANCIEN régime (D20 : `bool`/`liste`
  * restaient déterminés par leur défaut). Depuis D30, `bool`/`liste` sont indéterminés par défaut EUX
- * AUSSI, sauf `presomption_non: true` — et `insuline` en déclare désormais deux (`traitements_en_cours`,
- * `hypo_interprandiale`), les autres (`mcg_disponible`, `profil_glycemique`…) restant indéterminables.
+ * AUSSI, sauf `presomption_non: true` — et `insuline` en déclare désormais un seul (`traitements_en_cours`) ;
+ * `profil_entre_repas`, qui a succédé à `hypo_interprandiale` (P8/S7, 2026-07-30), est un `enum` — ce
+ * mécanisme ne s'applique jamais à ce type (`critereEstDetermine`, `engine/deriveCritere.ts`) — les autres
+ * (`mcg_disponible`, `profil_nocturne`…) restant indéterminables.
  * Ne couvrir que `nombre`/`enum` ici aurait rendu ces critères PERPÉTUELLEMENT indéterminés dans TOUTE
  * vignette utilisant ce helper, quelle que soit la valeur passée en `overrides` — défaut réel diagnostiqué
- * sur E-05 (`profil_glycemique`/`mcg_disponible` explicitement renseignés dans la vignette, mais jamais
+ * sur E-05 (`profil_nocturne`/`mcg_disponible` explicitement renseignés dans la vignette, mais jamais
  * marqués `renseignes`). Toutes les primitives sont donc désormais couvertes ; `presomption_non: true`
  * les rend de toute façon déterminées qu'elles soient ou non dans `renseignes` (`critereEstDetermine`),
  * donc les y inclure ne change rien pour elles — seul le comportement des critères SANS présomption est
@@ -215,15 +220,19 @@ describe('insuline — décisions référent 2026-07-26 implémentées (E-02/E-0
       'Refonte implémentée : `mcg_disponible == true` → le profil nocturne (`profil_nocturne_permet_titration` / ' +
       '`profil_nocturne_a_cible`) gouverne le choix titrer / ne-pas-titrer ; repli sur la GAJ (`gaj_a_cible`) ' +
       'seulement si `mcg_disponible == false` (cf. `insuline.yaml`, changelog v0.7). ' +
-      'Ici : MCG disponible, profil nocturne STABLE (aucune hypo), HbA1c au-dessus de la cible → la ' +
-      'titration est admise sur ce motif nocturne, alors même que la GAJ, par ailleurs déclarée « à la ' +
-      'cible », aurait routé vers « Ne pas sur-titrer » sous l\'ancien pivot — c\'est exactement le ' +
-      'renversement demandé par le référent.',
+      'Ici : MCG disponible, profil nocturne en HAUSSE CONTINUE (couverture insuffisante), HbA1c au-dessus ' +
+      'de la cible → la titration est admise sur ce motif nocturne, alors même que la GAJ, par ailleurs ' +
+      'déclarée « à la cible », aurait routé vers « Ne pas sur-titrer » sous l\'ancien pivot — c\'est ' +
+      'exactement le renversement demandé par le référent. ⚠ VALEUR MISE À JOUR le 2026-07-30 (P8/S7) : ' +
+      'l\'ancien profil « stable » (ex-`profil_glycemique`) admettait AUSSI la titration jusqu\'à cette ' +
+      'session ; ce n\'est plus le cas (la courbe PLATE route désormais vers « Ne pas sur-titrer... », cf. ' +
+      'changelog `insuline.yaml` v0.34) — la hausse continue reste la valeur qui isole proprement le pivot ' +
+      'NOCTURNE testé ici, indépendamment de ce changement.',
     () => {
       const o = {
         situation_insuline: 'basale_seule',
         mcg_disponible: true,
-        profil_glycemique: ['stable'],
+        profil_nocturne: 'hausse_continue',
         HbA1c_actuelle: 8,
         HbA1c_cible: 7,
         GAJ: 1.0, // « à la cible » : c'est justement ce qui, aujourd'hui, empêche la titration
@@ -242,20 +251,21 @@ describe('insuline — décisions référent 2026-07-26 implémentées (E-02/E-0
       'Référent (2026-07-26) : « oui, action de contrôle glycémique en fonction des autres critères : soit ' +
       'un traitement non insulinique, soit ajouter un bolus. » En situation « basale seule », une ' +
       'hypoglycémie nocturne continue d\'exclure À LA FOIS « Titrer la basale » ET « Ne pas sur-titrer… » ' +
-      '(leurs deux jeux d\'`exclusions` portent la même clause `profil_glycemique contient hypo_nocturne`) — ' +
-      'mais le geste de sécurité « Corriger l\'hypoglycémie… » n\'est plus seul : une option d\'efficacité ' +
-      'cumulable (traitement non insulinique OU ajout d\'un bolus), réutilisée telle quelle depuis la ' +
-      'situation « basale_plus_bolus », répond désormais à l\'HbA1c (8 % vs cible 7 %) restée au-dessus de ' +
-      'la cible.',
+      '(leurs deux jeux d\'`exclusions` portent la même clause `profil_nocturne == baisse_continue`, ex-' +
+      '`profil_glycemique contient hypo_nocturne`) — mais le geste de sécurité « Corriger l\'hypoglycémie… » ' +
+      'n\'est plus seul : une option d\'efficacité cumulable (traitement non insulinique OU ajout d\'un ' +
+      'bolus), réutilisée telle quelle depuis la situation « basale_plus_bolus », répond désormais à ' +
+      'l\'HbA1c (8 % vs cible 7 %) restée au-dessus de la cible.',
     () => {
       const o = {
         situation_insuline: 'basale_seule',
-        // T-033 (P5/S2, 2026-07-28, BILAN-P4 §3bis) : `profil_glycemique` est une lecture AGP — un
-        // signal MCG au même titre que TBR/TBR_severe/CV_glycemique. Sans `mcg_disponible: true` explicite
-        // ici, cette vignette décrirait un patient incohérent (profil AGP renseigné sans capteur), et les
-        // 4 champs de capteur sont désormais masqués (donc inertes) dans ce cas — cf. `visible_si` du nœud.
+        // T-033 (P5/S2, 2026-07-28, BILAN-P4 §3bis) : `profil_nocturne` (ex-`profil_glycemique`, P8/S7
+        // 2026-07-30) est une lecture AGP — un signal MCG au même titre que TBR/TBR_severe/CV_glycemique.
+        // Sans `mcg_disponible: true` explicite ici, cette vignette décrirait un patient incohérent (profil
+        // AGP renseigné sans capteur), et les 4 champs de capteur sont désormais masqués (donc inertes)
+        // dans ce cas — cf. `visible_si` du nœud.
         mcg_disponible: true,
-        profil_glycemique: ['hypo_nocturne'],
+        profil_nocturne: 'baisse_continue',
         HbA1c_actuelle: 8,
         HbA1c_cible: 7,
         GAJ: 1.0,
@@ -294,7 +304,7 @@ describe('insuline — E-04 : sur-basalisation réelle (dose 40 U / poids 70 kg)
       TBR: 2,
       TBR_severe: 0,
       CV_glycemique: 20,
-      profil_glycemique: ['stable'],
+      profil_nocturne: 'courbe_plate', // mcg_disponible non défini ici (BASE: false) : champ inerte.
     } as Partial<Criteria>
     expect(has(titles(o), TITRER)).toBe(true)
     expect(has(excludedTitles(o), TITRER)).toBe(false)
@@ -320,7 +330,7 @@ describe('insuline — E-04 : sur-basalisation réelle (dose 40 U / poids 70 kg)
         TBR: 2,
         TBR_severe: 0,
         CV_glycemique: 20,
-        profil_glycemique: ['stable'],
+        profil_nocturne: 'courbe_plate', // mcg_disponible non défini ici (BASE: false) : champ inerte.
       } as Partial<Criteria>
       expect(has(titles(o), AJOUTER_GLP1_BB)).toBe(true)
     },
@@ -345,7 +355,12 @@ describe('insuline — E-05 : même sur-basalisation qu\'E-04, mais poids NON re
       TBR: 2,
       TBR_severe: 0,
       CV_glycemique: 20,
-      profil_glycemique: ['stable'],
+      // `hausse_continue`, et non `courbe_plate` : depuis le 2026-07-30 (P8/S7), une courbe PLATE rend
+      // `profil_nocturne_a_cible` VRAI, ce qui résoudrait « Ne pas sur-titrer... » de façon déterminée
+      // (indépendamment du poids manquant) et casserait cette vignette — elle teste spécifiquement la
+      // dépendance au poids via `over_basalisation`, donc a besoin d'un profil qui ne déclenche NI
+      // `profil_nocturne_a_cible` NI l'exclusion sur `baisse_continue`.
+      profil_nocturne: 'hausse_continue',
       mcg_disponible: true,
     } as Partial<Criteria>
     const res = evalProfileTernaire(o, ['poids'])
@@ -392,7 +407,7 @@ describe('insuline — E-07/E-08 : « risque_hypoglycemique_eleve » inclut l\'�
       TBR: 2,
       TBR_severe: 0,
       CV_glycemique: 20,
-      profil_glycemique: ['stable'],
+      profil_nocturne: 'courbe_plate', // mcg_disponible non défini ici (BASE: false) : champ inerte.
     } as Partial<Criteria>
     const t = titles(o)
     expect(has(t, POURSUIVRE)).toBe(true)
@@ -506,7 +521,7 @@ describe(
           TBR: 2,
           TBR_severe: 0,
           CV_glycemique: 20,
-          profil_glycemique: ['stable'],
+          profil_nocturne: 'courbe_plate', // mcg_disponible non défini ici (BASE: false) : champ inerte.
           hypo_severe_recurrente: false,
           dose_basale_actuelle: 30,
           dose_rapide_actuelle: 10,
@@ -574,7 +589,7 @@ describe('insuline — arbitrages référent du 2026-07-27', () => {
         hypo_severe_recurrente: true,
         // Les 4 signaux MCG sont explicitement RASSURANTS : rien d'autre que l'antécédent ne parle.
         mcg_disponible: true, TBR: 1, CV_glycemique: 20,
-        profil_glycemique: ['stable'],
+        profil_nocturne: 'courbe_plate',
       } as Partial<Criteria>
       // ───────────────────────────────────────────────────────────────────────────────────────────
       // DEUX ARBITRAGES SUCCESSIFS SUR LE MÊME PROFIL, et le second amende le premier.
@@ -599,14 +614,16 @@ describe('insuline — arbitrages référent du 2026-07-27', () => {
 
   it(
     'A27-2 — hypo INTERPRANDIALE sous basal-bolus : ouvre l\'optimisation de la répartition ' +
-      '(le bolus est en cause), et ne bloque PAS la titration de la basale',
+      '(le bolus est en cause), et ne bloque PAS la titration de la basale. ' +
+      '⚠ RENOMMÉ le 2026-07-30 (P8/S7) : `hypo_interprandiale` (bool propre) → `profil_entre_repas == ' +
+      'baisse_entre_repas` (enum) — même signal, même geste, cf. changelog `insuline.yaml` v0.34.',
     () => {
       const o = {
         situation_insuline: 'basal_bolus',
-        hypo_interprandiale: true,
-        // Tout le reste est rassurant, y compris la cible : seule l'hypo interprandiale parle.
+        profil_entre_repas: 'baisse_entre_repas',
+        // Tout le reste est rassurant, y compris la cible : seule la baisse entre les repas parle.
         cible_atteinte: true, mcg_disponible: true, TBR: 1, TBR_severe: 0, CV_glycemique: 20,
-        profil_glycemique: ['stable'],
+        profil_nocturne: 'courbe_plate',
       } as Partial<Criteria>
       expect(has(titles(o), OPTIMISER_BB)).toBe(true)
     },
@@ -639,7 +656,7 @@ describe('insuline — arbitrages référent du 2026-07-27', () => {
         // du 2026-07-27, ce patient ne recevait QUE « Ne pas sur-titrer… — intensifier autrement », qui
         // dit d'intensifier sans nommer par quoi.
         mcg_disponible: false, TBR: 1, TBR_severe: 0, CV_glycemique: 20,
-        profil_glycemique: ['stable'],
+        profil_nocturne: 'courbe_plate', // mcg_disponible: false ci-dessus : champ inerte.
         poids: 80, dose_basale_actuelle: 20,
       } as Partial<Criteria>
       const t = titles(o)
@@ -665,6 +682,109 @@ describe('insuline — arbitrages référent du 2026-07-27', () => {
       const messages = alertMsgs(o)
       expect(messages.some((m) => m.includes('ASSOUPLIES'))).toBe(true)
       expect(messages.some((m) => m.includes('Cibles de MCG standard'))).toBe(false)
+    },
+  )
+})
+
+/**
+ * REPLI DE LA SITUATION « NAÏF » (2026-07-30, `insuline.yaml` v0.33) — le nœud comporte désormais DEUX
+ * options `conditions: ["default"]`, réparties par une partition de `situation_insuline` sur leurs
+ * `prerequis` : « Poursuivre le schéma d'insuline en cours… » (`!= naif`, posé le 2026-07-25/27) et « Pas
+ * d'indication à initier une insuline aujourd'hui… » (`== naif`, ajouté le 2026-07-30 pour boucher un
+ * écran MUET — profil #1213 du banc, `applicable` et `enAttente` vides simultanément).
+ *
+ * POURQUOI CES VIGNETTES EXISTENT ALORS QUE I2′ ET I23 COUVRENT DÉJÀ LE DÉFAUT. Ces deux invariants
+ * (`banc/invariants.test.ts`, `banc/securite-atteignable.test.ts`) sont GÉNÉRIQUES : ils attrapent
+ * l'écran muet, et ils l'attrapaient bien ici. Mais ils ne peuvent pas attraper la faute SYMÉTRIQUE
+ * qu'introduit un second repli — les deux replis affichés ENSEMBLE, « poursuivre le schéma en cours » à
+ * côté de « pas d'indication à en initier », ce qui se contredit à l'écran. Cette faute ne produit ni
+ * silence ni option indûment applicable au sens de I21 : elle serait entièrement invisible au banc. Elle
+ * survient dès que la partition cesse d'être une partition (un `prerequis` retiré, élargi, ou les deux
+ * options fusionnées). D'où les trois vignettes ci-dessous, qui figent la partition elle-même : la
+ * bonne carte de chaque côté de la frontière, et JAMAIS les deux.
+ *
+ * ⚠ Le TEXTE de la carte « naïf » n'est pas validé cliniquement (cf. bandeau de l'option dans
+ * `insuline.yaml`) : ces vignettes ne testent que son APPLICABILITÉ, jamais son libellé au-delà du
+ * fragment qui l'identifie — une reformulation par le référent ne doit pas les faire échouer.
+ */
+const PAS_D_INDICATION_NAIF = "Pas d'indication à initier une insuline"
+
+describe('insuline — repli de la situation « naïf » (v0.33) : la partition des deux replis', () => {
+  /** Naïf déjà à l'objectif, sans glucotoxicité ni risque hypoglycémique : la FORME du profil #1213. */
+  const NAIF_A_LA_CIBLE = {
+    situation_insuline: 'naif',
+    HbA1c_actuelle: 6.9,
+    HbA1c_cible: 8,
+    symptomes_glucotoxicite: false,
+    // Aucun terrain à risque hypoglycémique : sinon « Choisir un analogue basal de 2ᵉ génération » se
+    // déclenche (option ordinaire), le repli est masqué, et la vignette ne mesurerait plus rien.
+    age: 60,
+    fragilite: false,
+    esperance_vie: 'longue',
+    risque_hypoglycemie_schema: 'faible',
+    hypo_severe_recurrente: false,
+    traitements_en_cours: ['metformine'],
+  } as Partial<Criteria>
+
+  it(
+    'naïf, objectif atteint, rien à instaurer : la carte « pas d\'indication à initier » s\'affiche — ' +
+      'et l\'écran n\'est plus MUET (défaut du 2026-07-30, profil #1213 : ni recommandation ni « à renseigner »)',
+    () => {
+      const resultat = evalProfile(NAIF_A_LA_CIBLE)
+      const t = resultat.applicable.map((o) => o.intitule)
+      expect(has(t, PAS_D_INDICATION_NAIF)).toBe(true)
+      // Le repli de l'autre branche NE doit PAS s'afficher : ce patient n'a aucun schéma à poursuivre
+      // (R9/I15 — c'est précisément le motif du prérequis posé le 2026-07-27).
+      expect(has(t, POURSUIVRE)).toBe(false)
+      // Aucune option d'instauration : c'est bien un repli, pas une recommandation d'insulinothérapie.
+      expect(has(t, GLP1_NAIF)).toBe(false)
+      expect(has(t, INITIER_BASALE)).toBe(false)
+      expect(has(t, ANALOGUE_2G)).toBe(false)
+      expect(resultat.applicable.length).toBe(1)
+    },
+  )
+
+  it(
+    'basale seule, objectif atteint, rien à corriger : c\'est l\'AUTRE repli qui s\'affiche, seul — ' +
+      'la partition tient dans les deux sens (jamais les deux replis ensemble, ce qui se contredirait)',
+    () => {
+      // Le profil neutre BASE est exactement ce cas (basale seule, HbA1c 7 pour une cible de 7, GAJ à la
+      // cible, aucun signal de sécurité) : c'est le trou que le repli du 2026-07-25 avait bouché.
+      const resultat = evalProfile({})
+      const t = resultat.applicable.map((o) => o.intitule)
+      expect(has(t, POURSUIVRE)).toBe(true)
+      expect(has(t, PAS_D_INDICATION_NAIF)).toBe(false)
+      expect(resultat.applicable.length).toBe(1)
+    },
+  )
+
+  /**
+   * LE POINT QUI REND LA PARTITION SÛRE, et il ne se raisonne pas depuis le contenu seul : `prerequis`
+   * garde les deux replis par un critère qui peut lui-même être masqué (`situation_insuline`), ce qui
+   * ressemble à la recette d'un nouvel écran muet. Deux mécanismes s'y opposent, et l'un ou l'autre
+   * s'applique TOUJOURS :
+   *  - dès qu'UNE option ordinaire est indéterminée, `evaluateNode` n'évalue même pas la branche des
+   *    replis (`if (!anyNonDefaultApplicable && enAttente.size === 0)`) — c'est le cas MESURÉ ici, et il
+   *    est plus fort que la garantie recherchée : `enAttente` est déjà non vide avant qu'on y arrive ;
+   *  - si aucune ne l'était, les deux replis partiraient eux-mêmes dans `enAttente` (leur `prerequis`
+   *    devenant indéterminé), ce qui la rendrait non vide de la même façon.
+   * Dans les deux cas `applicable` est vide ET `enAttente` ne l'est pas : exactement ce qu'I23 exige, et
+   * l'écran peut nommer le champ manquant au lieu de se taire.
+   */
+  it(
+    '`situation_insuline` NON renseignée : aucun des deux replis ne conclut, et l\'écran a de quoi dire ce ' +
+      'qui manque (D20, « le moteur ne se prononce jamais sur ce qu\'il ignore ») — la partition ne peut ' +
+      'donc pas rouvrir l\'écran muet quand son propre critère de garde est masqué',
+    () => {
+      const resultat = evalProfileTernaire(NAIF_A_LA_CIBLE, ['situation_insuline'])
+      const t = resultat.applicable.map((o) => o.intitule)
+      expect(has(t, PAS_D_INDICATION_NAIF)).toBe(false)
+      expect(has(t, POURSUIVRE)).toBe(false)
+      expect(resultat.applicable).toEqual([])
+      // Le relais qui empêche le silence (cf. docstring ci-dessus).
+      expect(resultat.enAttente.size).toBeGreaterThan(0)
+      // Et le champ à renseigner est bien nommé au praticien.
+      expect([...resultat.enAttente.values()].flat()).toContain('situation_insuline')
     },
   )
 })

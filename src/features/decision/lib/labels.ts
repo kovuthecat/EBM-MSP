@@ -136,7 +136,8 @@ const CRITERE_LABELS: Record<string, string> = {
   TAR: 'TAR — temps au-dessus de 180 mg/dL (%)',
   CV_glycemique: 'Coefficient de variation glycémique (%)',
   GMI: 'GMI — indicateur de gestion du glucose (%)',
-  profil_glycemique: 'Profil glycémique (lecture AGP)',
+  // `profil_glycemique` (label ci-dessus jusqu'au 2026-07-30) RETIRÉ avec le critère : remplacé par
+  // `profil_nocturne`/`profil_entre_repas`, catalogués plus bas (P8/S7, cf. `insuline.yaml` v0.34).
   // « habituelle » est porté par le LIBELLÉ à dessein (arbitrage référent 2026-07-29) : la règle de
   // descente retenue (ebmfrance) ne réagit pas à une valeur isolée. Cf. le champ `aide` du critère.
   GAJ: 'Glycémie à jeun habituelle (g/L)',
@@ -168,7 +169,7 @@ const CRITERE_LABELS: Record<string, string> = {
   // titre qu'un critère saisi.
   palette_glycemique_ouverte: "Palette glycémique ouverte (place pour un agent de contrôle en plus)",
   remplacement_agent_sans_benefice:
-    "Remplacement d'un agent sans bénéfice sur critère dur (gliptine, sulfamide)",
+    "Remplacement d'un agent sans bénéfice sur critère dur (gliptine, sulfamide, glinide)",
   denutrition: 'Dénutrition / carence (possible même chez l’obèse)',
   infections_uro_genitales_recidivantes: 'Infections génito-urinaires récidivantes',
   intolerance_traitement: 'Intolérance à un traitement en cours',
@@ -192,11 +193,21 @@ const CRITERE_LABELS: Record<string, string> = {
   ecart_sous_objectif_cible: "HbA1c à 1 point ou plus en dessous de l'objectif fixé",
   // Nœud F « Statine » — le champ qui dit si le geste est DÉJÀ FAIT (R9).
   statine_deja_en_place: 'Statine déjà en place',
-  // Nœud E « Insuline » — complément AGP.
-  hypo_interprandiale: 'Hypoglycémies entre les repas',
+  // Nœud E « Insuline » — complément AGP. `profil_glycemique`/`hypo_interprandiale` RETIRÉS le
+  // 2026-07-30 (P8/S7) : remplacés par `profil_nocturne`/`profil_entre_repas` ci-dessous (deux `enum`
+  // au lieu d'une `liste` + un `bool` propre — cf. `insuline.yaml` changelog v0.34).
+  profil_nocturne: 'Profil glycémique nocturne (lecture AGP)',
+  profil_entre_repas: 'Profil glycémique entre les repas (lecture AGP)',
+  // Libellé RÉÉCRIT le 2026-07-30 (P8/S7) : la courbe plate (ex-« stable ») cesse d'admettre la
+  // titration, seule une hausse continue le fait désormais — l'ancien libellé (« courbe stable ou hausse
+  // continue ») serait devenu faux.
   profil_nocturne_permet_titration:
-    "Profil nocturne compatible avec une titration de la basale (courbe stable ou phénomène de l'aube)",
-  profil_nocturne_a_cible: 'Profil nocturne à la cible (excursions post-prandiales au premier plan)',
+    'Profil nocturne compatible avec une titration de la basale (hausse continue de la glycémie nocturne)',
+  // Libellé RÉÉCRIT le 2026-07-30 (P8/S7) : le fondement change (courbe nocturne PLATE, plus excursions
+  // post-prandiales — ce signal vit désormais dans `profil_entre_repas`) et le pivot est composé avec
+  // `cible_atteinte` dans les `conditions` des options consommatrices (pas dans ce dérivé lui-même).
+  profil_nocturne_a_cible:
+    "Profil nocturne à la cible (courbe plate — l'écart d'HbA1c restant est diurne, la basale n'est pas en cause)",
   // ── Module RHD, axe alimentation (`rhd-alimentation.yaml`) ──
   // ⚠ CES LIBELLÉS NOMMENT L'ITEM RECUEILLI, ILS NE DÉFINISSENT PAS L'ÉCHELLE. « occasionnel » vs
   // « fréquent » n'est défini nulle part dans le contenu, et c'est pourtant cette frontière-là qui fait
@@ -272,12 +283,15 @@ const ENUM_VALUE_LABELS: Record<string, string> = {
   basale_seule: 'Basale seule',
   basale_plus_bolus: 'Basal-plus / bolus',
   basal_bolus: 'Basal-bolus',
-  // Nœud E — profil_glycemique (AGP)
-  hypo_nocturne: 'Hypoglycémie nocturne',
-  phenomene_aube: "Phénomène de l'aube",
-  excursions_postprandiales: 'Excursions post-prandiales',
-  hypo_interprandiale: 'Hypoglycémie interprandiale',
-  stable: 'Stable',
+  // Nœud E — profil_nocturne / profil_entre_repas (AGP). RENOMMÉS le 2026-07-30 (P8/S7) : remplacent
+  // hypo_nocturne/phenomene_aube/excursions_postprandiales/stable/hypo_interprandiale (ex-valeurs de
+  // `profil_glycemique` ou ex-critère `hypo_interprandiale`, tous retirés, cf. `insuline.yaml` v0.34).
+  baisse_continue: 'Baisse continue de la glycémie nocturne',
+  hausse_continue: 'Hausse continue de la glycémie nocturne',
+  courbe_plate: 'Courbe nocturne plate',
+  hausse_entre_repas: 'Hausse de la glycémie entre les repas',
+  baisse_entre_repas: 'Baisse de la glycémie entre les repas',
+  pas_de_signal: 'Pas de signal entre les repas',
   // traitements_en_cours (liste, partagé B/C/D/E, nœud fusionné prescription)
   metformine: 'Metformine',
   iSGLT2: 'iSGLT2 (gliflozine)',
@@ -372,12 +386,16 @@ export function libelleValeurCatalogue(valeur: string): boolean {
  * pour chaque profil »). Renvoie `undefined` si aucune description n'est cataloguée.
  */
 const ENUM_VALUE_DESCRIPTIONS: Record<string, string> = {
-  // Profils AGP (nœud E « Insuline ») — comment lire la courbe et ce qu'elle oriente.
-  hypo_nocturne: "Baisse glycémique en 2ᵉ partie de nuit sur l'AGP → réduire la basale, envisager un analogue de 2ᵉ génération, relâcher la cible.",
-  phenomene_aube: "Remontée glycémique de ~4 h au réveil (couverture basale insuffisante) → titrer la basale.",
-  excursions_postprandiales: "Pics après les repas alors que la glycémie à jeun est correcte → GLP-1 puis bolus au repas le plus hyperglycémiant.",
-  hypo_interprandiale: "Hypoglycémies entre les repas → réduire le bolus correspondant.",
-  stable: "Courbe régulière, faible variabilité — pas d'ajustement dicté par la forme.",
+  // Profils AGP (nœud E « Insuline ») — comment lire la courbe et ce qu'elle oriente. RENOMMÉS le
+  // 2026-07-30 (P8/S7) : la courbe plate gagne ici un GESTE qu'elle n'avait pas avant cette session
+  // (« ne pas sur-titrer... ») — cf. `insuline.yaml` v0.34, dérivés `profil_nocturne_permet_titration`/
+  // `profil_nocturne_a_cible`.
+  baisse_continue: "Baisse glycémique en 2ᵉ partie de nuit sur l'AGP → réduire la basale, envisager un analogue de 2ᵉ génération, relâcher la cible.",
+  hausse_continue: "Remontée glycémique de ~4 h au réveil (couverture basale insuffisante) → titrer la basale.",
+  courbe_plate: "Courbe nocturne régulière, sans hausse ni baisse marquée → si l'HbA1c reste au-dessus de l'objectif, la basale n'est pas en cause : ne pas sur-titrer, intensifier autrement (GLP-1 puis bolus).",
+  hausse_entre_repas: "Pic glycémique après un repas alors que la glycémie à jeun est correcte → GLP-1 puis bolus, ou augmenter le bolus déjà en place, au repas le plus hyperglycémiant.",
+  baisse_entre_repas: "Hypoglycémie entre les repas → réduire le bolus correspondant.",
+  pas_de_signal: "Aucun signal notable entre les repas.",
 }
 
 export function describeEnumValue(valeur: string): string | undefined {

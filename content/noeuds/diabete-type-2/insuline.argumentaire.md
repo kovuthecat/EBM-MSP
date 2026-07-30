@@ -213,27 +213,38 @@ retiré le 2026-07-29**, cf. § 5 bis) : critère
 cible, désintensifier). Sans MCG : repli sur la **glycémie à jeun** (titration) et les **profils capillaires
 6-7 points** (intensification).
 
-**Pivot de « basale seule » (E-03, 2026-07-26).** Le référent a répété 3 fois (dont recette capture 8) que
-la glycémie à jeun n'est plus le bon pivot pour décider de titrer une basale — l'aspect **nocturne** de la
-courbe prime, la GAJ n'étant que le cas de repli en l'absence de MCG (« ce qui est maintenant rare »). Le
-moteur lit désormais `profil_glycemique` (et non plus `GAJ`) comme pivot QUAND `mcg_disponible == true` :
-un profil « stable » (rien de notable) ou « phénomène de l'aube » (glycémie qui remonte en fin de nuit)
-admet la titration ; un profil à « excursions post-prandiales » (nuit/jeûne déjà à la cible, l'écart est
-diurne) admet le relais « ne pas sur-titrer ». **Le repli SANS MCG a changé le 2026-07-29** : ce n'est plus
-« la glycémie à jeun hors de l'intervalle » (`gaj_a_cible == false`) mais « **au-dessus** de l'intervalle »
+**Pivot de « basale seule » (E-03, 2026-07-26, REDÉFINI le 2026-07-30 — P8/S7, arbitrage référent).** Le
+référent a répété 3 fois (dont recette capture 8) que la glycémie à jeun n'est plus le bon pivot pour
+décider de titrer une basale — l'aspect **nocturne** de la courbe prime, la GAJ n'étant que le cas de repli
+en l'absence de MCG (« ce qui est maintenant rare »). Le moteur lit `profil_nocturne` (ex-`profil_glycemique`
+; et non plus `GAJ`) comme pivot QUAND `mcg_disponible == true`. **Ce que le 2026-07-30 renverse** : jusque-là
+un profil « stable » (rien de notable) OU « phénomène de l'aube » (glycémie qui remonte en fin de nuit)
+admettaient l'un et l'autre la titration. Le référent tranche que la courbe **plate** (ex-« stable »), si
+l'HbA1c reste au-dessus de l'objectif, dit que **la basale n'est pas en cause** — seule une **hausse
+continue** (couverture insuffisante) admet désormais la titration ; une courbe plate route vers « Ne pas
+sur-titrer la basale — intensifier autrement » (GLP-1 puis bolus). Le second terme (HbA1c au-dessus de
+l'objectif) n'est PAS composé dans le dérivé `profil_nocturne_a_cible` lui-même — `cible_atteinte` est
+lui-même un dérivé, et le nœud borne ses dérivés à un seul niveau de dérivation (`deriveCritere.ts` n'enchaîne
+jamais un `derive` sur un autre) — il est porté par les `conditions` des options consommatrices, qui le
+portaient déjà pour d'autres raisons : composer ce repli ne change la liste d'aucune option concernée
+(vérifié). L'ex-« excursions post-prandiales » (post-prandial, donc diurne) n'a plus de rôle sur le pivot
+NOCTURNE : ce signal a rejoint son propre champ `profil_entre_repas` (`hausse_entre_repas`), gaté sur la
+présence d'un bolus. **Le repli SANS MCG a changé le 2026-07-29** (comportement inchangé depuis) : ce n'est
+plus « la glycémie à jeun hors de l'intervalle » (`gaj_a_cible == false`) mais « **au-dessus** de l'intervalle »
 (`gaj_haute`). La distinction n'est pas cosmétique — l'ancienne formulation confondait *au-dessus* et *en
 dessous*, si bien qu'une glycémie du matin **basse** ouvrait la proposition d'**augmenter** la dose. Trois
 états distincts remplacent le booléen : `gaj_basse` (< 0,70 g/L, qui **retire** la titration et **ouvre** le
 geste correctif), `gaj_a_cible` (0,70-1,30) et `gaj_haute` (> 1,30, qui autorise la titration). Point de
-vigilance appliqué : une liste `profil_glycemique` **vide** (aucune case cochée) n'est
-**pas** un profil « stable » — l'absence de coche ne se lit jamais comme une information rassurante (même
-défaut que D20, corrigé ici sans passer par le mécanisme `confirmation_requise`, qui répond à une saisie
-manquante plutôt qu'à un choix clinique).
+vigilance appliqué, inchangé depuis 2026-07-26 : `profil_nocturne` non renseigné (un `enum` n'a pas de
+présomption, D30) n'est **ni** une courbe plate **ni** une hausse — l'absence de réponse ne se lit jamais
+comme une information rassurante ni comme un motif de titrer (même défaut que D20).
 
-**Interprétation → décision (lecture de l'AGP).** TBR élevé / hypo nocturne → ↓ basale, 2ᵉ génération,
-relâcher la cible ; glycémie à jeun / TAR nocturne, phénomène de l'aube → titrer la basale ; glycémie à jeun à
-la cible mais TAR diurne / TIR bas → écart prandial → GLP-1 puis bolus ; hypo post-prandiale → ↓ bolus ; CV >
-36 % → instabilité, ne pas sur-titrer.
+**Interprétation → décision (lecture de l'AGP).** TBR élevé / baisse continue nocturne → ↓ basale,
+2ᵉ génération, relâcher la cible ; glycémie à jeun / TAR nocturne, hausse continue nocturne → titrer la
+basale ; courbe nocturne PLATE avec une HbA1c au-dessus de l'objectif → la basale n'est pas en cause, ne pas
+sur-titrer, intensifier autrement ; glycémie à jeun à la cible mais TAR diurne / TIR bas, ou hausse entre les
+repas → écart prandial → GLP-1 puis bolus ; baisse entre les repas → ↓ bolus ; CV > 36 % → instabilité, ne
+pas sur-titrer.
 
 ## 5 bis. Piloter sans capteur — la branche capillaire (passe A, 2026-07-29)
 
@@ -459,13 +470,21 @@ source généraliste réelle est Joubert 2025, favorable à la MCG). Elles ne so
   NPH non significative ; pas de supériorité inter-2ᵉ-génération.
 - Associations fixes : bénéfice substitutif, aucun CVOT dédié.
 - Câblage formulaire (P3) : dérivés, calcul des doses, tooltips AGP, variable `hypo_severe_recurrente`.
-- **Pivot nocturne (E-03, implémenté 2026-07-26) :** `profil_nocturne_permet_titration` / `profil_nocturne_a_cible`
-  remplacent `gaj_a_cible` comme pivot de « basale seule » quand `mcg_disponible == true`. *Amendé le
-  2026-07-29 : le pivot du repli sans MCG est désormais `gaj_haute` (> 1,30 g/L) et non plus
-  `gaj_a_cible == false`, qui englobait l'hypoglycémie à jeun — cf. § 5.* Non tranché : `hypo_interprandiale` (5ᵉ valeur de `profil_glycemique`)
-  n'alimente aucun des deux nouveaux dérivés (signal ni nocturne ni post-prandial, laissé de côté) ;
-  l'assimilation « phénomène de l'aube → admet la titration » est une lecture clinique standard, non
-  explicitement validée pour ce nouveau dérivé.
+- **Pivot nocturne (E-03, implémenté 2026-07-26, REDÉFINI le 2026-07-30 — P8/S7) :**
+  `profil_nocturne_permet_titration` / `profil_nocturne_a_cible` remplacent `gaj_a_cible` comme pivot de
+  « basale seule » quand `mcg_disponible == true`. *Amendé le 2026-07-29 : le pivot du repli sans MCG est
+  désormais `gaj_haute` (> 1,30 g/L) et non plus `gaj_a_cible == false`, qui englobait l'hypoglycémie à
+  jeun — cf. § 5.* **TRANCHÉ le 2026-07-30 :** la courbe plate (ex-« stable ») cesse d'admettre la
+  titration — seule une hausse continue le fait ; une courbe plate avec HbA1c au-dessus de l'objectif route
+  vers « Ne pas sur-titrer... — intensifier autrement ». `profil_glycemique` (`liste` de 4 valeurs) et le
+  critère propre `hypo_interprandiale` sont remplacés par deux `enum` — `profil_nocturne`
+  (baisse/hausse/plate) et `profil_entre_repas` (hausse/baisse/pas de signal). L'ex-« excursions
+  post-prandiales » (qui alimentait `profil_nocturne_a_cible` jusqu'au 2026-07-29) rejoint
+  `profil_entre_repas` et n'a plus de rôle sur le pivot nocturne — le point resté « non tranché » dans une
+  version antérieure de cette entrée (hypo interprandiale n'alimentant aucun des deux dérivés nocturnes)
+  reste vrai sous la nouvelle forme : ni la hausse ni la baisse entre les repas n'entrent dans le pivot
+  nocturne, l'une comme l'autre étant des signaux diurnes qui accusent le bolus, pas la basale. L'assimilation
+  « hausse continue → admet la titration » reste une lecture clinique standard, inchangée depuis 2026-07-26.
 - **Cumul sécurité/efficacité (E-04b/E-06, implémenté 2026-07-26) :** les options d'intensification de
   « basale_plus_bolus » sont réutilisées en « basale seule », mais seulement sur les 2 signaux nommés par
   le référent (hypoglycémie/variabilité nocturne, sur-basalisation) — le cas « GAJ/profil nocturne à la

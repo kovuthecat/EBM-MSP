@@ -270,6 +270,13 @@ describe('decisifsAConfirmer — le contenu réel du nœud `prescription`', () =
  * `CriteriaForm.tsx` : `accordeon = groupes.length > 1`). Cette session pose `groupe` sur les 22 critères
  * saisissables du nœud, en 6 sections ; ce test vérifie l'effet mesurable — plusieurs groupes, dans l'ordre
  * clinique voulu — sur le contenu RÉEL, pas une reconstitution synthétique.
+ *
+ * PASSÉ À 8 SECTIONS le 2026-07-30 (P8/S7) : `profil_glycemique` (`liste`, groupe « Surveillance
+ * glycémique ») et le critère propre `hypo_interprandiale` (même groupe) sont remplacés par deux `enum`
+ * portant chacun son PROPRE `groupe` — « Profil glycémique nocturne » et « Profil glycémique entre les
+ * repas » — insérés à la même place dans `criteres_entree`, donc au même point dans l'ordre de première
+ * apparition. « Surveillance glycémique » ne disparaît pas (GAJ, TBR, CV_glycemique le portent encore) ;
+ * il se scinde simplement en trois sections consécutives au lieu d'une.
  */
 describe('grouperChamps — le contenu réel du nœud `insuline` (P6/SA3)', () => {
   const node = getNoeudById('insuline')
@@ -280,6 +287,8 @@ describe('grouperChamps — le contenu réel du nœud `insuline` (P6/SA3)', () =
     'Profil et objectif glycémique',
     'Traitement actuel',
     'Surveillance glycémique',
+    'Profil glycémique nocturne',
+    'Profil glycémique entre les repas',
     "Signaux d'alerte et tolérance",
     'Terrain',
   ]
@@ -289,16 +298,23 @@ describe('grouperChamps — le contenu réel du nœud `insuline` (P6/SA3)', () =
     expect(groupes.length).toBeGreaterThan(1)
   })
 
-  it('ordonne les 6 sections selon le raisonnement clinique (ordre de 1re apparition)', () => {
-    // Formulaire vierge + situation != naif pour que les groupes masqués par défaut (surveillance,
-    // traitement en cours) soient comptés eux aussi : `situation_insuline` vaut sa 1re valeur déclarée
-    // (`naif`) sur un formulaire vierge, ce qui masquerait `traitements_en_cours`/`mcg_disponible`/etc.
-    const criteria = { ...buildDefaultCriteria(node.criteres_entree), situation_insuline: 'basale_plus_bolus' }
+  it('ordonne les 8 sections selon le raisonnement clinique (ordre de 1re apparition)', () => {
+    // Formulaire vierge + situation != naif + MCG disponible pour que les groupes masqués par défaut
+    // (surveillance, traitement en cours, profil nocturne — masqué sans capteur) soient comptés eux aussi :
+    // `situation_insuline` vaut sa 1re valeur déclarée (`naif`) sur un formulaire vierge, ce qui masquerait
+    // `traitements_en_cours`/`mcg_disponible`/etc. ; `mcg_disponible` vaut `false` par défaut (`bool`), ce
+    // qui masquerait à son tour `profil_nocturne` (P8/S7, 2026-07-30 : nouvelle section conditionnée au
+    // capteur, comme l'était `profil_glycemique` avant elle).
+    const criteria = {
+      ...buildDefaultCriteria(node.criteres_entree),
+      situation_insuline: 'basale_plus_bolus',
+      mcg_disponible: true,
+    }
     const groupes = grouperChamps(node.criteres_entree, criteria)
     expect(groupes.map((g) => g.libelle)).toEqual(GROUPES_ATTENDUS)
   })
 
-  it('chaque champ rendu (formulaire vierge) appartient à l’un des 6 groupes attendus', () => {
+  it('chaque champ rendu (formulaire vierge) appartient à l’un des 8 groupes attendus', () => {
     const groupes = grouperChamps(node.criteres_entree, buildDefaultCriteria(node.criteres_entree))
     for (const groupe of groupes) {
       expect(GROUPES_ATTENDUS).toContain(groupe.libelle)
