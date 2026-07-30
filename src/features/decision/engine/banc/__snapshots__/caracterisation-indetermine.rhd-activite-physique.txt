@@ -37,7 +37,7 @@ Sortie :
     - S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant) :: à renseigner : temps_assis_quotidien, rupture_sedentarite_habituelle
     - Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants :: à renseigner : temps_assis_quotidien, rupture_sedentarite_habituelle
     - Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées) :: à renseigner : frequence_activite_structuree
-    - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : duree_seance
+    - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : frequence_activite_structuree, duree_seance
     - Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente :: à renseigner : frequence_activite_structuree
     - Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel :: à renseigner : frequence_activite_structuree
     - Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement) :: à renseigner : frequence_activite_structuree, rupture_sedentarite_habituelle
@@ -84,7 +84,7 @@ Sortie :
     - Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine :: à renseigner : mode_deplacement_courts_trajets
     - Pour les courses, préférer plusieurs petits déplacements actifs à un grand trajet motorisé :: à renseigner : mode_deplacement_courts_trajets
     - Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées) :: à renseigner : frequence_activite_structuree
-    - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : duree_seance
+    - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : frequence_activite_structuree, duree_seance
     - Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente :: à renseigner : frequence_activite_structuree
     - Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel :: à renseigner : frequence_activite_structuree
     - Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement) :: à renseigner : frequence_activite_structuree, rupture_sedentarite_habituelle
@@ -121,7 +121,7 @@ Sortie :
     - S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant) :: à renseigner : temps_assis_quotidien, rupture_sedentarite_habituelle
     - Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants :: à renseigner : temps_assis_quotidien, rupture_sedentarite_habituelle
     - Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées) :: à renseigner : frequence_activite_structuree
-    - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : duree_seance
+    - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : frequence_activite_structuree, duree_seance
     - Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente :: à renseigner : frequence_activite_structuree
     - Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel :: à renseigner : frequence_activite_structuree
     - Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement) :: à renseigner : frequence_activite_structuree, rupture_sedentarite_habituelle
@@ -217,7 +217,6 @@ Sortie :
   - [recommandee] Orienter vers une structure d'activité physique adaptée pour un bilan et un accompagnement progressif
       proposé parce que : offre_proximite_connue == false
   Options EN ATTENTE (indétermination, R7/D20) :
-    - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : duree_seance
     - Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel :: à renseigner : limitation_physique_connue, symptomes_ischemie_effort
 
 ### Profil #5 — 3 critère(s) masqué(s) (masque stratifié) : neuropathie_ou_mal_perforant_plantaire, retinopathie_non_stabilisee_ou_proliferante, difficulte_acces_activite
@@ -300,7 +299,7 @@ Sortie :
     - Sujet fragile : éviter les activités physiques prolongées par forte chaleur, favoriser l'hydratation même en l'absence de sensation de soif, et éviter les activités de renforcement musculaire de forte intensité en ambiance chaude (HAS, guide des connaissances sur l'activité physique et la sédentarité). [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées) :: à renseigner : frequence_activite_structuree
-    - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : duree_seance
+    - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : frequence_activite_structuree, duree_seance
     - Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente :: à renseigner : frequence_activite_structuree
     - Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel :: à renseigner : frequence_activite_structuree
     - Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement) :: à renseigner : frequence_activite_structuree, rupture_sedentarite_habituelle
@@ -342,7 +341,7 @@ Sortie :
     - S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant) :: à renseigner : rupture_sedentarite_habituelle
     - Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants :: à renseigner : rupture_sedentarite_habituelle
     - Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées) :: à renseigner : frequence_activite_structuree
-    - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : duree_seance
+    - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : frequence_activite_structuree, duree_seance
     - Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente :: à renseigner : frequence_activite_structuree
     - Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel :: à renseigner : frequence_activite_structuree
     - Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement) :: à renseigner : frequence_activite_structuree, rupture_sedentarite_habituelle
@@ -425,7 +424,7 @@ Sortie :
     - Sujet fragile : éviter les activités physiques prolongées par forte chaleur, favoriser l'hydratation même en l'absence de sensation de soif, et éviter les activités de renforcement musculaire de forte intensité en ambiance chaude (HAS, guide des connaissances sur l'activité physique et la sédentarité). [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées) :: à renseigner : frequence_activite_structuree
-    - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : duree_seance
+    - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : frequence_activite_structuree, duree_seance
     - Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente :: à renseigner : frequence_activite_structuree
     - Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel :: à renseigner : frequence_activite_structuree
     - Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement) :: à renseigner : frequence_activite_structuree
@@ -513,7 +512,7 @@ Sortie :
     - Sous insuline, sulfamide ou glinide, toute augmentation de la dépense énergétique majore le risque d'hypoglycémie À L'EFFORT : signaler le risque au patient (resucrage à disposition, autosurveillance autour de l'effort) — arbitrage référent : alerte simple, pas un blocage des pistes proposées. [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées) :: à renseigner : frequence_activite_structuree
-    - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : duree_seance
+    - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : frequence_activite_structuree, duree_seance
     - Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente :: à renseigner : frequence_activite_structuree
     - Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel :: à renseigner : frequence_activite_structuree
     - Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement) :: à renseigner : frequence_activite_structuree, rupture_sedentarite_habituelle
@@ -539,14 +538,10 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
 
 Sortie :
   Famille « Activité quotidienne » (exclusive: false) :
-    -- groupe d'égalité #0 --
   - [recommandee] Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées)
       proposé parce que : frequence_activite_structuree == jamais
   - [recommandee] Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente
       proposé parce que : frequence_activite_structuree == jamais
-    -- groupe d'égalité #1 --
-  - [recommandee] Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue
-      proposé parce que : duree_seance == moins_10_min
   Options écartées (sécurité, R4) :
     - Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel :: verrou_effort == true
   Options EN ATTENTE (indétermination, R7/D20) :
@@ -586,8 +581,6 @@ Sortie :
       proposé parce que : difficulte_acces_activite == true
   Options écartées (sécurité, R4) :
     - Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel :: verrou_effort == true
-  Options EN ATTENTE (indétermination, R7/D20) :
-    - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : duree_seance
 
 ### Profil #14 — 6 critère(s) masqué(s) (masque stratifié) : mode_deplacement_courts_trajets, frequence_activite_structuree, symptomes_ischemie_effort, neuropathie_ou_mal_perforant_plantaire, insuline_ou_insulinosecreteur, duree_seance
 
@@ -632,7 +625,7 @@ Sortie :
     - Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine :: à renseigner : mode_deplacement_courts_trajets
     - Pour les courses, préférer plusieurs petits déplacements actifs à un grand trajet motorisé :: à renseigner : mode_deplacement_courts_trajets
     - Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées) :: à renseigner : frequence_activite_structuree
-    - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : duree_seance
+    - Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue :: à renseigner : frequence_activite_structuree, duree_seance
     - Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente :: à renseigner : frequence_activite_structuree
     - Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel :: à renseigner : frequence_activite_structuree
 

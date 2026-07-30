@@ -132,6 +132,8 @@ criteres_entree:
     type: enum
     groupe: Habitudes d'activité physique
     valeurs: [moins_10_min, dix_a_trente_min, plus_30_min]
+    # Masqué si aucune séance n'est jamais pratiquée (R5, recette N9 du 2026-07-30) — P8/S4, T-062.
+    visible_si: "frequence_activite_structuree != jamais"
   - nom: mode_deplacement_courts_trajets
     type: enum
     groupe: Habitudes d'activité physique
@@ -289,8 +291,12 @@ options:
       - spf-antisedentarite
   - intitule: "Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue"
     role: geste
+    # Garde répété (R8, GRAMMAIRE-NOEUD.md) : `duree_seance` porte un `visible_si` (masqué si
+    # `frequence_activite_structuree == jamais`), lu par la seule couche formulaire — le moteur l'ignore.
+    # Sans répéter la portée ici, une valeur saisie puis masquée continuerait d'agir. Relance T-062 (P8/S4,
+    # 2026-07-30).
     conditions:
-      - "duree_seance == moins_10_min"
+      - "duree_seance == moins_10_min AND frequence_activite_structuree != jamais"
     priorite: 3
     famille: "Activité quotidienne"
     avantages:
@@ -559,8 +565,20 @@ meta:
   date_revue: "2026-07-26"
   auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
   statut: brouillon
-  version: "0.8"
+  version: "0.9"
   changelog:
+    - date: "2026-07-30"
+      auteur: "Claude Code (P8/S4, T-062 — relance corrigée) — en attente de relecture référent"
+      resume: >-
+        `duree_seance` masqué (`visible_si: "frequence_activite_structuree != jamais"`) : un patient qui
+        ne pratique JAMAIS de séance n'a pas de durée de séance à renseigner (R5 — défaut constaté en
+        recette N9 du 2026-07-30, l'écran obligeait à saisir une valeur fausse pour faire disparaître le
+        « à confirmer »). Effet de bord traité dans le même lot (R8, GRAMMAIRE-NOEUD.md) : l'option
+        « Répartir l'activité en plusieurs séances courtes… » répète désormais le garde
+        (`AND frequence_activite_structuree != jamais`) dans sa propre condition plutôt que de compter
+        sur le seul masquage du formulaire — sans cette répétition une valeur `duree_seance` saisie puis
+        masquée continuait d'agir, ce que I10 (`invariants-contenu.test.ts`) et I11 (`impasse.test.ts`)
+        ont détecté sur le premier essai, non répété.
     - date: "2026-07-29"
       auteur: "Claude Code (lot « simplification de saisie ») — en attente de relecture référent"
       resume: >-
