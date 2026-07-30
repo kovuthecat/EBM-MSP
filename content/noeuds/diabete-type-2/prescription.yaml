@@ -403,7 +403,18 @@ criteres_entree:
     # sur une seule destination exclue par le terrain. C'était exactement le défaut d'origine remonté par la
     # recette référent (patient IMC 20 sous gliptine + athérome : ajout d'un iSGLT2 en CONSERVANT la
     # gliptine, faute de verdict sur cette dernière).
-    derive: "intention != initier AND traitements_en_cours contient sulfamide OR intention != initier AND traitements_en_cours contient gliptine"
+    # AJOUT DU GLINIDE (référent, 2026-07-30, T-063) : le glinide (répaglinide, seul commercialisé en
+    # France) manquait ici alors que le reste du nœud le traitait DÉJÀ comme un agent sans bénéfice dur en
+    # toutes lettres, à trois endroits au moins : l'option « Désintensifier » (« alléger / arrêter le
+    # sulfamide, le glinide ou réduire l'insuline »), l'alerte de cohérence rénale (« agent SANS bénéfice
+    # dur (sulfamide, gliptine, glinide, INSULINE incluse) »), et `metformine_deprescriptible` (qui exige
+    # son absence au même titre que celle du sulfamide et de la gliptine). C'est une incohérence interne
+    # corrigée, pas un arbitrage nouveau — le fond était déjà tranché, seule cette voie d'accès l'ignorait.
+    # Le blocage initial (aucune source documentant l'absence de bénéfice dur SPÉCIFIQUE au répaglinide)
+    # est levé par une collecte de preuve dédiée, vérifiée en primaire (cf. `sources.references_primaires` :
+    # grenet-2019, mannucci-2020, huang-yeh-2019 ; détail dans l'argumentaire, section « Le glinide rejoint
+    # les agents sans bénéfice sur critère dur »).
+    derive: "intention != initier AND traitements_en_cours contient sulfamide OR intention != initier AND traitements_en_cours contient gliptine OR intention != initier AND traitements_en_cours contient glinide"
   - nom: metformine_deprescriptible
     type: bool
     # DÉCISION RÉFÉRENT (2026-07-26, 2e série) : arbitrage resté ouvert depuis la capture 6 — « on peut la
@@ -1049,6 +1060,76 @@ options:
       - simpson
     contre_indications:
       - "En sur‑contrôle (hba1c_sous_cible) ou après hypoglycémie/chute récente : il s'agit de DÉSINTENSIFIER (retirer sans remplacer) — cette option ne se déclenche pas. Si un SU doit être conservé : gliclazide/glimépiride, jamais le glibenclamide."
+  # ---- Remplacer le glinide (T-063, référent 2026-07-30) -------------------------------------------------
+  # A1 (arbitrage référent 2026-07-30) : carte DÉDIÉE, symétrique de « Remplacer la gliptine » et
+  # « Remplacer le sulfamide » ci-dessus — sans elle, l'écran ouvrait le remplaçant sans jamais nommer
+  # l'agent à retirer (ambiguïté ajouter/remplacer relevée 4 fois en recette). Même famille, même `action`,
+  # MÊME STRUCTURE DE CONDITIONS que « Remplacer le sulfamide » (hypoglycémie récente / sur-contrôle
+  # renvoient à la désintensification, pas au switch — cf. son propre commentaire ci-dessus). PAS
+  # d'exclusion `DFG < 30` : contrairement au sulfamide, le répaglinide ne porte AUCUNE contre-indication
+  # rénale au RCP (cf. le commentaire de scission sulfamide/glinide, plus bas, et l'option « Réduire la
+  # posologie du glinide ») — la niche rénale reste intacte, l'arbitrage A2 dit COMMENT l'articuler (voir
+  # `exclusions` ci-dessous), pas qu'on la retire.
+  # A2 (arbitrage référent 2026-07-30) : remplacement CONDITIONNÉ à la disponibilité effective d'un
+  # remplaçant. Réutilise les dérivés déjà calculés par le nœud (`isglt2_indisponible`, `aglp1_indisponible`
+  # — cf. l'option « Gliptine (sitagliptine) » plus bas qui les utilise déjà) plutôt que de ré-écrire des
+  # seuils rénaux en dur : si les DEUX classes protectrices sont indisponibles sur ce terrain, cette carte
+  # n'est pas la bonne réponse — la niche du répaglinide (seul insulinosécréteur utilisable sous DFG 30)
+  # prend le relais via « Réduire la posologie du glinide ». `exclusions` (et non `conditions`) DÉLIBÉRÉMENT
+  # : R4 (docs/decision/GRAMMAIRE-NOEUD.md) affiche toujours une option écartée par exclusion, avec son
+  # motif — c'est l'information de sécurité que le praticien doit voir, pas un silence.
+  #
+  # Preuve du bénéfice absent (T-063, collecte dédiée vérifiée en primaire 2026-07-30, PMID vérifiés un par
+  # un contre PubMed/texte intégral — détail complet dans l'argumentaire, section « Le glinide rejoint les
+  # agents sans bénéfice sur critère dur ») : (1) AUCUN ECR dédié au répaglinide sur critère dur n'existe
+  # (Grenet 2019, méta-analyse en réseau, 34 essais/175 966 patients : « No trials evaluating glinides […]
+  # were found ») ; (2) à l'échelle de la CLASSE (sulfamides + glinides poolés), signal de sur-mortalité
+  # toute cause (Mannucci 2020, 48 ECR : MH-OR 1,11 IC95% 1,00-1,23 p=0,04) SANS signal équivalent sur le
+  # MACE (MH-OR 1,08 IC95% 0,96-1,22 p=0,20, NS) ; (3) signal REPAGLINIDE-SPÉCIFIQUE, observationnel :
+  # Huang & Yeh 2019, cohorte taïwanaise appariée par score de propension (1,68 M patients, répaglinide
+  # n=11 468 vs glimépiride référence, suivi médian 8 ans) — mortalité toute cause aHR 1,88 (IC95%
+  # 1,45-2,43, p<0,001), événement CV (IDM+AVC) aHR 1,69 (IC95% 1,25-2,59, p=0,001), pire des 5
+  # sécrétagogues testés. GRADE TRÈS FAIBLE assumé (`niveau_preuve: tres_faible`, à dessein différent du
+  # `modere` du sulfamide/de la gliptine) : observationnel, non causal (les auteurs eux-mêmes ne concluent
+  # qu'à la prudence), IMC/HbA1c/lipides NON ajustés, sévérité rénale probablement NON ajustée (codes
+  # diagnostiques, pas DFG continu), population de primo-prescription différente du contexte de cette carte
+  # (patients déjà avancés dans leur parcours). Le signal RENFORCE la justification clinique du remplacement
+  # quand une alternative existe ; il ne remplace pas la neutralité de classe comme motif — les deux sont
+  # dits, distinctement, ci-dessous.
+  - intitule: "Remplacer le glinide (aucun bénéfice sur critère dur — préférer un agent qui en apporte)"
+    role: geste
+    action: remplacer
+    conditions:
+      - "intention != initier AND traitements_en_cours contient glinide"
+      - "hypoglycemie_recente == false"
+      - "hba1c_sous_cible == false"
+    exclusions:
+      - "isglt2_indisponible == true AND aglp1_indisponible == true"
+    priorite: 4
+    famille: "Traitement à corriger ou remplacer"
+    avantages:
+      - "Aucun essai contrôlé randomisé dédié au répaglinide sur critère dur n'existe (Grenet 2019, méta-analyse en réseau de 34 essais/175 966 patients cherchant spécifiquement des essais avec mortalité/MACE : « No trials evaluating glinides […] were found »). À l'échelle de la CLASSE (sulfamides et glinides poolés), un signal de sur-mortalité toute cause existe (Mannucci 2020, 48 ECR ≥ 52 semaines : MH-OR 1,11, IC95% 1,00-1,23, p=0,04) sans signal équivalent sur le MACE (MH-OR 1,08, IC95% 0,96-1,22, p=0,20, non significatif) — c'est un signal de mortalité, pas de MACE, et il n'isole pas le répaglinide des sulfamides."
+      - "Signal REPAGLINIDE-SPÉCIFIQUE (Huang & Yeh 2019) : cohorte nationale taïwanaise de 1,68 million de patients diabétiques incidents, répaglinide (n=11 468) apparié par score de propension au glimépiride (référence), suivi médian 8 ans — mortalité toute cause aHR 1,88 (IC95% 1,45-2,43, p<0,001) et événement cardiovasculaire combiné (IDM+AVC ischémique) aHR 1,69 (IC95% 1,25-2,59, p=0,001). Le répaglinide affiche les deux HR les plus élevés des 5 sécrétagogues comparés (pire que les 4 sulfamides testés, glibenclamide inclus), résultat retrouvé en analyse de sensibilité sans appariement (cohorte complète, Cox multivarié)."
+      - "Choisir le remplaçant selon la comorbidité, comme pour le sulfamide et la gliptine : iSGLT2 si l'insuffisance cardiaque ou l'atteinte rénale prédomine ; AR GLP‑1 si la maladie athéromateuse ou l'obésité prédomine."
+    inconvenients:
+      - "PREUVE DE GRADE TRÈS FAIBLE, à ne jamais présenter comme un fait établi : Huang & Yeh 2019 est OBSERVATIONNEL, jamais causal — les auteurs eux-mêmes concluent seulement qu'« il serait prudent d'envisager le glimépiride quand un sécrétagogue est nécessaire », pas à une preuve de surrisque du répaglinide. Le score de propension n'ajuste NI sur l'IMC, NI sur l'HbA1c, NI sur le bilan lipidique (limite reconnue par les auteurs — confusion possible par la sévérité glycémique de base). Les comorbidités ajustées renvoient probablement à des CODES DIAGNOSTIQUES (présence d'IRC), pas à un DFG continu : la SÉVÉRITÉ de l'insuffisance rénale n'est donc probablement pas contrôlée, alors que c'est précisément ce qui pousse à prescrire du répaglinide. Enfin la cohorte est une population de PRIMO-PRESCRIPTION en monothérapie, pas des patients déjà multi-traités chez qui le DFG a déjà écarté metformine/sulfamide/gliptine — pas exactement la population visée par cette carte."
+      - "Aucun ECR de switch dédié ne montre que RETIRER le glinide réduit un critère dur (même structure argumentative que pour le sulfamide et la gliptine : le bénéfice d'organe est celui du remplaçant, argument indirect)."
+      - "REMPLACEMENT CONDITIONNÉ à la disponibilité effective d'un remplaçant protecteur (iSGLT2 si DFG ≥ 20 sans infection uro-génitale récidivante ; AR GLP‑1 sans dénutrition ni IMC < 22) : si aucun des deux n'est utilisable sur ce terrain, cette carte est écartée — la niche rénale du répaglinide (seul insulinosécréteur utilisable sous DFG 30, cf. l'option « Réduire la posologie du glinide ») reste alors la meilleure conduite : réduire la dose plutôt que remplacer à vide."
+      - "REPLI (intolérance légère isolée, sans indication de remplacement protecteur) : préférer réduire la posologie du glinide (option dédiée) plutôt que switcher — les deux gestes peuvent être proposés ensemble chez un patient intolérant ; ce n'est pas une contradiction (cf. l'option « Optimiser l'agent mal toléré », qui pose explicitement les deux voies)."
+      - "Contrainte propre au glinide, à mettre en balance : trois prises prandiales (observance) contre un profil d'hypoglycémie relativement plus favorable que les sulfamides comparés (Leonard 2018, cohorte Medicaid : répaglinide aHR 2,03, IC95% 1,64-2,52, vs metformine — moins à risque que glyburide, glimépiride et glipizide, les trois sulfamides comparés dans cette étude)."
+    effet_attendu: >-
+      Bénéfice d'organe = celui du remplaçant retenu (iSGLT2 : hospitalisation pour IC HR ~0,61‑0,73,
+      progression rénale HR ~0,56‑0,76 ; AR GLP‑1 : événements athéromateux, surtout l'AVC). Gain propre au
+      retrait du glinide : aucun sur critère dur démontré par ECR ; un signal observationnel de surmortalité
+      et de sur-risque CV existe (Huang & Yeh 2019), de grade très faible.
+    niveau_preuve: tres_faible
+    references:
+      - grenet-2019
+      - mannucci-2020
+      - huang-yeh-2019
+      - leonard-2018
+    contre_indications:
+      - "En sur‑contrôle (hba1c_sous_cible) ou après hypoglycémie/chute récente : il s'agit de DÉSINTENSIFIER (retirer sans remplacer) — cette option ne se déclenche pas. Les contre-indications propres au remplaçant retenu s'appliquent par ailleurs (voir l'option correspondante)."
   # ---- Intolérance (porte : réduction OU switch) -------------------------------------------------------
   - intitule: "Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer"
     role: geste
@@ -1806,6 +1887,32 @@ sources:
       annee: 2003
       type_critere: substitution
       lien: "https://pubmed.ncbi.nlm.nih.gov/12610054/"
+    # ── VERSÉES le 2026-07-30 (T-063) ────────────────────────────────────────────────────────────────
+    # Dossier « le glinide rejoint les agents sans bénéfice sur critère dur » — collecte OpenEvidence puis
+    # RE-VÉRIFIÉE une à une contre PubMed/texte intégral (deux PMID renvoyés par la collecte étaient FAUX,
+    # corrigés ci-dessous : Leonard 2018 n'est PAS 29139156 — article de biochimie sans rapport — mais
+    # 29108130 ; Monami 2014, PMID corrigé 24635837, n'est PAS cité ici, faute d'avoir pu confirmer
+    # indépendamment le sous-résultat glinide vs sulfamide qu'il est censé porter — D23/invariant 6).
+    - id: grenet-2019
+      titre: "Grenet — méta-analyse en réseau, 34 essais/175 966 patients, cherchant spécifiquement des essais avec mortalité/MACE comme critère : « No trials evaluating glinides or alpha glucosidase inhibitors were found » — AUCUN ECR dédié au répaglinide sur critère dur n'existe"
+      annee: 2019
+      type_critere: dur
+      lien: "https://pubmed.ncbi.nlm.nih.gov/31237921/"
+    - id: mannucci-2020
+      titre: "Mannucci — méta-analyse des insulinosécréteurs (sulfamides + glinides POOLÉS, 48 ECR ≥ 52 semaines) : mortalité toute cause MH-OR 1,11 (IC95% 1,00-1,23, p=0,04, significatif) ; MACE MH-OR 1,08 (IC95% 0,96-1,22, p=0,20, non significatif) — signal de mortalité au niveau CLASSE, pas de MACE, n'isole pas le répaglinide"
+      annee: 2020
+      type_critere: dur
+      lien: "https://pubmed.ncbi.nlm.nih.gov/32811736/"
+    - id: huang-yeh-2019
+      titre: "Huang & Yeh — cohorte nationale taïwanaise (NHIRD), 1,68 million de patients diabétiques incidents, répaglinide (n=11 468) apparié par score de propension au glimépiride (référence), suivi médian 8 ans : mortalité toute cause aHR 1,88 (IC95% 1,45-2,43, p<0,001) ; événement CV combiné IDM+AVC aHR 1,69 (IC95% 1,25-2,59, p=0,001) — pire des 5 sécrétagogues testés, concordant en analyse de sensibilité sans appariement. ⚠ Observationnel non causal ; IMC/HbA1c/lipides NON ajustés ; sévérité rénale probablement non ajustée (codes diagnostiques, pas DFG continu) ; cohorte de primo-prescription, différente du contexte de la carte « Remplacer le glinide »"
+      annee: 2019
+      type_critere: dur
+      lien: "https://pubmed.ncbi.nlm.nih.gov/31108137/"
+    - id: leonard-2018
+      titre: "Leonard — cohorte Medicaid, hypoglycémie sévère par molécule en monothérapie (PMID corrigé : 29108130, pas 29139156) : classement glyburide > glimépiride > glipizide > répaglinide > nateglinide ; répaglinide aHR 2,03 (IC95% 1,64-2,52) vs metformine — moins à risque que les 3 sulfamides comparés"
+      annee: 2018
+      type_critere: dur
+      lien: "https://pubmed.ncbi.nlm.nih.gov/29108130/"
   synthese_critique:
     donnee: >-
       Sur socle metformine, quand l'objectif n'est pas atteint : ajouter un AR GLP‑1 (sémaglutide ou
@@ -1954,13 +2061,64 @@ incertitudes:
     glinide/insuline à DFG 30-44. Ces deux zones restent au plancher général de 6,5 %. C'est la lecture
     littérale de la source ; ce n'est pas nécessairement la bonne lecture clinique."
   - "GLIPTINE UTILISABLE SOUS DFG 30 — RÉSOLU le 2026-07-27. Le point de fait est TRANCHÉ : le référent a vérifié, la sitagliptine 25 mg n'est effectivement pas commercialisée en France. La SFD 2025 disait donc vrai, et l'extension de la décision aux trois endroits du nœud (option « Arrêter le sulfamide », option gliptine, alerte « place résiduelle en insuffisance rénale ») était justifiée : sous DFG 30, le nœud nomme la VILDAGLIPTINE 50 mg/j. Ce que la question a fait apparaître au passage et qui reste vrai : le red-team n'avait pas pu ouvrir la BDPM et avait explicitement laissé le point au référent plutôt que de le deviner (invariant 6) — c'est la bonne conduite, et elle a payé. La tension apparente avec la décision du nœud D (« gliptine FR = sitagliptine ») n'en est pas une : celle-là porte sur la CLASSE disponible en France, celle-ci sur le DOSAGE utilisable en rénal sévère."
+  - "ABSENCE DE BÉNÉFICE DUR DU RÉPAGLINIDE — RÉSOLU le 2026-07-30 (T-063). La première tentative de cette
+    tâche s'était arrêtée bloquée : le nœud traitait déjà le glinide comme un agent sans bénéfice dur à
+    plusieurs endroits (désintensification, alerte de cohérence, `metformine_deprescriptible`), mais
+    AUCUNE source du nœud ne documentait cette absence de bénéfice SPÉCIFIQUEMENT pour le répaglinide, et
+    les 3 sources déjà présentes (Schumacher/Marbury/Hasslacher) portaient uniquement la pharmacocinétique
+    rénale, pas le bénéfice/risque sur critère dur — invariant 6 (« signaler plutôt qu'inventer »), pas
+    d'argumentaire par analogie avec le sulfamide. Levé par une collecte de preuve dédiée, vérifiée en
+    primaire PMID par PMID (deux PMID de la collecte initiale étaient FAUX, corrigés : Leonard 2018 =
+    29108130, pas 29139156 ; Monami 2014 = 24635837, pas 25266331 — ce dernier NON versé, faute d'avoir pu
+    confirmer indépendamment le sous-résultat qu'il est censé porter). Preuve DÉLIBÉRÉMENT non présentée
+    comme un fait clos : absence d'ECR dédié (Grenet 2019) + signal de mortalité au niveau CLASSE sans
+    signal MACE (Mannucci 2020) + signal repaglinide-spécifique de grade TRÈS FAIBLE, observationnel, avec
+    ses réserves de confusion nommées une à une (Huang & Yeh 2019) — `niveau_preuve: tres_faible` sur la
+    carte, à dessein différent du `modere` du sulfamide/de la gliptine, qui reposent sur des CVOT neutres
+    en ECR. Détail complet, sources et réserves : argumentaire, section « Le glinide rejoint les agents
+    sans bénéfice sur critère dur »."
 veille_liee: []
 meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.37"
+  version: "0.38"
   changelog:
+    - date: "2026-07-30"
+      auteur: "référent DT2 + Claude Code (T-063, plan P8·S5, relance après collecte de preuve dédiée)"
+      resume: >-
+        LE GLINIDE REJOINT LES AGENTS SANS BÉNÉFICE SUR CRITÈRE DUR (D5) : le nœud traitait déjà le
+        répaglinide comme un agent sans bénéfice dur à plusieurs endroits (désintensification, alerte de
+        cohérence, `metformine_deprescriptible`), mais la voie d'accès aux classes protectrices
+        (`remplacement_agent_sans_benefice`) s'arrêtait à sulfamide/gliptine — incohérence interne
+        corrigée, pas un arbitrage nouveau. (1) `remplacement_agent_sans_benefice` étendu au glinide, même
+        forme que les deux autres termes. (2) Libellé `remplacement_agent_sans_benefice` de `labels.ts`
+        mis à jour : « (gliptine, sulfamide, glinide) ». (3) Nouvelle carte « Remplacer le glinide » (A1,
+        arbitrage référent 2026-07-30), symétrique de « Remplacer le sulfamide »/« Remplacer la gliptine »
+        (même famille, même `action`), `avantages`/`inconvenients` PROPRES au répaglinide (pas de
+        copier-coller) — PAS d'exclusion `DFG < 30` (contrairement au sulfamide, aucune CI rénale RCP,
+        niche déjà protégée par la scission du 2026-07-26). (4) Remplacement CONDITIONNÉ à la disponibilité
+        effective d'un remplaçant (A2) via `exclusions: isglt2_indisponible == true AND aglp1_indisponible
+        == true` — réutilise les dérivés déjà calculés par le nœud, réserve écrite dans les
+        `inconvenients` en clair (pas seulement en commentaire YAML) ; R4 affiche l'exclusion avec son
+        motif. Vérifié : le rapport avec « Réduire la posologie du glinide » est dit des deux côtés (REPLI
+        dans la nouvelle carte + texte déjà présent, inchangé, côté « Réduire »). Preuve du bénéfice
+        absent, collecte dédiée vérifiée en primaire PMID par PMID (deux PMID de la collecte initiale
+        étaient FAUX, corrigés) : absence d'ECR dédié (Grenet 2019, PMID 31237921) + signal de mortalité au
+        niveau CLASSE sans signal MACE (Mannucci 2020, PMID 32811736, sulfamides+glinides poolés) + signal
+        repaglinide-spécifique observationnel avec toutes ses réserves nommées (Huang & Yeh 2019, PMID
+        31108137, cohorte taïwanaise appariée, mortalité aHR 1,88 IC95% 1,45-2,43 p<0,001, CV aHR 1,69
+        IC95% 1,25-2,59 p=0,001) — `niveau_preuve: tres_faible` sur la carte (GRADE, à dessein différent du
+        `modere` du sulfamide/de la gliptine). Quatre sources versées dans `sources.references_primaires`
+        (grenet-2019, mannucci-2020, huang-yeh-2019, leonard-2018) et citées par id depuis la carte et
+        l'argumentaire. Argumentaire : nouvelle section « Le glinide rejoint les agents sans bénéfice sur
+        critère dur », qui détaille les trois preuves ET les réserves une par une (observationnel non
+        causal, IMC/HbA1c/lipides non ajustés, sévérité rénale probablement non ajustée, population de
+        primo-prescription différente du contexte de la carte) — jamais résumées en une phrase générique.
+        `Hors périmètre` respecté : option « Réduire la posologie du glinide » non touchée, aucune
+        `priorite` renumérotée (nouvelle carte à `priorite: 4`, égalité de rang avec « Remplacer le
+        sulfamide », confinée à la même famille), famille « Agent à ajouter » non renommée. Banc relancé,
+        diffs de golden master relus ligne à ligne (cf. rapport de session).
     - date: "2026-07-29"
       auteur: "référent DT2 + Claude Code (recette navigateur du 2026-07-29)"
       resume: >-

@@ -284,6 +284,112 @@ nommée change, aucune exclusion rénale n'a été ajoutée, aucune source n'en 
 Aucune contradiction avec la règle « gliptine française = sitagliptine » posée ailleurs dans le domaine :
 celle-là porte sur la **classe disponible** en France, celle-ci sur le **dosage utilisable** en rénal sévère.
 
+## Le glinide rejoint les agents sans bénéfice sur critère dur
+
+*Section ajoutée le 2026-07-30 (T-063, plan P8·S5). Une première tentative s'était arrêtée bloquée : le nœud
+traitait déjà le glinide comme un agent sans bénéfice dur à plusieurs endroits (désintensification, alerte de
+cohérence, `metformine_deprescriptible`), mais **aucune source déjà présente ne documentait cette absence de
+bénéfice spécifiquement pour le répaglinide** — les trois sources rénales du nœud (Schumacher, Marbury,
+Hasslacher) portent la pharmacocinétique, pas le bénéfice/risque sur critère dur. Écrire un argumentaire par
+analogie avec le sulfamide aurait été inventer une preuve (invariant 6, CLAUDE.md). La tâche a donc été
+rendue en l'état, puis relancée après une collecte de preuve dédiée, **vérifiée source par source contre
+PubMed/le texte intégral** — plusieurs PMID renvoyés par la collecte initiale (OpenEvidence) étaient faux,
+corrigés ci-dessous.*
+
+**Ce que le fond du nœud a déjà tranché ailleurs (rappel) : le sens de la décision référent ne change pas.**
+Le signal rassemblé ici **renforce** la justification clinique de vouloir remplacer le répaglinide quand une
+alternative existe — il ne la contredit pas. Ce qui change, c'est l'honnêteté épistémique du texte : ne
+jamais écrire « le répaglinide n'a pas de bénéfice dur » comme un fait neutre et clos. Trois preuves
+distinctes, de nature et de force différentes, portent la carte « Remplacer le glinide » — et doivent être
+lues séparément, pas condensées.
+
+### (a) Aucun essai contrôlé randomisé dédié au répaglinide sur critère dur n'existe
+
+**Grenet et al. 2019** (PMID 31237921, *PLoS One*), méta-analyse en réseau de **34 essais / 175 966
+patients**, construite précisément pour chercher des essais avec mortalité ou MACE comme critère chez tous
+les hypoglycémiants du DT2 : *« No trials evaluating glinides or alpha glucosidase inhibitors were found »*.
+Ce n'est pas un résultat de neutralité (comme les 4 CVOT de la gliptine, ou CAROLINA/TOSCA.IT pour le
+sulfamide) — c'est une **absence totale de donnée randomisée**, à la différence des deux autres classes déjà
+traitées par ce nœud comme sans bénéfice dur.
+
+### (b) Signal de classe : mortalité oui, MACE non — et il ne dit rien du répaglinide seul
+
+**Mannucci et al. 2020** (PMID 32811736, *Nutrition, Metabolism and Cardiovascular Diseases*), méta-analyse
+de **48 ECR ≥ 52 semaines** portant sur les **insulinosécréteurs poolés** (sulfamides ET glinides, jamais
+distingués dans ce résultat) :
+
+- Mortalité toute cause : **MH-OR 1,11 (IC95% 1,00-1,23, p=0,04)** — **significatif**.
+- MACE : **MH-OR 1,08 (IC95% 0,96-1,22, p=0,20)** — **non significatif**.
+
+La distinction compte et doit rester lisible séparément : il existe un signal de **surmortalité**, pas de
+**MACE**, à l'échelle de la **classe** — ce résultat n'isole pas le répaglinide des sulfamides, et ne dit rien
+de sa position relative à l'intérieur du groupe des sécrétagogues.
+
+### (c) Signal répaglinide-spécifique — la pièce centrale, à lire avec ses réserves
+
+**Huang & Yeh 2019** (PMID 31108137, *Diabetes Research and Clinical Practice*) est la donnée
+repaglinide-spécifique la plus solide disponible, **texte intégral lu et vérifié** (pas seulement l'abstract) :
+
+- **Cohorte nationale taïwanaise (NHIRD)**, 1,68 million de patients diabétiques incidents, 5 groupes en
+  monothérapie initiale — glimépiride (n=66 790), gliclazide (n=97 426), glipizide (n=38 806), glyburide
+  (n=92 970), **répaglinide (n=11 468)** — suivi médian **8 ans**.
+- **Appariement 1:1 par score de propension** (logit, plus proche voisin, calliper 0,2 écart-type, sans
+  remplacement) sur le **glimépiride comme référence** ; Cox stratifié sur la paire appariée. **8
+  comparaisons pré-spécifiées, seuil de significativité corrigé Bonferroni p < 0,006** — le répaglinide reste
+  significatif sous ce seuil strict.
+- **Résultat répaglinide** (référence = glimépiride) : mortalité toute cause **aHR 1,88 (IC95% 1,45-2,43,
+  p < 0,001)** ; événement cardiovasculaire combiné (IDM + AVC ischémique) **aHR 1,69 (IC95% 1,25-2,59,
+  p = 0,001)**. Le répaglinide affiche les **deux HR les plus élevés des 5 sécrétagogues testés** — pire que
+  les 4 sulfamides comparés, glibenclamide inclus.
+- **Analyse de sensibilité sans appariement** (cohorte complète, Cox multivarié) : **même hiérarchie
+  retrouvée** — le signal résiste au retrait de la procédure d'appariement.
+
+**Réserves, écrites une par une, à ne pas taire :**
+
+- **(i) Observationnel, pas un ECR.** Les auteurs eux-mêmes ne concluent pas à une preuve causale : leur
+  formulation est qu'« il serait prudent d'envisager le glimépiride quand un sécrétagogue est nécessaire »,
+  pas que le répaglinide cause l'excès observé.
+- **(ii) Le score de propension n'inclut ni IMC, ni HbA1c, ni bilan lipidique** — limite explicitement
+  reconnue par les auteurs. Une confusion par la **sévérité glycémique de base** (les patients mis sous
+  répaglinide plutôt que sulfamide l'étant peut-être pour des raisons cliniques déjà associées à un
+  sur-risque) reste possible et non exclue par le design.
+- **(iii) La sévérité rénale n'est probablement pas contrôlée.** Les comorbidités ajustées renvoient à la
+  définition d'un autre papier (Roumie et al. 2014) et reposent donc vraisemblablement sur des **codes
+  diagnostiques CIM-9** (présence d'une IRC), pas sur un DFG continu. C'est précisément la **sévérité** de
+  l'insuffisance rénale qui pousse à prescrire du répaglinide plutôt qu'un sulfamide (contre-indiqué sous
+  DFG 30) — si cette sévérité n'est pas finement contrôlée, une partie du signal peut refléter un terrain
+  plus lourd chez les patients sous répaglinide, pas la molécule elle-même.
+- **(iv) Population différente du contexte d'usage de la carte.** La cohorte est une population de
+  **primo-prescription en monothérapie**, pas des patients déjà multi-traités chez qui le DFG a déjà écarté
+  metformine/sulfamide/gliptine — ce n'est pas exactement la population visée par la carte « Remplacer le
+  glinide », qui s'adresse à des patients déjà avancés dans leur parcours thérapeutique.
+
+**Conclusion assumée, GRADE très faible** : ce n'est pas une preuve close, c'est un signal **observationnel,
+non causal, spécifique au répaglinide, cohérent en sensibilité**, qui s'ajoute à l'absence totale d'ECR dédié
+(a) et au signal de mortalité de classe (b). La carte « Remplacer le glinide » porte `niveau_preuve:
+tres_faible` — à dessein différent du `modere` du sulfamide et de la gliptine, qui reposent sur des CVOT
+neutres **randomisés**. Les `avantages`/`inconvenients` de la carte reflètent cette nuance : le remplacement
+se justifie par l'absence de preuve de bénéfice **et** un signal (non causal) d'excès de risque — **pas** par
+une neutralité confirmée comme pour le sulfamide et la gliptine.
+
+### Nuance en sens inverse : l'hypoglycémie, un axe où le répaglinide fait mieux que le sulfamide
+
+**Leonard et al. 2018** (PMID 29108130, cohorte Medicaid, hypoglycémie sévère par molécule en monothérapie) :
+répaglinide **aHR 2,03 (IC95% 1,64-2,52) vs metformine**, mais le classement du risque (glyburide >
+glimépiride > glipizide > répaglinide > nateglinide) place le répaglinide **derrière les trois sulfamides
+comparés** — c'est-à-dire moins à risque d'hypoglycémie sévère qu'eux. Ce n'est pas contradictoire avec (c) :
+mortalité/CV et hypoglycémie sévère sont deux axes différents. C'est une contrainte réelle à mettre dans
+la balance, en particulier chez un patient dont l'hypoglycémie sous sulfamide serait la préoccupation
+première — c'est ce que porte, dans la carte, la mention de la « contrainte propre au glinide ».
+
+**Deux PMID corrigés au passage** (l'agent de collecte avait renvoyé des identifiants faux, vérifiés par
+recherche croisée) : Leonard et al. 2018 est **29108130**, pas 29139156 (article de biochimie sans rapport) ;
+Monami et al. 2014 (méta-analyse hypoglycémie sous sulfamides) est **24635837**, pas 25266331 (article sur le
+comportement des chèvres). Monami 2014 n'est **pas** versé dans `sources.references_primaires` ni cité
+ci-dessus : le sous-résultat qu'il est censé porter (« glinides moins à risque que sulfamides ») n'a **pas**
+pu être confirmé dans son abstract lors de la vérification indépendante — conformément à D23, une position
+affichée s'appuie sur la donnée publiée et vérifiée, jamais sur une affirmation non retrouvée à la source.
+
 ## Méthode & frontières
 
 Fusion de trois dossiers **déjà validés** ; le socle EBM n'est **pas re‑dérivé** (voir B/C/D). Seules les

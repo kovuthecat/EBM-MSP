@@ -53,6 +53,7 @@ Sortie :
     - Remplacer la gliptine (aucun bénéfice sur critère dur — préférer un agent qui en apporte) :: à renseigner : intention, traitements_en_cours
     - Arrêter la gliptine redondante (association gliptine + AR GLP‑1 / tirzépatide déjà en place) :: à renseigner : intention, traitements_en_cours
     - Remplacer le sulfamide (moins d'hypoglycémie, moins de poids, plus de bénéfice) :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, DFG
+    - Remplacer le glinide (aucun bénéfice sur critère dur — préférer un agent qui en apporte) :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, DFG
     - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : intention, traitements_en_cours, intolerance_traitement
     - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, position_vs_cible, DFG
     - Réduire la posologie de l'insuline (sur‑basalisation / hypoglycémie) :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, position_vs_cible, DFG, intolerance_traitement
@@ -231,6 +232,7 @@ Sortie :
     - Suspendre l'iSGLT2 (cétonémie confirmée — suspicion d'acidocétose euglycémique) :: à renseigner : intention, cetonemie
     - Arrêter la gliptine redondante (association gliptine + AR GLP‑1 / tirzépatide déjà en place) :: à renseigner : intention
     - Remplacer le sulfamide (moins d'hypoglycémie, moins de poids, plus de bénéfice) :: à renseigner : intention
+    - Remplacer le glinide (aucun bénéfice sur critère dur — préférer un agent qui en apporte) :: à renseigner : intention
     - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : intention, intolerance_traitement
     - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : intention
     - Réduire la posologie de l'AR GLP‑1 (perte de poids excessive / intolérance digestive) :: à renseigner : intention, denutrition
@@ -331,6 +333,7 @@ Sortie :
   Options EN ATTENTE (indétermination, R7/D20) :
     - Insuline d'initiation (souvent transitoire — état catabolique) :: à renseigner : HbA1c_actuelle, symptomes_glucotoxicite
     - Envisager l'insuline (palette non‑insulinique épuisée — ajustement fin → nœud E) :: à renseigner : position_vs_cible
+    - Remplacer le glinide (aucun bénéfice sur critère dur — préférer un agent qui en apporte) :: à renseigner : HbA1c_actuelle
     - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : intolerance_traitement
     - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : HbA1c_actuelle, position_vs_cible
     - Réduire la posologie de l'AR GLP‑1 (perte de poids excessive / intolérance digestive) :: à renseigner : denutrition, intolerance_traitement, nature_intolerance
@@ -380,6 +383,7 @@ Sortie :
     - Suspendre l'iSGLT2 (cétonémie confirmée — suspicion d'acidocétose euglycémique) :: à renseigner : intention
     - Envisager l'insuline (palette non‑insulinique épuisée — ajustement fin → nœud E) :: à renseigner : position_vs_cible
     - Remplacer le sulfamide (moins d'hypoglycémie, moins de poids, plus de bénéfice) :: à renseigner : intention, HbA1c_actuelle, DFG
+    - Remplacer le glinide (aucun bénéfice sur critère dur — préférer un agent qui en apporte) :: à renseigner : intention, HbA1c_actuelle, DFG
     - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : intention
     - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : intention, HbA1c_actuelle, position_vs_cible, DFG
     - Réduire la posologie du tirzépatide (perte de poids excessive / intolérance) :: à renseigner : intention
@@ -567,6 +571,7 @@ Sortie :
     - Remplacer la gliptine (aucun bénéfice sur critère dur — préférer un agent qui en apporte) :: à renseigner : intention, traitements_en_cours
     - Arrêter la gliptine redondante (association gliptine + AR GLP‑1 / tirzépatide déjà en place) :: à renseigner : intention, traitements_en_cours
     - Remplacer le sulfamide (moins d'hypoglycémie, moins de poids, plus de bénéfice) :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle
+    - Remplacer le glinide (aucun bénéfice sur critère dur — préférer un agent qui en apporte) :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle
     - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : intention, traitements_en_cours
     - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, position_vs_cible
     - Réduire la posologie de l'insuline (sur‑basalisation / hypoglycémie) :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, position_vs_cible
@@ -623,6 +628,7 @@ Sortie :
     - Remplacer la gliptine (aucun bénéfice sur critère dur — préférer un agent qui en apporte) :: à renseigner : intention, traitements_en_cours
     - Arrêter la gliptine redondante (association gliptine + AR GLP‑1 / tirzépatide déjà en place) :: à renseigner : intention, traitements_en_cours
     - Remplacer le sulfamide (moins d'hypoglycémie, moins de poids, plus de bénéfice) :: à renseigner : intention, traitements_en_cours
+    - Remplacer le glinide (aucun bénéfice sur critère dur — préférer un agent qui en apporte) :: à renseigner : intention, traitements_en_cours
     - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : intention, traitements_en_cours, intolerance_traitement
     - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : intention, traitements_en_cours
     - Réduire la posologie de l'insuline (sur‑basalisation / hypoglycémie) :: à renseigner : intention, traitements_en_cours
