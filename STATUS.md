@@ -4,7 +4,7 @@ Photo à l'instant T. Mis à jour en fin de session. L'historique (comment on es
 `git log`, `DECISIONS.md`/`docs/decisions/` et les changelogs de contenu — pas ici.
 Plafond : 80 lignes (appliqué par hook).
 
-> **Dernière mise à jour :** 2026-07-29
+> **Dernière mise à jour :** 2026-07-30
 
 ## Ce qui existe
 
@@ -15,29 +15,38 @@ Veille : **non commencé** (aucun code, `DECISIONS.md` D8 garde la place).
 
 | nœud | statut | dernière version |
 | --- | --- | --- |
-| `cible-glycemique` | `valide` | v2.6 |
-| `statine` | `brouillon` | v1.15 |
-| `prescription` | `brouillon` | v0.35 |
-| `insuline` | `brouillon` | v0.26 |
-| `rhd-alimentation` | `brouillon` | v0.8 |
-| `rhd-activite-physique` | `brouillon` | v0.7 |
+| `cible-glycemique` | `valide` | v2.7 |
+| `statine` | `brouillon` | v1.17 |
+| `prescription` | `brouillon` | v0.38 |
+| `insuline` | `brouillon` | v0.34 |
+| `rhd-alimentation` | `brouillon` | v0.9 |
+| `rhd-activite-physique` | `brouillon` | v0.9 |
 
 Passage à `valide` conditionné à la relecture référent finale (`TASKS.md` §validation clinique).
 
 **Banc de tests** (`src/features/decision/engine/banc/`) : non-régression du contenu en 3 couches
-(vignettes, couverture, invariants). **826 tests, 11 skip, typecheck et build verts.**
+(vignettes, couverture, invariants). **865 tests, 11 skip, typecheck et build verts.**
 
 ## Chantier actif
 
-**Plan P7** (cadré 2026-07-29) : encode 5 arbitrages référent déjà tranchés (seuils
-`a_l_objectif`/`sous_objectif`, seuil rénal AR GLP-1, badge sécurité, validité HbA1c,
-« optimiser l'agent mal toléré »). Aucune recherche EBM nouvelle. Détail : `plans/P7/index.md`.
+**Plan P9** (cadré 2026-07-30, pas démarré) : contre-indications vérifiables (schéma+moteur+ré-encodage
+4 nœuds), purge du jargon de projet affiché au clinicien, titre de dépli, metformine (titration Ameli),
+investigation « risque hypoglycémique du schéma ». Détail : `plans/P9/index.md`.
+
+**Plan P7** (cadré 2026-07-29, toujours ouvert) : il manque SA2 (validité HbA1c) et S2 (recette) —
+détail : `plans/P7/index.md`.
+
+**Plan P8** : quasi clos le 2026-07-30 (S1-S8 livrées, vérifiées N0+N1, commitées). **S9/T-067
+(« réduire la basale », chiffrée) reste ouverte** — aucune carte dédiée encodée, cf. `TASKS.md`.
 
 ## Ce qui casse / n'est pas testé
 
 - Onglet **« Veille » rend une page blanche** (texte `top: 0` caché sous la nav fixe) — mécanique, non cadré.
 - **`GAJ` (nœud `insuline`) reste réclamé même quand `mcg_disponible` est coché** — masquage manquant, cf. `TASKS.md`.
 - CTA flottant mobile (P6) : réserve mineure résiduelle, usage ordinaire ne la déclenche pas — laissé tel quel (référent, 2026-07-29).
+- **Suggestion d'espérance de vie (T-061) ne se retrigger pas après « Reprendre les valeurs de ce
+  patient »** (frontière de re-entrée, T-057) : le nœud repart « en attente » sur ce seul critère au
+  lieu de recalculer. Trouvé en recette P8 du 2026-07-30, non corrigé (cf. `docs/decision/validation/recette-P8-2026-07-30.md`).
 
 ## Bugs connus
 
@@ -53,7 +62,7 @@ Passage à `valide` conditionné à la relecture référent finale (`TASKS.md` �
 ## Comment vérifier l'état réel
 
 ```bash
-npm test          # 826 tests attendus, 11 skip
+npm test          # 865 tests attendus, 11 skip
 npx tsc --noEmit
 npm run build
 ```
