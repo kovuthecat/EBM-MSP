@@ -78,6 +78,24 @@
   flex: 1;
 }
 
+/* T-056/P8 — compteur d'état de la mémoire de session : discret (le contrôle qui compte est le bouton
+   juste à côté), jamais de teinte d'alerte — ce n'est ni une erreur ni une saisie incomplète, seulement
+   une information d'état. */
+.header__session-compteur {
+  font-size: 12px;
+  color: var(--c-text-faible);
+  white-space: nowrap;
+}
+
+/* T-055/P8 — zone de confirmation en deux temps SUR LE BOUTON LUI-MÊME (pas de modale, cf. Décision clé
+   de T-055 dans S1.md). Toujours présente dans le DOM (c'est elle qui porte l'`aria-live` du composant) :
+   au repos ou juste après la purge, elle ne contient qu'un seul bouton ; en confirmation, deux. */
+.header__nouveau-patient-zone {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* T-026/D33 — bouton de fin de consultation. Même famille visuelle que les autres contrôles du header
    (rayon/police alignés sur `.header__pill`), mais bordé comme `.account-menu__trigger` pour se lire
    comme une ACTION plutôt qu'un lien de navigation — sans inventer de nouvelle teinte : uniquement des
@@ -91,6 +109,18 @@
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+}
+
+/* T-055/P8 — bouton d'action franche de la paire Confirmer/Annuler : mêmes tokens que
+   `.header__nouveau-patient` (bordure/rayon/police), simplement INVERSÉ (fond plein) pour se distinguer
+   du bouton « Annuler » juste à côté, qui garde le style de base. Aucune nouvelle teinte : `--c-text`/
+   `--c-surface` sont déjà les couleurs de texte/fond de tout ce header. `--c-attention*` et
+   `--c-ci-warning` (tokens.css) sont délibérément écartés — réservés respectivement à la saisie
+   incomplète et aux contre-indications cliniques, pas à ce geste d'administration de session. */
+.header__nouveau-patient--confirmer {
+  border-color: var(--c-text);
+  background: var(--c-text);
+  color: var(--c-surface);
 }
 
 /* T-034/P5 — retour transitoire après la purge (~1,8 s) : teinte déjà utilisée pour le module Veille

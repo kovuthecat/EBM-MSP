@@ -8,7 +8,7 @@
  */
 import { beforeEach, describe, expect, it } from 'vitest'
 import type { CritereEntree } from '../content/node.types.ts'
-import { memoriserCriteres, reinitialiserSession, valeursReprises } from './sessionCriteres.ts'
+import { memoriserCriteres, reinitialiserSession, tailleSession, valeursReprises } from './sessionCriteres.ts'
 
 const EMETTEUR: CritereEntree[] = [
   { nom: 'HbA1c_actuelle', type: 'nombre', min: 4, max: 18, partage: true },
@@ -78,5 +78,19 @@ describe('sessionCriteres — ce que le nœud receveur sait représenter', () =>
     memoriserCriteres(EMETTEUR, { HbA1c_actuelle: 9.2, HbA1c_cible: 7 }, new Set(['HbA1c_actuelle', 'HbA1c_cible']))
     const receveur: CritereEntree[] = [{ nom: 'HbA1c_actuelle', type: 'nombre', min: 4, max: 18, partage: true }]
     expect(valeursReprises(receveur)).toEqual([{ nom: 'HbA1c_actuelle', valeur: 9.2 }])
+  })
+})
+
+describe('sessionCriteres — tailleSession (T-056, compteur sans contenu)', () => {
+  it('vaut 0 sur une session vierge', () => {
+    expect(tailleSession()).toBe(0)
+  })
+
+  it('vaut 2 après mémorisation de deux critères, puis 0 après `reinitialiserSession`', () => {
+    memoriserCriteres(EMETTEUR, { HbA1c_actuelle: 9, HbA1c_cible: 7 }, new Set(['HbA1c_actuelle', 'HbA1c_cible']))
+    expect(tailleSession()).toBe(2)
+
+    reinitialiserSession()
+    expect(tailleSession()).toBe(0)
   })
 })

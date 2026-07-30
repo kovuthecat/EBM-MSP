@@ -59,6 +59,17 @@ export function reinitialiserSession(): void {
 }
 
 /**
+ * Nombre de critères actuellement mémorisés — un COMPTEUR, rien d'autre (T-056/P8). N'expose NI nom NI
+ * valeur : aucune donnée patient hors du formulaire (invariant CLAUDE.md 1). Sert uniquement à rendre
+ * visible, dans le header, qu'une mémoire de session existe et sa taille, pour qu'« il reste des données
+ * du patient précédent » cesse d'être une information invisible avant même d'ouvrir un nœud. Lecture
+ * seule : n'ajoute aucun appelant légitime à `reinitialiserSession()` ci-dessus.
+ */
+export function tailleSession(): number {
+  return memoire.size
+}
+
+/**
  * Mémorise les valeurs SAISIES (`touched`) des critères déclarés `partage` par ce nœud. Appelée à chaque
  * changement de saisie : le coût est nul (quelques entrées de `Map`) et l'alternative — mémoriser au
  * démontage — perdrait tout si le praticien ferme l'onglet du nœud autrement qu'en naviguant.
