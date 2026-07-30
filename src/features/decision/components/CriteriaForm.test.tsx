@@ -1,6 +1,8 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
+import { getNoeudById } from '../content/loadNodes'
 import type { CritereEntree } from '../content/node.types'
+import { criteresPertinents } from '../engine/relevance'
 import { buildDefaultCriteria, CriteriaForm } from './CriteriaForm'
 
 // Régression du crash constaté en production sur le nœud C (« intensification ») : un critère de
@@ -314,6 +316,74 @@ describe('CriteriaForm — un champ `touched` n’est jamais estompé (tâche 6b
       />,
     )
     expect(html).not.toContain('data-dim')
+  })
+})
+
+/**
+ * T-058 (P8 · S3, 2026-07-30) — « sans effet sur la reco actuelle » ne s'affirme plus sur un champ que
+ * le moteur n'a pas pu évaluer (D20 pris à l'envers). Reproduit le défaut mesuré en recette (N2 puis
+ * N13b, `docs/decision/validation/recette-praticien-naif-2026-07-30.md`) : sur le nœud RÉEL
+ * `cible-glycemique`, formulaire vierge, `Âge` (et `Ancienneté du diabète`) portaient la mention alors
+ * qu'ils décident, une fois remplis, entre « Cible ≤ 7 % » et « Cible ~6,5 % » — limite CONNUE, ASSUMÉE
+ * d'`engine/relevance.ts` (conjonction de plusieurs critères tous indéterminés à la fois, cf. sa
+ * docstring de tête). Le correctif ne touche PAS l'estompage (garde-fou N5, second describe ci-dessous).
+ */
+describe('CriteriaForm — T-058 : « sans effet sur la reco actuelle » ne s’affiche que si le moteur a de quoi juger', () => {
+  it('formulaire vierge, nœud RÉEL `cible-glycemique` : `Âge` est bien ESTOMPÉ (limite de conjonction, `engine/relevance.ts`) mais NE PORTE PLUS la mention « sans effet »', () => {
+    const node = getNoeudById('cible-glycemique')
+    if (!node) throw new Error('Nœud "cible-glycemique" introuvable — prérequis de ce test (P8 · S3, T-058).')
+    const criteria = buildDefaultCriteria(node.criteres_entree)
+    // Reproduit le défaut mesuré : `age` n'est PAS dans `pertinents` sur formulaire vierge (limite
+    // conjonction avec `anciennete_diabete_annees`/`esperance_vie`/`fragilite`, tous indéterminés).
+    const pertinents = criteresPertinents(node, criteria, new Set())
+    expect(pertinents.has('age')).toBe(false)
+    const html = renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={node.criteres_entree}
+        criteria={criteria}
+        touched={new Set()}
+        pertinents={pertinents}
+        onChange={() => {}}
+      />,
+    )
+    // L'estompage (hiérarchie visuelle) reste intact — seule la phrase se tait.
+    expect(html).toContain('data-dim="true"')
+    expect(html).not.toContain('sans effet sur la reco actuelle')
+  })
+
+  it('un champ TOUCHED sur le nœud fait réapparaître la mention pour un champ RÉELLEMENT sans effet (aucune conjonction, hors périmètre de la limite) — le cas symétrique salué en N5', () => {
+    // `neutre` ne figure dans AUCUNE condition d'option : sa non-pertinence est établie, pas un artefact
+    // de conjonction — exactement le profil N5 (« l'outil me dit quoi ne pas remplir »).
+    const CRITERES: CritereEntree[] = [
+      { nom: 'pilote', type: 'nombre' },
+      { nom: 'neutre', type: 'nombre' },
+    ]
+    const html = renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={CRITERES}
+        criteria={buildDefaultCriteria(CRITERES)}
+        touched={new Set(['pilote'])}
+        pertinents={new Set(['pilote'])}
+        onChange={() => {}}
+      />,
+    )
+    expect(html).toContain('data-dim="true"')
+    expect(html).toContain('sans effet sur la reco actuelle')
+  })
+
+  it('approximation ASSUMÉE (docstring `moteurADeQuoiJuger`) : formulaire ENTIÈREMENT vierge → la mention ne s’affiche sur AUCUN champ, même hors conjonction — le moteur n’a encore rien pu confirmer', () => {
+    const CRITERES: CritereEntree[] = [{ nom: 'neutre', type: 'nombre' }]
+    const html = renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={CRITERES}
+        criteria={buildDefaultCriteria(CRITERES)}
+        touched={new Set()}
+        pertinents={new Set()}
+        onChange={() => {}}
+      />,
+    )
+    expect(html).toContain('data-dim="true"')
+    expect(html).not.toContain('sans effet sur la reco actuelle')
   })
 })
 

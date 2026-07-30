@@ -27,6 +27,23 @@ interface CriteriaFormProps {
    * Optionnel : absent → aucun estompage (rétro‑compatible, générique — aucun nom de critère en dur).
    * Un champ déjà `touched` n'est JAMAIS estompé (tâche 6b) : une saisie du praticien reste pleinement
    * lisible même si elle a cessé d'être décisive (ex. retour en arrière sur `intention`).
+   *
+   * T-058 (P8 · S3, 2026-07-30) — CE QUE L'ESTOMPAGE AFFIRME, ET CE QU'IL SE TAIT. L'estompage lui-même
+   * (ci-dessus) reste fidèle à `pertinents` tel quel — inchangé par cette tâche. La MENTION TEXTUELLE
+   * accolée (« · sans effet sur la reco actuelle », plus bas) est en revanche une AFFIRMATION du moteur,
+   * et `pertinents` ne peut pas toujours la porter : `engine/relevance.ts` a une limite CONNUE, ASSUMÉE
+   * (cf. sa docstring de tête, § LIMITE CONNUE, ASSUMÉE) — un critère décisif seulement EN CONJONCTION
+   * avec un autre critère encore indéterminé produit la même signature quelle que soit sa valeur d'essai,
+   * et se retrouve donc À TORT hors de `pertinents` tant que son co-critère reste indéterminé. Sur un
+   * formulaire ENCORE VIERGE (aucun critère de ce nœud renseigné), c'est le cas de TOUS les critères
+   * pris dans une telle conjonction à la fois — mesuré en recette (N2/N13b, `docs/decision/validation/
+   * recette-praticien-naif-2026-07-30.md`) : `Âge`/`Ancienneté du diabète` s'affichaient « sans effet »
+   * sur `cible-glycemique` vierge alors qu'ils décident, une fois remplis, entre deux cibles. La mention
+   * ne s'affiche donc plus qu'une fois qu'AU MOINS UN critère de ce nœud est renseigné (`touched` non
+   * vide) — le champ concerné, lui, reste estompé et MUET dans l'intervalle (pas contredit) ; ce n'est
+   * qu'une approximation (elle ne prouve pas l'absence de conjonction bloquante une fois la première
+   * réponse donnée), assumée faute d'une donnée par-nœud « reste-t-il une option en attente ? » côté
+   * l'appelant (`DecisionNodeScreen.tsx`, hors périmètre P8 · S3) — cf. `moteurADeQuoiJuger` plus bas.
    */
   pertinents?: ReadonlySet<string>
   /**
@@ -218,6 +235,27 @@ export function CriteriaForm({
   // 6b) : la valeur saisie par le praticien reste pleinement lisible même redevenue non décisive. Générique :
   // aucun nom de critère connu d'avance.
   const estDim = (nom: string) => pertinents != null && !pertinents.has(nom) && !touched.has(nom)
+
+  // T-058 (P8 · S3) — LE MOTEUR A-T-IL DE QUOI JUGER ? Gate la MENTION « · sans effet sur la reco
+  // actuelle » (pas l'estompage ci-dessus, inchangé) — cf. la docstring de `pertinents`. Sur un
+  // formulaire ENCORE VIERGE (aucun critère de ce nœud renseigné), la limite CONNUE, ASSUMÉE
+  // d'`engine/relevance.ts` (conjonction de critères tous indéterminés à la fois, cf. sa docstring de
+  // tête) s'applique à TOUS les critères pris dans une telle conjonction simultanément — l'estompage
+  // resterait alors une simple hiérarchie de saisie (utile, cf. N5), mais la PHRASE affirmerait une
+  // conclusion que le moteur n'a pas.
+  //
+  // APPROXIMATION ASSUMÉE, PAS LA RÈGLE GÉNÉRALE : la donnée exacte (« reste-t-il, sur CE nœud, une
+  // option EN ATTENTE faute de critère renseigné ? » — `VueDecision.enAttente`) vit chez l'appelant
+  // (`DecisionNodeScreen.tsx`, zone S2, hors périmètre de cette session, cf. S3.md "Si bloqué") : ce
+  // composant n'a accès qu'à `touched`, déjà transmis. Dès qu'AU MOINS UN critère de ce nœud est
+  // renseigné, on considère que le moteur a commencé à juger et la mention reprend son cours normal —
+  // exactement le cas salué en N5 (trois champs neutralisés chez un patient déjà largement renseigné,
+  // « l'outil me dit quoi ne pas remplir »). Sur un formulaire encore vierge, aucune mention n'est
+  // affirmée nulle part sur ce nœud — y compris, ponctuellement, pour un champ sans lien avec une
+  // conjonction : imprécision acceptée (une mention vraie peut se taire un instant de plus), strictement
+  // plus sûre que l'inverse (affirmer une chose fausse qui fait sauter un champ décisif — le défaut
+  // mesuré, N2/N13b).
+  const moteurADeQuoiJuger = touched.size > 0
   // Marqueur visuel « · à confirmer » : EXACTEMENT les critères que `decisifsAConfirmer` compte, sans
   // aucun filtre de type — arbitrage référent A8 du 2026-07-27 (soir).
   //
@@ -387,7 +425,7 @@ export function CriteriaForm({
         <div className="criteria-form__field-label">
           {labelForCritere(critere.nom)}
           {pilote && <span className="criteria-form__field-pilote"> · détermine la suite</span>}
-          {dim && <span className="criteria-form__field-note"> · sans effet sur la reco actuelle</span>}
+          {dim && moteurADeQuoiJuger && <span className="criteria-form__field-note"> · sans effet sur la reco actuelle</span>}
           {confirmer && <span className="criteria-form__field-todo"> · à confirmer</span>}
           {renderOrigine(critere)}
         </div>
