@@ -102,8 +102,8 @@ cadrer en **P10** une fois ce plan-ci livré.
 
 | Session | Tâches | Titre | Modèle | Effort | Env. | Dépend de | Zone modifiée | Statut |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [S1](S1.md) | T-068 | Contre-indications vérifiables : schéma + moteur + rendu | Opus | high | — | — | `schema/noeud.schema.json`, `engine/evaluateNode.ts`, `lib/vueDecision.ts`, `components/OptionCard.tsx` | [ ] |
-| [S2](S2.md) | T-069 | Purge du jargon rendu, deux tooltips, ambiguïté « Agent à ajouter » | Sonnet | medium | — | — | `lib/labels.ts`, `prescription.yaml`, `cible-glycemique.yaml`, `rhd-activite-physique.yaml`, `statine.yaml` | [ ] |
+| [S1](S1.md) | T-068 | Contre-indications vérifiables : schéma + moteur + rendu | Opus | high | — | — | `schema/noeud.schema.json`, `engine/evaluateNode.ts`, `lib/vueDecision.ts`, `components/OptionCard.tsx` | [x] |
+| [S2](S2.md) | T-069 | Purge du jargon rendu, deux tooltips, ambiguïté « Agent à ajouter » | Sonnet | medium | — | — | `lib/labels.ts`, `prescription.yaml`, `cible-glycemique.yaml`, `rhd-activite-physique.yaml`, `statine.yaml` | [x] |
 | [S3](S3.md) | T-070 | Contre-indications vérifiables : ré-encodage `prescription` | Sonnet | high | — | S1, S2 | `content/noeuds/diabete-type-2/prescription.yaml` | [ ] |
 | [S4](S4.md) | T-071 | Contre-indications vérifiables : ré-encodage `statine` | Sonnet | high | — | S1, S2 | `content/noeuds/diabete-type-2/statine.yaml` | [ ] |
 | [S5](S5.md) | T-072 | Contre-indications vérifiables : ré-encodage `insuline` | Sonnet | high | — | S1 | `content/noeuds/diabete-type-2/insuline.yaml` | [ ] |
