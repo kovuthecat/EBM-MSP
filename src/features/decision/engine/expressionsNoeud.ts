@@ -154,6 +154,14 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
     presomption_non: 'inerte', // renommé le 2026-07-28 (P4/S1, T-018), ex-`confirmation_requise`
     min: 'inerte',
     max: 'inerte',
+    // 2026-07-29 — les trois sont des drapeaux/listes de PRÉSENTATION, jamais des expressions DSL :
+    // `paliers` = valeurs standard proposées à la saisie d'un `nombre` (le type et la valeur stockée
+    // restent numériques, aucun seuil n'en dérive) ; `masque_si_indetermine` = exception au repli
+    // « fail open » de `visible_si` (c'est `visible_si`, déjà classé `affichage`, qui porte l'expression) ;
+    // `debut_de_ligne` = position du champ dans la grille.
+    paliers: 'inerte',
+    masque_si_indetermine: 'inerte',
+    debut_de_ligne: 'inerte',
   },
   famille: { libelle: 'inerte', exclusive: 'inerte' },
   // K6 — `quand` est une expression d'AFFICHAGE : elle décide d'une valeur de DÉPART dans le formulaire,

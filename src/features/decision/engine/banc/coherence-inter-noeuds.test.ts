@@ -66,17 +66,30 @@ function signatureCritere(critere: CritereEntree): string {
 const CRITERES_DIVERGENTS_CONNUS = new Map<string, string>([
   [
     'traitements_en_cours',
-    'DIVERGENCE DE VOCABULAIRE, la plus grave des quatre. `insuline` déclare 9 valeurs dont ' +
-      '`insuline_basale` et `insuline_rapide` (il a besoin de distinguer les deux agents) ; ' +
-      '`prescription`, `rhd-alimentation` et `rhd-activite-physique` en déclarent 8 dont `insuline` ' +
-      'indifférencié. Conséquence : une règle `traitements_en_cours contient insuline` est ' +
-      'structurellement fausse dans le nœud `insuline`. Demande un ARBITRAGE (unifier sur 9 valeurs et ' +
-      "adapter les règles des 3 autres nœuds, ou introduire un dérivé `insuline` = basale OU rapide). " +
-      'Recoupe le défaut F de la recette référent (`visible_si` par valeur de liste). DEPUIS LE ' +
-      '2026-07-28 (P4/S1, T-018) : diverge AUSSI sur `presomption_non` — éligible mécaniquement sur ' +
-      '`insuline`/`rhd-activite-physique`/`rhd-alimentation`, PAS sur `prescription`, où ce critère garde ' +
-      "plusieurs conditions d'option `role: securite` et exclusions rénales/cétose. Seconde dimension du " +
-      'même dette : un concept partagé sous un nom déjà inconsistant.',
+    "DIVERGENCE REDUITE A UNE SEULE DIMENSION, ASSUMEE, le 2026-07-29 — et la moitie de cette entree " +
+      "etait devenue FAUSSE. Ce qu'elle affirmait : « `insuline` declare 9 valeurs, `prescription` 8 dont " +
+      "`insuline` indifferencie, donc `traitements_en_cours contient insuline` est structurellement " +
+      "fausse dans `insuline` ». CE N'EST PLUS VRAI : les deux noeuds declarent aujourd'hui LES MEMES " +
+      "9 VALEURS (`insuline_basale`/`insuline_rapide` inclus des deux cotes) ; seul l'ORDRE differait, " +
+      "et il a ete aligne le 2026-07-29. Divergence de vocabulaire resorbee, sans arbitrage.\n" +
+      "CE QUI RESTE, ET QUI EST UN CHOIX : `presomption_non` — `true` sur `insuline`, ABSENT sur " +
+      "`prescription`, ou ce critere gate plusieurs conditions d'option `role: securite` et des " +
+      "exclusions renales/cetose (D30/T-018). Une liste non repondue doit y rester INDETERMINEE ; " +
+      "l'aligner modifierait une posture de SECURITE que personne n'a demande de changer.\n" +
+      "POURQUOI CE RESIDU N'EMPECHE PAS `partage: true` (marque sur les deux noeuds le 2026-07-29). Les " +
+      "deux mecanismes sont DISJOINTS — verifie dans le code, pas suppose : `lib/sessionCriteres.ts` ne " +
+      "memorise que les criteres `partage` dont le nom est dans `touched` (`memoriserCriteres`), et ne " +
+      "reprend que si `valeurCompatible` l'accepte — or celle-ci ne regarde que `type`, `valeurs`, `min` " +
+      "et `max`, JAMAIS `presomption_non`. Celui-ci ne sert qu'a `determinesEffectifs` (determinisme du " +
+      "moteur) et ne regit donc que le cas NON touche, precisement celui qui n'est jamais memorise. Une " +
+      "valeur cochee est une reponse reelle : la propager n'affaiblit aucune presomption.\n" +
+      "NB SUR LA PORTEE DE CET INVARIANT : il s'applique a tout nom declare par au moins 2 noeuds, " +
+      "INDEPENDAMMENT de `partage` (cf. la construction de `partages` ci-dessous, qui ne filtre pas sur " +
+      "ce drapeau). Marquer `partage` ne l'a donc ni declenche ni contourne : ce critere y etait deja " +
+      "soumis.\n" +
+      "PERIMETRE REDUIT DE MOITIE LE 2026-07-29 (volet anterieur) : les deux noeuds RHD ne declarent " +
+      "PLUS ce nom — ils ne lisaient que l'exposition a l'hypoglycemie et le disent par un bool a eux, " +
+      "`insuline_ou_insulinosecreteur` (R5).",
   ],
   [
     'cible_atteinte',
@@ -93,15 +106,6 @@ const CRITERES_DIVERGENTS_CONNUS = new Map<string, string>([
       "différent (`age >= 75 OR fragilite == true OR esperance_vie == limitee` contre " +
       '`fragilite OR esperance_vie == limitee OR age >= 75`), et l’un teste `fragilite` en booléen nu ' +
       "quand l'autre écrit `fragilite == true`. Aucun effet sur la sortie ; à unifier par hygiène (I4).",
-  ],
-  [
-    'preference_injection',
-    "DIVERGENCE D'ORDRE, à effet RÉEL malgré les apparences. Mêmes trois valeurs, mais " +
-      '`insuline` déclare `[accepte, refuse, indifferent]` et `prescription` ' +
-      '`[indifferent, accepte, refuse]`. Or `valeurParDefaut` (`lib/formLayout.ts`) renvoie la PREMIÈRE ' +
-      'valeur déclarée : le primer affiché diffère donc entre les deux nœuds pour la même question. ' +
-      "Aggravé par le défaut A de la recette (le primer s'affiche comme répondu sans l'être) — les deux " +
-      'se corrigent au lot 1.',
   ],
 ])
 

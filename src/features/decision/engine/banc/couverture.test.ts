@@ -38,15 +38,21 @@ const NOEUDS_AVEC_CRITERES_MORTS_CONNUS = new Set<string>([])
  * disparu du contenu. Une exception qui ne signale pas sa propre résorption devient du papier peint.
  */
 const CRITERES_NON_DECISIFS_ADMIS: Record<string, Record<string, string>> = {
-  prescription: {
-    HbA1c_cible:
-      "K6 — n'agit pas sur la DÉCISION (aucune option, aucune alerte, aucun rang ne le lit) mais sur le " +
-      'FORMULAIRE : il pré-remplit `position_vs_cible` en calculant l’écart à la cible (décision référent, ' +
-      '« nettement au-dessus » = HbA1c ≥ objectif + 1). `criteresPertinents` mesure la décisivité en ' +
-      'comparant `signatureVue`, qui ne contient pas l’état de saisie — cet effet lui est structurellement ' +
-      'invisible. Ce n’est donc pas un critère MORT au sens de R5 (« un critère qu’on demande doit agir ») : ' +
-      'il agit, sur un plan que l’instrument ne sait pas mesurer.',
-  },
+  // VIDE depuis le 2026-07-29 — dette résorbée, et c'est ce test qui l'a réclamé (il échoue sur une
+  // exception devenue inutile, pas seulement sur un critère mort).
+  //
+  // L'unique entrée était `prescription :: HbA1c_cible` : ce critère n'agissait sur AUCUNE décision (aucune
+  // option, aucune alerte, aucun rang ne le lisait), seulement sur le FORMULAIRE, où il pré-remplissait
+  // `position_vs_cible` en calculant l'écart à la cible — un effet que `criteresPertinents` est
+  // structurellement incapable de mesurer, d'où l'exception.
+  //
+  // Le référent a retiré ce pré-remplissage le 2026-07-29 (retour assumé sur K6/D28 : `position_vs_cible`
+  // redevient purement DÉCLARÉ). `HbA1c_cible` a donc perdu son dernier lecteur sur ce nœud et a été
+  // supprimé avec les quatre dérivés d'écart qu'il alimentait — exactement ce que R5 exige (« un critère
+  // qu'on demande doit agir »). L'exception n'a plus d'objet.
+  //
+  // NB : `HbA1c_cible` existe toujours sur le nœud `insuline`, où il est bel et bien DÉCISIF (il y nourrit
+  // le dérivé `cible_atteinte`, lu par des règles) — il n'y a donc jamais eu d'exception à déclarer là-bas.
 }
 
 /**

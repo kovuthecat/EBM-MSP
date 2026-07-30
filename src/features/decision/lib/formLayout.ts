@@ -31,7 +31,7 @@
  */
 import type { CritereEntree } from '../content/node.types.ts'
 import type { Criteria, CriteriaValue } from '../engine/conditions.ts'
-import { evaluateCondition } from '../engine/conditions.ts'
+import { INDETERMINE, evaluateCondition } from '../engine/conditions.ts'
 import { calculerCriteresDerives, determinesEffectifs } from '../engine/deriveCritere.ts'
 
 /** Une section du formulaire : un libellé (issu du contenu) et ses champs saisissables visibles. */
@@ -86,7 +86,13 @@ export function champEstVisible(
   renseignes?: ReadonlySet<string>,
 ): boolean {
   if (critere.visible_si == null) return true
-  return evaluateCondition(critere.visible_si, criteriaDerives, renseignes) !== false
+  const verdict = evaluateCondition(critere.visible_si, criteriaDerives, renseignes)
+  // OPT-IN FAIL-CLOSED (`masque_si_indetermine`, 2026-07-29) : le repli « fail open » ci-dessus reste LA
+  // POLITIQUE PAR DÉFAUT et n'est pas touché — un contenu peut seulement s'en EXCEPTER, champ par champ.
+  // Cf. la docstring du champ dans `content/node.types.ts` pour la condition d'emploi (une sous-question
+  // dont le défaut est vide, donc sans valeur à effacer en la masquant).
+  if (verdict === INDETERMINE) return critere.masque_si_indetermine !== true
+  return verdict !== false
 }
 
 /**

@@ -88,6 +88,9 @@ const CRITERE_LABELS: Record<string, string> = {
   preference_injection: "Préférence vis-à-vis de l'injectable",
   contrainte_cout: 'Contrainte de coût',
   traitements_en_cours: 'Traitements en cours',
+  // Nœuds RHD (alimentation + activité physique), 2026-07-29 : remplace `traitements_en_cours` sur ces
+  // deux nœuds, qui ne lisaient que l'exposition à l'hypoglycémie et jamais la classe (cf. les YAML).
+  insuline_ou_insulinosecreteur: 'Insuline, sulfamide ou glinide en cours',
   antecedent_cv: 'Antécédent cardiovasculaire',
   comorbidite_grave: 'Comorbidité grave',
   diabete_complique: "Diabète compliqué (atteinte d'organe : rétinopathie, néphropathie, neuropathie, macrovasculaire)",
@@ -153,9 +156,8 @@ const CRITERE_LABELS: Record<string, string> = {
   dose_basale_actuelle: 'Dose de basale actuelle (U/j)',
   dose_rapide_actuelle: 'Dose de rapide actuelle (U/j)',
   over_basalisation: 'Sur-basalisation (dose basale > 0,5 U/kg)',
-  // Nœud D « Sulfamides / gliptines » (docs/decision/noeuds/D-sulfamides-gliptines.md §1)
-  classes_a_benefice_indisponibles:
-    'iSGLT2 et AR GLP-1 tous deux inutilisables (contre-indication, intolérance ou refus)',
+  // `classes_a_benefice_indisponibles` RETIRÉ le 2026-07-29 avec le critère lui-même : le nœud calcule
+  // désormais cette indisponibilité (`isglt2_indisponible AND aglp1_indisponible`) au lieu de la demander.
   // Nœud fusionné « Prescription » (docs/decision/noeuds/prescription.SPEC.md) — critères ajoutés à la fusion.
   intention: 'Intention thérapeutique (« je souhaite… »)',
   position_vs_cible: "Par rapport à l'objectif fixé pour ce patient",
@@ -180,11 +182,13 @@ const CRITERE_LABELS: Record<string, string> = {
   // peuvent donc pas apparaître dans un « Proposé parce que » — mais ils sont catalogués comme les autres,
   // parce qu'une exception nominative dans l'invariant de couverture coûterait plus cher que ces lignes.
   // Les QUATRE bandes depuis le 2026-07-29 (les deux seuils sous l'objectif ont été donnés par le référent).
-  // `ecart_sous_objectif_cible` ajouté côté nœud E (passe A, arbitrage référent) : même nom et même
-  // dérivation que le critère déjà partagé avec `prescription` (I4 inter-nœuds).
-  ecart_au_dessus_cible: "HbA1c au-dessus de l'objectif fixé",
-  ecart_nettement_au_dessus_cible: "HbA1c à 1 point ou plus au-dessus de l'objectif fixé",
-  ecart_a_l_objectif_cible: "HbA1c à l'objectif fixé (jusqu'à moins d'un point en dessous)",
+  // TROIS LIBELLÉS RETIRÉS le 2026-07-29 (`ecart_au_dessus_cible`, `ecart_nettement_au_dessus_cible`,
+  // `ecart_a_l_objectif_cible`) : `prescription` était le seul nœud à déclarer ces dérivés, et ils y ont
+  // été supprimés avec le `preremplissage` de `position_vs_cible` qu'ils alimentaient. Plus aucun nœud ne
+  // les déclare — les garder aurait fait grossir le compte de libellés MORTS que surveille I20bis
+  // (`engine/banc/libelles.test.ts`), qui est un cliquet : il se baisse, il ne se relève pas.
+  // `ecart_sous_objectif_cible` RESTE : le nœud `insuline` le déclare toujours (passe A, arbitrage
+  // référent), il n'est donc pas mort.
   ecart_sous_objectif_cible: "HbA1c à 1 point ou plus en dessous de l'objectif fixé",
   // Nœud F « Statine » — le champ qui dit si le geste est DÉJÀ FAIT (R9).
   statine_deja_en_place: 'Statine déjà en place',
@@ -290,8 +294,9 @@ const ENUM_VALUE_LABELS: Record<string, string> = {
   au_dessus: "Au-dessus de l'objectif",
   nettement_au_dessus: "Nettement au-dessus de l'objectif",
   sous_objectif: "En dessous de l'objectif (sur-traitement probable)",
-  // nature_intolerance (nœud prescription, S8)
-  aucune: 'Aucune / non précisée',
+  // nature_intolerance (nœud prescription, S8) — `aucune` RETIRÉ le 2026-07-29 avec la conversion du
+  // critère en `liste` multivaluée : une liste vide dit désormais « aucune nature précisée », la valeur
+  // explicite n'a plus d'objet (elle n'existait que parce qu'un `enum` à choix unique en avait besoin).
   digestive: 'Digestive',
   uro_genitale: 'Génito-urinaire',
   perte_poids: 'Perte de poids excessive',

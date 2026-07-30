@@ -43,6 +43,14 @@ import { genererProfilsPartiels } from './profils.ts'
  * 2026-07-27 trouvait les 20 occurrences du seul défaut connu dès les 400 premiers profils. */
 const PROFILS_PAR_NOEUD = 400
 
+/** Même valeur que les autres fichiers du banc (`invariants.test.ts`, `couverture.test.ts`,
+ * `securite-atteignable.test.ts`) — nécessaire depuis que `rhd-activite-physique` a doublé son domaine
+ * d'énumération (2026-07-29, garde G3 de `profils.ts`) : `genererProfilsPartiels` énumère le domaine
+ * COMPLET avant d'en tirer les 400 profils demandés, donc son coût suit ce domaine, pas
+ * `PROFILS_PAR_NOEUD` — ce fichier tombait sous le délai par défaut de Vitest (5 000 ms) sur ce nœud
+ * précis, sans rapport avec l'assertion elle-même. */
+const DELAI_BANC_MS = 120_000
+
 interface Impasse {
   option: string
   critere: string
@@ -124,6 +132,31 @@ const IMPASSES_CONNUES_T018 = new Map<string, string>([
       "d'origine, cf. docstring ci-dessus) — nécessite soit de revoir `presomption_non` (décision T-018), " +
       'soit une évolution du moteur/DSL. Hors périmètre mécanique de S9/T-031.',
   ],
+  [
+    'prescription :: nature_intolerance',
+    "2026-07-29 (recette référent, `masque_si_indetermine`) — CONSÉQUENCE ASSUMÉE ET MESURÉE d'un correctif " +
+      "demandé : ce champ ne s'affiche plus tant que « Intolérance à un traitement en cours » n'est pas " +
+      'répondue (avant, le repli « fail open » de R7 le montrait dès le formulaire vierge, ce que le ' +
+      'référent a signalé comme du bruit — une sous-question posée avant sa question principale). Les ' +
+      "options qui le citent le réclament donc pendant qu'il est masqué. CE N'EST PAS UNE IMPASSE RÉELLE, " +
+      'et ça a été vérifié plutôt que supposé : sur 400 profils partiels, 208 cas nomment un champ masqué ' +
+      "et 4 SEULEMENT sont de vraies impasses (aucun champ visible réclamé) — les 4 portent sur " +
+      "`traitements_en_cours`, la dette ci-dessus, AUCUN sur ce critère. La liste « à renseigner » cite " +
+      'toujours AUSSI `intolerance_traitement`, qui est visible : le praticien a toujours un geste ' +
+      "possible, et y répondre fait apparaître ce champ. LE VRAI CORRECTIF, à arbitrer : que " +
+      '`criteresManquants` (`engine/evaluateNode.ts`) DÉROULE un critère masqué vers les primitifs de son ' +
+      '`visible_si` — exactement comme il déroule déjà un critère DÉRIVÉ vers ses primitifs, et pour la ' +
+      "même raison (ne citer que des champs de formulaire réels). Changement de moteur, donc hors du " +
+      'périmètre de ce lot de contenu/UI.',
+  ],
+  [
+    'prescription :: dose_metformine',
+    "2026-07-29 — MÊME CAUSE, MÊME MESURE que `nature_intolerance` ci-dessus (`masque_si_indetermine`) : " +
+      "le champ ne s'affiche plus tant que « Metformine » n'est pas cochée dans les traitements en cours. " +
+      "« Réduire la posologie de la metformine » le réclame pendant ce temps, mais réclame AUSSI " +
+      '`traitements_en_cours`, visible — jamais de dead-end. Se résorbe avec le même correctif de moteur ' +
+      '(dérouler un critère masqué vers les primitifs de son `visible_si`).',
+  ],
 ])
 
 describe('I11 — une option en attente ne réclame jamais un champ invisible (moteur × formulaire)', () => {
@@ -171,5 +204,5 @@ describe('I11 — une option en attente ne réclame jamais un champ invisible (m
           `l'entrée de IMPASSES_CONNUES_T018.`,
       ).toBe(true)
     }
-  })
+  }, DELAI_BANC_MS)
 })

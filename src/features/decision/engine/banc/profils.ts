@@ -220,8 +220,29 @@ function domaineEnumerable(node: Noeud, critere: CritereEntree): CriteriaValue[]
  * pouvait le dire, puisque la stratégie n'était exposée nulle part. C'est pour cela que `regimeDeBanc`
  * existe désormais et que `banc/grammaire.test.ts` exige de DÉCLARER tout nœud en stratégie 2 : le jour
  * où un nœud repassera la frontière, ce sera une décision, pas un accident.
+ *
+ * **RELEVÉ DE 60 000 À 120 000 le 2026-07-29**, et c'est exactement le mécanisme que le paragraphe
+ * ci-dessus annonçait — cette fois SIGNALÉ, pas subi. `rhd-activite-physique` a remplacé sa `liste`
+ * `traitements_en_cours` (9 valeurs) par le `bool` `insuline_ou_insulinosecreteur` : une `liste` n'est
+ * PAS énumérable (`domaineEnumerable` renvoie `null`), un `bool` l'est — la simplification, qui retire
+ * pourtant 8 cases à cocher au praticien, MULTIPLIE le produit cartésien par 2 (55 296 → 110 592) et lui
+ * a fait franchir l'ancien plafond. `banc/grammaire.test.ts` (G3) l'a dit à l'exécution même du lot.
+ *
+ * | nœud | produit cartésien | régime à 60 000 | régime à 120 000 |
+ * |---|---|---|---|
+ * | `cible-glycemique` | 600 | 1 | 1 |
+ * | `statine` | 51 840 | 1 | 1 |
+ * | `rhd-activite-physique` | **110 592** | **2** | **1** |
+ * | `rhd-alimentation` | 1,7 × 10⁸ | 2 | 2 |
+ * | `insuline` | 8,6 × 10¹¹ | 2 | 2 |
+ * | `prescription` | 1,3 × 10¹² | 2 | 2 |
+ *
+ * Même arbitrage qu'en 2026-07-27, et pour la même raison : ce nœud reste à un facteur 2 du plafond, la
+ * seule alternative aurait été de le DÉCLARER probabiliste dans `NOEUDS_HORS_ENUMERATION_EXHAUSTIVE`
+ * (`banc/grammaire.test.ts`) — que sa propre docstring interdit pour un nœud de cet ordre de grandeur —
+ * et le nœud porte une alerte de sécurité (hypoglycémie à l'effort) dont on veut la couverture PROUVÉE.
  */
-const PLAFOND_ENUMERATION_EXHAUSTIVE = 60000
+const PLAFOND_ENUMERATION_EXHAUSTIVE = 120000
 
 /**
  * Taille EFFECTIVE du banc pour `node` (hors critère `omettre`, le cas échéant) à une taille demandée

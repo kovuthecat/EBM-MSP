@@ -121,16 +121,25 @@ criteres_entree:
   # l'alerte et serait tentée de le brancher dans une option — ce qui annulerait cette décision référent
   # sans que personne ne s'en aperçoive. Ce commentaire EST la trace qui doit l'en empêcher.
   - nom: age
+    # `partage` ajouté le 2026-07-29 (recette référent, item F) : même concept, encodage IDENTIQUE
+    # sur tous les nœuds qui le déclarent (type, valeurs, bornes) — condition de l'invariant I19.
+    partage: true
     type: nombre
     min: 18
     max: 105
   - nom: ASCVD_etablie
+    # `partage` ajouté le 2026-07-29 (recette référent, item F) : même concept, encodage IDENTIQUE
+    # sur tous les nœuds qui le déclarent (type, valeurs, bornes) — condition de l'invariant I19.
+    partage: true
     type: bool
     # T-018 (P4/S1, D30) : éligible mécaniquement à presomption_non (ne participe à aucune condition
     # d'option `role: securite` ni à aucune `exclusions` de ce nœud — seulement des `alertes`, canal
     # distinct). Partagé avec `prescription`, où il est ÉGALEMENT éligible (pas de divergence I4/S7).
     presomption_non: true
   - nom: anciennete_diabete_annees
+    # `partage` ajouté le 2026-07-29 (recette référent, item F) : même concept, encodage IDENTIQUE
+    # sur tous les nœuds qui le déclarent (type, valeurs, bornes) — condition de l'invariant I19.
+    partage: true
     type: nombre
     min: 0
     max: 60
@@ -149,7 +158,11 @@ criteres_entree:
     type: bool
   - nom: statine_deja_en_place
     type: bool
-    groupe: Statine en cours
+    # Remontée UI (2026-07-29) : le libellé de section précédent, « Statine en cours », se lisait comme
+    # une CONDITION (« ne remplir que si le patient a déjà une statine ») alors que c'est la question
+    # elle-même qui détermine si oui ou non — même convention que « Traitement actuel et contrôle » sur
+    # `prescription`/`insuline` (un intitulé neutre, jamais une instruction de saisie conditionnelle).
+    groupe: Traitement actuel
   # DE BOOLÉEN À TROIS VALEURS (décision référent 2026-07-27, 6e série). Le booléen ne disait qu'une chose :
   # « le patient rapporte une intolérance ». Or les deux situations qu'il confondait n'appellent pas la même
   # conduite, et la donnée le montre nettement :
@@ -1027,8 +1040,14 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Claude Code"
   statut: brouillon
-  version: "1.15"
+  version: "1.17"
   changelog:
+    - date: "2026-07-29"
+      auteur: "Claude Code"
+      resume: >-
+        Libellé de section renommé « Statine en cours » → « Traitement actuel » (remontée UI : le
+        libellé se lisait comme une condition de saisie, alors que la question `statine_deja_en_place`
+        elle-même détermine la réponse). Rédactionnel seul, aucun changement clinique ni de logique.
     - date: "2026-07-28"
       auteur: "Claude Code"
       resume: >-

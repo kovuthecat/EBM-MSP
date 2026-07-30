@@ -384,8 +384,9 @@ describe('I10 — le garde d’un critère à `visible_si` est répété dans ch
       // Ce filtre reste NÉCESSAIRE (et son motif d'origine tient toujours) pour tout `bool`/`liste`
       // portant `presomption_non: true` : masqué, un tel critère vaut sa valeur par défaut (« non »,
       // `[]`) et reste DÉTERMINÉ — aucune option ne part en attente à cause de lui, R8 ne s'y applique
-      // pas. Exemple actuel : `traitements_en_cours` (`liste`, masquée à l'initiation) sur les nœuds où
-      // il porte `presomption_non: true` (`insuline`, `rhd-activite-physique`, `rhd-alimentation`).
+      // pas. Exemple actuel : `traitements_en_cours` (`liste`, masquée à l'initiation) sur `insuline`,
+      // où il porte `presomption_non: true`. (Les deux nœuds RHD ne déclarent plus ce nom depuis le
+      // 2026-07-29 — remplacé par le bool `insuline_ou_insulinosecreteur`, `presomption_non` conservé.)
       //
       // ⚠ SUR `prescription`, CE MÊME `traitements_en_cours` NE PORTE PAS `presomption_non` (éligibilité
       // mécanique différente : il y garde plusieurs `exclusions`/conditions `role: securite` réelles,

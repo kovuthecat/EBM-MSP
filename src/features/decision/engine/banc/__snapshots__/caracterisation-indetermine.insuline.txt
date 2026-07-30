@@ -19,7 +19,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - HbA1c_cible = 0
   ○ - DFG = 0
   ○ - traitements_en_cours = []
-  ○ - preference_injection = accepte
+  ○ - preference_injection = indifferent
   ○ - mcg_disponible = false
   ○ - TBR = 0
   ○ - CV_glycemique = 0

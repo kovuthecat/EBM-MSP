@@ -50,6 +50,57 @@ export interface CritereEntree {
    */
   visible_si?: string
   /**
+   * EXCEPTION, champ par champ, au repli « fail open » de `visible_si` (D20/R7, `lib/formLayout.ts`
+   * `champEstVisible`). Ajouté le 2026-07-29 (recette référent).
+   *
+   * LA POLITIQUE PAR DÉFAUT NE CHANGE PAS, et c'est le point : un `visible_si` INDÉTERMINÉ (le critère
+   * qu'il interroge n'a pas encore été répondu) laisse le champ VISIBLE, parce que masquer sur une donnée
+   * inconnue REMET LE CHAMP À SA VALEUR PAR DÉFAUT (`reinitialiserChampsMasques`) — donc affirme une
+   * valeur que personne n'a donnée. Ce repli protège des champs réels ailleurs et ne se retire pas.
+   *
+   * `masque_si_indetermine: true` inverse ce repli POUR CE SEUL CRITÈRE : il reste masqué tant que son
+   * `visible_si` n'est pas VRAI. Le constat qui l'a motivé : sur un formulaire vierge, « Dose de
+   * metformine » et « Nature de l'intolérance » s'affichaient d'emblée, alors qu'elles n'ont aucun sens
+   * avant que la case dont elles dépendent soit cochée — et se masquaient correctement seulement après
+   * avoir été cochées PUIS décochées. Une sous-question posée avant sa question principale n'est pas une
+   * prudence, c'est du bruit.
+   *
+   * CONDITION D'EMPLOI, à vérifier avant de le poser : la valeur par défaut du critère doit être VIDE
+   * (`nombre` non saisi, `liste` vide, `bool` faux), de sorte que le masquage initial n'efface rien. Le
+   * danger que le repli par défaut prévient — effacer en silence une saisie déjà faite — n'existe pas
+   * tant que le champ n'a pas pu être rempli, ce qui est exactement le cas d'une sous-question masquée
+   * depuis l'ouverture du formulaire. Ne PAS le poser sur un critère `partage` (une valeur reprise d'un
+   * autre nœud arriverait déjà remplie) ni sur un critère qui porte un `preremplissage`.
+   *
+   * GÉNÉRIQUE (invariant CLAUDE.md 5) : aucun nom de critère n'est connu du socle — n'importe quel
+   * critère de n'importe quel domaine obtient ce comportement en le déclarant. Absent ou `false` →
+   * repli « fail open » historique, rigoureusement inchangé.
+   */
+  masque_si_indetermine?: boolean
+  /**
+   * CE CHAMP COMMENCE UNE NOUVELLE LIGNE de la grille du formulaire (`grid-column-start: 1`). Ajouté le
+   * 2026-07-29 (recette référent).
+   *
+   * LE PROBLÈME, qui n'est pas cosmétique : la grille à 2 colonnes remplit les champs dans l'ordre du
+   * contenu, donc la COLONNE d'un champ dépend de la PARITÉ de ce qui le précède — or ce qui le précède
+   * apparaît et disparaît selon `visible_si`. « HbA1c actuelle » et « HbA1c cible » se retrouvaient ainsi
+   * côte à côte ou séparées par un saut de ligne selon que « Dose de metformine » (juste avant, masquée
+   * tant que la metformine n'est pas cochée) était affichée ou non. Deux champs qui se lisent ensemble
+   * changeaient de disposition sans que rien les concernant n'ait changé.
+   *
+   * POSÉ SUR LE PREMIER CHAMP D'UNE PAIRE, il suffit à la stabiliser : le champ est renvoyé en colonne 1
+   * (la grille saute une case si besoin), et le champ suivant tombe donc TOUJOURS en colonne 2, à côté de
+   * lui. Aucun appariement explicite à déclarer, aucune référence croisée entre critères à maintenir —
+   * c'est ce qui a fait préférer ce mécanisme à un `paire_avec: <nom>` : une seule information locale,
+   * portée par le champ qui ouvre la ligne, au lieu d'un lien à tenir cohérent des deux côtés.
+   *
+   * LIMITE À CONNAÎTRE : sans effet utile si le champ SUIVANT occupe toute la largeur (un `liste` ou un
+   * `enum` court, rendus `--wide`) — la paire est alors impossible par construction, et le champ marqué
+   * reste simplement seul sur sa ligne. Sans effet non plus en une seule colonne (écrans étroits), où la
+   * question ne se pose pas. Pure présentation, aucun effet moteur. Absent → flux naturel de la grille.
+   */
+  debut_de_ligne?: boolean
+  /**
    * Valeur indéterminée (DECISIONS.md D30, amende D20 ; `docs/decision/validation/chantier-2026-07-26/
    * SPEC-valeur-indeterminee.md` §2.2) — NOUVEAU DÉFAUT depuis D30 : un critère `bool`/`liste` non
    * renseigné est INDÉTERMINÉ, exactement comme `nombre`/`enum`. `presomption_non: true` est
@@ -147,6 +198,30 @@ export interface CritereEntree {
    * symétrique de `min`.
    */
   max?: number
+  /**
+   * PALIERS STANDARD d'un critère `nombre` (recette référent du 2026-07-29) : la liste FERMÉE des valeurs
+   * proposées à la saisie. Le formulaire (`components/CriteriaForm.tsx`) rend alors un SÉLECTEUR au lieu
+   * du champ numérique libre.
+   *
+   * GÉNÉRIQUE, et pas un correctif ponctuel (invariant CLAUDE.md 5) : beaucoup de grandeurs cliniques ne
+   * se prescrivent pas en valeurs arbitraires mais par paliers (dosages de comprimés, doses journalières,
+   * paliers d'escalade). Une dose de metformine à 1743 mg/j n'existe pas ; un champ libre invite pourtant
+   * à la saisir, tout en coûtant plus de gestes qu'un choix dans une liste.
+   *
+   * LE TYPE RESTE `nombre` ET LA VALEUR STOCKÉE RESTE UN NOMBRE, et c'est le point de conception : les
+   * comparaisons numériques du DSL (`dose_metformine > 2000`) continuent de fonctionner à l'identique.
+   * Basculer le critère en `enum` aurait cassé ces seuils — `engine/conditions.ts` n'admet que `==`/`!=`
+   * sur une énumération, jamais un ordre.
+   *
+   * AUCUN EFFET MOTEUR : `evaluateNode` ne lit pas ce champ, et rien n'en déduit une validation — une
+   * valeur hors paliers (reprise de session, pré-remplissage, profil du banc) reste valide. Ce champ
+   * restreint la SAISIE, il ne redéfinit pas le domaine (que `min`/`max` continuent seuls de borner).
+   *
+   * RÈGLE D'AUTEUR : les paliers doivent encadrer chaque seuil littéral que les règles du nœud appliquent
+   * à ce critère (au moins une valeur de part et d'autre), sans quoi le sélecteur rendrait une branche des
+   * règles inatteignable à la saisie. Absent → champ numérique libre (comportement historique inchangé).
+   */
+  paliers?: number[]
 }
 
 /**

@@ -233,7 +233,7 @@ describe('decisifsAConfirmer — le contenu réel du nœud `prescription`', () =
       intention: 'intensifier',
       traitements_en_cours: ['metformine'],
       intolerance_traitement: true,
-      nature_intolerance: 'digestive',
+      nature_intolerance: ['digestive'],
       hypoglycemie_recente: true,
     })
     const { criteria, reinitialises } = reinitialiserChampsMasques(node.criteres_entree, {
@@ -241,7 +241,9 @@ describe('decisifsAConfirmer — le contenu réel du nœud `prescription`', () =
       intention: 'initier',
     })
     expect(criteria.intolerance_traitement).toBe(false)
-    expect(criteria.nature_intolerance).toBe('aucune')
+    // `liste` depuis le 2026-07-29 (multi-sélection) : la valeur par défaut est le tableau VIDE, qui dit
+    // désormais ce que la valeur `aucune` disait quand ce critère était un `enum` à choix unique.
+    expect(criteria.nature_intolerance).toEqual([])
     expect(criteria.hypoglycemie_recente).toBe(false)
     expect(reinitialises).toEqual(
       expect.arrayContaining(['intolerance_traitement', 'nature_intolerance', 'hypoglycemie_recente']),

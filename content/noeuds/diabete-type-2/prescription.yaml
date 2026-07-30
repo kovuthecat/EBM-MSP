@@ -66,10 +66,29 @@ criteres_entree:
     # vide s'il avait été rempli sous une autre intention — cf. lib/formLayout.ts).
     visible_si: "intention != initier"
     valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, insuline_basale, insuline_rapide, glinide]
+    # `partage` ajouté le 2026-07-29 (recette référent, point 5) : ce qui est COCHÉ sur un module
+    # apparaît coché sur l'autre. Ne touche PAS à `presomption_non` (présent ici, absent sur
+    # `prescription`) : la recopie ne concerne que les valeurs réellement TOUCHÉES par le praticien
+    # (`lib/sessionCriteres.ts` `memoriserCriteres`), alors que `presomption_non` ne régit que le cas
+    # NON touché (déterminisme du moteur). Les deux préoccupations sont disjointes — cf. l'entrée
+    # `traitements_en_cours` de `CRITERES_DIVERGENTS_CONNUS`.
+    partage: true
   - nom: dose_metformine
     type: nombre
     min: 0
     max: 3000
+    # PALIERS STANDARD (recette référent du 2026-07-29 : « ça devrait être un sélecteur ») — la metformine
+    # se prescrit par paliers de comprimés (500 / 850 / 1000 mg), pas en milligrammes arbitraires : un champ
+    # libre invitait à saisir des doses qui n'existent pas, et coûtait plus de gestes qu'un choix dans une
+    # liste. Le critère RESTE de type `nombre` et la valeur stockée reste un nombre : c'est indispensable,
+    # les deux seuils ci-dessous sont des COMPARAISONS D'ORDRE, qu'un `enum` ne saurait pas porter.
+    # ENCADREMENT DES SEUILS vérifié (règle d'auteur de `paliers`, cf. schema) — l'option « Réduire la
+    # posologie de la metformine » teste `> 1000` et `> 2000` :
+    #   > 1000 : 500 · 850 · 1000 en dessous, 1500 · 1700 · 2000 · 2550 · 3000 au-dessus ;
+    #   > 2000 : 500 · 850 · 1000 · 1500 · 1700 · 2000 en dessous, 2550 · 3000 au-dessus.
+    # Les deux branches restent donc atteignables à la saisie. Valeurs = les posologies journalières
+    # réellement prescrites (mono/bi/tri-prises des dosages à 500, 850 et 1000 mg).
+    paliers: [500, 850, 1000, 1500, 1700, 2000, 2550, 3000]
     groupe: Traitement actuel et contrôle
     # NOUVEAU CRITÈRE (décision référent, 2026-07-26, 3e série — chantier vignettes, recette capture 1
     # problème 2) : « Metformine présente devrait peut-être demander de renseigner la dose. » Avant ce
@@ -81,106 +100,52 @@ criteres_entree:
     # de l'option reste INDÉTERMINÉE, elle passe EN ATTENTE (« à renseigner : dose de metformine ») plutôt
     # que d'affirmer une réduction à l'aveugle — cf. l'option elle-même, plus bas.
     visible_si: "traitements_en_cours contient metformine"
+    # FAIL-CLOSED (2026-07-29, recette référent) : sur un formulaire vierge, ce champ s'affichait alors que
+    # « Metformine » n'était pas cochée (repli « fail open » de R7/D20), et ne se masquait qu'après avoir
+    # coché puis décoché. Condition d'emploi vérifiée : défaut vide (nombre non saisi), critère ni `partage`
+    # ni `preremplissage` — le masquage initial n'efface donc rien.
+    masque_si_indetermine: true
   - nom: HbA1c_actuelle
     type: nombre
     min: 4
     max: 18
     groupe: Traitement actuel et contrôle
+    # PAIRE STABILISÉE (2026-07-29, recette référent) : « HbA1c actuelle » et « HbA1c cible » se lisent
+    # ensemble, mais leur disposition dépendait de la parité de ce qui les précède — donc de l'affichage de
+    # « Dose de metformine », juste au-dessus et masquée tant que la metformine n'est pas cochée. Marquer le
+    # PREMIER de la paire la renvoie en colonne 1 ; la cible tombe donc toujours à côté.
+    debut_de_ligne: true
     # K6 (décision référent, 2026-07-27) : cette valeur SAISIE est reprise d'un nœud à l'autre dans la
     # même consultation, pré-remplie et signalée comme telle — jamais imposée. Bornes IDENTIQUES sur tous
     # les nœuds qui la déclarent : un critère `partage` doit avoir le même encodage partout (invariant du
     # banc), sinon on ferait circuler un concept sous un nom commun avec deux définitions.
     partage: true
-  # AJOUTÉ le 2026-07-27 (K6). Ce nœud n'avait pas la cible : il ne demandait que la POSITION par rapport
-  # à elle. La déclarer permet de PRÉ-REMPLIR cette position en calculant l'écart — la décision du référent
-  # — et la valeur circule depuis le nœud « Insulinothérapie » quand elle y a déjà été saisie (`partage`).
-  # Bornes IDENTIQUES à celles du nœud E : un critère `partage` doit avoir le même encodage partout (I19).
-  # Aucune règle de DÉCISION ne lit ce critère : il n'alimente que les deux dérivés d'écart ci-dessous,
-  # eux-mêmes lus par le seul `preremplissage`. La position déclarée reste ce qui fait foi.
-  - nom: HbA1c_cible
-    type: nombre
-    min: 6
-    max: 9.5
-    groupe: Traitement actuel et contrôle
-    partage: true
-  # Les gardes `> 0` sont indispensables sur les QUATRE dérivés d'écart : le défaut d'un nombre non saisi
-  # est 0, et l'écart calculé sur une cible à 0 vaudrait l'HbA1c elle-même — donc « nettement au-dessus »
-  # pour tout le monde. Le banc marque tous les critères comme renseignés, c'est donc lui, et non l'écran,
-  # que ces gardes protègent.
-  #
-  # LES QUATRE BANDES, écart = HbA1c_actuelle − HbA1c_cible (référent ; date de chaque seuil en regard) :
-  #   écart ≥ 1 point                 → nettement_au_dessus  (2026-07-27)
-  #   0 < écart < 1 point             → au_dessus            (2026-07-27)
-  #   −1 point < écart ≤ 0            → a_l_objectif         (2026-07-29)
-  #   écart ≤ −1 point                → sous_objectif        (2026-07-29)
-  # Elles sont exclusives deux à deux et couvrent tout le domaine : chaque dérivé porte SA bande entière,
-  # sans dépendre de l'ordre des règles de `preremplissage` qui les lisent.
-  - nom: ecart_nettement_au_dessus_cible
-    type: bool
-    # SEUIL DONNÉ PAR LE RÉFÉRENT (2026-07-27) : « nettement au-dessus : HbA1c supérieure ou égale à
-    # 1 point de plus que l'objectif ».
-    # ⚠ POINT SIGNALÉ, DÉLIBÉRÉMENT NON TRANCHÉ ICI (P7/SA1, 2026-07-29). La formulation du 2026-07-29
-    # dit « supérieur À 1 point » là où celle du 2026-07-27 disait « supérieure OU ÉGALE à 1 point » : les
-    # deux ne diffèrent qu'à exactement +1,0 (une HbA1c à 8,0 pour un objectif à 7,0). L'encodage
-    # d'origine (`>= 1`) est CONSERVÉ tel quel — il a été donné explicitement avec « ou égale », il est en
-    # production, et les snapshots du banc en dépendent. La question est reposée au référent en parallèle ;
-    # tant qu'elle n'est pas tranchée, ne pas changer cette expression.
-    derive: "HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND HbA1c_actuelle - HbA1c_cible >= 1"
-  - nom: ecart_au_dessus_cible
-    type: bool
-    derive: "HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND HbA1c_actuelle > HbA1c_cible"
-  # LES DEUX BANDES SOUS L'OBJECTIF, AJOUTÉES le 2026-07-29 (décision référent). Elles manquaient : le
-  # référent n'avait donné, le 2026-07-27, que le seuil du « nettement au-dessus », et la frontière entre
-  # `a_l_objectif` et `sous_objectif` ne pouvait pas se deviner — `sous_objectif` déclenche la
-  # déprescription. Le seuil rendu (1 point de MOINS que l'objectif) répond exactement à l'objection qui
-  # avait fait suspendre la décision : à 6,9 pour un objectif de 7,0, l'outil propose « à l'objectif », et
-  # non une déprescription ouverte sur un dixième de point.
-  - nom: ecart_sous_objectif_cible
-    type: bool
-    # SEUIL DONNÉ PAR LE RÉFÉRENT (2026-07-29) : « sous l'objectif » à partir d'un écart d'AU MOINS
-    # 1 point EN DESSOUS de l'objectif (écart ≤ −1). Écrit `HbA1c_cible - HbA1c_actuelle >= 1` plutôt
-    # qu'avec un littéral négatif : c'est le symétrique terme à terme du dérivé « nettement au-dessus »
-    # ci-dessus, et ça n'introduit aucun littéral nouveau dans le domaine de tirage du banc.
-    derive: "HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND HbA1c_cible - HbA1c_actuelle >= 1"
-  - nom: ecart_a_l_objectif_cible
-    type: bool
-    # SEUIL DONNÉ PAR LE RÉFÉRENT (2026-07-29) : « à l'objectif » de l'objectif atteint jusqu'à moins d'un
-    # point en dessous — borne haute INCLUSE (l'objectif lui-même, `HbA1c_actuelle <= HbA1c_cible`), borne
-    # basse EXCLUE (le point exact où commence `sous_objectif`, donc `< 1` et non `<= 1` : une HbA1c à
-    # 1 point pile sous l'objectif relève de `sous_objectif`, pas des deux bandes à la fois).
-    derive: "HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND HbA1c_actuelle <= HbA1c_cible AND HbA1c_cible - HbA1c_actuelle < 1"
+  # `HbA1c_cible` ET LES QUATRE DÉRIVÉS D'ÉCART RETIRÉS le 2026-07-29 (décision référent). Ils avaient été
+  # ajoutés le 2026-07-27 (K6/D28) dans un seul but : PRÉ-REMPLIR `position_vs_cible` en calculant l'écart
+  # entre l'HbA1c mesurée et la cible. Ce mécanisme est abandonné — cf. le commentaire de
+  # `position_vs_cible` ci-dessous. Une fois le `preremplissage` retiré, `HbA1c_cible` et les quatre
+  # dérivés `ecart_*_cible` n'avaient plus AUCUN lecteur (vérifié : aucune condition d'option, aucun
+  # prérequis, aucune exclusion, aucune alerte ne les cite) : les garder aurait violé R5 — un critère qu'on
+  # demande au praticien doit agir sur quelque chose.
+  # `HbA1c_actuelle` RESTE, elle : plusieurs règles la lisent directement (seuil `>= 10` de l'insuline
+  # d'initiation, dérivé `hba1c_sous_cible`), et elle reste `partage`.
+  # NB : `HbA1c_cible` subsiste sur le nœud « Insulinothérapie », où elle a un usage PROPRE et différent
+  # (elle y nourrit le dérivé `cible_atteinte`, lu par des règles) — non touchée, décision scopée à ce nœud.
   - nom: position_vs_cible
     type: enum
     groupe: Traitement actuel et contrôle
-    # PRÉ-REMPLISSAGE (K6) — la première règle vraie l'emporte, d'où l'ordre : « nettement » avant
-    # « au-dessus », qui est moins spécifique et serait sinon toujours atteint le premier. Les deux
-    # bandes SOUS l'objectif suivent ; elles sont exclusives des deux premières comme l'une de l'autre
-    # (cf. les quatre dérivés d'écart ci-dessus), leur position en fin de liste ne change donc le
-    # résultat d'aucune des deux règles préexistantes.
+    # PRÉ-REMPLISSAGE RETIRÉ le 2026-07-29 (décision référent) — RETOUR ASSUMÉ EN ARRIÈRE SUR K6/D28,
+    # pas une perte accidentelle. Ce champ redevient PUREMENT DÉCLARÉ, sans suggestion calculée.
     #
-    # LES QUATRE BANDES SONT DÉSORMAIS COUVERTES (décision référent du 2026-07-29, qui a donné les deux
-    # seuils qui manquaient) : nettement au-dessus (écart ≥ 1 point) · au-dessus (0 < écart < 1) · à
-    # l'objectif (−1 < écart ≤ 0) · sous l'objectif (écart ≤ −1). Le seuil d'un point sous l'objectif est
-    # ce qui rend `sous_objectif` proposable sans risque : il ne se déclenche pas sur un dixième de point,
-    # alors qu'il ouvre la déprescription.
+    # Motif : la suggestion reposait sur un calcul d'écart (HbA1c mesurée vs cible) qui ne pouvait pas
+    # couvrir proprement tous les cas — il fallait déclarer une cible chiffrée pour obtenir une simple
+    # position, et la frontière entre bandes restait discutable près des seuils. Le référent préfère un
+    # champ déclaré simple, qu'il répond en une fois, à un mécanisme qui propose parfois et se tait le
+    # reste du temps. La tentative de rendre `position_vs_cible` entièrement DÉRIVÉ a par ailleurs été
+    # écartée : `derive` ne sait produire qu'un booléen ou un nombre (grammaire de `engine/deriveCritere.ts`),
+    # jamais l'un des quatre libellés de cette énumération — il n'existe pas de forme conditionnelle.
     #
-    # CE QUE LE PRÉ-REMPLISSAGE N'EST PAS. `position_vs_cible` reste un critère SAISI, et la position
-    # DÉCLARÉE par le praticien fait foi (R1, docs/decision/GRAMMAIRE-NOEUD.md) : un pré-remplissage est
-    # une PROPOSITION, jamais une décision. Trois propriétés le garantissent, aucune n'est modifiée ici —
-    # il ne s'applique qu'à un champ auquel PERSONNE n'a répondu et cesse définitivement dès que le
-    # praticien y touche (`lib/formLayout.ts`, `appliquerPreremplissage`) ; une expression INDÉTERMINÉE ne
-    # pré-remplit rien (R7/D20 : on ne devine pas sur une donnée manquante) ; l'écran signale tout champ
-    # pré-rempli. Et aucune règle de DÉCISION ne lit les dérivés d'écart : le `preremplissage` est leur
-    # seul consommateur.
-    preremplissage:
-      - quand: "ecart_nettement_au_dessus_cible == true"
-        valeur: nettement_au_dessus
-      - quand: "ecart_au_dessus_cible == true"
-        valeur: au_dessus
-      - quand: "ecart_sous_objectif_cible == true"
-        valeur: sous_objectif
-      - quand: "ecart_a_l_objectif_cible == true"
-        valeur: a_l_objectif
+    # R1 reste satisfaite exactement comme avant, et plus directement : l'ÉTAT se déclare.
     # R1 (docs/decision/GRAMMAIRE-NOEUD.md) : l'ÉTAT du contrôle est DÉCLARÉ par le praticien, jamais
     # déduit de son INTENTION — « optimiser » veut dire « améliorer le traitement », ce qui ne dit rien
     # de la position vs objectif (recette référent 2026-07-25). Le nœud « Fixer la cible » reste une AIDE
@@ -194,6 +159,9 @@ criteres_entree:
 
   # 3. CE QUI ORIENTE POSITIVEMENT vers une classe (indications d'organe : cœur, rein, poids).
   - nom: ASCVD_etablie
+    # `partage` ajouté le 2026-07-29 (recette référent, item F) : même concept, encodage IDENTIQUE
+    # sur tous les nœuds qui le déclarent (type, valeurs, bornes) — condition de l'invariant I19.
+    partage: true
     type: bool
     groupe: Ce qui oriente le choix
     # T-018 (P4/S1, D30) : éligible mécaniquement à presomption_non (ne participe ici à aucune condition
@@ -206,6 +174,9 @@ criteres_entree:
     groupe: Ce qui oriente le choix
     presomption_non: true
   - nom: DFG
+    # `partage` ajouté le 2026-07-29 (recette référent, item F) : même concept, encodage IDENTIQUE
+    # sur tous les nœuds qui le déclarent (type, valeurs, bornes) — condition de l'invariant I19.
+    partage: true
     type: nombre
     min: 3
     max: 150
@@ -222,6 +193,9 @@ criteres_entree:
 
   # 4. CE QUI RESTREINT — drapeaux de sécurité et de tolérance (gating négatif, gel S1 §4/§5).
   - nom: symptomes_glucotoxicite
+    # `partage` ajouté le 2026-07-29 (recette référent, item F) : même concept, encodage IDENTIQUE
+    # sur tous les nœuds qui le déclarent (type, valeurs, bornes) — condition de l'invariant I19.
+    partage: true
     type: bool
     groupe: Signaux d'alerte et tolérance
   - nom: cetonemie
@@ -253,26 +227,52 @@ criteres_entree:
     # derrière `intolerance_traitement == true`, lui-même désormais masqué à l'initiation).
     visible_si: "intention != initier"
   - nom: nature_intolerance
-    type: enum
+    type: liste
     groupe: Signaux d'alerte et tolérance
-    # Sous-question : sans objet tant qu'aucune intolérance n'est signalée. `aucune` par défaut (sûr).
+    # Sous-question : sans objet tant qu'aucune intolérance n'est signalée.
     visible_si: "intolerance_traitement == true"
-    valeurs: [aucune, digestive, uro_genitale, perte_poids, cutanee, autre]
+    # FAIL-CLOSED (2026-07-29, recette référent) — même motif que `dose_metformine` : une sous-question ne
+    # se pose pas avant sa question principale. Condition d'emploi vérifiée : défaut vide (liste vide),
+    # critère ni `partage` ni `preremplissage`.
+    masque_si_indetermine: true
+    # MULTIVALUÉ depuis le 2026-07-29 (recette référent) — était un `enum` à choix unique. Une intolérance
+    # réelle en cumule volontiers plusieurs : un AR GLP‑1 mal toléré donne des troubles digestifs ET une
+    # perte de poids excessive, et le choix unique obligeait à taire l'une des deux, donc à priver le nœud
+    # d'une des branches qui la lit (« Réduire la posologie de l'AR GLP‑1 » teste les deux).
+    # `aucune` RETIRÉ avec la conversion : une liste vide dit déjà « aucune nature précisée », alors qu'un
+    # `enum` à choix unique avait besoin d'une valeur explicite pour représenter ce même état. Aucune règle
+    # du nœud ne la citait (vérifié : zéro occurrence de `nature_intolerance == aucune`), le retrait ne
+    # change donc aucune évaluation.
+    # PAS de `presomption_non` : ce critère participe aux conditions d'une option `role: securite`
+    # (« Réduire la posologie de la metformine »), il n'y est mécaniquement pas éligible (D30).
+    valeurs: [digestive, uro_genitale, perte_poids, cutanee, autre]
 
   # 5. LE TERRAIN ET LES PRÉFÉRENCES — modulent, décident rarement seuls.
   - nom: age
+    # `partage` ajouté le 2026-07-29 (recette référent, item F) : même concept, encodage IDENTIQUE
+    # sur tous les nœuds qui le déclarent (type, valeurs, bornes) — condition de l'invariant I19.
+    partage: true
     type: nombre
     min: 18
     max: 105
     groupe: Terrain et préférences
   - nom: fragilite
+    # `partage` ajouté le 2026-07-29 (recette référent, item F/point 5) : encodage désormais IDENTIQUE
+    # sur tous les nœuds qui le déclarent (type, valeurs, bornes, presomption_non) — condition I19.
+    partage: true
     type: bool
     groupe: Terrain et préférences
   - nom: esperance_vie
+    # `partage` ajouté le 2026-07-29 (recette référent, item F) : même concept, encodage IDENTIQUE
+    # sur tous les nœuds qui le déclarent (type, valeurs, bornes) — condition de l'invariant I19.
+    partage: true
     type: enum
     groupe: Terrain et préférences
     valeurs: [longue, intermediaire, limitee]
   - nom: risque_hypoglycemie_schema
+    # `partage` ajouté le 2026-07-29 (recette référent, item F) : même concept, encodage IDENTIQUE
+    # sur tous les nœuds qui le déclarent (type, valeurs, bornes) — condition de l'invariant I19.
+    partage: true
     type: enum
     groupe: Terrain et préférences
     valeurs: [faible, eleve]
@@ -280,12 +280,29 @@ criteres_entree:
     type: enum
     groupe: Terrain et préférences
     valeurs: [indifferent, accepte, refuse]
-  - nom: classes_a_benefice_indisponibles
-    type: bool
-    groupe: Terrain et préférences
-    # T-018 (P4/S1, D30) : éligible mécaniquement à presomption_non (ne participe qu'à des `alertes` de
-    # nœud sur ce critère, jamais à une condition d'option `role: securite` ni à une `exclusions`).
-    presomption_non: true
+    # `partage` ajouté le 2026-07-29 (recette référent, item F/point 5) : encodage désormais IDENTIQUE
+    # sur tous les nœuds qui le déclarent (type, valeurs, bornes, presomption_non) — condition I19.
+    partage: true
+  # `classes_a_benefice_indisponibles` RETIRÉ le 2026-07-29 (décision référent). C'était un drapeau SAISI
+  # qui demandait au praticien de conclure lui-même « les classes à bénéfice dur sont inutilisables » —
+  # alors que le nœud sait déjà le calculer : les deux dérivés `isglt2_indisponible` / `aglp1_indisponible`
+  # ci-dessus portent exactement les motifs d'indisponibilité (classe déjà en cours, DFG, infections
+  # génito-urinaires, dénutrition, IMC). Demander en plus la conclusion, c'était demander deux fois la même
+  # chose et risquer la contradiction entre les deux réponses.
+  #
+  # REMPLACEMENT MÉCANIQUE, à logique constante :
+  #   `classes_a_benefice_indisponibles == true`  ->  `isglt2_indisponible == true AND aglp1_indisponible == true`
+  #   `classes_a_benefice_indisponibles == false` ->  `isglt2_indisponible == false OR aglp1_indisponible == false`
+  # La seconde forme est bien une DISJONCTION : la négation de « les deux sont indisponibles » est « au
+  # moins une reste disponible » (De Morgan). L'écrire en `AND` aurait durci la règle — elle n'aurait plus
+  # laissé passer que les patients dont les DEUX classes sont disponibles.
+  #
+  # CE QUI N'A PAS ÉTÉ FAIT, ET C'EST UNE DÉCISION EXPLICITE DU RÉFÉRENT : `preference_injection == refuse`
+  # n'est PAS versé dans `aglp1_indisponible`. Un refus d'injectable est une PRÉFÉRENCE du patient, pas une
+  # contre-indication : il continue de RÉTROGRADER l'AR GLP‑1 et le tirzépatide (règles de `priorite`
+  # conditionnelle, rang 7, inchangées ci-dessous), il ne les rend jamais indisponibles. Les motifs versés
+  # dans les deux dérivés sont tous des blocages DURS (fonction rénale, terrain, tolérance) — mélanger les
+  # deux registres ferait disparaître une option que le patient pourrait accepter après discussion.
   - nom: hba1c_sous_cible
     type: bool
     # DÉRIVÉ de l'HbA1c saisie (garde-fou ABSOLU, indépendant de la cible du nœud A). Le garde `> 0`
@@ -451,43 +468,30 @@ familles:
     exclusive: false
   - libelle: "Socle du traitement"
     exclusive: false
-  - libelle: "Agent à ajouter"
-    exclusive: true
+  # ORDRE DES SECTIONS INVERSÉ le 2026-07-29 (recette référent : « Remplacer devrait passer avant
+  # Ajouter »). « Traitement à corriger ou remplacer » précède désormais « Agent à ajouter ».
+  #
+  # POURQUOI ICI ET NULLE PART AILLEURS — la demande visait l'ordre d'affichage de deux VERBES (`action:
+  # remplacer` avant `action: ajouter`), mais `action` ne pilote aucun tri : c'est un simple marqueur de
+  # couleur. L'ordre vient (1) de CE tableau, pour les sections, puis (2) de `priorite` à l'intérieur d'une
+  # section, l'ordre de déclaration servant de départage. Or aucune section ne mélange les deux verbes :
+  # toutes les options `remplacer` vivent ici, toutes les options `ajouter` dans « Agent à ajouter » (et
+  # une seule en sécurité). Il n'existait donc AUCUN cas d'égalité de rang où « remplacer » perdait contre
+  # « ajouter » : ce que le référent voyait à l'écran était l'ordre des SECTIONS, et c'est le seul levier
+  # qui répond réellement à sa demande. Aucun `priorite` n'a été renuméroté — chaque rang a été négocié
+  # option par option, et les redériver du verbe les écraserait en silence.
+  #
+  # Le sens clinique va dans le même sens : corriger ce qui est déjà prescrit avant d'ajouter un agent.
   - libelle: "Traitement à corriger ou remplacer"
     exclusive: false
+  - libelle: "Agent à ajouter"
+    exclusive: true
   - libelle: "Traitement à alléger"
     exclusive: false
   - libelle: "Aucun geste — surveiller"
     exclusive: false
 options:
   # ---- Gate / socle -------------------------------------------------------------------------------------
-  - intitule: "Insuline d'initiation (souvent transitoire — état catabolique)"
-    role: securite
-    action: ajouter
-    conditions:
-      - "HbA1c_actuelle >= 10 AND symptomes_glucotoxicite == true OR cetonemie == true"
-    # PRÉREQUIS AJOUTÉ (2026-07-26, chantier prescription/prérequis) : « d'initiation » suppose un
-    # patient PAS ENCORE sous insuline — aligné sur le même garde-fou que les 6 autres options d'ajout
-    # du nœud (`ne_contient_pas <classe>`, R6). Non observé en recette (capture 4 portait sur « Envisager
-    # l'insuline »), mais même lacune structurelle : rien n'empêchait ce libellé de s'afficher chez un
-    # patient déjà sous insuline en décompensation (inventaire-existant-primer.md, T2). Si l'insuline en
-    # place est insuffisante en catabolisme, l'ajustement relève du nœud E (hors périmètre, cf.
-    # `population_cible`), pas d'une « initiation ».
-    prerequis:
-      - "traitements_en_cours ne_contient_pas insuline_basale AND traitements_en_cours ne_contient_pas insuline_rapide"
-    priorite: 1
-    famille: "À faire d'emblée — sécurité"
-    avantages:
-      - "Corrige rapidement la glucotoxicité en cas d'hyperglycémie sévère symptomatique / catabolique ; le plus souvent transitoire (relais possible une fois la glucotoxicité levée)."
-    inconvenients:
-      - "Sans catabolisme franc, un AR GLP‑1 / tirzépatide (± insuline basale) est de plus en plus préféré (SIMPLE, ADA 2026)."
-      - "Contrainte (injections, auto‑surveillance), hypoglycémie, prise de poids. L'ajustement fin relève du nœud E."
-    effet_attendu: >-
-      Lève la glucotoxicité ; aucun bénéfice sur critère dur démontré (accord d'experts). Suspecter un DT1
-      devant une cétose / un amaigrissement rapide chez un sujet non obèse.
-    niveau_preuve: tres_faible
-    contre_indications:
-      - "Cétonémie ≥ 3 mmol/L → urgence (insuline + hospitalisation), hors périmètre du nœud."
   - intitule: "Metformine (socle du traitement) — instaurer ou poursuivre"
     role: socle
     conditions:
@@ -551,7 +555,7 @@ options:
     # affirmée à l'aveugle — vérifié par les vignettes P-39/P-57/P-58 du banc.
     conditions:
       - "intention != initier AND traitements_en_cours contient metformine"
-      - "DFG >= 45 AND DFG < 60 AND dose_metformine > 2000 OR DFG >= 30 AND DFG < 45 AND dose_metformine > 1000 OR intention != initier AND intolerance_traitement == true AND nature_intolerance == digestive"
+      - "DFG >= 45 AND DFG < 60 AND dose_metformine > 2000 OR DFG >= 30 AND DFG < 45 AND dose_metformine > 1000 OR intention != initier AND intolerance_traitement == true AND nature_intolerance contient digestive"
     # GARDE-FOU AJOUTÉ (2026-07-26, 4e série, red-team clinique sécurité HAUTE-2) : la branche « intolérance
     # digestive » est la SEULE des trois disjoncts indépendante du DFG — sans cette exclusion, elle
     # continuait de s'appliquer sous DFG < 30, où la metformine n'est plus « à réduire » mais CONTRE‑
@@ -656,6 +660,39 @@ options:
     niveau_preuve: faible
     contre_indications:
       - "Cétonémie ≥ 3 mmol/L → urgence (insuline + hospitalisation), hors périmètre du nœud."
+  # ORDRE DE DÉCLARATION CHANGÉ le 2026-07-29 (recette référent) : cette option est le seul `ajouter` de
+  # la famille « sécurité », et elle y précédait les trois `arreter` À RANG ÉGAL (1). Or à rang égal c'est
+  # l'ordre de déclaration qui départage : l'écran affichait donc « ajouter de l'insuline » avant « arrêter
+  # la metformine / le sulfamide » et « suspendre l'iSGLT2 ». Même correctif que l'inversion des familles
+  # « remplacer »/« ajouter » plus haut, et même principe : on retire ce qui est dangereux avant d'ajouter.
+  # AUCUN `priorite` renuméroté — les quatre options restent au rang 1, seule leur déclaration bouge.
+  - intitule: "Insuline d'initiation (souvent transitoire — état catabolique)"
+    role: securite
+    action: ajouter
+    conditions:
+      - "HbA1c_actuelle >= 10 AND symptomes_glucotoxicite == true OR cetonemie == true"
+    # PRÉREQUIS AJOUTÉ (2026-07-26, chantier prescription/prérequis) : « d'initiation » suppose un
+    # patient PAS ENCORE sous insuline — aligné sur le même garde-fou que les 6 autres options d'ajout
+    # du nœud (`ne_contient_pas <classe>`, R6). Non observé en recette (capture 4 portait sur « Envisager
+    # l'insuline »), mais même lacune structurelle : rien n'empêchait ce libellé de s'afficher chez un
+    # patient déjà sous insuline en décompensation (inventaire-existant-primer.md, T2). Si l'insuline en
+    # place est insuffisante en catabolisme, l'ajustement relève du nœud E (hors périmètre, cf.
+    # `population_cible`), pas d'une « initiation ».
+    prerequis:
+      - "traitements_en_cours ne_contient_pas insuline_basale AND traitements_en_cours ne_contient_pas insuline_rapide"
+    priorite: 1
+    famille: "À faire d'emblée — sécurité"
+    avantages:
+      - "Corrige rapidement la glucotoxicité en cas d'hyperglycémie sévère symptomatique / catabolique ; le plus souvent transitoire (relais possible une fois la glucotoxicité levée)."
+    inconvenients:
+      - "Sans catabolisme franc, un AR GLP‑1 / tirzépatide (± insuline basale) est de plus en plus préféré (SIMPLE, ADA 2026)."
+      - "Contrainte (injections, auto‑surveillance), hypoglycémie, prise de poids. L'ajustement fin relève du nœud E."
+    effet_attendu: >-
+      Lève la glucotoxicité ; aucun bénéfice sur critère dur démontré (accord d'experts). Suspecter un DT1
+      devant une cétose / un amaigrissement rapide chez un sujet non obèse.
+    niveau_preuve: tres_faible
+    contre_indications:
+      - "Cétonémie ≥ 3 mmol/L → urgence (insuline + hospitalisation), hors périmètre du nœud."
   # ---- Ajout d'un agent protecteur (fix bug 9 : priorités conditionnelles) ------------------------------
   - intitule: "Introduire un iSGLT2 (protection cardio‑rénale et/ou contrôle glycémique)"
     role: geste
@@ -668,7 +705,7 @@ options:
     # inutilisables : non »).
     prerequis:
       - "traitements_en_cours ne_contient_pas iSGLT2"
-      - "classes_a_benefice_indisponibles == false"
+      - "isglt2_indisponible == false OR aglp1_indisponible == false"
     exclusions:
       - "DFG < 20"
       - "symptomes_glucotoxicite == true"
@@ -741,7 +778,7 @@ options:
     prerequis:
       - "traitements_en_cours ne_contient_pas aGLP1"
       - "traitements_en_cours ne_contient_pas tirzepatide"
-      - "classes_a_benefice_indisponibles == false"
+      - "isglt2_indisponible == false OR aglp1_indisponible == false"
     exclusions:
       - "IMC < 22"
       - "denutrition == true"
@@ -822,7 +859,7 @@ options:
       - "traitements_en_cours ne_contient_pas tirzepatide"
       - "traitements_en_cours ne_contient_pas aGLP1"
       - "traitements_en_cours ne_contient_pas gliptine"
-      - "classes_a_benefice_indisponibles == false"
+      - "isglt2_indisponible == false OR aglp1_indisponible == false"
     exclusions:
       - "denutrition == true"
     priorite:
@@ -864,7 +901,7 @@ options:
       - "traitements_en_cours ne_contient_pas iSGLT2"
       - "traitements_en_cours ne_contient_pas aGLP1"
       - "traitements_en_cours ne_contient_pas tirzepatide"
-      - "classes_a_benefice_indisponibles == false"
+      - "isglt2_indisponible == false OR aglp1_indisponible == false"
     exclusions:
       - "DFG < 20"
       - "symptomes_glucotoxicite == true"
@@ -1107,7 +1144,7 @@ options:
     action: reduire
     conditions:
       - "intention != initier AND traitements_en_cours contient aGLP1"
-      - "denutrition == true OR intention != initier AND intolerance_traitement == true AND nature_intolerance == perte_poids OR intention != initier AND intolerance_traitement == true AND nature_intolerance == digestive"
+      - "denutrition == true OR intention != initier AND intolerance_traitement == true AND nature_intolerance contient perte_poids OR intention != initier AND intolerance_traitement == true AND nature_intolerance contient digestive"
     priorite: 2
     famille: "Traitement à alléger"
     avantages:
@@ -1121,7 +1158,7 @@ options:
     action: reduire
     conditions:
       - "intention != initier AND traitements_en_cours contient tirzepatide"
-      - "denutrition == true OR intention != initier AND intolerance_traitement == true AND nature_intolerance == perte_poids OR intention != initier AND intolerance_traitement == true AND nature_intolerance == digestive"
+      - "denutrition == true OR intention != initier AND intolerance_traitement == true AND nature_intolerance contient perte_poids OR intention != initier AND intolerance_traitement == true AND nature_intolerance contient digestive"
     priorite: 2
     famille: "Traitement à alléger"
     avantages:
@@ -1251,7 +1288,7 @@ options:
     role: geste
     action: ajouter
     conditions:
-      - "classes_a_benefice_indisponibles == true OR palette_glycemique_ouverte == true"
+      - "isglt2_indisponible == true AND aglp1_indisponible == true OR palette_glycemique_ouverte == true"
       - "position_vs_cible != sous_objectif"
     # R6 : garde-fous de cohérence (ne pas déjà prendre la classe visée / une classe concurrente) —
     # jamais montrés comme justification (cf. option iSGLT2 plus haut).
@@ -1263,7 +1300,7 @@ options:
       - "symptomes_glucotoxicite == true"
       - "cetonemie == true"
     priorite:
-      - quand: "classes_a_benefice_indisponibles == true"
+      - quand: "isglt2_indisponible == true AND aglp1_indisponible == true"
         rang: 3
       - quand: "default"
         rang: 5
@@ -1302,7 +1339,7 @@ options:
     role: geste
     action: ajouter
     conditions:
-      - "classes_a_benefice_indisponibles == true OR palette_glycemique_ouverte == true"
+      - "isglt2_indisponible == true AND aglp1_indisponible == true OR palette_glycemique_ouverte == true"
       - "position_vs_cible != sous_objectif"
     # R6 : garde-fous de cohérence (ne pas déjà prendre la classe visée / une classe concurrente) —
     # jamais montrés comme justification (cf. option iSGLT2 plus haut).
@@ -1331,7 +1368,7 @@ options:
       # ouvertes — R3 : arrêter un traitement est une OPTION, jamais une exclusion.
       - "fragilite == true"
     priorite:
-      - quand: "classes_a_benefice_indisponibles == true"
+      - quand: "isglt2_indisponible == true AND aglp1_indisponible == true"
         rang: 3
       - quand: "default"
         rang: 5
@@ -1522,7 +1559,7 @@ alertes:
       iSGLT2 (en cours ou indiqué par la comorbidité) + infections génito‑urinaires récidivantes : réévaluer
       l'indication (ne pas initier / envisager l'arrêt) ; risque de gangrène de Fournier. Préférer une autre
       classe si une protection est requise.
-  - quand: "intention != initier AND intolerance_traitement == true AND nature_intolerance == digestive AND traitements_en_cours contient metformine AND traitements_en_cours contient aGLP1 OR intention != initier AND intolerance_traitement == true AND nature_intolerance == digestive AND traitements_en_cours contient metformine AND traitements_en_cours contient tirzepatide"
+  - quand: "intention != initier AND intolerance_traitement == true AND nature_intolerance contient digestive AND traitements_en_cours contient metformine AND traitements_en_cours contient aGLP1 OR intention != initier AND intolerance_traitement == true AND nature_intolerance contient digestive AND traitements_en_cours contient metformine AND traitements_en_cours contient tirzepatide"
     niveau: attention
     message: >-
       Intolérance digestive : la metformine ET l'AR GLP‑1 / tirzépatide en sont deux sources. Privilégier
@@ -1531,13 +1568,13 @@ alertes:
       (dulaglutide/liraglutide) en France — formulaire Assurance Maladie, Art. 61 de la convention médicale,
       arrêté du 10/01/2025 : « en monothérapie, quand l'utilisation de la metformine est considérée comme
       inappropriée en raison d'une intolérance ou de contre‑indications ».
-  - quand: "classes_a_benefice_indisponibles == true AND risque_hypoglycemie_schema == eleve"
+  - quand: "isglt2_indisponible == true AND aglp1_indisponible == true AND risque_hypoglycemie_schema == eleve"
     niveau: attention
     message: >-
       Risque d'hypoglycémie élevé + place résiduelle : DÉCONSEILLER le sulfamide, préférer la gliptine
       (sitagliptine, sans hypoglycémie). Si un SU est retenu : gliclazide MR à dose basse, jamais le
       glibenclamide, avec éducation à l'hypoglycémie.
-  - quand: "classes_a_benefice_indisponibles == true AND DFG < 45"
+  - quand: "isglt2_indisponible == true AND aglp1_indisponible == true AND DFG < 45"
     niveau: attention
     message: >-
       Place résiduelle en insuffisance rénale : sitagliptine à dose réduite (50 mg si DFG 30‑44). En dessous
@@ -1845,7 +1882,7 @@ incertitudes:
   - "Désintensification : preuve faible / accord d'experts ; pas d'ECR de devenirs durs."
   - "Chaînage inter-nœuds A→prescription : PAS de chaînage (R1, docs/decision/GRAMMAIRE-NOEUD.md) — la cible individualisée du nœud A n'est pas importée automatiquement, la position vs objectif est DÉCLARÉE ici (`position_vs_cible`), le nœud A restant une aide, jamais un prérequis ; le garde-fou < 6,5 % (`hba1c_sous_cible`) reste absolu, indépendant de la cible. Chaînage prescription→E (insuline) : hors moteur (P3+)."
   - "PRÉMISSE FAUSSE, entrée corrigée le 2026-07-27 (question du référent : « pourquoi l'intensification glycémique est-elle fermée par l'IMC > 30 ? »). Elle ne l'est PAS : aucun verrou IMC ne ferme l'intensification dans ce nœud — vérifié en faisant tourner le profil dans le moteur. Un obèse dénutri, au-dessus de sa cible, avec l'intention INTENSIFIER reçoit bien iSGLT2, gliptine et sulfamide ; seules les incrétines sont écartées, par la dénutrition, à juste titre. La sortie appauvrie [socle metformine, poursuivre] décrite par l'ancienne entrée ne survient qu'avec l'intention OPTIMISER, où la palette glycémique est fermée par l'INTENTION DÉCLARÉE (`palette_glycemique_ouverte`, séquençage référent S8) — l'IMC n'y est pour rien. Reste, si on veut, une vraie question de cohérence sans rapport avec l'obésité : que faire d'un patient déclaré au-dessus de sa cible dont le praticien déclare l'intention « optimiser » ? Le nœud lui propose alors le socle et la poursuite, ce qui est fidèle à l'intention déclarée (R1) mais peut surprendre."
-  - "classes_a_benefice_indisponibles == true supprime désormais l'introduction d'iSGLT2 / AR GLP-1 / tirzépatide / association et l'intensification glycémique résiduelle (correction S3-S7, M1) : cohérent avec la niche SU/gliptine qui n'existe que lorsque ces classes sont inutilisables."
+  - "L'indisponibilité des deux classes à bénéfice dur (`isglt2_indisponible == true AND aglp1_indisponible == true`) supprime l'introduction d'iSGLT2 / AR GLP-1 / tirzépatide / association et ouvre l'intensification glycémique résiduelle (correction S3-S7, M1) : cohérent avec la niche SU/gliptine qui n'existe que lorsque ces classes sont inutilisables. Depuis le 2026-07-29, cette indisponibilité est CALCULÉE à partir des motifs durs déjà encodés (DFG, infections génito-urinaires, dénutrition, IMC, classe déjà en cours) au lieu d'être un drapeau saisi — la préférence du patient pour ou contre l'injectable n'y entre volontairement pas, elle ne joue que sur le rang."
   - "Repli O11 (« pas de remplaçant protecteur pertinent ») : encodé en ALERTE A9 (2 disjonctions pur-AND, causes IMC<22 / dénutrition sans indication iSGLT2) + rappel en prose dans l'option. Couvre le cas sans indication protectrice ; ne se déclenche pas si un remplaçant serait valide."
   - "Élargir la désintensification au SOCLE (metformine, iSGLT2 sans indication d'organe), au-delà de sulfamide/glinide/insuline : demandé par le référent (recette capture 6, 2026-07-26) — PARTIELLEMENT TRANCHÉ le 2026-07-26 (2e série) pour la METFORMINE SEULE : l'arbitrage référent (« sur-traitement chez une personne fragile et tous les autres agents à bénéfice dur ») est désormais encodé (option « Déprescrire la metformine », critère `metformine_deprescriptible`). TRANCHÉ le 2026-07-27 pour l'iSGLT2 : PAS de déprescription sur le seul motif de l'absence d'indication d'organe (statu quo). Motif référent : un iSGLT2 sans indication d'organe garde un effet glycémique et un bénéfice rénal possible ; le retirer sur ce seul fondement demanderait une preuve que le dossier ne contient pas. Il ne s'allège donc que s'il pose un risque avéré — c'est l'option « Reconsidérer un agent protecteur prescrit hors indication ET posant un risque », déjà en place. Reste NON tranché : TRANCHÉ le 2026-07-27 (référent) — le comportement actuel est SUFFISANT et devient une décision assumée : un patient sur-traité qui ne réunit pas les 3 conditions relève des options d'allègement existantes (sulfamide, glinide, insuline), la metformine étant le SOCLE et donc le dernier agent qu'on retire. La séquence n'a pas besoin d'être encodée davantage : elle découle de ce qui est proposé. Conséquence sur le profil de la capture 6 (ASCVD établie + sous_objectif + intention déprescrire, sans SU/glinide/insuline en cours) : SI ce profil est aussi `fragilite == true`, il devient désormais éligible à la nouvelle option de déprescription de la metformine (en plus de la carte « Introduire un AR GLP‑1 » déjà affichée, indication transverse légitime, `:342`) ; si `fragilite == false`, son comportement reste inchangé (aucune option de désintensification applicable) — non revérifié sur la vignette exacte de la capture 6, dont le détail de `fragilite` n'est pas reproduit dans ce commentaire (invariant CLAUDE.md 6 : signaler plutôt qu'inventer)."
   - "GLINIDE SEUL (sans sulfamide) + DFG < 30 : RÉSOLU le 2026-07-26 (5e série) — l'option unique
@@ -1922,8 +1959,40 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.36"
+  version: "0.37"
   changelog:
+    - date: "2026-07-29"
+      auteur: "référent DT2 + Claude Code (recette navigateur du 2026-07-29)"
+      resume: >-
+        SIX CORRECTIFS DE RECETTE, aucun changement de logique clinique — les conditions de toutes les
+        options sont inchangées à l'exception de la RÉÉCRITURE SYNTAXIQUE décrite en (2), et le golden
+        master le confirme (aucune recommandation ne change sur les 180 profils figés).
+        (1) `dose_metformine` SE SAISIT PAR PALIERS (nouveau champ générique `paliers`, schéma + types) :
+        sélecteur 500/850/1000/1500/1700/2000/2550/3000 mg/j au lieu d'un champ numérique libre — la
+        metformine se prescrit par comprimés, pas en milligrammes arbitraires. Le critère RESTE de type
+        `nombre` et la valeur stockée reste numérique : c'était la condition pour que les seuils d'ordre
+        `> 1000` / `> 2000` continuent de s'évaluer (un `enum` n'admet pas d'ordre). Les paliers encadrent
+        les deux seuils, les deux branches restent donc atteignables à la saisie.
+        (2) `nature_intolerance` DEVIENT MULTIVALUÉ (`enum` -> `liste`) : une intolérance réelle en cumule
+        volontiers plusieurs (digestive ET perte de poids sous AR GLP‑1), et le choix unique obligeait à en
+        taire une. Les 4 conditions qui le lisent passent de `== X` à `contient X` — même ensemble de
+        valeurs déclenchantes, aucune modification de la logique. La valeur `aucune` est retirée : une
+        liste vide dit désormais ce qu'elle disait (aucune règle ne la citait).
+        (3) ORDRE DES SECTIONS : « Traitement à corriger ou remplacer » passe AVANT « Agent à ajouter »
+        (corriger ce qui est prescrit avant d'ajouter). Fait dans `familles`, seul levier réel : `action`
+        ne pilote aucun tri, et aucune section ne mêle les deux verbes — il n'existait donc aucune égalité
+        de rang à départager. AUCUN `priorite` renuméroté (chaque rang a été négocié option par option).
+        (4) `dose_metformine` et `nature_intolerance` NE S'AFFICHENT PLUS TANT QUE LEUR QUESTION PRINCIPALE
+        N'EST PAS RÉPONDUE (nouveau drapeau générique `masque_si_indetermine`, exception OPT-IN au repli
+        « fail open » de R7/D20, qui reste la politique par défaut partout ailleurs). Une sous-question
+        posée avant sa question principale est du bruit.
+        (5) « HbA1c actuelle »/« HbA1c cible » RESTENT CÔTE À CÔTE (nouveau drapeau générique
+        `debut_de_ligne`) : leur disposition dépendait jusqu'ici de l'affichage de « Dose de metformine »
+        juste au-dessus.
+        (6) REPRISE DES SAISIES ENTRE NŒUDS (item F) : les critères d'encodage identique sur tous les
+        nœuds DT2 reçoivent `partage: true` (age, esperance_vie, DFG, risque_hypoglycemie_schema,
+        symptomes_glucotoxicite, ASCVD_etablie) — pré-remplissage signalé et corrigeable, aucun effet
+        moteur.
     - date: "2026-07-29"
       auteur: "référent DT2 + Claude Code (P7/SA1, T-048 · T-049 · T-050)"
       resume: >-

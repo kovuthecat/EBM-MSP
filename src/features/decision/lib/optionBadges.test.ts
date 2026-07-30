@@ -355,7 +355,7 @@ describe('computeBadges — cas réel (nœud `prescription`, « le badge, c’es
         intention: 'intensifier',
         traitements_en_cours: ['aGLP1'],
         intolerance_traitement: true,
-        nature_intolerance: 'digestive',
+        nature_intolerance: ['digestive'],
         DFG: 55,
         albuminurie: 'normo',
         insuffisance_cardiaque: false,

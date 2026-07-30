@@ -49,7 +49,7 @@ const PROFIL: Criteria = {
   risque_hypoglycemie_schema: 'faible',
   infections_uro_genitales_recidivantes: false,
   intolerance_traitement: false,
-  nature_intolerance: 'aucune',
+  nature_intolerance: [],
   hypoglycemie_recente: false,
   symptomes_glucotoxicite: false,
   cetonemie: false,

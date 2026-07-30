@@ -54,12 +54,11 @@ const BASE: Criteria = {
   risque_hypoglycemie_schema: 'faible',
   infections_uro_genitales_recidivantes: false,
   intolerance_traitement: false,
-  nature_intolerance: 'aucune',
+  nature_intolerance: [],
   hypoglycemie_recente: false,
   symptomes_glucotoxicite: false,
   cetonemie: false,
   preference_injection: 'indifferent',
-  classes_a_benefice_indisponibles: false,
   cible_atteinte: true,
   terrain_cible_assouplie: false,
 }
@@ -226,7 +225,7 @@ describe('prescription — D · portes SU/gliptine × position', () => {
 describe('prescription — E · intolérance & F · garde-fous durs', () => {
   it('I1 — intolérance digestive sous metformine + AR GLP-1 : option + alerte « viser la metformine »', () => {
     const o = { traitements_en_cours: ['metformine', 'aGLP1'], intolerance_traitement: true,
-      nature_intolerance: 'digestive', intention: 'optimiser', ASCVD_etablie: true, IMC: 28, HbA1c_actuelle: 7 } as Partial<Criteria>
+      nature_intolerance: ['digestive'], intention: 'optimiser', ASCVD_etablie: true, IMC: 28, HbA1c_actuelle: 7 } as Partial<Criteria>
     expect(has(titles(o), "Optimiser l'agent mal toléré")).toBe(true)
     expect(alertMsgs(o).some((m) => m.includes('METFORMINE'))).toBe(true)
   })
@@ -310,8 +309,14 @@ describe('prescription — E · intolérance & F · garde-fous durs', () => {
   })
 
   it('M1 — classes protectrices déclarées INDISPONIBLES : pas d’introduction iSGLT2/GLP-1 (red-team M1)', () => {
-    // Flag = iSGLT2 ET AR GLP-1 inutilisables → ne pas les proposer ; la place résiduelle SU/gliptine prend le relais.
-    const o = { traitements_en_cours: ['metformine'], classes_a_benefice_indisponibles: true, DFG: 40,
+    // iSGLT2 ET AR GLP-1 inutilisables → ne pas les proposer ; la place résiduelle SU/gliptine prend le relais.
+    // Le drapeau SAISI `classes_a_benefice_indisponibles` a été retiré du nœud le 2026-07-29 : cette
+    // indisponibilité est désormais CALCULÉE. On la produit donc par ses motifs réels, un par classe —
+    // `infections_uro_genitales_recidivantes` rend `isglt2_indisponible` vrai, `IMC < 22` rend
+    // `aglp1_indisponible` vrai. `IMC: 21` est préféré à `denutrition: true` (l'autre disjonct possible)
+    // parce que la dénutrition ouvrirait aussi « Reconsidérer un agent protecteur », polluant les titres.
+    const o = { traitements_en_cours: ['metformine'], DFG: 40, IMC: 21,
+      infections_uro_genitales_recidivantes: true,
       ASCVD_etablie: true, intention: 'intensifier', position_vs_cible: 'au_dessus',
       HbA1c_actuelle: 8 } as Partial<Criteria>
     const t = titles(o)
@@ -419,8 +424,8 @@ describe('prescription — arbitrages référent S8 (séquençage, ordre pur-gly
   it('NAT1 — réduction AR GLP-1 ciblée par la nature (digestive) et pas si nature ≠', () => {
     const base = { traitements_en_cours: ['metformine', 'aGLP1'], intention: 'optimiser',
       intolerance_traitement: true, ASCVD_etablie: true, IMC: 28, HbA1c_actuelle: 7 } as Partial<Criteria>
-    expect(has(titles({ ...base, nature_intolerance: 'digestive' }), "Réduire la posologie de l'AR GLP")).toBe(true)
-    expect(has(titles({ ...base, nature_intolerance: 'cutanee' }), "Réduire la posologie de l'AR GLP")).toBe(false)
+    expect(has(titles({ ...base, nature_intolerance: ['digestive'] }), "Réduire la posologie de l'AR GLP")).toBe(true)
+    expect(has(titles({ ...base, nature_intolerance: ['cutanee'] }), "Réduire la posologie de l'AR GLP")).toBe(false)
   })
 })
 
@@ -725,7 +730,7 @@ describe('prescription — P-48+ (couverture des options jamais exercées par un
   })
 
   it('P-53 — sous tirzépatide, perte de poids excessive déclarée (nature_intolerance) : « Réduire la posologie du tirzépatide » apparaît', () => {
-    const o = { traitements_en_cours: ['metformine', 'tirzepatide'], nature_intolerance: 'perte_poids',
+    const o = { traitements_en_cours: ['metformine', 'tirzepatide'], nature_intolerance: ['perte_poids'],
       intolerance_traitement: true, intention: 'optimiser', HbA1c_actuelle: 7 } as Partial<Criteria>
     expect(has(titles(o), 'Réduire la posologie du tirzépatide')).toBe(true)
   })
@@ -738,7 +743,9 @@ describe('prescription — P-48+ (couverture des options jamais exercées par un
   })
 
   it('P-55 — classes protectrices indisponibles, sous metformine seule, objectif non atteint : « Sulfamide (gliclazide MR ou glimépiride) » (place résiduelle) apparaît', () => {
-    const o = { traitements_en_cours: ['metformine'], classes_a_benefice_indisponibles: true,
+    // Indisponibilité désormais CALCULÉE (cf. M1 ci-dessus) : produite par ses deux motifs réels.
+    const o = { traitements_en_cours: ['metformine'], IMC: 21,
+      infections_uro_genitales_recidivantes: true,
       intention: 'intensifier', position_vs_cible: 'au_dessus', HbA1c_actuelle: 8 } as Partial<Criteria>
     expect(has(titles(o), 'Sulfamide (gliclazide')).toBe(true)
   })
@@ -756,9 +763,8 @@ describe('prescription — RT-S1..S4 (red-team clinique 2026-07-26, défauts GRA
       HbA1c_actuelle: 8, position_vs_cible: 'au_dessus', ASCVD_etablie: false, insuffisance_cardiaque: false,
       DFG: 25, albuminurie: 'normo', IMC: 27, symptomes_glucotoxicite: false, cetonemie: false,
       hypoglycemie_recente: false, denutrition: false, infections_uro_genitales_recidivantes: false,
-      intolerance_traitement: true, nature_intolerance: 'digestive', age: 68, fragilite: false,
-      esperance_vie: 'intermediaire', risque_hypoglycemie_schema: 'faible', preference_injection: 'indifferent',
-      classes_a_benefice_indisponibles: false } as Partial<Criteria>
+      intolerance_traitement: true, nature_intolerance: ['digestive'], age: 68, fragilite: false,
+      esperance_vie: 'intermediaire', risque_hypoglycemie_schema: 'faible', preference_injection: 'indifferent' } as Partial<Criteria>
     const t = titles(o)
     expect(has(t, 'Arrêter le sulfamide')).toBe(true)
     expect(has(t, 'Réduire la posologie du sulfamide')).toBe(false)
@@ -770,9 +776,8 @@ describe('prescription — RT-S1..S4 (red-team clinique 2026-07-26, défauts GRA
       HbA1c_actuelle: 7.5, position_vs_cible: 'a_l_objectif', ASCVD_etablie: false, insuffisance_cardiaque: false,
       DFG: 25, albuminurie: 'normo', IMC: 25, symptomes_glucotoxicite: false, cetonemie: false,
       hypoglycemie_recente: false, denutrition: false, infections_uro_genitales_recidivantes: false,
-      intolerance_traitement: true, nature_intolerance: 'digestive', age: 70, fragilite: false,
-      esperance_vie: 'intermediaire', risque_hypoglycemie_schema: 'faible', preference_injection: 'indifferent',
-      classes_a_benefice_indisponibles: false } as Partial<Criteria>
+      intolerance_traitement: true, nature_intolerance: ['digestive'], age: 70, fragilite: false,
+      esperance_vie: 'intermediaire', risque_hypoglycemie_schema: 'faible', preference_injection: 'indifferent' } as Partial<Criteria>
     const t = titles(o)
     expect(has(t, 'Arrêter la metformine')).toBe(true)
     expect(has(t, 'Réduire la posologie de la metformine')).toBe(false)
@@ -786,8 +791,7 @@ describe('prescription — RT-S1..S4 (red-team clinique 2026-07-26, défauts GRA
       DFG: 70, albuminurie: 'normo', IMC: 26, symptomes_glucotoxicite: false, cetonemie: true,
       hypoglycemie_recente: false, denutrition: false, infections_uro_genitales_recidivantes: false,
       intolerance_traitement: false, age: 58, fragilite: false, esperance_vie: 'longue',
-      risque_hypoglycemie_schema: 'faible', preference_injection: 'indifferent',
-      classes_a_benefice_indisponibles: false } as Partial<Criteria>
+      risque_hypoglycemie_schema: 'faible', preference_injection: 'indifferent' } as Partial<Criteria>
     const t = titles(o)
     expect(has(t, "Suspendre l'iSGLT2")).toBe(true)
     expect(alertMsgs(o).some((m) => m.includes('cétonémie'))).toBe(true)

@@ -12,17 +12,29 @@ selection: ordered-first-match
 argumentaire_exhaustif: "cible-glycemique.argumentaire.md"
 criteres_entree:
   - nom: age
+    # `partage` ajouté le 2026-07-29 (recette référent, item F) : même concept, encodage IDENTIQUE
+    # sur tous les nœuds qui le déclarent (type, valeurs, bornes) — condition de l'invariant I19.
+    partage: true
     type: nombre
     min: 18
     max: 105
   - nom: anciennete_diabete_annees
+    # `partage` ajouté le 2026-07-29 (recette référent, item F) : même concept, encodage IDENTIQUE
+    # sur tous les nœuds qui le déclarent (type, valeurs, bornes) — condition de l'invariant I19.
+    partage: true
     type: nombre
     min: 0
     max: 60
   - nom: esperance_vie
+    # `partage` ajouté le 2026-07-29 (recette référent, item F) : même concept, encodage IDENTIQUE
+    # sur tous les nœuds qui le déclarent (type, valeurs, bornes) — condition de l'invariant I19.
+    partage: true
     type: enum
     valeurs: [longue, intermediaire, limitee]
   - nom: fragilite
+    # `partage` ajouté le 2026-07-29 (recette référent, item F/point 5) : encodage désormais IDENTIQUE
+    # sur tous les nœuds qui le déclarent (type, valeurs, bornes, presomption_non) — condition I19.
+    partage: true
     type: bool
   - nom: antecedent_cv
     type: bool
@@ -194,8 +206,18 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude Code"
   statut: valide
-  version: "2.6"
+  version: "2.7"
   changelog:
+    - date: "2026-07-29"
+      auteur: "référent DT2 + Claude Code (recette navigateur, item F)"
+      resume: >-
+        REPRISE DES SAISIES ENTRE NŒUDS (K6/D28, item F de la recette du 2026-07-29). `age`,
+        `esperance_vie` et `fragilite` reçoivent `partage: true` : encodage rigoureusement identique
+        (type, valeurs, bornes, et pour `fragilite` — `presomption_non`) sur tous les nœuds DT2 qui les
+        déclarent. Une valeur saisie sur un autre nœud pré-remplit désormais ce nœud, signalée comme
+        reprise et corrigeable (R1 : jamais imposée, jamais une conclusion du moteur). Aucun effet
+        moteur, aucune règle modifiée — bump de version orphelin de son changelog à cette entrée
+        (oubli corrigé le 2026-07-30).
     - date: "2026-07-28"
       auteur: "Claude Code (P4/S1, T-018) — correctif mécanique, en attente de relecture référent"
       resume: >-

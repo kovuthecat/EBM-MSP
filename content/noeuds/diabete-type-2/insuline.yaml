@@ -55,6 +55,9 @@ criteres_entree:
     groupe: Situation d'insulinothérapie
     valeurs: [naif, basale_seule, basale_plus_bolus, basal_bolus]
   - nom: age
+    # `partage` ajouté le 2026-07-29 (recette référent, item F) : même concept, encodage IDENTIQUE
+    # sur tous les nœuds qui le déclarent (type, valeurs, bornes) — condition de l'invariant I19.
+    partage: true
     type: nombre
     groupe: Profil et objectif glycémique
     min: 18
@@ -105,6 +108,9 @@ criteres_entree:
     # `HbA1c_actuelle` 4-18 et de `HbA1c_cible` 6-9,5).
     derive: "HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND HbA1c_cible - HbA1c_actuelle >= 1"
   - nom: DFG
+    # `partage` ajouté le 2026-07-29 (recette référent, item F) : même concept, encodage IDENTIQUE
+    # sur tous les nœuds qui le déclarent (type, valeurs, bornes) — condition de l'invariant I19.
+    partage: true
     type: nombre
     groupe: Profil et objectif glycémique
     min: 3
@@ -112,7 +118,18 @@ criteres_entree:
   - nom: traitements_en_cours
     type: liste
     groupe: Traitement actuel
-    valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, glinide, gliptine, insuline_basale, insuline_rapide]
+    # ORDRE ALIGNÉ le 2026-07-29 sur celui de `prescription` (mêmes 9 valeurs, `glinide` en fin de
+    # liste). Purement présentationnel — l'ordre d'un critère `liste` ne fixe que l'ordre des cases,
+    # sa valeur par défaut restant le tableau vide — mais exigé par I19 pour que la seule divergence
+    # résiduelle entre les deux nœuds soit celle qui est ASSUMÉE (`presomption_non`).
+    valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, insuline_basale, insuline_rapide, glinide]
+    # `partage` ajouté le 2026-07-29 (recette référent, point 5) : ce qui est COCHÉ sur un module
+    # apparaît coché sur l'autre. Ne touche PAS à `presomption_non` (présent ici, absent sur
+    # `prescription`) : la recopie ne concerne que les valeurs réellement TOUCHÉES par le praticien
+    # (`lib/sessionCriteres.ts` `memoriserCriteres`), alors que `presomption_non` ne régit que le cas
+    # NON touché (déterminisme du moteur). Les deux préoccupations sont disjointes — cf. l'entrée
+    # `traitements_en_cours` de `CRITERES_DIVERGENTS_CONNUS`.
+    partage: true
     # T-018 (P4/S1, D30) : éligible mécaniquement à presomption_non SUR CE NŒUD (ne participe ici à aucune
     # condition d'option `role: securite` ni à aucune `exclusions` — seulement des `alertes` de nœud,
     # canal distinct). Ce critère est déjà connu DIVERGENT entre nœuds (`engine/banc/
@@ -140,7 +157,15 @@ criteres_entree:
   - nom: preference_injection
     type: enum
     groupe: Traitement actuel
-    valeurs: [accepte, refuse, indifferent]
+    # ORDRE ALIGNÉ le 2026-07-29 sur celui de `prescription` (`indifferent` en tête). Ce n'était PAS
+    # cosmétique : `valeurParDefaut` renvoie la PREMIÈRE valeur déclarée, donc la même question s'ouvrait
+    # sur « accepte » ici et sur « indifferent » là. `indifferent` est retenu comme défaut parce qu'il est
+    # le seul des trois qui n'oriente pas la réponse. Divergence résorbée -> son entrée est retirée de
+    # `CRITERES_DIVERGENTS_CONNUS` (`engine/banc/coherence-inter-noeuds.test.ts`).
+    valeurs: [indifferent, accepte, refuse]
+    # `partage` ajouté le 2026-07-29 (recette référent, item F/point 5) : encodage désormais IDENTIQUE
+    # sur tous les nœuds qui le déclarent (type, valeurs, bornes, presomption_non) — condition I19.
+    partage: true
   # T4/(a) (chantier visible_si, capture 7) : ce groupe de 7 champs n'a d'objet que pour un patient DÉJÀ
   # sous insuline (surveillance/titration) — un patient « naïf » n'a ni dose en cours ni MCG à interpréter.
   # Masquer les remet à leur valeur par défaut (P1) ; vérifié sans conséquence pour ces 7 : aucune règle
@@ -401,6 +426,9 @@ criteres_entree:
   # actuel → surveillance → signaux d'alerte → terrain) plutôt que l'ordre d'écriture d'origine. Aucun champ
   # renommé, supprimé, ni de logique modifiée — seul le classement en groupe d'affichage change (D5).
   - nom: risque_hypoglycemie_schema
+    # `partage` ajouté le 2026-07-29 (recette référent, item F) : même concept, encodage IDENTIQUE
+    # sur tous les nœuds qui le déclarent (type, valeurs, bornes) — condition de l'invariant I19.
+    partage: true
     type: enum
     groupe: Signaux d'alerte et tolérance
     valeurs: [faible, eleve]
@@ -408,12 +436,21 @@ criteres_entree:
     type: bool
     groupe: Signaux d'alerte et tolérance
   - nom: symptomes_glucotoxicite
+    # `partage` ajouté le 2026-07-29 (recette référent, item F) : même concept, encodage IDENTIQUE
+    # sur tous les nœuds qui le déclarent (type, valeurs, bornes) — condition de l'invariant I19.
+    partage: true
     type: bool
     groupe: Signaux d'alerte et tolérance
   - nom: fragilite
+    # `partage` ajouté le 2026-07-29 (recette référent, item F/point 5) : encodage désormais IDENTIQUE
+    # sur tous les nœuds qui le déclarent (type, valeurs, bornes, presomption_non) — condition I19.
+    partage: true
     type: bool
     groupe: Terrain
   - nom: esperance_vie
+    # `partage` ajouté le 2026-07-29 (recette référent, item F) : même concept, encodage IDENTIQUE
+    # sur tous les nœuds qui le déclarent (type, valeurs, bornes) — condition de l'invariant I19.
+    partage: true
     type: enum
     groupe: Terrain
     valeurs: [longue, intermediaire, limitee]
@@ -1592,8 +1629,17 @@ meta:
   date_revue: "2026-07-29"
   auteur: "référent DT2 (Thibault) + Opus"
   statut: valide
-  version: "0.31"
+  version: "0.32"
   changelog:
+    - date: "2026-07-29"
+      auteur: "référent DT2 + Claude Code (recette navigateur, item F)"
+      resume: >-
+        REPRISE DES SAISIES ENTRE NŒUDS (K6/D28, item F de la recette du 2026-07-29). Les critères de ce
+        nœud dont l'encodage est RIGOUREUSEMENT IDENTIQUE (type, valeurs, bornes) sur tous les nœuds DT2
+        qui les déclarent reçoivent `partage: true` : leur valeur, saisie sur un nœud, pré-remplit les
+        autres pendant la consultation, signalée comme reprise et corrigeable (jamais imposée — R1 :
+        c'est une valeur SAISIE qui circule, jamais une conclusion du moteur). Aucun effet moteur, aucune
+        règle modifiée. Inventaire complet des candidats et des cas divergents dans le rapport de tâche.
     - date: "2026-07-29"
       auteur: "référent DT2 (Thibault) + Claude Code — passe A, cinquième lot : VALIDATION CLINIQUE RÉFÉRENT"
       resume: >-
