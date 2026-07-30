@@ -104,10 +104,10 @@ cadrer en **P10** une fois ce plan-ci livré.
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [S1](S1.md) | T-068 | Contre-indications vérifiables : schéma + moteur + rendu | Opus | high | — | — | `schema/noeud.schema.json`, `engine/evaluateNode.ts`, `lib/vueDecision.ts`, `components/OptionCard.tsx` | [x] |
 | [S2](S2.md) | T-069 | Purge du jargon rendu, deux tooltips, ambiguïté « Agent à ajouter » | Sonnet | medium | — | — | `lib/labels.ts`, `prescription.yaml`, `cible-glycemique.yaml`, `rhd-activite-physique.yaml`, `statine.yaml` | [x] |
-| [S3](S3.md) | T-070 | Contre-indications vérifiables : ré-encodage `prescription` | Sonnet | high | — | S1, S2 | `content/noeuds/diabete-type-2/prescription.yaml` | [ ] |
-| [S4](S4.md) | T-071 | Contre-indications vérifiables : ré-encodage `statine` | Sonnet | high | — | S1, S2 | `content/noeuds/diabete-type-2/statine.yaml` | [ ] |
-| [S5](S5.md) | T-072 | Contre-indications vérifiables : ré-encodage `insuline` | Sonnet | high | — | S1 | `content/noeuds/diabete-type-2/insuline.yaml` | [ ] |
-| [S6](S6.md) | T-073 | Contre-indications vérifiables : ré-encodage `cible-glycemique` | Sonnet | high | — | S1, S2 | `content/noeuds/diabete-type-2/cible-glycemique.yaml` | [ ] |
+| [S3](S3.md) | T-070 | Contre-indications vérifiables : ré-encodage `prescription` | Sonnet | high | — | S1, S2 | `content/noeuds/diabete-type-2/prescription.yaml` | [x] |
+| [S4](S4.md) | T-071 | Contre-indications vérifiables : ré-encodage `statine` | Sonnet | high | — | S1, S2 | `content/noeuds/diabete-type-2/statine.yaml` | [x] (0 conversion) |
+| [S5](S5.md) | T-072 | Contre-indications vérifiables : ré-encodage `insuline` | Sonnet | high | — | S1 | `content/noeuds/diabete-type-2/insuline.yaml` | [x] (0 conversion) |
+| [S6](S6.md) | T-073 | Contre-indications vérifiables : ré-encodage `cible-glycemique` | Sonnet | high | — | S1, S2 | `content/noeuds/diabete-type-2/cible-glycemique.yaml` | [x] |
 | [S7](S7.md) | T-074 | « Risque hypoglycémique du schéma » : investigation et dérivation | Sonnet | high | — | S3, S5 | `content/noeuds/diabete-type-2/prescription.yaml`, `insuline.yaml`, `lib/labels.ts` | [ ] |
 | [S8](S8.md) | T-075 | Metformine : protocole de titration sourcé (mémo Ameli) | Sonnet | medium | — | S3 | `content/noeuds/diabete-type-2/prescription.yaml`, `prescription.argumentaire.md` | [ ] |
 | [S9](S9.md) | T-076 | Titre de dépli : aperçu du contenu replié, appliqué à la statine | Sonnet | medium | — | S1, S4 | `components/OptionCard.tsx`, `content/noeuds/diabete-type-2/statine.yaml` | [ ] |
