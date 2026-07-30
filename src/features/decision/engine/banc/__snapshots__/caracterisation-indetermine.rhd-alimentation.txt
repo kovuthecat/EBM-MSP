@@ -14,7 +14,7 @@
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - fragilite = false
-  ○ - traitements_en_cours = []
+  ○ - insuline_ou_insulinosecreteur = false
   ○ - frequence_boissons_sucrees = jamais
   ○ - frequence_ultratransformes = jamais
   ○ - frequence_restauration_rapide = jamais
@@ -51,11 +51,11 @@ Sortie :
     - Proposer aussi un avis spécialisé en trouble du comportement alimentaire :: à renseigner : signes_appel_tca
     - Continuer ce qui fonctionne déjà :: à renseigner : matiere_grasse_cuisson, frequence_fruits_a_coque
 
-### Profil #1 — 12 critère(s) masqué(s) (masque stratifié) : consommation_vin, frequence_poisson, acces_alimentation, traitements_en_cours, difficulte_estimation_portions, frequence_viande_rouge_charcuterie, signes_appel_tca, matiere_grasse_cuisson, frequence_boissons_sucrees, frequence_restauration_rapide, fragilite, frequence_ultratransformes
+### Profil #1 — 12 critère(s) masqué(s) (masque stratifié) : consommation_vin, frequence_poisson, acces_alimentation, insuline_ou_insulinosecreteur, difficulte_estimation_portions, frequence_viande_rouge_charcuterie, signes_appel_tca, matiere_grasse_cuisson, frequence_boissons_sucrees, frequence_restauration_rapide, fragilite, frequence_ultratransformes
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - fragilite = true
-  ○ - traitements_en_cours = [metformine, iSGLT2, tirzepatide, glinide]
+  ○ - insuline_ou_insulinosecreteur = false
   ○ - frequence_boissons_sucrees = frequent
   ○ - frequence_ultratransformes = occasionnel
   ○ - frequence_restauration_rapide = quotidien
@@ -85,8 +85,6 @@ Sortie :
       proposé parce que : regularite_repas == irreguliers
   - [recommandee] Repérer un moment de grignotage récurrent et lui trouver une alternative
       proposé parce que : frequence_grignotage == quotidien
-  Alertes de nœud :
-    - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Remplacer une boisson sucrée du quotidien par de l'eau :: à renseigner : frequence_boissons_sucrees
     - Ne pas remplacer une boisson sucrée par des édulcorants intenses :: à renseigner : frequence_boissons_sucrees
@@ -99,11 +97,11 @@ Sortie :
     - Orienter vers le diététicien de la structure :: à renseigner : fragilite, acces_alimentation, signes_appel_tca
     - Proposer aussi un avis spécialisé en trouble du comportement alimentaire :: à renseigner : signes_appel_tca
 
-### Profil #2 — 11 critère(s) masqué(s) (masque stratifié) : traitements_en_cours, frequence_restauration_rapide, matiere_grasse_cuisson, frequence_poisson, signes_appel_tca, frequence_ultratransformes, difficulte_estimation_portions, frequence_fruits_a_coque, frequence_grignotage, alimentation_emotionnelle, frequence_boissons_sucrees
+### Profil #2 — 11 critère(s) masqué(s) (masque stratifié) : insuline_ou_insulinosecreteur, frequence_restauration_rapide, matiere_grasse_cuisson, frequence_poisson, signes_appel_tca, frequence_ultratransformes, difficulte_estimation_portions, frequence_fruits_a_coque, frequence_grignotage, alimentation_emotionnelle, frequence_boissons_sucrees
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - fragilite = false
-  ○ - traitements_en_cours = [aGLP1, sulfamide, gliptine, insuline]
+  ○ - insuline_ou_insulinosecreteur = true
   ○ - frequence_boissons_sucrees = occasionnel
   ○ - frequence_ultratransformes = frequent
   ○ - frequence_restauration_rapide = frequent
@@ -147,11 +145,11 @@ Sortie :
     - Proposer aussi un avis spécialisé en trouble du comportement alimentaire :: à renseigner : signes_appel_tca
     - Continuer ce qui fonctionne déjà :: à renseigner : matiere_grasse_cuisson, frequence_fruits_a_coque
 
-### Profil #3 — 8 critère(s) masqué(s) (masque stratifié) : alimentation_emotionnelle, frequence_boissons_sucrees, traitements_en_cours, difficulte_estimation_portions, matiere_grasse_cuisson, frequence_ultratransformes, frequence_grignotage, frequence_legumineuses
+### Profil #3 — 8 critère(s) masqué(s) (masque stratifié) : alimentation_emotionnelle, frequence_boissons_sucrees, insuline_ou_insulinosecreteur, difficulte_estimation_portions, matiere_grasse_cuisson, frequence_ultratransformes, frequence_grignotage, frequence_legumineuses
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - fragilite = true
-  ○ - traitements_en_cours = [insuline]
+  ○ - insuline_ou_insulinosecreteur = true
   ○ - frequence_boissons_sucrees = quotidien
   ○ - frequence_ultratransformes = quotidien
   ■ - frequence_restauration_rapide = occasionnel
@@ -182,6 +180,8 @@ Sortie :
   Famille « Orientation » (exclusive: false) :
   - [recommandee] Orienter vers le diététicien de la structure
       proposé parce que : fragilite == true
+  Alertes de nœud :
+    - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Remplacer une boisson sucrée du quotidien par de l'eau :: à renseigner : frequence_boissons_sucrees
     - Ne pas remplacer une boisson sucrée par des édulcorants intenses :: à renseigner : frequence_boissons_sucrees
@@ -196,7 +196,7 @@ Sortie :
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - fragilite = false
-  ■ - traitements_en_cours = [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, glinide]
+  ■ - insuline_ou_insulinosecreteur = false
   ■ - frequence_boissons_sucrees = jamais
   ■ - frequence_ultratransformes = jamais
   ○ - frequence_restauration_rapide = jamais
@@ -226,8 +226,6 @@ Sortie :
   Famille « Structure des repas » (exclusive: false) :
   - [recommandee] Manger sans se presser
       proposé parce que : alimentation_emotionnelle == frequent
-  Alertes de nœud :
-    - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide
     - Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine :: à renseigner : frequence_fruits_a_coque
@@ -238,11 +236,11 @@ Sortie :
     - Orienter vers le diététicien de la structure :: à renseigner : signes_appel_tca
     - Proposer aussi un avis spécialisé en trouble du comportement alimentaire :: à renseigner : signes_appel_tca
 
-### Profil #5 — 4 critère(s) masqué(s) (masque stratifié) : frequence_restauration_rapide, frequence_legumineuses, frequence_ultratransformes, traitements_en_cours
+### Profil #5 — 4 critère(s) masqué(s) (masque stratifié) : frequence_restauration_rapide, frequence_legumineuses, frequence_ultratransformes, insuline_ou_insulinosecreteur
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - fragilite = false
-  ○ - traitements_en_cours = [metformine, sulfamide]
+  ○ - insuline_ou_insulinosecreteur = true
   ■ - frequence_boissons_sucrees = jamais
   ○ - frequence_ultratransformes = frequent
   ○ - frequence_restauration_rapide = frequent
@@ -289,7 +287,7 @@ Sortie :
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - fragilite = true
-  ■ - traitements_en_cours = [iSGLT2, aGLP1, tirzepatide, gliptine, insuline, glinide]
+  ■ - insuline_ou_insulinosecreteur = false
   ○ - frequence_boissons_sucrees = quotidien
   ○ - frequence_ultratransformes = occasionnel
   ○ - frequence_restauration_rapide = jamais
@@ -315,8 +313,6 @@ Sortie :
       proposé parce que : acces_alimentation == difficultes_importantes ; signes_appel_tca == true ; fragilite == true
   - [recommandee] Proposer aussi un avis spécialisé en trouble du comportement alimentaire
       proposé parce que : signes_appel_tca == true
-  Alertes de nœud :
-    - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
   Options écartées (sécurité, R4) :
     - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: fragilite == true
   Options EN ATTENTE (indétermination, R7/D20) :
@@ -330,11 +326,11 @@ Sortie :
     - Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre :: à renseigner : frequence_poisson
     - Se fixer des repas à des horaires à peu près réguliers :: à renseigner : regularite_repas
 
-### Profil #7 — 9 critère(s) masqué(s) (masque stratifié) : frequence_restauration_rapide, frequence_ultratransformes, traitements_en_cours, frequence_fruits_a_coque, frequence_boissons_sucrees, difficulte_estimation_portions, frequence_viande_rouge_charcuterie, acces_alimentation, regularite_repas
+### Profil #7 — 9 critère(s) masqué(s) (masque stratifié) : frequence_restauration_rapide, frequence_ultratransformes, insuline_ou_insulinosecreteur, frequence_fruits_a_coque, frequence_boissons_sucrees, difficulte_estimation_portions, frequence_viande_rouge_charcuterie, acces_alimentation, regularite_repas
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - fragilite = false
-  ○ - traitements_en_cours = [metformine, iSGLT2, tirzepatide, sulfamide, insuline, glinide]
+  ○ - insuline_ou_insulinosecreteur = false
   ○ - frequence_boissons_sucrees = occasionnel
   ○ - frequence_ultratransformes = jamais
   ○ - frequence_restauration_rapide = occasionnel
@@ -360,8 +356,6 @@ Sortie :
       proposé parce que : signes_appel_tca == true
   - [recommandee] Proposer aussi un avis spécialisé en trouble du comportement alimentaire
       proposé parce que : signes_appel_tca == true
-  Alertes de nœud :
-    - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Remplacer une boisson sucrée du quotidien par de l'eau :: à renseigner : frequence_boissons_sucrees
     - Ne pas remplacer une boisson sucrée par des édulcorants intenses :: à renseigner : frequence_boissons_sucrees
@@ -376,7 +370,7 @@ Sortie :
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - fragilite = true
-  ■ - traitements_en_cours = [aGLP1, gliptine]
+  ■ - insuline_ou_insulinosecreteur = true
   ■ - frequence_boissons_sucrees = frequent
   ■ - frequence_ultratransformes = quotidien
   ■ - frequence_restauration_rapide = quotidien
@@ -419,6 +413,7 @@ Sortie :
   - [recommandee] Orienter vers le diététicien de la structure
       proposé parce que : fragilite == true
   Alertes de nœud :
+    - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
     - Consommation de vin au niveau ou au-delà du seuil d'adhérence méditerranéenne (≥ 7 verres/semaine, score MEDAS) : ce nœud ne propose jamais l'alcool comme piste — orienter vers le repérage d'un mésusage plutôt que d'encourager cette consommation. Interactions à garder en tête : foie, triglycérides, hypoglycémie sous insulinosécréteur. [attention]
   Options écartées (sécurité, R4) :
     - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: fragilite == true
@@ -429,11 +424,11 @@ Sortie :
     - Se fixer des repas à des horaires à peu près réguliers :: à renseigner : regularite_repas
     - Continuer ce qui fonctionne déjà :: à renseigner : matiere_grasse_cuisson, frequence_fruits_a_coque
 
-### Profil #9 — 6 critère(s) masqué(s) (masque stratifié) : frequence_ultratransformes, frequence_boissons_sucrees, acces_alimentation, frequence_fruits_a_coque, consommation_vin, traitements_en_cours
+### Profil #9 — 6 critère(s) masqué(s) (masque stratifié) : frequence_ultratransformes, frequence_boissons_sucrees, acces_alimentation, frequence_fruits_a_coque, consommation_vin, insuline_ou_insulinosecreteur
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - fragilite = true
-  ○ - traitements_en_cours = [metformine, aGLP1, gliptine, glinide]
+  ○ - insuline_ou_insulinosecreteur = true
   ○ - frequence_boissons_sucrees = quotidien
   ○ - frequence_ultratransformes = quotidien
   ■ - frequence_restauration_rapide = jamais
@@ -486,7 +481,7 @@ Sortie :
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - fragilite = false
-  ■ - traitements_en_cours = [iSGLT2, tirzepatide, sulfamide, insuline]
+  ■ - insuline_ou_insulinosecreteur = false
   ■ - frequence_boissons_sucrees = occasionnel
   ■ - frequence_ultratransformes = frequent
   ■ - frequence_restauration_rapide = frequent
@@ -517,8 +512,6 @@ Sortie :
     -- groupe d'égalité #1 --
   - [recommandee] Ajouter un plat de légumineuses de plus par semaine
       proposé parce que : frequence_legumineuses == occasionnel
-  Alertes de nœud :
-    - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre :: à renseigner : matiere_grasse_cuisson
     - Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre :: à renseigner : frequence_poisson
@@ -526,11 +519,11 @@ Sortie :
     - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
     - Orienter vers le diététicien de la structure :: à renseigner : acces_alimentation
 
-### Profil #11 — 12 critère(s) masqué(s) (masque stratifié) : acces_alimentation, frequence_restauration_rapide, consommation_vin, frequence_boissons_sucrees, difficulte_estimation_portions, frequence_ultratransformes, traitements_en_cours, frequence_legumineuses, fragilite, frequence_grignotage, signes_appel_tca, alimentation_emotionnelle
+### Profil #11 — 12 critère(s) masqué(s) (masque stratifié) : acces_alimentation, frequence_restauration_rapide, consommation_vin, frequence_boissons_sucrees, difficulte_estimation_portions, frequence_ultratransformes, insuline_ou_insulinosecreteur, frequence_legumineuses, fragilite, frequence_grignotage, signes_appel_tca, alimentation_emotionnelle
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - fragilite = false
-  ○ - traitements_en_cours = [metformine, iSGLT2, tirzepatide, gliptine, glinide]
+  ○ - insuline_ou_insulinosecreteur = true
   ○ - frequence_boissons_sucrees = frequent
   ○ - frequence_ultratransformes = occasionnel
   ○ - frequence_restauration_rapide = quotidien
@@ -576,11 +569,11 @@ Sortie :
     - Orienter vers le diététicien de la structure :: à renseigner : fragilite, acces_alimentation, signes_appel_tca
     - Proposer aussi un avis spécialisé en trouble du comportement alimentaire :: à renseigner : signes_appel_tca
 
-### Profil #12 — 10 critère(s) masqué(s) (masque stratifié) : difficulte_estimation_portions, signes_appel_tca, frequence_fruits_a_coque, regularite_repas, consommation_vin, fragilite, acces_alimentation, traitements_en_cours, frequence_legumineuses, alimentation_emotionnelle
+### Profil #12 — 10 critère(s) masqué(s) (masque stratifié) : difficulte_estimation_portions, signes_appel_tca, frequence_fruits_a_coque, regularite_repas, consommation_vin, fragilite, acces_alimentation, insuline_ou_insulinosecreteur, frequence_legumineuses, alimentation_emotionnelle
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - fragilite = true
-  ○ - traitements_en_cours = [aGLP1, sulfamide, insuline]
+  ○ - insuline_ou_insulinosecreteur = false
   ■ - frequence_boissons_sucrees = jamais
   ■ - frequence_ultratransformes = jamais
   ■ - frequence_restauration_rapide = occasionnel
@@ -607,8 +600,6 @@ Sortie :
   Famille « Structure des repas » (exclusive: false) :
   - [recommandee] Repérer un moment de grignotage récurrent et lui trouver une alternative
       proposé parce que : frequence_grignotage == frequent
-  Alertes de nœud :
-    - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine :: à renseigner : frequence_fruits_a_coque
     - Ajouter un plat de légumineuses de plus par semaine :: à renseigner : frequence_legumineuses
@@ -622,7 +613,7 @@ Sortie :
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - fragilite = false
-  ■ - traitements_en_cours = [metformine, aGLP1, tirzepatide, sulfamide, glinide]
+  ■ - insuline_ou_insulinosecreteur = false
   ■ - frequence_boissons_sucrees = occasionnel
   ■ - frequence_ultratransformes = quotidien
   ○ - frequence_restauration_rapide = quotidien
@@ -652,7 +643,6 @@ Sortie :
   - [recommandee] Proposer aussi un avis spécialisé en trouble du comportement alimentaire
       proposé parce que : signes_appel_tca == true
   Alertes de nœud :
-    - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
     - Consommation de vin au niveau ou au-delà du seuil d'adhérence méditerranéenne (≥ 7 verres/semaine, score MEDAS) : ce nœud ne propose jamais l'alcool comme piste — orienter vers le repérage d'un mésusage plutôt que d'encourager cette consommation. Interactions à garder en tête : foie, triglycérides, hypoglycémie sous insulinosécréteur. [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide
@@ -664,11 +654,11 @@ Sortie :
     - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: à renseigner : difficulte_estimation_portions
     - Continuer ce qui fonctionne déjà :: à renseigner : matiere_grasse_cuisson, frequence_fruits_a_coque
 
-### Profil #14 — 7 critère(s) masqué(s) (masque stratifié) : frequence_viande_rouge_charcuterie, frequence_ultratransformes, frequence_poisson, frequence_restauration_rapide, difficulte_estimation_portions, traitements_en_cours, alimentation_emotionnelle
+### Profil #14 — 7 critère(s) masqué(s) (masque stratifié) : frequence_viande_rouge_charcuterie, frequence_ultratransformes, frequence_poisson, frequence_restauration_rapide, difficulte_estimation_portions, insuline_ou_insulinosecreteur, alimentation_emotionnelle
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - fragilite = true
-  ○ - traitements_en_cours = [iSGLT2, gliptine, insuline]
+  ○ - insuline_ou_insulinosecreteur = true
   ■ - frequence_boissons_sucrees = quotidien
   ○ - frequence_ultratransformes = jamais
   ○ - frequence_restauration_rapide = occasionnel
@@ -704,6 +694,8 @@ Sortie :
   Famille « Maintien » (exclusive: false) :
   - [recommandee] Continuer ce qui fonctionne déjà
       proposé parce que : matiere_grasse_cuisson == huile_olive_ou_colza AND frequence_fruits_a_coque == regulier
+  Alertes de nœud :
+    - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Un repas simple fait maison de plus par semaine :: à renseigner : frequence_ultratransformes
     - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide

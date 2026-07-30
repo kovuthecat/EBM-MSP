@@ -52,9 +52,11 @@
 # source HAS parallèle juge par ailleurs les preuves insuffisantes sur ce chiffre précis, signalé en
 # argumentaire).
 #
-# TERRAIN PARTAGÉ (I4) : `fragilite` et `traitements_en_cours` sont déclarés IDENTIQUES au reste du
-# domaine et au nœud sœur `rhd-alimentation` (mêmes noms, même type, même énumération). `age`/
-# `esperance_vie` NE SONT PAS déclarés ici : aucune règle de ce nœud ne les rend décisifs (R5).
+# TERRAIN (I4) : `fragilite` est déclaré IDENTIQUE au reste du domaine et au nœud sœur
+# `rhd-alimentation`. `traitements_en_cours` a été REMPLACÉ le 2026-07-29, dans les deux nœuds RHD
+# ensemble, par le bool `insuline_ou_insulinosecreteur` (cf. sa déclaration) — nom différent parce que
+# concept différent : les deux nœuds RHD ne lisaient que l'exposition à l'hypoglycémie, pas la classe.
+# `age`/`esperance_vie` NE SONT PAS déclarés ici : aucune règle de ce nœud ne les rend décisifs (R5).
 #
 # PORTÉE VOLONTAIREMENT RÉDUITE vs la collecte (R5, charge de saisie) : S7 (goûts/préférence d'activité)
 # NON repris — la source elle-même le décrit comme une aide à la négociation qui « ne bloque rien »,
@@ -94,19 +96,32 @@ familles:
   - libelle: "Maintien"
     exclusive: false
 criteres_entree:
-  # ── Terrain partagé (I4 : identique à rhd.yaml/prescription.yaml/insuline.yaml/rhd-alimentation.yaml) ──
+  # ── Terrain (I4 : `fragilite` identique à rhd.yaml/prescription.yaml/insuline.yaml/rhd-alimentation.yaml) ──
   - nom: fragilite
+    # `partage` ajouté le 2026-07-29 (recette référent, item F/point 5) : encodage désormais IDENTIQUE
+    # sur tous les nœuds qui le déclarent (type, valeurs, bornes, presomption_non) — condition I19.
+    partage: true
     type: bool
     groupe: Terrain
-  - nom: traitements_en_cours
-    type: liste
+  # 2026-07-29 — REMPLACE `traitements_en_cours` (`liste` de 9 classes) SUR CE NŒUD UNIQUEMENT, à
+  # l'identique du nœud sœur `rhd-alimentation`. Motif (R5) : sur les 9 cases, ce nœud n'en lisait que 4
+  # (insuline basale, insuline rapide, sulfamide, glinide) et toujours ensemble, dans l'unique `quand` de
+  # l'alerte d'hypoglycémie à l'effort ci-dessous ; les 5 autres (metformine, iSGLT2, aGLP1, tirzépatide,
+  # gliptine) n'apparaissaient dans aucune condition — cliniquement inertes ici. NOM : « hypoglycémiant »
+  # serait ambigu (metformine et gliptine sont des antihyperglycémiants) — on nomme les deux mécanismes
+  # qui exposent réellement à l'hypoglycémie. `prescription.yaml`/`insuline.yaml` gardent, eux,
+  # `traitements_en_cours` en 9 valeurs (`partage: true`) : ils prescrivent, ils ont besoin de la classe.
+  - nom: insuline_ou_insulinosecreteur
+    type: bool
     groupe: Terrain
-    valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, insuline_basale, insuline_rapide, glinide]
-    # T-018 (P4/S1, D30) : éligible mécaniquement à presomption_non SUR CE NŒUD (ne participe ici à
-    # aucune condition d'option `role: securite` ni à aucune `exclusions` — seulement une `alerte` de
-    # nœud, canal distinct). Déjà connu DIVERGENT entre nœuds (`engine/banc/coherence-inter-noeuds.test.ts`
-    # — `valeurs` différentes sur `insuline`) : sur `prescription`, ce même nom NE reçoit PAS
-    # presomption_non (il y gate plusieurs options `role: securite` et exclusions rénales/cétose).
+    aide: >-
+      Insuline (basale ou rapide), sulfamide hypoglycémiant (gliclazide, glimépiride…) ou glinide
+      (répaglinide) — les seules classes qui exposent à l'hypoglycémie à l'effort. Metformine, iSGLT2,
+      AR GLP-1, tirzépatide et gliptine n'y exposent pas en monothérapie et ne sont pas concernées.
+    # `presomption_non` CONSERVÉ (T-018/D30) : éligibilité mécanique inchangée par ce renommage — aucune
+    # condition d'option `role: securite`, aucune `exclusions`, aucun `prerequis` ne le lit ; il ne
+    # conditionne qu'une `alerte` de nœud (canal distinct, R8). Le retirer changerait le comportement
+    # (indéterminé, donc « décisif à confirmer » sur formulaire vierge) : hors périmètre de ce lot.
     presomption_non: true
   # ── Socle — habitudes d'activité physique (S1-S5) ──
   - nom: frequence_activite_structuree
@@ -418,7 +433,7 @@ alertes:
       distinguer les pistes par segment corporel : orienter vers une pratique adaptée plutôt que de
       conclure à l'absence d'activité possible. Surveillance podologique et chaussage adaptés dans tous
       les cas.
-  - quand: "traitements_en_cours contient insuline_basale OR traitements_en_cours contient insuline_rapide OR traitements_en_cours contient sulfamide OR traitements_en_cours contient glinide"
+  - quand: "insuline_ou_insulinosecreteur == true"
     niveau: attention
     message: >-
       Sous insuline, sulfamide ou glinide, toute augmentation de la dépense énergétique majore le risque
@@ -544,8 +559,27 @@ meta:
   date_revue: "2026-07-26"
   auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
   statut: brouillon
-  version: "0.7"
+  version: "0.8"
   changelog:
+    - date: "2026-07-29"
+      auteur: "Claude Code (lot « simplification de saisie ») — en attente de relecture référent"
+      resume: >-
+        `traitements_en_cours` (`liste` de 9 classes) REMPLACÉ, SUR CE NŒUD SEULEMENT, par le bool
+        `insuline_ou_insulinosecreteur` — même opération, le même jour, que sur le nœud sœur
+        `rhd-alimentation`, et pour le même constat mécanique : ce critère n'était lu qu'au `quand` de
+        l'alerte d'hypoglycémie À L'EFFORT, et n'y lisait que 4 de ses 9 valeurs (insuline basale,
+        insuline rapide, sulfamide, glinide), toujours ensemble. Les 5 autres cases n'agissaient dans
+        aucune condition du nœud (R5). `presomption_non: true` CONSERVÉ (éligibilité mécanique T-018/D30
+        inchangée : le critère ne conditionne qu'une alerte de nœud, canal distinct de `role: securite`
+        et des `exclusions`, R8). `prescription.yaml`/`insuline.yaml` hors périmètre, ils gardent les 9
+        valeurs. ZÉRO changement de conduite (golden master : seules bougent la ligne du critère et la
+        présence de cette alerte). EFFET DE BORD MESURÉ, ET C'EST LE POINT INTÉRESSANT DU LOT : une
+        `liste` n'est PAS énumérable par le banc, un `bool` l'est — retirer 8 cases au praticien a donc
+        MULTIPLIÉ PAR 2 le produit cartésien de ce nœud (55 296 → 110 592) et lui a fait franchir
+        `PLAFOND_ENUMERATION_EXHAUSTIVE`, ce qui l'aurait fait basculer en couverture PROBABILISTE. Le
+        garde-fou G3 (`banc/grammaire.test.ts`, écrit pour ça le 2026-07-27) l'a signalé à la première
+        exécution ; plafond relevé 60 000 → 120 000 (`banc/profils.ts`) pour garder la couverture
+        PROUVÉE, ce nœud portant une alerte de sécurité. Texte de l'alerte INCHANGÉ.
     - date: "2026-07-28"
       auteur: "Claude Code (P4/S1, T-018) — correctif mécanique, en attente de relecture référent"
       resume: >-

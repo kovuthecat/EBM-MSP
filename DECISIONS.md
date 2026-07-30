@@ -46,6 +46,7 @@ Format du détail : cf. `Templates/DECISIONS.md`. Les décisions caduques descen
 - 2026-07-28 — **D33 · Bouton « Nouveau patient » purge la mémoire de session (complète D28)** — confirmation requise, orchestré par `App.tsx` → [détail](docs/decisions/2026-07-28-d33-la-memoire-de-session-a-un-geste-de-sortie-complete-d28.md)
 - 2026-07-28 — **D34 · Contre-indications : registre de sécurité en tête, puis repli dans le dépli avec indicateur (amendement P6/SB3)** — jamais totalement invisible, libellé du `<summary>` change selon leur présence → [détail](docs/decisions/2026-07-28-d34-contre-indications-d-une-option-registre-de-securite-en-tete.md)
 - 2026-07-28 — **D35 · `Option.action` (5 verbes fixes)** — effet de présentation seul, réservé aux nœuds dont le vocabulaire des intitulés l'emploie déjà (`prescription`, `insuline`) → [détail](docs/decisions/2026-07-28-d35-champ-optionnel-option-action-vocabulaire-fixe-a-5-verbes-re.md)
+- 2026-07-29 — **D36 · Un critère partagé se réduit à ce que le nœud en consomme** — nom et type propres quand un nœud ne lit qu'une part d'un critère de domaine (1er cas : les 2 nœuds RHD, `traitements_en_cours` → `insuline_ou_insulinosecreteur`) → [détail](docs/decisions/2026-07-29-d36-un-critere-partage-se-reduit-a-ce-que-le-noeud-en-consomme.md)
 
 ## Décisions ouvertes (à trancher avec le comité MSP)
 

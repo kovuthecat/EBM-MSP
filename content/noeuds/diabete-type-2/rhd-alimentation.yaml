@@ -46,15 +46,19 @@
 #     non comportemental — réduire la viande retire une source de protéines, déplacer la part relative de
 #     l'assiette vers les légumes réduit l'apport énergétique. Les deux garde-fous étaient jusqu'ici réunis
 #     dans la même ligne d'exclusion ; ils n'ont jamais eu la même raison d'être.
-#   - hypoglycémie sous insuline/sulfamide/glinide (`traitements_en_cours`, réutilisé) : ALERTE de nœud
-#     (pas un blocage — arbitrage référent), vraie quel que soit le geste retenu (R8).
+#   - hypoglycémie sous insuline/sulfamide/glinide (`insuline_ou_insulinosecreteur`, bool propre à ce nœud
+#     depuis le 2026-07-29 — cf. sa déclaration) : ALERTE de nœud (pas un blocage — arbitrage référent),
+#     vraie quel que soit le geste retenu (R8).
 #
 # VIN : recueilli (`consommation_vin`, approfondissement — item #8 du MEDAS), JAMAIS proposé par aucune
 # piste (refus délibéré de proposer de l'alcool en soins primaires). Une consommation élevée déclenche une
 # alerte de repérage de mésusage, pas une piste.
 #
-# TERRAIN PARTAGÉ (I4) : `fragilite` et `traitements_en_cours` sont déclarés IDENTIQUES au reste du
-# domaine (mêmes noms, même type, même énumération que `rhd.yaml`/`prescription.yaml`/`insuline.yaml`).
+# TERRAIN (I4) : `fragilite` est déclaré IDENTIQUE au reste du domaine (même nom, même type que
+# `rhd.yaml`/`prescription.yaml`/`insuline.yaml`). `traitements_en_cours` NE L'EST PLUS depuis le
+# 2026-07-29 : ce nœud ne lisait que la présence d'un agent exposant à l'hypoglycémie, il déclare donc un
+# bool DE NOM DIFFÉRENT (`insuline_ou_insulinosecreteur`) — un nom différent pour un concept différent,
+# ce qui est exactement ce que I4 demande (le contre-exemple serait le même nom pour deux sens).
 # `age`/`esperance_vie` NE SONT PAS déclarés ici : aucune règle de ce nœud ne les rend décisifs (R5) — s'ils
 # devenaient nécessaires, les réutiliser à l'identique, jamais sous un synonyme.
 #
@@ -112,19 +116,37 @@ familles:
   - libelle: "Maintien"
     exclusive: false
 criteres_entree:
-  # ── Terrain partagé (I4 : identique à rhd.yaml/prescription.yaml/insuline.yaml) ──
+  # ── Terrain (I4 : `fragilite` identique à rhd.yaml/prescription.yaml/insuline.yaml) ──
   - nom: fragilite
+    # `partage` ajouté le 2026-07-29 (recette référent, item F/point 5) : encodage désormais IDENTIQUE
+    # sur tous les nœuds qui le déclarent (type, valeurs, bornes, presomption_non) — condition I19.
+    partage: true
     type: bool
     groupe: Terrain
-  - nom: traitements_en_cours
-    type: liste
+  # 2026-07-29 — REMPLACE `traitements_en_cours` (`liste` de 9 classes) SUR CE NŒUD UNIQUEMENT.
+  # Motif (R5 : un critère qu'on demande doit agir) : sur les 9 cases à cocher, ce nœud n'en lisait que
+  # 4 (insuline basale, insuline rapide, sulfamide, glinide) et toujours ensemble, dans l'unique `quand`
+  # de l'alerte d'hypoglycémie ci-dessous. Les 5 autres (metformine, iSGLT2, aGLP1, tirzépatide,
+  # gliptine) n'apparaissaient dans AUCUNE condition du nœud : cliniquement inertes ici, elles ne
+  # coûtaient que de la saisie. Le critère est donc réduit à ce que la règle consomme réellement.
+  # NOM : « hypoglycémiant » serait ambigu en français (metformine et gliptine sont des
+  # antihyperglycémiants, pas des hypoglycémiants) — on nomme les deux mécanismes qui exposent
+  # réellement à l'hypoglycémie : insuline exogène et insulinosécréteurs (sulfamides, glinides).
+  # `prescription.yaml` et `insuline.yaml` gardent, eux, `traitements_en_cours` en 9 valeurs
+  # (`partage: true`) : ils ont besoin de savoir QUELLE classe est en cours pour prescrire.
+  - nom: insuline_ou_insulinosecreteur
+    type: bool
     groupe: Terrain
-    valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, insuline_basale, insuline_rapide, glinide]
-    # T-018 (P4/S1, D30) : éligible mécaniquement à presomption_non SUR CE NŒUD (ne participe ici à
-    # aucune condition d'option `role: securite` ni à aucune `exclusions` — seulement une `alerte` de
-    # nœud, canal distinct). Déjà connu DIVERGENT entre nœuds (`engine/banc/coherence-inter-noeuds.test.ts`
-    # — `valeurs` différentes sur `insuline`) : sur `prescription`, ce même nom NE reçoit PAS
-    # presomption_non (il y gate plusieurs options `role: securite` et exclusions rénales/cétose).
+    aide: >-
+      Insuline (basale ou rapide), sulfamide hypoglycémiant (gliclazide, glimépiride…) ou glinide
+      (répaglinide) — les seules classes qui exposent à l'hypoglycémie. Metformine, iSGLT2, AR GLP-1,
+      tirzépatide et gliptine n'y exposent pas en monothérapie et ne sont pas concernées.
+    # `presomption_non` CONSERVÉ (T-018/D30) : l'éligibilité mécanique est inchangée par ce
+    # renommage — ce critère ne participe à aucune condition d'option `role: securite` ni à aucune
+    # `exclusions` ni à aucun `prerequis` de ce nœud ; il ne conditionne qu'une `alerte` de nœud (canal
+    # distinct, R8). Le retirer changerait le comportement (le critère deviendrait indéterminé et
+    # compterait comme « décisif à confirmer » sur formulaire vierge) : hors périmètre de ce lot, qui
+    # ne veut aucun changement de comportement au-delà de la réduction de saisie.
     presomption_non: true
   # ── Socle — habitudes du quotidien (S1-S7 de la collecte) ──
   - nom: frequence_boissons_sucrees
@@ -532,7 +554,7 @@ options:
     effet_attendu: "Non chiffrable — renforcement positif d'une situation déjà favorable sur ces deux axes."
     niveau_preuve: faible
 alertes:
-  - quand: "traitements_en_cours contient insuline_basale OR traitements_en_cours contient insuline_rapide OR traitements_en_cours contient sulfamide OR traitements_en_cours contient glinide"
+  - quand: "insuline_ou_insulinosecreteur == true"
     niveau: attention
     message: >-
       Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou
@@ -685,8 +707,31 @@ meta:
   date_revue: "2026-07-26"
   auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
   statut: brouillon
-  version: "0.8"
+  version: "0.9"
   changelog:
+    - date: "2026-07-29"
+      auteur: "Claude Code (lot « simplification de saisie ») — en attente de relecture référent"
+      resume: >-
+        `traitements_en_cours` (`liste` de 9 classes, réutilisée du reste du domaine) REMPLACÉ, SUR CE
+        NŒUD SEULEMENT, par le bool `insuline_ou_insulinosecreteur`. Constat mécanique : ce critère
+        n'était lu qu'à UN endroit du nœud — le `quand` de l'alerte d'hypoglycémie — et n'y lisait que 4
+        de ses 9 valeurs (insuline basale, insuline rapide, sulfamide, glinide), toujours ensemble dans
+        une même disjonction. Les 5 autres cases (metformine, iSGLT2, aGLP1, tirzépatide, gliptine)
+        n'apparaissaient dans AUCUNE condition : R5 (« un critère qu'on demande doit agir ») était violé
+        sur 5 cases à cocher, demandées à chaque consultation pour ne rien changer à la sortie. Le nom
+        écarte « hypoglycémiant », ambigu en français (metformine et gliptine sont des
+        antihyperglycémiants) au profit des deux mécanismes réellement en cause. `presomption_non: true`
+        CONSERVÉ : l'éligibilité mécanique (T-018/D30) est inchangée — aucune condition d'option
+        `role: securite`, aucune `exclusions`, aucun `prerequis` ne le lit, seulement une alerte de nœud
+        (canal distinct, R8) ; le retirer aurait rendu le critère indéterminé, donc « décisif à
+        confirmer » sur formulaire vierge, un changement de comportement que ce lot ne veut pas.
+        `prescription.yaml` et `insuline.yaml` gardent la liste à 9 valeurs (`partage: true`) : eux
+        prescrivent, la classe exacte y est décisive — ils sont HORS PÉRIMÈTRE de ce lot. ZÉRO
+        changement de conduite : le golden master de caractérisation ne diffère que sur la ligne du
+        critère et sur la présence de cette alerte — aucune option proposée, écartée ou en attente ne
+        bouge sur les 180 profils. Effet de bord signalé par le banc lui-même (G3) sur le nœud sœur, cf.
+        son changelog du même jour. Texte de l'alerte INCHANGÉ (il nommait déjà les classes en clair,
+        jamais le critère).
     - date: "2026-07-28"
       auteur: "Claude Code (P4/S1, T-018) — correctif mécanique, en attente de relecture référent"
       resume: >-

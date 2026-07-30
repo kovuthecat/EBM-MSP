@@ -240,6 +240,17 @@ Toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport caloriqu
 d'hypoglycémie chez un patient sous insuline, sulfamide ou glinide — alerte de nœud, cohérente avec
 l'arbitrage déjà tranché côté nœud `rhd` (§8-5 du dossier de preuve H) : alerte conservée, pas d'exclusion.
 
+**Ce qui est demandé au praticien pour la déclencher (2026-07-29).** Un booléen,
+`insuline_ou_insulinosecreteur`, et non plus la liste `traitements_en_cours` à neuf classes réutilisée du
+reste du domaine. Motif : cette alerte est la SEULE règle de ce nœud qui lisait ce critère, et elle n'y
+lisait que quatre valeurs (insuline basale, insuline rapide, sulfamide, glinide), toujours ensemble. Les
+cinq autres cases — metformine, iSGLT2, AR GLP-1, tirzépatide, gliptine — n'apparaissaient dans aucune
+condition : cliniquement inertes ICI (elles restent décisives dans `prescription`/`insuline`, qui gardent
+la liste complète). R5 demande qu'un critère qu'on demande agisse ; cinq cases sur neuf n'agissaient pas.
+Le nom retenu écarte « hypoglycémiant », ambigu en français : metformine et gliptine sont des
+antihyperglycémiants, ils n'exposent pas à l'hypoglycémie en monothérapie. Aucun changement de
+conduite — à patient identique, l'alerte se déclenche exactement dans les mêmes cas.
+
 ## 5. Ce qui n'a pas été repris, et pourquoi
 
 - **R2 (« explorer le contexte avant de juger »)** — le red-team l'a reclassée savoir-faire (elle

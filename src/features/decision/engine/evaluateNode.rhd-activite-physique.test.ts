@@ -53,7 +53,7 @@ if (!node) {
 const BASE: Criteria = {
   ...buildDefaultCriteria(node.criteres_entree),
   fragilite: false,
-  traitements_en_cours: [],
+  insuline_ou_insulinosecreteur: false,
   frequence_activite_structuree: 'deux_a_trois_fois_semaine',
   duree_seance: 'plus_30_min',
   mode_deplacement_courts_trajets: 'actif_pied_ou_velo',
@@ -248,8 +248,8 @@ describe('rhd-activite-physique — R-P-03 : neuropathie périphérique / mal pe
 // blocage des pistes proposées ». Le red-team avait laissé ce point ouvert (finding B-3) ; il a été
 // tranché. Même forme que R-A-03 sur l'autre nœud RHD : les deux moitiés sont vérifiées ensemble.
 // ═══════════════════════════════════════════════════════════════════════════════════════════════════
-describe('rhd-activite-physique — R-P-04 : sous insuline rapide et glinide, patient sédentaire', () => {
-  const PROFIL: Partial<Criteria> = { ...SEDENTAIRE, traitements_en_cours: ['insuline_rapide', 'glinide'] }
+describe('rhd-activite-physique — R-P-04 : sous insuline ou insulinosécréteur, patient sédentaire', () => {
+  const PROFIL: Partial<Criteria> = { ...SEDENTAIRE, insuline_ou_insulinosecreteur: true }
 
   it('l’alerte d’hypoglycémie à l’effort se déclenche', () => {
     expect(alertes(PROFIL).some((m) => m.includes("hypoglycémie À L'EFFORT"))).toBe(true)

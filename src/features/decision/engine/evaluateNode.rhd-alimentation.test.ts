@@ -61,7 +61,7 @@ if (!node) {
 const BASE: Criteria = {
   ...buildDefaultCriteria(node.criteres_entree),
   fragilite: false,
-  traitements_en_cours: [],
+  insuline_ou_insulinosecreteur: false,
   frequence_boissons_sucrees: 'jamais',
   frequence_ultratransformes: 'jamais',
   frequence_restauration_rapide: 'jamais',
@@ -251,7 +251,9 @@ describe('rhd-alimentation — R-A-02 : signes d’appel de TCA, patient NON fra
 // ═══════════════════════════════════════════════════════════════════════════════════════════════════
 // R-A-03 — L'hypoglycémie ALERTE, elle ne retire pas (R8, D21)
 //
-// Arbitrage consigné : « hypoglycémie sous insuline/sulfamide/glinide (`traitements_en_cours`, réutilisé) :
+// Arbitrage consigné : « hypoglycémie sous insuline/sulfamide/glinide (`insuline_ou_insulinosecreteur`,
+// bool propre au nœud depuis le 2026-07-29 — il remplace la liste `traitements_en_cours`, dont ce nœud ne
+// lisait que ces quatre valeurs) :
 // ALERTE de nœud (pas un blocage — arbitrage référent), vraie quel que soit le geste retenu (R8). »
 //
 // R8 dit qu'une alerte ne retire rien. La vignette vérifie les deux moitiés ensemble : l'alerte est bien
@@ -259,9 +261,9 @@ describe('rhd-alimentation — R-A-02 : signes d’appel de TCA, patient NON fra
 // régression qui doublerait l'alerte d'une exclusion — le geste disparaîtrait de l'écran en même temps
 // que le praticien lirait pourquoi y faire attention.
 // ═══════════════════════════════════════════════════════════════════════════════════════════════════
-describe('rhd-alimentation — R-A-03 : sous insuline basale et sulfamide, boissons sucrées quotidiennes', () => {
+describe('rhd-alimentation — R-A-03 : sous insuline ou insulinosécréteur, boissons sucrées quotidiennes', () => {
   const PROFIL: Partial<Criteria> = {
-    traitements_en_cours: ['insuline_basale', 'sulfamide'],
+    insuline_ou_insulinosecreteur: true,
     frequence_boissons_sucrees: 'quotidien',
   }
 
@@ -275,7 +277,10 @@ describe('rhd-alimentation — R-A-03 : sous insuline basale et sulfamide, boiss
   })
 
   it('sans traitement pourvoyeur d’hypoglycémie, l’alerte ne se déclenche pas', () => {
-    const sansTraitement = alertes({ traitements_en_cours: ['metformine'], frequence_boissons_sucrees: 'quotidien' })
+    const sansTraitement = alertes({
+      insuline_ou_insulinosecreteur: false,
+      frequence_boissons_sucrees: 'quotidien',
+    })
     expect(sansTraitement.some((m) => m.includes('hypoglycémie'))).toBe(false)
   })
 })

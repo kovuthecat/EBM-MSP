@@ -167,6 +167,15 @@ côté alimentation (hypoglycémie PAR RESTRICTION DES APPORTS). **Arbitrage ré
 tâche) : alerte simple, pas un blocage.** Les deux nœuds convergent donc vers le même canal malgré des
 mécanismes cliniques différents.
 
+**Ce qui est demandé au praticien pour la déclencher (2026-07-29).** Un booléen,
+`insuline_ou_insulinosecreteur`, et non plus la liste `traitements_en_cours` à neuf classes — même
+changement, le même jour, que sur le nœud sœur `rhd-alimentation`, et pour la même raison : cette alerte
+était la SEULE règle du nœud à lire ce critère, et elle n'y lisait que quatre valeurs (insuline basale,
+insuline rapide, sulfamide, glinide), toujours ensemble. Les cinq autres cases n'agissaient nulle part
+dans ce nœud (R5). `prescription`/`insuline` gardent la liste complète : eux prescrivent, ils ont besoin
+de savoir QUELLE classe est en cours. Aucun changement de conduite — à patient identique, l'alerte se
+déclenche exactement dans les mêmes cas.
+
 ## 5. Ce qui n'a pas été repris, et pourquoi
 
 - **S7 (goûts/préférence d'activité)** — la source elle-même la décrit comme une aide à la négociation qui
