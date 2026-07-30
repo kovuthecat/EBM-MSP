@@ -107,6 +107,53 @@ l'une des deux bandes, l'option passe **en attente** (D20 : « à renseigner : d
 que d'affirmer une réduction à l'aveugle. L'alerte rénale (paliers DFG) est inchangée — elle reste vraie
 quel que soit le geste retenu.
 
+**Ajout 2026‑07‑30 (P9/S8, T-075) — la carte metformine porte enfin un protocole de titration.** Motif :
+rapport de recette N1 sur la vignette la plus simple du nœud — *« Aucune dose, aucune titration.
+"Instaurer ou poursuivre" n'est pas une prescription. »* Source **unique**, fournie par le référent :
+Assurance Maladie (ameli), mémo médecin *« Prescription de metformine chez le patient diabétique de type
+2 »* (fichier `memometformine-medecin.pdf`, hors dépôt ; aucune date d'édition visible sur le document
+lui-même — les seules dates lisibles sont celles de rapports cités en référence, 2018‑2020). Le mémo
+couvre : la place de la metformine (1re intention, maintenue en intensification), son efficacité/sécurité
+vs placebo (HbA1c −0,97 %, neutralité pondérale, pas d'hypoglycémie, sécurité CV — HAS 2013), une table
+posologie/DFG (≥60 → 3 g/j, 45‑59 → 2 g/j, 30‑44 → 1 g/j, <30 → contre‑indiquée), les cas d'arrêt
+momentané (contraste iodé, décompensation cardiaque, chirurgie sous anesthésie, déshydratation aiguë), les
+contre‑indications (IRénale/IRespiratoire/IHépatique sévères), et surtout des **mesures de tolérance et un
+protocole de titration** : prescrire en 2‑3 prises en milieu/fin de repas, augmenter progressivement à
+partir d'une dose d'initiation par paliers d'1 semaine à 15 jours selon la tolérance digestive jusqu'à la
+dose cible, avec un exemple concret (cible 2 g/j, Glucophage 1000 mg : ½ cp matin+soir 15 j → ½ cp
+matin/1 cp soir 15 j → 1 cp matin+soir 1 mois, retour au palier précédent 15 jours si intolérance),
+répartition des prises selon les préférences du patient en gardant la prise au repas, comprimés sécables
+en cas de trouble de déglutition, Stagid® (embonate de metformine, moins de metformine base) utile pour
+l'instauration.
+
+**Vérification de non‑contradiction (étape 2 de la tâche)** : la table DFG du mémo (≥60 → 3 g/j, 45‑59 →
+2 g/j, 30‑44 → 1 g/j, <30 → CI) reproduit **exactement** les seuils déjà encodés dans ce nœud (T-070, S3 :
+contre‑indication DFG < 30 de l'option socle ; option « Réduire la posologie de la metformine », seuils
+45‑59 → 2 g/j / 30‑44 → 1 g/j). Aucune valeur clinique modifiée, aucune contre‑indication touchée.
+
+**Portée volontairement limitée à l'INSTAURATION** (étape 3) : l'option reste « Metformine (socle du
+traitement) — instaurer ou poursuivre » (les deux cas coexistent, aucun critère du nœud ne les distingue
+pour cette option). Le protocole de titration n'a de sens que pour un patient naïf ; les deux puces
+ajoutées aux `avantages` sont donc explicitement préfixées « En INSTAURATION » / « Observance » plutôt que
+formulées comme une instruction générale, pour ne jamais laisser croire qu'un patient déjà stabilisé doit
+reprendre une titration.
+
+**Rendu** (décision clé de S8.md) : prose sourcée dans `avantages` — le nœud n'a pas de mécanisme
+`calculs` capable de porter une **séquence** de paliers dans le temps (`calculs` évalue une formule unique
+depuis les critères du patient, ex. `poids * 0.15` ; le protocole d'instauration est une séquence fixe de
+3 paliers de durée fixe, indépendante des critères saisis pour ce nœud) — aucun nouveau mécanisme créé,
+conformément à la décision clé. Pour que ces chiffres restent lisibles **sans ouvrir le dépli**
+(exigence de S8.md, directement issue de la vignette N1 lue « en 2 minutes de consultation ») : ajout d'un
+`apercu` sur l'option — mécanisme générique déjà livré par T-076 (P9/S9) pour la carte statine, réutilisé
+tel quel sans modification de schéma ni de composant, reprenant sans recalcul les chiffres déjà écrits
+dans les `avantages` ajoutés.
+
+**Ce que le mémo ne couvre pas** : aucun protocole alternatif pour une cible autre que 2 g/j (l'exemple du
+mémo est unique), aucune indication de dose maximale au-delà de la table DFG déjà encodée, aucune
+précision sur la conduite en cas d'intolérance persistante malgré le retour au palier précédent (déjà
+couvert ailleurs dans ce nœud par l'option « Réduire la posologie » et son alerte). Rien de tout cela
+n'était demandé par T-075 ; signalé pour mémoire, non comblé par une autre source.
+
 Points‑clés :
 
 1. **Hiérarchie de valeur** (importée de B/C) : iSGLT2 et AR GLP‑1 ont un bénéfice d'organe démontré (CVOT vs

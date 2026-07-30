@@ -521,6 +521,16 @@ options:
       - "metformine_deprescriptible == true"
     avantages:
       - "Reco officielle française maintenue en 1re intention (coût, recul, tolérance, absence d'hypoglycémie) ; suffit SEULE sans indication d'agent à bénéfice d'organe."
+      # AJOUT T-075 (P9/S8, 2026-07-30) : protocole de titration, en réponse au rapport de recette N1
+      # (« Aucune dose, aucune titration. "Instaurer ou poursuivre" n'est pas une prescription. »). Vise
+      # UNIQUEMENT l'INSTAURATION (patient naïf) — le protocole n'a pas de sens chez un patient déjà
+      # stabilisé sous metformine, d'où le préfixe explicite. Source unique et nommée : Assurance Maladie
+      # (ameli), mémo médecin « Prescription de metformine chez le patient diabétique de type 2 » (aucune
+      # date d'édition visible sur le document). Ne modifie ni ne contredit les contre-indications/paliers
+      # rénaux déjà encodés dans ce nœud (DFG < 30 = CI ; réduction 45-59/30-44) : la table DFG du mémo
+      # (≥60 → 3 g/j, 45-59 → 2 g/j, 30-44 → 1 g/j, <30 → CI) est identique aux seuils déjà présents.
+      - "En INSTAURATION : définir une dose de départ puis l'augmenter par palier d'1 semaine à 15 jours selon la tolérance digestive jusqu'à la dose cible, en 2 à 3 prises en milieu ou fin de repas — exemple du mémo pour une cible de 2 g/j (Glucophage 1000 mg) : ½ cp matin + ½ cp soir pendant 15 jours, puis ½ cp matin + 1 cp soir pendant 15 jours, puis 1 cp matin + 1 cp soir pendant 1 mois ; si nausées/diarrhées non supportées, revenir au palier précédent pendant 15 jours avant de reprendre l'augmentation (source : Assurance Maladie / ameli, mémo « Prescription de metformine chez le patient diabétique de type 2 »)."
+      - "Observance : répartir les prises selon les préférences du patient en conservant une prise en milieu/fin de repas ; comprimés sécables en cas de troubles de déglutition ; l'embonate de metformine (Stagid®, quantité de metformine base plus faible) peut faciliter l'instauration (même source : Assurance Maladie / ameli, mémo « Prescription de metformine chez le patient diabétique de type 2 »)."
     inconvenients:
       - "Bénéfice propre sur critère dur de preuve faible (ne pas afficher « bénéfice CV prouvé »)."
       - "EXCEPTION à la poursuite — intolérance digestive (surtout si un AR GLP‑1 est aussi en cours) : la metformine étant l'agent au bénéfice le plus faible, sa réduction / son arrêt est à privilégier (cf. option « réduire l'agent mal toléré » et alerte)."
@@ -530,6 +540,11 @@ options:
     niveau_preuve: faible
     contre_indications:
       - "CONTRE‑INDIQUÉE si DFG < 30 (RCP ANSM) ; à écarter en insuffisance cardiaque décompensée, IDM récent, insuffisance hépatique, alcoolisme. À suspendre : déshydratation, sepsis, jeûne, produit de contraste iodé, chirurgie."
+    # T-075 (P9/S8) — aperçu affiché dans le titre du dépli REPLIÉ (mécanisme T-076/P9·S9, générique,
+    # réutilisé tel quel), reprenant SANS RECALCUL les chiffres déjà écrits dans les `avantages`
+    # ci-dessus : c'est exactement ce que la vignette N1 réclamait, lisible en 2 minutes de consultation
+    # sans ouvrir le dépli.
+    apercu: "instauration : paliers de 15 j jusqu'à dose cible (ex. 2 g/j en 1 mois), 2-3 prises au repas"
   # ---- Sécurité rénale metformine ----------------------------------------------------------------------
   - intitule: "Arrêter la metformine (DFG < 30 — contre‑indication rénale)"
     role: securite
@@ -2092,8 +2107,29 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.40"
+  version: "0.41"
   changelog:
+    - date: "2026-07-30"
+      auteur: "Claude Code (P9/S8, T-075) — en attente de relecture référent"
+      resume: >-
+        PROTOCOLE DE TITRATION DE LA METFORMINE, SOURCÉ (mémo Ameli) : en réponse au rapport de recette
+        N1 sur la vignette la plus simple du nœud (« Aucune dose, aucune titration. "Instaurer ou
+        poursuivre" n'est pas une prescription. »), l'option socle « Metformine (socle du traitement) —
+        instaurer ou poursuivre » porte désormais un protocole d'introduction progressive, ciblé sur le
+        cas INSTAURATION uniquement (deux nouvelles puces `avantages`, préfixées « En INSTAURATION » /
+        « Observance », le patient déjà stabilisé n'étant pas concerné). Source unique : Assurance
+        Maladie (ameli), mémo médecin « Prescription de metformine chez le patient diabétique de type 2 »
+        (aucune date d'édition visible sur le PDF fourni) — dose de départ, paliers de 1 semaine à 15
+        jours selon la tolérance digestive jusqu'à la dose cible, 2‑3 prises en milieu/fin de repas,
+        exemple concret à 2 g/j (Glucophage 1000 mg, 3 paliers de 15 j/15 j/1 mois), conduite en cas
+        d'intolérance (retour au palier précédent 15 jours), mesures d'observance (répartition des
+        prises, comprimés sécables, Stagid® pour l'instauration). Vérifié sans contradiction avec les
+        contre-indications/paliers rénaux déjà encodés (T-070, S3) : la table DFG du mémo (≥60 → 3 g/j,
+        45‑59 → 2 g/j, 30‑44 → 1 g/j, <30 → CI) reproduit exactement les seuils déjà présents dans ce
+        nœud — aucune valeur touchée. Ajout d'un `apercu` (mécanisme générique T-076/P9·S9, réutilisé
+        sans modification du composant) reprenant sans recalcul les chiffres des `avantages` ajoutés,
+        pour une lecture sans ouvrir le dépli. Aucune autre option touchée ; `metformine_deprescriptible`
+        et les contre-indications de la metformine inchangés sur le fond.
     - date: "2026-07-30"
       auteur: "Claude Code (P9/S3, T-070) — en attente de relecture référent"
       resume: >-
