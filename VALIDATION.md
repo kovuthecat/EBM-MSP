@@ -34,3 +34,14 @@ ouverts (T-032/033/034, vérification sur le déployé) sont du N1 également �
       plus lisible ou un clic de trop ?
 - **T-067 non livrée** (voir recette P8, « Constat préalable ») : aucun jugement N2 à recueillir tant
   que la carte « Réduire la basale » n'existe pas — reste dans `TASKS.md`.
+
+## Plan P9 (2026-07-30) — jugement humain reversé par S1-S9, recette `docs/decision/validation/recette-P9-2026-07-30.md`
+
+- [ ] **T-068** — une contre-indication levée (bloc « Ne s'applique pas à ce patient », estompé + barré)
+      est-elle assez visible pour rester vérifiable, mais assez discrète pour ne plus alerter à tort ?
+- [ ] **T-075** — le protocole de titration de la metformine (mémo Ameli) reflète-t-il fidèlement la
+      pratique courante, et sa présentation économise-t-elle vraiment le temps que la recette réclamait ?
+- [ ] **T-076** — l'aperçu dans le titre de dépli (ex. « atorvastatine 40-80 mg / rosuvastatine
+      10-20 mg ») reste-t-il lisible sur mobile, sans écraser le compte de contre-indications ?
+- **T-074 (S7)** : issue = investigation sans correctif (statu quo documenté) — pas un item N2, mais une
+  question d'arbitrage clinique renvoyée au référent, cf. `TASKS.md`.
