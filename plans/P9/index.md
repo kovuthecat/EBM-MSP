@@ -111,7 +111,7 @@ cadrer en **P10** une fois ce plan-ci livré.
 | [S7](S7.md) | T-074 | « Risque hypoglycémique du schéma » : investigation et dérivation | Sonnet | high | — | S3, S5 | `content/noeuds/diabete-type-2/prescription.yaml`, `insuline.yaml`, `lib/labels.ts` | [x] (issue 2, STOP documenté) |
 | [S8](S8.md) | T-075 | Metformine : protocole de titration sourcé (mémo Ameli) | Sonnet | medium | — | S3 | `content/noeuds/diabete-type-2/prescription.yaml`, `prescription.argumentaire.md` | [x] |
 | [S9](S9.md) | T-076 | Titre de dépli : aperçu du contenu replié, appliqué à la statine | Sonnet | medium | — | S1, S4 | `components/OptionCard.tsx`, `content/noeuds/diabete-type-2/statine.yaml` | [x] |
-| [S10](S10.md) | T-077 | Recette navigateur N1 des changements P9 | Claude + navigateur | medium | Desktop | tout ce qui précède | `docs/decision/validation/` | [ ] |
+| [S10](S10.md) | T-077 | Recette navigateur N1 des changements P9 | Claude + navigateur | medium | Desktop | tout ce qui précède | `docs/decision/validation/` | [x] |
 
 ## Ordonnancement
 
@@ -131,6 +131,16 @@ cadrer en **P10** une fois ce plan-ci livré.
   le code n'est poussé qu'après validation.
 - **Vague 6 — consolidation** : commits tâche par tâche, statuts de cet index, `STATUS.md`, `TASKS.md`
   (retirer la ligne l.37-39), `VALIDATION.md`, push.
+
+## Consolidation (2026-07-30)
+
+S1-S10 toutes livrées et vérifiées (N0 : 889/889 tests, 0 échec, 11 skip ; recette N1 en local,
+`docs/decision/validation/recette-P9-2026-07-30.md`). Deux issues « zéro conversion » documentées et
+acceptées (S4/statine, S5/insuline — aucune contre-indication ne remplissait le critère strict de
+vérifiabilité). Un statu quo documenté (S7 — dérivation partielle, arbitrage renvoyé au référent, cf.
+`TASKS.md`). Tous les orphelins signalés en cours de route (2 occurrences hors périmètre corrigées par
+S2, `lib/replierAffichage.ts` non mis à jour par S1 — sans effet tant qu'aucun contenu n'a de
+`condition`) sont documentés dans les bilans de session respectifs. 14 commits, un seul push.
 
 ## Le fil rouge
 

@@ -15,23 +15,25 @@ Veille : **non commencé** (aucun code, `DECISIONS.md` D8 garde la place).
 
 | nœud | statut | dernière version |
 | --- | --- | --- |
-| `cible-glycemique` | `valide` | v2.7 |
-| `statine` | `brouillon` | v1.17 |
-| `prescription` | `brouillon` | v0.38 |
+| `cible-glycemique` | `valide` | v2.9 |
+| `statine` | `brouillon` | v1.19 |
+| `prescription` | `brouillon` | v0.41 |
 | `insuline` | `brouillon` | v0.34 |
 | `rhd-alimentation` | `brouillon` | v0.9 |
-| `rhd-activite-physique` | `brouillon` | v0.9 |
+| `rhd-activite-physique` | `brouillon` | v0.10 |
 
 Passage à `valide` conditionné à la relecture référent finale (`TASKS.md` §validation clinique).
 
 **Banc de tests** (`src/features/decision/engine/banc/`) : non-régression du contenu en 3 couches
-(vignettes, couverture, invariants). **865 tests, 11 skip, typecheck et build verts.**
+(vignettes, couverture, invariants). **889 tests, 11 skip, typecheck et build verts.**
 
 ## Chantier actif
 
-**Plan P9** (cadré 2026-07-30, pas démarré) : contre-indications vérifiables (schéma+moteur+ré-encodage
-4 nœuds), purge du jargon de projet affiché au clinicien, titre de dépli, metformine (titration Ameli),
-investigation « risque hypoglycémique du schéma ». Détail : `plans/P9/index.md`.
+**Plan P9 : clos le 2026-07-30** (S1-S10 livrées, vérifiées N0+N1, commitées et poussées). Contre-
+indications vérifiables désormais désamorçables (schéma+moteur+5 conversions sur 2 nœuds), jargon de
+projet purgé de l'écran clinique, aperçu de titre de dépli (statine + metformine), protocole de
+titration metformine sourcé (Ameli). T-074 (risque hypoglycémique) reste en arbitrage référent, cf.
+`TASKS.md`.
 
 **Plan P7** (cadré 2026-07-29, toujours ouvert) : il manque SA2 (validité HbA1c) et S2 (recette) —
 détail : `plans/P7/index.md`.
@@ -62,7 +64,7 @@ détail : `plans/P7/index.md`.
 ## Comment vérifier l'état réel
 
 ```bash
-npm test          # 865 tests attendus, 11 skip
+npm test          # 889 tests attendus, 11 skip
 npx tsc --noEmit
 npm run build
 ```
