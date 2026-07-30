@@ -671,7 +671,10 @@ options:
     # Le geste reste EXACTEMENT le même : c'est l'étiquette qui devient honnête, pas la conduite.
     niveau_preuve: faible
     contre_indications:
-      - "Cétonémie ≥ 3 mmol/L → urgence (insuline + hospitalisation), hors périmètre du nœud."
+      # T-070 (P9/S3, 2026-07-30) : convertie — fait unique, `cetonemie` est le critère bool déjà déclaré
+      # qui porte exactement ce seuil (« Cétonémie ≥ 3 mmol/L », même sens partout où ce nœud le lit).
+      - texte: "Cétonémie ≥ 3 mmol/L → urgence (insuline + hospitalisation), hors périmètre du nœud."
+        condition: "cetonemie == true"
   # ORDRE DE DÉCLARATION CHANGÉ le 2026-07-29 (recette référent) : cette option est le seul `ajouter` de
   # la famille « sécurité », et elle y précédait les trois `arreter` À RANG ÉGAL (1). Or à rang égal c'est
   # l'ordre de déclaration qui départage : l'écran affichait donc « ajouter de l'insuline » avant « arrêter
@@ -704,7 +707,9 @@ options:
       devant une cétose / un amaigrissement rapide chez un sujet non obèse.
     niveau_preuve: tres_faible
     contre_indications:
-      - "Cétonémie ≥ 3 mmol/L → urgence (insuline + hospitalisation), hors périmètre du nœud."
+      # T-070 (P9/S3, 2026-07-30) : convertie — même fait unique que sur « Suspendre l'iSGLT2 » ci-dessus.
+      - texte: "Cétonémie ≥ 3 mmol/L → urgence (insuline + hospitalisation), hors périmètre du nœud."
+        condition: "cetonemie == true"
   # ---- Ajout d'un agent protecteur (fix bug 9 : priorités conditionnelles) ------------------------------
   - intitule: "Introduire un iSGLT2 (protection cardio‑rénale et/ou contrôle glycémique)"
     role: geste
@@ -750,7 +755,10 @@ options:
       - credence
       - emperor-reduced
     contre_indications:
-      - "Ne pas initier si DFG < 20 (poursuivre jusqu'à la dialyse si déjà en cours — KDIGO 2024)."
+      # T-070 (P9/S3, 2026-07-30) : convertie — fait unique, seuil DFG déjà déclaré (l'aside dialyse ne
+      # concerne pas cette option « Introduire », réservée par `prerequis` au patient pas encore sous iSGLT2).
+      - texte: "Ne pas initier si DFG < 20 (poursuivre jusqu'à la dialyse si déjà en cours — KDIGO 2024)."
+        condition: "DFG < 20"
       - "Infections génito‑urinaires récidivantes ; antécédent de gangrène de Fournier ; prudence si artériopathie évoluée / amputation (signal canagliflozine)."
       - "En cas d'IC avec saxagliptine en cours : arrêter la saxagliptine (signal SAVOR), ne pas se contenter d'ajouter l'iSGLT2."
   - intitule: "Introduire un AR GLP‑1 (liraglutide, sémaglutide, dulaglutide)"
@@ -833,7 +841,10 @@ options:
     contre_indications:
       - "Antécédent de pancréatite ; antécédent personnel/familial de cancer médullaire de la thyroïde ou NEM2."
       - "Refus des injections : préférer le sémaglutide oral ou une autre classe. Rétinopathie proliférante non stabilisée : prudence."
-      - "IMC bas / dénutrition : contre‑indication de terrain (perte de poids délétère)."
+      # T-070 (P9/S3, 2026-07-30) : convertie — fait unique, les deux critères qu'elle nomme sont déjà
+      # déclarés dans ce nœud, avec exactement ce seuil (identique à `exclusions` de cette même option).
+      - texte: "IMC bas / dénutrition : contre‑indication de terrain (perte de poids délétère)."
+        condition: "IMC < 22 OR denutrition == true"
     # R2 — branche « on va en introduire un » de l'ancienne alerte fragilité de nœud. PORTÉE PAR L'OPTION :
     # elle ne s'affiche donc que si cette option est réellement applicable, et disparaît d'elle-même quand
     # le terrain l'écarte (IMC < 22, dénutrition). Plus besoin de recopier `ASCVD OR IMC >= 30` pour
@@ -2081,8 +2092,41 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.39"
+  version: "0.40"
   changelog:
+    - date: "2026-07-30"
+      auteur: "Claude Code (P9/S3, T-070) — en attente de relecture référent"
+      resume: >-
+        CONTRE-INDICATIONS VÉRIFIABLES (mécanisme T-068/P9·S1) : sur 18 contre-indications déclarées
+        (14 champs `contre_indications`, un ou plusieurs items chacun), 4 converties de la forme chaîne
+        vers `{ texte, condition }` — texte inchangé mot pour mot, seule la structure change. Critère de
+        conversion volontairement étroit (S3.md « Décision clé ») : converti seulement si l'item décrit
+        UN SEUL fait, vérifiable contre un critère déjà déclaré dans ce nœud, sans mélanger un fragment
+        vérifiable à un fragment qui ne l'est pas dans la même chaîne. Conversions : (1) « Suspendre
+        l'iSGLT2 » et (2) « Insuline d'initiation » — « Cétonémie ≥ 3 mmol/L → urgence… » →
+        `cetonemie == true` (même fait que l'exclusion/condition de ces options ailleurs dans ce fichier).
+        (3) « Introduire un iSGLT2 » — « Ne pas initier si DFG < 20… » → `DFG < 20` (seuil identique à
+        l'exclusion de cette même option ; l'aside « poursuivre si déjà en cours » ne concerne pas cette
+        option réservée au patient naïf d'iSGLT2). (4) « Introduire un AR GLP‑1 » — « IMC bas / dénutrition
+        : contre-indication de terrain… » → `IMC < 22 OR denutrition == true` (seuils identiques à
+        l'exclusion de cette même option). 14 items LAISSÉS EN TEXTE LIBRE, pour deux raisons distinctes :
+        (a) aucun critère de ce nœud ne porte le fait cité (alcoolisme, insuffisance hépatique, antécédent
+        de pancréatite, cancer médullaire de la thyroïde/NEM2, gangrène de Fournier, artériopathie,
+        rétinopathie, molécule saxagliptine nommément) ; (b) l'item mélange dans UNE MÊME chaîne un
+        fragment vérifiable et un fragment qui ne l'est pas, ou n'énonce pas un fait conditionnel mais une
+        clarification de portée toujours vraie — convertir n'aurait couvert qu'une partie du texte affiché
+        et aurait fait paraître « désamorcé » (barré, non applicable) un texte qui reste, pour sa partie
+        non couverte, un vrai risque potentiel chez ce patient. Cas le plus net : l'item de la carte
+        « Metformine (poursuivre/instaurer) » (« CONTRE-INDIQUÉE si DFG < 30 […] ; à écarter en
+        insuffisance cardiaque décompensée, IDM récent, insuffisance hépatique, alcoolisme. À suspendre :
+        déshydratation, sepsis, jeûne, produit de contraste iodé, chirurgie. ») cite littéralement le seuil
+        DFG < 30 donné en exemple par S3.md, mais dans la MÊME chaîne que cinq autres contre-indications
+        non vérifiables : y attacher `condition: "DFG < 30"` aurait fait afficher « ne s'applique pas à ce
+        patient » sur l'intégralité du texte — y compris IDM récent ou alcoolisme — dès DFG ≥ 30, alors que
+        ces faits-là restent à vérifier indépendamment. Laissé en texte libre intégralement, signalé comme
+        cas « Si bloqué » (voir bilan de session, `plans/P9/S3.md`). Inventaire complet (18 items, a/b/c)
+        dans le bilan de session. Aucun changement de logique clinique, aucune contre-indication ajoutée,
+        retirée ou reformulée sur le fond — uniquement la structure de celles converties.
     - date: "2026-07-30"
       auteur: "Claude Code (P9/S2, T-069) — en attente de relecture référent"
       resume: >-
