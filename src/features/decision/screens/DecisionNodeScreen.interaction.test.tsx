@@ -340,23 +340,37 @@ function titresOptionsProposees(container: HTMLElement): string[] {
  * `CriteriaForm.test.tsx` sur du HTML statique (`labelBlocks.find(...)`). Ceci lit du CONTENU affiché
  * (le texte réellement rendu), pas une classe de présentation.
  */
-function entreesEnAttente(container: HTMLElement): string[] {
-  return [...container.querySelectorAll('.decision-node__en-attente-item')].map((el) => el.textContent ?? '')
+/**
+ * Remontée UI (2026-07-29) : le registre « en attente » n'énumère plus, par option, le nom du critère
+ * qui la bloque (`.decision-node__en-attente-item`, retiré — contenu jugé redondant avec le rappel des
+ * champs manquants déjà affiché par onglet). Seul le TITRE du bloc (`.decision-node__en-attente-titre`)
+ * subsiste désormais dans le DOM ; cette aide de test n'en vérifie donc plus que la PRÉSENCE, plus la
+ * liste — les tests qui avaient besoin de savoir QUELLE option est en attente s'appuient sur
+ * `titresOptionsProposees` (son ABSENCE des cartes proposées) à la place.
+ */
+function blocEnAttentePresent(container: HTMLElement): boolean {
+  return container.querySelector('.decision-node__en-attente') != null
 }
 
 /**
- * Accordéon du formulaire (P6 · SB2, `CriteriaForm.tsx`) : ouvre un groupe via SA CHIP dans la barre de
- * navigation en tête du formulaire — `NODE` (ci-dessus) porte 3 groupes (Bilan/Sécurité/Antécédents),
- * « Bilan » ouvert par défaut, les deux autres repliés. Scope la recherche à `.criteria-form__group-nav`
- * plutôt qu'un `screen.getByRole('button', { name })` global : le libellé d'une section repliée est
- * LUI-MÊME un second bouton portant le même nom accessible (le « bouton pour l'ouvrir » propre à la
- * section, distinct de la chip) — sans ce scope, `getByRole` trouve les deux et échoue (« multiple
- * elements »).
+ * Accordéon du formulaire (P6 · SB2, `CriteriaForm.tsx`) : ouvre un groupe en cliquant sur le TITRE de sa
+ * section repliée — `NODE` (ci-dessus) porte 3 groupes (Bilan/Sécurité/Antécédents), « Bilan » ouvert par
+ * défaut, les deux autres repliés.
+ *
+ * PASSAIT AUPARAVANT PAR LA BARRE DE CHIPS, supprimée le 2026-07-29 (recette référent : elle doublait le
+ * titre de section, qui porte désormais lui-même le compteur « N à confirmer »). Le titre d'une section
+ * repliée était DÉJÀ un bouton d'ouverture avant ce changement — c'est donc le même geste utilisateur,
+ * par le seul canal qui subsiste, et non un contournement inventé pour ce test.
+ *
+ * Sélection par classe plutôt que par `getByRole` : le titre porte maintenant le compteur dans le même
+ * bouton, son nom accessible n'est donc plus exactement le libellé du groupe.
  */
 function ouvrirGroupeFormulaire(container: HTMLElement, libelleGroupe: string) {
-  const nav = container.querySelector('.criteria-form__group-nav')
-  if (!nav) throw new Error('barre de chips introuvable (accordéon absent ? un seul groupe ?)')
-  fireEvent.click(within(nav as HTMLElement).getByRole('button', { name: new RegExp(libelleGroupe, 'i') }))
+  const titre = [...container.querySelectorAll('.criteria-form__group-header-bouton')].find((bouton) =>
+    new RegExp(libelleGroupe, 'i').test(bouton.textContent ?? ''),
+  )
+  if (!titre) throw new Error(`section repliée « ${libelleGroupe} » introuvable (déjà ouverte ? un seul groupe ?)`)
+  fireEvent.click(titre)
 }
 
 describe('DecisionNodeScreen — comportement 1 : un `nombre` vidé quitte `renseignes` (D20 R7, défauts de recette 12.2/13.3)', () => {
@@ -365,16 +379,16 @@ describe('DecisionNodeScreen — comportement 1 : un `nombre` vidé quitte `rens
     const input = nombreInput()
 
     // État initial (jamais touché) : champ vide, l'option qui dépend de ce critère est EN ATTENTE, pas
-    // simplement absente — le registre nomme le critère manquant.
+    // simplement absente — le registre existe (même s'il ne nomme plus le critère manquant, cf.
+    // `blocEnAttentePresent`).
     expect(input.value).toBe('')
     expect(titresOptionsProposees(container)).not.toContain('Renfort')
-    expect(entreesEnAttente(container)).toContain('Renfort — à renseigner : Nb facteurs risque')
+    expect(blocEnAttentePresent(container)).toBe(true)
 
     // 1. SAISIE : franchit le seuil (>= 2) → l'option devient proposée, quitte le registre « en attente ».
     fireEvent.change(input, { target: { value: '3' } })
     expect(input.value).toBe('3')
     expect(titresOptionsProposees(container)).toContain('Renfort')
-    expect(entreesEnAttente(container)).not.toContain('Renfort — à renseigner : Nb facteurs risque')
 
     // 2. EFFACEMENT (pas une remise à 0 manuelle) : déclenche `onEffacer`, PAS `onChange('nb_facteurs_risque', 0)`.
     // Si le défaut de recette 12.2/13.3 était réintroduit (`Number('') = 0` traité comme une réponse), le
@@ -384,16 +398,20 @@ describe('DecisionNodeScreen — comportement 1 : un `nombre` vidé quitte `rens
     fireEvent.change(input, { target: { value: '' } })
     expect(input.value).toBe('') // redevient visuellement indiscernable d'un champ jamais saisi.
     expect(titresOptionsProposees(container)).not.toContain('Renfort')
-    expect(entreesEnAttente(container)).toContain('Renfort — à renseigner : Nb facteurs risque') // ⇐ EN ATTENTE, pas silencieusement écartée.
+    expect(blocEnAttentePresent(container)).toBe(true) // ⇐ EN ATTENTE, pas silencieusement écartée.
   })
 })
 
-describe('DecisionNodeScreen — comportement 2 : le registre « en attente » affiche les critères manquants, nommés', () => {
-  it('sur formulaire vierge, chaque option indéterminée apparaît avec le nom du critère qui la bloque', () => {
+describe('DecisionNodeScreen — comportement 2 : le registre « en attente » signale une décision suspendue', () => {
+  it('sur formulaire vierge, aucune des deux options indéterminées ne devient une carte proposée, et le registre « en attente » l’annonce', () => {
     const { container } = renderNode()
+    // Remontée UI (2026-07-29) : le détail par option (nom du critère qui bloque) est retiré du DOM à la
+    // demande — seul le titre du registre subsiste (`blocEnAttentePresent`) ; l'absence des deux options
+    // parmi les cartes proposées reste, elle, vérifiable.
     expect(screen.getByText(/^En attente/)).toBeTruthy()
-    expect(entreesEnAttente(container)).toContain('Renfort — à renseigner : Nb facteurs risque')
-    expect(entreesEnAttente(container)).toContain('Suivi renforcé — à renseigner : Evenement grave')
+    expect(blocEnAttentePresent(container)).toBe(true)
+    expect(titresOptionsProposees(container)).not.toContain('Renfort')
+    expect(titresOptionsProposees(container)).not.toContain('Suivi renforcé')
   })
 })
 
@@ -422,7 +440,7 @@ describe('DecisionNodeScreen — comportement 3 : « Rien à signaler » appara�
     // tranche enfin (« Suivi renforcé » quitte le registre « en attente », sans devenir proposée : la
     // réponse confirmée est « non »).
     expect(within(section).queryByText('Rien à signaler')).toBeNull()
-    expect(entreesEnAttente(container)).not.toContain('Suivi renforcé — à renseigner : Evenement grave')
+    expect(titresOptionsProposees(container)).not.toContain('Suivi renforcé')
   })
 })
 
@@ -539,16 +557,18 @@ describe('DecisionNodeScreen — T-022 : une contrainte de saisie violée suspen
  * jamais un panneau muet (famille 7 du protocole de recette).
  */
 describe('DecisionNodeScreen — T-023(a) : zéro option applicable ne produit jamais une page sans réponse', () => {
-  it('formulaire vierge, une option reste EN ATTENTE : un bloc « suspendu » explicite remplace le silence à l’emplacement des cartes', () => {
+  it('formulaire vierge, une option reste EN ATTENTE : le bloc « en attente » est le SEUL rendu à l’emplacement des cartes (remontée UI 2026-07-29 : plus de doublon avec « suspendu »/« reco provisoire »)', () => {
     const { container } = render(<DecisionNodeScreen nodeId={NODE_SUSPENDU.id} go={() => {}} />)
     expect(titresOptionsProposees(container)).toEqual([])
-    const bloc = container.querySelector('.decision-node__suspendu')
-    expect(bloc).toBeTruthy()
-    expect(bloc?.textContent).toMatch(/suspendue/i)
-    // Le détail (option + critère manquant, en libellé rédigé) reste porté par le registre « en attente ».
-    expect(entreesEnAttente(container)).toContain('Option suspendue — à renseigner : Critere x')
+    // Les deux registres redondants (« suspendu », « reco provisoire ») ne sont plus rendus dans cet état,
+    // et le bloc « en attente » ci-dessous n'énumère plus non plus l'option/le critère en cause (retiré à
+    // la demande, 2026-07-29) — seul son titre en est désormais le seul porteur : trois puis deux alertes
+    // qui se recoupaient sur un formulaire vide n'en font plus qu'une, réduite à l'essentiel.
+    expect(container.querySelector('.decision-node__suspendu')).toBeNull()
+    expect(container.querySelector('.decision-node__provisional')).toBeNull()
+    expect(blocEnAttentePresent(container)).toBe(true)
     // P6/SB4 (T-041) — ce bloc « zéro carte » doit lui aussi vivre DANS la colonne résultats sticky (SB1).
-    expect(container.querySelector('.decision-node__results-col .decision-node__suspendu')).toBeTruthy()
+    expect(container.querySelector('.decision-node__results-col .decision-node__en-attente')).toBeTruthy()
   })
 
   it("ni option applicable ni option en attente : l'écran dit explicitement que l'outil n'a rien à proposer", () => {
@@ -579,8 +599,9 @@ describe('DecisionNodeScreen — T-023(b) : le pré-remplissage calculé appliqu
     const { container } = render(<DecisionNodeScreen nodeId={NODE_PREREMPLISSAGE.id} go={() => {}} />)
     const inputs = screen.getAllByRole('spinbutton') as HTMLInputElement[]
 
-    // AVANT saisie : l'option qui dépend de `position` est EN ATTENTE.
-    expect(entreesEnAttente(container)).toContain('Option position-dépendante — à renseigner : Position')
+    // AVANT saisie : l'option qui dépend de `position` est EN ATTENTE (pas encore une carte proposée).
+    expect(titresOptionsProposees(container)).not.toContain('Option position-dépendante')
+    expect(blocEnAttentePresent(container)).toBe(true)
 
     fireEvent.change(inputs[0], { target: { value: '9' } }) // valeur_actuelle
     fireEvent.change(inputs[1], { target: { value: '7' } }) // valeur_cible
@@ -596,9 +617,8 @@ describe('DecisionNodeScreen — T-023(b) : le pré-remplissage calculé appliqu
     const champ = bouton.closest('.criteria-form__field')
     expect(champ?.textContent).toContain('calculé, à vérifier')
 
-    // (3) Critère ABSENT des « à renseigner » — l'option quitte le registre « en attente » et devient
-    // une carte proposée : le moteur a bien reçu la valeur comme renseignée, pas seulement l'écran.
-    expect(entreesEnAttente(container)).not.toContain('Option position-dépendante — à renseigner : Position')
+    // (3) L'option quitte le registre « en attente » et devient une carte proposée : le moteur a bien
+    // reçu la valeur comme renseignée, pas seulement l'écran.
     expect(titresOptionsProposees(container)).toContain('Option position-dépendante')
   })
 
@@ -614,8 +634,9 @@ describe('DecisionNodeScreen — T-023(b) : le pré-remplissage calculé appliqu
     expect([...segments].some((s) => s.getAttribute('aria-pressed') === 'true')).toBe(false)
     // Aucune mention « calculé, à vérifier » nulle part sur la page.
     expect(container.textContent).not.toContain('calculé, à vérifier')
-    // Le critère reste réclamé — rien n'a été posé à sa place.
-    expect(entreesEnAttente(container)).toContain('Option position-dépendante — à renseigner : Position')
+    // Le critère reste réclamé — rien n'a été posé à sa place : l'option n'est toujours pas proposée.
+    expect(titresOptionsProposees(container)).not.toContain('Option position-dépendante')
+    expect(blocEnAttentePresent(container)).toBe(true)
   })
 })
 

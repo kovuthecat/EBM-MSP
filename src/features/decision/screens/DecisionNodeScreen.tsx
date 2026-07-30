@@ -5,6 +5,7 @@ import { ArgumentPanel } from '../components/ArgumentPanel'
 import { CadrageList } from '../components/CadrageList'
 import { CriteriaForm } from '../components/CriteriaForm'
 import { OptionCard } from '../components/OptionCard'
+import { PopulationCible } from '../components/PopulationCible'
 import { getModuleDuNoeud } from '../content/loadModules'
 import { getNoeudById } from '../content/loadNodes'
 import type { CritereEntree } from '../content/node.types'
@@ -390,6 +391,19 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   // ne devrait donc jamais se produire avec un contenu valide — robustesse, pas un chemin attendu).
   const isPlaceholder = node.criteres_entree.length === 0 || node.options.length === 0
 
+  // Fusion des 3 alertes qui se recoupaient sur un formulaire vide/incomplet (remontée UI, 2026-07-29) :
+  // « Reco provisoire », « Aucune option n'est proposée » et le bloc « En attente » disaient la même
+  // chose trois fois (aucune carte à montrer, faute de critères) et occupaient à eux seuls tout l'écran
+  // de résultats. Quand c'est le SEUL contenu possible (zéro carte, au moins une option en attente), on
+  // ne garde que le bloc « en attente » (D20 R7, ci-dessous) — le plus précis des trois, il nomme déjà
+  // l'option et les critères qui lui manquent. Sans effet sur l'état mixte (des cartes ET des options en
+  // attente) : les deux messages y restent, chacun utile à sa place.
+  const decisionEnAttenteSeule =
+    violations.length === 0 &&
+    !!vue &&
+    !vue.familles.some((famille) => famille.groupes.length > 0) &&
+    vue.enAttente.length > 0
+
   return (
     <div className="decision-node">
       {/* Retour vers le MODULE quand le nœud en fait partie (D22) : sans cela, on quitterait le module
@@ -409,7 +423,7 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
         </button>
       )}
       <h1 className="decision-node__title">{node.titre}</h1>
-      <p className="decision-node__population">{node.population_cible}</p>
+      <PopulationCible texte={node.population_cible} />
 
       {/* Cadrage (D24) : positions de lecture du nœud, vraies pour tous ses patients. Rendu AVANT le
           formulaire — donc avant toute saisie — parce qu'elles conditionnent la lecture des options,
@@ -505,10 +519,12 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
             </div>
           ) : (
             <>
+          {!decisionEnAttenteSeule && (
           <div className="decision-node__section-title">
             {decisifsManquants.length > 0 ? 'Options applicables — provisoire' : 'Options applicables'}
           </div>
-          {decisifsManquants.length > 0 && (
+          )}
+          {!decisionEnAttenteSeule && decisifsManquants.length > 0 && (
             <p className="decision-node__provisional">
               <strong>Reco provisoire</strong> — {decisifsManquants.length} critère
               {decisifsManquants.length > 1 ? 's décisifs non confirmés' : ' décisif non confirmé'} dans le
@@ -516,7 +532,7 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
               confirment d'un clic par « Rien à signaler ». La recommandation peut encore changer.
             </p>
           )}
-          {vue && vue.familles.some((famille) => famille.groupes.length > 0) ? (
+          {decisionEnAttenteSeule ? null : vue && vue.familles.some((famille) => famille.groupes.length > 0) ? (
             (() => {
               // Regroupement PAR FAMILLE (`Noeud.familles` si déclarées, sinon repli historique — cf.
               // `lib/vueDecision.ts` `construireVueDecision`, qui compose `groupesParFamille`) : une
@@ -629,19 +645,6 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                 </>
               )
             })()
-          ) : vue && vue.enAttente.length > 0 ? (
-            // T-023 Étape 1 (P4/S3) : `applicable` est vide, mais une ou plusieurs options restent EN
-            // ATTENTE (une halte en cours, possible depuis S2 — un patient peut légitimement n'avoir
-            // aucune option applicable tant qu'elle dure). Avant ce correctif, cet emplacement rendait
-            // `null` : rien n'y disait qu'une décision est suspendue, seul le bloc « en attente »
-            // ci-dessous (qui nomme déjà l'option et les critères manquants, en libellés rédigés — I20)
-            // le racontait, juste après. Ce bloc-ci rend l'emplacement des cartes explicite plutôt que
-            // silencieux — famille 7 du protocole de recette : « un écran qui n'affiche rien » ne doit
-            // plus être possible, quelle qu'en soit la cause.
-            <p className="decision-node__suspendu">
-              Aucune option n'est proposée pour l'instant : la décision est suspendue, faute de critères
-              renseignés — voir le détail juste en dessous (« en attente »).
-            </p>
           ) : (
             // T-023 Étape 2 : `applicable` ET `enAttente` sont TOUS DEUX vides — le nœud n'a rien à
             // proposer dans son périmètre pour ce patient. Ne fabrique aucun conseil clinique : dit
@@ -663,12 +666,6 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
               <div className="decision-node__en-attente-titre">
                 En attente — critère{vue.enAttente.length > 1 ? 's' : ''} à renseigner pour trancher
               </div>
-              {vue.enAttente.map((attente, index) => (
-                <p key={`${index}-${attente.option.intitule}`} className="decision-node__en-attente-item">
-                  <strong>{attente.option.intitule}</strong> — à renseigner :{' '}
-                  {attente.manquants.map(labelForCritere).join(', ')}
-                </p>
-              ))}
             </div>
           )}
 

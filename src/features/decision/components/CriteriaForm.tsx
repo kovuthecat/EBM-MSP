@@ -288,6 +288,7 @@ export function CriteriaForm({
           data-dim={dim || undefined}
           data-confirmer={confirmer || undefined}
           data-pilote={pilote || undefined}
+          data-debut-ligne={critere.debut_de_ligne || undefined}
         >
           <input
             type="checkbox"
@@ -336,6 +337,7 @@ export function CriteriaForm({
           data-dim={dim || undefined}
           data-confirmer={confirmer || undefined}
           data-pilote={pilote || undefined}
+          data-debut-ligne={critere.debut_de_ligne || undefined}
         >
           <div className="criteria-form__field-label">
             {labelForCritere(critere.nom)}
@@ -377,6 +379,10 @@ export function CriteriaForm({
         data-dim={dim || undefined}
         data-confirmer={confirmer || undefined}
         data-pilote={pilote || undefined}
+        // `debut_de_ligne` (2026-07-29) : renvoie le champ en colonne 1, ce qui stabilise la paire qu'il
+        // ouvre — le champ suivant tombe alors toujours à côté de lui, que les champs PRÉCÉDENTS soient
+        // affichés ou masqués. Cf. la docstring du champ dans `content/node.types.ts`.
+        data-debut-ligne={critere.debut_de_ligne || undefined}
       >
         <div className="criteria-form__field-label">
           {labelForCritere(critere.nom)}
@@ -386,7 +392,36 @@ export function CriteriaForm({
           {renderOrigine(critere)}
         </div>
 
-        {critere.type === 'nombre' ? (
+        {critere.type === 'nombre' && critere.paliers != null && critere.paliers.length > 0 ? (
+          // PALIERS STANDARD (`CritereEntree.paliers`, 2026-07-29) — un `nombre` dont le contenu déclare la
+          // liste fermée de ses valeurs cliniques se saisit dans un SÉLECTEUR, jamais au clavier. Le type du
+          // critère et la valeur stockée restent NUMÉRIQUES (`Number(...)` ci-dessous) : les seuils du DSL
+          // (`dose_metformine > 2000`) continuent de s'évaluer à l'identique — c'est toute la raison de ne
+          // pas avoir basculé le critère en `enum`, qui n'admet pas d'ordre (`engine/conditions.ts`).
+          //
+          // `<select>` plutôt que des boutons segmentés : le seuil `MAX_VALEURS_SEGMENTE` (4) qui gouverne
+          // déjà les `enum` vaut ici pour la même raison quantitative — une série de paliers en compte
+          // typiquement bien plus, et les rendre en boutons déborderait la grille.
+          //
+          // MÊME REPRÉSENTATION DE L'INDÉTERMINÉ que le `<select>` d'`enum` plus bas (D20/R7) : option vide
+          // `disabled` en tête, sélectionnée tant que le critère n'est pas `touched`. Sans elle, le
+          // navigateur afficherait le premier palier comme s'il avait été choisi, exactement le défaut A de
+          // la recette du 2026-07-27.
+          <select
+            className="criteria-form__input"
+            value={touched.has(critere.nom) ? String(criteria[critere.nom] ?? '') : ''}
+            onChange={(event) => onChange(critere.nom, Number(event.target.value))}
+          >
+            <option value="" disabled>
+              —
+            </option>
+            {critere.paliers.map((palier) => (
+              <option key={palier} value={palier}>
+                {palier}
+              </option>
+            ))}
+          </select>
+        ) : critere.type === 'nombre' ? (
           <input
             type="number"
             className="criteria-form__input"
@@ -507,34 +542,15 @@ export function CriteriaForm({
           ))}
         </div>
       )}
-      {/* Barre de chips (SB2) : UNIQUEMENT au-delà d'un groupe (Décision clé, « Nœud à une seule
-          section : pas d'accordéon ni de barre de chips »). Même registre `aria-pressed` que les boutons
-          segmentés du champ `enum` ci-dessus (A9) plutôt que le pattern ARIA `tab`/`tablist` — celui-ci
-          suppose une navigation clavier (flèches, roving tabindex) que ce composant n'implémente pas ; un
-          rôle `tab` sans ce comportement serait une promesse d'accessibilité non tenue. */}
-      {accordeon && (
-        <div className="criteria-form__group-nav" role="group" aria-label="Sections du formulaire">
-          {groupes.map((groupe, index) => {
-            const cle = clesGroupes[index]
-            const compte = compteurAConfirmer(groupe.champs)
-            const estOuvert = cle === groupeOuvert
-            return (
-              <button
-                key={cle}
-                type="button"
-                className="criteria-form__group-nav-item"
-                data-on={estOuvert || undefined}
-                aria-pressed={estOuvert}
-                onClick={() => ouvrirGroupe(cle)}
-              >
-                {groupe.libelle ?? 'Critères du patient'}
-                {compte > 0 && <span className="criteria-form__group-nav-badge">{compte}</span>}
-              </button>
-            )
-          })}
-        </div>
-      )}
+      {/* BARRE DE CHIPS RETIRÉE le 2026-07-29 (recette référent). Elle doublait, en tête de formulaire,
+          exactement ce que porte déjà le titre de chaque section dans le flux : son libellé et son nombre
+          de champs à confirmer. Deux affichages pour une même information coûtaient de la hauteur d'écran
+          (elle passait sur deux lignes avec des libellés tronqués) sans rien ajouter.
 
+          LA NAVIGATION NE REPOSAIT PAS SUR ELLE : le titre d'une section repliée est lui-même un bouton
+          d'ouverture (`criteria-form__group-header-bouton`, plus bas), et le pied de section porte un
+          bouton « Suivant : … ». Les deux existaient déjà et sont conservés. Le compteur, lui, a migré à
+          côté du titre — cf. `criteria-form__group-compte`. */}
       {groupes.map((groupe, index) => {
         // Pied de section (tâches 4 & 5) : entièrement dérivé du TYPE + de `aConfirmer`, aucun nom de
         // champ ni de section en dur (invariant 5). Deux informations indépendantes, qui peuvent cohabiter :
@@ -554,6 +570,11 @@ export function CriteriaForm({
         const afficherPiedDeSection = nombresARenseigner.length > 0 || confirmerBools != null
 
         const cle = clesGroupes[index]
+        // Compteur porté par le TITRE de section depuis le retrait de la barre de chips (2026-07-29) —
+        // même définition qu'elle employait (`compteurAConfirmer`), donc aucun changement de sémantique :
+        // le nombre affiché reste EXACTEMENT le nombre de marqueurs « · à confirmer » rendus dans la
+        // section, invariant testé dans `CriteriaForm.test.tsx`.
+        const compteGroupe = compteurAConfirmer(groupe.champs)
         // Sans accordéon (un seul groupe) : TOUJOURS ouvert, comportement historique inchangé.
         const estOuvert = !accordeon || cle === groupeOuvert
         const groupeSuivant = accordeon && index < groupes.length - 1 ? groupes[index + 1] : null
@@ -569,7 +590,10 @@ export function CriteriaForm({
           >
             {/* Repli sans `groupe` déclaré : intitulé historique unique, pour ne pas laisser la section nue. */}
             {estOuvert ? (
-              <div className="criteria-form__label">{groupe.libelle ?? 'Critères du patient'}</div>
+              <div className="criteria-form__label">
+                {groupe.libelle ?? 'Critères du patient'}
+                {compteGroupe > 0 && <span className="criteria-form__group-compte">{compteGroupe} à confirmer</span>}
+              </div>
             ) : (
               // Section repliée : le libellé devient LUI-MÊME un bouton d'ouverture — le « bouton pour
               // l'ouvrir » de la Décision clé, distinct du clic sur la barre de chips (qui couvre déjà
@@ -580,6 +604,7 @@ export function CriteriaForm({
                 onClick={() => ouvrirGroupe(cle)}
               >
                 {groupe.libelle ?? 'Critères du patient'}
+                {compteGroupe > 0 && <span className="criteria-form__group-compte">{compteGroupe} à confirmer</span>}
               </button>
             )}
 

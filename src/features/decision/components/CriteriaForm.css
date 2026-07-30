@@ -6,6 +6,16 @@
   margin-bottom: 24px;
 }
 
+/* Repère de défilement (remontée UI 2026-07-29) : `ouvrirGroupe` (`CriteriaForm.tsx`, appelé par la barre
+   de chips ET le bouton « Suivant ») aligne le HAUT de la section ciblée sur le haut du viewport
+   (`scrollIntoView({ block: 'start' })`) — sans ce repère, ce haut atterrit derrière le header sticky
+   (`Header.css` `.header`, `position: sticky; top: 0`, ~72px réels) : le libellé de la section, tout juste
+   ouverte, se retrouve caché dessous plutôt que visible. `scroll-margin-top` est lu nativement par
+   `scrollIntoView`, aucune conséquence sur la mise en page (pas un `margin`, aucun espace ajouté au flux). */
+.criteria-form__group {
+  scroll-margin-top: 88px;
+}
+
 /* Sections dans l'ordre du contenu (`groupe`) : séparateur entre sections, pas avant la première. */
 .criteria-form__group + .criteria-form__group {
   margin-top: 22px;
@@ -13,7 +23,13 @@
   border-top: 1px solid var(--c-border);
 }
 
+/* Titre de section. `flex` depuis le 2026-07-29 : il porte désormais le compteur « N à confirmer » que la
+   barre de chips affichait en tête de formulaire (cf. `criteria-form__group-compte` plus bas).
+   `align-items: baseline` pour que le compteur s'aligne sur le texte du titre et non sur sa boîte. */
 .criteria-form__label {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
   font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
@@ -51,6 +67,19 @@
 /* Listes et enums segmentés prennent la largeur : leurs valeurs sont trop nombreuses pour une demi-colonne. */
 .criteria-form__field--wide {
   grid-column: 1 / -1;
+}
+
+/* `debut_de_ligne` (contenu, 2026-07-29) — le champ ouvre une nouvelle ligne de la grille. Stabilise une
+   PAIRE de champs qui se lisent ensemble : la colonne d'un champ dépendait de la parité de ce qui le
+   précède, or ce qui le précède apparaît/disparaît selon `visible_si` (« HbA1c actuelle »/« HbA1c cible »
+   séparées ou non selon que « Dose de metformine » était affichée). Marquer le PREMIER de la paire suffit :
+   il repart en colonne 1, le suivant tombe donc toujours en colonne 2.
+   Sans objet en une seule colonne — la règle est donc portée par le média large uniquement (cf. la
+   bascule `grid-template-columns: 1fr` ci-dessus, qui s'applique en dessous de 480px). */
+@media (min-width: 481px) {
+  .criteria-form__grid > [data-debut-ligne] {
+    grid-column-start: 1;
+  }
 }
 
 .criteria-form__field-label {
@@ -95,9 +124,15 @@
    « commencez par là » et ne s'applique qu'à un ou deux. Les confondre reviendrait à noyer le second
    dans le premier — c'est exactement le défaut que A8 vient d'assumer par ailleurs. Un champ peut
    porter les deux : le bord gauche reste ambre (il manque bien une réponse), le liseré supérieur
-   marque le départ. */
+   marque le départ.
+
+   REMONTÉE UI (2026-07-29) : le liseré (`box-shadow`) retiré — sur le premier groupe d'un formulaire
+   (cas `prescription`/`insuline` cité ci-dessus), ce champ pilote est aussi le tout premier champ
+   affiché : sa position seule dit déjà « commencez par là », le liseré n'ajoutait qu'un second bord
+   coloré au-dessus du bord ambre `[data-confirmer]` — deux bordures concurrentes sur la même boîte.
+   Le signal textuel `.criteria-form__field-pilote` (« · détermine la suite », ci-dessous) reste seul
+   à porter cette distinction pour le cas — plus rare — où le pilote n'est pas en tête de section. */
 .criteria-form__field[data-pilote] {
-  box-shadow: inset 0 2px 0 0 var(--c-accent-decision);
   border-radius: 4px;
 }
 
@@ -279,67 +314,30 @@
   grid-column: 1 / -1;
 }
 
-/* ACCORDÉON (P6 · SB2) — barre de chips en tête du formulaire, une par groupe (`groupe` de contenu),
-   UNIQUEMENT au-delà d'un groupe (nœud à une seule section : ni chips, ni accordéon). */
-.criteria-form__group-nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 18px;
-}
+/* COMPTEUR « N à confirmer » PORTÉ PAR LE TITRE DE SECTION (2026-07-29, recette référent).
 
-/* P6/SB4 — MÊME CAUSE que `.criteria-form__segment` ci-dessus (débordement horizontal mobile) : un
-   libellé de `groupe` peut être long (`content/noeuds/diabete-type-2/rhd-alimentation.yaml`,
-   « Approfondissement (si la négociation le permet) », 47 caractères — et un nœud aussi dense qu'
-   `insuline` en porterait potentiellement bien d'autres). `white-space: normal` (retiré `nowrap`) +
-   `min-width: 0` : la chip repasse sur 2 lignes plutôt que de forcer la largeur de la page — vérifié
-   AVANT d'être atteint sur le contenu actuel (SB4.md, "Si bloqué" ne s'applique pas ici, c'est un
-   correctif préventif ciblé, pas une redécision de SB2). N'affecte aucun test existant. */
-.criteria-form__group-nav-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
-  border: 1px solid var(--c-border);
-  border-radius: 20px;
-  background: var(--c-surface);
-  color: var(--c-text-muted);
-  font: inherit;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: normal;
-  min-width: 0;
-  overflow-wrap: break-word;
-}
+   REMPLACE la barre de chips qui vivait ici (`criteria-form__group-nav*`, supprimée avec ses 4 règles).
+   Elle rendait, en tête de formulaire, exactement ce que le titre de chaque section rend déjà dans le
+   flux — libellé + nombre de champs à confirmer — et coûtait ~2 lignes de hauteur avec des libellés
+   tronqués. La navigation n'en dépendait pas : le titre d'une section repliée est lui-même un bouton
+   d'ouverture (`criteria-form__group-header-bouton` ci-dessous) et le pied de section porte « Suivant ».
 
-.criteria-form__group-nav-item[data-on] {
-  background: var(--c-accent-decision);
-  border-color: var(--c-accent-decision);
-  color: white;
-}
-
-/* Badge de compteur « à confirmer » — même registre visuel ambre que le marqueur par champ
-   (`.criteria-form__field-todo`), pour que la barre de chips annonce la même chose que ce qu'on trouve
-   une fois la section ouverte. */
-.criteria-form__group-nav-badge {
+   Même registre visuel ambre que le marqueur par champ (`.criteria-form__field-todo`) et que l'ancien
+   badge de chip : ce que la section annonce est ce qu'on trouve en l'ouvrant. `text-transform: none`
+   parce que `.criteria-form__label` met tout en majuscules — le compteur est une phrase, pas un titre. */
+.criteria-form__group-compte {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  min-width: 16px;
-  padding: 1px 6px;
+  padding: 1px 8px;
   border-radius: 20px;
   background: var(--c-attention-soft);
   border: 1px solid var(--c-attention-border);
   color: var(--c-attention);
   font-size: 11px;
   font-weight: 700;
-}
-
-.criteria-form__group-nav-item[data-on] .criteria-form__group-nav-badge {
-  background: var(--c-attention);
-  border-color: var(--c-attention);
-  color: white;
+  text-transform: none;
+  letter-spacing: 0;
+  white-space: nowrap;
 }
 
 /* Section REPLIÉE : le libellé devient un bouton (« bouton pour l'ouvrir » de la Décision clé) — reset

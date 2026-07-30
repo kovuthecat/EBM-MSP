@@ -21,13 +21,6 @@
   color: var(--c-text);
 }
 
-.decision-module__population {
-  font-size: 14px;
-  line-height: 1.6;
-  color: var(--c-text-muted);
-  margin: 0 0 20px;
-}
-
 .decision-module__empty {
   font-size: 14px;
   color: var(--c-text-muted);

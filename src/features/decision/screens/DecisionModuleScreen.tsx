@@ -1,5 +1,6 @@
 import type { Navigation } from '../../shared/navigation'
 import { CadrageList } from '../components/CadrageList'
+import { PopulationCible } from '../components/PopulationCible'
 import { getModuleById } from '../content/loadModules'
 import { getNoeudById } from '../content/loadNodes'
 import { labelForDomaine } from '../lib/labels'
@@ -45,9 +46,7 @@ export function DecisionModuleScreen({ moduleId, go }: DecisionModuleScreenProps
         ← Domaine : {labelForDomaine(module.domaine)}
       </button>
       <h1 className="decision-module__title">{module.titre}</h1>
-      {module.population_cible && (
-        <p className="decision-module__population">{module.population_cible}</p>
-      )}
+      {module.population_cible && <PopulationCible texte={module.population_cible} />}
 
       {/* Même composant que le cadrage d'un nœud (D24) : c'est le même objet — des positions de lecture
           vraies pour tous les patients, sans condition. Seule la portée change (le module au lieu du

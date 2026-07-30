@@ -18,7 +18,7 @@
  * `touched` d'avant le premier, et le test ne distinguerait pas un correctif réel d'un correctif qui se
  * contente d'appeler la bonne fonction sans que l'écran en tienne compte.
  */
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { useState } from 'react'
 import { afterEach, describe, expect, it } from 'vitest'
 import type { CritereEntree } from '../content/node.types'
@@ -140,36 +140,40 @@ describe('CriteriaForm — accordéon : ouvrir une section referme les autres (P
     return <CriteriaForm criteresEntree={CRITERES} criteria={criteria} touched={touched} onChange={onChange} />
   }
 
-  it('cliquer sur la chip « Beta » ouvre Beta et referme Alpha — une seule `.criteria-form__grid` à la fois', () => {
-    const { container } = render(<Harnais />)
-    const nav = container.querySelector('.criteria-form__group-nav')
-    if (!nav) throw new Error('barre de chips introuvable')
+  // BARRE DE CHIPS SUPPRIMÉE le 2026-07-29 (recette référent) : elle doublait le titre de section, qui
+  // porte désormais lui-même le compteur « N à confirmer ». Ce test vérifiait le geste SUR LA CHIP ; il
+  // vérifie maintenant le MÊME geste sur le canal de navigation qui subsiste — le titre d'une section
+  // repliée, déjà un bouton d'ouverture avant ce changement (`criteria-form__group-header-bouton`).
+  // L'invariant testé est inchangé : ouvrir une section en referme une autre, jamais deux ouvertes.
+  const titreSection = (container: HTMLElement, libelle: string) =>
+    [...container.querySelectorAll('.criteria-form__group-header-bouton')].find(
+      (bouton) => bouton.textContent?.startsWith(libelle),
+    ) as HTMLElement | undefined
 
-    // État initial : « Alpha » (premier groupe déclaré) ouvert par défaut.
+  it('cliquer sur le titre replié « Beta » ouvre Beta et referme Alpha — une seule `.criteria-form__grid` à la fois', () => {
+    const { container } = render(<Harnais />)
+
+    // État initial : « Alpha » (premier groupe déclaré) ouvert par défaut, les deux autres repliés.
     expect(container.querySelectorAll('.criteria-form__grid').length).toBe(1)
     expect(container.querySelectorAll('.criteria-form__group-resume').length).toBe(2)
-    expect(within(nav as HTMLElement).getByRole('button', { name: 'Alpha' }).getAttribute('aria-pressed')).toBe(
-      'true',
-    )
+    // Alpha étant OUVERT, il n'a pas de bouton de titre (son libellé est un simple <div>).
+    expect(titreSection(container, 'Alpha')).toBeUndefined()
 
-    fireEvent.click(within(nav as HTMLElement).getByRole('button', { name: 'Beta' }))
+    const beta = titreSection(container, 'Beta')
+    if (!beta) throw new Error('titre de section « Beta » introuvable')
+    fireEvent.click(beta)
 
     // Toujours UNE seule grille — Beta a REMPLACÉ Alpha, pas ajouté une deuxième section ouverte.
     expect(container.querySelectorAll('.criteria-form__grid').length).toBe(1)
     expect(container.querySelectorAll('.criteria-form__group-resume').length).toBe(2)
-    expect(within(nav as HTMLElement).getByRole('button', { name: 'Alpha' }).getAttribute('aria-pressed')).toBe(
-      'false',
-    )
-    expect(within(nav as HTMLElement).getByRole('button', { name: 'Beta' }).getAttribute('aria-pressed')).toBe(
-      'true',
-    )
+    // Le rapport s'est inversé : Beta n'a plus de bouton (ouvert), Alpha en a un (replié).
+    expect(titreSection(container, 'Beta')).toBeUndefined()
+    expect(titreSection(container, 'Alpha')).toBeDefined()
+
     // « Alpha », redevenu replié, porte désormais son propre résumé générique (jamais touché → vierge).
-    // Isolé par SA section (pas par la chip, qui existe aussi dans la nav sous le même nom accessible) :
-    // repéré via le bouton d'ouverture propre à la section repliée (`.criteria-form__group-header-bouton`,
-    // hors de la barre de chips).
     const sections = [...container.querySelectorAll('section.criteria-form__group')]
     const alphaSection = sections.find(
-      (section) => section.querySelector('.criteria-form__group-header-bouton')?.textContent === 'Alpha',
+      (section) => section.querySelector('.criteria-form__group-header-bouton')?.textContent?.startsWith('Alpha'),
     )
     if (!alphaSection) throw new Error('section « Alpha » introuvable')
     expect(alphaSection.textContent).toContain('Aucun champ renseigné')
