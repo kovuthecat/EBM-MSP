@@ -370,8 +370,32 @@ describe('construireVueDecision — R6 couche 2 : motif de rang (« pourquoi à 
     const vue = construireVueDecision(node, { ic: true })
     const ovA = vue.familles[0].groupes.flat().find((ov) => ov.option === a)
     const ovB = vue.familles[0].groupes.flat().find((ov) => ov.option === b)
-    expect(ovA?.motifRang).toBe('ic == true')
+    expect(ovA?.motifRang).toEqual(['ic == true'])
     expect(ovB?.motifRang).toBeUndefined() // rang FIXE : jamais de motif conditionnel à exposer
+  })
+
+  it('un `quand` disjonctif (`OR`) ne cite que la ou les branches réellement vraies pour ce patient (P10/S1, même correctif que `reasons`)', () => {
+    const a = opt('A', ['toujours'], {
+      priorite: [
+        { quand: 'x == true OR y == true OR z == true', rang: 1 },
+        { quand: 'default', rang: 3 },
+      ],
+    })
+    const b = opt('B', ['toujours'], { priorite: 2 })
+    const node = makeNode([a, b], [
+      { nom: 'x', type: 'bool' },
+      { nom: 'y', type: 'bool' },
+      { nom: 'z', type: 'bool' },
+    ])
+    // Une seule branche vraie (`y`) : elle seule est citée, pas `x`/`z` qui sont fausses pour ce patient.
+    const vueUneBranche = construireVueDecision(node, { x: false, y: true, z: false })
+    const ovAUneBranche = vueUneBranche.familles[0].groupes.flat().find((ov) => ov.option === a)
+    expect(ovAUneBranche?.motifRang).toEqual(['y == true'])
+
+    // Deux branches vraies simultanément : les deux sont citées (le patient cumule, ce n'est pas du bruit).
+    const vueDeuxBranches = construireVueDecision(node, { x: true, y: true, z: false })
+    const ovADeuxBranches = vueDeuxBranches.familles[0].groupes.flat().find((ov) => ov.option === a)
+    expect(ovADeuxBranches?.motifRang).toEqual(['x == true', 'y == true'])
   })
 
   it('NON rendu quand seule la règle de repli `"default"` a matché (pas de motif clinique distinct)', () => {

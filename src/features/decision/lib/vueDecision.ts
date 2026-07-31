@@ -32,9 +32,12 @@
  * pour CE patient (`engine/conditions.ts` `termesVrais`), calculés ICI et non dans `evaluateNode` —
  * `evaluateNode` tourne des centaines de fois par frappe via la boucle de perturbation, une
  * justification situationnelle n'a de coût que pour ce qui est rendu. `OptionVue.motifRang` (R6 couche
- * 2, « pourquoi à ce rang ») est en revanche déjà calculé par `evaluateNode` sans coût supplémentaire
- * (`EvaluateNodeResult.rangMotifs`, sous-produit de `resolvePriorite`) : ce fichier décide seulement DE
- * L'AFFICHER, réservé aux familles à au moins deux groupes d'égalité (une vraie concurrence de rang).
+ * 2, « pourquoi à ce rang ») vient du même sous-produit gratuit d'`evaluateNode`
+ * (`EvaluateNodeResult.rangMotifs`, issu de `resolvePriorite`), mais n'est PAS affiché brut : c'est une
+ * expression du même DSL (`priorite[].quand`), qui peut elle aussi être une disjonction `OR` — ce fichier
+ * lui applique `termesVrais` (P10/S1, même correctif que `reasons` : n'afficher que la ou les branches
+ * réellement vraies pour ce patient, pas la disjonction entière) avant de décider DE L'AFFICHER, réservé
+ * aux familles à au moins deux groupes d'égalité (une vraie concurrence de rang).
  * Ces deux dimensions entrent dans `signatureVue` au même titre que les autres (totalité, ci-dessus) :
  * un critère qui ne change QUE la justification ou QUE le motif de rang doit rester DÉCISIF.
  *
@@ -113,14 +116,17 @@ export interface OptionVue {
    */
   calculsEnAttente: CalculEnAttente[]
   /**
-   * Motif de rang (R6 couche 2, « pourquoi à ce rang ») : le `quand` (DSL brut, à humaniser comme
-   * `reasons`) de la règle de `priorite` CONDITIONNELLE (D14) qui a fixé le rang de cette option pour ce
-   * patient (`EvaluateNodeResult.rangMotifs`). `undefined` si l'option n'a pas de motif de rang (pas de
-   * `priorite`, `priorite` FIXE D13, ou seul le repli `"default"` a matché) OU si sa famille ne compte
-   * qu'UN SEUL groupe d'égalité — sans concurrence de rang réelle dans la famille, « pourquoi celle-ci
-   * d'abord » ne veut rien dire (cf. `construireVueDecision`, qui applique cette dernière condition).
+   * Motif de rang (R6 couche 2, « pourquoi à ce rang ») : les termes `OR` réellement vrais (P10/S1,
+   * `termesVrais`, même traitement que `reasons`) du `quand` de la règle de `priorite` CONDITIONNELLE
+   * (D14) qui a fixé le rang de cette option pour ce patient (`EvaluateNodeResult.rangMotifs`).
+   * `undefined` si l'option n'a pas de motif de rang (pas de `priorite`, `priorite` FIXE D13, ou seul le
+   * repli `"default"` a matché) OU si sa famille ne compte qu'UN SEUL groupe d'égalité — sans concurrence
+   * de rang réelle dans la famille, « pourquoi celle-ci d'abord » ne veut rien dire (cf.
+   * `construireVueDecision`, qui applique cette dernière condition). Jamais vide quand défini : `quand`
+   * a été retenu par `resolvePriorite` parce qu'il s'est évalué vrai, `termesVrais` y trouve donc toujours
+   * au moins une branche.
    */
-  motifRang: string | undefined
+  motifRang: string[] | undefined
   /**
    * Alertes PORTÉES PAR CETTE OPTION (`option.alertes`, `docs/decision/GRAMMAIRE-NOEUD.md` § additions
    * au schéma), déjà filtrées : seulement celles dont `quand` est vrai pour CE patient
@@ -301,6 +307,18 @@ function raisonsSituationnelles(conditions: string[], criteria: Criteria): strin
 }
 
 /**
+ * Termes `OR` réellement vrais du `quand` d'une règle de `priorite` CONDITIONNELLE retenue (P10/S1,
+ * même correctif que `raisonsSituationnelles` ci-dessus, appliqué à `EvaluateNodeResult.rangMotifs`).
+ * `quand` n'est JAMAIS une sentinelle (`resolvePriorite` ne renseigne `motif` que pour une règle réelle,
+ * `"default"` en est explicitement exclu) : pas de garde `estSentinelle` à faire ici, contrairement à
+ * `raisonsSituationnelles`.
+ */
+function motifRangSituationnel(motif: string | undefined, criteria: Criteria): string[] | undefined {
+  if (motif === undefined) return undefined
+  return termesVrais(motif, criteria)
+}
+
+/**
  * Une expression est-elle un TEST DE PÉRIMÈTRE — « ce patient prend-il déjà telle classe ? » — plutôt
  * qu'une indication clinique ? Vrai quand TOUS ses termes `OR` sont des tests d'appartenance
  * (`contient` / `ne_contient_pas`) sur un critère de type `liste`.
@@ -408,7 +426,7 @@ export function construireVueDecision(node: Noeud, criteria: Criteria, renseigne
             reasons: raisonsSituationnelles(option.conditions, derived),
             calculs: calculsAffiches(option, criteria, effectifs),
             calculsEnAttente: calculsEnAttente(option, criteria, node.criteres_entree, effectifs),
-            motifRang: motifRangPertinent ? rangMotifs.get(option) : undefined,
+            motifRang: motifRangPertinent ? motifRangSituationnel(rangMotifs.get(option), derived) : undefined,
             alertes: evaluateAlertesDeListe(option.alertes, derived, effectifs),
             rang: rangs.get(option),
             // T-068 : mêmes critères DÉRIVÉS et même ensemble EFFECTIF que les alertes d'option
@@ -470,7 +488,8 @@ function serialiseOption(ov: OptionVue): string {
   const calculs = ov.calculs.map((c) => `${c.libelle}=${c.valeur}${c.unite ?? ''}`).join('&')
   const calculsEnAttente = ov.calculsEnAttente.map((c) => `${c.libelle}:${c.criteresManquants.join(',')}`).join('&')
   const alertes = ov.alertes.map((a) => `${a.message}~${a.niveau ?? ''}`).join('|')
-  return `${ov.option.intitule}@${ov.badge ?? ''}«${reasons}»[${calculs}]{${calculsEnAttente}}¦${ov.motifRang ?? ''}‖${alertes}${serialiseContreIndications(ov.contreIndications)}`
+  const motifRang = (ov.motifRang ?? []).join('&')
+  return `${ov.option.intitule}@${ov.badge ?? ''}«${reasons}»[${calculs}]{${calculsEnAttente}}¦${motifRang}‖${alertes}${serialiseContreIndications(ov.contreIndications)}`
 }
 
 /**

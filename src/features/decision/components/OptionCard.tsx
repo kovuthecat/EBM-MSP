@@ -51,12 +51,13 @@ interface OptionCardProps {
   calculsEnAttente?: CalculEnAttente[]
   /**
    * Motif de rang (R6 couche 2, « pourquoi à ce rang » — `lib/vueDecision.ts` `OptionVue.motifRang`) :
-   * la condition qui a fixé le rang de CETTE option parmi les autres de sa famille, DSL brut à humaniser
-   * comme `reasons`. `undefined` la plupart du temps (cf. docstring `OptionVue.motifRang` pour les
-   * conditions d'affichage) — n'apparaît que quand ça compte cliniquement (deux options en concurrence
-   * de rang réelle).
+   * les termes réellement vrais pour ce patient qui ont fixé le rang de CETTE option parmi les autres de
+   * sa famille (P10/S1, même traitement que `reasons` ci-dessus — jamais la disjonction entière).
+   * `undefined` la plupart du temps (cf. docstring `OptionVue.motifRang` pour les conditions
+   * d'affichage) — n'apparaît que quand ça compte cliniquement (deux options en concurrence de rang
+   * réelle).
    */
-  motifRang: string | undefined
+  motifRang: string[] | undefined
   /**
    * Alertes PORTÉES PAR CETTE OPTION (addendum alertes d'option, `docs/decision/GRAMMAIRE-NOEUD.md`) :
    * déjà filtrées par `lib/vueDecision.ts` (`OptionVue.alertes`) — seulement celles dont `quand` est
@@ -286,7 +287,9 @@ export function OptionCard({
 
       {/* R6 couche 2 : pourquoi CE rang parmi les autres options de la famille — seulement quand une
           vraie concurrence de rang existe (cf. `lib/vueDecision.ts` `OptionVue.motifRang`). */}
-      {motifRang && <div className="option-card__rang">Ce rang tient compte de : {describeReasons([motifRang])}</div>}
+      {motifRang && motifRang.length > 0 && (
+        <div className="option-card__rang">Ce rang tient compte de : {describeReasons(motifRang)}</div>
+      )}
 
       {/* A5 — LE DÉPLI. Tout ce qui instruit la décision sans être ce sur quoi on agit dans la minute.
           Fermé par défaut : c'est l'allègement lui-même, une carte ouverte n'allège rien. `<details>`

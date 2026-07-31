@@ -147,7 +147,7 @@ function formatCriteresCompact(node: Noeud, criteria: Criteria): string {
 function rendreOptionEnClair(ov: OptionVue): string[] {
   const lignes = [`  - [${ov.badge ?? '(sans badge)'}] ${ov.option.intitule}`]
   if (ov.reasons.length > 0) lignes.push(`      proposé parce que : ${ov.reasons.join(' ; ')}`)
-  if (ov.motifRang) lignes.push(`      rang motivé par : ${ov.motifRang}`)
+  if (ov.motifRang && ov.motifRang.length > 0) lignes.push(`      rang motivé par : ${ov.motifRang.join(' ; ')}`)
   if (ov.calculs.length > 0) {
     lignes.push(`      calculs : ${ov.calculs.map((c) => `${c.libelle} = ${c.valeur}${c.unite ?? ''}`).join(' ; ')}`)
   }
