@@ -1,7 +1,7 @@
 # STATUS.md — ebm-msp
 
 Photo à l'instant T. Mis à jour en fin de session. L'historique (comment on est arrivé ici) vit dans
-`git log`, `DECISIONS.md`/`docs/decisions/` et les changelogs de contenu — pas ici.
+`git log`, `DECISIONS.md`/`docs/commun/decisions/` et les changelogs de contenu — pas ici.
 Plafond : 80 lignes (appliqué par hook).
 
 > **Dernière mise à jour :** 2026-07-30
@@ -11,7 +11,7 @@ Plafond : 80 lignes (appliqué par hook).
 **Module Décision, domaine DT2 — déployé et utilisé en consultation** (ebm-msp.vercel.app). Module
 Veille : **non commencé** (aucun code, `DECISIONS.md` D8 garde la place).
 
-**6 nœuds de contenu**, tous `content/noeuds/diabete-type-2/*.yaml` :
+**6 nœuds de contenu**, tous `content/decision/noeuds/diabete-type-2/*.yaml` :
 
 | nœud | statut | dernière version |
 | --- | --- | --- |
@@ -34,6 +34,10 @@ indications vérifiables désormais désamorçables (schéma+moteur+5 conversion
 projet purgé de l'écran clinique, aperçu de titre de dépli (statine + metformine), protocole de
 titration metformine sourcé (Ameli). T-074 (risque hypoglycémique) reste en arbitrage référent, cf.
 `TASKS.md`.
+
+**Plan PV1 — module Veille, cadré le 2026-07-31, pas démarré** (`plans/PV1/index.md`) : 10 sessions,
+deux éditions hebdomadaires produites **à la main** (`2026-W30`, `2026-W31`, en rétrospectif) avant
+tout code, puis gel du modèle et câblage V1/V2. Les plans Veille sont préfixés `PV`.
 
 **Plan P7** (cadré 2026-07-29, toujours ouvert) : il manque SA2 (validité HbA1c) et S2 (recette) —
 détail : `plans/P7/index.md`.

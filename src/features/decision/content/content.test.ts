@@ -1,6 +1,6 @@
 /**
- * Vérifie que chaque nœud de décision YAML (`/content/noeuds/**`) est conforme à
- * `schema/noeud.schema.json` (DECISIONS.md D9). Échoue avec le chemin du champ fautif si un nœud
+ * Vérifie que chaque nœud de décision YAML (`/content/decision/noeuds/**`) est conforme à
+ * `schema/decision/noeud.schema.json` (DECISIONS.md D9). Échoue avec le chemin du champ fautif si un nœud
  * est invalide — c'est le garde-fou « validation JSON Schema » exigé par le brief §5.
  *
  * Référence explicite aux types Node (ce fichier lit `schema/` via `fs`) : `tsconfig.app.json`
@@ -17,7 +17,7 @@ import { describe, expect, it } from 'vitest'
 import { noeuds } from './loadNodes.ts'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
-const schemaPath = path.resolve(dirname, '../../../../schema/noeud.schema.json')
+const schemaPath = path.resolve(dirname, '../../../../schema/decision/noeud.schema.json')
 const schema = JSON.parse(readFileSync(schemaPath, 'utf-8')) as AnySchemaObject
 
 const ajv = new Ajv({ allErrors: true, strict: true })
@@ -30,8 +30,8 @@ function formatErrors(errors: ErrorObject[] | null | undefined): string {
     .join('\n')
 }
 
-describe('contenu des nœuds de décision (conformité à schema/noeud.schema.json)', () => {
-  it('charge au moins un nœud depuis /content/noeuds', () => {
+describe('contenu des nœuds de décision (conformité à schema/decision/noeud.schema.json)', () => {
+  it('charge au moins un nœud depuis /content/decision/noeuds', () => {
     expect(noeuds.length).toBeGreaterThan(0)
   })
 

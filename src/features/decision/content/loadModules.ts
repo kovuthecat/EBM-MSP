@@ -1,5 +1,5 @@
 /**
- * Agrège les modules de décision YAML (`/content/modules/<domaine>/*.yaml`) en objets `ModuleDecision`
+ * Agrège les modules de décision YAML (`/content/decision/modules/<domaine>/*.yaml`) en objets `ModuleDecision`
  * typés (DECISIONS.md D22), sur le même mécanisme que `loadNodes.ts` : import eager au build, contenu
  * 100 % statique, aucun réseau au runtime (CLAUDE.md invariant 1).
  *
@@ -10,7 +10,7 @@ import type { ModuleDecision } from './module.types.ts'
 import type { Noeud } from './node.types.ts'
 
 const fichiers = import.meta.glob<{ default: ModuleDecision }>(
-  '../../../../content/modules/**/*.yaml',
+  '../../../../content/decision/modules/**/*.yaml',
   { eager: true },
 )
 

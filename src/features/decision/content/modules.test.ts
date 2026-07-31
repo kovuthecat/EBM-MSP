@@ -18,7 +18,7 @@ import { noeuds } from './loadNodes.ts'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 const lireSchema = (nom: string) =>
-  JSON.parse(readFileSync(path.resolve(dirname, `../../../../schema/${nom}`), 'utf-8')) as AnySchemaObject
+  JSON.parse(readFileSync(path.resolve(dirname, `../../../../schema/decision/${nom}`), 'utf-8')) as AnySchemaObject
 
 const ajv = new Ajv({ allErrors: true, strict: true })
 // `module.schema.json` référence `noeud.schema.json#/definitions/meta` : les deux doivent être connus
@@ -33,7 +33,7 @@ function formatErrors(errors: ErrorObject[] | null | undefined): string {
     .join('\n')
 }
 
-describe('modules de décision (conformité à schema/module.schema.json)', () => {
+describe('modules de décision (conformité à schema/decision/module.schema.json)', () => {
   it.each(modules.map((module) => [module.id, module] as const))(
     'module "%s" conforme au schéma',
     (id, module) => {

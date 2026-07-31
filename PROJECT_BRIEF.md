@@ -35,9 +35,9 @@ premier domaine** (celui qui amorce et valide le socle), pas le seul.
    absolu/NNT) ; argumentaire dépliable (reco officielle vs position critique, drapeau de divergence) ;
    date de revue + disclaimer. **Premier domaine = DT2** ; PoC = nœud A « Cible glycémique », puis
    nœuds B→H du DT2.
-2. **Contenu versionné** — un fichier YAML par nœud (`/content/noeuds`) et par entrée de veille
-   (`/content/veille`), validé par **JSON Schema** (`/schema`). Séparation stricte contenu / logique /
-   présentation.
+2. **Contenu versionné** — un fichier YAML par nœud (`/content/decision/noeuds`) et par entrée de veille
+   (`/content/veille`), validé par **JSON Schema** (`/schema/decision`, `/schema/veille`). Séparation
+   stricte contenu / logique / présentation.
 3. **Module Veille** — page chronologique filtrable (thème, profession, niveau d'impact, semaine,
    niveau de preuve) ; badge impact pratique/informatif ; temps de lecture ; lien article → nœud impacté.
 4. **Comptes légers (veille)** — auth + profil (profession) + « pour mémoire » (ids d'articles), via

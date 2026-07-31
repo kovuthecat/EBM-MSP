@@ -1,5 +1,5 @@
 /**
- * Agrège tous les nœuds de décision YAML (`/content/noeuds/<domaine>/*.yaml`) en objets `Noeud`
+ * Agrège tous les nœuds de décision YAML (`/content/decision/noeuds/<domaine>/*.yaml`) en objets `Noeud`
  * typés, importés au build via le plugin Vite YAML (DECISIONS.md D9). Import eager : le contenu
  * Décision est 100 % statique (CLAUDE.md invariant 1 — aucun réseau au runtime).
  *
@@ -9,7 +9,7 @@
 import type { Noeud } from './node.types.ts'
 
 const modules = import.meta.glob<{ default: Noeud }>(
-  '../../../../content/noeuds/**/*.yaml',
+  '../../../../content/decision/noeuds/**/*.yaml',
   { eager: true },
 )
 

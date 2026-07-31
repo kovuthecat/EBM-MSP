@@ -46,7 +46,9 @@ Comportement : à l'inscription (compte, §9), le membre choisit son **profil** 
 
 Thèmes transverses et spécialisés, partagés avec l'outil de décision quand ils se recoupent :
 
-`soins-premiers` · `diabete-metabolisme` · `cardiovasculaire-prevention` (HTA, dyslipidémie, risque CV) · `bpco-pneumo` · `geriatrie-deprescription` · `prevention-depistage-vaccination` · `ETP` · `sante-femme-perinatalite` · `orthophonie` · `soins-infirmiers` (plaies, observance, suivi) · `sante-mentale-addictologie` · `douleur-soins-palliatifs`.
+`soins-premiers` · `diabete-metabolisme` · `cardiovasculaire-prevention` (HTA, dyslipidémie, risque CV) · `bpco-pneumo` · `infectiologie-antibiotherapie` (durées de traitement, résistance, antibiothérapie courante) · `geriatrie-deprescription` · `prevention-depistage-vaccination` · `ETP` · `sante-femme-perinatalite` · `orthophonie` · `soins-infirmiers` (plaies, observance, suivi) · `sante-mentale-addictologie` · `douleur-soins-palliatifs`.
+
+**13 thèmes.** Liste identique à celle d'`ARCHITECTURE.md` § « Données affichées » → *Taxonomie de thèmes* — les deux doivent le rester. `infectiologie-antibiotherapie` a été ajouté le 2026-07-31 (D43) : §8bis le listait comme priorité MG et aucun des 12 thèmes précédents ne le couvrait. Le périmètre de **production** de veille en couvre 9 (D40) ; les 4 autres (`ETP`, `sante-femme-perinatalite`, `orthophonie`, `soins-infirmiers`) restent au modèle de données, sans production.
 
 **Matrice thème × profession** : chaque article porte `themes[]` et `professions_concernees[]`. Le profil détermine les thèmes priorisés (ex. IPA chroniques → diabète, CV, BPCO, gériatrie, prévention, ETP ; sage-femme → santé-femme-périnatalité, prévention, vaccination).
 

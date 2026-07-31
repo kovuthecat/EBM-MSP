@@ -25,9 +25,13 @@ Carte synthétique du projet. Permet d'identifier les zones pertinentes sans exp
 
 ```text
 content/
-  noeuds/diabete-type-2/   # 6 YAML (nœud) + 1 .argumentaire.md chacun
-  modules/diabete-type-2/  # rhd.yaml — regroupe les 2 nœuds RHD (D22)
-schema/                    # noeud.schema.json, module.schema.json (Ajv)
+  decision/
+    noeuds/diabete-type-2/   # 6 YAML (nœud) + 1 .argumentaire.md chacun
+    modules/diabete-type-2/  # rhd.yaml — regroupe les 2 nœuds RHD (D22)
+  veille/                    # (cible) — S5
+schema/
+  decision/                  # noeud.schema.json, module.schema.json (Ajv)
+  veille/                    # (cible) — S5
 src/
   features/
     decision/
@@ -41,13 +45,16 @@ src/
       badges/                # niveau de preuve, distinction dur/substitution
       layout/                # AppShell, DisclaimerBar, ScreenErrorBoundary
       screens/                # Accueil, Méthode
+    veille/                  # (cible) — S6/S7
   styles/                   # tokens CSS (OKLCH)
 docs/
+  commun/
+    decisions/               # détail par décision (`DECISIONS.md` y renvoie)
   decision/
     noeuds/                 # dossier de preuve PAR NŒUD (autorité du contenu clinique)
     validation/              # chantiers de recherche/red-team/vérification, PAR CHANTIER DATÉ
-    GRAMMAIRE-NOEUD.md        # règles R1→R9, transverse, tous domaines
-    CONSTRUIRE-UN-MODULE.md   # procédé P0→P7 de construction d'un domaine/module
+    GRAMMAIRE-NOEUD.md        # règles R1→R9, transverse aux domaines cliniques (pas aux modules), tous domaines
+    CONSTRUIRE-UN-MODULE.md   # procédé P0→P7 de construction d'un domaine/module — idem
   veille/                    # (cible) SOP, grille d'appréciation — module non démarré
 design/maquettes/           # exports Claude Design (un fichier par écran)
 plans/                      # P1, P2, P3-fusion — historique du COMMENT, un dossier par plan clos
@@ -95,9 +102,11 @@ jamais de texte intégral) ; marqueur « impacte un algorithme » → nœud.
 
 - `docs/decision/BRIEF_DECISION.md`, `docs/veille/BRIEF_VEILLE.md`,
   `docs/veille/GRILLE_APPRECIATION.md`, `docs/veille/SOP_veille.md`.
-- **Transverse, aucun domaine** : `docs/decision/GRAMMAIRE-NOEUD.md` (règles d'écriture d'un nœud,
-  R1→R9) · `docs/decision/CONSTRUIRE-UN-MODULE.md` (procédé de construction d'un module, P0→P7,
-  portes de sortie et checklists). `docs/decision/00-global.md` reste **DT2** (pipeline de preuve).
+- **Transverse aux domaines cliniques, pas aux modules** — ces deux fichiers appartiennent au module
+  Décision et ne bougent pas avec l'arrivée de Veille : `docs/decision/GRAMMAIRE-NOEUD.md` (règles
+  d'écriture d'un nœud, R1→R9) · `docs/decision/CONSTRUIRE-UN-MODULE.md` (procédé de construction d'un
+  module, P0→P7, portes de sortie et checklists). `docs/decision/00-global.md` reste **DT2** (pipeline
+  de preuve).
 
 ---
 

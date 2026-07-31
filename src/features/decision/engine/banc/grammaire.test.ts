@@ -48,7 +48,7 @@ interface SchemaNoeud extends SchemaObjet {
   definitions?: Record<string, SchemaObjet>
 }
 
-const schema = JSON.parse(readFileSync('schema/noeud.schema.json', 'utf-8')) as SchemaNoeud
+const schema = JSON.parse(readFileSync('schema/decision/noeud.schema.json', 'utf-8')) as SchemaNoeud
 
 /** Propriétés réellement déclarées par le schéma, par définition (`(racine)` pour l'objet de tête). */
 function proprietesDuSchema(): Map<string, string[]> {

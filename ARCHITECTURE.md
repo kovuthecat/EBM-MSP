@@ -64,7 +64,7 @@ recopié ici ; ne pas renvoyer vers d'autres fichiers.
     texte sourcé + bloc **reco officielle vs position critique côte à côte** avec **drapeau de divergence** ;
     incertitudes ; sources principales (références primaires avec type de critère dur/substitution,
     Médicalement Geek, Prescrire) ; **(3) argumentaire exhaustif** : lien « Lire l'argumentaire exhaustif »
-    ouvrant `content/noeuds/<domaine>/<id>.argumentaire.md` — toutes les preuves détaillées et **toutes les sources**.
+    ouvrant `content/decision/noeuds/<domaine>/<id>.argumentaire.md` — toutes les preuves détaillées et **toutes les sources**.
   - Pied : **date de revue** du nœud + **disclaimer**.
 - Actions : saisir/modifier des critères (filtrage en direct) ; déplier/replier l'argumentaire ;
   ouvrir une source ; suivre le lien vers les entrées de veille liées.
@@ -142,9 +142,12 @@ recopié ici ; ne pas renvoyer vers d'autres fichiers.
 - **Utilisateur** (Supabase) : e-mail, profil (profession), liste d'ids « pour mémoire », préférences.
   *Aucune donnée de santé, aucune donnée patient.*
 - **Taxonomie de thèmes** (partagée décision ↔ veille) : soins-premiers, diabete-metabolisme,
-  cardiovasculaire-prevention, bpco-pneumo, geriatrie-deprescription, prevention-depistage-vaccination,
-  ETP, sante-femme-perinatalite, orthophonie, soins-infirmiers, sante-mentale-addictologie,
-  douleur-soins-palliatifs.
+  cardiovasculaire-prevention, bpco-pneumo, infectiologie-antibiotherapie, geriatrie-deprescription,
+  prevention-depistage-vaccination, ETP, sante-femme-perinatalite, orthophonie, soins-infirmiers,
+  sante-mentale-addictologie, douleur-soins-palliatifs.
+  *13 thèmes. Liste identique à `docs/veille/BRIEF_VEILLE.md` §4 — les deux doivent le rester
+  (cf. D43). Le périmètre de **production** de veille n'en couvre que 9 (D40) ; les 4 autres
+  restent au modèle de données.*
 
 ## Contraintes UI
 
@@ -169,7 +172,8 @@ recopié ici ; ne pas renvoyer vers d'autres fichiers.
   - `veille` : liste filtrable + détail + auth Supabase + « pour mémoire » + profil.
   - `shared` : taxonomie de thèmes, badges (niveau de preuve / impact), types communs, pont
     article ↔ nœud, disclaimer, layout/navigation.
-- **Contenu** : `/content/noeuds/*.yaml` et `/content/veille/*.yaml`, validés par `/schema/*.json`
+- **Contenu** : `/content/decision/noeuds/*.yaml` et `/content/veille/*.yaml` (cible), validés par
+  `/schema/decision/*.json` et `/schema/veille/*.json` (cible)
   (JSON Schema), **compilés en JSON** pour le runtime. Séparation stricte contenu / logique / présentation.
 - **État / persistance** : module Décision = **aucun état persistant** (state React éphémère) ;
   module Veille = Supabase (auth + profil + ids « pour mémoire »), données minimisées, hébergées UE.

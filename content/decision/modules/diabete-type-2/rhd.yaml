@@ -1,0 +1,61 @@
+# Module RHD — écran de module (DECISIONS.md D22), premier usage du mécanisme.
+#
+# PROVENANCE DU TEXTE : aucun contenu clinique n'est créé ici. Le `cadrage` reprend ce que les deux
+# nœuds `rhd-alimentation` et `rhd-activite-physique` affirmaient DÉJÀ, chacun de son côté, dans leur
+# `population_cible` et leurs commentaires — c'est précisément la duplication que D22 vise à supprimer
+# (invariant I4 : un concept, un encodage). Le point structurel « suggérer un rapprochement, jamais une
+# cible à atteindre » est une directive explicite du référent (2026-07-26).
+#
+# GARDE-FOU R1 (D22, § Conséquences) : ce fichier ne porte AUCUN critère et ne transmet AUCUNE valeur.
+# Le module est un flux d'écran, pas un chaînage : chaque nœud reste évaluable seul, avec ses propres
+# critères saisis chez lui. Le socle de terrain partagé qu'évoquait D22 (`fragilite`, `age`…) n'est donc
+# PAS livré ici — il suppose un état de saisie partagé entre écrans, qui reste à arbitrer.
+id: rhd
+domaine: diabete-type-2
+libelle: RHD
+titre: "Règles hygiéno-diététiques"
+population_cible: >-
+  Adulte DT2, en consultation de médecine générale. Deux axes travaillés séparément — alimentation et
+  activité physique — parce que les traiter d'un bloc porterait le recueil au-delà de ce qu'une
+  consultation absorbe.
+cadrage:
+  - >-
+    Ces deux nœuds suggèrent des pistes de RAPPROCHEMENT d'un repère démontré ; ils ne fixent jamais un
+    objectif chiffré à atteindre, et ne calculent aucun score d'adhérence. La négociation avec le patient
+    fait partie du geste : une piste refusée n'est pas un échec, c'est une information.
+  - >-
+    Chaque axe est autonome. On peut n'en ouvrir qu'un, dans n'importe quel ordre, sans que l'autre ait
+    été renseigné — aucune valeur ne circule de l'un à l'autre.
+  - >-
+    Hors périmètre des deux nœuds : l'objectif de perte de poids et la rémission, la prescription
+    diététique détaillée (orientation vers le diététicien de la structure) et le bilan d'aptitude
+    physique (enseignant en activité physique adaptée).
+primer:
+  question: "Quel levier travailler avec ce patient aujourd'hui ?"
+  orientations:
+    - noeud: rhd-alimentation
+      libelle: "L'alimentation"
+      indices:
+        - "Le patient décrit spontanément ce qu'il mange, ou vous demande « quoi manger »."
+        - "Boissons sucrées, plats ultratransformés ou restauration rapide sont au premier plan."
+        - "Une piste alimentaire simple et négociable manque pour la prochaine consultation."
+    - noeud: rhd-activite-physique
+      libelle: "L'activité physique et la sédentarité"
+      indices:
+        - "Le patient est assis la plus grande partie de la journée."
+        - "La marche, les déplacements ou une reprise de pratique sont le sujet de la consultation."
+        - "Une expérience passée négative (blessure, moquerie, essoufflement) bloque la reprise."
+meta:
+  date_revue: "2026-07-26"
+  auteur: "référent DT2 + Claude Code"
+  statut: brouillon
+  version: "0.1"
+  changelog:
+    - date: "2026-07-26"
+      auteur: "référent DT2 + Claude Code"
+      resume: >-
+        Création — premier module au sens de D22, dont le mécanisme était décidé depuis le 2026-07-26 mais
+        dont l'écran n'existait pas : le champ `module: RHD` était porté par les deux nœuds et n'était lu
+        par AUCUN code. Cadrage partagé repris des deux `population_cible` (déduplication, I4) et primer
+        d'orientation à deux voies. Aucun critère partagé (garde-fou R1) : le socle de terrain commun
+        évoqué par D22 suppose un état de saisie inter-écrans, non arbitré à ce jour.
