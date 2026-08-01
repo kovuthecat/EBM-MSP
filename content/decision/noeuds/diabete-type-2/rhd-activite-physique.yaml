@@ -297,6 +297,13 @@ options:
     # 2026-07-30).
     conditions:
       - "duree_seance == moins_10_min AND frequence_activite_structuree != jamais"
+    # Motif rédigé (P10/S6, T-083) : famille 1 de la Décision clé S3/S6 — GARDE TECHNIQUE (le second
+    # terme `frequence_activite_structuree != jamais` répète la portée du `visible_si` de `duree_seance`,
+    # cf. le commentaire ci-dessus, R8) exposée telle quelle dans « Proposé parce que ». Le motif dit ce
+    # que la branche signifie cliniquement (des séances déjà pratiquées, mais courtes) sans faire
+    # apparaître le garde-fou de masquage, qui n'a rien à faire dans une phrase lue par un praticien.
+    motifs:
+      "duree_seance == moins_10_min AND frequence_activite_structuree != jamais": "séances déjà pratiquées, mais de moins de 10 minutes"
     priorite: 3
     famille: "Activité quotidienne"
     avantages:
@@ -354,6 +361,11 @@ options:
     role: geste
     conditions:
       - "frequence_activite_structuree == quatre_fois_ou_plus_semaine AND rupture_sedentarite_habituelle == true"
+    # Motif rédigé (P10/S6, T-083) : famille 3 de la Décision clé S3/S6 — conjonction à deux termes qui
+    # décrit en fait UNE seule situation clinique (patient déjà régulier sur les deux axes). Ne dit rien
+    # de plus que les deux atomes de la branche.
+    motifs:
+      "frequence_activite_structuree == quatre_fois_ou_plus_semaine AND rupture_sedentarite_habituelle == true": "activité structurée déjà 4 fois ou plus par semaine, interruption des périodes assises déjà habituelle"
     priorite: 1
     famille: "Pratique structurée"
     avantages:
@@ -414,6 +426,10 @@ options:
     role: geste
     conditions:
       - "frequence_activite_structuree == deux_a_trois_fois_semaine AND rupture_sedentarite_habituelle == true"
+    # Motif rédigé (P10/S6, T-083) : même famille 3 que « Maintenir la pratique actuelle » ci-dessus,
+    # bande de fréquence différente (2-3×/sem au lieu de 4×/sem ou plus).
+    motifs:
+      "frequence_activite_structuree == deux_a_trois_fois_semaine AND rupture_sedentarite_habituelle == true": "activité structurée déjà 2 à 3 fois par semaine, interruption des périodes assises déjà habituelle"
     famille: "Maintien"
     avantages:
       - "Provenance : recommandation officielle. Vous pratiquez déjà une activité physique 2 à 3 fois par semaine et rompez déjà régulièrement les périodes assises : la régularité de l'activité physique est le repère le mieux établi comme prédicteur d'un bon résultat à long terme (guide EBM européen, grade A) — la maintenir est déjà la bonne direction."
@@ -452,6 +468,26 @@ alertes:
       Sujet fragile : éviter les activités physiques prolongées par forte chaleur, favoriser l'hydratation
       même en l'absence de sensation de soif, et éviter les activités de renforcement musculaire de forte
       intensité en ambiance chaude (HAS, guide des connaissances sur l'activité physique et la sédentarité).
+# `cadrage` créé (P10/S6, T-083) : ce nœud n'en portait aucun. Registre du primer RHD
+# (`content/decision/modules/diabete-type-2/rhd.yaml`), seul endroit de l'app cité comme réussi sur ce
+# terrain par le praticien — concret, court, orienté consultation. Le premier énoncé reprend ce que
+# `argumentaire`/l'en-tête du fichier disaient déjà (la réserve majeure EBM), sans rien y ajouter
+# (D23). Le second, la liste « ce que ce nœud ne prend pas en compte », est DÉDUIT de ce qui manque à
+# `criteres_entree` et changerait une conduite (vignette N9 de recette : le projet propre du patient,
+# l'ECG déjà réalisé, le sevrage tabagique récent ne sont jamais interrogés ; « une évaluation médicale
+# minimale » est exigée par une alerte sans être définie nulle part) — À VALIDER PAR LE RÉFÉRENT (cf.
+# bilan de session), au même titre que la liste équivalente du nœud `prescription` (S3).
+cadrage:
+  - >-
+    Ce nœud suggère des pistes de rapprochement de la régularité de pratique, seul repère prédictif
+    retenu ici, jamais un objectif chiffré (150 min/semaine, 10 000 pas) ; aucune piste de ce nœud ne
+    revendique de bénéfice cardiovasculaire dur — aucun essai contrôlé d'exercice isolé ne l'a démontré
+    dans le diabète de type 2 établi.
+  - >-
+    Ce que ce nœud ne prend pas en compte : le projet ou la motivation propre du patient (ex. envie de
+    reprendre la course) ; si un bilan cardiologique (ECG) a déjà été réalisé ; un sevrage tabagique
+    récent ; ce que recouvre concrètement « l'évaluation médicale minimale » recommandée avant l'effort,
+    nommée par une alerte sans être définie.
 argumentaire: >
   Sur l'axe activité physique, aucun essai contrôlé randomisé d'exercice isolé, dans le diabète de type 2
   établi, ne démontre de bénéfice sur un critère cardiovasculaire ou de mortalité (Look AHEAD : critère
@@ -566,8 +602,21 @@ meta:
   date_revue: "2026-07-26"
   auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
   statut: brouillon
-  version: "0.10"
+  version: "0.11"
   changelog:
+    - date: "2026-07-31"
+      auteur: "Claude Code (P10/S6, T-083) — en attente de relecture référent"
+      resume: >-
+        Inventaire des 13 options / 24 branches de condition : 21 déjà lisibles telles quelles, 3
+        opaques (« Répartir l'activité en plusieurs séances courtes » — garde technique de masquage ;
+        « Maintenir la pratique actuelle » et « Poursuivre les habitudes actuelles » — conjonctions à
+        deux termes décrivant chacune une seule situation clinique) qui reçoivent un motif rédigé
+        (`option.motifs`, mécanisme P10/S2). `cadrage` créé (absent jusqu'ici) : 2 énoncés dans le
+        registre du primer RHD, dont une section « ce que ce nœud ne prend pas en compte » (projet du
+        patient, ECG déjà réalisé, sevrage tabagique récent, contenu non défini de « l'évaluation
+        médicale minimale » — liste À VALIDER PAR LE RÉFÉRENT). Aucune condition, aucun seuil, aucune
+        option, aucune exclusion modifiés — vérifié par relecture ligne à ligne des diffs de snapshots
+        (aucun changement de statut d'option).
     - date: "2026-07-30"
       auteur: "Claude Code (P9/S2, T-069) — en attente de relecture référent"
       resume: >-

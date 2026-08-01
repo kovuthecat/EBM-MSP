@@ -546,6 +546,14 @@ options:
     role: geste
     conditions:
       - "matiere_grasse_cuisson == huile_olive_ou_colza AND frequence_fruits_a_coque == regulier"
+    # Motif rédigé (P10/S6, T-083) : seule branche opaque de ce nœud (famille 3 de la Décision clé
+    # S3/S6 — conjonction à deux termes qui décrit en fait UNE seule situation clinique, « déjà proche
+    # du motif méditerranéen »). Rendu mécanique sans motif : « Matière grasse de cuisson = Huile
+    # d'olive ou de colza et Fruits à coque = Régulier » — lisible comme deux lignes de formulaire côte
+    # à côte, pas comme un constat clinique. Le motif ne dit rien de plus que les deux atomes de la
+    # branche (D23/règle d'or S3 : jamais l'étiquette EBM-dur du module, portée par l'en-tête).
+    motifs:
+      "matiere_grasse_cuisson == huile_olive_ou_colza AND frequence_fruits_a_coque == regulier": "huile d'olive ou de colza déjà utilisée pour cuisiner, fruits à coque déjà réguliers"
     famille: "Maintien"
     avantages:
       - "Provenance : recommandation officielle. Vous utilisez déjà l'huile d'olive et mangez déjà des fruits à coque régulièrement — les deux composantes réellement randomisées de PREDIMED : renforcer une pratique déjà favorable est un message conforme à la non-culpabilisation portée par la HAS (« la stabilisation d'une bonne habitude est déjà un résultat »)."
@@ -567,6 +575,31 @@ alertes:
       score MEDAS) : ce nœud ne propose jamais l'alcool comme piste — orienter vers le repérage d'un
       mésusage plutôt que d'encourager cette consommation. Interactions à garder en tête : foie,
       triglycérides, hypoglycémie sous insulinosécréteur.
+# `cadrage` créé (P10/S6, T-083 ; second énoncé retravaillé P10 post-arbitrage référent 2026-07-31).
+# Registre du primer RHD (`content/decision/modules/diabete-type-2/rhd.yaml`), seul endroit de l'app cité
+# comme réussi sur ce terrain par le praticien — concret, court, orienté consultation. Le premier énoncé
+# reprend ce que `population_cible`/l'en-tête du fichier disaient déjà, sans rien y ajouter (D23 : jamais
+# plus que ce que le contenu établit). Le second, la liste « ce que ce nœud ne prend pas en compte », est
+# DÉDUIT de ce qui manque à `criteres_entree` et changerait une conduite (vignette N8 de recette) —
+# À VALIDER PAR LE RÉFÉRENT (cf. bilan de session S6), au même titre que la liste équivalente du nœud
+# `prescription` (S3). RETRAVAIL post-S6 : (a) le point le plus lourd de N8 — l'impossibilité d'enregistrer
+# que la demande du patient porte sur le poids — est mis EN TÊTE, isolé, plutôt que noyé en fin de liste
+# de champs manquants (c'est un décalage de nature, pas un champ en plus) ; (b) « perte de poids/rémission
+# hors périmètre » n'est plus RÉPÉTÉ mais référencé — ce fait est déjà affirmé texto par le primer du
+# module (`modules/diabete-type-2/rhd.yaml` l.30), le dupliquer aurait créé deux textes à synchroniser
+# pour la même affirmation.
+cadrage:
+  - >-
+    Ce nœud suggère des pistes de rapprochement du repère alimentaire méditerranéen, jamais un objectif
+    chiffré ni un score d'adhérence à atteindre ; une piste refusée n'est pas un échec, c'est une
+    information pour la consultation suivante. Le repérage d'un trouble du comportement alimentaire n'y
+    bloque plus aucune piste, il déclenche seulement une orientation (diététicien, avis spécialisé TCA).
+  - >-
+    Ce nœud ne permet pas d'enregistrer que la demande du patient porte elle-même sur le poids — c'est
+    pourtant la situation la plus fréquente à IMC élevé, et le nœud y répond quand même par des gestes
+    alimentaires généraux, sans le dire. Il ne prend pas non plus en compte le tour de taille, la tension
+    artérielle, ni le repérage d'un syndrome d'apnées du sommeil (l'objectif de perte de poids et la
+    rémission sont hors périmètre du module RHD dans son ensemble — voir l'écran d'aiguillage).
 argumentaire: >
   Le seul bénéfice démontré sur un critère cardiovasculaire DUR parmi les mesures alimentaires est celui du
   régime de type méditerranéen DANS SON ENSEMBLE — PREDIMED (composite cardiovasculaire majeur, HR 0,69 pour le
@@ -707,8 +740,28 @@ meta:
   date_revue: "2026-07-26"
   auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
   statut: brouillon
-  version: "0.9"
+  version: "0.11"
   changelog:
+    - date: "2026-07-31"
+      auteur: "Claude Code (P10, retravail post-S6) — en attente de relecture référent"
+      resume: >-
+        Second énoncé du `cadrage` retravaillé, sur arbitrage référent : le point le plus lourd de N8
+        (impossibilité d'enregistrer que la demande du patient porte sur le poids) mis en tête, isolé,
+        plutôt que noyé en fin de liste de champs manquants ; « perte de poids/rémission hors périmètre »
+        n'est plus répété mais référencé (déjà affirmé texto par le primer du module RHD), pour éviter
+        deux textes à synchroniser pour la même affirmation. Aucun fait nouveau, aucune
+        `conditions`/`exclusions`/`priorite` modifiée — reformulation seule.
+    - date: "2026-07-31"
+      auteur: "Claude Code (P10/S6, T-083) — en attente de relecture référent"
+      resume: >-
+        Inventaire des 16 options / 29 branches de condition : 28 déjà lisibles telles quelles, 1 opaque
+        (« Continuer ce qui fonctionne déjà » — conjonction à deux termes) qui reçoit un motif rédigé
+        (`option.motifs`, mécanisme P10/S2). `cadrage` créé (absent jusqu'ici) : 2 énoncés dans le
+        registre du primer RHD, dont une section « ce que ce nœud ne prend pas en compte » (perte de
+        poids/rémission déjà hors périmètre, demande du patient sur le poids, tour de taille, tension
+        artérielle, repérage SAOS — liste À VALIDER PAR LE RÉFÉRENT). Aucune condition, aucun seuil,
+        aucune option, aucune exclusion modifiés — vérifié par relecture ligne à ligne des diffs de
+        snapshots (aucun changement de statut d'option).
     - date: "2026-07-29"
       auteur: "Claude Code (lot « simplification de saisie ») — en attente de relecture référent"
       resume: >-
