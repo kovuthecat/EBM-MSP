@@ -503,7 +503,16 @@ describe('prescription — R3 (remplacement_agent_sans_benefice, GRAMMAIRE-NOEUD
     expect(has(t, 'Désintensifier')).toBe(true) // le sur-contrôle reste géré par la désintensification
   })
 
-  it('R3-4 — sulfamide + hypoglycémie récente, terrain NON fragile : le switch NE se déclenche PAS ; c’est la réduction de dose du sulfamide qui s’affiche, pas la désintensification (renforcée, chantier vignettes 2026-07-26)', () => {
+  it('R3-4 — sulfamide + hypoglycémie récente, terrain NON fragile : le switch SE déclenche (arbitrage A1, 2026-08-01), la désintensification non ; la réduction de dose l’accompagne', () => {
+    // ⚠ ATTENTE INVERSÉE le 2026-08-01 (arbitrage référent A1, `prescription.yaml` 0.46). ANCIEN :
+    // `Remplacer le sulfamide` attendu ABSENT — l'option portait alors la condition
+    // `hypoglycemie_recente == false`, qui fermait le switch à tout patient venant de faire une
+    // hypoglycémie. NOUVEAU : attendu PRÉSENT, le verrou ayant été levé.
+    // Ce test documentait donc un comportement RÉEL, mais il n'en portait aucune justification
+    // clinique — et l'argumentaire de l'option, lui, justifie le remplacement PAR le risque
+    // hypoglycémique (CAROLINA, NNT 45 sur l'hypo sévère). C'est cette contradiction que A1 a tranchée.
+    // Les deux autres assertions sont CONSERVÉES telles quelles : elles testent une autre propriété
+    // (le terrain non fragile n'ouvre pas « Désintensifier »), que A1 n'a pas touchée.
     // RENFORCÉE (drapeau ASSERTION FAIBLE, docs/decision/validation/chantier-2026-07-26/
     // vignettes-existantes-a-valider.md, P-37) : l'assertion d'origine ne vérifiait QUE l'absence du
     // switch, jamais ce qui s'affiche à la place. Ce profil (terrain par défaut : 60 ans, non fragile, EV
@@ -516,7 +525,7 @@ describe('prescription — R3 (remplacement_agent_sans_benefice, GRAMMAIRE-NOEUD
     // prescription.yaml:680-683) — jamais vérifiée avant ce renforcement.
     const o = { traitements_en_cours: ['metformine', 'sulfamide'], hypoglycemie_recente: true } as Partial<Criteria>
     const t = titles(o)
-    expect(has(t, 'Remplacer le sulfamide')).toBe(false)
+    expect(has(t, 'Remplacer le sulfamide')).toBe(true)
     expect(has(t, 'Désintensifier')).toBe(false)
     expect(has(t, 'Réduire la posologie du sulfamide')).toBe(true)
   })

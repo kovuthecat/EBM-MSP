@@ -1336,7 +1336,19 @@ options:
       (dépend de l'agent et du geste retenu).
     niveau_preuve: faible
   # ---- Désintensification (porte : hba1c_sous_cible à tout âge, ou hypo récente sur terrain fragile) ----
-  - intitule: "Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline"
+  # RENOMMÉ le 2026-08-01 (arbitrage référent A2, cf. `meta.changelog`) : l'ancien intitulé — « Désintensifier :
+  # alléger / arrêter le sulfamide, le glinide ou réduire l'insuline » — énumérait des GESTES PAR MOLÉCULE qui
+  # sont mot pour mot ceux des cartes « Remplacer le sulfamide » (plus haut) et « Réduire la posologie du
+  # sulfamide » / « Réduire la posologie de l'insuline » (plus bas) : chez un patient sous sulfamide avec
+  # hypoglycémie récente, trois cartes portaient sur le même agent sans que le praticien puisse les distinguer
+  # au libellé. Or cette option n'est pas un geste de posologie : c'est un geste de STRATÉGIE — relâcher la
+  # cible glycémique et alléger la charge thérapeutique globale (cf. `avantages` : « sur-traitement
+  # iatrogène — déprescrire à TOUT ÂGE », HAS R.103, SFD Avis 5 bis). Le nouvel intitulé porte ce niveau de
+  # décision, pas la liste des molécules concernées. AUCUNE `conditions`/`exclusions`/`priorite`/`famille`
+  # n'a changé : seul le libellé bouge. La question de savoir si ces trois cartes doivent en plus être
+  # rendues mutuellement exclusives reste un arbitrage clinique distinct, documenté mais non tranché ici
+  # (cf. `meta.changelog`).
+  - intitule: "Désintensifier : alléger la charge thérapeutique globale (relâcher la cible)"
     role: geste
     # GÉNÉRALISATION position_vs_cible (2026-07-26, 4e série, red-team clinique silences F1,
     # GRAMMAIRE-NOEUD.md R1) : `position_vs_cible == sous_objectif` — l'ÉTAT DÉCLARÉ de sur-traitement,
@@ -2325,8 +2337,33 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.46"
+  version: "0.47"
   changelog:
+    - date: "2026-08-01"
+      auteur: "Claude Code (arbitrage référent A2) — en attente de relecture référent"
+      resume: >-
+        RENOMMAGE DE « DÉSINTENSIFIER » — libellé seul, aucune règle touchée. Défaut constaté (arbitrage
+        référent A2, faisant suite à A1 ci-dessous) : trois cartes portaient sur le même sulfamide chez le
+        patient de 88 ans sous sulfamide + hypoglycémie récente décrit dans l'entrée A1, toutes badgées
+        « Recommandée » — « Remplacer le sulfamide », « Désintensifier » et « Réduire la posologie du
+        sulfamide » — sans que le praticien puisse choisir laquelle appliquer au seul vu du libellé.
+        Diagnostic : « Désintensifier » n'est pas un geste de posologie, c'est un geste de STRATÉGIE
+        (relâcher la cible, alléger la charge thérapeutique globale — cf. son propre argumentaire, « HbA1c
+        < 6,5 % sous agent hypoglycémiant = sur-traitement iatrogène », HAS R.103, SFD Avis 5 bis), mais son
+        intitulé énumérait des gestes par molécule (« alléger / arrêter le sulfamide, le glinide ou réduire
+        l'insuline ») qui recouvrent mot pour mot les intitulés des deux cartes spécifiques.
+        CE QUI A CHANGÉ : uniquement l'`intitule` de l'option « Désintensifier », de « Désintensifier :
+        alléger / arrêter le sulfamide, le glinide ou réduire l'insuline » à « Désintensifier : alléger la
+        charge thérapeutique globale (relâcher la cible) ». `apercu` (champ absent sur cette option),
+        `effet_attendu` et le premier item d'`avantages` ont été relus : ils n'énuméraient déjà aucune
+        molécule et restent inchangés mot pour mot.
+        CE QUI N'A PAS CHANGÉ : aucune `conditions`, `exclusions`, `prerequis`, `priorite`, `famille`,
+        `role`, `action`, `niveau_preuve`, `motifs` — sur cette option ni sur aucune autre. Aucune source,
+        aucun chiffre, aucun niveau de preuve modifié. La question de savoir si « Remplacer le sulfamide »
+        et « Réduire la posologie du sulfamide » doivent être rendues mutuellement exclusives (sur le
+        modèle de l'exclusion `DFG < 30` déjà posée entre « Réduire la posologie » et « Arrêter le
+        sulfamide » par le red-team sécurité HAUTE-1 du 2026-07-26) reste un arbitrage clinique **non
+        tranché ici** — signalé au référent, non appliqué.
     - date: "2026-08-01"
       auteur: "Claude Code (arbitrage référent A1, recette « Traiter ») — en attente de relecture référent"
       resume: >-

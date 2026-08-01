@@ -55,7 +55,7 @@ Sortie :
     - Remplacer le sulfamide (moins d'hypoglycémie, moins de poids, plus de bénéfice) :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, DFG
     - Remplacer le glinide (aucun bénéfice sur critère dur — préférer un agent qui en apporte) :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, DFG
     - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : intention, traitements_en_cours, intolerance_traitement
-    - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, position_vs_cible, DFG
+    - Désintensifier : alléger la charge thérapeutique globale (relâcher la cible) :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, position_vs_cible, DFG
     - Réduire la posologie de l'insuline (sur‑basalisation / hypoglycémie) :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, position_vs_cible, DFG, intolerance_traitement
     - Réduire la posologie de l'AR GLP‑1 (perte de poids excessive / intolérance digestive) :: à renseigner : intention, traitements_en_cours, denutrition, intolerance_traitement, nature_intolerance
     - Réduire la posologie du tirzépatide (perte de poids excessive / intolérance) :: à renseigner : intention, traitements_en_cours, denutrition, intolerance_traitement, nature_intolerance
@@ -238,7 +238,7 @@ Sortie :
     - Remplacer le sulfamide (moins d'hypoglycémie, moins de poids, plus de bénéfice) :: à renseigner : intention
     - Remplacer le glinide (aucun bénéfice sur critère dur — préférer un agent qui en apporte) :: à renseigner : intention
     - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : intention, intolerance_traitement
-    - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : intention
+    - Désintensifier : alléger la charge thérapeutique globale (relâcher la cible) :: à renseigner : intention
     - Réduire la posologie de l'AR GLP‑1 (perte de poids excessive / intolérance digestive) :: à renseigner : intention, denutrition
     - Réduire la posologie du tirzépatide (perte de poids excessive / intolérance) :: à renseigner : intention, denutrition
     - Réduire la posologie du sulfamide (tolérance, hypoglycémie légère) :: à renseigner : intention
@@ -282,7 +282,7 @@ Sortie :
       proposé parce que : intention != initier AND traitements_en_cours contient sulfamide ; hba1c_sous_cible == false
   Famille « Traitement à alléger » (exclusive: false) :
     -- groupe d'égalité #0 --
-  - [recommandee] Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline
+  - [recommandee] Désintensifier : alléger la charge thérapeutique globale (relâcher la cible)
       proposé parce que : hypoglycemie_recente == true AND terrain_cible_assouplie == true ; position_vs_cible == sous_objectif ; intention != initier AND traitements_en_cours contient sulfamide
     -- groupe d'égalité #1 --
   - [recommandee] Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer
@@ -342,7 +342,7 @@ Sortie :
     - Envisager l'insuline (palette non‑insulinique épuisée — schéma à titrer et suivre dans la durée) :: à renseigner : position_vs_cible
     - Remplacer le glinide (aucun bénéfice sur critère dur — préférer un agent qui en apporte) :: à renseigner : HbA1c_actuelle
     - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : intolerance_traitement
-    - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : HbA1c_actuelle, position_vs_cible
+    - Désintensifier : alléger la charge thérapeutique globale (relâcher la cible) :: à renseigner : HbA1c_actuelle, position_vs_cible
     - Réduire la posologie de l'AR GLP‑1 (perte de poids excessive / intolérance digestive) :: à renseigner : denutrition, intolerance_traitement, nature_intolerance
     - Réduire la posologie du tirzépatide (perte de poids excessive / intolérance) :: à renseigner : denutrition, intolerance_traitement, nature_intolerance
     - Réduire la posologie du glinide (tolérance, hypoglycémie légère) :: à renseigner : position_vs_cible, intolerance_traitement
@@ -392,7 +392,7 @@ Sortie :
     - Remplacer le sulfamide (moins d'hypoglycémie, moins de poids, plus de bénéfice) :: à renseigner : intention, HbA1c_actuelle, DFG
     - Remplacer le glinide (aucun bénéfice sur critère dur — préférer un agent qui en apporte) :: à renseigner : intention, HbA1c_actuelle, DFG
     - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : intention
-    - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : intention, HbA1c_actuelle, position_vs_cible, DFG
+    - Désintensifier : alléger la charge thérapeutique globale (relâcher la cible) :: à renseigner : intention, HbA1c_actuelle, position_vs_cible, DFG
     - Réduire la posologie du tirzépatide (perte de poids excessive / intolérance) :: à renseigner : intention
     - Réduire la posologie du sulfamide (tolérance, hypoglycémie légère) :: à renseigner : intention, position_vs_cible
     - Réduire la posologie du glinide (tolérance, hypoglycémie légère) :: à renseigner : intention, position_vs_cible
@@ -476,7 +476,7 @@ Sortie :
       proposé parce que : intention != initier AND traitements_en_cours contient gliptine ; intention != initier AND traitements_en_cours contient aGLP1
   Famille « Traitement à alléger » (exclusive: false) :
     -- groupe d'égalité #0 --
-  - [recommandee] Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline
+  - [recommandee] Désintensifier : alléger la charge thérapeutique globale (relâcher la cible)
       proposé parce que : hypoglycemie_recente == true AND terrain_cible_assouplie == true ; intention != initier AND traitements_en_cours contient glinide
     -- groupe d'égalité #1 --
   - [recommandee] Réduire la posologie de l'AR GLP‑1 (perte de poids excessive / intolérance digestive)
@@ -580,7 +580,7 @@ Sortie :
     - Remplacer le sulfamide (moins d'hypoglycémie, moins de poids, plus de bénéfice) :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle
     - Remplacer le glinide (aucun bénéfice sur critère dur — préférer un agent qui en apporte) :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle
     - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : intention, traitements_en_cours
-    - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, position_vs_cible
+    - Désintensifier : alléger la charge thérapeutique globale (relâcher la cible) :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, position_vs_cible
     - Réduire la posologie de l'insuline (sur‑basalisation / hypoglycémie) :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, position_vs_cible
     - Réduire la posologie de l'AR GLP‑1 (perte de poids excessive / intolérance digestive) :: à renseigner : intention, traitements_en_cours, nature_intolerance
     - Réduire la posologie du tirzépatide (perte de poids excessive / intolérance) :: à renseigner : intention, traitements_en_cours, nature_intolerance
@@ -637,7 +637,7 @@ Sortie :
     - Remplacer le sulfamide (moins d'hypoglycémie, moins de poids, plus de bénéfice) :: à renseigner : intention, traitements_en_cours
     - Remplacer le glinide (aucun bénéfice sur critère dur — préférer un agent qui en apporte) :: à renseigner : intention, traitements_en_cours
     - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : intention, traitements_en_cours, intolerance_traitement
-    - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : intention, traitements_en_cours
+    - Désintensifier : alléger la charge thérapeutique globale (relâcher la cible) :: à renseigner : intention, traitements_en_cours
     - Réduire la posologie de l'insuline (sur‑basalisation / hypoglycémie) :: à renseigner : intention, traitements_en_cours
     - Réduire la posologie de l'AR GLP‑1 (perte de poids excessive / intolérance digestive) :: à renseigner : intention, traitements_en_cours, denutrition
     - Réduire la posologie du tirzépatide (perte de poids excessive / intolérance) :: à renseigner : intention, traitements_en_cours, denutrition
@@ -686,7 +686,7 @@ Sortie :
     - Envisager l'insuline (palette non‑insulinique épuisée — schéma à titrer et suivre dans la durée) :: à renseigner : intention, position_vs_cible, DFG
     - Remplacer le sulfamide (moins d'hypoglycémie, moins de poids, plus de bénéfice) :: à renseigner : intention
     - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : intention, intolerance_traitement
-    - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : intention
+    - Désintensifier : alléger la charge thérapeutique globale (relâcher la cible) :: à renseigner : intention
     - Réduire la posologie de l'AR GLP‑1 (perte de poids excessive / intolérance digestive) :: à renseigner : intention
     - Réduire la posologie du tirzépatide (perte de poids excessive / intolérance) :: à renseigner : intention
     - Réduire la posologie du sulfamide (tolérance, hypoglycémie légère) :: à renseigner : intention
@@ -736,7 +736,7 @@ Sortie :
     - Arrêter la gliptine redondante (association gliptine + AR GLP‑1 / tirzépatide déjà en place) :: à renseigner : traitements_en_cours
     - Remplacer le sulfamide (moins d'hypoglycémie, moins de poids, plus de bénéfice) :: à renseigner : traitements_en_cours
     - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : traitements_en_cours, intolerance_traitement
-    - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : traitements_en_cours
+    - Désintensifier : alléger la charge thérapeutique globale (relâcher la cible) :: à renseigner : traitements_en_cours
     - Réduire la posologie de l'insuline (sur‑basalisation / hypoglycémie) :: à renseigner : traitements_en_cours
     - Réduire la posologie de l'AR GLP‑1 (perte de poids excessive / intolérance digestive) :: à renseigner : traitements_en_cours
     - Réduire la posologie du tirzépatide (perte de poids excessive / intolérance) :: à renseigner : traitements_en_cours
