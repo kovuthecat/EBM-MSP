@@ -1,6 +1,6 @@
 # SOP — Procédure de veille clinique (MSP)
 
-**Version :** 1.1 (2026-07-31) · **Statut :** en vigueur, validée par le **référent veille** · **Prochaine revue :** +12 mois
+**Version :** 1.2 (2026-08-01) · **Statut :** en vigueur, validée par le **référent veille** · **Prochaine revue :** +12 mois
 **Destinée à être publiée dans l'outil (page « Méthode »)** — la transparence de la méthode est un gage de fiabilité.
 
 > **Ce document décrit ce qui est réellement fait, avec les moyens réellement disponibles.** Là où une ressource n'existe pas encore (second relecteur, référents de profession, comité éditorial), la procédure le **dit** et décrit le dispositif de remplacement, plutôt que de promettre un contrôle qui n'a pas lieu. C'est le même principe de transparence que le projet applique au niveau de preuve : mieux vaut une méthode plus modeste et vraie qu'une méthode ambitieuse et non suivie.
@@ -210,6 +210,19 @@ Pour **tout item en route `analyse`** (§5bis) — donc pour tout item susceptib
 
 ## 9. Garde-fous de fiabilité
 
+- **Toute source de repérage, jamais une source d'analyse.** Aucune source de la hiérarchie du §4 —
+  y compris les sources Tier 1 « déjà appréciées » (Minerva, DragiWebdo…) — ne remplace la lecture de
+  la source primaire pour l'analyse. Une source pré-appréciée a déjà fait le travail de repérage et de
+  tri, ce qui la rend précieuse pour trouver le signal utile sur 9 thèmes ; mais son appréciation
+  critique reste celle d'un tiers, faillible comme toute lecture — c'est le principe déjà posé pour le
+  module Décision (`DECISIONS.md` D23 : la position affichée s'appuie sur la donnée publiée, jamais
+  sur la revue qui la cite). La grille (`GRILLE_APPRECIATION.md`) se remplit toujours depuis la
+  publication scientifique originale (DOI/PMID identifié), jamais depuis le résumé qu'en fait une
+  source secondaire. Étude princeps non identifiable → candidat exclu, motif « source secondaire sans
+  étude primaire identifiable ».
+  Ce risque est plus aigu pour la **presse médicale** (réseau "-pratique.com", comptes rendus de
+  congrès par un rédacteur nommé — conflit d'intérêt propre au genre, symposia sponsorisés) : elle
+  sert **uniquement** au repérage, jamais même en référence bibliographique.
 - Ne pas sur-réagir à une **étude isolée** ; la replacer dans la totalité des preuves.
 - **Remonter à la source primaire** (jamais communiqué / réseau social).
 - Lire **résultats absolus** et critères **pré-enregistrés** (déjouer le spin et les critères changés en cours de route).
@@ -235,6 +248,14 @@ Pour **tout item en route `analyse`** (§5bis) — donc pour tout item susceptib
 - **À vérifier** : statut de dispositif médical (règlement UE 2017/745) pour le volet couplé aux algorithmes.
 
 ### Notes de changement
+
+**v1.2 — 2026-08-01** · *Pivot de collecte vers la boîte mail dédiée (`ebmmsp@gmail.com` : newsletters
+natives + flux RSS pontés par Blogtrottr) après échecs répétés du web-fetch programmé face aux
+anti-bots. Ajout d'un garde-fou de fiabilité manquant.*
+
+| § | Changement | Décision |
+|---|---|---|
+| §9 | **Nouveau garde-fou** : « Toute source de repérage, jamais une source d'analyse » — aucune source, y compris Tier 1 pré-appréciée, ne remplace la lecture de la source primaire pour la grille. Étend D23 (module Décision) à la veille. Risque de conflit d'intérêt nommé pour la presse médicale (réseau "-pratique.com", comptes rendus de congrès). | D23 (étendue) |
 
 **v1.1 — 2026-07-31** · *Alignement sur les moyens réels, avant publication de la SOP dans l'application.* Trois promesses de la v1.0 supposaient des ressources humaines qui n'existent pas encore ; publier une procédure qu'on ne suit pas serait contraire au principe de transparence que le projet applique partout ailleurs.
 

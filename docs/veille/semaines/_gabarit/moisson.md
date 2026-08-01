@@ -4,6 +4,10 @@
 > (SOP §5). La moisson ne contient que des **candidats bruts normalisés** : rien n'y est jugé,
 > rien n'y est retenu. Le tri se fait dans `screening.md`, et chaque ligne d'ici doit y avoir sa
 > ligne là-bas.
+>
+> **Toute source ici est un repérage, jamais une source d'analyse** (SOP §9) — y compris les
+> sources Tier 1 « déjà appréciées ». La grille se remplira toujours depuis la publication
+> scientifique originale, jamais depuis le résumé qu'en fait la source qui l'a fait remonter.
 
 - **Semaine :** `AAAA-Www` · **publication :** lundi JJ/MM/AAAA
 - **Fenêtre de collecte :** JJ/MM → JJ/MM (7 jours précédant la publication, cf. SOP §3)
@@ -24,6 +28,10 @@ systématique. Liste de référence : `docs/veille/SOURCES.md`.
 
 - **Consigner les sources balayées sans nouveauté** (`Nouveautés = 0`) : sans cette trace, on ne peut
   pas distinguer une source vide d'une source oubliée, et le balayage cesse d'être auditable.
+- **Vérifier aussi les onglets Spam et Promotions de la boîte mail dédiée**, pas seulement la boîte de
+  réception : Gmail classe agressivement les mails automatisés (Blogtrottr, newsletters) comme
+  promotionnels. La boîte étant dédiée exclusivement à cette collecte, tout ce qui s'y trouve est
+  presque certainement une source légitime mal classée, pas du vrai spam — à récupérer, pas à ignorer.
 - **Sources Tier 3-4 ouvertes cette semaine** — les lister ici avec le signal Tier 1-2 qui a motivé
   l'ouverture. Une source Tier 3-4 ouverte sans motif écrit est un dérapage de périmètre.
 
