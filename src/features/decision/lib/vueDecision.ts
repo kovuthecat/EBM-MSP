@@ -410,7 +410,11 @@ export function construireVueDecision(node: Noeud, criteria: Criteria, renseigne
   // mais ne l'expose pas (coût par perturbation, cf. docstring de tête) — `calculsAffiches`/les alertes
   // d'option en ont besoin À NOUVEAU, une seule fois par cycle de rendu, comme `reasons` ci-dessous.
   const effectifs = determinesEffectifs(node.criteres_entree, derived, renseignes)
-  const famillesBrutes = groupesParFamille(node, applicable, rangs)
+  // `criteria`/`effectifs` transmis pour que `groupesParFamille` puisse évaluer un éventuel
+  // `Famille.prioritaire_si` (arbitrage référent A3, 2026-08-01) — `derived` (pas `criteria` brut), même
+  // source que `evaluateNode` ci-dessus, pour que l'expression de hissage lise les mêmes valeurs que les
+  // `conditions` d'option.
+  const famillesBrutes = groupesParFamille(node, applicable, rangs, derived, effectifs)
   const badges = computeBadges(famillesBrutes)
 
   const familles: FamilleVue[] = famillesBrutes.map((famille) => {

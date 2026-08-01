@@ -157,6 +157,11 @@
         "exclusive": {
           "type": "boolean",
           "description": "true = alternatives (on choisit une option, l'UI derive la mention « en choisir un » et le badge « recommandee » se limite au groupe d'egalite de tete) ; false = gestes cumulables (mention « gestes cumulables », badge « recommandee » sur toutes les options affichees de la famille)."
+        },
+        "prioritaire_si": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Expression DSL (meme grammaire que `option.conditions`, `engine/conditions.ts`) : quand elle s'evalue a VRAI (au sens strict, jamais INDETERMINE) pour le patient courant, cette famille passe en tete de l'affichage, devant les familles qui ne la portent pas ou dont l'expression n'est pas vraie — partition STABLE, jamais un tri (l'ordre relatif entre familles hissees, et entre les autres, ne change pas). Optionnel : absente = cette famille ne peut jamais etre hissee, comportement rigoureusement identique a avant ce champ."
         }
       }
     },

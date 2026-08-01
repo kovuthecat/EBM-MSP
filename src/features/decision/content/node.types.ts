@@ -569,10 +569,22 @@ export interface Alerte {
  *   une — le badge « recommandee » se limite alors au groupe d'égalité de TÊTE de la famille) ;
  *   `false` = des gestes CUMULABLES (tout ce qui est affiché est à faire — le badge « recommandee »
  *   va à TOUTES les options affichées de la famille, indépendamment de leur rang respectif).
+ *
+ * `prioritaire_si` (arbitrage référent A3, P10/S10 puis S… suivante, 2026-08-01) : expression DSL
+ * optionnelle, MÊME grammaire que `Option.conditions` (`engine/conditions.ts`) — quand elle s'évalue à
+ * VRAI (au sens strict, jamais `INDETERMINE`, D20) pour le patient courant, cette famille passe en TÊTE
+ * de l'affichage (`engine/evaluateNode.ts` `groupesParFamille`), devant les familles qui ne la portent
+ * pas ou dont l'expression n'est pas vraie pour ce patient — une PARTITION STABLE, jamais un tri : entre
+ * elles, les familles hissées gardent leur ordre relatif (celui de ce tableau), et les autres aussi.
+ * C'est le CONTENU qui décide QUELLE famille remonte et À QUELLE CONDITION (invariant 5, CLAUDE.md) : le
+ * moteur se contente d'évaluer l'expression, sans connaître aucun nom de critère ni de famille. Optionnel
+ * : absente = cette famille ne peut jamais être hissée, comportement RIGOUREUSEMENT IDENTIQUE à avant ce
+ * champ (repli explicite, cf. docstring `groupesParFamille`).
  */
 export interface Famille {
   libelle: string
   exclusive: boolean
+  prioritaire_si?: string
 }
 
 /** Nœud de décision (brief §5.1). `domaine` obligatoire — module Décision multi-domaine (D8). */

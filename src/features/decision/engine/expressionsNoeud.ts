@@ -191,7 +191,11 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
     masque_si_indetermine: 'inerte',
     debut_de_ligne: 'inerte',
   },
-  famille: { libelle: 'inerte', exclusive: 'inerte' },
+  // `prioritaire_si` (arbitrage référent A3, 2026-08-01) = expression d'AFFICHAGE, au même titre que
+  // `visible_si` : elle hisse une famille en tête de l'écran quand elle est vraie pour ce patient, et
+  // ne décide JAMAIS de l'applicabilité d'une option — `evaluateNode` ne s'en sert que pour l'ORDRE des
+  // sections, aucune option n'apparaît ni ne disparaît par son fait.
+  famille: { libelle: 'inerte', exclusive: 'inerte', prioritaire_si: 'affichage' },
   // K6 — `quand` est une expression d'AFFICHAGE : elle décide d'une valeur de DÉPART dans le formulaire,
   // jamais de l'applicabilité d'une option. `evaluateNode` ne la lit pas.
   reglePreremplissage: { quand: 'affichage', valeur: 'inerte' },
@@ -255,6 +259,14 @@ export function fragmentsDuNoeud(node: Noeud): FragmentExpression[] {
 
   ;(node.alertes ?? []).forEach((alerte, i) => pousser(alerte.quand, 'decision', `alertes[${i}].quand`))
   ;(node.contraintes ?? []).forEach((c, i) => pousser(c.expression, 'saisie', `contraintes[${i}].expression`))
+  // `prioritaire_si` (A3, 2026-08-01) : expression d'AFFICHAGE portée par une FAMILLE, le premier
+  // emplacement porteur d'expression hors `options`/`criteres_entree`/`alertes`/`contraintes`. Récoltée
+  // ici pour que G1/G2 la voient : un champ classé `affichage` que le collecteur ne visiterait pas
+  // échapperait à toute vérification de syntaxe et de cohérence de critères (c'est exactement
+  // l'omission historique documentée plus haut pour les alertes d'option).
+  ;(node.familles ?? []).forEach((famille, i) => {
+    if (famille.prioritaire_si) pousser(famille.prioritaire_si, 'affichage', `familles[${i}].prioritaire_si`)
+  })
 
   node.criteres_entree.forEach((critere, i) => {
     if (critere.derive) pousser(critere.derive, 'decision', `criteres_entree[${i}].derive`)

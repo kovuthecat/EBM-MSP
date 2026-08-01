@@ -801,3 +801,47 @@ describe('construireVueDecision — « pourquoi pas » nettoyé des constats de 
     expect(evaluateNode(noeud, criteria).nonRetenues.get(horsSujet)).toBe('traitements contient sulfamide')
   })
 })
+
+/**
+ * TEST VERROU (arbitrage référent A3, 2026-08-01) : l'ORDRE DES FAMILLES entre dans `signatureVue` au
+ * même titre que les autres dimensions affichées (totalité, cf. docstring de tête de `vueDecision.ts`).
+ * Construit un nœud où DEUX critères sont vrais À LA FOIS pour x=false ET x=true — chaque famille a
+ * TOUJOURS une option applicable, donc le CONTENU de chaque section (badge, reasons, calculs…) ne
+ * bouge JAMAIS avec `x` — seul l'ORDRE des sections change (`prioritaire_si` sur « F2 »). Si
+ * `signatureVue` ignorait cet ordre, les deux vues produiraient la MÊME signature et `x` serait à tort
+ * vu « sans effet sur la reco actuelle » par `engine/relevance.ts` — exactement le défaut que la
+ * totalité de `signatureVue` existe pour empêcher (cf. les autres TEST VERROU de ce fichier).
+ */
+describe('signatureVue — TEST VERROU : l’ordre des familles (hissage `prioritaire_si`) entre dans la signature', () => {
+  const a = opt('A', ['toujours'], { famille: 'F1' })
+  const b = opt('B', ['toujours'], { famille: 'F2' })
+  const node = makeNode([a, b], [{ nom: 'x', type: 'bool' }], {
+    familles: [
+      { libelle: 'F1', exclusive: false },
+      { libelle: 'F2', exclusive: false, prioritaire_si: 'x == true' },
+    ],
+  })
+
+  it('x=false et x=true : mêmes options, mêmes badges, MAIS ordre des familles différent → vues DIFFÉRENTES', () => {
+    const vueFalse = construireVueDecision(node, { x: false })
+    const vueTrue = construireVueDecision(node, { x: true })
+    expect(vueFalse.familles.map((f) => f.libelle)).toEqual(['F1', 'F2'])
+    expect(vueTrue.familles.map((f) => f.libelle)).toEqual(['F2', 'F1']) // hissée devant F1.
+    // Même contenu : les deux mêmes options, avec le même badge, dans les deux vues (seule leur SECTION
+    // d'appartenance change de position, jamais leur statut).
+    const optionsFalse = vueFalse.familles.flatMap((f) => f.groupes.flat().map((ov) => [ov.option.intitule, ov.badge]))
+    const optionsTrue = vueTrue.familles.flatMap((f) => f.groupes.flat().map((ov) => [ov.option.intitule, ov.badge]))
+    expect(new Set(optionsFalse.map((p) => p.join('@')))).toEqual(new Set(optionsTrue.map((p) => p.join('@'))))
+  })
+
+  it('la signature diffère malgré un contenu identique — l’ordre est bien une dimension DE LA SIGNATURE', () => {
+    const vueFalse = construireVueDecision(node, { x: false })
+    const vueTrue = construireVueDecision(node, { x: true })
+    expect(signatureVue(vueFalse)).not.toBe(signatureVue(vueTrue))
+  })
+
+  it('`criteresPertinents` voit `x` comme DÉCISIF — un critère qui ne change QUE l’ordre des familles ne doit jamais être estompé à tort au formulaire', () => {
+    const pertinents = criteresPertinents(node, { x: false })
+    expect(pertinents.has('x')).toBe(true)
+  })
+})

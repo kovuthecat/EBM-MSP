@@ -11,6 +11,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Noeud, Option } from '../content/node.types.ts'
 import type { Criteria } from './conditions.ts'
+import { ConditionError } from './conditions.ts'
 import { calculerCriteresDerives } from './deriveCritere.ts'
 import { evaluateNode, groupesExAequo, groupesParFamille } from './evaluateNode.ts'
 import { getNoeudById } from '../content/loadNodes.ts'
@@ -271,6 +272,102 @@ describe('groupesParFamille — `Noeud.familles` déclarées (ordre explicite + 
     }
     const familles = groupesParFamille(node, [a], new Map([[a, 1]]))
     expect(familles.map((f) => f.libelle)).toEqual(['Famille A'])
+  })
+})
+
+/**
+ * Tests du HISSAGE CONDITIONNEL (`Famille.prioritaire_si`, arbitrage référent A3, 2026-08-01) : le
+ * contenu déclare quelle famille remonte en tête et à quelle condition, le moteur se contente
+ * d'évaluer l'expression (même DSL/`evaluateCondition` que `Option.conditions`). Uniquement des nœuds
+ * SYNTHÉTIQUES ici — le cas réel (nœud `prescription`, vignette N7) est couvert par
+ * `lib/vueDecision.familleHissee.test.ts`.
+ */
+describe('groupesParFamille — hissage conditionnel (`Famille.prioritaire_si`, arbitrage référent A3)', () => {
+  function noeudDeuxFamilles(prioritaireSurB: string | undefined) {
+    const a = opt('A', ['toujours'], { famille: 'Famille A' })
+    const b = opt('B', ['toujours'], { famille: 'Famille B' })
+    const node = {
+      options: [a, b],
+      familles: [
+        { libelle: 'Famille A', exclusive: false },
+        { libelle: 'Famille B', exclusive: false, ...(prioritaireSurB ? { prioritaire_si: prioritaireSurB } : {}) },
+      ],
+    }
+    const rangs = new Map([
+      [a, 1],
+      [b, 1],
+    ])
+    return { a, b, node, rangs }
+  }
+
+  it('hissage simple : la famille dont `prioritaire_si` est vraie passe en tête, devant une famille déclarée avant elle', () => {
+    const { node, rangs } = noeudDeuxFamilles('intention == deprescrire')
+    const criteria: Criteria = { intention: 'deprescrire' }
+    const familles = groupesParFamille(node, [...node.options], rangs, criteria)
+    expect(familles.map((f) => f.libelle)).toEqual(['Famille B', 'Famille A'])
+  })
+
+  it('partition STABLE avec plusieurs familles prioritaires : conserve l’ordre relatif à l’intérieur de chaque groupe (hissées, puis restantes)', () => {
+    const a = opt('A', ['toujours'], { famille: 'F1' })
+    const b = opt('B', ['toujours'], { famille: 'F2' })
+    const c = opt('C', ['toujours'], { famille: 'F3' })
+    const d = opt('D', ['toujours'], { famille: 'F4' })
+    const node = {
+      options: [a, b, c, d],
+      familles: [
+        { libelle: 'F1', exclusive: false },
+        { libelle: 'F2', exclusive: false, prioritaire_si: 'x == true' },
+        { libelle: 'F3', exclusive: false },
+        { libelle: 'F4', exclusive: false, prioritaire_si: 'x == true' },
+      ],
+    }
+    const rangs = new Map([
+      [a, 1],
+      [b, 1],
+      [c, 1],
+      [d, 1],
+    ])
+    const criteria: Criteria = { x: true }
+    const familles = groupesParFamille(node, [a, b, c, d], rangs, criteria)
+    // Hissées (F2, F4) dans leur ordre déclaré, puis restantes (F1, F3) dans leur ordre déclaré — pas
+    // un tri global qui les mélangerait.
+    expect(familles.map((f) => f.libelle)).toEqual(['F2', 'F4', 'F1', 'F3'])
+  })
+
+  it('`prioritaire_si` absente sur toutes les familles : ordre RIGOUREUSEMENT inchangé (même avec `criteria` fourni)', () => {
+    const { node, rangs } = noeudDeuxFamilles(undefined)
+    const criteria: Criteria = { intention: 'deprescrire' }
+    const familles = groupesParFamille(node, [...node.options], rangs, criteria)
+    expect(familles.map((f) => f.libelle)).toEqual(['Famille A', 'Famille B'])
+  })
+
+  it('expression `prioritaire_si` FAUSSE pour ce patient : ordre inchangé', () => {
+    const { node, rangs } = noeudDeuxFamilles('intention == deprescrire')
+    const criteria: Criteria = { intention: 'initier' }
+    const familles = groupesParFamille(node, [...node.options], rangs, criteria)
+    expect(familles.map((f) => f.libelle)).toEqual(['Famille A', 'Famille B'])
+  })
+
+  it('expression `prioritaire_si` INDÉTERMINÉE (critère non renseigné) : ne hisse PAS — se comporte comme fausse (D20, même traitement que `priorite[].quand`)', () => {
+    const { node, rangs } = noeudDeuxFamilles('intention == deprescrire')
+    // `intention` est un critère connu de `criteria` mais ABSENT de `effectifs` : `evaluateCondition`
+    // renvoie `INDETERMINE`, jamais `true`.
+    const criteria: Criteria = { intention: 'deprescrire' }
+    const effectifs = new Set<string>() // aucun critère renseigné
+    const familles = groupesParFamille(node, [...node.options], rangs, criteria, effectifs)
+    expect(familles.map((f) => f.libelle)).toEqual(['Famille A', 'Famille B'])
+  })
+
+  it('`criteria` absent (appelant qui ne connaît pas de patient) : aucune famille n’est hissée, même si `prioritaire_si` est déclarée', () => {
+    const { node, rangs } = noeudDeuxFamilles('intention == deprescrire')
+    const familles = groupesParFamille(node, [...node.options], rangs)
+    expect(familles.map((f) => f.libelle)).toEqual(['Famille A', 'Famille B'])
+  })
+
+  it('expression `prioritaire_si` MALFORMÉE : propage `ConditionError`, jamais avalée en silence', () => {
+    const { node, rangs } = noeudDeuxFamilles('ceci ne ressemble à rien de reconnu')
+    const criteria: Criteria = { intention: 'deprescrire' }
+    expect(() => groupesParFamille(node, [...node.options], rangs, criteria)).toThrow(ConditionError)
   })
 })
 

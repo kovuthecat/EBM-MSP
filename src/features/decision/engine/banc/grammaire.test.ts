@@ -136,6 +136,10 @@ const MARQUEURS = {
   // `{ texte, condition }`. C'est exactement le cas de figure que G1/G2 existent pour attraper — le champ
   // a été classé (`CHAMPS_DU_SCHEMA.contreIndication`) ET le collecteur le visite, sinon le banc tombe.
   contreIndicationCondition: 'MARQUEUR_contre_indication == 13',
+  // A3 (2026-08-01) : `familles[].prioritaire_si` hisse une famille en tête pour ce patient. Premier
+  // emplacement porteur d'expression situé sur une FAMILLE — G2 vérifie que le collecteur y descend,
+  // faute de quoi cette expression échapperait à toute vérification de syntaxe et de critères connus.
+  familleprioritaireSi: 'MARQUEUR_famille_prioritaire_si == 14',
 } as const
 
 function noeudSynthetique(): Noeud {
@@ -184,6 +188,12 @@ function noeudSynthetique(): Noeud {
     ],
     alertes: [{ quand: MARQUEURS.alerteNoeud, message: 'marqueur' }],
     contraintes: [{ expression: MARQUEURS.contrainte, message: 'marqueur' }],
+    // A3 : deux familles, dont UNE SEULE porte `prioritaire_si` — le champ est optionnel, et le
+    // collecteur doit récolter la première sans trébucher sur la seconde.
+    familles: [
+      { libelle: 'Famille sans hissage', exclusive: false },
+      { libelle: 'Famille hissable', exclusive: false, prioritaire_si: MARQUEURS.familleprioritaireSi },
+    ],
     argumentaire: '',
     sources: {
       references_primaires: [],
@@ -227,6 +237,11 @@ describe('G2 — le collecteur visite tous les emplacements porteurs d’express
       // classement dans `CHAMPS_DU_SCHEMA.contreIndication`). Ses seuils doivent donc être tirés par le
       // banc comme des frontières cliniques, à la différence d'un `visible_si`.
       [MARQUEURS.contreIndicationCondition, 'decision'],
+      // A3 (2026-08-01) : `affichage` et NON `decision` — `prioritaire_si` ne change jamais quelle
+      // option est retenue, seulement l'ORDRE des sections. La classer `decision` ferait entrer ses
+      // littéraux dans les domaines de tirage du banc comme s'ils étaient des frontières cliniques,
+      // exactement la confusion que la ligne `contrainte` ci-dessus verrouille dans l'autre sens.
+      [MARQUEURS.familleprioritaireSi, 'affichage'],
     ]
 
     const violations: string[] = []
@@ -252,7 +267,7 @@ describe('G2 — le collecteur visite tous les emplacements porteurs d’express
         if (nature !== 'inerte') porteurs.push(`${definition}.${champ}`)
       }
     }
-    // 12 emplacements de schéma pour 13 marqueurs : `alerte.quand` est la MÊME définition de schéma,
+    // 13 emplacements de schéma pour 14 marqueurs : `alerte.quand` est la MÊME définition de schéma,
     // exercée à deux endroits (nœud et option) — c'est précisément la confusion qui a produit le défaut.
     expect(porteurs.sort()).toEqual(
       [
@@ -262,6 +277,8 @@ describe('G2 — le collecteur visite tous les emplacements porteurs d’express
         'critereEntree.derive',
         'critereEntree.valeurs_visible_si',
         'critereEntree.visible_si',
+        // A3 (2026-08-01) : premier emplacement porteur d'expression situé sur une FAMILLE.
+        'famille.prioritaire_si',
         'option.calculs',
         'option.conditions',
         'option.exclusions',

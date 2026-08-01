@@ -511,8 +511,15 @@ familles:
     exclusive: false
   - libelle: "Agent à ajouter"
     exclusive: true
+  # HISSAGE CONDITIONNEL (arbitrage référent A3, 2026-08-01) : un praticien qui déclare vouloir
+  # déprescrire ne doit pas lire « Agent à ajouter » (carte badgée Recommandée/Preuve élevée) avant
+  # « Traitement à alléger » — l'ordre de lecture contredirait l'intention qu'il vient de déclarer, sur
+  # un écran lu en dix secondes (N7, docs/decision/validation/recette-praticien-naif-2026-07-30.md § N7
+  # point 9). Aucune option ne bouge, aucun badge ne change — seule cette section passe en tête quand
+  # `intention == deprescrire`.
   - libelle: "Traitement à alléger"
     exclusive: false
+    prioritaire_si: "intention == deprescrire"
   - libelle: "Aucun geste — surveiller"
     exclusive: false
 options:
@@ -2337,8 +2344,32 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.47"
+  version: "0.48"
   changelog:
+    - date: "2026-08-01"
+      auteur: "Claude Code (arbitrage référent A3) — en attente de relecture référent"
+      resume: >-
+        L'ORDRE DES FAMILLES SUIT L'INTENTION DÉCLARÉE — une seule ligne de contenu, aucune option
+        touchée. Défaut établi par une session d'investigation antérieure (P10/S10, STOP argumenté faute
+        de mécanisme générique disponible) puis résolu par un nouveau champ de schéma introduit à cette
+        occasion : `Famille.prioritaire_si`. Le défaut, constaté vignette N7 (Mme Chevallier, 88 ans,
+        intention déclarée « déprescrire », dénutrie, IMC 20,7) : la carte « Introduire un iSGLT2 »,
+        badgée Recommandée/Preuve élevée — les deux badges les plus forts de l'outil — s'affichait
+        AU-DESSUS du groupe « Traitement à alléger », contredisant l'intention que le praticien venait de
+        déclarer sur un écran lu en dix secondes.
+        CE QUI A CHANGÉ : `prioritaire_si: "intention == deprescrire"` ajouté sur la seule famille
+        « Traitement à alléger » (bloc `familles:` ci-dessus). Le moteur (`engine/evaluateNode.ts`
+        `groupesParFamille`) hisse désormais en tête toute famille dont l'expression DSL déclarée
+        s'évalue à vrai pour le patient — une PARTITION STABLE (les familles hissées gardent leur ordre
+        relatif entre elles, les autres aussi), jamais un tri global. Le moteur lui-même ne connaît
+        toujours aucun nom de critère ni de famille (invariant 5) : c'est ce champ de contenu qui porte
+        la règle, le code se contente de l'évaluer via `evaluateCondition` (même grammaire que
+        `Option.conditions`).
+        CE QUI N'A PAS CHANGÉ : aucune `conditions`, `exclusions`, `prerequis`, `priorite`, `famille`,
+        `role`, `action`, `niveau_preuve`, `motifs` sur AUCUNE option — ni l'ordre des familles pour une
+        intention `initier`/`intensifier`/`optimiser` (aucune n'a de `prioritaire_si` vraie, ordre
+        rigoureusement inchangé). Seul l'ordre de lecture des sections bouge, et seulement pour
+        `intention == deprescrire`.
     - date: "2026-08-01"
       auteur: "Claude Code (arbitrage référent A2) — en attente de relecture référent"
       resume: >-

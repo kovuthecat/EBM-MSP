@@ -50,7 +50,7 @@
  * INDÉTERMINÉE part dans le nouveau registre `enAttente` — ni `applicable`, ni `excluded`, ni
  * `nonRetenues` (Q1/Q2 du référent, §0 de la spec).
  */
-import type { Alerte, ContreIndication, CritereEntree, Noeud, Option } from '../content/node.types.ts'
+import type { Alerte, ContreIndication, CritereEntree, Famille, Noeud, Option } from '../content/node.types.ts'
 import type { Criteria, Ternaire } from './conditions.ts'
 import { ConditionError, INDETERMINE, atomesIndetermines, evaluateCondition } from './conditions.ts'
 import { determinesEffectifs } from './deriveCritere.ts'
@@ -208,6 +208,19 @@ export interface GroupeFamille {
 type NoeudPourFamilles = Pick<Noeud, 'options'> & Partial<Pick<Noeud, 'familles'>>
 
 /**
+ * `famille` doit-elle être hissée en tête de l'affichage pour ce patient (`Famille.prioritaire_si`,
+ * arbitrage référent A3, 2026-08-01) ? Cf. docstring `groupesParFamille` pour la sémantique complète
+ * (partition stable, indétermination = pas de hissage, `criteria` absent = pas de hissage). Réutilise
+ * `evaluateCondition` tel quel — MÊME grammaire DSL que `Option.conditions`, aucun second évaluateur
+ * d'expression. Comparaison `=== true` STRICTE, identique à `resolvePriorite` pour `priorite[].quand`.
+ */
+function estHissee(famille: Famille, criteria: Criteria | undefined, effectifs: ReadonlySet<string> | undefined): boolean {
+  if (famille.prioritaire_si == null) return false
+  if (criteria == null) return false
+  return evaluateCondition(famille.prioritaire_si, criteria, effectifs) === true
+}
+
+/**
  * Partitionne les options APPLICABLES (déjà triées par `evaluateNode`) en FAMILLES cliniques, puis
  * calcule, À L'INTÉRIEUR de chaque famille seulement, les groupes d'égalité via `groupesExAequo` (aucune
  * duplication de logique).
@@ -227,6 +240,23 @@ type NoeudPourFamilles = Pick<Noeud, 'options'> & Partial<Pick<Noeud, 'familles'
  * rang — une famille s'étale sur plusieurs rangs, en dériver l'ordre des sections de `applicable` les
  * ferait dépendre du patient, l'instabilité déjà corrigée sur le formulaire).
  *
+ * HISSAGE CONDITIONNEL (`Famille.prioritaire_si`, arbitrage référent A3, 2026-08-01) : parmi les
+ * familles déclarées dans `node.familles` (déjà filtrées aux seules ayant une option applicable pour ce
+ * patient), celles dont `prioritaire_si` s'évalue à VRAI (au sens strict, `=== true` — jamais
+ * `INDETERMINE`, D20 : même traitement que `resolvePriorite` pour `priorite[].quand` — « un rang n'est
+ * pas un fait clinique », ici « l'ordre des familles n'est pas un fait clinique » — une expression
+ * indéterminée NE HISSE PAS, se comporte comme fausse) passent en TÊTE, DEVANT les autres. C'est une
+ * PARTITION STABLE, jamais un tri global : à l'intérieur du groupe hissé, l'ordre relatif de
+ * `node.familles` est préservé ; à l'intérieur du groupe restant, également. Une famille sans
+ * `prioritaire_si`, ou dont l'expression est fausse pour ce patient, ne bouge jamais — ce qui garantit la
+ * non-régression explicite : un nœud (ou un patient) sans aucune `prioritaire_si` vraie voit un ordre
+ * RIGOUREUSEMENT IDENTIQUE à avant ce champ. `criteria`/`effectifs` sont optionnels : ABSENTS (repli, cas
+ * des appelants qui ne connaissent pas de patient — bancs structurels, tests de `groupesParFamille`
+ * isolée), AUCUNE famille n'est hissée (impossible d'évaluer une expression sans critères réels, et ce
+ * n'est pas le rôle de ces appelants) — comportement rigoureusement identique à avant ce champ.
+ * `evaluateCondition` propage `ConditionError` sur une expression malformée, jamais avalée en silence
+ * (brief §7) — même politique que le reste du moteur.
+ *
  * Repli total : si AUCUNE option de `applicable` ne porte de `famille` (et `node.familles` absent),
  * renvoie une famille UNIQUE sans libellé (`libelle: undefined`, `exclusive: undefined`) dont les
  * groupes sont EXACTEMENT `groupesExAequo(applicable, rangs)` — comportement rigoureusement identique à
@@ -241,6 +271,8 @@ export function groupesParFamille(
   node: NoeudPourFamilles,
   applicable: Option[],
   rangs: Map<Option, number>,
+  criteria?: Criteria,
+  effectifs?: ReadonlySet<string>,
 ): GroupeFamille[] {
   if (node.familles && node.familles.length > 0) {
     const parFamille = new Map<string, Option[]>()
@@ -252,14 +284,17 @@ export function groupesParFamille(
       if (!parFamille.has(option.famille)) parFamille.set(option.famille, [])
       parFamille.get(option.famille)!.push(option)
     }
-    return node.familles
-      // Une famille sans option applicable pour ce patient ne s'affiche pas.
-      .filter((famille) => parFamille.has(famille.libelle))
-      .map((famille) => ({
-        libelle: famille.libelle,
-        groupes: groupesExAequo(parFamille.get(famille.libelle)!, rangs),
-        exclusive: famille.exclusive,
-      }))
+    // Une famille sans option applicable pour ce patient ne s'affiche pas.
+    const famillesAffichees = node.familles.filter((famille) => parFamille.has(famille.libelle))
+    // Partition STABLE (jamais un tri) : les familles hissées gardent leur ordre relatif entre elles,
+    // les autres aussi — cf. docstring ci-dessus.
+    const hissees = famillesAffichees.filter((famille) => estHissee(famille, criteria, effectifs))
+    const reste = famillesAffichees.filter((famille) => !estHissee(famille, criteria, effectifs))
+    return [...hissees, ...reste].map((famille) => ({
+      libelle: famille.libelle,
+      groupes: groupesExAequo(parFamille.get(famille.libelle)!, rangs),
+      exclusive: famille.exclusive,
+    }))
   }
 
   // Repli historique (nœud sans `familles` déclarées) : comportement rigoureusement identique à
