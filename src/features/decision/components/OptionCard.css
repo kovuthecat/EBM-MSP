@@ -195,16 +195,31 @@
   color: var(--c-attention);
 }
 
-/* ── A5 — LE DÉPLI (arbitrage référent, 2026-07-27) ──────────────────────────────────────────────────
-   La recette visuelle a mesuré 0,71 à 1,06 écran par carte en largeur étroite, cinq cartes sur un
-   profil banal. Ce qui fait ce volume, ce sont les avantages/inconvénients et l'effet attendu — pas les
-   contre-indications (11 à 18 %). D'où : tout ce sur quoi on AGIT reste au-dessus, tout ce qui INSTRUIT
-   passe ici, fermé par défaut — et depuis SB3 (P6, 2026-07-28), les contre-indications elles-mêmes, en
-   tête (voir `.option-card__ci` ci-dessous ; tension avec T-025 tranchée par Thibault : compactage
-   accepté, mais pas au prix de l'accessibilité — d'où le libellé du `<summary>` qui change selon leur
-   présence, cf. `OptionCard.tsx`).
-   Placé en FIN de carte à dessein : l'ouvrir ajoute du contenu SOUS le socle de sécurité, sans jamais
-   le repousser hors de l'écran. */
+/* `option.apercu` (T-076/S9), zone POSOLOGIE — correctif 2026-08-01 : même registre discret que
+   `.option-card__calculs` ci-dessus (même taille, même couleur muted), à dessein — les deux disent la
+   même chose (« ce qu'on prescrit ») et doivent se lire comme UN seul registre visuel, jamais comme le
+   rouge de `.option-card__ci`. Avant ce lot, ce texte vivait concaténé au libellé du `<summary>` fermé
+   et en empruntait la couleur d'alerte dès qu'une contre-indication existait — c'était le défaut mesuré
+   en recette (une posologie qui se lit à travers un avertissement de sécurité). */
+.option-card__apercu {
+  font-size: 12px;
+  color: var(--c-text-muted);
+  margin-bottom: 14px;
+}
+
+/* ── DEUX DÉPLIS SÉPARÉS (second passage référent, 2026-08-01) ────────────────────────────────────
+   A5 (2026-07-27) avait mesuré une carte à 0,71-1,06 écran en largeur étroite — avantages/
+   inconvénients et effet attendu en étaient l'essentiel du volume — et introduit UN dépli fermé par
+   défaut pour tout ce qui INSTRUIT sans être ce sur quoi on agit dans la minute.
+   Le 2026-08-01, un premier correctif matinal avait sorti les contre-indications ACTIVES de ce dépli
+   pour les rendre TOUJOURS visibles (même défaut que la posologie : les deux se lisaient noyées dans
+   un même avertissement rouge). Rendu au référent, celui-ci a demandé un second passage le jour même :
+   la posologie reste toujours visible (§`.option-card__apercu`/`.option-card__calculs` ci-dessus,
+   inchangé), mais la sécurité NE DOIT PAS rester une bannière permanente du socle — elle retourne
+   derrière SON PROPRE dépli, replié par défaut, distinct de celui de l'argumentaire. Règle générale
+   `.option-card__detail` commune aux DEUX `<details>` de la carte (styles partagés : espacement,
+   séparateur, résumé cliquable) — c'est UNIQUEMENT la classe `--ci` ci-dessous qui distingue le
+   registre visuel de l'un par rapport à l'autre. */
 .option-card__detail {
   margin-top: 12px;
   border-top: 1px solid var(--c-border-subtle, rgba(0, 0, 0, 0.08));
@@ -225,32 +240,42 @@
   text-decoration: underline;
 }
 
-/* SB6 (P6, 2026-07-29) — défaut GRAVE de S6 point 3 : le résumé fermé annonçait des contre-indications
-   avec la même couleur bleu-lien que « en savoir plus », rien retenu au test des 20 secondes. Le
-   `<summary>` fermé passe dans le registre d'alerte dédié (`--c-ci-warning`, `tokens.css`) UNIQUEMENT
-   quand des contre-indications existent (`OptionCard.tsx` ajoute cette classe seulement dans ce cas) —
-   `font-weight`, `cursor` et `:hover` restent ceux de la règle générale ci-dessus, non redéfinis ici. */
+/* SB6 (P6, 2026-07-29), RESTAURÉ le 2026-08-01 (second passage) après une parenthèse où les contre-
+   indications avaient quitté tout dépli (matin du même jour) : le `<summary>` FERMÉ du dépli SÉCURITÉ
+   passe dans le registre d'alerte dédié (`--c-ci-warning`, `tokens.css`) UNIQUEMENT quand au moins une
+   contre-indication n'est pas écartée (`OptionCard.tsx` ajoute cette classe seulement dans ce cas, sur
+   CE dépli uniquement — jamais sur celui de l'argumentaire, qui reste neutre en permanence). C'est la
+   COULEUR qui porte le signal de sécurité, pas la position : la carte reste courte (repliée par
+   défaut), mais se repère de loin dès qu'il y a quelque chose à vérifier. `font-weight`, `cursor` et
+   `:hover` restent ceux de la règle générale ci-dessus, non redéfinis ici. */
 .option-card__detail-summary--ci {
   color: var(--c-ci-warning);
 }
 
-/* Le premier bloc du dépli ne doit pas coller au résumé une fois ouvert — cible le premier élément
-   après le <summary>, QUEL QU'IL SOIT (`.option-card__ci` s'il existe, sinon `.option-card__effet`
-   directement) plutôt que de nommer un bloc précis, pour ne pas se déphaser du DOM selon la présence
-   des contre-indications (SB3, P6, 2026-07-28 — avant cette session, seul `.option-card__effet`
-   pouvait être le premier bloc). */
+/* Icône décorative du `<summary>` fermé — masquée aux technologies d'assistance (`aria-hidden`,
+   `OptionCard.tsx`) : le décompte + le mot « contre-indication(s) » qui suivent portent déjà
+   l'information en texte (lu par tout lecteur d'écran). */
+.option-card__detail-summary-icon {
+  font-weight: 700;
+}
+
+/* Le premier bloc d'un dépli ne doit pas coller au résumé une fois ouvert — cible le premier élément
+   après le <summary>, QUEL QU'IL SOIT (`.option-card__ci` dans le dépli sécurité, `.option-card__pourquoi`
+   dans celui de l'argumentaire), plutôt que de nommer un bloc précis. */
 .option-card__detail[open] summary + * {
   margin-top: 8px;
 }
 
-/* SB3 (P6, 2026-07-28) : contre-indications déplacées ici DEPUIS le socle (T-025, P4/S4, même jour,
-   qui les avait remontées juste sous le titre) — désormais EN PREMIÈRE POSITION du dépli, registre
-   visuel INCHANGÉ. Tokens réutilisés tels quels, aucun nouveau : `--c-disclaimer-bg`/
-   `--c-disclaimer-border`, EXACTEMENT ceux d'`AlertList.css` (`.alert-list__item--attention`, le canal
-   des alertes cliniques d'option) — surtout PAS `--c-attention*` (`tokens.css`), réservé à « à
-   confirmer » / « Doses non calculées » : un état de saisie incomplète, jamais une interdiction
-   clinique. Le compensateur d'accessibilité de ce déplacement n'est pas visuel mais textuel — le
-   libellé du `<summary>` ci-dessus, seul indicateur requis carte fermée (`OptionCard.tsx`). */
+/* DÉPLI SÉCURITÉ — contre-indications ACTIVES/INDÉTERMINÉES (D20/T-068). Historique : T-025 (P4/S4,
+   2026-07-28 matin) les avait remontées hors dépli ; SB3 les avait déplacées DANS un dépli unique
+   partagé avec l'argumentaire le même jour ; un premier correctif du 2026-08-01 (matin) les avait
+   ressorties TOUJOURS visibles ; le second passage référent, LE MÊME JOUR, les redépose ici — dans
+   leur PROPRE dépli, distinct de l'argumentaire, replié par défaut, mais reconnaissable fermé grâce à
+   `.option-card__detail-summary--ci` ci-dessus. Tokens réutilisés tels quels, aucun nouveau :
+   `--c-disclaimer-bg`/`--c-disclaimer-border`, EXACTEMENT ceux d'`AlertList.css`
+   (`.alert-list__item--attention`, le canal des alertes cliniques d'option) — surtout PAS
+   `--c-attention*` (`tokens.css`), réservé à « à confirmer » / « Doses non calculées » : un état de
+   saisie incomplète, jamais une interdiction clinique. */
 .option-card__ci {
   font-size: 13px;
   line-height: 1.6;
@@ -270,8 +295,10 @@
    fait clinique reste vrai en général, il ne le concerne pas. Deux exigences opposées à tenir ensemble :
    elle doit rester LISIBLE (R4 — un fait de sécurité ne disparaît pas en silence, le praticien doit
    pouvoir vérifier que l'outil l'a vue) et cesser d'ALERTER (c'est tout l'objet de la tâche). D'où :
-   - AUCUN des tokens `--c-disclaimer-*` du bloc actif ci-dessus, ni bordure, ni fond — ce registre est
-     celui de l'interdiction clinique, et une CI levée n'interdit rien ;
+   - AUCUN des tokens `--c-disclaimer-*` du bloc actif (`.option-card__ci` ci-dessus) : ce registre est
+     celui de l'interdiction clinique, et une CI levée n'interdit rien. Elle reste néanmoins dans le
+     MÊME dépli sécurité que le bloc actif (et non dans celui de l'argumentaire, second passage
+     2026-08-01) : une contre-indication levée parle de sécurité, elle va avec la sécurité ;
    - texte estompé (`--c-text-muted`) et BARRÉ : le barré dit « annulée », pas « atténuée » — c'est ce qui
      évite la lecture ambiguë d'un simple gris (« important mais secondaire »).
    Le libellé, lui, n'est PAS barré : c'est la phrase qui porte la raison, elle doit se lire normalement.

@@ -22,23 +22,25 @@
  * porter doit se trouver AVANT. Le test ne connaît ni nœud ni critère par son nom (D8) : il lit les
  * `contre_indications`, les alertes et les doses depuis le contenu chargé.
  *
- * AMENDEMENT SB3 (P6, 2026-07-28) — LES CONTRE-INDICATIONS NE SONT PLUS DANS CE PÉRIMÈTRE. Décision
- * référent (Thibault, même jour, tension avec T-025 explicitement tranchée) : elles rejoignent
- * délibérément le dépli, EN PREMIÈRE POSITION, compensées par le libellé du `<summary>` qui annonce
- * leur présence carte FERMÉE (`OptionCard.tsx`) — l'énoncé « le dépli n'avale jamais un fait de
- * sécurité » ne s'applique donc plus littéralement aux contre-indications : le dépli les porte
- * DÉLIBÉRÉMENT. Ce que ce test vérifie pour elles a changé de forme (§1 ci-dessous, dans la boucle) :
- * non plus « avant `<details>` », mais « toujours présentes, et toujours EN TÊTE du dépli, jamais
- * reléguées derrière l'effet attendu » — la garantie « jamais silencieusement absente » survit,
- * seule sa position de référence change. Les alertes d'option et les doses (§2-3), elles, restent
- * intégralement dans le socle, hors du dépli — I12 continue de les protéger sans changement.
+ * AMENDEMENT SB3 (P6, 2026-07-28), DEUX REVERTS LE 2026-08-01 — ÉTAT ACTUEL : DEUX DÉPLIS SÉPARÉS. SB3
+ * avait déplacé les contre-indications dans UN dépli partagé avec l'argumentaire (compensé par le
+ * libellé du `<summary>`, puis par une icône dédiée après SB6). Un premier correctif du 2026-08-01
+ * (matin) les avait ressorties dans une zone TOUJOURS visible du socle, mesurant que le dépli partagé
+ * mélangeait trois registres de lecture. Rendu au référent, un second passage LE MÊME JOUR a demandé
+ * autre chose : la sécurité ne doit pas rester une bannière permanente du socle — elle retourne
+ * derrière SON PROPRE dépli, SÉPARÉ de celui de l'argumentaire, replié par défaut, mais dont le
+ * `<summary>` fermé porte le signal rouge dès qu'une contre-indication n'est pas écartée (D20/T-068).
  *
- * AMENDEMENT SB6 (P6, 2026-07-29) — LE COMPENSATEUR TEXTUEL DE SB3 NE SUFFISAIT PAS. La recette de
- * contrôle S6 (point 3) a rejoué le test des 20 secondes sur le libellé neutre laissé par SB3 et n'a
- * RIEN retenu (le `<summary>` fermé avait la même couleur bleu-lien qu'« en savoir plus », aucune
- * icône). §1b ci-dessous vérifie donc, en plus, que le rendu COMPLET (pas seulement `avantDepli`, la
- * carte fermée elle-même) porte l'icône ⚠ et le décompte exact quand des contre-indications existent —
- * et ne porte AUCUNE trace de ce registre d'alerte quand il n'y en a pas.
+ * CE QUE §1 VÉRIFIE MAINTENANT : les contre-indications (TOUS états, actives ET levées) sont toujours
+ * présentes dans le rendu, et TOUJOURS situées dans le PREMIER `<details>` (le dépli sécurité — il est
+ * toujours rendu en premier quand il existe, cf. `OptionCard.tsx`), jamais dans le socle, jamais dans le
+ * second `<details>` (l'argumentaire). Le helper `segments()` ci-dessous découpe le HTML aux frontières
+ * des `<details>` successifs pour distinguer les trois zones.
+ *
+ * « PROPOSÉ PARCE QUE » ET « CE RANG TIENT COMPTE DE » REJOIGNENT LE DÉPLI ARGUMENTAIRE depuis le
+ * 2026-08-01 (décision référent explicite, confirmée au second passage) : ils poussaient l'action vers
+ * le bas alors qu'ils se lisent une fois par option. §4 vérifie qu'ils sont dans le dépli ARGUMENTAIRE
+ * (le dernier), jamais dans le socle ni dans le dépli sécurité.
  */
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
@@ -65,11 +67,34 @@ const DELAI_MS = 120_000
  * toutes ses cartes. */
 const RENDUS_PAR_OPTION = 3
 
-/** Première moitié du HTML d'une carte : tout ce qui précède le dépli. Une carte sans dépli renvoie
- * tout son HTML (il n'y a rien à avaler). */
+/** Première partie du HTML d'une carte : tout ce qui précède le premier `<details>`. Une carte sans
+ * aucun dépli renvoie tout son HTML (il n'y a rien à avaler). */
 function socle(html: string): string {
   const index = html.indexOf('<details')
   return index === -1 ? html : html.slice(0, index)
+}
+
+/**
+ * Découpe le HTML d'une carte en (au plus) TROIS zones, aux frontières des `<details>` successifs :
+ * `avant` (le socle, jamais un dépli), puis un dépli par `<details>` rencontré, dans l'ordre du DOM.
+ * `OptionCard.tsx` rend AU PLUS deux `<details>` — sécurité (seulement si l'option porte au moins une
+ * contre-indication, tous états confondus) puis argumentaire (toujours présent) — donc `zones.length`
+ * vaut 2 (juste l'argumentaire) ou 3 (sécurité + argumentaire) selon le cas. Ni le nom du nœud ni celui
+ * du critère n'y figurent (D8) : la fonction ne lit que la structure du HTML rendu.
+ */
+function zones(html: string): string[] {
+  const indices: number[] = []
+  let i = html.indexOf('<details')
+  while (i !== -1) {
+    indices.push(i)
+    i = html.indexOf('<details', i + 1)
+  }
+  const bornes = [0, ...indices, html.length]
+  const decoupes: string[] = []
+  for (let k = 0; k < bornes.length - 1; k++) {
+    decoupes.push(html.slice(bornes[k], bornes[k + 1]))
+  }
+  return decoupes
 }
 
 /** Échappement HTML minimal, aligné sur ce que produit `renderToStaticMarkup`. */
@@ -123,62 +148,55 @@ describe('I12 — le dépli d’une carte n’avale jamais un fait de sécurité
               />,
             )
             const avantDepli = socle(html)
+            // Zones du HTML rendu : [avant, sécurité?, argumentaire] ou [avant, argumentaire] selon que
+            // l'option porte au moins une contre-indication (cf. docstring de `zones()`).
+            const decoupes = zones(html)
+            const depliArgumentaire = decoupes[decoupes.length - 1]
+            const depliSecurite = optionVue.contreIndications.length > 0 ? decoupes[1] : ''
 
-            // (1) CONTRE-INDICATIONS — D21 : un fait de sécurité s'affiche avec son motif. AMENDEMENT
-            // SB3 (voir docstring de tête) : la contre-indication vit désormais DANS le dépli, en
-            // PREMIÈRE position — ce test ne cherche donc plus `avantDepli` pour elle, mais vérifie
-            // qu'elle est (a) toujours présente dans le rendu complet, jamais absente en silence, et
-            // (b) toujours EN TÊTE du dépli, avant l'effet attendu (`option-card__effet`), jamais
-            // reléguée derrière lui.
-            //
-            // T-068 (P9, 2026-07-30) : la liste lue est désormais `optionVue.contreIndications`
-            // (texte + état, `lib/vueDecision.ts`) et non plus le champ brut du contenu — qui accepte
-            // depuis ce lot DEUX formes (chaîne / objet `{ texte, condition }`). L'exigence est
-            // INCHANGÉE et vaut pour les TROIS états, y compris `levee` : une contre-indication
-            // désamorcée est affichée en retrait, jamais retirée du rendu (c'est précisément ce que ce
-            // test empêche de régresser — « désamorcée, pas effacée »).
-            const indexEffet = html.indexOf('option-card__effet')
+            // (1) CONTRE-INDICATIONS, TOUS ÉTATS — D21 : un fait de sécurité s'affiche avec son motif.
+            // SECOND PASSAGE DU 2026-08-01 (voir docstring de tête) : actives, indéterminées ET levées
+            // vivent TOUTES dans le dépli SÉCURITÉ, jamais dans le socle, jamais dans l'argumentaire.
             for (const { texte } of optionVue.contreIndications) {
               // Un extrait suffit et évite les faux négatifs sur la ponctuation typographique.
               const extrait = echappe(texte.slice(0, 40))
-              const indexCi = html.indexOf(extrait)
-              if (indexCi === -1) {
+              if (!html.includes(extrait)) {
                 manquements.push(
                   `contre-indication absente du rendu — « ${optionVue.option.intitule} » : ${texte.slice(0, 60)}…`,
                 )
-              } else if (indexEffet !== -1 && indexCi > indexEffet) {
+              } else if (!depliSecurite.includes(extrait)) {
                 manquements.push(
-                  `contre-indication reléguée après l'effet attendu — « ${optionVue.option.intitule} » : ${texte.slice(0, 60)}…`,
+                  `contre-indication hors du dépli sécurité — « ${optionVue.option.intitule} » : ${texte.slice(0, 60)}…`,
                 )
               }
             }
 
-            // (1b) SB6 — le résumé fermé du dépli doit porter l'icône ⚠ et le décompte EXACT quand des
-            // contre-indications existent (défaut GRAVE mesuré par S6, voir docstring de tête), et
-            // n'afficher AUCUNE trace de ce registre d'alerte en leur absence (le libellé neutre reste
-            // inchangé — carte non affectée).
+            // (1b) SB6, RESTAURÉ le 2026-08-01 (second passage) — le `<summary>` FERMÉ du dépli sécurité
+            // doit porter l'icône ⚠ et le décompte EXACT quand des contre-indications actives/
+            // indéterminées existent, et n'afficher AUCUNE trace de ce registre d'alerte en leur absence
+            // (une carte qui ne porte QUE des CI levées garde un dépli sécurité neutre, cf.
+            // `OptionCard.test.tsx`).
             //
-            // T-068 : le décompte annoncé ne porte que sur les contre-indications NON LEVÉES — celles
-            // que le dépli montre effectivement dans le registre d'alerte. Une contre-indication levée
-            // (`condition` fausse pour ce patient) est affichée en retrait et ne doit plus gonfler ce
-            // chiffre ; l'écrire ici avec `.length` du champ brut ferait échouer le test le jour où une
-            // contre-indication conditionnelle est encodée (S3-S6), alors que ce serait le comportement
-            // ATTENDU.
+            // Le décompte ne porte que sur les contre-indications NON LEVÉES — celles que le dépli
+            // sécurité montre effectivement en registre d'alerte. Une contre-indication levée (`condition`
+            // fausse pour ce patient) ne doit plus gonfler ce chiffre.
             const nombreCi = optionVue.contreIndications.filter((ci) => ci.etat !== 'levee').length
             if (nombreCi > 0) {
-              if (!html.includes('⚠')) {
-                manquements.push(`résumé fermé sans icône d'alerte alors que des CI existent — « ${optionVue.option.intitule} »`)
+              if (!depliSecurite.includes('⚠')) {
+                manquements.push(`dépli sécurité sans icône d'alerte alors que des CI existent — « ${optionVue.option.intitule} »`)
               }
-              if (!html.includes(`${nombreCi} contre-indication`)) {
+              if (!depliSecurite.includes(`${nombreCi} contre-indication`)) {
                 manquements.push(
-                  `résumé fermé sans décompte exact (attendu ${nombreCi}) — « ${optionVue.option.intitule} »`,
+                  `dépli sécurité sans décompte exact (attendu ${nombreCi}) — « ${optionVue.option.intitule} »`,
                 )
               }
-            } else if (html.includes('⚠')) {
-              manquements.push(`résumé fermé porte une icône d'alerte sans aucune CI — « ${optionVue.option.intitule} »`)
+            } else if (depliSecurite.includes('⚠')) {
+              manquements.push(`dépli sécurité porte une icône d'alerte sans aucune CI active — « ${optionVue.option.intitule} »`)
             }
 
-            // (2) ALERTES D'OPTION — même canal, même raison (D21).
+            // (2) ALERTES D'OPTION — même canal, même raison (D21). Restent dans le SOCLE, inchangé
+            // depuis A5 : elles ne se déplient jamais, quel que soit le passage sur les contre-
+            // indications.
             for (const alerte of optionVue.alertes) {
               const extrait = echappe(alerte.message.slice(0, 40))
               if (!avantDepli.includes(extrait)) {
@@ -187,7 +205,7 @@ describe('I12 — le dépli d’une carte n’avale jamais un fait de sécurité
             }
 
             // (3) DOSES — calculées ET non calculées. La seconde est le défaut J, corrigé le matin même :
-            // la replier le ferait revenir le jour de sa correction.
+            // la replier le ferait revenir le jour de sa correction. Restent dans le SOCLE, inchangé.
             for (const ligne of optionVue.calculsEnAttente) {
               if (!avantDepli.includes(echappe(ligne.libelle.slice(0, 30)))) {
                 manquements.push(`« doses non calculées » repliée — « ${optionVue.option.intitule} »`)
@@ -200,8 +218,15 @@ describe('I12 — le dépli d’une carte n’avale jamais un fait de sécurité
             }
 
             // (4) LA JUSTIFICATION — « Proposé parce que » rend la carte auditable en consultation.
-            if (!avantDepli.includes('Proposé parce que')) {
-              manquements.push(`« Proposé parce que » replié — « ${optionVue.option.intitule} »`)
+            // Vit dans le dépli ARGUMENTAIRE (le dernier `<details>`) depuis le 2026-08-01 (décision
+            // référent explicite, confirmée au second passage) : jamais dans le socle, jamais dans le
+            // dépli sécurité.
+            if (!html.includes('Proposé parce que')) {
+              manquements.push(`« Proposé parce que » absente du rendu — « ${optionVue.option.intitule} »`)
+            } else if (!depliArgumentaire.includes('Proposé parce que')) {
+              manquements.push(
+                `« Proposé parce que » hors du dépli argumentaire — « ${optionVue.option.intitule} »`,
+              )
             }
           }
         }

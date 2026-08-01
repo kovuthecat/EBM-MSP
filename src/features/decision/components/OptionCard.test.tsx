@@ -1,15 +1,16 @@
 /**
- * SB3 (P6, 2026-07-28) — T-040 : bordure gauche par verbe d'action (`option.action`) + contre-
- * indications déplacées dans le dépli (`<details>`), en première position.
+ * SB3 (P6, 2026-07-28) — T-040 : bordure gauche par verbe d'action (`option.action`).
  *
- * CE FICHIER REMPLACE l'ancien garde-fou T-025 (P4/S4, même jour), qui figeait un ordre du DOM
- * (contre-indications AVANT le dépli) que SB3 inverse délibérément. Tension tranchée par Thibault le
- * 2026-07-28 : compactage accepté, mais pas au prix de l'accessibilité — d'où le libellé du `<summary>`
- * qui change selon la présence de contre-indications, seul indicateur requis carte FERMÉE
- * (`OptionCard.tsx`). Les mêmes garanties structurelles sont reconduites ICI, à la nouvelle position :
- * une contre-indication n'est jamais silencieusement omise, toujours EN TÊTE du dépli (avant l'effet
- * attendu, avant avantages/inconvénients), et une option sans contre-indication ne réserve toujours
- * aucun espace.
+ * CONTRE-INDICATIONS — DEUX PASSAGES LE 2026-08-01. Un premier correctif (matin) avait sorti les
+ * contre-indications ACTIVES hors de tout dépli, dans une zone TOUJOURS visible, pour corriger le
+ * défaut mesuré en recette (la posologie se lisait à travers un avertissement rouge). Rendu au
+ * référent, celui-ci a demandé un second passage LE MÊME JOUR : la posologie reste toujours visible
+ * (acquis conservé), mais la sécurité ne doit pas devenir une bannière permanente du socle — elle
+ * retourne derrière SON PROPRE dépli, distinct de celui de l'argumentaire, REPLIÉ PAR DÉFAUT (comme
+ * avant le premier correctif), mais dont le `<summary>` FERMÉ passe en registre rouge dès qu'au moins
+ * une contre-indication n'est pas écartée (D20/T-068). Les tests ci-dessous vérifient cette structure à
+ * DEUX `<details>` ; les garanties structurelles restent les mêmes : une contre-indication n'est jamais
+ * silencieusement omise, et une option sans contre-indication ne réserve toujours aucun espace.
  */
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
@@ -52,77 +53,101 @@ function rendreCarte(option: Option, calculs: CalculAffiche[] = [], contreIndica
   )
 }
 
-describe('OptionCard — SB3/T-040 (contre-indications dans le dépli, en tête)', () => {
-  it("place le bloc de contre-indications À L'INTÉRIEUR du <details>, avant l'effet attendu", () => {
+describe('OptionCard — dépli sécurité, propre et distinct de l’argumentaire (second passage 2026-08-01)', () => {
+  it('place le bloc de contre-indications DANS un <details>, AVANT celui de l’argumentaire', () => {
     const html = rendreCarte(optionDeBase({ contre_indications: ['Grossesse.', 'Allaitement.'] }))
 
-    const indexDetails = html.indexOf('<details')
-    const indexCi = html.indexOf('option-card__ci')
-    const indexEffet = html.indexOf('option-card__effet')
+    const indexPremierDetails = html.indexOf('<details')
+    const indexCi = html.indexOf('option-card__ci"')
+    const indexArgumentaire = html.indexOf('Proposé parce que, effet attendu et plus')
 
-    expect(indexDetails).toBeGreaterThan(-1)
-    expect(indexCi).toBeGreaterThan(indexDetails) // DANS le dépli désormais, plus avant lui (inverse de T-025)
-    expect(indexCi).toBeLessThan(indexEffet)
-  })
-
-  it('place le bloc de contre-indications AVANT avantages/inconvénients (toujours en tête du dépli)', () => {
-    const html = rendreCarte(optionDeBase({ contre_indications: ['CI de test.'] }))
-
-    const indexCi = html.indexOf('option-card__ci')
-    const indexLists = html.indexOf('option-card__lists')
-
+    expect(indexPremierDetails).toBeGreaterThan(-1)
     expect(indexCi).toBeGreaterThan(-1)
-    expect(indexLists).toBeGreaterThan(-1)
-    expect(indexCi).toBeLessThan(indexLists)
+    expect(indexCi).toBeGreaterThan(indexPremierDetails) // dans un <details>, pas avant
+    expect(indexCi).toBeLessThan(indexArgumentaire) // le dépli sécurité précède celui de l'argumentaire
   })
 
-  it('place le bloc de contre-indications APRÈS les doses (désormais dans le dépli, plus dans le socle)', () => {
-    // Inverse du garde-fou T-025 : les doses restent dans le socle (avant le dépli), la contre-
-    // indication l'a quitté — cette bascule EST le changement que T-040 demande.
+  it('deux <details> SÉPARÉS existent quand il y a une contre-indication (pas un seul dépli partagé)', () => {
+    const html = rendreCarte(optionDeBase({ contre_indications: ['CI de test.'] }))
+    const nombreDetails = (html.match(/<details/g) ?? []).length
+    expect(nombreDetails).toBe(2)
+  })
+
+  it("une seule <details> quand il n'y a AUCUNE contre-indication (le dépli sécurité ne réserve aucun espace)", () => {
+    const html = rendreCarte(optionDeBase())
+    const nombreDetails = (html.match(/<details/g) ?? []).length
+    expect(nombreDetails).toBe(1)
+    expect(html).not.toContain('option-card__ci')
+  })
+
+  it('place le bloc de contre-indications APRÈS les doses (posologie visible sans déplier, sécurité derrière son dépli)', () => {
     const html = rendreCarte(optionDeBase({ contre_indications: ['CI de test.'] }), [
       { libelle: 'Dose', valeur: 10, unite: 'U/j' },
     ])
 
     const indexCalculs = html.indexOf('option-card__calculs')
-    const indexCi = html.indexOf('option-card__ci')
+    const indexCi = html.indexOf('option-card__ci"')
 
     expect(indexCalculs).toBeGreaterThan(-1)
-    expect(indexCi).toBeGreaterThan(indexCalculs)
+    expect(indexCi).toBeGreaterThan(-1)
+    expect(indexCalculs).toBeLessThan(indexCi)
   })
 
-  it("ne réserve aucun espace quand l'option n'a pas de contre-indication", () => {
-    const html = rendreCarte(optionDeBase())
-
-    expect(html).not.toContain('option-card__ci')
-  })
-
-  // SB6 (P6, 2026-07-29) — le libellé neutre ci-dessus (sans icône ni couleur d'alerte) est justement
-  // ce que la recette de contrôle S6 a mesuré comme insuffisant (0 information retenue au test des 20
-  // secondes) : ces deux tests remplacent les anciennes assertions sur le texte fixe
-  // « Contre-indications, effet attendu et plus », que le référent a explicitement libéré (« le texte
-  // exact n'est pas figé », `plans/P6/SB6.md`).
-  it('le <summary> porte l’icône ⚠, la couleur d’alerte dédiée et le décompte quand des contre-indications existent (SB6)', () => {
+  // SB6 (P6, 2026-07-29), RESTAURÉ le 2026-08-01 (second passage) : l'icône ⚠, la couleur d'alerte
+  // dédiée et le décompte exact reviennent sur le `<summary>` FERMÉ du dépli sécurité — replié par
+  // défaut, mais reconnaissable de loin.
+  it('le <summary> du dépli sécurité porte l’icône ⚠, la couleur d’alerte dédiée et le décompte quand des contre-indications ACTIVES existent', () => {
     const html = rendreCarte(optionDeBase({ contre_indications: ['CI de test.', 'Autre CI.'] }))
 
     expect(html).toContain('option-card__detail-summary--ci')
     expect(html).toContain('⚠')
-    expect(html).toContain('2 contre-indications, effet attendu et plus')
-    expect(html).not.toContain('Effet attendu, avantages et inconvénients')
+    expect(html).toContain('2 contre-indications')
+    expect(html).not.toContain('Contre-indications (aucune active)')
   })
 
-  it('le <summary> accorde le décompte au singulier pour une seule contre-indication (SB6)', () => {
+  it('le <summary> accorde le décompte au singulier pour une seule contre-indication ACTIVE', () => {
     const html = rendreCarte(optionDeBase({ contre_indications: ['CI de test.'] }))
 
-    expect(html).toContain('1 contre-indication, effet attendu et plus')
+    expect(html).toContain('1 contre-indication')
     expect(html).not.toContain('1 contre-indications')
   })
 
-  it("le <summary> annonce « Effet attendu, avantages et inconvénients » en leur absence, SANS icône ni couleur d'alerte — c'est l'unique indicateur carte fermée", () => {
-    const html = rendreCarte(optionDeBase())
+  it("le <summary> de l'ARGUMENTAIRE reste TOUJOURS neutre, même quand la carte porte des contre-indications actives", () => {
+    const avecCi = rendreCarte(optionDeBase({ contre_indications: ['CI de test.'] }))
+    const sansCi = rendreCarte(optionDeBase())
 
-    expect(html).toContain('Effet attendu, avantages et inconvénients')
-    expect(html).not.toContain('⚠')
-    expect(html).not.toContain('option-card__detail-summary--ci')
+    expect(avecCi).toContain('Proposé parce que, effet attendu et plus')
+    expect(sansCi).toContain('Proposé parce que, effet attendu et plus')
+    // La couleur d'alerte (`--ci`) ne doit JAMAIS être posée sur le <summary> de l'argumentaire — seul
+    // celui du dépli sécurité peut la porter (vérifié en cherchant la classe sur CE <summary> précis).
+    const summaryArgumentaire = avecCi.slice(avecCi.indexOf('Proposé parce que, effet attendu et plus') - 200)
+    expect(summaryArgumentaire.slice(0, 200)).not.toContain('option-card__detail-summary--ci')
+  })
+})
+
+describe('OptionCard — zone posologie (option.apercu, correctif 2026-08-01, CONSERVÉ tel quel au second passage)', () => {
+  it("affiche `option.apercu` en dehors de TOUT dépli, en registre neutre, même quand la carte porte des contre-indications actives", () => {
+    const html = rendreCarte(
+      optionDeBase({
+        contre_indications: ['CI de test.', 'Autre CI.'],
+        apercu: 'dapagliflozine 10 mg/j (fixe) ; empagliflozine 10→25 mg/j',
+      }),
+    )
+
+    const indexPremierDetails = html.indexOf('<details')
+    const indexApercu = html.indexOf('option-card__apercu')
+
+    expect(indexApercu).toBeGreaterThan(-1)
+    expect(indexApercu).toBeLessThan(indexPremierDetails) // visible sans déplier, avant le premier dépli
+    expect(html).toContain('dapagliflozine 10 mg/j (fixe) ; empagliflozine 10→25 mg/j')
+    // Le texte de l'aperçu ne doit plus jamais apparaître concaténé au décompte du dépli sécurité.
+    const summaryCi = html.slice(html.indexOf('option-card__detail-summary--ci'), html.indexOf('option-card__detail-summary--ci') + 300)
+    expect(summaryCi).not.toContain('dapagliflozine')
+  })
+
+  it("n'affiche rien quand l'option ne porte pas d'aperçu (rendu inchangé)", () => {
+    const html = rendreCarte(optionDeBase())
+    expect(html).not.toContain('option-card__apercu')
   })
 })
 
@@ -178,40 +203,47 @@ describe('OptionCard — T-068 (contre-indications vérifiables : active / levé
     // réellement rendue, pas telle qu'elle est écrite dans le composant.
     expect(html).toContain('Ne s&#x27;applique pas à ce patient : ')
     expect(html).toContain('Grossesse.')
-    // Le bloc désamorcé vient APRÈS le bloc d'alerte (l'actif garde la tête du dépli, SB3).
+    // Le bloc désamorcé vient APRÈS le bloc actif, TOUJOURS DANS LE MÊME DÉPLI SÉCURITÉ (second passage
+    // 2026-08-01 : une CI levée reste avec la sécurité, elle ne rejoint pas l'argumentaire).
     expect(html.indexOf('option-card__ci--levee')).toBeGreaterThan(html.indexOf('option-card__ci"'))
   })
 
-  it('LE DÉFAUT VISÉ : le décompte du <summary> ne compte plus la contre-indication levée (3, pas 4)', () => {
+  it('LE DÉFAUT VISÉ (T-068) : le décompte du dépli sécurité ne compte plus la contre-indication levée (3, pas 4)', () => {
     const html = rendreCarte(optionDeBase({ contre_indications: CI_QUATRE_ETATS }), [], contreIndicationsDuProfil())
 
-    expect(html).toContain('3 contre-indications, effet attendu et plus')
+    expect(html).toContain('3 contre-indications : ')
     expect(html).not.toContain('4 contre-indications')
   })
 
   it('une contre-indication INDÉTERMINÉE compte dans le décompte (elle est affichée comme active — D20)', () => {
-    // Sans ce test, on pourrait « ne compter que les actives » au sens strict et annoncer 2 pendant que le
-    // dépli en montre 3 : le chiffre de la carte fermée doit être celui des lignes qu'on lit en l'ouvrant.
+    // Sans ce test, on pourrait « ne compter que les actives » au sens strict et annoncer 2 pendant que
+    // la zone sécurité en montre 3 : le chiffre affiché doit être celui des lignes réellement montrées.
     const html = rendreCarte(
       optionDeBase({ contre_indications: [{ texte: 'Insuffisance cardiaque.', condition: 'IC == true' }] }),
       [],
       evaluerContreIndications([{ texte: 'Insuffisance cardiaque.', condition: 'IC == true' }], { IC: false }, new Set()),
     )
-    expect(html).toContain('1 contre-indication, effet attendu et plus')
+    expect(html).toContain('1 contre-indication : ')
     expect(html).toContain('⚠')
   })
 
-  it('toutes les contre-indications levées : plus AUCUNE alerte annoncée carte fermée, mais le fait reste lisible dans le dépli', () => {
+  it('toutes les contre-indications levées : le dépli sécurité existe TOUJOURS (rien à cacher), mais son <summary> fermé reste neutre — plus d’affordance de danger à tort', () => {
     const ci = [{ texte: 'Grossesse.', condition: 'grossesse == true' }]
     const html = rendreCarte(optionDeBase({ contre_indications: ci }), [], evaluerContreIndications(ci, { grossesse: false }))
 
-    // Plus d'affordance de danger : c'est exactement ce que la tâche demande (ne plus alerter à tort).
-    expect(html).toContain('Effet attendu, avantages et inconvénients')
+    // Plus d'affordance de danger sur le <summary> fermé : c'est exactement ce que T-068 demande (ne
+    // plus alerter à tort). Mais le dépli sécurité, lui, existe toujours — la CI levée doit rester
+    // consultable quelque part, et sa place est ici, pas dans l'argumentaire (second passage 2026-08-01).
+    expect(html).not.toContain('option-card__ci"') // pas de bloc ACTIF (aucune CI active)
     expect(html).not.toContain('⚠')
     expect(html).not.toContain('option-card__detail-summary--ci')
-    // Mais l'information n'a pas disparu pour autant.
+    expect(html).toContain('Contre-indications (aucune active)')
+    // Mais l'information n'a pas disparu pour autant : le bloc levée est bien dans ce dépli.
+    expect(html).toContain('option-card__ci--levee')
     expect(html).toContain('Ne s&#x27;applique pas à ce patient : ')
     expect(html).toContain('Grossesse.')
+    const nombreDetails = (html.match(/<details/g) ?? []).length
+    expect(nombreDetails).toBe(2) // dépli sécurité (avec la levée) + dépli argumentaire
   })
 
   it('NON-RÉGRESSION : contre-indications sans condition → rendu STRICTEMENT identique, que l’état soit calculé ou non fourni', () => {
@@ -224,10 +256,9 @@ describe('OptionCard — T-068 (contre-indications vérifiables : active / levé
 
     expect(htmlCalcule).toBe(htmlRepli)
     expect(htmlRepli).toContain(
-      '<span class="option-card__ci-label">Contre-indications : </span>Grossesse. · Alcoolisme.',
+      '<span class="option-card__ci-label">2 contre-indications : </span>Grossesse. · Alcoolisme.',
     )
     expect(htmlRepli).not.toContain('option-card__ci--levee')
-    expect(htmlRepli).toContain('2 contre-indications, effet attendu et plus')
   })
 
   it('NON-RÉGRESSION : la forme OBJET sans condition rend exactement comme la forme chaîne', () => {
