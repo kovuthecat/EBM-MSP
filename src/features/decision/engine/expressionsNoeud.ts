@@ -124,6 +124,16 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
     references: 'inerte',
     conditions: 'decision',
     prerequis: 'decision',
+    // P10/S2 (T-079) — `inerte`, et ce classement demande d'être justifié parce que les CLÉS de cette
+    // carte SONT des expressions du DSL. Deux raisons de ne pas les récolter :
+    //  1. elles ne sont jamais ÉVALUÉES — ni par `evaluateNode`, ni par l'affichage, qui s'en sert
+    //     uniquement comme d'un index (comparaison de chaînes, cf. `lib/conditionText.ts`) ;
+    //  2. ce sont, par construction, des branches DÉJÀ récoltées depuis `conditions`/`prerequis` —
+    //     l'invariant I24 (`banc/invariants-contenu.test.ts`) refuse toute clé qui n'en est pas une. Les
+    //     récolter dupliquerait donc les mêmes littéraux dans les domaines de tirage du banc, sans y
+    //     ajouter une seule frontière clinique.
+    // La VALEUR, elle, est de la prose d'affichage — même nature que `contre_indications` et `apercu`.
+    motifs: 'inerte',
     // Conteneur depuis T-068 (P9) : le tableau mêle des CHAÎNES (prose seule, inerte) et des objets
     // `{ texte, condition }` — cf. la définition `contreIndication` ci-dessous, qui porte la seule
     // expression du lot. Le champ lui-même ne porte donc rien, comme `alertes`.

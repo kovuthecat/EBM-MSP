@@ -1100,3 +1100,107 @@ describe('I19 — un critère `partage` a le même encodage sur tous les nœuds 
     expect(parNom.size).toBeGreaterThan(0)
   })
 })
+
+/**
+ * I24 — toute clé de `Option.motifs` désigne une BRANCHE QUI EXISTE (P10/S2, T-079).
+ *
+ * POURQUOI CET INVARIANT EST OBLIGATOIRE, ET PAS UN CONFORT. `motifs` est une carte indexée par le TEXTE
+ * EXACT d'un terme `OR` de `conditions`/`prerequis` (cf. `Option.motifs`). Une clé mal recopiée — un
+ * espace en trop autour d'un opérateur, `>=` écrit `> =`, une branche renommée d'un côté seulement — ne
+ * lève RIEN : le motif est simplement introuvable, et l'écran retombe sur la branche humanisée. Le
+ * contenu affirmerait avoir rédigé un motif, l'écran n'en montrerait pas, et rien nulle part ne le
+ * dirait. Sans cet invariant, le mécanisme est un piège — même classe de garde qu'I20 sur les libellés
+ * (« jamais un identifiant affiché sans libellé rédigé »).
+ *
+ * VACUITÉ ASSUMÉE, ET SURVEILLÉE AUTREMENT. Au jour de T-079, aucun nœud ne déclare `motifs` (la session
+ * livre le mécanisme, S3-S6 écrivent les motifs) : la première assertion est donc vraie sur un ensemble
+ * vide. C'est exactement le cas où un invariant est « vert pour rien » — d'où le SECOND test, qui exerce
+ * la règle sur une option fabriquée et vérifie qu'elle MORD sur une clé fausse. Il ne dépend d'aucun
+ * contenu et reste donc valable avant comme après le remplissage.
+ *
+ * Générique (CLAUDE.md invariant 5) : aucun nom de nœud, de domaine ni de critère. Le découpage en
+ * branches est celui du moteur (`engine/conditions.ts` `splitTopLevel` : le DSL n'a pas de parenthèses,
+ * `AND` est prioritaire sur `OR`) — réécrit ici en une ligne, comme le tokenizer local en tête de
+ * fichier, plutôt qu'importé : cet invariant porte sur le CONTENU tel qu'il est écrit, son verdict ne
+ * doit pas pouvoir bouger avec le moteur.
+ */
+function branchesDeclarees(option: Option): Set<string> {
+  const declarees = new Set<string>()
+  for (const expression of [...option.conditions, ...(option.prerequis ?? [])]) {
+    for (const branche of expression.split(/\s+OR\s+/)) declarees.add(branche.trim())
+  }
+  return declarees
+}
+
+/** Clés de `motifs` qui ne désignent aucune branche de l'option — la violation qu'I24 refuse. */
+function clesDeMotifsOrphelines(option: Option): string[] {
+  const declarees = branchesDeclarees(option)
+  return Object.keys(option.motifs ?? {}).filter((cle) => !declarees.has(cle.trim()))
+}
+
+describe('I24 — chaque clé de `motifs` désigne une branche réellement présente dans l’option', () => {
+  it.each(noeuds.map((node) => [node.id, node] as const))(
+    'nœud %s : aucune clé de `motifs` ne pointe dans le vide',
+    (_id, node) => {
+      const violations: string[] = []
+      for (const option of node.options) {
+        for (const cle of clesDeMotifsOrphelines(option)) {
+          violations.push(
+            `« ${option.intitule} » : la clé de \`motifs\` "${cle}" ne correspond à AUCUN terme OR de ses ` +
+              `\`conditions\`/\`prerequis\`. Le motif serait ignoré en silence. Branches disponibles : ` +
+              `${[...branchesDeclarees(option)].map((b) => `"${b}"`).join(' · ')}`,
+          )
+        }
+      }
+      expect(violations).toEqual([])
+    },
+  )
+
+  it('mord sur une clé fabriquée fausse, et laisse passer la clé exacte (preuve que l’invariant sert)', () => {
+    const option: Option = {
+      intitule: 'Option synthétique I24',
+      role: 'geste',
+      avantages: [],
+      inconvenients: [],
+      effet_attendu: 'non chiffrable',
+      niveau_preuve: 'faible',
+      conditions: ['MARQUEUR_a == 1 OR MARQUEUR_b > 0 AND MARQUEUR_b < 30'],
+      prerequis: ['MARQUEUR_c ne_contient_pas x'],
+    }
+
+    // Les trois formes LÉGITIMES : une branche simple, une branche CONJONCTIVE entière (`AND` compris),
+    // et une branche de `prerequis`. Espaces de bord tolérés, et rien d'autre.
+    expect(
+      clesDeMotifsOrphelines({
+        ...option,
+        motifs: {
+          'MARQUEUR_a == 1': 'motif A',
+          'MARQUEUR_b > 0 AND MARQUEUR_b < 30': 'motif B',
+          '  MARQUEUR_c ne_contient_pas x  ': 'motif C',
+        },
+      }),
+    ).toEqual([])
+
+    // Les trois formes FAUSSES, et ce sont celles qu'on écrit réellement par erreur : un ATOME isolé
+    // d'une conjonction, l'EXPRESSION ENTIÈRE (`OR` non découpé), et une branche qui n'existe nulle part.
+    expect(
+      clesDeMotifsOrphelines({
+        ...option,
+        motifs: {
+          'MARQUEUR_b > 0': 'atome isolé d’une conjonction',
+          'MARQUEUR_a == 1 OR MARQUEUR_b > 0 AND MARQUEUR_b < 30': 'expression entière',
+          'MARQUEUR_z == 42': 'branche inexistante',
+        },
+      }).sort(),
+    ).toEqual(
+      [
+        'MARQUEUR_b > 0',
+        'MARQUEUR_a == 1 OR MARQUEUR_b > 0 AND MARQUEUR_b < 30',
+        'MARQUEUR_z == 42',
+      ].sort(),
+    )
+
+    // Une option sans `motifs` (100 % du contenu au jour de T-079) n'a évidemment rien à violer.
+    expect(clesDeMotifsOrphelines(option)).toEqual([])
+  })
+})

@@ -364,6 +364,34 @@ export interface Option {
    */
   prerequis?: string[]
   /**
+   * MOTIFS RÉDIGÉS (P10/S2, T-079), indexés par le **texte exact d'une branche** de `conditions` /
+   * `prerequis` de CETTE option. Le motif remplace, pour cette branche et pour elle seule, la branche
+   * HUMANISÉE que l'écran affiche par défaut (`lib/conditionText.ts`) — dans « Proposé parce que », dans
+   * « Ce rang tient compte de » et dans « Pourquoi pas d'autres options ? ».
+   *
+   * CARTE OPTIONNELLE ET PARTIELLE, jamais une migration : on n'écrit un motif que pour les branches qui
+   * se lisent mal (« DFG > 0 et DFG < 30 et Cible atteinte : non »), partout ailleurs le rendu mécanique
+   * reste en place, inchangé.
+   *
+   * ```yaml
+   * conditions:
+   *   - "ASCVD_etablie == true OR IMC >= 30"
+   * motifs:
+   *   "ASCVD_etablie == true": "Maladie cardiovasculaire établie"
+   * ```
+   *
+   * RÈGLE D'INDEXATION — la clé est un TERME `OR` ENTIER (`AND` compris : `"DFG > 0 AND DFG < 30"`),
+   * jamais un atome isolé d'une conjonction, jamais une expression contenant encore un `OR`. Seuls les
+   * espaces de bord sont ignorés. Une clé mal recopiée ne lèverait rien au runtime — le motif serait
+   * ignoré en silence : c'est l'invariant **I24** du banc (`engine/banc/invariants-contenu.test.ts`) qui
+   * la refuse, et lui seul. Ne jamais désactiver cet invariant sans retirer ce champ.
+   *
+   * AUCUN EFFET MOTEUR : `evaluateNode` ne lit pas ce champ (classé `inerte` dans
+   * `engine/expressionsNoeud.ts`) — un motif ne rend et ne retire aucune option, il ne fait que remplacer
+   * un texte affiché.
+   */
+  motifs?: Record<string, string>
+  /**
    * Optionnel : omis dans le gabarit §11 pour les options sans contre-indication propre. Prose
    * d'affichage destinée au lecteur — distincte de `exclusions`, qui RETIRE l'option (D13) ; une
    * contre-indication, elle, reste toujours affichée.

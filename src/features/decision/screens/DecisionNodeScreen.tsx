@@ -12,7 +12,7 @@ import type { CritereEntree } from '../content/node.types'
 import type { Criteria, CriteriaValue } from '../engine/conditions'
 import { contraintesViolees } from '../engine/contraintes'
 import { criteresPertinents } from '../engine/relevance'
-import { describeReasons } from '../lib/conditionText'
+import { describeNonApplicable, describeReasons } from '../lib/conditionText'
 import { ESPERANCE_VIE_DRIVERS, hasEsperanceVieCritere, suggestEsperanceVie } from '../lib/esperanceVieDefault'
 import {
   appliquerPreremplissage,
@@ -891,9 +891,13 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
               </button>
               {nonRetenuesOpen && (
                 <div className="decision-node__non-retenues-liste">
+                  {/* P10/S2 — ÉNUMÉRATION NÉGATIVE (`describeNonApplicable`), et non plus la liste
+                      positive de cas que rendait `describeReasons` : toutes les branches de cette
+                      expression sont FAUSSES pour ce patient, les énoncer à l'affirmative laissait lire
+                      une affirmation avant de la nier. Motifs rédigés consommés au passage. */}
                   {vue.nonRetenues.map((nonRetenue, index) => (
                     <p key={`${index}-${nonRetenue.option.intitule}`} className="decision-node__non-retenue">
-                      {nonRetenue.option.intitule} : {describeReasons([nonRetenue.condition])}
+                      {nonRetenue.option.intitule} — {describeNonApplicable(nonRetenue.condition, nonRetenue.option.motifs)}
                     </p>
                   ))}
                 </div>

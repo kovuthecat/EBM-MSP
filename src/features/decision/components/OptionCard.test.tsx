@@ -275,3 +275,55 @@ describe('OptionCard — SB3/T-040 (bordure gauche par verbe d’action)', () =>
     expect(classe).not.toMatch(/option-card--action-/)
   })
 })
+
+/**
+ * P10/S2 (T-079) — LE CÂBLAGE de `Option.motifs`. `lib/conditionText.test.ts` couvre le formateur ;
+ * ce qui se vérifie ICI est que la carte lui passe bien la carte de motifs de SON option, aux deux
+ * lignes qui affichent des branches (« Proposé parce que », « Ce rang tient compte de »).
+ */
+describe('OptionCard — P10/S2 : motifs rédigés portés par l’option', () => {
+  function rendreAvecRaisons(option: Option, reasons: string[], motifRang?: string[]) {
+    return renderToStaticMarkup(
+      <OptionCard
+        option={option}
+        badge={null}
+        reasons={reasons}
+        calculs={[]}
+        calculsEnAttente={[]}
+        motifRang={motifRang}
+        alertes={[]}
+      />,
+    )
+  }
+
+  it('« Proposé parce que » affiche le motif rédigé de la branche satisfaite', () => {
+    const option = optionDeBase({
+      conditions: ['ASCVD_etablie == true OR IMC >= 30'],
+      motifs: { 'ASCVD_etablie == true': 'Maladie cardiovasculaire établie' },
+    })
+    const html = rendreAvecRaisons(option, ['ASCVD_etablie == true'])
+    expect(html).toContain('Proposé parce que : Maladie cardiovasculaire établie')
+    expect(html).not.toContain('athéromateuse')
+  })
+
+  it('sans motif pour la branche satisfaite, la carte rend exactement ce qu’elle rendait avant T-079', () => {
+    const conditions = ['ASCVD_etablie == true OR IMC >= 30']
+    const avecCarteInutile = rendreAvecRaisons(
+      optionDeBase({ conditions, motifs: { 'IMC >= 30': 'Obésité' } }),
+      ['ASCVD_etablie == true'],
+    )
+    const sansCarte = rendreAvecRaisons(optionDeBase({ conditions }), ['ASCVD_etablie == true'])
+    expect(avecCarteInutile).toBe(sansCarte)
+    expect(sansCarte).toContain('Proposé parce que : Maladie cardiovasculaire athéromateuse établie')
+  })
+
+  it('« Ce rang tient compte de » consomme les mêmes motifs (R6 couche 2)', () => {
+    const option = optionDeBase({
+      conditions: ['ASCVD_etablie == true'],
+      priorite: [{ quand: 'ASCVD_etablie == true', rang: 2 }],
+      motifs: { 'ASCVD_etablie == true': 'Maladie cardiovasculaire établie' },
+    })
+    const html = rendreAvecRaisons(option, ['ASCVD_etablie == true'], ['ASCVD_etablie == true'])
+    expect(html).toContain('Ce rang tient compte de : Maladie cardiovasculaire établie')
+  })
+})

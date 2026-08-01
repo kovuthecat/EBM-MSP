@@ -283,12 +283,18 @@ export function OptionCard({
           rendue par `DecisionNodeScreen.tsx`), elles ne concernent QUE ce geste, déjà retenu ici. */}
       <AlertList alertes={alertes} variant="option" />
 
-      <div className="option-card__pourquoi">Proposé parce que : {describeReasons(reasons)}</div>
+      {/* `option.motifs` (P10/S2) : une branche dont le contenu a rédigé le motif s'affiche avec CE
+          texte plutôt qu'avec sa traduction mécanique. Carte optionnelle et partielle — une branche sans
+          motif garde son rendu d'avant T-079, à l'octet près. */}
+      <div className="option-card__pourquoi">Proposé parce que : {describeReasons(reasons, option.motifs)}</div>
 
       {/* R6 couche 2 : pourquoi CE rang parmi les autres options de la famille — seulement quand une
-          vraie concurrence de rang existe (cf. `lib/vueDecision.ts` `OptionVue.motifRang`). */}
+          vraie concurrence de rang existe (cf. `lib/vueDecision.ts` `OptionVue.motifRang`). Mêmes motifs
+          rédigés : un `priorite[].quand` reprend en général une branche déjà écrite dans `conditions`
+          (I24 n'indexe que celles-là), et la même situation clinique se dit alors du même mot aux deux
+          lignes. */}
       {motifRang && motifRang.length > 0 && (
-        <div className="option-card__rang">Ce rang tient compte de : {describeReasons(motifRang)}</div>
+        <div className="option-card__rang">Ce rang tient compte de : {describeReasons(motifRang, option.motifs)}</div>
       )}
 
       {/* A5 — LE DÉPLI. Tout ce qui instruit la décision sans être ce sur quoi on agit dans la minute.

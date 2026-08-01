@@ -396,6 +396,19 @@
           },
           "description": "R6 (docs/decision/GRAMMAIRE-NOEUD.md, arbitrage indication/prerequis) : garde-fous de COHERENCE, evalues EXACTEMENT comme les `conditions` (meme grammaire DSL, memes regles d'applicabilite : une option est applicable si TOUTES ses `conditions` ET TOUS ses `prerequis` sont vrais) mais JAMAIS affiches comme justification (`OptionVue.reasons`, lib/vueDecision.ts, ne lit que `conditions`). Distinction : une `condition` repond a « pourquoi cette option est proposee a CE patient » (une indication clinique) ; un `prerequis` repond a « qu'est-ce qui ne l'empeche pas » (ex. 'traitements_en_cours ne_contient_pas iSGLT2' — ne pas deja prendre la classe ; 'classes_a_benefice_indisponibles == false' — la niche de repli n'est pas ouverte) — vrai pour la quasi-totalite des patients, son enonce n'apprend rien au praticien. Une option retiree par un `prerequis` faux est « non retenue » comme pour une condition (R4). Optionnel : absent = comportement rigoureusement identique a avant ce champ."
         },
+        "motifs": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {
+            "minLength": 1
+          },
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          },
+          "$comment": "P10/S2 (T-079). CARTE OPTIONNELLE, jamais une migration : ecrire un motif pour chacune des ~82 options du domaine serait un chantier de contenu a part entiere, et imbriquer `conditions` casserait la lisibilite du YAML clinique. On n'ecrit un motif QUE pour les branches qui se lisent mal ; partout ailleurs l'ecran retombe sur la branche humanisee (`lib/conditionText.ts`), inchangee.",
+          "description": "OPTIONNEL — MOTIFS REDIGES, indexes par le TEXTE EXACT D'UNE BRANCHE. A QUOI CA SERT : l'ecran affiche aujourd'hui la branche de condition HUMANISEE (traduction mecanique variable/operateur/valeur, `lib/conditionText.ts`), qui se lit parfois comme de la logique de programme (« DFG > 0 et DFG < 30 et Cible atteinte : non ») la ou une phrase clinique dirait la meme chose mieux. Un motif rédigé REMPLACE, pour cette branche et pour elle seule, ce rendu mecanique — dans « Proposé parce que », dans « Ce rang tient compte de » et dans « Pourquoi pas d'autres options ? ». REGLE D'INDEXATION, la seule chose a ne pas se tromper : la CLE est le texte exact d'un TERME `OR` de `conditions` ou de `prerequis` de LA MEME option, recopie tel qu'il est ecrit (les espaces de bord sont ignores, rien d'autre ne l'est) — donc le terme ENTIER, `AND` compris ('DFG > 0 AND DFG < 30'), jamais un atome isole d'une conjonction, et jamais l'expression entiere quand elle contient des `OR`. CLE SENTINELLE RESERVEE : `\"default\"` cible l'option de repli du noeud (`conditions: [\"default\"]`, D16) — cas particulier gere directement par `describeReasons` (P10, extension post-S5), la cle n'a donc pas besoin de correspondre a une branche au sens habituel. La VALEUR est la prose affichee. Une cle qui ne correspond a aucune branche (et n'est pas `\"default\"`) serait ignoree EN SILENCE : l'invariant I24 du banc (engine/banc/invariants-contenu.test.ts) la refuse et fait echouer la suite — meme classe de garde qu'I20 sur les libelles. REDIGER UN GROUPE NOMINAL, pas une phrase : le meme texte est rendu en contexte POSITIF (« Proposé parce que : … ») ET en contexte NEGATIF (« ne s'applique pas : ni … »). Aucun effet moteur : `evaluateNode` ne lit pas ce champ, un motif ne rend et ne retire aucune option. Absent (le cas de tout le contenu au jour de T-079) = rendu rigoureusement inchange."
+        },
         "contre_indications": {
           "type": "array",
           "items": {

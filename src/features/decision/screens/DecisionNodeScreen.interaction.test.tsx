@@ -584,6 +584,27 @@ describe('DecisionNodeScreen — T-023(a) : zéro option applicable ne produit j
 })
 
 /**
+ * P10/S2 (T-079, 2026-07-31) — LE PANNEAU « POURQUOI PAS D'AUTRES OPTIONS ? » ÉNUMÈRE À LA NÉGATIVE.
+ *
+ * `lib/conditionText.test.ts` couvre la formulation elle-même ; ce test vérifie le CÂBLAGE — que l'écran
+ * appelle bien `describeNonApplicable` (et non plus `describeReasons`, qui rendait la condition échouée
+ * comme n'importe quelle raison satisfaite, à l'affirmative). Le nœud `NODE_RIEN_A_PROPOSER` sert ici une
+ * seconde fois : son unique option part en `nonRetenues` dès le formulaire vierge (`presomption_non`),
+ * c'est-à-dire exactement l'état où ce panneau est la SEULE explication disponible.
+ */
+describe('DecisionNodeScreen — P10/S2 : les options non retenues sont dites à la négative', () => {
+  it('dit ce qui MANQUE, au lieu d’énoncer la condition échouée comme un fait du patient', () => {
+    const { container } = render(<DecisionNodeScreen nodeId={NODE_RIEN_A_PROPOSER.id} go={() => {}} />)
+    // Le panneau est « à la demande » (R4) : rien n'est poussé tant qu'on ne l'ouvre pas.
+    expect(container.querySelector('.decision-node__non-retenue')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: /pourquoi pas d/i }))
+
+    const ligne = container.querySelector('.decision-node__non-retenue')?.textContent ?? ''
+    expect(ligne).toBe("Option jamais par défaut — ne s'applique pas : il faudrait flag presume")
+  })
+})
+
+/**
  * T-023 Étape 3-5 (P4/S3, D-06, 2026-07-28) — LE PRÉ-REMPLISSAGE CALCULÉ APPLIQUE CE QU'IL ANNONCE.
  *
  * Reproduit le défaut D-06 sur le nœud synthétique `NODE_PREREMPLISSAGE` (position vs objectif, isolée
