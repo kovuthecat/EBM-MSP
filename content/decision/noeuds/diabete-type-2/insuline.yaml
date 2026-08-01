@@ -468,6 +468,22 @@ criteres_entree:
     type: enum
     groupe: Signaux d'alerte et tolérance
     valeurs: [faible, eleve]
+    # `aide` ajouté T-086 (P10/S9, 2026-08-01) — TEXTE IDENTIQUE à celui de `prescription.yaml` (le
+    # critère est `partage: true` : deux définitions différentes du même champ seraient pires que zéro).
+    # En réponse au rapport de recette (« aucune définition, aucune infobulle » sur le champ qui fait
+    # basculer « Désintensifier » au clic « Élevé »). L'investigation P9/S7 (bilan complet dans
+    # `plans/P9/S7.md`) a établi que ce champ cumule DEUX lectures irréductibles l'une à l'autre, portées
+    # par ses 4 usages (A/C sur `prescription.yaml`, D ici dans le `derive` de
+    # `risque_hypoglycemique_eleve` — schéma déjà en place ; B sur `prescription.yaml` — terrain qui
+    # exposerait un traitement pas encore introduit), et que ni la fusion en un dérivé automatique
+    # (issue 1) ni le silence (issue 3) n'étaient tenables : le champ reste SAISI, tel quel (arbitrage
+    # référent du 2026-07-31, hors périmètre de cette tâche). Le texte ci-dessous couvre les deux
+    # versants sans trancher entre eux, plutôt que d'en cacher un.
+    aide: >-
+      Un jugement clinique, pas une simple case du dossier : « Élevé » si le schéma en cours expose
+      (sécrétagogue — sulfamide, glinide — ou insuline, dose élevée, prises irrégulières ou repas
+      sautés), ou si le terrain exposerait un futur traitement même sans hypoglycémiant actuel (âge
+      avancé, insuffisance rénale, fragilité, hypoglycémie sévère antérieure). « Faible » sinon.
   - nom: hypo_severe_recurrente
     type: bool
     groupe: Signaux d'alerte et tolérance
@@ -1225,12 +1241,37 @@ options:
     # ─────────────────────────────────────────────────────────────────────────────────────────────────
     conditions:
       - "situation_insuline == basal_bolus AND risque_hypoglycemique_eleve == true OR situation_insuline != naif AND ecart_sous_objectif_cible == true"
+    # MOTIF AJOUTÉ P10/S4 (T-081, 2026-07-31) — seule la 2ᵉ branche : la 1ʳᵉ (« Basal-bolus et risque
+    # hypoglycémique élevé ») se lit déjà bien mécaniquement (le libellé de `risque_hypoglycemique_eleve`
+    # est rédigé), donc rien pour elle (règle d'or S3 : pas de motif sur une branche déjà lisible). La 2ᵉ
+    # combine `situation_insuline != naif` (« ≠ Naïf d'insuline », qui se lit comme une double négation) et
+    # `ecart_sous_objectif_cible` pour dire UNE seule situation clinique — c'est déjà ainsi que
+    # l'option la nomme elle-même dans ses `avantages` ci-dessous (« ce qui est un sur-traitement »), le
+    # motif ne fait que reprendre cette lecture déjà validée par le contenu, pas l'inventer.
+    motifs:
+      "situation_insuline != naif AND ecart_sous_objectif_cible == true": "une insulinothérapie déjà en place, en sur-traitement (HbA1c ≥ 1 point sous l'objectif)"
     priorite: 1
     avantages:
       - "Chez le sujet fragile, à espérance de vie limitée ou avec hypoglycémies sévères — et chez tout patient dont l'HbA1c est passée au moins 1 point SOUS l'objectif fixé, ce qui est un sur-traitement : relâcher la cible, simplifier le schéma, réduire les doses (à partir des doses actuelles), envisager un GLP-1 pour réduire les besoins en insuline. Éviter le surtraitement (HAS 2024 R.103 ; SFD 2025 Avis 21)."
     inconvenients:
       - "Contrôle glycémique volontairement moins strict — bénéfice = réduction du risque d'hypoglycémie."
+      # AJOUT P10/S8 (T-085, 2026-07-31) — RECHERCHE DÉDIÉE, RÉSULTAT NÉGATIF, RENDU EXPLICITE. La recette
+      # (N7, N11) réclamait un rythme et une quantité de descente ; investigation complète (web + dossier
+      # de preuve existant `docs/decision/noeuds/E-insuline.md` §E6-g, chantier 2026-07-29 déjà vérifié en
+      # primaire p. 25/29 du PDF HAS) : AUCUNE source française ne chiffre le pas ni la fréquence d'une
+      # DÉPRESCRIPTION PROGRAMMÉE. R.103 pose le principe sans aucun chiffre (vérifié p. 29) ; R.105 chiffre
+      # un écart (< 0,5 % d'HbA1c) mais pour l'ARRÊT TOTAL du traitement médicamenteux, pas pour une
+      # réduction graduée d'insuline, et sans préciser le sens de l'écart ; l'Avis 21 de la SFD chiffre une
+      # CIBLE glycémique (1-2 g/L préprandial chez le fragile/dépendant), pas un rythme de réduction. Une
+      # recherche web dédiée (guides de déprescription gériatriques) n'a trouvé qu'un guide canadien
+      # (Farrell et al., Déprescription des antihyperglycémiants chez les personnes âgées) à preuve TRÈS
+      # FAIBLE (2 études avant-après), hors corpus français, non retenu (D23/D12). ⚠ « Inverser » le rythme
+      # de titration à la hausse (+2 U/3 j) n'est PAS une source : c'est l'inférence par analogie que D23
+      # interdit — l'asymétrie est clinique (le risque d'une descente trop lente n'est pas celui d'une
+      # montée trop lente). N'ÉCRIT DONC AUCUN CHIFFRE ICI.
+      - "Aucune source ne chiffre le RYTHME ni l'AMPLEUR de cette réduction programmée : la dose se règle au jugement clinique, sous surveillance glycémique rapprochée — même position que la carte « Réduire la posologie de l'insuline » de l'écran Prescrire (« le praticien juge la dose, aucun dosage imposé »). Si des glycémies basses, un TBR élevé ou un profil nocturne en baisse documentent une hypoglycémie ou une variabilité ACTIVES (et non seulement un sur-traitement au long cours), la carte « Corriger l'hypoglycémie ou la variabilité » porte, elle, un rythme sourcé (−2 U, ou −10 % au-delà de 40 U/j, jusqu'à −4 U si symptomatique ; réévaluer tous les 3 jours — HAS 2024 R.87, SFD 2025 Avis 18, ebmfrance) : vérifier si elle s'affiche aussi pour ce patient."
     effet_attendu: "Priorité à la sécurité et à la qualité de vie ; cibles glycémiques et de MCG relâchées (voir alerte)."
+    apercu: "réduire au jugement clinique — aucun rythme chiffré sourcé pour la déprescription programmée (voir « Corriger l'hypoglycémie » si signal actif)"
     # NIVEAU DE PREUVE ABAISSÉ le 2026-07-27 — décision de principe du référent, en réponse à la question
     # que l'invariant I8 avait fait surgir : « le niveau de preuve doit refléter la CERTITUDE DE LA PREUVE,
     # c'est l'intérêt d'un outil EBM et pas d'un listing de recos officielles. »
@@ -1305,6 +1346,15 @@ options:
     # sans rien casser : « poursuivre le schéma en cours » suppose qu'un schéma existe.
     prerequis:
       - "situation_insuline != naif"
+    # MOTIF AJOUTÉ P10/S4 (T-081, 2026-07-31) — ce `prerequis` N'EST PAS un garde-fou R6 « traitements en
+    # cours » (ceux-là sont des tests de périmètre sur une `liste`, filtrés par `nettoyerNonRetenues` et
+    # donc jamais montrés) : `situation_insuline` est un `enum`, `estTestDePerimetre` ne le reconnaît pas,
+    # et sa négation SE VOIT réellement chez un patient naïf, dans « Pourquoi pas d'autres options » —
+    # `il faudrait Situation d'insulinothérapie ≠ Naïf d'insuline`, une double négation qui se lit comme de
+    # la logique. Motif = la reformulation positive que le commentaire ci-dessus donne déjà lui-même
+    # (« poursuivre le schéma en cours suppose qu'un schéma existe »).
+    motifs:
+      "situation_insuline != naif": "un schéma d'insuline déjà en place"
     avantages:
       - "Aucun ajustement n'est indiqué : objectif atteint, sans hypoglycémie ni variabilité justifiant une correction et sans levier d'intensification à mobiliser. Poursuivre le schéma et réévaluer à 3-6 mois."
     inconvenients:
@@ -1471,6 +1521,16 @@ cadrage:
     L'insuline améliore le contrôle glycémique et prévient les complications microvasculaires, mais N'A PAS
     de bénéfice cardiovasculaire démontré (ORIGIN neutre) : ne pas la survendre ; surveiller le poids et les
     hypoglycémies, et maintenir les traitements à bénéfice cardio-rénal (iSGLT2, GLP-1).
+  # POINT AJOUTÉ P10/S4 (T-081, 2026-07-31) — EXTENSION du `cadrage` existant (le point ci-dessus n'est pas
+  # touché), pas une réécriture. Déduit de ce qui manque à `criteres_entree` ci-dessus ET changerait une
+  # conduite en consultation (S3.md, Décision clé). ⚠ LISTE PROVISOIRE — À VALIDER PAR LE RÉFÉRENT : dire
+  # ce qu'un outil ignore est un engagement clinique, cf. bilan de session.
+  - >-
+    Ce nœud ne prend pas en compte le temps dans la cible (TIR — seuls le TBR et le coefficient de variation
+    sont demandés), l'heure précise d'une hypoglycémie au-delà du repère « nocturne » ou « entre les repas »,
+    le fait de vivre seul, une profession exposée au risque hypoglycémique, ni si l'absence de capteur tient
+    à un refus du patient plutôt qu'à une indisponibilité — autant d'éléments qui peuvent changer la conduite
+    en consultation.
 argumentaire: >
   Quand une insuline devient nécessaire dans le DT2, le schéma de choix est une insuline BASALE ajoutée aux
   antidiabétiques (oraux et/ou GLP-1), le GLP-1 étant préféré comme premier injectable (ADA 2026, SFD 2025) ;
@@ -1744,11 +1804,92 @@ incertitudes:
   - "Intégration inter-nœuds : HbA1c_cible provient du nœud A et risque_hypoglycemique_eleve reprend ses déclencheurs de relaxation — cohérence à maintenir."
 veille_liee: []
 meta:
-  date_revue: "2026-07-30"
+  date_revue: "2026-07-31"
   auteur: "référent DT2 (Thibault) + Opus + Claude Code"
   statut: valide
-  version: "0.34"
+  version: "0.37"
   changelog:
+    - date: "2026-08-01"
+      auteur: "Claude Code (P10/S9, T-086)"
+      resume: >-
+        AIDE DE SAISIE SUR `risque_hypoglycemie_schema` — texte identique posé ici et sur
+        `prescription.yaml` (critère `partage: true`). Réclamée par le rapport de recette : ce champ,
+        sans définition ni infobulle, fait basculer une carte (« Désintensifier », sur `prescription`)
+        au clic « Élevé », et le praticien le classe dans la même famille que `autres_FDRCV` (statine,
+        P9/S2) — un jugement non défini qui décide de la conduite. L'investigation P9/S7
+        (`plans/P9/S7.md`, bilan complet) avait établi que ce champ cumule deux lectures irréductibles
+        portées par ses 4 usages réels (A/C sur `prescription.yaml` et D ici, dans le `derive` de
+        `risque_hypoglycemique_eleve` — une propriété du schéma déjà en place : sécrétagogue ou insuline
+        en cours, dose, régularité des prises ; B sur `prescription.yaml` — un jugement prospectif, le
+        terrain qui exposerait un patient encore SANS hypoglycémiant si on lui en introduisait un), et
+        avait conclu à une dérivation seulement PARTIELLE — ni fusion automatique ni statu quo silencieux
+        n'étaient tenables. Arbitrage référent du 2026-07-31 : le champ reste saisi tel quel, on
+        l'explique au lieu de le scinder. L'aide rédigée couvre les deux versants avec des exemples
+        concrets plutôt qu'une définition abstraite, sans en privilégier un — **l'ambiguïté de fond
+        (deux/trois lectures cumulées par un seul champ) reste ouverte** ; ce texte l'explicite, il ne la
+        referme pas. Aucune condition/exclusion/priorité/alerte modifiée (hors périmètre P10) : ajout de
+        texte pur, `aide` n'a aucun effet moteur (`evaluateNode` ne le lit pas). Détail complet :
+        `plans/P10/S9.md` § Bilan de session.
+    - date: "2026-07-31"
+      auteur: "Claude Code (P10/S8, T-085)"
+      resume: >-
+        DESCENTE D'INSULINE — STOP SOURCÉ, RENDU EXPLICITE (aucune donnée clinique inventée). Réclamée
+        deux fois dans la recette (N7 : « à quelle vitesse je baisse les 12 UI ? » ; N11 : « aucune
+        quantité de baisse de la basale »), la conduite de désescalade sur « Désintensifier / alléger le
+        schéma » était silencieuse sur le rythme et la quantité. Inventaire : le nœud sait DÉJÀ chiffrer
+        une descente RÉACTIVE (« Corriger l'hypoglycémie ou la variabilité », déjà sourcée HAS 2024 R.87 /
+        SFD 2025 Avis 18 / ebmfrance — fixée en P8/S7, avant ce plan) ; c'est la descente PROGRAMMÉE
+        (sur-traitement / fragilité, sans signal actif) qui restait muette. Recherche dédiée (le dossier de
+        preuve existant `docs/decision/noeuds/E-insuline.md` §E6-g avait DÉJÀ tranché cette question le
+        2026-07-29, vérifié page à page contre le PDF HAS ; recherche web complémentaire ce jour, résultat
+        identique) : AUCUNE source française (HAS, SFD, RCP, gériatrie) ne chiffre le pas ni la fréquence
+        d'une désescalade PROGRAMMÉE de l'insuline — R.103 pose le principe sans aucun chiffre, R.105
+        chiffre un écart (< 0,5 % HbA1c) mais pour l'arrêt TOTAL du traitement, pas une réduction graduée,
+        Avis 21 chiffre une CIBLE glycémique, pas un rythme. Un guide canadien de déprescription
+        (Farrell 2017) existe mais à preuve très faible et hors corpus français — non retenu (D23/D12).
+        **Rendre STOP explicite plutôt que silencieux** : `inconvenients` de l'option porte désormais ce
+        constat sourcé, avec renvoi vers « Corriger l'hypoglycémie... » quand un signal actif est présent
+        (c'est déjà le cas d'une bonne partie de N7 : ses glycémies 0,58/0,64 g/L déclenchent `gaj_basse`,
+        donc CETTE carte-là s'affiche déjà avec un rythme chiffré) ; `apercu` ajouté (mécanisme T-076/P9·S9)
+        pour que l'absence de chiffre soit lisible sans déplier, conformément à S11. Cohérence vérifiée
+        (lecture seule) avec `prescription.yaml` : la carte sœur « Réduire la posologie de l'insuline »
+        y porte DÉJÀ la même position (« le praticien juge la dose, aucun dosage imposé » — P9/S8) ;
+        AUCUNE conduite contradictoire entre les deux écrans. **AUCUNE condition/exclusion/priorité/
+        contre-indication modifiée** (hors périmètre P10, respecté). Détail complet : `plans/P10/S8.md`
+        § Bilan de session.
+    - date: "2026-07-31"
+      auteur: "Claude Code (P10/S4, T-081)"
+      resume: >-
+        MOTIFS RÉDIGÉS + CADRAGE ÉTENDU. Le mécanisme `motifs` (carte indexée par le texte exact d'une
+        branche `OR` de `conditions`/`prerequis`, P10/S2, T-079) est exercé pour la première fois sur ce
+        nœud. Inventaire complet des 14 options (69 branches de `conditions`/`prerequis` au total, cf.
+        `plans/P10/S4.md` § Bilan de session) : DEUX reçoivent un motif, les autres restent sans —
+        `Option.motifs` cette session-ci, `evaluateNode` inchangé, `AUCUNE` condition/seuil/option/exclusion
+        modifiée. Les deux motifs portent sur le MÊME terme atomique, `situation_insuline != naif`, dans
+        les deux seuls emplacements où sa négation ("≠ Naïf d'insuline") se lit mal une fois isolée :
+        « Désintensifier / alléger le schéma » (branche `situation_insuline != naif AND
+        ecart_sous_objectif_cible == true`, reformulée « une insulinothérapie déjà en place, en
+        sur-traitement (HbA1c ≥ 1 point sous l'objectif) », reprenant la lecture déjà donnée par les
+        `avantages` de l'option elle-même) et le `prerequis` du repli « Poursuivre le schéma d'insuline en
+        cours et réévaluer » (`situation_insuline != naif` seul, reformulé « un schéma d'insuline déjà en
+        place » — CE `prerequis`-là n'est PAS un garde-fou R6 de périmètre, `situation_insuline` étant un
+        `enum` et non une `liste` : sa négation s'affiche réellement dans « Pourquoi pas d'autres options »
+        chez un patient naïf, contrairement aux `prerequis` `traitements_en_cours ne_contient_pas …` de ce
+        même nœud, filtrés avant affichage — cf. bilan pour le détail). Le reste — y compris les
+        disjonctions à 7-8 termes de « Ajouter un GLP-1... » / « Ajouter un bolus... » — reste sans motif :
+        depuis P10/S1 chaque branche s'affiche déjà isolée, et les libellés rédigés de `labels.ts`
+        (largement déjà travaillés sur ce nœud) les rendent lisibles telles quelles ; en écrire quand même
+        aurait été le défaut que S3/S4 mettent en garde contre (« ne surcharge pas de motifs des branches
+        devenues courtes et lisibles »).
+        .
+        `cadrage` ÉTENDU d'un second point (le premier, sur la neutralité cardiovasculaire, INCHANGÉ) : ce
+        que ce nœud ne prend pas en compte — le temps dans la cible (TIR, seuls TBR/CV sont demandés),
+        l'heure précise d'une hypoglycémie au-delà de « nocturne »/« entre les repas », le fait de vivre
+        seul, une profession exposée au risque hypoglycémique, et la distinction refus du capteur /
+        indisponibilité (`mcg_disponible` ne porte que la 2ᵉ). Déduit de ce qui manque à `criteres_entree`
+        et changerait une conduite en vraie consultation (méthode S3.md § Décision clé). ⚠ LISTE
+        PROVISOIRE, NON VALIDÉE CLINIQUEMENT — marquée comme telle dans le bilan de session, destinée à
+        `VALIDATION.md` à la consolidation du plan.
     - date: "2026-07-30"
       auteur: "Claude Code (P8/S7, arbitrages référent du 2026-07-30)"
       resume: >-

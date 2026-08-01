@@ -180,6 +180,21 @@ envisager un GLP-1 pour réduire les besoins — éviter le surtraitement (HAS 2
 *L'âge seul (≥ 75 ans, sans case « fragile » cochée) suffit désormais à déclencher l'allègement — auparavant
 absent du gate, ce qui pouvait priver un octogénaire à l'objectif de toute proposition d'allègement.*
 
+**Vitesse de descente d'une désescalade PROGRAMMÉE — non sourcée, STOP explicite (P10/S8, 2026-07-31).**
+Ni R.103 (accord d'experts, **aucun chiffre**, vérifié p. 29 du PDF HAS) ni l'Avis 21 de la SFD (qui
+chiffre une **cible** glycémique du sujet fragile/dépendant — préprandial 1-2 g/L — pas un rythme de
+réduction) ne disent de combien ni à quel rythme réduire. R.105 chiffre un écart (< 0,5 % d'HbA1c) mais
+pour l'**arrêt total** du traitement médicamenteux, pas une réduction graduée d'insuline, et sans préciser
+le sens de l'écart. C'est une question **différente** de la descente RÉACTIVE d'une hypoglycémie/
+variabilité documentée (§ ci-dessus et alerte E6-g du dossier de preuve), pour laquelle R.87/Avis 18 sont
+au contraire explicitement chiffrés (−2 U, ou −10 % au-delà de 40 U/j, tous les 3 jours) — reprendre ce
+chiffre ici par symétrie serait exactement l'inférence par analogie que `DECISIONS.md` D23 interdit :
+l'asymétrie est clinique, pas seulement arithmétique. Recherche complémentaire (web, guides de
+déprescription gériatriques) : rien de plus qu'un guide canadien à preuve très faible (Farrell 2017, 2
+études avant-après), hors corpus français, non retenu. **Conduite affichée : jugement clinique, surveillance
+rapprochée** — position alignée sur celle de la carte sœur « Réduire la posologie de l'insuline » de
+`prescription.yaml` (P9/S8).
+
 **Orientation.** Alerte vers le spécialiste (± pompe / boucle fermée = centres initiateurs, hors initiation
 MG) si le **déséquilibre persiste malgré l'optimisation** ou en **situation particulière** (hypoglycémies
 sévères récurrentes / non-perception, instabilité marquée, grossesse ou projet).
