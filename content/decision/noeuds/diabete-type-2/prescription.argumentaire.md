@@ -154,6 +154,58 @@ précision sur la conduite en cas d'intolérance persistante malgré le retour a
 couvert ailleurs dans ce nœud par l'option « Réduire la posologie » et son alerte). Rien de tout cela
 n'était demandé par T-075 ; signalé pour mémoire, non comblé par une autre source.
 
+**Ajout 2026-08-01 (P10/S7, T-084) — les deux cartes d'agent à bénéfice d'organe descendent à la molécule
+et à la dose.** Motif : rapport de recette, quatre vignettes (N3-N6), la lacune la plus réclamée du
+domaine — « je n'ai retenu aucune dose — l'outil ne m'a pas économisé la seule chose qui coûtait ».
+Inventaire préalable : les molécules de l'AR GLP‑1 étaient déjà nommées dans l'**intitulé** de la carte
+(liraglutide, sémaglutide, dulaglutide) et les CVOT déjà cités dans `references` des deux options — mais
+aucune dose n'était encodée nulle part, et l'iSGLT2 ne nommait même pas ses trois molécules dans le corps
+de la carte (seulement en garde-fou amputation, « signal canagliflozine », dans les `contre_indications`).
+
+Six RCP lus séparément (procédure centralisée EMA — RCP identique en France, ANSM), **aucune dose déduite
+par analogie d'une molécule à l'autre** (D23) :
+
+- **iSGLT2** : dapagliflozine (Forxiga) 10 mg/j, dose unique sans titration ; empagliflozine (Jardiance)
+  10 mg/j puis 25 mg/j (dose max) si DFG ≥ 60 et besoin d'un contrôle renforcé ; canagliflozine (Invokana)
+  100 mg/j puis 300 mg/j (dose max), mêmes conditions de DFG. Pas de hiérarchie ajoutée entre les trois :
+  la protection cardio-rénale reste un effet de classe (D12) — cohérent avec le premier `avantages` déjà
+  présent, qui ne l'attribuait à aucune molécule. **Nuance de terrain ajoutée** (sans toucher l'exclusion
+  `DFG < 20`, plus large et inchangée) : le plancher de DFG en dessous duquel le RCP déconseille
+  D'INITIER diffère par molécule — empagliflozine < 20, dapagliflozine < 25, canagliflozine < 30 (déjà en
+  cours : poursuite à 100 mg/j jusqu'à la dialyse). Entre 20 et 24 mL/min/1,73 m², seule l'empagliflozine
+  est donc soutenue par son propre RCP pour une instauration.
+- **AR GLP‑1** : liraglutide (Victoza) 0,6 mg/j (tolérance digestive) → 1,2 mg/j (≥ 1 sem) → 1,8 mg/j
+  (dose max, ≥ 1 sem supplémentaire si besoin) ; sémaglutide injectable (Ozempic) 0,25 mg/sem (4 sem,
+  PAS une dose d'entretien) → 0,5 mg/sem → 1 mg/sem (≥ 4 sem à 0,5 mg si besoin) ; dulaglutide
+  (Trulicity) 0,75 mg/sem en monothérapie ou 1,5 mg/sem d'emblée en association → 3 mg/sem (≥ 4 sem) →
+  4,5 mg/sem (dose max, ≥ 4 sem supplémentaires).
+
+**Disponibilité française vérifiée molécule par molécule** (le domaine a déjà été mordu deux fois par ce
+piège — linagliptine et alogliptine jamais commercialisées en France, saxagliptine en retrait) : les six
+molécules encodées sont commercialisées ET remboursées en France (base de données publique des
+médicaments, ANSM — canagliflozine : déclaration de commercialisation 2024, troisième gliflozine
+disponible). **Une seule restriction trouvée** : le RCP européen du sémaglutide autorise un palier
+supplémentaire à 2 mg/semaine (après ≥ 4 sem à 1 mg), mais **seules les présentations 0,25/0,5/1 mg
+d'Ozempic sont commercialisées en France** (Vidal, gamme Ozempic ; absence du dosage 2 mg confirmée sur
+la base ANSM) — dose maximale utilisable en France : 1 mg/semaine. Ni encodé ni supposé pour les doses
+déjà en place : aucun changement d'`exclusions`, de `conditions`, de `priorite` ni de `contre_indications`
+sur les deux options ; suite complète relancée après coup, aucune option n'a changé de statut (diff de
+snapshots relu ligne à ligne).
+
+**Deux résiduels rencontrés, signalés au référent, non corrigés (hors périmètre de cette tâche)** :
+
+1. La `contre_indications` existante de l'option AR GLP‑1 dit : « Refus des injections : préférer le
+   sémaglutide oral [Rybelsus] ou une autre classe. » Or Rybelsus a reçu un avis HAS défavorable au
+   remboursement en France (SMR insuffisant, 21/07/2021 : « en l'absence de données cliniques robustes
+   nouvelles, RYBELSUS... n'a pas de place dans la stratégie thérapeutique du diabète de type 2 ») et
+   n'est de fait quasiment pas disponible en pharmacie française. La phrase existante est donc trompeuse
+   en pratique — mais corriger un `contre_indications` était explicitement hors périmètre de T-084
+   (« Ne touche à aucune condition, exclusion, priorité ou contre-indication »). À trancher par le
+   référent : retirer la mention, la nuancer, ou l'assumer comme une option non remboursée mais licite.
+2. La séquence des gestes (ordre d'arrêt/instauration) et la surveillance à l'introduction (créatinine
+   J15, mycose génitale, jours de maladie) n'apparaissent dans aucune des sources lues pour cette tâche —
+   confirmé hors périmètre P10 (`plans/P10/index.md`), non encodé, conforme à la consigne de S7.md.
+
 Points‑clés :
 
 1. **Hiérarchie de valeur** (importée de B/C) : iSGLT2 et AR GLP‑1 ont un bénéfice d'organe démontré (CVOT vs

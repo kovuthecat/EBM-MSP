@@ -277,6 +277,19 @@ criteres_entree:
     type: enum
     groupe: Terrain et préférences
     valeurs: [faible, eleve]
+    # `aide` ajouté T-086 (P10/S9, 2026-08-01), en réponse au rapport de recette (« aucune définition,
+    # aucune infobulle » sur le champ qui fait basculer « Désintensifier » au clic « Élevé »).
+    # L'investigation P9/S7 (bilan complet dans `plans/P9/S7.md`) a établi que ce champ cumule DEUX
+    # lectures irréductibles l'une à l'autre, portées par ses 4 usages (A/C ici, D sur `insuline.yaml` —
+    # schéma déjà en place ; B ici — terrain qui exposerait un traitement pas encore introduit), et que
+    # ni la fusion en un dérivé automatique (issue 1) ni le silence (issue 3) n'étaient tenables : le
+    # champ reste SAISI, tel quel (arbitrage référent du 2026-07-31, hors périmètre de cette tâche). Le
+    # texte ci-dessous couvre les deux versants sans trancher entre eux, plutôt que d'en cacher un.
+    aide: >-
+      Un jugement clinique, pas une simple case du dossier : « Élevé » si le schéma en cours expose
+      (sécrétagogue — sulfamide, glinide — ou insuline, dose élevée, prises irrégulières ou repas
+      sautés), ou si le terrain exposerait un futur traitement même sans hypoglycémiant actuel (âge
+      avancé, insuffisance rénale, fragilité, hypoglycémie sévère antérieure). « Faible » sinon.
   - nom: preference_injection
     type: enum
     groupe: Terrain et préférences
@@ -552,6 +565,12 @@ options:
     conditions:
       - "intention != initier AND traitements_en_cours contient metformine"
       - "DFG < 30"
+    # P10/S3 (T-080) : motif rédigé sur le garde technique « intention != initier » (masquage de
+    # `traitements_en_cours` à l'initiation, cf. son commentaire dans `criteres_entree`), exposé sinon
+    # comme un critère clinique ("Intention ≠ Initier un traitement et Traitements en cours comprend
+    # Metformine"). La branche ne dit rien de plus que « metformine déjà en cours » (règle d'or).
+    motifs:
+      "intention != initier AND traitements_en_cours contient metformine": "Metformine déjà en cours"
     priorite: 1
     famille: "À faire d'emblée — sécurité"
     avantages:
@@ -583,6 +602,15 @@ options:
     conditions:
       - "intention != initier AND traitements_en_cours contient metformine"
       - "DFG >= 45 AND DFG < 60 AND dose_metformine > 2000 OR DFG >= 30 AND DFG < 45 AND dose_metformine > 1000 OR intention != initier AND intolerance_traitement == true AND nature_intolerance contient digestive"
+    # P10/S3 (T-080) : quatre motifs — le garde technique répété (« Metformine déjà en cours ») et les
+    # trois branches de la seconde condition, qui répètent chacune le nom du critère DFG deux fois avec
+    # des opérateurs différents (logique de programme plutôt que phrase clinique) ou empilent trois
+    # atomes pour décrire une seule situation (intolérance digestive).
+    motifs:
+      "intention != initier AND traitements_en_cours contient metformine": "Metformine déjà en cours"
+      "DFG >= 45 AND DFG < 60 AND dose_metformine > 2000": "Dose de metformine excessive pour ce DFG (45-59)"
+      "DFG >= 30 AND DFG < 45 AND dose_metformine > 1000": "Dose de metformine excessive pour ce DFG (30-44)"
+      "intention != initier AND intolerance_traitement == true AND nature_intolerance contient digestive": "Intolérance digestive"
     # GARDE-FOU AJOUTÉ (2026-07-26, 4e série, red-team clinique sécurité HAUTE-2) : la branche « intolérance
     # digestive » est la SEULE des trois disjoncts indépendante du DFG — sans cette exclusion, elle
     # continuait de s'appliquer sous DFG < 30, où la metformine n'est plus « à réduire » mais CONTRE‑
@@ -616,6 +644,9 @@ options:
     conditions:
       - "intention != initier AND traitements_en_cours contient sulfamide"
       - "DFG < 30"
+    # P10/S3 (T-080) : même motif que sur « Arrêter la metformine » — garde technique de non-initiation.
+    motifs:
+      "intention != initier AND traitements_en_cours contient sulfamide": "Sulfamide déjà en cours"
     priorite: 1
     famille: "À faire d'emblée — sécurité"
     # ATTRIBUTION CORRIGÉE le 2026-07-27 (6e série). Le seuil de 30 était attribué à une « convention
@@ -667,6 +698,9 @@ options:
     conditions:
       - "intention != initier AND traitements_en_cours contient iSGLT2"
       - "cetonemie == true"
+    # P10/S3 (T-080) : même motif que sur « Arrêter la metformine » — garde technique de non-initiation.
+    motifs:
+      "intention != initier AND traitements_en_cours contient iSGLT2": "iSGLT2 déjà en cours"
     priorite: 1
     famille: "À faire d'emblée — sécurité"
     avantages:
@@ -738,6 +772,15 @@ options:
     prerequis:
       - "traitements_en_cours ne_contient_pas iSGLT2"
       - "isglt2_indisponible == false OR aglp1_indisponible == false"
+    # P10/S3 (T-080) : deux motifs sur des dérivés internes (`palette_glycemique_ouverte`,
+    # `remplacement_agent_sans_benefice`) qui disent la conséquence clinique plutôt que l'état ; et les
+    # deux motifs qui défont la double négation citée dans le commentaire R6 ci-dessus (« iSGLT2/AR GLP‑1
+    # tous deux inutilisables : non » → une clé positive et lisible pour chaque disponibilité).
+    motifs:
+      "palette_glycemique_ouverte == true": "Contrôle glycémique à renforcer"
+      "remplacement_agent_sans_benefice == true": "Agent sans bénéfice dur déjà en cours (sulfamide, gliptine ou glinide)"
+      "isglt2_indisponible == false": "iSGLT2 disponible"
+      "aglp1_indisponible == false": "AR GLP‑1 disponible"
     exclusions:
       - "DFG < 20"
       - "symptomes_glucotoxicite == true"
@@ -755,9 +798,20 @@ options:
     avantages:
       - "Réduit l'hospitalisation pour IC et la progression rénale (effet de classe) — à privilégier quand l'IC ou la maladie rénale prédomine. Proposé indépendamment de l'HbA1c (protection, HAS R.64‑66 grade A)."
       - "Aussi un bon agent de CONTRÔLE GLYCÉMIQUE (sans hypoglycémie, perte de poids modeste) même sans comorbidité : la comorbidité le PRIORISE (versant protecteur), elle ne conditionne pas sa disponibilité comme levier glycémique."
+      # AJOUT P10/S7 (2026-08-01, T-084) — en réponse au rapport de recette (N3-N6) : « introduire un
+      # iSGLT2 » sans nommer de molécule ni de dose n'est pas une prescription. Trois molécules vérifiées
+      # une à une sur le RCP centralisé EMA (= RCP ANSM pour ces spécialités) et sur la base de données
+      # publique des médicaments (commercialisation/remboursement France) — aucune inférée par analogie
+      # (D23) : DAPA‑CKD (dapagliflozine), EMPA‑REG OUTCOME/EMPEROR‑Reduced (empagliflozine) et CREDENCE
+      # (canagliflozine) sont d'ailleurs déjà les trois essais cités dans `references` ci‑dessous — aucune
+      # des trois molécules n'était nommée dans le corps de la carte malgré cela. Pas de hiérarchie ajoutée
+      # entre elles : la protection cardio‑rénale est un effet de classe (D12), cohérent avec le premier
+      # `avantages` ci‑dessus qui ne l'attribue à aucune molécule en particulier.
+      - "Trois molécules commercialisées et remboursées en France pour le diabète de type 2, sans hiérarchie de bénéfice établie entre elles sur la protection cardio‑rénale (effet de classe, D12) : dapagliflozine (Forxiga) 10 mg/j — dose unique, pas de titration ; empagliflozine (Jardiance) 10 mg/j puis 25 mg/j (dose maximale) si DFG ≥ 60 mL/min/1,73 m² et besoin d'un contrôle glycémique renforcé ; canagliflozine (Invokana) 100 mg/j puis 300 mg/j (dose maximale) dans les mêmes conditions de DFG — troisième iSGLT2 commercialisé et remboursé en France (déclaration de commercialisation 2024, base de données publique des médicaments). Sources : RCP (EMA/ANSM) de chaque spécialité, rubrique 4.2."
     inconvenients:
       - "Pas d'effet sur l'IDM ni l'AVC ; en athérome pur SANS IC ni maladie rénale, préférer un AR GLP‑1."
       - "Infections génito‑urinaires récidivantes / gangrène de Fournier ; ne pas initier si DFG < 20 ; risque d'acidocétose (suspendre si jeûne, chirurgie, sepsis)."
+      - "Le seuil de DFG en dessous duquel le RCP déconseille D'INITIER diffère selon la molécule (dose d'instauration seulement — n'élargit ni ne réduit l'exclusion DFG < 20 ci‑dessus) : empagliflozine < 20, dapagliflozine < 25, canagliflozine < 30 (une canagliflozine déjà en cours reste poursuivie à 100 mg/j jusqu'à la dialyse). Entre 20 et 24 mL/min/1,73 m², seule l'empagliflozine est donc soutenue par son propre RCP pour une instauration."
     effet_attendu: >-
       Hospit. IC HR ~0,61‑0,73 (NNT ~19‑31 / 16‑26 mois) ; progression rénale HR ~0,56‑0,76 (NNT DAPA‑CKD 19,
       CREDENCE 22). IDM/AVC non réduits.
@@ -776,6 +830,9 @@ options:
         condition: "DFG < 20"
       - "Infections génito‑urinaires récidivantes ; antécédent de gangrène de Fournier ; prudence si artériopathie évoluée / amputation (signal canagliflozine)."
       - "En cas d'IC avec saxagliptine en cours : arrêter la saxagliptine (signal SAVOR), ne pas se contenter d'ajouter l'iSGLT2."
+    # AJOUT P10/S7 (2026-08-01, T-084) — mécanisme T-076/P9·S9, réutilisé tel quel (générique) : apercu
+    # affiché dans le titre du dépli REPLIÉ, reprenant sans recalcul les chiffres du 3e `avantages` ci-dessus.
+    apercu: "dapagliflozine 10 mg/j (fixe) ; empagliflozine 10→25 mg/j ; canagliflozine 100→300 mg/j (DFG ≥ 60)"
   - intitule: "Introduire un AR GLP‑1 (liraglutide, sémaglutide, dulaglutide)"
     role: geste
     action: ajouter
@@ -814,6 +871,16 @@ options:
       - "traitements_en_cours ne_contient_pas aGLP1"
       - "traitements_en_cours ne_contient_pas tirzepatide"
       - "isglt2_indisponible == false OR aglp1_indisponible == false"
+    # P10/S3 (T-080) : cinq motifs — les deux dérivés internes déjà motivés sur l'option iSGLT2 ; le
+    # garde technique `DFG > 0` exposé nu (« DFG > 0 et DFG < 30 » se lit comme de la logique, la branche
+    # veut dire « insuffisance rénale sévère », combinée ici à la cible non atteinte) ; et les deux motifs
+    # qui défont la double négation des prérequis (cf. commentaire de l'option iSGLT2 ci-dessus).
+    motifs:
+      "palette_glycemique_ouverte == true": "Contrôle glycémique à renforcer"
+      "remplacement_agent_sans_benefice == true": "Agent sans bénéfice dur déjà en cours (sulfamide, gliptine ou glinide)"
+      "DFG > 0 AND DFG < 30 AND cible_atteinte == false": "Insuffisance rénale sévère, cible glycémique non atteinte"
+      "isglt2_indisponible == false": "iSGLT2 disponible"
+      "aglp1_indisponible == false": "AR GLP‑1 disponible"
     exclusions:
       - "IMC < 22"
       - "denutrition == true"
@@ -834,9 +901,21 @@ options:
     avantages:
       - "Réduit les événements athéromateux (surtout l'AVC ; mortalité CV pour le liraglutide) — à privilégier en maladie athéromateuse ou obésité ; forte efficacité HbA1c et perte de poids. Néphroprotection dure = sémaglutide (FLOW)."
       - "Aussi un puissant agent de CONTRÔLE GLYCÉMIQUE (forte baisse d'HbA1c, pas d'hypoglycémie) même sans comorbidité — sous réserve du garde‑fou terrain (exclu si IMC<22 / dénutrition)."
+      # AJOUT P10/S7 (2026-08-01, T-084) — même motif que l'iSGLT2 ci-dessus (rapport de recette N3-N6) :
+      # les trois molécules étaient déjà nommées dans l'INTITULÉ de la carte mais aucune dose n'était
+      # encodée. Trois RCP lus séparément (EMA, = RCP ANSM pour ces spécialités), AUCUNE dose déduite par
+      # analogie d'une molécule à l'autre (D23 — les trois protocoles de titration n'ont ni la même unité
+      # de temps ni la même progression). Vérification de disponibilité France faite sur chacune des trois
+      # (Vidal + base de données publique des médicaments) : c'est cette vérification, et elle seule, qui a
+      # éliminé le palier 2 mg/semaine du sémaglutide (autorisé par le RCP européen, non commercialisé en
+      # France) — même piège que linagliptine/alogliptine/sitagliptine 25 mg ailleurs dans ce nœud.
+      - "Liraglutide (Victoza) : 0,6 mg/j en initiation (pour améliorer la tolérance digestive), puis 1,2 mg/j après au moins 1 semaine ; si besoin d'un contrôle glycémique renforcé, 1,8 mg/j après au moins 1 semaine supplémentaire à 1,2 mg (dose maximale 1,8 mg/j ; doses quotidiennes plus élevées non recommandées). Source : RCP EMA/ANSM Victoza, rubrique 4.2."
+      - "Sémaglutide injectable (Ozempic) : 0,25 mg/semaine en initiation pendant 4 semaines (dose de tolérance, PAS une dose d'entretien), puis 0,5 mg/semaine ; si besoin renforcé, 1 mg/semaine après au moins 4 semaines à 0,5 mg. Le RCP européen autorise un palier supplémentaire à 2 mg/semaine, mais SEULES les présentations 0,25 / 0,5 / 1 mg sont commercialisées en France (Vidal ; base de données publique des médicaments, ANSM) — dose maximale utilisable en France : 1 mg/semaine. Source : RCP EMA/ANSM Ozempic, rubrique 4.2."
+      - "Dulaglutide (Trulicity) : 0,75 mg/semaine en monothérapie, ou 1,5 mg/semaine d'emblée en association ; si besoin, 3 mg/semaine après au moins 4 semaines à 1,5 mg, puis 4,5 mg/semaine (dose maximale) après au moins 4 semaines supplémentaires. Les quatre dosages (0,75/1,5/3/4,5 mg) sont commercialisés et remboursés en France. Source : RCP EMA/ANSM Trulicity, rubrique 4.2."
     inconvenients:
       - "GARDE‑FOU TERRAIN : à ne PAS initier chez le sujet maigre (IMC < 22) ou dénutri (aggravation de la dénutrition / sarcopénie) ; prudence chez le sujet fragile (alerte)."
       - "Bénéfice molécule‑spécifique (exclure lixisénatide, exénatide LP) ; quasi nul sur l'IC ; effets digestifs, pancréatite ; signaux mal cernés (thyroïde, NAION séma). Sous gliptine : remplacer, pas associer."
+      - "Les trois schémas de titration sont propres à chaque molécule, sans équivalence de dose entre elles (ex. 1 mg/semaine de sémaglutide n'équivaut à aucune dose précise de liraglutide ou de dulaglutide) : suivre le protocole RCP de la molécule effectivement prescrite, jamais celui d'une autre."
     effet_attendu: >-
       MACE HR ~0,87‑0,88 (AVC/mort CV/IDM selon la molécule) ; NNT ~18 en prévention secondaire, ~60‑70 en
       primaire. Rénal dur = sémaglutide (FLOW, HR 0,76).
@@ -886,6 +965,9 @@ options:
           limite rénale —, mais ils y ont été PEU ÉTUDIÉS. Le recul manque, pas l'autorisation : proposer
           la classe reste licite, en surveillant de près la tolérance (digestive, poids, état
           nutritionnel) et en réévaluant tôt.
+    # AJOUT P10/S7 (2026-08-01, T-084) — mécanisme T-076/P9·S9, réutilisé tel quel (générique) : apercu
+    # affiché dans le titre du dépli REPLIÉ, reprenant sans recalcul les chiffres des `avantages` ci-dessus.
+    apercu: "liraglutide 0,6→1,8 mg/j ; sémaglutide 0,25→1 mg/sem (FR) ; dulaglutide 0,75/1,5→4,5 mg/sem"
   - intitule: "Introduire le tirzépatide (obésité — prescription spécialisée)"
     role: geste
     action: ajouter
@@ -898,6 +980,10 @@ options:
       - "traitements_en_cours ne_contient_pas aGLP1"
       - "traitements_en_cours ne_contient_pas gliptine"
       - "isglt2_indisponible == false OR aglp1_indisponible == false"
+    # P10/S3 (T-080) : mêmes deux motifs que sur l'option iSGLT2 (défont la double négation du prérequis).
+    motifs:
+      "isglt2_indisponible == false": "iSGLT2 disponible"
+      "aglp1_indisponible == false": "AR GLP‑1 disponible"
     exclusions:
       - "denutrition == true"
     priorite:
@@ -940,6 +1026,10 @@ options:
       - "traitements_en_cours ne_contient_pas aGLP1"
       - "traitements_en_cours ne_contient_pas tirzepatide"
       - "isglt2_indisponible == false OR aglp1_indisponible == false"
+    # P10/S3 (T-080) : mêmes deux motifs que sur l'option iSGLT2 (défont la double négation du prérequis).
+    motifs:
+      "isglt2_indisponible == false": "iSGLT2 disponible"
+      "aglp1_indisponible == false": "AR GLP‑1 disponible"
     exclusions:
       - "DFG < 20"
       - "symptomes_glucotoxicite == true"
@@ -980,6 +1070,10 @@ options:
     # nœud E (hors périmètre, cf. `population_cible`), pas d'un « envisager » qui suppose l'absence.
     prerequis:
       - "traitements_en_cours ne_contient_pas insuline_basale AND traitements_en_cours ne_contient_pas insuline_rapide"
+    # P10/S3 (T-080) : motif sur le dérivé interne qui condense « les deux classes protectrices sont
+    # indisponibles » — nom de variable, pas une phrase clinique.
+    motifs:
+      "isglt2_indisponible == true AND aglp1_indisponible == true": "Aucune classe protectrice disponible (iSGLT2, AR GLP‑1)"
     priorite: 6
     famille: "Agent à ajouter"
     avantages:
@@ -1014,6 +1108,9 @@ options:
     prerequis:
       - "traitements_en_cours ne_contient_pas aGLP1"
       - "traitements_en_cours ne_contient_pas tirzepatide"
+    # P10/S3 (T-080) : même motif que sur « Arrêter la metformine » — garde technique de non-initiation.
+    motifs:
+      "intention != initier AND traitements_en_cours contient gliptine": "Gliptine déjà en cours"
     exclusions:
       - "symptomes_glucotoxicite == true"
       - "cetonemie == true"
@@ -1043,6 +1140,11 @@ options:
     conditions:
       - "intention != initier AND traitements_en_cours contient gliptine"
       - "intention != initier AND traitements_en_cours contient aGLP1 OR intention != initier AND traitements_en_cours contient tirzepatide"
+    # P10/S3 (T-080) : trois motifs sur le même garde technique de non-initiation (une entrée par classe).
+    motifs:
+      "intention != initier AND traitements_en_cours contient gliptine": "Gliptine déjà en cours"
+      "intention != initier AND traitements_en_cours contient aGLP1": "AR GLP‑1 déjà en cours"
+      "intention != initier AND traitements_en_cours contient tirzepatide": "Tirzépatide déjà en cours"
     priorite: 3
     famille: "Traitement à corriger ou remplacer"
     avantages:
@@ -1067,6 +1169,9 @@ options:
       - "intention != initier AND traitements_en_cours contient sulfamide"
       - "hypoglycemie_recente == false"
       - "hba1c_sous_cible == false"
+    # P10/S3 (T-080) : même motif que sur « Arrêter la metformine » — garde technique de non-initiation.
+    motifs:
+      "intention != initier AND traitements_en_cours contient sulfamide": "Sulfamide déjà en cours"
     exclusions:
       - "DFG < 30"
     priorite: 4
@@ -1130,6 +1235,9 @@ options:
       - "intention != initier AND traitements_en_cours contient glinide"
       - "hypoglycemie_recente == false"
       - "hba1c_sous_cible == false"
+    # P10/S3 (T-080) : même motif que sur « Arrêter la metformine » — garde technique de non-initiation.
+    motifs:
+      "intention != initier AND traitements_en_cours contient glinide": "Glinide déjà en cours"
     exclusions:
       - "isglt2_indisponible == true AND aglp1_indisponible == true"
     priorite: 4
@@ -1162,6 +1270,27 @@ options:
     role: geste
     conditions:
       - "intention != initier AND intolerance_traitement == true"
+    # P10/S3 (T-080) : motif sur le garde technique de non-initiation — la branche ne dit rien de plus
+    # que « intolérance à un traitement en cours » (règle d'or). Complété plus bas (après `prerequis`)
+    # par les neuf motifs du garde-fou « patient déjà traité » : à la différence des autres `prerequis`
+    # de ce nœud (des tests de périmètre PURS sur `traitements_en_cours`, jamais montrés — cf. R6 ci-
+    # dessous), CELUI-CI mélange `intention != initier` à chaque terme ; l'écran de non-retenue ne le
+    # reconnaît donc PAS comme un test de périmètre (`estTestDePerimetre`, `lib/vueDecision.ts`) et peut
+    # l'afficher tel quel — exactement les neuf lignes « Traitements en cours comprend X » que le
+    # docstring de `nettoyerNonRetenues` cite comme le défaut mesuré (60 % des lignes, chez qui n'en
+    # prend aucun). Les motifs rédigés le corrigent là où le filtrage de `conditions` ne peut pas
+    # l'atteindre (il ne regarde jamais dans `prerequis`, R6).
+    motifs:
+      "intention != initier AND intolerance_traitement == true": "Intolérance à un traitement en cours"
+      "intention != initier AND traitements_en_cours contient metformine": "Metformine déjà en cours"
+      "intention != initier AND traitements_en_cours contient iSGLT2": "iSGLT2 déjà en cours"
+      "intention != initier AND traitements_en_cours contient aGLP1": "AR GLP‑1 déjà en cours"
+      "intention != initier AND traitements_en_cours contient tirzepatide": "Tirzépatide déjà en cours"
+      "intention != initier AND traitements_en_cours contient sulfamide": "Sulfamide déjà en cours"
+      "intention != initier AND traitements_en_cours contient gliptine": "Gliptine déjà en cours"
+      "intention != initier AND traitements_en_cours contient insuline_basale": "Insuline basale déjà en cours"
+      "intention != initier AND traitements_en_cours contient insuline_rapide": "Insuline rapide déjà en cours"
+      "intention != initier AND traitements_en_cours contient glinide": "Glinide déjà en cours"
     # GARDE-FOU AJOUTÉ le 2026-07-29 (décision référent) : cette carte parlait d'optimiser « l'agent mal
     # toléré » chez un patient dont AUCUN traitement n'est déclaré en cours — l'intolérance seule la
     # déclenchait. Un agent qui n'existe pas ne se réduit ni ne se remplace.
@@ -1216,6 +1345,16 @@ options:
       # gériatrique d'un côté, le schéma hypoglycémiant de l'autre.
       - "hba1c_sous_cible == true OR hypoglycemie_recente == true AND terrain_cible_assouplie == true OR hypoglycemie_recente == true AND risque_hypoglycemie_schema == eleve OR position_vs_cible == sous_objectif"
       - "intention != initier AND traitements_en_cours contient sulfamide OR intention != initier AND traitements_en_cours contient glinide OR intention != initier AND traitements_en_cours contient insuline_basale OR intention != initier AND traitements_en_cours contient insuline_rapide"
+    # P10/S3 (T-080) : six motifs — les deux branches reconstruites par la scission I4 ci-dessus
+    # (chacune un couple de deux atomes décrivant une seule situation clinique) et les quatre gardes
+    # techniques de non-initiation, un par classe citée.
+    motifs:
+      "hypoglycemie_recente == true AND terrain_cible_assouplie == true": "Hypoglycémie récente, terrain gériatrique (âge, fragilité, espérance de vie)"
+      "hypoglycemie_recente == true AND risque_hypoglycemie_schema == eleve": "Hypoglycémie récente, schéma à risque hypoglycémique élevé"
+      "intention != initier AND traitements_en_cours contient sulfamide": "Sulfamide déjà en cours"
+      "intention != initier AND traitements_en_cours contient glinide": "Glinide déjà en cours"
+      "intention != initier AND traitements_en_cours contient insuline_basale": "Insuline basale déjà en cours"
+      "intention != initier AND traitements_en_cours contient insuline_rapide": "Insuline rapide déjà en cours"
     priorite: 1
     famille: "Traitement à alléger"
     avantages:
@@ -1239,6 +1378,12 @@ options:
     conditions:
       - "intention != initier AND traitements_en_cours contient insuline_basale OR intention != initier AND traitements_en_cours contient insuline_rapide"
       - "hba1c_sous_cible == true OR hypoglycemie_recente == true OR intention != initier AND intolerance_traitement == true OR position_vs_cible == sous_objectif"
+    # P10/S3 (T-080) : trois motifs sur les gardes techniques de non-initiation, mêmes textes qu'ailleurs
+    # dans ce nœud pour les mêmes branches.
+    motifs:
+      "intention != initier AND traitements_en_cours contient insuline_basale": "Insuline basale déjà en cours"
+      "intention != initier AND traitements_en_cours contient insuline_rapide": "Insuline rapide déjà en cours"
+      "intention != initier AND intolerance_traitement == true": "Intolérance à un traitement en cours"
     priorite: 1
     famille: "Traitement à alléger"
     avantages:
@@ -1253,6 +1398,12 @@ options:
     conditions:
       - "intention != initier AND traitements_en_cours contient aGLP1"
       - "denutrition == true OR intention != initier AND intolerance_traitement == true AND nature_intolerance contient perte_poids OR intention != initier AND intolerance_traitement == true AND nature_intolerance contient digestive"
+    # P10/S3 (T-080) : garde technique de non-initiation, et les deux branches qui empilent trois atomes
+    # pour décrire chacune une seule situation clinique (intolérance de nature donnée).
+    motifs:
+      "intention != initier AND traitements_en_cours contient aGLP1": "AR GLP‑1 déjà en cours"
+      "intention != initier AND intolerance_traitement == true AND nature_intolerance contient perte_poids": "Intolérance avec perte de poids excessive"
+      "intention != initier AND intolerance_traitement == true AND nature_intolerance contient digestive": "Intolérance digestive"
     priorite: 2
     famille: "Traitement à alléger"
     avantages:
@@ -1267,6 +1418,12 @@ options:
     conditions:
       - "intention != initier AND traitements_en_cours contient tirzepatide"
       - "denutrition == true OR intention != initier AND intolerance_traitement == true AND nature_intolerance contient perte_poids OR intention != initier AND intolerance_traitement == true AND nature_intolerance contient digestive"
+    # P10/S3 (T-080) : mêmes motifs que sur « Réduire la posologie de l'AR GLP‑1 » ci-dessus (branches
+    # identiques, seule la classe change).
+    motifs:
+      "intention != initier AND traitements_en_cours contient tirzepatide": "Tirzépatide déjà en cours"
+      "intention != initier AND intolerance_traitement == true AND nature_intolerance contient perte_poids": "Intolérance avec perte de poids excessive"
+      "intention != initier AND intolerance_traitement == true AND nature_intolerance contient digestive": "Intolérance digestive"
     priorite: 2
     famille: "Traitement à alléger"
     avantages:
@@ -1306,6 +1463,11 @@ options:
     conditions:
       - "intention != initier AND traitements_en_cours contient sulfamide"
       - "intention != initier AND intolerance_traitement == true OR hypoglycemie_recente == true OR position_vs_cible == sous_objectif"
+    # P10/S3 (T-080) : deux motifs sur les gardes techniques de non-initiation, mêmes textes qu'ailleurs
+    # dans ce nœud pour les mêmes branches.
+    motifs:
+      "intention != initier AND traitements_en_cours contient sulfamide": "Sulfamide déjà en cours"
+      "intention != initier AND intolerance_traitement == true": "Intolérance à un traitement en cours"
     # GARDE-FOU (2026-07-26, 4e série, red-team clinique sécurité HAUTE-1) : sans cette exclusion, cette
     # option coexistait avec « Arrêter le sulfamide (DFG < 30) » — deux gestes CONTRADICTOIRES affichés
     # ensemble sur le même agent (« réduire » suggère de le garder à dose moindre, « arrêter » dit qu'il
@@ -1327,6 +1489,11 @@ options:
     conditions:
       - "intention != initier AND traitements_en_cours contient glinide"
       - "intention != initier AND intolerance_traitement == true OR hypoglycemie_recente == true OR position_vs_cible == sous_objectif"
+    # P10/S3 (T-080) : deux motifs sur les gardes techniques de non-initiation, mêmes textes qu'ailleurs
+    # dans ce nœud pour les mêmes branches.
+    motifs:
+      "intention != initier AND traitements_en_cours contient glinide": "Glinide déjà en cours"
+      "intention != initier AND intolerance_traitement == true": "Intolérance à un traitement en cours"
     # AUCUNE exclusion rénale, DÉLIBÉRÉMENT (cf. le commentaire de scission ci-dessus) : le RCP du
     # répaglinide ne porte aucune contre-indication rénale, et le geste qu'il recommande en insuffisance
     # rénale sévère EST la réduction de dose. L'alerte ci-dessous porte le fait de sécurité (exposition
@@ -1363,6 +1530,11 @@ options:
     conditions:
       - "intention != initier AND traitements_en_cours contient metformine"
       - "metformine_deprescriptible == true"
+    # P10/S3 (T-080) : même motif que sur « Arrêter la metformine » — garde technique de non-initiation.
+    # `metformine_deprescriptible` n'en reçoit pas : son libellé (`labels.ts`) énumère déjà les trois
+    # conditions cumulatives en clair, un motif n'y ajouterait rien.
+    motifs:
+      "intention != initier AND traitements_en_cours contient metformine": "Metformine déjà en cours"
     priorite: 3
     famille: "Traitement à alléger"
     avantages:
@@ -1383,6 +1555,11 @@ options:
     role: geste
     conditions:
       - "intention != initier AND traitements_en_cours contient iSGLT2 AND ASCVD_etablie == false AND insuffisance_cardiaque == false AND DFG >= 60 AND albuminurie == normo AND infections_uro_genitales_recidivantes == true"
+    # P10/S3 (T-080) : motif sur une conjonction à six termes qui décrit en fait une seule situation
+    # clinique (règle d'or) — l'iSGLT2 est en cours sans aucune des trois indications d'organe, et pose
+    # un risque propre.
+    motifs:
+      "intention != initier AND traitements_en_cours contient iSGLT2 AND ASCVD_etablie == false AND insuffisance_cardiaque == false AND DFG >= 60 AND albuminurie == normo AND infections_uro_genitales_recidivantes == true": "iSGLT2 en cours sans indication cardio-rénale, avec infections génito-urinaires récidivantes"
     priorite: 4
     famille: "Traitement à alléger"
     avantages:
@@ -1404,6 +1581,11 @@ options:
       - "traitements_en_cours ne_contient_pas gliptine"
       - "traitements_en_cours ne_contient_pas aGLP1"
       - "traitements_en_cours ne_contient_pas tirzepatide"
+    # P10/S3 (T-080) : mêmes deux motifs que sur l'option iSGLT2 (dérivés internes disant la conséquence
+    # clinique plutôt que l'état).
+    motifs:
+      "isglt2_indisponible == true AND aglp1_indisponible == true": "Aucune classe protectrice disponible (iSGLT2, AR GLP‑1)"
+      "palette_glycemique_ouverte == true": "Contrôle glycémique à renforcer"
     exclusions:
       - "symptomes_glucotoxicite == true"
       - "cetonemie == true"
@@ -1454,6 +1636,11 @@ options:
     prerequis:
       - "traitements_en_cours ne_contient_pas sulfamide"
       - "traitements_en_cours ne_contient_pas insuline_basale AND traitements_en_cours ne_contient_pas insuline_rapide"
+    # P10/S3 (T-080) : mêmes deux motifs que sur l'option « Gliptine résiduelle » ci-dessus (branches
+    # identiques).
+    motifs:
+      "isglt2_indisponible == true AND aglp1_indisponible == true": "Aucune classe protectrice disponible (iSGLT2, AR GLP‑1)"
+      "palette_glycemique_ouverte == true": "Contrôle glycémique à renforcer"
     exclusions:
       - "DFG < 30"
       - "symptomes_glucotoxicite == true"
@@ -1549,6 +1736,11 @@ options:
     #          référent, pour le patient naïf déjà à son objectif.
     prerequis:
       - "intention != initier"
+    # P10/S3 (T-080) : ce prérequis, seul (sans conjonction), peut se retrouver affiché tel quel dans
+    # « Pourquoi pas d'autres options ? » (il n'est pas un test de périmètre sur une liste) — motif pour
+    # ne pas y lire « Intention ≠ Initier un traitement », un primer technique exposé nu.
+    motifs:
+      "intention != initier": "Traitement déjà en cours"
     famille: "Aucun geste — surveiller"
     avantages:
       - "Aucun geste d'ajout, d'optimisation ni de désintensification n'est indiqué : objectif atteint sans agent iatrogène à optimiser ni indication de protection non couverte. Poursuivre et réévaluer à 3‑6 mois (HAS R.47)."
@@ -1753,6 +1945,22 @@ alertes:
       Non-association incrétine : si un AR GLP‑1 ou le tirzépatide est introduit, la gliptine doit être
       ARRÊTÉE — même voie incrétine, aucun bénéfice additif (Nauck 2017 ; ADA §9 ; KDIGO PP4.2.3 ;
       HAS R.80). Ne jamais les associer.
+# CADRAGE AJOUTÉ (P10/S3, T-080) — ce nœud n'en portait aucun jusqu'ici, contrairement à `insuline` et
+# `statine`, alors que le praticien l'a demandé explicitement (vignette N15 : une carte badgée
+# « Recommandée / Preuve élevée » sans jamais dire que le nœud ignore cirrhose, kaliémie, anémie, refus
+# de traitement et poids sec). Le second item ci-dessous est la réponse directe à ce défaut ; sa LISTE
+# est un engagement clinique et reste À VALIDER PAR LE RÉFÉRENT (bilan de session).
+cadrage:
+  - >-
+    Ce nœud hiérarchise les classes par le bénéfice démontré sur critère dur : iSGLT2 et AR GLP‑1
+    protègent réellement (CVOT vs placebo), sulfamide/glinide/gliptine n'en ont aucun. La comorbidité
+    priorise l'ordre d'affichage, elle n'autorise jamais un geste à elle seule.
+  - >-
+    Ce nœud n'a aucun critère de fonction hépatique (la mention « insuffisance hépatique » sur la carte
+    metformine est un texte fixe, jamais vérifié contre le dossier du patient), ni de kaliémie (et les
+    traitements hyperkaliémiants associés), ni d'hémoglobine, ni de poids sec / état volémique, ni de
+    refus global de traitement du patient (au-delà de la préférence vis-à-vis de l'injectable) : une
+    option « Recommandée » ne les a pas évalués, c'est au praticien de le faire.
 argumentaire: >
   Ce nœud unique outille toute la prescription non‑insulinique du DT2, à partir de L'INTENTION du praticien
   (initier / intensifier / optimiser / déprescrire) qui organise la saisie et déduit la position vs objectif,
@@ -2107,8 +2315,89 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.41"
+  version: "0.45"
   changelog:
+    - date: "2026-08-01"
+      auteur: "Claude Code (P10, retravail post-S3) — en attente de relecture référent"
+      resume: >-
+        Précision du 2e énoncé du `cadrage` (fonction hépatique) : la carte metformine cite déjà
+        « insuffisance hépatique » en texte fixe (14 items non convertibles en `contre_indications`
+        vérifiables, cf. entrée P9/S3 ci-dessous) — dire tout court que le nœud « ne prend pas en compte »
+        la fonction hépatique aurait paru se contredire avec ce texte. Précisé : aucun CRITÈRE de fonction
+        hépatique n'existe (le texte de la carte metformine n'est jamais vérifié contre le dossier du
+        patient, ne se désamorce jamais, n'agit sur aucune autre option). Aucun fait clinique nouveau,
+        aucune `conditions`/`exclusions`/`priorite` modifiée.
+    - date: "2026-08-01"
+      auteur: "Claude Code (P10/S9, T-086) — en attente de relecture référent"
+      resume: >-
+        AIDE DE SAISIE SUR `risque_hypoglycemie_schema` — texte identique posé ici et sur
+        `insuline.yaml` (critère `partage: true`). Réclamée par le rapport de recette : ce champ, sans
+        définition ni infobulle, fait basculer une carte (« Désintensifier ») au clic « Élevé », et le
+        praticien le classe dans la même famille que `autres_FDRCV` (statine, P9/S2) — un jugement non
+        défini qui décide de la conduite. L'investigation P9/S7 (`plans/P9/S7.md`, bilan complet) avait
+        établi que ce champ cumule deux lectures irréductibles portées par ses 4 usages réels (A/C/D :
+        une propriété du schéma déjà en place — sécrétagogue ou insuline en cours, dose, régularité des
+        prises ; B : un jugement prospectif, le terrain qui exposerait un patient encore SANS
+        hypoglycémiant si on lui en introduisait un), et avait conclu à une dérivation seulement
+        PARTIELLE — ni fusion automatique ni statu quo silencieux n'étaient tenables. Arbitrage référent
+        du 2026-07-31 : le champ reste saisi tel quel, on l'explique au lieu de le scinder. L'aide
+        rédigée couvre les deux versants avec des exemples concrets plutôt qu'une définition abstraite,
+        sans en privilégier un — **l'ambiguïté de fond (deux/trois lectures cumulées par un seul champ)
+        reste ouverte** ; ce texte l'explicite, il ne la referme pas. Aucune condition/exclusion/
+        priorité/alerte modifiée (hors périmètre P10) : ajout de texte pur, `aide` n'a aucun effet
+        moteur (`evaluateNode` ne le lit pas). Détail complet : `plans/P10/S9.md` § Bilan de session.
+    - date: "2026-08-01"
+      auteur: "Claude Code (P10/S7, T-084) — en attente de relecture référent"
+      resume: >-
+        MOLÉCULE ET DOSE DES ISGLT2 ET AR GLP‑1, SOURCÉES — en réponse au rapport de recette (vignettes
+        N3, N4, N5, N6 : « je n'ai retenu aucune dose », « oui une fois, pas deux fois »), la lacune la
+        plus réclamée du domaine. Sur le patron de la metformine (P9/S8) et de la statine haute intensité
+        (P9/S9) : fait posologique dans `avantages`, `apercu` en titre de dépli. iSGLT2 — trois molécules
+        commercialisées et remboursées en France, sans hiérarchie entre elles (protection cardio‑rénale =
+        effet de classe, D12) : dapagliflozine (Forxiga) 10 mg/j dose fixe ; empagliflozine (Jardiance)
+        10→25 mg/j si DFG ≥ 60 ; canagliflozine (Invokana) 100→300 mg/j mêmes conditions — troisième
+        gliflozine commercialisée en France depuis 2024, vérifié sur la base de données publique des
+        médicaments (le nœud ne la citait qu'en garde-fou amputation, jamais comme option). Nuance ajoutée
+        en `inconvenients` : le plancher de DFG à l'instauration diffère par RCP (empa 20, dapa 25, cana
+        30) — n'élargit ni ne réduit l'exclusion `DFG < 20` déjà en place. AR GLP‑1 — les trois molécules
+        déjà nommées dans l'intitulé, chacune avec son propre protocole de titration RCP, sans dose
+        déduite par analogie (D23) : liraglutide (Victoza) 0,6→1,2(→1,8) mg/j ; sémaglutide injectable
+        (Ozempic) 0,25→0,5(→1) mg/semaine — le palier 2 mg/semaine du RCP européen n'est PAS commercialisé
+        en France (seules les présentations 0,25/0,5/1 mg le sont, vérifié Vidal + base ANSM), dose
+        maximale utilisable en France = 1 mg/semaine ; dulaglutide (Trulicity) 0,75 ou 1,5→3→4,5
+        mg/semaine. Sources : RCP centralisés EMA (= RCP ANSM pour ces spécialités, procédure
+        centralisée), rubrique 4.2, lus séparément pour chaque molécule ; base de données publique des
+        médicaments (ANSM) pour la commercialisation/le remboursement France. Aucune condition, exclusion,
+        priorité ni contre-indication touchée ; aucune option n'a changé de statut (suite complète
+        relancée après coup, diff de snapshots relu ligne à ligne). Deux résiduels signalés au référent
+        sans être encodés (hors périmètre de cette tâche, l'un touchant un champ protégé) : cf. bilan de
+        session dans `plans/P10/S7.md`.
+    - date: "2026-07-31"
+      auteur: "Claude Code (P10/S3, T-080) — en attente de relecture référent"
+      resume: >-
+        MOTIFS RÉDIGÉS ET CADRAGE DE PÉRIMÈTRE, sans toucher à aucune condition/seuil/option (mécanisme
+        `option.motifs` livré par P10/S2, T-079). Inventaire des branches des 28 options : 63 motifs
+        écrits sur 25 options, pour les branches qui se lisaient mal — gardes techniques de non-
+        initiation exposés comme des critères cliniques (« Intention ≠ Initier et Traitements en cours
+        comprend X » → « X déjà en cours »), dérivés internes disant l'état plutôt que la conséquence
+        clinique (`palette_glycemique_ouverte`, `remplacement_agent_sans_benefice`, `isglt2_indisponible`/
+        `aglp1_indisponible` — ces deux derniers défont aussi une double négation déjà signalée en
+        commentaire R6), un garde `DFG > 0` nu, des paliers de dose de metformine répétant deux fois le
+        nom du critère, une conjonction à six termes (« Reconsidérer un agent protecteur… ») réduite à
+        un groupe nominal, et neuf motifs sur le prérequis à neuf termes d'« Optimiser l'agent mal
+        toléré » — le SEUL `prerequis` de ce nœud qui mélange `intention != initier` à des tests de
+        périmètre, ce qui l'empêche d'être reconnu comme tel par `estTestDePerimetre`
+        (`lib/vueDecision.ts`) et peut l'exposer tel quel dans « Pourquoi pas d'autres options ? » — cf.
+        commentaire de l'option. Branches déjà lisibles (« Maladie cardiovasculaire établie », « IMC ≥ 30 »,
+        comparaisons d'énumération simples) laissées telles quelles, par construction. `cadrage` ajouté
+        (absent jusqu'ici, contrairement à `insuline`/`statine`) : un item sur la hiérarchie de valeur des
+        classes, un item sur ce que ce nœud NE prend PAS en compte (fonction hépatique, kaliémie,
+        hémoglobine, poids sec/état volémique, refus global de traitement) — réponse directe à la
+        vignette N15 du rapport de recette. La LISTE de ce second item est un engagement clinique, marquée
+        à valider par le référent. 3 options laissées sans motif faute de branche opaque (socle metformine
+        `toujours`, insuline d'initiation, repli MHD seules) ; `metformine_deprescriptible == true` laissé
+        tel quel (son libellé énumère déjà les 3 conditions cumulatives). Suite complète relancée après
+        coup : aucune option n'a changé de statut (vérifié ligne à ligne sur le diff des snapshots).
     - date: "2026-07-30"
       auteur: "Claude Code (P9/S8, T-075) — en attente de relecture référent"
       resume: >-
