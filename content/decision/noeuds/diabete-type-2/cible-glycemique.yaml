@@ -92,12 +92,30 @@ options:
     role: repli
     conditions:
       - "default"
+    # Motif du repli (clé sentinelle réservée `default`, P10 post-S5) : SEULE la partie universellement
+    # vraie pour quiconque atteint ce repli est affirmée — ni fragilité, ni comorbidité grave, ni
+    # antécédent CV, ni espérance de vie limitée (sinon une des trois options ci-dessus aurait mordu).
+    # « espérance de vie longue » n'y figure PAS : un patient à espérance de vie « intermédiaire »
+    # atteint aussi ce repli, tout comme un patient à espérance de vie longue mais ancienneté ≥ 5 ans ou
+    # âge ≥ 70 ans (cas réel de la vignette N2, Mme Lantier) — l'affirmer aurait dit plus que la branche.
+    motifs:
+      "default": "ni fragilité, ni comorbidité grave, ni antécédent cardiovasculaire, ni espérance de vie limitée : situation intermédiaire, en dehors des critères qui feraient basculer vers une cible plus prudente (< 9 % ou ≤ 8 %) ou plus stricte (~6,5 %)"
     avantages:
       - "Compromis pour la majorité des patients."
     inconvenients:
       - "Bénéfice macrovasculaire/mortalité non démontré par le seul serrage glycémique."
     effet_attendu: "Réduction de l'IDM non fatal (méta-analyses), pas de la mortalité ; bénéfice absolu modeste."
     niveau_preuve: faible
+# P10/S5 (T-082) : premier `cadrage` de ce nœud, patron `statine`/`insuline`. Périmètre relevé par la
+# recette référent — un périmètre ASSUMÉ, pas un défaut : ce nœud répond à « quelle cible viser », jamais
+# à « où en est ce patient par rapport à elle » (c'est `prescription`, via `position_vs_cible`/
+# `hba1c_sous_cible`, qui porte cette confrontation). Rien n'était écrit nulle part pour le dire.
+# LISTE À VALIDER PAR LE RÉFÉRENT (cf. bilan de session).
+cadrage:
+  - >-
+    Ce nœud fixe la cible d'HbA1c à viser ; il ne confronte jamais cette cible à l'HbA1c réelle du patient
+    (l'écart à l'objectif, le constat d'échec ou de réussite du traitement en cours) — cette lecture relève
+    du nœud « Traiter ». Il ne dit rien non plus du délai auquel réévaluer la cible fixée.
 argumentaire: >
   Aucun ECR n'a comparé des bandes de cible étroites : les seuils sont extrapolés. Chez le diabète
   établi (ACCORD, ADVANCE, VADT), le contrôle intensif n'apporte pas de bénéfice de mortalité ni
@@ -200,8 +218,37 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude Code"
   statut: valide
-  version: "2.9"
+  version: "2.11"
   changelog:
+    - date: "2026-07-31"
+      auteur: "Claude Code (P10, extension post-S5) — en attente de relecture référent"
+      resume: >-
+        `conditionText.ts::describeReasons` consulte désormais `motifs?.['default']` avant son message
+        générique (STOP de S5 levé, cf. entrée précédente) ; clé sentinelle `default` documentée dans le
+        schéma. Motif rédigé sur le repli « Cible ≤ 7 % » : SEULE la partie universellement vraie pour
+        quiconque atteint ce repli est affirmée (ni fragilité, ni comorbidité grave, ni antécédent CV, ni
+        espérance de vie limitée) — délibérément SANS « espérance de vie longue », qui n'est pas vraie
+        pour tout patient atteignant ce repli (espérance de vie « intermédiaire », ou « longue » mais
+        ancienneté du diabète ≥ 5 ans ou âge ≥ 70 ans, cas réel de la vignette N2). Aucune
+        `conditions`/`exclusions`/`priorite` ni statut d'option modifié.
+    - date: "2026-07-31"
+      auteur: "Claude Code (P10/S5, T-082) — en attente de relecture référent"
+      resume: >-
+        Inventaire des 13 branches non-repli des 4 options (3 sur « Cible < 9 % », 4 sur « Cible ≤ 8 % »,
+        6 sur « Cible ~6,5 % ») : toutes déjà lisibles telles quelles (même registre que les exemples
+        cités par S3, « IMC ≥ 30 » ; le nœud est déjà décrit comme la meilleure recette du domaine). Aucun
+        motif rédigé, donc — n'alourdit pas ce qui marche. Traitement du seul défaut relevé, le sentinelle
+        `["default"]` du repli « Cible ≤ 7 % » : `describeReasons` (`lib/conditionText.ts` l.152-155)
+        intercepte ce cas et renvoie un texte fixe AVANT tout appel à `indexerMotifs` — vérifié en lisant
+        le code (`OptionCard.tsx` l.289 passe pourtant bien `option.motifs`, mais `reasons` vaut
+        littéralement `['default']` pour cette option, jamais transformé en branche par
+        `raisonsSituationnelles`/`termesVrais`, cf. `vueDecision.ts` `estSentinelle`). Le mécanisme de
+        motifs livré par S2 ne permet donc PAS à une option de repli de porter son propre texte : **STOP**
+        signalé (petite extension de S2 nécessaire dans `conditionText.ts::describeReasons`, hors périmètre
+        de cette session) — non appliqué ici. `cadrage` créé (patron `statine`) : dit le périmètre assumé du
+        nœud (cible fixée dans l'absolu, jamais confrontée à l'HbA1c réelle du patient — c'est
+        `prescription` qui porte cette confrontation ; rien non plus sur le délai de réévaluation) — liste
+        À VALIDER PAR LE RÉFÉRENT. Aucune `condition`/`exclusions`/`priorite` ni statut d'option modifié.
     - date: "2026-07-30"
       auteur: "Claude Code (P9/S6, T-073) — en attente de relecture référent"
       resume: >-

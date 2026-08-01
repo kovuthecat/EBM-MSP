@@ -294,6 +294,11 @@ options:
     role: securite
     conditions:
       - "intolerance_statine == rapportee AND CK_x_normale > 5 AND statine_deja_en_place == true"
+    # P10/S5 (T-082) : la branche brute conjugue 3 comparaisons techniques (« Intolérance aux statines
+    # (non / rapportée / avérée) = Rapportée et CK, en multiples de la normale (0 = non dosé) > 5 et
+    # Statine déjà en place ») — famille 3 de S3 (conjonction qui décrit UNE seule situation clinique).
+    motifs:
+      "intolerance_statine == rapportee AND CK_x_normale > 5 AND statine_deja_en_place == true": "intolérance rapportée avec CK au-dessus de 5 fois la normale, sous statine en cours"
     avantages:
       - "Conduite du parcours NHS England / AAC : interrompre la statine 4 à 6 SEMAINES, en documentant le délai d'apparition des symptômes et celui de leur résolution. C'est une interruption d'épreuve, pas un renoncement — elle sert à établir si la statine est bien en cause."
       - "Re-doser les CK à 7 JOURS (NG238 §1.5.7) : c'est ce contrôle qui distingue une élévation transitoire — effort physique, geste récent, cause non médicamenteuse — d'une élévation persistante attribuable au traitement."
@@ -350,6 +355,10 @@ options:
     role: securite
     conditions:
       - "intolerance_statine == averee AND CK_x_normale > 5 AND statine_deja_en_place == true"
+    # P10/S5 (T-082) : même défaut que la carte précédente (famille 3 de S3), branche jumelle sur
+    # l'intolérance AVÉRÉE plutôt que rapportée.
+    motifs:
+      "intolerance_statine == averee AND CK_x_normale > 5 AND statine_deja_en_place == true": "intolérance avérée avec CK au-dessus de 5 fois la normale, sous statine en cours"
     avantages:
       - "Interrompre la statine 4 à 6 semaines, comme dans l'intolérance rapportée : le geste d'arrêt et sa surveillance sont identiques. Re-doser les CK à 7 jours (NG238 §1.5.7)."
       - "CE QUI DIFFÈRE : l'intolérance étant AVÉRÉE, la réintroduction n'est pas la suite attendue. Ne pas laisser ce patient sans hypolipémiant pour autant — son risque cardiovasculaire n'a pas diminué, seule la voie pour le réduire s'est fermée."
@@ -414,6 +423,10 @@ options:
     role: geste
     conditions:
       - "intolerance_statine == rapportee AND CK_x_normale > 4 AND CK_x_normale <= 5 AND statine_deja_en_place == false"
+    # P10/S5 (T-082) : même famille 3 (conjonction à 4 termes = une seule situation, la bande basse
+    # avant initiation), branche encore plus longue que ses deux voisines ci-dessus.
+    motifs:
+      "intolerance_statine == rapportee AND CK_x_normale > 4 AND CK_x_normale <= 5 AND statine_deja_en_place == false": "intolérance rapportée avec CK entre 4 et 5 fois la normale, avant initiation de la statine"
     avantages:
       - "NG238 §1.5.7, verbatim : des CK « raised but < 5× ULN » ne contre-indiquent PAS la statine — on débute à DOSE PLUS FAIBLE. Ne pas traiter ce patient reviendrait à lui retirer un bénéfice démontré sur critères durs au motif d'un taux que la source elle-même juge compatible avec le traitement."
       - "Re-doser les CK à 7 JOURS avant de conclure (NG238 §1.5.7) : une élévation modérée est souvent transitoire — effort physique récent, geste traumatique, cause non médicamenteuse."
@@ -501,6 +514,14 @@ options:
       - "anciennete_diabete_annees < 10"
       - "autres_FDRCV == 0"
       - "diabete_complique == false"
+    # P10/S5 (T-082) : `anciennete_diabete_annees < 10` se lit déjà telle quelle (même registre que
+    # « IMC ≥ 30 », S3) — aucun motif. Les deux autres branches méritent un motif : `autres_FDRCV == 0`
+    # s'affiche « = 0 » (comparaison arithmétique, pas une phrase clinique) ; `diabete_complique == false`
+    # traîne le libellé long du critère (définition entière de la complication) dans une tournure « : non »
+    # — famille 1/2 de S3 (garde exposée en comparaison technique / libellé verbeux).
+    motifs:
+      "autres_FDRCV == 0": "aucun autre facteur de risque cardiovasculaire"
+      "diabete_complique == false": "diabète non compliqué (pas d'atteinte d'organe)"
     # Même motif que l'option précédente : cette carte propose elle aussi une statine (« décision partagée »
     # sur l'initiation). Sans cette exclusion, l'ordered-first-match l'aurait offerte en repli au patient
     # intolérant avéré retiré de l'option de haute intensité — en le présentant, de surcroît, comme un
@@ -559,6 +580,13 @@ options:
     role: securite
     conditions:
       - "intolerance_statine == averee OR intolerance_statine != non AND CK_x_normale > 5 AND statine_deja_en_place == false"
+    # P10/S5 (T-082) : la disjonction couvre deux branches, chacune opaque à sa façon. La première
+    # traîne le libellé énuméré du critère (« Intolérance aux statines (non / rapportée / avérée) =
+    # Avérée ») — famille 2 (libellé interne verbeux). La seconde est une conjonction à 3 termes avec un
+    # garde technique (`!= non`) qui dit en fait « intolérance, rapportée ou avérée » — famille 1 + 3.
+    motifs:
+      "intolerance_statine == averee": "intolérance avérée aux statines"
+      "intolerance_statine != non AND CK_x_normale > 5 AND statine_deja_en_place == false": "intolérance (rapportée ou avérée) avec CK au-dessus de 5 fois la normale, avant initiation"
     avantages:
       - "ÉZÉTIMIBE SEUL = la conduite que nomme explicitement la recommandation française : « en cas de contre-indication formelle aux statines ou d'intolérance avérée, un traitement par ézétimibe seul peut être envisagé » (SFE/SFD/NSFA/SFC 2026, §6.1). C'est aussi le prérequis de remboursement de tout ce qui vient après."
       - "ACIDE BEMPÉDOÏQUE = le SEUL agent disposant d'un essai de morbi-mortalité mené dans cette population (CLEAR Outcomes, n=13 970, suivi médian 40,6 mois) : critère composite 11,7 % vs 13,3 %, HR 0,87 (0,79-0,96) ; IDM HR 0,77 ; revascularisation HR 0,81. Sous-groupe DIABÈTE (n=6 373, 45,6 %) : HR 0,83 (0,72-0,95), réduction ABSOLUE de 2,4 % — chiffre publié, pas dérivé."
@@ -759,6 +787,15 @@ cadrage:
     La décision (traiter / discuter) et l'intensité se gradent sur le RISQUE ABSOLU, pas sur une cible LDL
     chiffrée : aucun ECR ne valide une valeur cible de LDL (LODESTAR : viser une cible ≡ dose fixe ; VA/DoD
     2026 : preuve insuffisante pour le treat-to-target), et le bénéfice est indépendant du LDL de base (HPS).
+  # P10/S5 (T-082) : section « ce que ce nœud ne prend pas en compte », demandée par la recette référent
+  # sur le patron de `prescription`. Liste À VALIDER PAR LE RÉFÉRENT (cf. bilan de session) : elle est
+  # déduite de `criteres_entree` (ce qui n'y figure pas) et de ce que le nœud demande sans jamais exploiter.
+  - >-
+    Ce nœud ne prend en compte ni le LDL du patient (cohérent avec la position « pas de cible LDL chiffrée »
+    ci-dessus, mais jamais dit explicitement), ni la molécule ni la dose de la statine déjà en place
+    (`statine_deja_en_place` ne demande qu'un oui/non), ni les autres hypolipémiants déjà en cours —
+    l'ézétimibe notamment, en dehors de la situation d'intolérance avérée où il est nommé comme alternative —
+    ni l'historique des statines déjà essayées avant la situation actuelle.
 argumentaire: >
   La statine est le volet lipidique de la prévention cardiovasculaire du diabétique, à décider indépendamment
   de l'HbA1c. En prévention SECONDAIRE (maladie athéromateuse établie), le bénéfice est fort, sur critères
@@ -1053,8 +1090,24 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Claude Code"
   statut: brouillon
-  version: "1.19"
+  version: "1.20"
   changelog:
+    - date: "2026-07-31"
+      auteur: "Claude Code (P10/S5, T-082) — en attente de relecture référent"
+      resume: >-
+        Motifs rédigés (`Option.motifs`, mécanisme P10/S2) sur les branches opaques de 4 des 7 options :
+        7 motifs, sur 9 branches non-repli inventoriées (2 branches jugées déjà lisibles telles quelles —
+        « ASCVD établie » et « ancienneté du diabète < 10 ans » — n'en reçoivent pas). Détail par famille
+        de S3 : conjonctions à plusieurs termes décrivant une seule situation clinique (les 3 cartes
+        « CK élevées », plus 2 des 3 branches de « discuter la statine ») et libellés internes verbeux
+        (les 2 branches de la carte terminale « statine indisponible »). Aucune `condition`/`exclusions`
+        ni aucun statut d'option modifié — vérifié par relecture des diffs de snapshots. `cadrage` étendu
+        d'une section « ce que ce nœud ne prend pas en compte » (LDL, molécule/dose de statine actuelle,
+        autres hypolipémiants en cours, historique des statines essayées) — liste À VALIDER PAR LE
+        RÉFÉRENT. Le sentinelle `["default"]` du repli de CE nœud (« Statine — prévention primaire… »)
+        partage la même limite que celui de `cible-glycemique` (`describeReasons` l'intercepte avant toute
+        lecture de `motifs`) mais n'était pas dans le périmètre signalé par la recette pour ce nœud : non
+        traité, signalé pour mémoire dans le bilan de session.
     - date: "2026-07-30"
       auteur: "Claude Code (P9/S9, T-076)"
       resume: >-
