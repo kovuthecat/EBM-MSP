@@ -1167,7 +1167,17 @@ options:
     action: remplacer
     conditions:
       - "intention != initier AND traitements_en_cours contient sulfamide"
-      - "hypoglycemie_recente == false"
+      # VERROU LEVÉ le 2026-08-01 (arbitrage référent A1, recette « Traiter » du même jour).
+      # `hypoglycemie_recente == false` figurait ici et FERMAIT cette option au patient qui en a le plus
+      # besoin : un sujet âgé sous sulfamide venant de faire une hypoglycémie ne pouvait recevoir que
+      # « Désintensifier » et « Réduire la posologie » — jamais « Remplacer ». Contradiction frontale avec
+      # l'argumentaire de cette option elle-même, qui justifie le remplacement PAR le risque
+      # hypoglycémique (CAROLINA, NNT 45 sur l'hypo sévère — cf. `avantages` ci-dessous).
+      # La temporalité que ce verrou encodait implicitement (R3 : sécuriser d'abord, remplacer ensuite)
+      # n'est pas perdue : elle est portée par le RANG et par l'ordre des familles, jamais plus par une
+      # condition qui rendait le geste injoignable.
+      # NON TOUCHÉ, délibérément : `hba1c_sous_cible == false` ci-dessous. C'est un autre arbitrage (un
+      # patient en sur-traitement franc relève d'abord de l'allègement) — non soumis, donc non modifié.
       - "hba1c_sous_cible == false"
     # P10/S3 (T-080) : même motif que sur « Arrêter la metformine » — garde technique de non-initiation.
     motifs:
@@ -2315,8 +2325,29 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.45"
+  version: "0.46"
   changelog:
+    - date: "2026-08-01"
+      auteur: "Claude Code (arbitrage référent A1, recette « Traiter ») — en attente de relecture référent"
+      resume: >-
+        VERROU LEVÉ SUR « REMPLACER LE SULFAMIDE » — retrait de la condition
+        `hypoglycemie_recente == false`. Le défaut, constaté en recette navigateur le 2026-08-01 : chez un
+        patient de 88 ans, fragile, sous sulfamide, venant de faire une hypoglycémie, l'option « Remplacer
+        le sulfamide » était INJOIGNABLE — le patient ne recevait que « Désintensifier » et « Réduire la
+        posologie ». Or l'argumentaire de cette même option justifie le remplacement PAR le risque
+        hypoglycémique (CAROLINA, NNT 45 sur l'hypo sévère) : la condition excluait exactement la
+        population que l'option vise. Arbitrage du référent : lever le verrou ; la temporalité « sécuriser
+        d'abord, remplacer ensuite » (R3) reste portée par le rang et l'ordre des familles, jamais plus par
+        une condition qui rend le geste injoignable. `hba1c_sous_cible == false` est CONSERVÉ (arbitrage
+        distinct, non soumis). Aucune source nouvelle, aucun fait clinique ajouté : c'est un retrait de
+        restriction, pas un élargissement d'indication.
+        ⚠ CONSÉQUENCE MESURÉE, À ARBITRER (A2, non tranché à ce jour) : sur le profil ci-dessus, TROIS
+        cartes portent désormais sur le même agent, toutes badgées « Recommandée » — « Remplacer le
+        sulfamide » (famille « corriger ou remplacer »), « Désintensifier » et « Réduire la posologie du
+        sulfamide » (famille « alléger »). L'ordre de lecture est cohérent (remplacer précède alléger),
+        mais c'est la même classe de défaut que celle traitée en red-team « sécurité HAUTE-1 » du
+        2026-07-26 (`exclusions: DFG < 30` posé sur « Réduire la posologie » pour l'empêcher de coexister
+        avec « Arrêter le sulfamide ») — ici portée à trois gestes. À trancher avec A2.
     - date: "2026-08-01"
       auteur: "Claude Code (P10, retravail post-S3) — en attente de relecture référent"
       resume: >-

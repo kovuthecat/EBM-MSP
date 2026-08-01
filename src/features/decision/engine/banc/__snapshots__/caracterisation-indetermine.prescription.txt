@@ -134,8 +134,12 @@ Sortie :
   - [reco-officielle] Metformine (socle du traitement) — instaurer ou poursuivre
       proposé parce que : toujours
   Famille « Traitement à corriger ou remplacer » (exclusive: false) :
+    -- groupe d'égalité #0 --
   - [recommandee] Arrêter la gliptine redondante (association gliptine + AR GLP‑1 / tirzépatide déjà en place)
       proposé parce que : intention != initier AND traitements_en_cours contient gliptine ; intention != initier AND traitements_en_cours contient aGLP1
+    -- groupe d'égalité #1 --
+  - [recommandee] Remplacer le sulfamide (moins d'hypoglycémie, moins de poids, plus de bénéfice)
+      proposé parce que : intention != initier AND traitements_en_cours contient sulfamide ; hba1c_sous_cible == false
   Famille « Traitement à alléger » (exclusive: false) :
   - [recommandee] Réduire la posologie du sulfamide (tolérance, hypoglycémie légère)
       proposé parce que : intention != initier AND traitements_en_cours contient sulfamide ; hypoglycemie_recente == true
@@ -273,6 +277,9 @@ Sortie :
   Famille « Socle du traitement » (exclusive: false) :
   - [reco-officielle] Metformine (socle du traitement) — instaurer ou poursuivre
       proposé parce que : toujours
+  Famille « Traitement à corriger ou remplacer » (exclusive: false) :
+  - [recommandee] Remplacer le sulfamide (moins d'hypoglycémie, moins de poids, plus de bénéfice)
+      proposé parce que : intention != initier AND traitements_en_cours contient sulfamide ; hba1c_sous_cible == false
   Famille « Traitement à alléger » (exclusive: false) :
     -- groupe d'égalité #0 --
   - [recommandee] Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline
@@ -677,6 +684,7 @@ Sortie :
     - Arrêter le sulfamide (DFG < 30 — contre‑indication rénale) :: à renseigner : intention, DFG
     - Introduire un iSGLT2 (protection cardio‑rénale et/ou contrôle glycémique) :: à renseigner : intention, DFG
     - Envisager l'insuline (palette non‑insulinique épuisée — schéma à titrer et suivre dans la durée) :: à renseigner : intention, position_vs_cible, DFG
+    - Remplacer le sulfamide (moins d'hypoglycémie, moins de poids, plus de bénéfice) :: à renseigner : intention
     - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : intention, intolerance_traitement
     - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : intention
     - Réduire la posologie de l'AR GLP‑1 (perte de poids excessive / intolérance digestive) :: à renseigner : intention
@@ -726,6 +734,7 @@ Sortie :
     - Association iSGLT2 + AR GLP‑1 (deux indications distinctes) :: à renseigner : traitements_en_cours, DFG
     - Remplacer la gliptine (aucun bénéfice sur critère dur — préférer un agent qui en apporte) :: à renseigner : traitements_en_cours
     - Arrêter la gliptine redondante (association gliptine + AR GLP‑1 / tirzépatide déjà en place) :: à renseigner : traitements_en_cours
+    - Remplacer le sulfamide (moins d'hypoglycémie, moins de poids, plus de bénéfice) :: à renseigner : traitements_en_cours
     - Optimiser l'agent mal toléré : réduire la posologie (intolérance non majeure) ou remplacer :: à renseigner : traitements_en_cours, intolerance_traitement
     - Désintensifier : alléger / arrêter le sulfamide, le glinide ou réduire l'insuline :: à renseigner : traitements_en_cours
     - Réduire la posologie de l'insuline (sur‑basalisation / hypoglycémie) :: à renseigner : traitements_en_cours
