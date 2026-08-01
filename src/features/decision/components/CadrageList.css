@@ -13,9 +13,26 @@
 }
 
 .cadrage-list__item {
-  margin: 0;
+  margin: 8px 0 0;
   font-size: 13px;
   line-height: 1.65;
   color: var(--c-text-muted);
   white-space: pre-line;
+}
+
+.cadrage-list__item:first-of-type {
+  margin-top: 10px;
+}
+
+/* Repli par défaut (2026-08-01) : le `<summary>` porte le même registre neutre que le bloc — ni fond
+   d'alerte, ni couleur de vigilance (D24, cf. docstring du composant), simplement cliquable. */
+.cadrage-list__summary {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-text-muted);
+  cursor: pointer;
+}
+
+.cadrage-list__summary:hover {
+  color: var(--c-text);
 }

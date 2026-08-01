@@ -299,15 +299,21 @@ const ENUM_VALUE_LABELS: Record<string, string> = {
   tirzepatide: 'Tirzépatide',
   sulfamide: 'Sulfamide',
   glinide: 'Glinide',
-  gliptine: 'Gliptine (iDPP4)',
+  // Raccourci le 2026-08-01 (même mécanisme que `intention`/`position_vs_cible` plus haut) : le sigle
+  // de classe pharmacologique rejoint `ENUM_VALUE_DESCRIPTIONS` (déjà câblé en infobulle sur ces chips,
+  // `title={describeEnumValue(valeur)}`), pour laisser Sulfamide/Gliptine/Glinide — les trois agents
+  // sans bénéfice sur critère dur — tenir sur la même ligne de la grille de cases à cocher.
+  gliptine: 'Gliptine',
   insuline: 'Insuline',
   insuline_basale: 'Insuline basale',
   insuline_rapide: 'Insuline rapide',
-  // position_vs_cible (champ à 4 crans, nœud prescription — R1 docs/decision/GRAMMAIRE-NOEUD.md)
+  // position_vs_cible (champ à 4 crans, nœud prescription — R1 docs/decision/GRAMMAIRE-NOEUD.md).
+  // Raccourcis le 2026-08-01, même raison et même mécanisme que `intention` ci-dessus (le sens complet
+  // du dernier cran — « sur-traitement probable » — vit désormais dans `ENUM_VALUE_DESCRIPTIONS`).
   a_l_objectif: "À l'objectif",
-  au_dessus: "Au-dessus de l'objectif",
-  nettement_au_dessus: "Nettement au-dessus de l'objectif",
-  sous_objectif: "En dessous de l'objectif (sur-traitement probable)",
+  au_dessus: "Au-dessus",
+  nettement_au_dessus: "Nettement au-dessus",
+  sous_objectif: "En dessous",
   // nature_intolerance (nœud prescription, S8) — `aucune` RETIRÉ le 2026-07-29 avec la conversion du
   // critère en `liste` multivaluée : une liste vide dit désormais « aucune nature précisée », la valeur
   // explicite n'a plus d'objet (elle n'existait que parce qu'un `enum` à choix unique en avait besoin).
@@ -318,13 +324,19 @@ const ENUM_VALUE_LABELS: Record<string, string> = {
   autre: 'Autre',
   // intention (primer S8, nœud prescription) — R1 (docs/decision/GRAMMAIRE-NOEUD.md) : l'intention décrit
   // un ACTE du praticien (« je souhaite… »), jamais un ÉTAT du patient (position vs objectif) — c'est
-  // `position_vs_cible`/`cible_atteinte` qui portent l'état, déclaré séparément. Libellés reformulés en
-  // conséquence (2026-07-25) : les trois affirmaient encore une position vs objectif, ce que R1 a
-  // précisément retiré du moteur ; les laisser aurait enseigné à l'écran une sémantique abandonnée.
-  initier: 'Initier un traitement',
-  intensifier: 'Intensifier (renforcer le contrôle glycémique)',
-  optimiser: 'Optimiser (améliorer le rapport bénéfice/risque du traitement)',
-  deprescrire: 'Déprescrire (alléger ou retirer un traitement)',
+  // `position_vs_cible`/`cible_atteinte` qui portent l'état, déclaré séparément.
+  //
+  // LIBELLÉS RACCOURCIS AU SEUL VERBE (2026-08-01, amélioration de lisibilité) : la parenthèse
+  // explicative qui suivait chacun (« Intensifier (renforcer le contrôle glycémique) », 45 caractères)
+  // forçait un bouton par ligne sur `criteria-form__segmented` (`flex-wrap`, un texte trop long ne
+  // laisse pas de place à un second bouton) et débordait même l'écran mobile (P6/SB4, 2026-07-28). Le
+  // sens complet n'est PAS perdu : il vit désormais dans `ENUM_VALUE_DESCRIPTIONS` ci-dessous, déjà
+  // câblé comme infobulle native (`title`) sur ces mêmes boutons — un raccourci de lecture, pas une
+  // perte d'information.
+  initier: 'Initier',
+  intensifier: 'Intensifier',
+  optimiser: 'Optimiser',
+  deprescrire: 'Déprescrire',
   // intolerance_statine (nœud F)
   non: 'Non',
   rapportee: 'Rapportée',
@@ -386,6 +398,18 @@ export function libelleValeurCatalogue(valeur: string): boolean {
  * pour chaque profil »). Renvoie `undefined` si aucune description n'est cataloguée.
  */
 const ENUM_VALUE_DESCRIPTIONS: Record<string, string> = {
+  // `intention` (nœud prescription) — sens complet déplacé ici le 2026-08-01 quand le libellé affiché a
+  // été raccourci au seul verbe (cf. `ENUM_VALUE_LABELS`, même entrées). Texte IDENTIQUE, mot pour mot,
+  // à l'ancien libellé long : aucune reformulation, un déplacement.
+  initier: 'Initier un traitement',
+  intensifier: 'Intensifier (renforcer le contrôle glycémique)',
+  optimiser: 'Optimiser (améliorer le rapport bénéfice/risque du traitement)',
+  deprescrire: 'Déprescrire (alléger ou retirer un traitement)',
+  // `position_vs_cible` — même déplacement, même règle (« sur-traitement probable » n'est perdu nulle
+  // part, seulement déplacé de l'affichage direct vers l'infobulle).
+  sous_objectif: "En dessous de l'objectif (sur-traitement probable)",
+  // `traitements_en_cours` (liste) — sigle de classe déplacé en infobulle, cf. `ENUM_VALUE_LABELS`.
+  gliptine: 'Gliptine (iDPP4)',
   // Profils AGP (nœud E « Insuline ») — comment lire la courbe et ce qu'elle oriente. RENOMMÉS le
   // 2026-07-30 (P8/S7) : la courbe plate gagne ici un GESTE qu'elle n'avait pas avant cette session
   // (« ne pas sur-titrer... ») — cf. `insuline.yaml` v0.34, dérivés `profil_nocturne_permet_titration`/
@@ -409,6 +433,41 @@ const ENUM_VALUE_DESCRIPTIONS: Record<string, string> = {
 
 export function describeEnumValue(valeur: string): string | undefined {
   return ENUM_VALUE_DESCRIPTIONS[valeur]
+}
+
+/**
+ * Icône générique d'une valeur d'énumération (amélioration de lisibilité, 2026-08-01) — même mécanisme
+ * que `labelForEnumValue`/`describeEnumValue` ci-dessus : un dictionnaire de CONTENU (des symboles déjà
+ * porteurs d'un code couleur — ✅ vert, ⚠️ ambre, 🔴 rouge, 🔵 bleu — pas une notion nouvelle côté
+ * moteur), une fonction GÉNÉRIQUE (`CriteriaForm.tsx` ne connaît aucune valeur par son nom). `undefined`
+ * pour toute valeur non cataloguée : le composant appelant retombe alors sur le texte seul, rendu
+ * historique.
+ *
+ * L'ICÔNE PORTE LE CODE COULEUR À ELLE SEULE (arbitrage référent du 2026-08-01) : un emoji coloré
+ * suffit à distinguer « à l'objectif » (vert) de « nettement au-dessus » (rouge) sans qu'aucun token CSS
+ * ni classe `data-tone` ne soit nécessaire — plus simple que d'inventer une seconde dimension de style,
+ * et strictement équivalent visuellement.
+ */
+const ENUM_VALUE_ICONS: Record<string, string> = {
+  // `intention` (nœud prescription) : direction du geste, pas une gravité — un pictogramme de sens,
+  // jamais une couleur d'alerte (initier/intensifier/optimiser/déprescrire sont quatre actes légitimes,
+  // aucun n'est « meilleur » que les autres).
+  initier: '▶️',
+  intensifier: '⬆️',
+  optimiser: '⚖️',
+  deprescrire: '⬇️',
+  // `position_vs_cible` : ici la couleur EST le message (l'écart à l'objectif), du plus favorable au
+  // moins favorable — sauf le dernier cran, qui n'est pas un échec mais l'inverse (sur-traitement) :
+  // bleu, pas rouge, pour ne pas laisser croire qu'une valeur trop BASSE est le même problème qu'une
+  // valeur trop HAUTE.
+  a_l_objectif: '✅',
+  au_dessus: '⚠️',
+  nettement_au_dessus: '🔴',
+  sous_objectif: '🔵',
+}
+
+export function iconForEnumValue(valeur: string): string | undefined {
+  return ENUM_VALUE_ICONS[valeur]
 }
 
 /** `TypeCritere` est une union fermée (3 valeurs, `node.types.ts`) : dictionnaire exhaustif sûr. */

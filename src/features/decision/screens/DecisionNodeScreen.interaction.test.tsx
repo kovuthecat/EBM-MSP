@@ -662,7 +662,9 @@ describe('DecisionNodeScreen — T-023(b) : le pré-remplissage calculé appliqu
     // catalogue existant (`lib/labels.ts` ENUM_VALUE_LABELS, la valeur `au_dessus` y est déjà cataloguée
     // pour le nœud réel `prescription`) plutôt que le repli `humanize` — même valeur d'énumération,
     // même libellé, peu importe le nœud qui la porte (le dictionnaire est indexé par la VALEUR seule).
-    const bouton = screen.getByRole('button', { name: "Au-dessus de l'objectif" })
+    // Libellé raccourci le 2026-08-01 (amélioration de lisibilité, `ENUM_VALUE_LABELS.au_dessus`) : le
+    // sens complet a migré vers `describeEnumValue` (infobulle), le catalogue reste le même mécanisme.
+    const bouton = screen.getByRole('button', { name: 'Au-dessus' })
     expect(bouton.getAttribute('aria-pressed')).toBe('true')
 
     // (2) Mention affichée — le champ dit d'où vient la valeur.

@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from 'react'
 import type { Contrainte, CritereEntree } from '../content/node.types'
 import type { Criteria, CriteriaValue } from '../engine/conditions'
 import { criteresPilotes, grouperChamps, valeursProposeesDepuisSaisie } from '../lib/formLayout'
-import { describeEnumValue, labelForCritere, labelForEnumValue } from '../lib/labels'
+import { describeEnumValue, iconForEnumValue, labelForCritere, labelForEnumValue } from '../lib/labels'
 import './CriteriaForm.css'
 
 interface CriteriaFormProps {
@@ -314,6 +314,10 @@ export function CriteriaForm({
     const confirmer = estAConfirmer(critere)
     const pilote = estPilote(critere)
     const valeurs = critere.valeurs ?? []
+    // `libelle_masque` (2026-08-01, cf. `content/node.types.ts`) : le titre de `groupe` porte déjà toute
+    // l'information pour un champ SEUL dans sa section — la ligne de libellé (et ses suffixes) devient
+    // redondante. Opt-in par le contenu, jamais déduit de la cardinalité du groupe ici.
+    const libelleMasque = critere.libelle_masque === true
 
     if (critere.type === 'bool') {
       // L'aide est HORS du `<label>` : à l'intérieur, cliquer dessus pour la lire cocherait la case —
@@ -333,13 +337,15 @@ export function CriteriaForm({
             checked={Boolean(criteria[critere.nom])}
             onChange={(event) => onChange(critere.nom, event.target.checked)}
           />
-          <span className="criteria-form__checkbox-label">
-            {labelForCritere(critere.nom)}
-            {pilote && <span className="criteria-form__field-pilote"> · détermine la suite</span>}
-            {/* `confirmation_requise` seulement (D20 R7) : jamais sur un `bool` ordinaire, cf. `estAConfirmer`. */}
-            {confirmer && <span className="criteria-form__field-todo"> · à confirmer</span>}
-            {renderOrigine(critere)}
-          </span>
+          {!libelleMasque && (
+            <span className="criteria-form__checkbox-label">
+              {labelForCritere(critere.nom)}
+              {pilote && <span className="criteria-form__field-pilote"> · détermine la suite</span>}
+              {/* `confirmation_requise` seulement (D20 R7) : jamais sur un `bool` ordinaire, cf. `estAConfirmer`. */}
+              {confirmer && <span className="criteria-form__field-todo"> · à confirmer</span>}
+              {renderOrigine(critere)}
+            </span>
+          )}
         </label>
       )
       // SANS aide : le `<label>` est rendu TEL QUEL, enfant direct de la grille — aucun changement de
@@ -377,12 +383,14 @@ export function CriteriaForm({
           data-pilote={pilote || undefined}
           data-debut-ligne={critere.debut_de_ligne || undefined}
         >
-          <div className="criteria-form__field-label">
-            {labelForCritere(critere.nom)}
-            {pilote && <span className="criteria-form__field-pilote"> · détermine la suite</span>}
-            {confirmer && <span className="criteria-form__field-todo"> · à confirmer</span>}
-            {renderOrigine(critere)}
-          </div>
+          {!libelleMasque && (
+            <div className="criteria-form__field-label">
+              {labelForCritere(critere.nom)}
+              {pilote && <span className="criteria-form__field-pilote"> · détermine la suite</span>}
+              {confirmer && <span className="criteria-form__field-todo"> · à confirmer</span>}
+              {renderOrigine(critere)}
+            </div>
+          )}
           {renderAide(critere)}
           <div className="criteria-form__chips">
             {valeursListe.map((valeur) => (
@@ -422,13 +430,15 @@ export function CriteriaForm({
         // affichés ou masqués. Cf. la docstring du champ dans `content/node.types.ts`.
         data-debut-ligne={critere.debut_de_ligne || undefined}
       >
-        <div className="criteria-form__field-label">
-          {labelForCritere(critere.nom)}
-          {pilote && <span className="criteria-form__field-pilote"> · détermine la suite</span>}
-          {dim && moteurADeQuoiJuger && <span className="criteria-form__field-note"> · sans effet sur la reco actuelle</span>}
-          {confirmer && <span className="criteria-form__field-todo"> · à confirmer</span>}
-          {renderOrigine(critere)}
-        </div>
+        {!libelleMasque && (
+          <div className="criteria-form__field-label">
+            {labelForCritere(critere.nom)}
+            {pilote && <span className="criteria-form__field-pilote"> · détermine la suite</span>}
+            {dim && moteurADeQuoiJuger && <span className="criteria-form__field-note"> · sans effet sur la reco actuelle</span>}
+            {confirmer && <span className="criteria-form__field-todo"> · à confirmer</span>}
+            {renderOrigine(critere)}
+          </div>
+        )}
 
         {critere.type === 'nombre' && critere.paliers != null && critere.paliers.length > 0 ? (
           // PALIERS STANDARD (`CritereEntree.paliers`, 2026-07-29) — un `nombre` dont le contenu déclare la
@@ -537,6 +547,15 @@ export function CriteriaForm({
                     else onChange(critere.nom, valeur)
                   }}
                 >
+                  {/* Icône (2026-08-01, amélioration de lisibilité) : dictionnaire générique par VALEUR
+                      (`lib/labels.ts` `iconForEnumValue`, même mécanisme que `labelForEnumValue`/
+                      `describeEnumValue` — un catalogue de contenu, jamais un nom de critère en dur dans
+                      ce composant). Absente pour toute valeur non cataloguée → rendu historique inchangé. */}
+                  {iconForEnumValue(valeur) && (
+                    <span aria-hidden="true" className="criteria-form__segment-icon">
+                      {iconForEnumValue(valeur)}
+                    </span>
+                  )}
                   {labelForEnumValue(valeur)}
                 </button>
               )

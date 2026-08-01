@@ -51,7 +51,13 @@ criteres_entree:
   # 1. LE CADRE — posé en premier, il conditionne tout le reste (et l'affichage de la section suivante).
   - nom: intention
     type: enum
-    groupe: Intention thérapeutique
+    # TITRE RACCOURCI (2026-08-01, amélioration de lisibilité) : « Je souhaite : » plutôt que « Intention
+    # thérapeutique » — c'est le SEUL champ de cette section, `libelle_masque` (ci-dessous) supprime donc
+    # la répétition « Intention thérapeutique (« je souhaite… ») » qui suivait juste en dessous. Le
+    # libellé du critère lui-même (`lib/labels.ts` CRITERE_LABELS.intention) reste inchangé : il sert
+    # encore ailleurs (panneau « en attente », « Proposé parce que »), hors du contexte de cette section.
+    groupe: "Je souhaite"
+    libelle_masque: true
     # PRIMER (décision référent S8, 2026-07-25) : « je souhaite… ». ORGANISE le flux et l'affichage
     # (groupe/visible_si), ne filtre jamais durement (non-étanche : les gestes transverses restent affichés).
     # RECÂBLAGE R1 (2026-07-25, docs/decision/GRAMMAIRE-NOEUD.md) : ne DÉDUIT plus `cible_atteinte` — un
@@ -62,10 +68,27 @@ criteres_entree:
   # 2. L'ÉTAT DES LIEUX — ce que le patient prend déjà, et où en est le contrôle.
   - nom: traitements_en_cours
     type: liste
-    groupe: Traitement actuel et contrôle
+    # SCISSION « Traitement » / « Équilibre » (2026-08-01, amélioration de lisibilité) : l'ancienne section
+    # unique « Traitement actuel et contrôle » mélangeait ce qui est déjà PRESCRIT (traitements en cours,
+    # dose de metformine) et l'ÉTAT DE CONTRÔLE glycémique (HbA1c, position vs cible) — deux questions
+    # distinctes que le praticien ne répond pas au même moment de la consultation. Groupe/visible_si sont
+    # de la présentation pure (aucun effet moteur) : ordre de saisie inchangé (toujours la 1re apparition
+    # ci-dessous), seul le REGROUPEMENT visuel change. `HbA1c_actuelle`/`position_vs_cible`, plus bas,
+    # rejoignent désormais « Équilibre ».
+    groupe: Traitement
     # INITIER = patient naïf par définition : la question n'a pas d'objet, le champ est masqué (et remis à
     # vide s'il avait été rempli sous une autre intention — cf. lib/formLayout.ts).
     visible_si: "intention != initier"
+    # RÉORDONNANCEMENT TENTÉ PUIS ANNULÉ (2026-08-01) — regrouper sulfamide/gliptine/glinide dans la
+    # grille de cases à cocher semblait purement présentationnel, mais `engine/banc/profils.ts`
+    # (`sousEnsemblesStratifies`) tire les sous-ensembles du banc par un mélange de Fisher-Yates appliqué
+    # à CET ORDRE DÉCLARÉ : le changer a fait perdre au banc de `insuline` (I19 : même `valeurs`, même
+    # ordre, cf. plus bas) son SEUL profil couvrant le repli « Pas d'indication à initier une insuline
+    # aujourd'hui ». L'ordre d'un `liste` n'a AUCUN effet sur `evaluateNode` (`contient`/`ne_contient_pas`
+    # ne lisent pas de position) mais en a un, bien réel, sur l'échantillonnage du banc — ce que la
+    # docstring de `sousEnsemblesStratifies` ne prétend d'ailleurs jamais autrement (elle dérive tout de
+    # `seedCritere` ET des `valeurs` elles-mêmes). Restauré à l'ordre d'origine plutôt que de rouvrir la
+    # couverture d'`insuline` sans le référent.
     valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, insuline_basale, insuline_rapide, glinide]
     # `partage` ajouté le 2026-07-29 (recette référent, point 5) : ce qui est COCHÉ sur un module
     # apparaît coché sur l'autre. Ne touche PAS à `presomption_non` (présent ici, absent sur
@@ -90,7 +113,7 @@ criteres_entree:
     # Les deux branches restent donc atteignables à la saisie. Valeurs = les posologies journalières
     # réellement prescrites (mono/bi/tri-prises des dosages à 500, 850 et 1000 mg).
     paliers: [500, 850, 1000, 1500, 1700, 2000, 2550, 3000]
-    groupe: Traitement actuel et contrôle
+    groupe: Traitement
     # NOUVEAU CRITÈRE (décision référent, 2026-07-26, 3e série — chantier vignettes, recette capture 1
     # problème 2) : « Metformine présente devrait peut-être demander de renseigner la dose. » Avant ce
     # critère, l'option « Réduire la posologie de la metformine » (plus bas) se déclenchait sur la seule
@@ -110,7 +133,7 @@ criteres_entree:
     type: nombre
     min: 4
     max: 18
-    groupe: Traitement actuel et contrôle
+    groupe: Équilibre
     # PAIRE STABILISÉE (2026-07-29, recette référent) : « HbA1c actuelle » et « HbA1c cible » se lisent
     # ensemble, mais leur disposition dépendait de la parité de ce qui les précède — donc de l'affichage de
     # « Dose de metformine », juste au-dessus et masquée tant que la metformine n'est pas cochée. Marquer le
@@ -134,7 +157,7 @@ criteres_entree:
   # (elle y nourrit le dérivé `cible_atteinte`, lu par des règles) — non touchée, décision scopée à ce nœud.
   - nom: position_vs_cible
     type: enum
-    groupe: Traitement actuel et contrôle
+    groupe: Équilibre
     # PRÉ-REMPLISSAGE RETIRÉ le 2026-07-29 (décision référent) — RETOUR ASSUMÉ EN ARRIÈRE SUR K6/D28,
     # pas une perte accidentelle. Ce champ redevient PUREMENT DÉCLARÉ, sans suggestion calculée.
     #

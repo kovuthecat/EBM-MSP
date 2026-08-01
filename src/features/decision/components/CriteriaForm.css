@@ -159,11 +159,23 @@
   margin-top: 6px;
 }
 
-/* Enum court : boutons segmentés — la valeur retenue reste lisible sans ouvrir le champ. */
+/* Enum court : boutons segmentés — la valeur retenue reste lisible sans ouvrir le champ.
+   GRILLE 2 COLONNES (2026-08-01, amélioration de lisibilité) — remplace un `flex-wrap` dont le
+   comportement de repli dépendait de la largeur cumulée des libellés voisins (une paire de boutons
+   courts atterrissait sur la même ligne, la suivante non, sans règle prévisible pour qui lit l'écran).
+   Une grille fixe donne un rendu DÉTERMINISTE, indépendant du texte : 2 par ligne toujours, y compris
+   pour un `enum` à 3 valeurs (2 + 1, jamais 3 tassées) — MAX_VALEURS_SEGMENTE (`CriteriaForm.tsx`) borne
+   déjà tout enum segmenté à 4 valeurs au plus, donc au plus 2 lignes. */
 .criteria-form__segmented {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 6px;
+}
+
+@media (max-width: 480px) {
+  .criteria-form__segmented {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* P6/SB4 — débordement horizontal mobile (défaut isolé trouvé par la recette du 2026-07-28 sur
@@ -191,6 +203,10 @@
   cursor: pointer;
   white-space: normal;
   overflow-wrap: break-word;
+}
+
+.criteria-form__segment-icon {
+  margin-right: 4px;
 }
 
 .criteria-form__segment[data-on] {

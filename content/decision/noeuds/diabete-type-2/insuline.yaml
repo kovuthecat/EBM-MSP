@@ -118,10 +118,13 @@ criteres_entree:
   - nom: traitements_en_cours
     type: liste
     groupe: Traitement actuel
-    # ORDRE ALIGNÉ le 2026-07-29 sur celui de `prescription` (mêmes 9 valeurs, `glinide` en fin de
-    # liste). Purement présentationnel — l'ordre d'un critère `liste` ne fixe que l'ordre des cases,
-    # sa valeur par défaut restant le tableau vide — mais exigé par I19 pour que la seule divergence
-    # résiduelle entre les deux nœuds soit celle qui est ASSUMÉE (`presomption_non`).
+    # ORDRE ALIGNÉ sur celui de `prescription` (I19 : un critère `partage` a le même encodage partout,
+    # `valeurs` inclus). Un réordonnancement pour raison de lisibilité (regrouper sulfamide/gliptine/
+    # glinide dans la grille de cases à cocher) a été TENTÉ puis ANNULÉ le 2026-08-01 : `valeurs` n'est
+    # pas purement présentationnel comme on pourrait le croire — `engine/banc/profils.ts`
+    # (`sousEnsemblesStratifies`) mélange CET ORDRE DÉCLARÉ (Fisher-Yates) pour tirer les sous-ensembles
+    # du banc, et le changer a fait perdre à CE nœud son seul profil couvrant le repli « Pas d'indication
+    # à initier une insuline aujourd'hui » (banc de 1760 profils). Restauré à l'ordre d'origine.
     valeurs: [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, insuline_basale, insuline_rapide, glinide]
     # `partage` ajouté le 2026-07-29 (recette référent, point 5) : ce qui est COCHÉ sur un module
     # apparaît coché sur l'autre. Ne touche PAS à `presomption_non` (présent ici, absent sur

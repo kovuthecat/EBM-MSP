@@ -54,6 +54,10 @@
   color: var(--c-text);
 }
 
+.option-card__action-icon {
+  margin-right: 4px;
+}
+
 /* P6/SB4 — même famille de risque que le débordement mobile de `CriteriaForm.css` (`.criteria-form__segment`/
    `.criteria-form__group-nav-item`) : `.option-card__official-badge` (« Recommandation officielle
    (France) », 35 caractères) cumulé à `EvidenceBadge` (jusqu'à « Preuve très faible ») peut dépasser la

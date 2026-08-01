@@ -190,6 +190,9 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
     paliers: 'inerte',
     masque_si_indetermine: 'inerte',
     debut_de_ligne: 'inerte',
+    // `libelle_masque` (2026-08-01) : drapeau de PRÉSENTATION pure — supprime une ligne de texte dans le
+    // formulaire, ne porte ni ne déclenche aucune expression.
+    libelle_masque: 'inerte',
   },
   // `prioritaire_si` (arbitrage référent A3, 2026-08-01) = expression d'AFFICHAGE, au même titre que
   // `visible_si` : elle hisse une famille en tête de l'écran quand elle est vraie pour ce patient, et

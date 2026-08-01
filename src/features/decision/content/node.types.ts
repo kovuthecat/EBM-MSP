@@ -222,6 +222,26 @@ export interface CritereEntree {
    * règles inatteignable à la saisie. Absent → champ numérique libre (comportement historique inchangé).
    */
   paliers?: number[]
+  /**
+   * SUPPRIME LE LIBELLÉ PROPRE DU CHAMP dans le formulaire (amélioration de lisibilité, 2026-08-01) —
+   * opt-in, réservé au champ SEUL dans sa section, dont le titre de `groupe` porte déjà toute
+   * l'information (« Je souhaite : » au-dessus des quatre boutons d'intention, par exemple). Répéter le
+   * libellé du champ juste en dessous du titre de section était une redondance pure, mesurée sur
+   * `prescription` (« Intention thérapeutique (« je souhaite… ») » sous un titre de section « Intention
+   * thérapeutique »).
+   *
+   * PORTÉE EXACTE DE CE QUI DISPARAÎT : le texte du libellé ET ses suffixes (« · détermine la suite »,
+   * « · à confirmer », « · repris de votre saisie »). Les marqueurs VISUELS qui ne dépendent pas de ce
+   * texte survivent intacts (bord ambre `[data-confirmer]`, aide `CritereEntree.aide`) : seule la ligne
+   * de texte redondante est retirée, jamais l'information qu'elle codait ailleurs par la couleur ou la
+   * position.
+   *
+   * OPT-IN EXPLICITE, PAS UNE RÈGLE AUTOMATIQUE (« groupe à un seul champ ⇒ masquer ») : une règle
+   * automatique aurait changé le rendu de toute section à champ unique du domaine sans que personne ne
+   * l'ait demandé pour elles — ce champ ne fait rien tant qu'aucun contenu ne le déclare explicitement à
+   * `true`. Absent ou `false` → rendu historique inchangé.
+   */
+  libelle_masque?: boolean
 }
 
 /**

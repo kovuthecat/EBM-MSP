@@ -21,13 +21,20 @@ interface CadrageListProps {
 export function CadrageList({ cadrage }: CadrageListProps) {
   if (cadrage.length === 0) return null
 
+  // REPLIÉ PAR DÉFAUT (2026-08-01, amélioration de lisibilité au fil de l'eau) : deux paragraphes denses
+  // en tête d'écran, avant tout formulaire, poussaient le premier champ hors du premier écran visible.
+  // `<details>` natif — même choix que le dépli d'argumentaire d'`OptionCard.tsx` (ouverture au clic,
+  // état géré par le navigateur, accessibilité clavier/lecteur d'écran acquise sans code). Le contenu
+  // reste TOUJOURS présent dans le DOM (replié ≠ absent) : rien n'est perdu, seule la mise en avant
+  // change — même principe que le dépli du panneau « en attente » (B2, `lib/prioritesSaisie.ts`).
   return (
-    <aside className="cadrage-list" aria-label="Ce que dit la preuve pour ce nœud">
+    <details className="cadrage-list" aria-label="Ce que dit la preuve pour ce nœud">
+      <summary className="cadrage-list__summary">Ce que dit la preuve pour ce nœud</summary>
       {cadrage.map((enonce, index) => (
         <p className="cadrage-list__item" key={`${index}-${enonce.slice(0, 24)}`}>
           {enonce}
         </p>
       ))}
-    </aside>
+    </details>
   )
 }

@@ -251,16 +251,22 @@ describe('decisifsAConfirmer — le contenu réel du nœud `prescription`', () =
   })
 
   it('ordonne les sections selon le raisonnement de consultation', () => {
+    // « Traitement actuel et contrôle » SCINDÉE en deux (2026-08-01, amélioration de lisibilité) :
+    // « Traitement » (ce qui est déjà prescrit) puis « Équilibre » (l'état de contrôle glycémique) —
+    // deux questions distinctes, désormais deux sections. Ordre de saisie inchangé (même position dans
+    // `criteres_entree`), seul le regroupement visuel bouge.
     const groupes = grouperChamps(node.criteres_entree, profil({ intention: 'intensifier' }))
     expect(groupes.map((g) => g.libelle)).toEqual([
-      'Intention thérapeutique',
-      'Traitement actuel et contrôle',
+      'Je souhaite',
+      'Traitement',
+      'Équilibre',
       'Ce qui oriente le choix',
       "Signaux d'alerte et tolérance",
       'Terrain et préférences',
     ])
     // Le traitement actuel est le 2e élément à renseigner, plus le dernier de la page.
     expect(groupes[1].champs[0].nom).toBe('traitements_en_cours')
+    expect(groupes[2].champs[0].nom).toBe('HbA1c_actuelle')
   })
 })
 

@@ -46,7 +46,9 @@ describe('describeReasons', () => {
     // « traitements_en_cours ne_contient_pas gliptine » au clinicien.
     const positif = describeReasons(['traitements_en_cours contient gliptine'])
     expect(positif).not.toContain('contient')
-    expect(positif).toBe('Traitements en cours comprend Gliptine (iDPP4)')
+    // Libellé raccourci le 2026-08-01 (amélioration de lisibilité, `ENUM_VALUE_LABELS.gliptine`) : le
+    // sigle de classe (iDPP4) a migré vers `describeEnumValue` (infobulle des chips), pas ici.
+    expect(positif).toBe('Traitements en cours comprend Gliptine')
 
     const negatif = describeReasons(['traitements_en_cours ne_contient_pas aGLP1'])
     expect(negatif).not.toContain('ne_contient_pas')

@@ -95,6 +95,24 @@ const ACTION_BORDER_CLASS: Record<ActionOption, string> = {
 }
 
 /**
+ * Icône du verbe d'action (amélioration de lisibilité, 2026-08-01) — 100 % GÉNÉRIQUE : `ActionOption`
+ * est une énumération FERMÉE à 5 valeurs, partagée par tout domaine qui l'emploie (D35), jamais un nom
+ * de nœud ni un fait clinique. Un dictionnaire exhaustif sur une union fermée est sûr par construction
+ * (TypeScript signale toute valeur manquante). Placée EN PLUS de l'intitulé complet, jamais à sa place :
+ * l'intitulé d'une option est le texte clinique qu'un praticien applique, le tronquer pour ne garder
+ * qu'« icône + classe thérapeutique » exigerait soit une réécriture heuristique du texte (risque de
+ * perdre un mot qui compte), soit un nouveau champ de contenu à faire rédiger option par option — les
+ * deux plus lourds qu'une icône de scan rapide, et non tranchés ici.
+ */
+const ACTION_ICON: Record<ActionOption, string> = {
+  ajouter: '➕',
+  remplacer: '🔄',
+  arreter: '⛔',
+  reduire: '➖',
+  maintenir: '➡️',
+}
+
+/**
  * Carte d'option applicable (T-006 étape 2), ALLÉGÉE le 2026-07-27 — arbitrage référent A5, puis
  * RESTRUCTURÉE EN ZONES le 2026-08-01 (recette navigateur du même jour), puis AFFINÉE LE MÊME JOUR
  * (second passage référent, après avoir vu le premier rendu) — cf. plus bas, c'est CE second passage
@@ -242,7 +260,14 @@ export function OptionCard({
   return (
     <div className={classeCarte}>
       <div className="option-card__header">
-        <div className="option-card__title">{option.intitule}</div>
+        <div className="option-card__title">
+          {option.action && (
+            <span aria-hidden="true" className="option-card__action-icon">
+              {ACTION_ICON[option.action]}
+            </span>
+          )}
+          {option.intitule}
+        </div>
         <div className="option-card__badges">
           {badge === 'recommandee' && <span className="option-card__recommended-badge">Recommandée</span>}
           {badge === 'reco-officielle' && (
