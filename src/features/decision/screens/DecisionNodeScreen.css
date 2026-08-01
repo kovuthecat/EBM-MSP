@@ -341,6 +341,33 @@
   margin-bottom: 0;
 }
 
+/* B2 (2026-08-01) — la phrase « commencez par » porte l'action ; sa justification (« ce sont les
+   critères qui débloquent le plus d'options ») est une NOTE, en retrait typographique : elle explique
+   le classement sans concurrencer les noms de champs que le praticien doit aller remplir. */
+.decision-node__en-attente-note {
+  color: var(--c-text-muted);
+}
+
+/* Le détail option par option reste accessible d'un clic (R4/D20 : rien n'est retiré, seule la mise en
+   avant change). Registre discret : c'est une vérification à la demande, pas la conduite à tenir. */
+.decision-node__en-attente-detail {
+  margin-top: 8px;
+}
+
+.decision-node__en-attente-detail > summary {
+  font-size: 12px;
+  color: var(--c-text-muted);
+  cursor: pointer;
+}
+
+.decision-node__en-attente-detail > summary:hover {
+  color: var(--c-text);
+}
+
+.decision-node__en-attente-detail .decision-node__en-attente-item {
+  margin-top: 6px;
+}
+
 /* R4 (`docs/decision/GRAMMAIRE-NOEUD.md`) — ÉCARTÉES : information de SÉCURITÉ, toujours affichée mais
    discrète (texte muet, pas de bloc coloré comme `AlertList` — une exclusion n'est pas une alerte à
    part entière, c'est la trace de ce qui a déjà été retiré). */

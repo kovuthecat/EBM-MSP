@@ -76,6 +76,7 @@ const {
   NODE_RIEN_A_PROPOSER,
   NODE_PREREMPLISSAGE,
   NODE_EGALITE,
+  NODE_PRIORITES,
 } = vi.hoisted(() => {
   function opt(intitule: string, conditions: string[], extra: Partial<Option> = {}): Option {
     const seule = conditions.length === 1 ? conditions[0] : undefined
@@ -286,6 +287,35 @@ const {
     }
   }
 
+  /**
+   * B2 (2026-08-01) — un nœud dont le formulaire VIERGE laisse PLUS DE TROIS critères distincts en
+   * attente : c'est le seuil au-delà duquel le panneau bascule sur « Commencez par : … » plutôt que sur
+   * l'énumération option par option. `bloquant` est réclamé par les TROIS options, les autres par une
+   * seule chacun — il doit donc sortir en tête du classement, alors qu'il n'apparaît pas le premier dans
+   * la déclaration de la 1ʳᵉ option.
+   */
+  function buildPrioritesNode(): Noeud {
+    return {
+      id: 'noeud-interaction-priorites-test',
+      domaine: 'test',
+      titre: 'Nœud de test (priorités de saisie)',
+      population_cible: 'test',
+      selection: 'multi-options',
+      criteres_entree: [
+        { nom: 'seul_a', type: 'bool', groupe: 'Divers' },
+        { nom: 'bloquant', type: 'bool', groupe: 'Divers' },
+        { nom: 'seul_b', type: 'bool', groupe: 'Divers' },
+        { nom: 'seul_c', type: 'bool', groupe: 'Divers' },
+      ],
+      options: [
+        opt('Option A', ['seul_a == true AND bloquant == true']),
+        opt('Option B', ['seul_b == true AND bloquant == true']),
+        opt('Option C', ['seul_c == true AND bloquant == true']),
+      ],
+      ...metaCommune(),
+    }
+  }
+
   return {
     NODE: buildNode(),
     NODE_CONTRAINTE: buildContrainteNode(),
@@ -293,6 +323,7 @@ const {
     NODE_RIEN_A_PROPOSER: buildRienAProposerNode(),
     NODE_PREREMPLISSAGE: buildPreremplissageNode(),
     NODE_EGALITE: buildEgaliteNode(),
+    NODE_PRIORITES: buildPrioritesNode(),
   }
 })
 
@@ -306,7 +337,7 @@ const {
 // dernier est hoisté au-dessus des imports, une constante ordinaire ne l'est pas — seuls `NODE`,
 // `NODE_CONTRAINTE`, etc. (issus de `vi.hoisted` ci-dessus) sont sûrs à référencer ici.
 vi.mock('../content/loadNodes', () => {
-  const tousLesNoeudsTest = [NODE, NODE_CONTRAINTE, NODE_SUSPENDU, NODE_RIEN_A_PROPOSER, NODE_PREREMPLISSAGE, NODE_EGALITE]
+  const tousLesNoeudsTest = [NODE, NODE_CONTRAINTE, NODE_SUSPENDU, NODE_RIEN_A_PROPOSER, NODE_PREREMPLISSAGE, NODE_EGALITE, NODE_PRIORITES]
   return {
     getNoeudById: (id: string) => tousLesNoeudsTest.find((n) => n.id === id),
     getNoeudsByDomaine: () => tousLesNoeudsTest,
@@ -679,5 +710,44 @@ describe('DecisionNodeScreen — T-024 : deux options à égalité disent que le
     expect(mention?.textContent).toMatch(/praticien/i)
     // L'ancienne mention, elle, ne portait aucun de ces deux mots.
     expect(mention?.textContent).not.toMatch(/^À égalité — même niveau de priorité\.$/)
+  })
+})
+
+/**
+ * B2 (arbitrage référent, 2026-08-01) — LE FORMULAIRE VIERGE DIT PAR QUOI COMMENCER.
+ *
+ * Le défaut corrigé : sur un formulaire où rien n'est encore saisi, le panneau « En attente » énumérait
+ * une ligne par option (une vingtaine sur `prescription`), chacune répétant les mêmes noms de critères.
+ * C'est le PREMIER écran que voit le praticien, et le correctif P8 — une phrase compacte — ne s'y
+ * appliquait jamais : son seuil (≤ 3 critères distincts) visait un formulaire déjà rempli.
+ *
+ * Ce qui est vérifié ici est le COMPORTEMENT, jamais la formulation exacte : la présence d'une amorce,
+ * le fait que le critère le plus bloquant y figure, et surtout que le détail par option n'a pas été
+ * SUPPRIMÉ mais DÉPLACÉ derrière un dépli (R4/D20 — on change ce qui est mis en avant, jamais ce qui
+ * est disponible).
+ */
+describe('DecisionNodeScreen — B2 : sur formulaire vierge, le panneau « en attente » amorce la saisie', () => {
+  it('met en tête le critère qui débloque le plus d’options, et range le détail par option dans un dépli', () => {
+    const { container } = render(<DecisionNodeScreen nodeId={NODE_PRIORITES.id} go={() => {}} />)
+
+    const panneau = container.querySelector('.decision-node__en-attente')
+    expect(panneau).toBeTruthy()
+
+    // Une amorce, et le critère réclamé par les TROIS options y arrive EN TÊTE — pas seulement présent :
+    // c'est sa POSITION qui porte la réponse à « par quoi je commence ». Le libellé est celui rendu à
+    // l'écran (`labelForCritere`), jamais le nom brut du critère.
+    const amorce = panneau?.querySelector('.decision-node__en-attente-item')
+    expect(amorce?.textContent).toMatch(/Commencez par\s*:\s*Bloquant/i)
+
+    // Le détail par option existe TOUJOURS, mais derrière un dépli : rien n'a été retiré.
+    const detail = panneau?.querySelector('.decision-node__en-attente-detail')
+    expect(detail).toBeTruthy()
+    expect(detail?.querySelectorAll('.decision-node__en-attente-item')).toHaveLength(3)
+
+    // ... et il n'est PLUS déversé au premier niveau du panneau : c'est tout l'objet du correctif.
+    const auPremierNiveau = [...(panneau?.children ?? [])].filter((el) =>
+      el.classList.contains('decision-node__en-attente-item'),
+    )
+    expect(auPremierNiveau).toHaveLength(1)
   })
 })

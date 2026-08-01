@@ -21,6 +21,7 @@ import {
   reinitialiserChampsMasques,
   valeurParDefaut,
 } from '../lib/formLayout'
+import { prioritesDeSaisie } from '../lib/prioritesSaisie'
 import { memoriserCriteres, reinitialiserSession, valeursReprises } from '../lib/sessionCriteres'
 import { plafonnerPistes, PLAFOND_PISTES } from '../lib/replierAffichage'
 import type { FamilleVue } from '../lib/vueDecision'
@@ -830,37 +831,61 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                 // laisser sortir un identifiant brut ici pour un nœud publié — un `manquants` sans
                 // libellé serait une violation d'I20 en amont, pas un défaut d'affichage à intercepter.
                 //
-                // DEUX FORMES POSSIBLES (Étape 2 de la tâche), UNE SEULE RETENUE PAR RENDU — jamais les
-                // deux en même temps. En dessous d'un petit nombre de critères DISTINCTS (≤ 3, seuil
-                // choisi parce que c'est le cas dominant en recette : une ou deux questions qui reviennent
-                // sur plusieurs options), une phrase unique dédoublonnée est plus lisible qu'une liste
-                // option par option qui répéterait le même nom de critère sous plusieurs intitulés — du
-                // bruit, pas l'information cherchée (cf. N13b : « il manque : les traitements en cours »,
-                // une phrase, pas un tableau). Au-delà, la liste par option (même registre que le bloc
-                // « écartées » juste en dessous, jugé « excellent » par le rapport) redevient nécessaire :
-                // des options différentes peuvent réclamer des critères différents, et les fondre en une
-                // seule phrase perdrait cette distinction.
-                const distincts: string[] = []
-                const vus = new Set<string>()
-                for (const enAttente of vue.enAttente) {
-                  for (const nom of enAttente.manquants) {
-                    if (vus.has(nom)) continue
-                    vus.add(nom)
-                    distincts.push(nom)
-                  }
-                }
-                if (distincts.length <= 3) {
+                // DEUX FORMES POSSIBLES, UNE SEULE RETENUE PAR RENDU — jamais les deux en même temps.
+                // En dessous d'un petit nombre de critères DISTINCTS (≤ 3, seuil choisi en P8 parce que
+                // c'est le cas dominant en recette : une ou deux questions qui reviennent sur plusieurs
+                // options), une phrase unique dédoublonnée est plus lisible qu'une liste option par option
+                // qui répéterait le même nom de critère sous plusieurs intitulés — du bruit, pas
+                // l'information cherchée (cf. N13b : « il manque : les traitements en cours », une phrase,
+                // pas un tableau).
+                //
+                // AU-DELÀ DE 3 — REFONTE B2 (arbitrage référent, 2026-08-01). La forme précédente
+                // retombait sur la liste par option, et ce repli n'a JAMAIS été couvert pour le cas où il
+                // fait le plus de dégât : le formulaire VIERGE, où tout manque, où la liste est la plus
+                // longue (une vingtaine d'options sur `prescription`) et où elle est le PREMIER écran que
+                // voit le praticien. Le seuil de P8 visait explicitement un formulaire déjà rempli.
+                // La question qu'il se pose à ce moment-là n'est pas « quelles options attendent quoi »,
+                // c'est « PAR QUOI JE COMMENCE ». `prioritesDeSaisie` y répond en classant les critères
+                // manquants par le nombre d'options qu'ils débloquent (décompte exact sur le registre
+                // `enAttente` du moteur, cf. `lib/prioritesSaisie.ts` — jamais un score ni un jugement
+                // d'importance clinique).
+                //
+                // RIEN N'EST PERDU (R4/D20) : le détail option par option reste intégralement accessible,
+                // d'un clic, dans le dépli ci-dessous. On change ce qui est mis EN AVANT, jamais ce qui est
+                // disponible.
+                const priorites = prioritesDeSaisie(vue.enAttente)
+                if (priorites.length <= 3) {
                   return (
                     <p className="decision-node__en-attente-item">
-                      À renseigner pour trancher : {distincts.map(labelForCritere).join(', ')}.
+                      À renseigner pour trancher : {priorites.map((p) => labelForCritere(p.nom)).join(', ')}.
                     </p>
                   )
                 }
-                return vue.enAttente.map((enAttente, index) => (
-                  <p key={`${index}-${enAttente.option.intitule}`} className="decision-node__en-attente-item">
-                    {enAttente.option.intitule} — à renseigner : {enAttente.manquants.map(labelForCritere).join(', ')}
-                  </p>
-                ))
+                // Trois questions de tête : assez pour amorcer une reco provisoire, assez peu pour être
+                // lues en consultation. Le reste est dénombré, jamais caché.
+                const tete = priorites.slice(0, 3)
+                const reste = priorites.length - tete.length
+                return (
+                  <>
+                    <p className="decision-node__en-attente-item">
+                      Commencez par : {tete.map((p) => labelForCritere(p.nom)).join(', ')}.
+                      {' '}
+                      <span className="decision-node__en-attente-note">
+                        Ce sont les critères qui débloquent le plus d'options
+                        {reste > 0 ? ` ; ${reste} autre${reste > 1 ? 's' : ''} restent à renseigner ensuite` : ''}.
+                      </span>
+                    </p>
+                    <details className="decision-node__en-attente-detail">
+                      <summary>Voir le détail, option par option ({vue.enAttente.length})</summary>
+                      {vue.enAttente.map((enAttente, index) => (
+                        <p key={`${index}-${enAttente.option.intitule}`} className="decision-node__en-attente-item">
+                          {enAttente.option.intitule} — à renseigner :{' '}
+                          {enAttente.manquants.map(labelForCritere).join(', ')}
+                        </p>
+                      ))}
+                    </details>
+                  </>
+                )
               })()}
             </div>
           )}
