@@ -45,3 +45,21 @@ ouverts (T-032/033/034, vérification sur le déployé) sont du N1 également �
       10-20 mg ») reste-t-il lisible sur mobile, sans écraser le compte de contre-indications ?
 - **T-074 (S7)** : issue = investigation sans correctif (statu quo documenté) — pas un item N2, mais une
   question d'arbitrage clinique renvoyée au référent, cf. `TASKS.md`.
+
+## Plan P10 (2026-08-01) — jugement humain reversé par S1-S11, recette `docs/decision/validation/recette-P10-2026-08-01.md`
+
+- [ ] **T-080** (prescription) — la liste « ce que ce nœud ne prend pas en compte » (fonction hépatique,
+      kaliémie, hémoglobine, poids sec/état volémique, refus global) est-elle juste et complète ? Et la
+      redite de la hiérarchie de valeur des classes en tête de nœud est-elle utile ou superflue ?
+- [ ] **T-081** (insuline) — cadrage étendu (TIR, heure des hypos, vit seule, métier, refus vs
+      indisponibilité du capteur) juste et complet ?
+- [ ] **T-082** (statine + cible-glycémique) — cadrage statine (LDL, molécule/dose actuelle, autres
+      hypolipémiants, historique) et cadrage cible-glycémique (répartition des rôles entre nœuds) justes ?
+- [ ] **T-083** (RHD ×2) — cadrage alimentation (demande du patient sur le poids en tête, tour de
+      taille/TA/SAOS) et cadrage activité physique (projet du patient, ECG, tabac, éval. médicale non
+      définie) justes ? Registre du motif « séances déjà pratiquées, mais courtes » adapté ?
+- [ ] **T-084** — molécules/doses iSGLT2 (dapagliflozine/empagliflozine/canagliflozine) et AR GLP-1
+      (liraglutide/sémaglutide/dulaglutide) : celles que le référent prescrirait ?
+- [ ] **T-085** — descente d'insuline laissée sans chiffre (« jugement clinique, surveillance
+      rapprochée », aucune source FR trouvée) : convient tel quel, ou une source a-t-elle échappé ?
+- [ ] **T-086** — l'aide sur « Risque hypoglycémique du schéma » permet-elle de répondre sans hésiter ?

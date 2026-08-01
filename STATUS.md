@@ -4,7 +4,7 @@ Photo à l'instant T. Mis à jour en fin de session. L'historique (comment on es
 `git log`, `DECISIONS.md`/`docs/commun/decisions/` et les changelogs de contenu — pas ici.
 Plafond : 80 lignes (appliqué par hook).
 
-> **Dernière mise à jour :** 2026-07-30
+> **Dernière mise à jour :** 2026-08-01
 
 ## Ce qui existe
 
@@ -15,25 +15,28 @@ Veille : **non commencé** (aucun code, `DECISIONS.md` D8 garde la place).
 
 | nœud | statut | dernière version |
 | --- | --- | --- |
-| `cible-glycemique` | `valide` | v2.9 |
-| `statine` | `brouillon` | v1.19 |
-| `prescription` | `brouillon` | v0.41 |
-| `insuline` | `brouillon` | v0.34 |
-| `rhd-alimentation` | `brouillon` | v0.9 |
-| `rhd-activite-physique` | `brouillon` | v0.10 |
+| `cible-glycemique` | `valide` | v2.11 |
+| `statine` | `brouillon` | v1.20 |
+| `prescription` | `brouillon` | v0.45 |
+| `insuline` | `brouillon` | v0.37 |
+| `rhd-alimentation` | `brouillon` | v0.11 |
+| `rhd-activite-physique` | `brouillon` | v0.11 |
 
 Passage à `valide` conditionné à la relecture référent finale (`TASKS.md` §validation clinique).
 
 **Banc de tests** (`src/features/decision/engine/banc/`) : non-régression du contenu en 3 couches
-(vignettes, couverture, invariants). **889 tests, 11 skip, typecheck et build verts.**
+(vignettes, couverture, invariants). **913 tests, 11 skip, typecheck et build verts.**
 
 ## Chantier actif
 
-**Plan P9 : clos le 2026-07-30** (S1-S10 livrées, vérifiées N0+N1, commitées et poussées). Contre-
-indications vérifiables désormais désamorçables (schéma+moteur+5 conversions sur 2 nœuds), jargon de
-projet purgé de l'écran clinique, aperçu de titre de dépli (statine + metformine), protocole de
-titration metformine sourcé (Ameli). T-074 (risque hypoglycémique) reste en arbitrage référent, cf.
-`TASKS.md`.
+**Plan P10 : clos le 2026-08-01** (S1-S11 livrées, vérifiées N0 + N1, pas encore commitées/poussées).
+Les branches de condition n'affichent plus que ce qui est vrai pour le patient, un motif rédigé peut
+remplacer une branche illisible, les options non retenues se lisent en énumération négative, six nœuds
+portent désormais un `cadrage` disant ce qu'ils ignorent, iSGLT2/AR GLP‑1 descendent à la molécule et à
+la dose (sourcé RCP), l'infobulle « Risque hypoglycémique du schéma » est posée. Deux sessions (S8, S10)
+concluent par un STOP documenté plutôt qu'un changement (aucune source FR sur la vitesse de désescalade
+insuline ; l'ordre des familles ne peut pas être rendu générique sans notion nouvelle de contenu) —
+cf. `TASKS.md`. Relecture référent (N2) en attente, cf. `VALIDATION.md`.
 
 **Plan PV1 — module Veille, cadré le 2026-07-31, pas démarré** (`plans/PV1/index.md`) : 10 sessions,
 deux éditions hebdomadaires produites **à la main** (`2026-W30`, `2026-W31`, en rétrospectif) avant
