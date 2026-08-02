@@ -7,10 +7,20 @@ jugement visuel en attente. **Non planifiée** : `- [ ] T-ID — titre · modèl
 plan** (statut dans son `index.md`) : `- T-ID — titre · → plans/…/S<k>.md`. Modèles/efforts :
 `WORKFLOW.md` §2-3 ; `env: Desktop` si le navigateur in-app est requis (N1).
 
+## Plan P12 — suites de la recette praticien naïf du 2026-08-02 (statut : `plans/P12/index.md`)
+
+- T-119/T-120 — La cible d'HbA1c cesse de changer toute seule · → plans/P12/S1.md
+- T-121 — Intitulés : le motif sort du titre · → S2.md · T-122/T-123 — Seuil deux colonnes · → S3.md
+- T-067 — Branche AGP appariée (reprise de P8/S9) · → S4.md · T-124/T-125 — Groupes, motifs · → S5.md
+- T-126/T-127 — 11 aperçus de déprescription + alerte préventive acidocétose iSGLT2 · → S6.md
+- T-128→T-132 — Propreté (bulle, garde-fou, RHD, jargon, statine) · → S7.md
+- T-133 — Dérivés numériques (IMC, CK, A/C) · → S8.md · T-134 — « Indisponible » · → S9.md
+- T-135/T-136 — Accroche chiffrée sur les blocs repliés, carte unique dépliée · → S10.md
+
 ## Plans P7 et P8 — ouverts (statut/détail : `plans/P7/index.md`, `plans/P8/index.md`)
 
-- T-052/T-053 — Validité HbA1c (cadrage) + doctrine → plans/P7/SA2.md · T-054 — recette locale → S2.md
-- T-067 — Baisse continue nocturne → « réduire la basale », chiffrée · → plans/P8/S9.md (S1-S8 livrées)
+- T-052/T-053 — Validité HbA1c (cadrage, **après P12/S10**) → plans/P7/SA2.md · T-054 → S2.md
+- P8 : S1-S8 livrées ; **T-067 reprise par P12/S4** — clore P8 à la consolidation de P12
 
 ## Plan PV1 — Veille, cadré 2026-07-31, pas démarré (statut/détail : `plans/PV1/index.md`)
 
@@ -24,19 +34,14 @@ plan** (statut dans son `index.md`) : `- T-ID — titre · → plans/…/S<k>.md
 
 - [ ] Vérifier sur le déployé (N1) : T-032/T-033/T-034 (P5, jamais confirmés hors local) · Claude + navigateur, low, env: Desktop
 - [ ] `lib/replierAffichage.ts` (P9/S1) lit le champ brut, pas l'état évalué — sans effet actuel · Sonnet, low
-- [ ] `PastilleInfo` (S3) n'a que `ton="neutre"|"danger"` ; `OptionCard` (S6) surcharge donc la couleur
-      ambre par CSS externe — ajouter un ton `attention` natif puis retirer la surcharge · Sonnet, low
-- [ ] `npx tsc --noEmit` racine est factice (`tsconfig.json` en `files: []`) — propager `npm run
-      typecheck` aux gabarits de `Templates/` (hors de ce dépôt) · Sonnet, low
-- [ ] Vérifier au pixel que la carte d'option tient sur une ligne à 960-1050px de large (arrêt de S6,
-      jamais confirmé visuellement, cf. `STATUS.md`) · Claude + navigateur, low, env: Desktop
+- [ ] `PastilleInfo` : ton `attention` natif à ajouter, puis retirer la surcharge CSS d'`OptionCard` · Sonnet, low
+- [ ] Nœud `Traiter` : 6 sections, 5 « Suivant », >50 % des actions — re-cadrage (mesurer d'abord les champs visibles/section) · Opus, high
+- [ ] Nœud `Alimentation` : 15 champs, jamais rempli en 2 recettes — re-cadrage · Opus, high
 
 ## Backlog — recherche clinique / arbitrage référent
 
 - [ ] **Passe B — sécurité à l'effort** (`rhd-activite-physique`) · modèle: Opus, effort: high
-- [ ] `risque_hypoglycemie_schema` : scission reportée par le référent 2026-07-31 ; P10/S9 a posé une infobulle à la place (livré).
 - [ ] Motif du repli statine : ASCVD peut l'atteindre via l'exclusion dialyse (HAUTE-4) — arbitrage référent avant d'écrire un texte (P10, non traité).
-- [ ] `insuline.yaml` Désintensifier : aucune source FR ne chiffre le rythme de désescalade (P10/S8) — source manquée, ou texte ouvert OK tel quel ?
 - [ ] `prescription.yaml` AR GLP-1 : « préférer le sémaglutide oral » (Rybelsus, avis HAS défavorable 2021, quasi indisponible) — phrase trompeuse (P10/S7), non corrigée.
 
 ## Backlog — validation clinique finale (D5, passage à `statut: valide`)
