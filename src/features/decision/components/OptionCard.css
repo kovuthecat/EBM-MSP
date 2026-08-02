@@ -188,6 +188,14 @@
   color: var(--c-accent-decision);
 }
 
+/* `EvidenceBadge` dans la rangée (P11/S10, T-117/T-118) — badge partagé (`EvidenceBadge.css`), donc pas
+   d'`option-card__*` sur lui : sélecteur descendant depuis CE fichier pour ne jamais lui faire céder de
+   place à l'intitulé, même logique que `.option-card__action-pastille` ci-dessus (`flex-shrink: 0`
+   explicite plutôt que de compter sur le `min-width: auto` implicite d'un enfant flex `nowrap`). */
+.option-card__rangee > .evidence-badge {
+  flex-shrink: 0;
+}
+
 /* Pastille POSOLOGIE en attente (P11/S6) — `PastilleInfo` (S3) ne connaît que `ton="neutre"|"danger"`,
    pas encore de registre `attention` (ambre, « il manque une dose », même famille que
    `--c-attention*`/`--c-ton-attention-*` déjà utilisés ailleurs, ex. `.option-card__calculs--en-attente`

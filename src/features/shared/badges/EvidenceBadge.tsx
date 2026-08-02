@@ -20,14 +20,13 @@ const LABELS: Record<NiveauPreuve, string> = {
 
 /**
  * Badge « niveau de preuve », commun aux modules Décision et Veille (ARCHITECTURE.md :
- * « Badges lisibles ... code visuel cohérent entre les deux modules »). Prévu « optionnel » en S1
- * (`plans/P1/S1.md` T-001), jamais livré ; construit ici (S4) car T-006 (D3) le réutilise pour
- * chaque option. Couleurs = tokens `--c-badge-preuve-*` (`tokens.css`, valeurs exactes du prototype).
- *
- * NB « très faible » : le token CSS dédié n'existe pas encore (`tokens.css` l.35-36 — non présent
- * dans le bloc du prototype lu en S1, à fixer lors de la session Veille). Ce niveau n'apparaît dans
- * aucun contenu réel de P1 (cible-glycemique n'utilise que modere/faible) ; en attendant, le style
- * retombe sur la variante « faible » (cf. `EvidenceBadge.css`).
+ * « Badges lisibles ... code visuel cohérent entre les deux modules »). Un rendu en points a été
+ * essayé (P11/S5, T-109 — justifié par la carte d'option en une ligne) puis **révoqué par arbitrage
+ * référent du 2026-08-02** (P11/S10, T-117) : retour à la pastille de texte. La rangée d'`OptionCard`
+ * tient désormais grâce à l'élargissement de la mise en page (T-118), pas grâce au badge.
+ * Couleurs = tokens `--c-badge-preuve-*` (`tokens.css`). `tres-faible` a maintenant son propre
+ * style : les 4 niveaux sont visuellement distincts (avant P11/S10, `tres-faible` retombait sur le
+ * style de `faible`, dette documentée depuis P1).
  */
 export function EvidenceBadge({ niveau }: EvidenceBadgeProps) {
   return <span className={`evidence-badge evidence-badge--${niveau}`}>{LABELS[niveau]}</span>

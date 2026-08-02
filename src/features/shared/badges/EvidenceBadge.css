@@ -18,9 +18,14 @@
   color: var(--c-badge-preuve-modere-text);
 }
 
-.evidence-badge--faible,
-.evidence-badge--tres-faible {
-  /* "tres-faible" : pas de token dédié (cf. commentaire EvidenceBadge.tsx) — retombe sur "faible". */
+.evidence-badge--faible {
   background: var(--c-badge-preuve-faible-bg);
   color: var(--c-badge-preuve-faible-text);
+}
+
+.evidence-badge--tres-faible {
+  /* Dette soldée par P11/S10 (arbitrage référent 2026-08-02) : token dédié (`tokens.css`), ne
+     retombe plus sur "faible" — règle propre, les deux niveaux redeviennent distinguables. */
+  background: var(--c-badge-preuve-tres-faible-bg);
+  color: var(--c-badge-preuve-tres-faible-text);
 }

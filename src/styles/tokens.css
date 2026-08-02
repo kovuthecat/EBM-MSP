@@ -38,15 +38,21 @@
   --c-attention-border: oklch(76% 0.12 85);
   --c-attention-soft: oklch(97% 0.035 85);
 
-  /* Badges — niveau de preuve (GRADE simplifié) */
+  /* Badges — niveau de preuve (GRADE simplifié). Rétablis par P11/S10 (arbitrage référent
+     2026-08-02) après suppression en S5 (passage au rendu en points, P11/S5 T-109, révoqué). Les 3
+     premiers reprennent les valeurs exactes du prototype ; `tres-faible` (absent du prototype, qui
+     ne couvrait que 3 niveaux) est nouveau : il prolonge la progression eleve→modere→faible (L
+     croissante, chroma décroissante, même teinte 254) par une valeur encore plus pâle que `faible`,
+     avec le même texte foncé qu'`eleve`/`modere` pour rester lisible — ce qui solde la dette
+     documentée jusqu'ici (`tres-faible` retombait visuellement sur `faible`). */
   --c-badge-preuve-eleve-bg: oklch(46% 0.09 254);
   --c-badge-preuve-eleve-text: white;
   --c-badge-preuve-modere-bg: oklch(75% 0.06 254);
   --c-badge-preuve-modere-text: oklch(24% 0.02 245);
   --c-badge-preuve-faible-bg: oklch(90% 0.03 254);
   --c-badge-preuve-faible-text: oklch(24% 0.02 245);
-  /* niveau "très faible" : valeur non présente dans le bloc du prototype lu en S1 ;
-     à fixer lors de la session Veille (V1/V2) sur lecture du script complet. */
+  --c-badge-preuve-tres-faible-bg: oklch(96% 0.015 254);
+  --c-badge-preuve-tres-faible-text: oklch(24% 0.02 245);
 
   /* Badges — niveau d'impact (veille) */
   --c-badge-impact-pratique-bg: oklch(58% 0.075 178);
