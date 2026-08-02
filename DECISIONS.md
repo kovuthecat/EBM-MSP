@@ -54,6 +54,9 @@ Format du détail : cf. `Templates/DECISIONS.md`. Les décisions caduques descen
 - 2026-07-31 — **D41 · Convention de semaine** — publication le lundi, `date_semaine` = semaine ISO du lundi, fenêtre = 7 jours précédents ; 1re édition `2026-W32` → [détail](docs/commun/decisions/2026-07-31-d41-convention-de-semaine-lundi-iso-fenetre-7-jours.md)
 - 2026-07-31 — **D42 · Plans du module Veille préfixés `PV<n>`** — séquence `T-0xx` des tâches inchangée (espace de noms global, un identifiant = une tâche) → [détail](docs/commun/decisions/2026-07-31-d42-plans-du-module-veille-prefixes-pv-taches-en-sequence-globale.md)
 - 2026-07-31 — **D43 · 13ᵉ thème `infectiologie-antibiotherapie`** — taxonomie partagée décision ↔ veille à 13 thèmes ; coût nul avant S5, non nul après ; `BRIEF_VEILLE.md` §4 et `ARCHITECTURE.md` doivent rester identiques → [détail](docs/commun/decisions/2026-07-31-d43-theme-infectiologie-antibiotherapie-ajoute-a-la-taxonomie.md)
+- 2026-08-01 — **D44 · Kit d'icônes SVG partagé (amende D9)** — `src/features/shared/icons/`, 17 tracés recopiés de la maquette, `currentColor` piloté par token, zéro dépendance runtime → [détail](docs/commun/decisions/2026-08-01-d44-kit-d-icones-svg-partage.md)
+- 2026-08-01 — **D45 · Carte d'option compacte à pastilles (amende D34)** — posologie et CI derrière un clic ; badge de preuve resté textuel (points essayés T-109 puis révoqués arbitrage 2026-08-02) ; validation d'usage ouverte → [détail](docs/commun/decisions/2026-08-01-d45-carte-d-option-compacte-a-pastilles.md)
+- 2026-08-02 — **D46 · La mise en page occupe la largeur de l'écran** — `.decision-node` 900→1600px, arbitrage référent (pas une mesure), plafond soumis au jugement N2 (`VALIDATION.md`) → [détail](docs/commun/decisions/2026-08-02-d46-mise-en-page-occupe-la-largeur-de-l-ecran.md)
 
 ## Décisions ouvertes (à trancher avec le comité MSP)
 

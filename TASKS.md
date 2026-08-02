@@ -7,12 +7,9 @@ jugement visuel en attente. **Non planifiée** : `- [ ] T-ID — titre · modèl
 plan** (statut dans son `index.md`) : `- T-ID — titre · → plans/…/S<k>.md`. Modèles/efforts :
 `WORKFLOW.md` §2-3 ; `env: Desktop` si le navigateur in-app est requis (N1).
 
-## Plan P7 — en cours (statut/détail : `plans/P7/index.md`)
+## Plans P7 et P8 — ouverts (statut/détail : `plans/P7/index.md`, `plans/P8/index.md`)
 
 - T-052/T-053 — Validité HbA1c (cadrage) + doctrine → plans/P7/SA2.md · T-054 — recette locale → S2.md
-
-## Plan P8 — quasi clos, S9 non livrée (statut/détail : `plans/P8/index.md`)
-
 - T-067 — Baisse continue nocturne → « réduire la basale », chiffrée · → plans/P8/S9.md (S1-S8 livrées)
 
 ## Plan PV1 — Veille, cadré 2026-07-31, pas démarré (statut/détail : `plans/PV1/index.md`)
@@ -27,9 +24,14 @@ plan** (statut dans son `index.md`) : `- T-ID — titre · → plans/…/S<k>.md
 
 - [ ] Vérifier sur le déployé (N1) : T-032/T-033/T-034 (P5, jamais confirmés hors local) · Claude + navigateur, low, env: Desktop
 - [ ] `GAJ` (`insuline`) affiché sous capteur alors qu'il n'est plus réclamé · Haiku, low
-- [ ] Banc `securite-atteignable.test.ts` (I23) timeout sur `rhd-activite-physique` (pré-existant) · Sonnet, medium
 - [ ] Suggestion d'espérance de vie (T-061/P8) ne se retrigger pas après « Reprendre les valeurs » · Sonnet, medium
 - [ ] `lib/replierAffichage.ts` (P9/S1) lit le champ brut, pas l'état évalué — sans effet actuel · Sonnet, low
+- [ ] `PastilleInfo` (S3) n'a que `ton="neutre"|"danger"` ; `OptionCard` (S6) surcharge donc la couleur
+      ambre par CSS externe — ajouter un ton `attention` natif puis retirer la surcharge · Sonnet, low
+- [ ] `npx tsc --noEmit` racine est factice (`tsconfig.json` en `files: []`) — propager `npm run
+      typecheck` aux gabarits de `Templates/` (hors de ce dépôt) · Sonnet, low
+- [ ] Vérifier au pixel que la carte d'option tient sur une ligne à 960-1050px de large (arrêt de S6,
+      jamais confirmé visuellement, cf. `STATUS.md`) · Claude + navigateur, low, env: Desktop
 
 ## Backlog — recherche clinique / arbitrage référent
 
@@ -52,7 +54,4 @@ plan** (statut dans son `index.md`) : `- T-ID — titre · → plans/…/S<k>.md
 
 ## Archivage
 
-Supprimer la ligne d'une tâche dès que son plan est clos (historique : `git log`/`STATUS.md`). Purgé
-2026-07-30 : P7 T-048→T-051, P8 T-055→T-066, P9 T-068→T-077 · 2026-07-31 : items Veille des phases
-suivantes et « onglet Veille page blanche » (repris par PV1/S6) · 2026-08-01 : P10 T-078→T-088 (livrées,
-vérifiées N0 + N1 le 2026-08-01, cf. `STATUS.md`).
+Supprimer la ligne d'une tâche dès que son plan est clos (historique : `git log`/`STATUS.md`). Purgé 2026-07-30 : P7 T-048→T-051, P8 T-055→T-066, P9 T-068→T-077 · 2026-07-31 : items Veille + « onglet Veille page blanche » (→ PV1/S6) · 2026-08-01 : P10 T-078→T-088 · 2026-08-02 : P11 T-102→T-118.

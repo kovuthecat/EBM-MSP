@@ -4,7 +4,7 @@ Photo à l'instant T. Mis à jour en fin de session. L'historique (comment on es
 `git log`, `DECISIONS.md`/`docs/commun/decisions/` et les changelogs de contenu — pas ici.
 Plafond : 80 lignes (appliqué par hook).
 
-> **Dernière mise à jour :** 2026-08-01
+> **Dernière mise à jour :** 2026-08-02
 
 ## Ce qui existe
 
@@ -25,9 +25,14 @@ Veille : **non commencé** (aucun code, `DECISIONS.md` D8 garde la place).
 Passage à `valide` conditionné à la relecture référent finale (`TASKS.md` §validation clinique).
 
 **Banc de tests** (`src/features/decision/engine/banc/`) : non-régression du contenu en 3 couches
-(vignettes, couverture, invariants). **913 tests, 11 skip, typecheck et build verts.**
+(vignettes, couverture, invariants). **980 tests, 11 skip, typecheck et build verts.**
 
 ## Chantier actif
+
+**Plan P11 — clos et poussé 2026-08-02** (langage visuel maquette, module Décision) : S1-S10 livrées
+(icônes D44, carte compacte D45, largeur d'écran D46). Recette S8 sans défaut N1 mais **DOM/console
+seule** (captures impossibles) : carte tient-elle sur une ligne (arrêt S6, 960-1050px) **non vérifié
+au pixel**, cf. `TASKS.md`. N2 en attente, cf. `VALIDATION.md`.
 
 **Plan P10 : clos le 2026-08-01** (S1-S11 livrées, vérifiées N0 + N1, pas encore commitées/poussées).
 Les branches de condition n'affichent plus que ce qui est vrai pour le patient, un motif rédigé peut
@@ -53,9 +58,7 @@ détail : `plans/P7/index.md`.
 - Onglet **« Veille » rend une page blanche** (texte `top: 0` caché sous la nav fixe) — mécanique, non cadré.
 - **`GAJ` (nœud `insuline`) reste réclamé même quand `mcg_disponible` est coché** — masquage manquant, cf. `TASKS.md`.
 - CTA flottant mobile (P6) : réserve mineure résiduelle, usage ordinaire ne la déclenche pas — laissé tel quel (référent, 2026-07-29).
-- **Suggestion d'espérance de vie (T-061) ne se retrigger pas après « Reprendre les valeurs de ce
-  patient »** (frontière de re-entrée, T-057) : le nœud repart « en attente » sur ce seul critère au
-  lieu de recalculer. Trouvé en recette P8 du 2026-07-30, non corrigé (cf. `docs/decision/validation/recette-P8-2026-07-30.md`).
+- **Suggestion d'espérance de vie (T-061) ne se retrigger pas après « Reprendre les valeurs de ce patient »** (T-057) : repart « en attente » au lieu de recalculer (cf. `docs/decision/validation/recette-P8-2026-07-30.md`).
 
 ## Bugs connus
 
@@ -71,7 +74,7 @@ détail : `plans/P7/index.md`.
 ## Comment vérifier l'état réel
 
 ```bash
-npm test          # 889 tests attendus, 11 skip
-npx tsc --noEmit
+npm test          # 980 tests attendus, 11 skip
+npm run typecheck # npx tsc --noEmit seul est factice (tsconfig.json en `files: []`, 0 fichier compilé)
 npm run build
 ```
