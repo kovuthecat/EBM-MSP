@@ -89,6 +89,17 @@
   margin-bottom: 6px;
 }
 
+/* T-108 — pastille `PastilleInfo` (description des valeurs au clic), nichée dans le libellé de champ.
+   Le bouton porte par défaut un gabarit de 32×32 px (cible tactile, pensé pour une carte de recomman-
+   dation) — beaucoup trop grand pour un libellé de 12px de haut : ramené à la taille du texte
+   environnant, sans toucher à `PastilleInfo.css` (portée limitée à ce contexte d'usage). */
+.criteria-form__field-label .pastille-info {
+  min-width: 18px;
+  min-height: 18px;
+  vertical-align: -4px;
+  margin-left: 2px;
+}
+
 .criteria-form__field-note {
   font-weight: 400;
   font-style: italic;
@@ -214,6 +225,69 @@
   border-color: var(--c-accent-decision-soft);
   color: var(--c-accent-decision);
   font-weight: 600;
+}
+
+/* Tons sémantiques par valeur d'énumération (T-107, P11/S4) — `lib/labels.ts` `ENUM_VALUE_TONES` pose
+   `data-ton` sur le bouton/la case SEULEMENT à l'état sélectionné (même repli que `data-on`, cf.
+   `CriteriaForm.tsx`) : les règles ci-dessous n'entrent donc en jeu qu'en plus de `[data-on]`, jamais au
+   repos — sinon les options d'un même champ s'allumeraient toutes en couleur et plus rien ne
+   distinguerait la réponse retenue.
+
+   `succes`/`attention`/`danger` seulement. PAS DE RÈGLE POUR `info` (`sous_objectif`) : `tokens.css` ne
+   porte pas de triplet `--c-ton-info-*` (seule une pastille `--c-pastille-info` existe pour lui, cf.
+   plus bas) — sa couleur EST déjà celle du bleu de sélection par défaut ci-dessus
+   (`--c-accent-decision`/`--c-accent-decision-soft`, le même bleu que la maquette lui donne, l.119), une
+   règle dédiée serait redondante. PAS DE RÈGLE POUR `neutre` non plus : aucune valeur du catalogue actuel
+   ne le produit (`toneForEnumValue` ne renvoie jamais `'neutre'` aujourd'hui). */
+.criteria-form__segment[data-on][data-ton='succes'],
+.criteria-form__chip[data-on][data-ton='succes'] {
+  background: var(--c-ton-succes-bg);
+  border-color: var(--c-ton-succes-border);
+  color: var(--c-ton-succes-text);
+}
+
+.criteria-form__segment[data-on][data-ton='attention'],
+.criteria-form__chip[data-on][data-ton='attention'] {
+  background: var(--c-ton-attention-bg);
+  border-color: var(--c-ton-attention-border);
+  color: var(--c-ton-attention-text);
+}
+
+.criteria-form__segment[data-on][data-ton='danger'],
+.criteria-form__chip[data-on][data-ton='danger'] {
+  background: var(--c-ton-danger-bg);
+  border-color: var(--c-ton-danger-border);
+  color: var(--c-ton-danger-text);
+}
+
+/* Pastille ronde (T-107 étape 6) : réservée aux 4 crans de `position_vs_cible` sans icône
+   (`pastilleForEnumValue`, `lib/labels.ts`) — dimensions et rayon repris tels quels de la maquette
+   (l.116-119). Visible en PERMANENCE (aucune condition sur `[data-on]`, à la différence des règles
+   ci-dessus) : c'est un repère de lecture des options avant même d'avoir choisi, pas un indicateur
+   d'état — cf. le commentaire sur `data-ton` dans `CriteriaForm.tsx`. */
+.criteria-form__segment-pastille {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+  margin-right: 4px;
+}
+
+.criteria-form__segment-pastille[data-ton='succes'] {
+  background: var(--c-pastille-succes);
+}
+
+.criteria-form__segment-pastille[data-ton='attention'] {
+  background: var(--c-pastille-attention);
+}
+
+.criteria-form__segment-pastille[data-ton='danger'] {
+  background: var(--c-pastille-danger);
+}
+
+.criteria-form__segment-pastille[data-ton='info'] {
+  background: var(--c-pastille-info);
 }
 
 /* Cases (bool) et valeurs de liste : même pastille cliquable. */
@@ -360,9 +434,18 @@
    des styles natifs du <button>, le reste hérite de `.criteria-form__label` (taille/graisse/majuscules
    déjà posées par cette classe, présente sur le même élément — `font-family` SEUL ici, jamais le
    raccourci `font`, qui écraserait `font-size`/`font-weight` de `.criteria-form__label` par ordre de
-   déclaration, à spécificité égale). */
+   déclaration, à spécificité égale).
+
+   `display: flex` (T-106, P11/S4) remplace `display: block` : porte désormais le chevron d'affordance
+   (`criteria-form__group-chevron`) poussé à droite par `justify-content: space-between`. Les DEUX seuls
+   enfants directs du bouton sont le texte (`criteria-form__group-header-texte`, qui groupe LUI-MÊME le
+   libellé et le compteur « N à confirmer ») et le chevron — avec 3 enfants au même niveau (libellé,
+   compteur, chevron), `space-between` aurait poussé le compteur au centre du bouton, séparé du libellé
+   qu'il qualifie (cf. "Étapes" de T-106, S4.md). */
 .criteria-form__group-header-bouton {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   width: 100%;
   border: none;
   background: transparent;
@@ -374,6 +457,23 @@
 
 .criteria-form__group-header-bouton:hover {
   color: var(--c-accent-decision);
+}
+
+/* Regroupe libellé + compteur en un seul enfant flex (cf. commentaire ci-dessus) — même alignement que
+   l'en-tête OUVERT (`.criteria-form__label`, `align-items: baseline; gap: 10px`), pour que le compteur
+   reste visuellement collé à son libellé, replié ou non. */
+.criteria-form__group-header-texte {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+/* Chevron d'affordance (T-106) : SEULEMENT sur un en-tête REPLIÉ (jamais sur l'en-tête ouvert, qui n'est
+   pas un bouton — cf. Décision clé de la tâche). `flex: none` pour ne jamais rétrécir face à un libellé
+   long ; ton discret (`--c-text-faible`), même registre que le texte non accentué du formulaire. */
+.criteria-form__group-chevron {
+  flex: none;
+  color: var(--c-text-faible);
 }
 
 /* Résumé générique d'une section repliée (`Libellé : valeur` par champ renseigné, séparés par « · »).

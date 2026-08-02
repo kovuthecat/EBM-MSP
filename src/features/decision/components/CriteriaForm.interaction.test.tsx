@@ -179,3 +179,65 @@ describe('CriteriaForm — accordéon : ouvrir une section referme les autres (P
     expect(alphaSection.textContent).toContain('Aucun champ renseigné')
   })
 })
+
+/**
+ * T-108 (P11/S4) — description des valeurs atteignable au clic (`PastilleInfo`), pas seulement en
+ * `title=` (invisible sur tablette, invisible au lecteur d'écran). `esperance_vie` (nœud partagé, valeurs
+ * `longue`/`intermediaire`/`limitee`) est une fixture RÉELLE : `longue` et `limitee` sont décrites dans
+ * `lib/labels.ts` `ENUM_VALUE_DESCRIPTIONS`, `intermediaire` ne l'est pas (cf. sa docstring, T-069) —
+ * donc le critère porte bien une pastille (au moins une valeur décrite). Test d'INTERACTION (le panneau
+ * ne se rend qu'après un clic, RTL/jsdom requis) plutôt que du HTML statique.
+ */
+describe('CriteriaForm — description des valeurs atteignable au clic (T-108)', () => {
+  const CRITERES: CritereEntree[] = [
+    { nom: 'esperance_vie', type: 'enum', valeurs: ['longue', 'intermediaire', 'limitee'], groupe: 'Section' },
+  ]
+
+  function Harnais() {
+    const [criteria, setCriteria] = useState<Criteria>(() => buildDefaultCriteria(CRITERES))
+    const [touched, setTouched] = useState<ReadonlySet<string>>(new Set())
+    const onChange = (nom: string, valeur: CriteriaValue) => {
+      setCriteria((c) => ({ ...c, [nom]: valeur }))
+      setTouched((t) => new Set(t).add(nom))
+    }
+    return <CriteriaForm criteresEntree={CRITERES} criteria={criteria} touched={touched} onChange={onChange} />
+  }
+
+  it('un critère dont au moins une valeur est décrite rend une pastille, et son panneau au clic', () => {
+    const { container } = render(<Harnais />)
+    const pastille = screen.getByRole('button', { name: /Espérance de vie/i })
+    expect(pastille.getAttribute('aria-expanded')).toBe('false')
+
+    const panneauId = pastille.getAttribute('aria-controls')
+    if (!panneauId) throw new Error('aria-controls absent de la pastille')
+    // Attribut CSS (pas `#id`) : `useId()` (React 19) peut produire des `:` dans l'id, invalides tels
+    // quels dans un sélecteur `#…`.
+    expect(container.querySelector(`[id="${panneauId}"]`)).toBeNull()
+
+    fireEvent.click(pastille)
+
+    expect(pastille.getAttribute('aria-expanded')).toBe('true')
+    const panneau = container.querySelector(`[id="${panneauId}"]`)
+    expect(panneau).not.toBeNull()
+    expect(panneau?.className).toContain('criteria-form__aide')
+    expect(panneau?.textContent).toContain('Longue : Espérance de vie estimée supérieure à 15 ans')
+    // `intermediaire` n'a pas de description cataloguée : absent de l'agrégat, comme un critère qui n'a
+    // rien à en dire — ce n'est pas une valeur fantôme.
+    expect(panneau?.textContent).not.toContain('Intermédiaire :')
+  })
+
+  it("un critère SANS aucune valeur décrite ne rend aucune pastille", () => {
+    const SANS_DESCRIPTION: CritereEntree[] = [
+      { nom: 'intolerance_statine', type: 'enum', valeurs: ['non', 'rapportee', 'averee'], groupe: 'Section' },
+    ]
+    render(
+      <CriteriaForm
+        criteresEntree={SANS_DESCRIPTION}
+        criteria={buildDefaultCriteria(SANS_DESCRIPTION)}
+        touched={new Set()}
+        onChange={() => {}}
+      />,
+    )
+    expect(screen.queryByRole('button', { name: /Intolérance aux statines/i })).toBeNull()
+  })
+})

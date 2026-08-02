@@ -647,4 +647,95 @@ describe('CriteriaForm — accordéon par groupe (P6 · SB2)', () => {
     expect(html).not.toContain('Suivant :')
     expect(html).toContain('criteria-form__grid')
   })
+
+  /**
+   * T-106 (P11/S4) — le chevron d'affordance n'a de sens que là où il y a un accordéon à ouvrir. Sur le
+   * nœud RÉEL `cible-glycemique` (un seul groupe déclaré), il ne doit apparaître AUCUN chevron : il n'y a
+   * ni section repliable ni bouton d'ouverture (même garde-fou que le test précédent, « ni barre de
+   * chips ni bouton Suivant », étendu au chevron par S4.md T-106).
+   */
+  it('nœud RÉEL `cible-glycemique` (un seul groupe) : aucun chevron', () => {
+    const node = getNoeudById('cible-glycemique')
+    if (!node) throw new Error('Nœud "cible-glycemique" introuvable — prérequis de ce test (P11 · S4, T-106).')
+    const criteria = buildDefaultCriteria(node.criteres_entree)
+    const html = renderToStaticMarkup(
+      <CriteriaForm criteresEntree={node.criteres_entree} criteria={criteria} touched={new Set()} onChange={() => {}} />,
+    )
+    expect(html).not.toContain('criteria-form__group-chevron')
+  })
+
+  /**
+   * T-106 — le pendant positif : sur un nœud à plusieurs groupes, le chevron marque bien les en-têtes
+   * REPLIÉS (« Contrôle » ici) et JAMAIS l'en-tête OUVERT (« Intention », premier groupe). Un seul groupe
+   * replié dans cette fixture → une seule occurrence attendue.
+   */
+  it('nœud à plusieurs groupes : un chevron par en-tête REPLIÉ, aucun sur l’en-tête OUVERT', () => {
+    const html = renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={CRITERES}
+        criteria={buildDefaultCriteria(CRITERES)}
+        touched={new Set()}
+        onChange={() => {}}
+      />,
+    )
+    // « Intention » (ouvert) + « Contrôle » (replié) : un seul groupe replié → un seul chevron.
+    expect(html.match(/criteria-form__group-chevron/g)?.length).toBe(1)
+  })
+})
+
+/**
+ * T-107 (P11/S4) — tons sémantiques par valeur d'énumération. `albuminurie` (nœud RÉEL `prescription`,
+ * `content/decision/noeuds/diabete-type-2/prescription.yaml` l.208-211, valeurs `normo`/`micro`/`macro`)
+ * cataloguée dans `lib/labels.ts` `ENUM_VALUE_TONES` (`normo` → succès, `micro` → attention, `macro` →
+ * danger) : sert de fixture réelle plutôt qu'inventée. `intolerance_statine` (`non`/`rapportee`/`averee`)
+ * n'est catalogué NULLE PART dans `ENUM_VALUE_TONES` : sert de valeur témoin non cataloguée.
+ */
+describe('CriteriaForm — tons sémantiques par valeur d’énumération (T-107)', () => {
+  const CRITERES_TON: CritereEntree[] = [
+    { nom: 'albuminurie', type: 'enum', valeurs: ['normo', 'micro', 'macro'], groupe: 'Section' },
+  ]
+  const CRITERES_SANS_TON: CritereEntree[] = [
+    { nom: 'intolerance_statine', type: 'enum', valeurs: ['non', 'rapportee', 'averee'], groupe: 'Section' },
+  ]
+
+  it('une valeur cataloguée SÉLECTIONNÉE porte son data-ton', () => {
+    const criteria = { ...buildDefaultCriteria(CRITERES_TON), albuminurie: 'micro' }
+    const html = renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={CRITERES_TON}
+        criteria={criteria}
+        touched={new Set(['albuminurie'])}
+        onChange={() => {}}
+      />,
+    )
+    expect(html).toContain('data-ton="attention"')
+  })
+
+  it('une valeur NON cataloguée ne porte aucun data-ton, sélectionnée ou non', () => {
+    const criteria = { ...buildDefaultCriteria(CRITERES_SANS_TON), intolerance_statine: 'rapportee' }
+    const html = renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={CRITERES_SANS_TON}
+        criteria={criteria}
+        touched={new Set(['intolerance_statine'])}
+        onChange={() => {}}
+      />,
+    )
+    expect(html).not.toContain('data-ton')
+  })
+
+  it('un segment NON sélectionné ne porte pas le ton, même si sa valeur est cataloguée', () => {
+    // Aucun `touched` : les trois valeurs (`normo`/`micro`/`macro`) sont bien cataloguées dans
+    // `ENUM_VALUE_TONES`, mais aucune n'est sélectionnée — le ton ne doit s'appliquer qu'à l'état
+    // sélectionné (Décision clé, S4.md T-107 étape 7), jamais au repos.
+    const html = renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={CRITERES_TON}
+        criteria={buildDefaultCriteria(CRITERES_TON)}
+        touched={new Set()}
+        onChange={() => {}}
+      />,
+    )
+    expect(html).not.toContain('data-ton')
+  })
 })

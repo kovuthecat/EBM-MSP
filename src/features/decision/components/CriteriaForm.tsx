@@ -1,8 +1,17 @@
-import { useMemo, useRef, useState } from 'react'
+import { useId, useMemo, useRef, useState } from 'react'
 import type { Contrainte, CritereEntree } from '../content/node.types'
 import type { Criteria, CriteriaValue } from '../engine/conditions'
 import { criteresPilotes, grouperChamps, valeursProposeesDepuisSaisie } from '../lib/formLayout'
-import { describeEnumValue, iconForEnumValue, labelForCritere, labelForEnumValue } from '../lib/labels'
+import {
+  describeEnumValue,
+  iconForEnumValue,
+  labelForCritere,
+  labelForEnumValue,
+  pastilleForEnumValue,
+  toneForEnumValue,
+} from '../lib/labels'
+import { Icon } from '../../shared/icons/Icon'
+import { PastilleInfo } from '../../shared/ui/PastilleInfo'
 import './CriteriaForm.css'
 
 interface CriteriaFormProps {
@@ -183,6 +192,58 @@ export function CriteriaForm({
   const ouvrirGroupe = (cle: string) => {
     setGroupeOuvertManuel(cle)
     sectionsMontees.current.get(cle)?.scrollIntoView?.({ behavior: 'smooth', block: 'start' })
+  }
+
+  // T-108 — description des valeurs atteignable au clic. Un seul panneau ouvert à la fois (nom du
+  // critère concerné, `null` si aucun) : même registre que `groupeOuvertManuel` ci-dessus, à une échelle
+  // plus fine (le champ, pas la section). `idBase` (React 19 `useId`) évite toute collision d'`id` si ce
+  // composant devait un jour être monté deux fois sur la même page (aucun cas actuel, mais l'`id` doit
+  // être unique dans TOUT le document, pas seulement dans ce formulaire).
+  const idBase = useId()
+  const [detailOuvert, setDetailOuvert] = useState<string | null>(null)
+  const toggleDetail = (nom: string) => setDetailOuvert((actuel) => (actuel === nom ? null : nom))
+
+  /** `Libellé : description` par valeur du critère ayant une description cataloguée (`describeEnumValue`),
+   *  séparées par ` · ` — même registre de formatage que `resumeGroupe` ci-dessus, réutilisé plutôt que
+   *  réinventé (Décision clé, S4.md T-108). `null` si AUCUNE valeur n'est décrite : le champ n'a alors ni
+   *  pastille ni panneau (étape 4, T-108) — aucune connaissance de nom de critère, aucun cas spécial
+   *  `nombre`/`bool` : ces types n'ont simplement pas de `valeurs`, donc rien à décrire. */
+  const texteDetailValeurs = (critere: CritereEntree): string | null => {
+    const parties = (critere.valeurs ?? [])
+      .map((v) => {
+        const description = describeEnumValue(v)
+        return description == null ? null : `${labelForEnumValue(v)} : ${description}`
+      })
+      .filter((partie): partie is string => partie != null)
+    return parties.length > 0 ? parties.join(' · ') : null
+  }
+
+  /** Pastille ⓘ à droite du libellé de champ (maquette l.219-222) — rien si aucune valeur n'est décrite. */
+  const renderDetailPastille = (critere: CritereEntree) => {
+    const texte = texteDetailValeurs(critere)
+    if (texte == null) return null
+    return (
+      <PastilleInfo
+        icone="info"
+        libelle={`Valeurs de ${labelForCritere(critere.nom)}`}
+        texte={texte}
+        ouvert={detailOuvert === critere.nom}
+        onToggle={() => toggleDetail(critere.nom)}
+        panneauId={`${idBase}-detail-${critere.nom}`}
+      />
+    )
+  }
+
+  /** Panneau déplié SOUS le champ (état détenu ici, PastilleInfo est un composant contrôlé) — réutilise
+   *  `criteria-form__aide`, déjà le registre visuel « texte explicatif sous le champ » (étape 3, T-108). */
+  const renderDetailPanneau = (critere: CritereEntree) => {
+    const texte = texteDetailValeurs(critere)
+    if (texte == null || detailOuvert !== critere.nom) return null
+    return (
+      <div id={`${idBase}-detail-${critere.nom}`} className="criteria-form__aide">
+        {texte}
+      </div>
+    )
   }
 
   /** Nombre de champs « à confirmer » (même définition que le marqueur par champ, `estAConfirmer` plus
@@ -389,26 +450,35 @@ export function CriteriaForm({
               {pilote && <span className="criteria-form__field-pilote"> · détermine la suite</span>}
               {confirmer && <span className="criteria-form__field-todo"> · à confirmer</span>}
               {renderOrigine(critere)}
+              {renderDetailPastille(critere)}
             </div>
           )}
           {renderAide(critere)}
+          {renderDetailPanneau(critere)}
           <div className="criteria-form__chips">
-            {valeursListe.map((valeur) => (
-              <label
-                key={valeur}
-                className="criteria-form__chip"
-                data-on={cochees.includes(valeur) || undefined}
-                // Infobulle native (ex. lecture de l'AGP par profil, §8-3) — générique, absente si non cataloguée.
-                title={describeEnumValue(valeur)}
-              >
-                <input
-                  type="checkbox"
-                  checked={cochees.includes(valeur)}
-                  onChange={(event) => toggleListeValeur(critere.nom, valeur, event.target.checked)}
-                />
-                <span className="criteria-form__checkbox-label">{labelForEnumValue(valeur)}</span>
-              </label>
-            ))}
+            {valeursListe.map((valeur) => {
+              const cochee = cochees.includes(valeur)
+              return (
+                <label
+                  key={valeur}
+                  className="criteria-form__chip"
+                  data-on={cochee || undefined}
+                  // T-107 : même repli que `data-on` — le ton ne teinte la case qu'à l'état sélectionné,
+                  // `undefined` sinon (aucune valeur `liste` n'est cataloguée dans `ENUM_VALUE_TONES`
+                  // aujourd'hui : ce câblage sert un futur catalogue, sans effet visuel actuel).
+                  data-ton={cochee ? toneForEnumValue(valeur) : undefined}
+                  // Infobulle native (ex. lecture de l'AGP par profil, §8-3) — générique, absente si non cataloguée.
+                  title={describeEnumValue(valeur)}
+                >
+                  <input
+                    type="checkbox"
+                    checked={cochee}
+                    onChange={(event) => toggleListeValeur(critere.nom, valeur, event.target.checked)}
+                  />
+                  <span className="criteria-form__checkbox-label">{labelForEnumValue(valeur)}</span>
+                </label>
+              )
+            })}
           </div>
         </div>
       )
@@ -437,6 +507,7 @@ export function CriteriaForm({
             {dim && moteurADeQuoiJuger && <span className="criteria-form__field-note"> · sans effet sur la reco actuelle</span>}
             {confirmer && <span className="criteria-form__field-todo"> · à confirmer</span>}
             {renderOrigine(critere)}
+            {renderDetailPastille(critere)}
           </div>
         )}
 
@@ -520,6 +591,8 @@ export function CriteriaForm({
               // P5 · S1 T-032 : ce booléen sert AUSSI à décider le GESTE (`onClick` ci-dessous), pas
               // seulement le rendu — cf. sa docstring pour pourquoi la répétition du clic doit effacer.
               const selectionne = touched.has(critere.nom) && String(criteria[critere.nom] ?? '') === valeur
+              const icone = iconForEnumValue(valeur)
+              const ton = toneForEnumValue(valeur)
               return (
                 <button
                   key={valeur}
@@ -533,6 +606,12 @@ export function CriteriaForm({
                   // `false` sur TOUS les segments quand le critère n'est pas `touched` — c'est exactement
                   // la représentation de l'indéterminé de D20, sans avoir à l'inventer.
                   aria-pressed={selectionne}
+                  // T-107 : le ton ne teinte le bouton qu'à l'état SÉLECTIONNÉ, même repli que `data-on`
+                  // ci-dessus — sinon les options d'un même champ s'allumeraient toutes en couleur au
+                  // repos, et plus rien ne distinguerait la réponse retenue (Décision clé, S4.md T-107
+                  // étape 7). La PASTILLE ci-dessous, elle, reste visible en permanence : c'est un repère
+                  // de lecture des options, pas un indicateur d'état.
+                  data-ton={selectionne ? ton : undefined}
                   title={describeEnumValue(valeur)}
                   // P5 · S1 T-032 (BILAN-P4-2026-07-28.md §2/§6) : un clic sur le segment DÉJÀ sélectionné
                   // EFFACE la réponse au lieu de la reposer — seul moyen de revenir à « non répondu »,
@@ -547,14 +626,28 @@ export function CriteriaForm({
                     else onChange(critere.nom, valeur)
                   }}
                 >
-                  {/* Icône (2026-08-01, amélioration de lisibilité) : dictionnaire générique par VALEUR
-                      (`lib/labels.ts` `iconForEnumValue`, même mécanisme que `labelForEnumValue`/
-                      `describeEnumValue` — un catalogue de contenu, jamais un nom de critère en dur dans
-                      ce composant). Absente pour toute valeur non cataloguée → rendu historique inchangé. */}
-                  {iconForEnumValue(valeur) && (
+                  {/* Icône (2026-08-01, amélioration de lisibilité ; convertie en <Icon> SVG le
+                      2026-08-01, P11/S4 T-107) : dictionnaire générique par VALEUR (`lib/labels.ts`
+                      `iconForEnumValue`, même mécanisme que `labelForEnumValue`/`describeEnumValue` — un
+                      catalogue de contenu, jamais un nom de critère en dur dans ce composant). Absente
+                      pour toute valeur non cataloguée → repli sur la pastille de ton (ci-dessous), puis
+                      sur le texte seul. */}
+                  {icone ? (
                     <span aria-hidden="true" className="criteria-form__segment-icon">
-                      {iconForEnumValue(valeur)}
+                      <Icon nom={icone} />
                     </span>
+                  ) : (
+                    // T-107 étape 6 : pastille ronde pour les valeurs à ton SANS icône, réservée aux 4
+                    // crans de `position_vs_cible` (`pastilleForEnumValue`, cf. sa docstring dans
+                    // `lib/labels.ts` — un sous-ensemble de `ENUM_VALUE_TONES`, pas « toute valeur à ton
+                    // sans icône » : l'albuminurie et le risque hypoglycémique restent sans pastille dans
+                    // la maquette). Visible en permanence (pas conditionnée à `selectionne`) : c'est un
+                    // repère de lecture des options, pas un indicateur d'état — cf. le commentaire sur
+                    // `data-ton` ci-dessus.
+                    ton &&
+                    pastilleForEnumValue(valeur) && (
+                      <span className="criteria-form__segment-pastille" aria-hidden="true" data-ton={ton} />
+                    )
                   )}
                   {labelForEnumValue(valeur)}
                 </button>
@@ -583,6 +676,7 @@ export function CriteriaForm({
         )}
 
         {renderAide(critere)}
+        {renderDetailPanneau(critere)}
         {hints?.[critere.nom] && <div className="criteria-form__hint">{hints[critere.nom]}</div>}
       </div>
     )
@@ -607,7 +701,12 @@ export function CriteriaForm({
           LA NAVIGATION NE REPOSAIT PAS SUR ELLE : le titre d'une section repliée est lui-même un bouton
           d'ouverture (`criteria-form__group-header-bouton`, plus bas), et le pied de section porte un
           bouton « Suivant : … ». Les deux existaient déjà et sont conservés. Le compteur, lui, a migré à
-          côté du titre — cf. `criteria-form__group-compte`. */}
+          côté du titre — cf. `criteria-form__group-compte`.
+
+          RECONFIRMÉ PAR P11 (S4.md T-106, arbitrage référent du 2026-08-01, question 2) : le retrait
+          reste acquis, la barre ne revient pas. En contrepartie, un en-tête replié était devenu un bouton
+          SANS AUCUN indicateur visuel d'ouverture — corrigé par le chevron (`criteria-form__group-
+          chevron`, plus bas), l'affordance retenue à sa place. */}
       {groupes.map((groupe, index) => {
         // Pied de section (tâches 4 & 5) : entièrement dérivé du TYPE + de `aConfirmer`, aucun nom de
         // champ ni de section en dur (invariant 5). Deux informations indépendantes, qui peuvent cohabiter :
@@ -660,8 +759,17 @@ export function CriteriaForm({
                 className="criteria-form__label criteria-form__group-header-bouton"
                 onClick={() => ouvrirGroupe(cle)}
               >
-                {groupe.libelle ?? 'Critères du patient'}
-                {compteGroupe > 0 && <span className="criteria-form__group-compte">{compteGroupe} à confirmer</span>}
+                {/* T-106 — chevron d'affordance : SEULEMENT sur un en-tête REPLIÉ (ce `<button>`-ci),
+                    jamais sur l'en-tête OUVERT (le `<div>` juste au-dessus, pas un bouton — l'accordéon
+                    garantit qu'une section reste toujours ouverte, « la replier » n'est pas un geste
+                    possible, cf. Décision clé de la tâche). Libellé+compteur regroupés dans un seul
+                    élément flex pour que le chevron, poussé à l'opposé par `justify-content:
+                    space-between` (`CriteriaForm.css`), ne sépare jamais le compteur de son libellé. */}
+                <span className="criteria-form__group-header-texte">
+                  {groupe.libelle ?? 'Critères du patient'}
+                  {compteGroupe > 0 && <span className="criteria-form__group-compte">{compteGroupe} à confirmer</span>}
+                </span>
+                <Icon nom="chevron-bas" className="criteria-form__group-chevron" />
               </button>
             )}
 

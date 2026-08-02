@@ -18,6 +18,7 @@
  */
 import type { NiveauPreuve as NoeudNiveauPreuve, Noeud, TypeCritere } from '../content/node.types'
 import type { NiveauPreuve as SharedNiveauPreuve } from '../../shared/types'
+import type { NomIcone } from '../../shared/icons/paths'
 import { humanize } from './humanize'
 
 /** Domaines réellement dotés de contenu, avec libellé connu (roadmap `ARCHITECTURE.md`/`DECISIONS.md` D8). */
@@ -436,37 +437,86 @@ export function describeEnumValue(valeur: string): string | undefined {
 }
 
 /**
- * Icône générique d'une valeur d'énumération (amélioration de lisibilité, 2026-08-01) — même mécanisme
- * que `labelForEnumValue`/`describeEnumValue` ci-dessus : un dictionnaire de CONTENU (des symboles déjà
- * porteurs d'un code couleur — ✅ vert, ⚠️ ambre, 🔴 rouge, 🔵 bleu — pas une notion nouvelle côté
- * moteur), une fonction GÉNÉRIQUE (`CriteriaForm.tsx` ne connaît aucune valeur par son nom). `undefined`
- * pour toute valeur non cataloguée : le composant appelant retombe alors sur le texte seul, rendu
- * historique.
+ * Ton sémantique d'une valeur d'énumération (P11/S4, T-107) — même mécanisme exact qu'`ENUM_VALUE_ICONS`
+ * ci-dessous : un dictionnaire de CONTENU indexé par la VALEUR seule, jamais par un nom de critère ni de
+ * nœud (invariant 5, `CLAUDE.md` D8). Colore le bouton de saisie (`.criteria-form__segment`/`.criteria-
+ * form__chip`, `CriteriaForm.tsx`) selon le sens clinique de la valeur retenue, à l'état SÉLECTIONNÉ
+ * uniquement — le repos reste neutre (cf. `CriteriaForm.css`). `undefined` pour toute valeur non
+ * cataloguée : repli sur le bleu de sélection historique.
  *
- * L'ICÔNE PORTE LE CODE COULEUR À ELLE SEULE (arbitrage référent du 2026-08-01) : un emoji coloré
- * suffit à distinguer « à l'objectif » (vert) de « nettement au-dessus » (rouge) sans qu'aucun token CSS
- * ni classe `data-tone` ne soit nécessaire — plus simple que d'inventer une seconde dimension de style,
- * et strictement équivalent visuellement.
+ * REMPLACE la justification couleur qui vivait dans `ENUM_VALUE_ICONS` (« l'icône porte le code couleur
+ * à elle seule ») pour les 4 crans de `position_vs_cible` : avec un ton en CSS, les emoji ✅⚠️🔴🔵
+ * n'avaient plus de raison d'être — cf. leur retrait ci-dessous.
+ *
+ * CATALOGUE VOLONTAIREMENT ÉTROIT (S4.md T-107 étape 2) : seules les valeurs que la maquette
+ * `Traiter - Refonte ergonomie.dc.html` colore réellement (l.116-119, section « Équilibre » +
+ * `stylesAlbuminurie`/`stylesRisque` l.157-162/223-226) — jamais une extrapolation à d'autres valeurs
+ * du même « air de famille » (ex. `preference_injection == refuse`, laissé neutre : une préférence
+ * patient n'est pas un jugement clinique, cf. `CriteriaForm.tsx`).
  */
-const ENUM_VALUE_ICONS: Record<string, string> = {
-  // `intention` (nœud prescription) : direction du geste, pas une gravité — un pictogramme de sens,
-  // jamais une couleur d'alerte (initier/intensifier/optimiser/déprescrire sont quatre actes légitimes,
-  // aucun n'est « meilleur » que les autres).
-  initier: '▶️',
-  intensifier: '⬆️',
-  optimiser: '⚖️',
-  deprescrire: '⬇️',
-  // `position_vs_cible` : ici la couleur EST le message (l'écart à l'objectif), du plus favorable au
-  // moins favorable — sauf le dernier cran, qui n'est pas un échec mais l'inverse (sur-traitement) :
-  // bleu, pas rouge, pour ne pas laisser croire qu'une valeur trop BASSE est le même problème qu'une
-  // valeur trop HAUTE.
-  a_l_objectif: '✅',
-  au_dessus: '⚠️',
-  nettement_au_dessus: '🔴',
-  sous_objectif: '🔵',
+export type TonValeur = 'succes' | 'attention' | 'danger' | 'info' | 'neutre'
+
+const ENUM_VALUE_TONES: Record<string, TonValeur> = {
+  // `position_vs_cible` (nœud prescription, section « Équilibre ») — écart à l'objectif, du plus
+  // favorable au moins favorable. `sous_objectif` (sur-traitement) est `info`, pas `danger` : ce n'est
+  // pas un échec au même titre qu'un excès, plutôt un signal à considérer (même bleu que l'accent de
+  // décision par défaut — cf. `CriteriaForm.css`, aucun triplet `--c-ton-info-*` dédié dans `tokens.css`).
+  a_l_objectif: 'succes',
+  au_dessus: 'attention',
+  nettement_au_dessus: 'danger',
+  sous_objectif: 'info',
+  // `albuminurie` (nœud prescription)
+  normo: 'succes',
+  micro: 'attention',
+  macro: 'danger',
+  // `risque_hypoglycemie_schema` (partagé prescription/insuline)
+  faible: 'succes',
+  eleve: 'danger',
 }
 
-export function iconForEnumValue(valeur: string): string | undefined {
+export function toneForEnumValue(valeur: string): TonValeur | undefined {
+  return ENUM_VALUE_TONES[valeur]
+}
+
+/**
+ * Sous-ensemble de `ENUM_VALUE_TONES` qui se rend en PASTILLE RONDE plutôt qu'en simple couleur de
+ * fond/bordure du bouton (`CriteriaForm.tsx` étape 6) — les 4 crans de `position_vs_cible` seulement
+ * (maquette l.116-119 : chacun porte un `<span>` de 7 px ; les boutons `Albuminurie`/`Risque
+ * hypoglycémique`, l.157-162/223-226, n'en portent AUCUN, seule leur couleur de sélection les distingue).
+ * INDEXÉ PAR LA VALEUR, comme `ENUM_VALUE_TONES` — jamais par le nom du critère (D8) : ce n'est pas
+ * « position_vs_cible en dur », c'est que ces 4 valeurs précises sont, dans le contenu de la maquette,
+ * les seules à porter ce traitement graphique.
+ */
+const ENUM_VALUE_PASTILLE = new Set<string>(['a_l_objectif', 'au_dessus', 'nettement_au_dessus', 'sous_objectif'])
+
+export function pastilleForEnumValue(valeur: string): boolean {
+  return ENUM_VALUE_PASTILLE.has(valeur)
+}
+
+/**
+ * Icône générique d'une valeur d'énumération (amélioration de lisibilité, 2026-08-01 ; réduite à 4
+ * entrées le 2026-08-01, P11/S4 T-107) — même mécanisme que `labelForEnumValue`/`describeEnumValue`
+ * ci-dessus : un dictionnaire de CONTENU, une fonction GÉNÉRIQUE (`CriteriaForm.tsx` ne connaît aucune
+ * valeur par son nom). `undefined` pour toute valeur non cataloguée : le composant appelant retombe
+ * alors sur le texte seul (ou, depuis T-107, sur la pastille de ton s'il y en a une), rendu historique.
+ *
+ * LES 4 VALEURS DE STATUT (`position_vs_cible`) SONT SORTIES DE CE DICTIONNAIRE (T-107) : leur
+ * justification — « l'icône porte le code couleur à elle seule » — est devenue fausse dès qu'un ton CSS
+ * existe pour la même distinction (`ENUM_VALUE_TONES` ci-dessus) ; les garder aurait fait cohabiter deux
+ * mécanismes pour un seul message. Restent les 4 verbes d'`intention`, qui ne portent PAS de gravité
+ * (initier/intensifier/optimiser/déprescrire sont quatre actes légitimes, aucun n'est meilleur qu'un
+ * autre) — un pictogramme de SENS, pas une couleur d'alerte, donc toujours une icône plutôt qu'un ton.
+ */
+const ENUM_VALUE_ICONS: Record<string, NomIcone> = {
+  // `intention` (nœud prescription) — tracés reconduits d'`Icon.tsx`/`paths.ts` (P11/S2, T-104),
+  // choisis pour reproduire le pictogramme déjà utilisé dans la maquette pour chaque verbe.
+  initier: 'lecture',
+  intensifier: 'fleche-haut',
+  optimiser: 'reglages',
+  deprescrire: 'fleche-bas-pleine',
+}
+
+export function iconForEnumValue(valeur: string): NomIcone | undefined {
   return ENUM_VALUE_ICONS[valeur]
 }
 
