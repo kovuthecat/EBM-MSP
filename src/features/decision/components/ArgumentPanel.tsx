@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Noeud } from '../content/node.types'
 import { getArgumentaireExhaustif } from '../content/loadArgumentaires'
 import { labelForTypeCritere } from '../lib/labels'
+import { Icon } from '../../shared/icons/Icon'
 import { MiniMarkdown } from './MiniMarkdown'
 import './ArgumentPanel.css'
 
@@ -79,7 +80,7 @@ export function ArgumentPanel({ node }: ArgumentPanelProps) {
       {reco_officielle.divergence && (
         <div className="argument-panel__divergence">
           <span className="argument-panel__divergence-icon" aria-hidden="true">
-            !
+            <Icon nom="triangle-alerte" />
           </span>
           Divergence entre reco officielle et position critique
         </div>
@@ -90,7 +91,7 @@ export function ArgumentPanel({ node }: ArgumentPanelProps) {
           <div className="argument-panel__section-title">Incertitudes</div>
           {node.incertitudes.map((incertitude, index) => (
             <div key={`${index}-${incertitude}`} className="argument-panel__list-item">
-              • {incertitude}
+              {incertitude}
             </div>
           ))}
         </>

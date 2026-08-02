@@ -1,4 +1,5 @@
 import type { Alerte } from '../content/node.types'
+import { Icon } from '../../shared/icons/Icon'
 import './AlertList.css'
 
 interface AlertListProps {
@@ -43,7 +44,11 @@ export function AlertList({ alertes, variant }: AlertListProps) {
               : 'alert-list__item alert-list__item--info'
           }
         >
-          {alerte.message}
+          <Icon
+            nom={alerte.niveau === 'attention' ? 'triangle-alerte' : 'info'}
+            className="alert-list__icon"
+          />
+          <span>{alerte.message}</span>
         </div>
       ))}
     </div>

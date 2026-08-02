@@ -6,11 +6,22 @@
 }
 
 .alert-list__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
   font-size: 13px;
   line-height: 1.6;
   padding: 12px 14px;
   border-radius: var(--radius-sm);
   white-space: pre-line;
+}
+
+/* Icône décorative en tête d'alerte (P11/S5, T-110) : le texte du message porte déjà tout le sens
+   (`aria-hidden`, `Icon.tsx`). Alignée en haut, pas au centre : une alerte tient souvent sur
+   plusieurs lignes, et une icône centrée verticalement dériverait du premier mot du texte. */
+.alert-list__icon {
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 
 .alert-list__item--info {
