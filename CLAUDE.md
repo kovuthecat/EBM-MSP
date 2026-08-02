@@ -24,8 +24,9 @@ npm test
 # Test unitaire ciblé
 npx vitest run src/features/decision/engine/<fichier>.test.ts
 
-# Typecheck seul
-npx tsc --noEmit
+# Typecheck seul — JAMAIS `npx tsc --noEmit` : le tsconfig racine est en `files: []` + références
+# de projet, donc cette commande compile 0 fichier et rend un vert vide (constaté P11, 2026-08-02).
+npm run typecheck
 ```
 
 - Variables d'environnement : Supabase (module Veille uniquement) → `.env` (non commité), `.env.example`.
