@@ -88,8 +88,12 @@ const NOEUDS_AVEC_OPTION_INATTEIGNABLE_PAR_LE_GENERATEUR = new Set<string>([])
  * `rhd-activite-physique` sont repassés en couverture EXHAUSTIVE, donc de 720 et 1 120 profils à 47 520
  * et 55 296. Le budget de R5 plus bas reste distinct : il est dimensionné pour son propre cas d'ÉCHEC,
  * qui doit parcourir tout le banc en réévaluant la pertinence par perturbation.
+ *
+ * RELEVÉ 120 000 → 300 000 ms le 2026-08-02 (P11), en phase avec les 3 autres fichiers du banc — cf.
+ * `securite-atteignable.test.ts` pour la mesure qui l'a déclenché (verdict devenu fonction de la charge
+ * machine, ce que le budget existe pour éviter).
  */
-const DELAI_BANC_MS = 120_000
+const DELAI_BANC_MS = 300_000
 
 describe.each(noeuds.map((node) => [node.id, node] as const))('banc — couverture · nœud %s', (_id, node) => {
   const profils = genererProfils(node, tailleBanc(node))

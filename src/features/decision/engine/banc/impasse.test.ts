@@ -48,8 +48,12 @@ const PROFILS_PAR_NOEUD = 400
  * d'énumération (2026-07-29, garde G3 de `profils.ts`) : `genererProfilsPartiels` énumère le domaine
  * COMPLET avant d'en tirer les 400 profils demandés, donc son coût suit ce domaine, pas
  * `PROFILS_PAR_NOEUD` — ce fichier tombait sous le délai par défaut de Vitest (5 000 ms) sur ce nœud
- * précis, sans rapport avec l'assertion elle-même. */
-const DELAI_BANC_MS = 120_000
+ * précis, sans rapport avec l'assertion elle-même.
+ *
+ * RELEVÉ 120 000 → 300 000 ms le 2026-08-02 (P11), en phase avec les 3 autres fichiers du banc — cf.
+ * `securite-atteignable.test.ts` pour la mesure qui l'a déclenché (verdict devenu fonction de la charge
+ * machine, ce que le budget existe pour éviter). */
+const DELAI_BANC_MS = 300_000
 
 interface Impasse {
   option: string

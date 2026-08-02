@@ -98,8 +98,13 @@ const NOEUDS_AVEC_SORTIE_VIDE_CONNUE = new Set<string>([])
  * Mesuré après relèvement : 24 tests, 25,8 s au total. Le filet est dimensionné très au-dessus pour ne
  * jamais rendre un verdict DÉPENDANT DE LA CHARGE MACHINE — un test dont le résultat varie avec la
  * machine apprend à ignorer le rouge (même raison que le budget de `couverture.test.ts`, R5).
+ *
+ * RELEVÉ 120 000 → 300 000 ms le 2026-08-02 (P11), en phase avec les 3 autres fichiers du banc :
+ * `securite-atteignable.test.ts` avait fini par mordre (~115 s pour 120 s de budget), donnant un verdict
+ * fonction de la charge — exactement ce que le paragraphe ci-dessus interdit. Ce fichier-ci gardait de la
+ * marge, mais un budget de banc tenu en phase à dessein ne se relève pas à un seul endroit.
  */
-const DELAI_BANC_MS = 120_000
+const DELAI_BANC_MS = 300_000
 
 describe.each(noeuds.map((node) => [node.id, node] as const))('banc — invariants génériques · nœud %s', (_id, node) => {
   const profils = genererProfils(node, tailleBanc(node))

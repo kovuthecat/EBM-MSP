@@ -43,8 +43,16 @@ import { genererProfils, tailleBanc } from './profils.ts'
  * seul (~47 000 profils × 9 critères pour I22 quand ce nœud est `ordered-first-match` avec des options
  * `role: securite`) ; les autres nœuds du domaine n'ont pas cette combinaison (aucun n'est à la fois
  * `ordered-first-match` ET porteur de `role: securite`, sauf `statine`) et restent bornés à `tailleBanc`.
+ *
+ * RELEVÉ 120 000 → 300 000 ms le 2026-08-02 (P11) — c'est ce fichier qui a mordu le premier. Mesure :
+ * ~115 s au repos pour un budget de 120 s, soit 4 % de marge. Le verdict devenait donc fonction de la
+ * charge machine, et non du code : sur le même arbre, suite complète en 134 s → vert ; en 294 s → rouge.
+ * C'est précisément ce que le budget du banc existe pour éviter (« ne jamais rendre un verdict DÉPENDANT
+ * DE LA CHARGE MACHINE — un test dont le résultat varie avec la machine apprend à ignorer le rouge »,
+ * `banc/invariants.test.ts`). Le test est correct et sa couverture inchangée ; seul le budget était trop
+ * juste. Relevé dans les 4 fichiers du banc à la fois, qui le tiennent en phase à dessein.
  */
-const DELAI_BANC_MS = 120_000
+const DELAI_BANC_MS = 300_000
 
 /** Critères saisissables d'un nœud dont l'omission PEUT réellement produire une indétermination (même
  * filtre qu'I3, `banc/invariants.test.ts` : `nombre`/`enum` toujours, `bool`/`liste` seulement sans
