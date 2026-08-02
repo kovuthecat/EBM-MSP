@@ -63,3 +63,43 @@ ouverts (T-032/033/034, vérification sur le déployé) sont du N1 également �
 - [ ] **T-085** — descente d'insuline laissée sans chiffre (« jugement clinique, surveillance
       rapprochée », aucune source FR trouvée) : convient tel quel, ou une source a-t-elle échappé ?
 - [ ] **T-086** — l'aide sur « Risque hypoglycémique du schéma » permet-elle de répondre sans hésiter ?
+
+## Plan P11 (2026-08-01) — S3, `PastilleInfo` (T-105)
+
+- [ ] **T-105** — la zone cliquable de la pastille (bouton-icône, 32×32px CSS actuellement) est-elle une
+      cible tactile confortable au doigt en consultation ? Composant sans consommateur dans cette
+      session (créé seul) : jugement à rejouer une fois câblé dans `CriteriaForm` (S4) ou `OptionCard`
+      (S6), en conditions réelles de mise en page plutôt que sur le composant isolé. **Câblé dans
+      `OptionCard` depuis S6** (2026-08-02) : rejouable dès maintenant en conditions réelles.
+
+## Plan P11 (2026-08-02) — S6, `OptionCard` carte compacte à pastilles (T-111)
+
+- [ ] **T-111 (a)** — la posologie derrière un clic (pastille « Posologie ») est-elle acceptable en
+      consultation réelle, ou manque-t-elle à chaque prescription ? C'est la question centrale de P11 :
+      l'arbitrage référent (« carte en une ligne, tout au clic », amende D34) a été pris sur maquette, pas
+      sur usage — ce jugement est ce qui le confirme ou le remet en cause.
+- [ ] **T-111 (b)** — la pastille de posologie en ton « attention » (ambre) se comprend-elle, sans ouvrir
+      le panneau, comme « une dose manque, à renseigner » ? C'est ce qui doit préserver l'esprit du
+      défaut J (2026-07-27, « la carte dit ce qu'elle attend ») maintenant que la ligne correspondante a
+      quitté le socle visible.
+
+## Plan P11 (2026-08-02) — S4, tons sémantiques des champs de saisie (T-107)
+
+- [ ] **T-107 (a)** — la couleur sur un champ de SAISIE se lit-elle comme une information, ou comme un
+      jugement de l'outil sur le patient ?
+- [ ] **T-107 (b)** — faut-il finalement colorer « Refuse » (préférence vis-à-vis de l'injectable),
+      laissé neutre par cette session ?
+
+## Plan P11 (2026-08-02) — S7, colonne recommandations et écran (T-112, T-113)
+
+- [ ] **T-112** — la légende des couleurs d'action (puce + mot par verbe, en tête de colonne des
+      recommandations) est-elle utile en consultation, ou redevient-elle du bruit une fois le code
+      couleur appris ? N'apparaît que sur les nœuds qui emploient ce vocabulaire (`prescription`,
+      `insuline`) — jamais sur `cible-glycemique`/`statine`/`rhd-*`, où elle ne rend rien du tout.
+
+## Plan P11 (2026-08-02) — S10, arbitrages référent (T-118)
+
+- [ ] **T-118** — remplace l'item N2 de T-114 (largeur 900px), tranché par l'arbitrage référent du
+      2026-08-02. Le plafond retenu, **1600px**, est-il le bon — la mise en page paraît-elle vide au
+      centre sur très grand écran, ou au contraire encore contrainte ? Et le rapport 1fr/1fr entre les
+      deux colonnes tient-il une fois étiré ?
