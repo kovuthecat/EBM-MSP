@@ -1,8 +1,13 @@
+/* CARTE COMPACTE À PASTILLES (P11/S6, T-111, 2026-08-01) — remplace la carte haute d'A5/SB3/SB6. Le
+   fond/bordure vivent sur `.option-card` (comme avant), mais son PADDING est retiré : chaque zone
+   interne (badges, rangée, panneaux) porte désormais le sien, exactement comme la maquette
+   (`traiter-refonte-ergonomie-v2`, l.271) le structure — un `<div>` de carte SANS padding, `overflow:
+   hidden` pour que les coins arrondis coupent proprement le contenu interne. */
 .option-card {
   background: var(--c-surface);
   border: 1px solid var(--c-border);
-  border-radius: var(--radius-lg);
-  padding: 22px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
   margin-bottom: 16px;
 }
 
@@ -16,7 +21,10 @@
    `border-left-color` égal c'est l'ORDRE DANS LA FEUILLE qui tranche — ces règles doivent gagner sur
    le `border-color` (4 côtés) de `--primary` quand une carte "recommandée" porte aussi un verbe
    d'action. Sans `option.action` (les 4 autres nœuds, options volontairement laissées sans verbe) :
-   aucune de ces classes n'est posée (`OptionCard.tsx`), la bordure reste celle d'aujourd'hui. */
+   aucune de ces classes n'est posée (`OptionCard.tsx`), la bordure reste celle d'aujourd'hui.
+   CONSERVÉES TELLES QUELLES par P11/S6 (nom de classe non renommable, `OptionCard.test.tsx`
+   l.279-308) — la pastille d'action (`.option-card__action-pastille` plus bas) double désormais ce
+   signal dans la rangée, volontairement redondant. */
 .option-card--action-ajouter {
   border-left: 4px solid var(--c-action-ajouter);
 }
@@ -39,36 +47,17 @@
   border-left: 4px solid var(--c-accent-decision);
 }
 
-.option-card__header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-bottom: 6px;
-}
-
-.option-card__title {
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--c-text);
-}
-
-.option-card__action-icon {
-  margin-right: 4px;
-}
-
-/* P6/SB4 — même famille de risque que le débordement mobile de `CriteriaForm.css` (`.criteria-form__segment`/
-   `.criteria-form__group-nav-item`) : `.option-card__official-badge` (« Recommandation officielle
-   (France) », 35 caractères) cumulé à `EvidenceBadge` (jusqu'à « Preuve très faible ») peut dépasser la
-   largeur de carte disponible en mobile étroit (~283 px de contenu à 375 px de viewport, cf. calcul dans
-   le rapport de tâche SB4). `flex-wrap: wrap` (ajouté) : les deux pastilles passent sur deux lignes au
-   lieu de pousser la carte en largeur — sans effet en desktop, où elles tiennent déjà sur une ligne. */
+/* Bandeau de badges (P11/S6) — AU-DESSUS de la rangée, jamais dedans (étape 2, `plans/P11/S6.md`) :
+   « Recommandation officielle (France) » fait 34 caractères, cumulé à l'intitulé il écraserait une
+   colonne de 380 px. N'apparaît que sur 1 à 2 cartes par écran (`badge` mutuellement exclusif,
+   `OptionCard.badge.test.tsx`) : une ligne dédiée coûte peu. `flex-wrap` conservé de l'ancien
+   `.option-card__badges` (utile si un futur badge plus long réapparaît un jour). */
 .option-card__badges {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--space-2);
   align-items: center;
+  padding: var(--space-3) var(--space-5) 0;
 }
 
 .option-card__recommended-badge {
@@ -112,9 +101,7 @@
    `--c-bg` = 8,29:1 — au-dessus du seuil AAA (7:1), et du même ordre que le blanc sur
    `--c-accent-decision` du badge « Recommandée » (7,13:1), donc pas de badge visuellement plus faible
    que les autres. `background: var(--c-surface)` = exactement le fond de `.option-card` : la pastille se
-   réduit à son contour, elle n'ajoute pas un aplat de plus dans l'en-tête déjà chargé (titre + jusqu'à
-   deux pastilles). La lisibilité RÉELLE (taille, épaisseur du contour au rendu) reste à vérifier à
-   l'écran — N1 délégué à la vague de contrôle du plan. */
+   réduit à son contour, elle n'ajoute pas un aplat de plus dans l'en-tête déjà chargé. */
 .option-card__securite-badge {
   font-size: 11px;
   font-weight: 700;
@@ -124,6 +111,146 @@
   padding: 3px 10px;
   border-radius: 20px;
   white-space: nowrap;
+}
+
+/* LA RANGÉE (P11/S6) — toujours visible, UNE ligne (maquette l.272 : `display:flex;align-items:
+   center;gap:10px;padding:9px 12px`, repris via les tokens d'espacement S1 les plus proches :
+   `--space-3` ≈ 9px, `--space-4` = 10px, `--space-5` = 12px). `min-width: 0` sur les enfants flexibles
+   (via `.option-card__title` ci-dessous) : sans lui, un intitulé long forcerait la rangée à déborder au
+   lieu de se comprimer. Fermeture au clic gérée par chaque `PastilleInfo`/le chevron, pas par la
+   rangée elle-même (pas de `onClick` ici). */
+.option-card__rangee {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-5);
+}
+
+.option-card__title {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+/* Pastille d'action (P11/S6, T-111) — REMPLACE l'ex-icône emoji (`ACTION_ICON`, supprimé), reprend le
+   MOT du verbe sur fond teinté (maquette l.273 : `font-size:11px;font-weight:700;padding:3px 8px;
+   border-radius:20px`). `flex-shrink: 0` : ne doit jamais céder de place à l'intitulé, contrairement à
+   `.option-card__title` qui, lui, se comprime. */
+.option-card__action-pastille {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Couleurs par verbe — PROVENANCE, pour ne pas les redécouvrir en aveugle un jour :
+   - `ajouter`/`arreter` REPRENNENT LES VALEURS EXACTES de la maquette (`actionStyles.ajouter`/
+     `.arreter`, l.561/563) — qui se trouvent être, chiffre pour chiffre, celles déjà adoptées par
+     `tokens.css` pour `--c-ton-succes-*`/`--c-ton-danger-*` (S1). Réutilisés tels quels : zéro couleur
+     inventée, contraste déjà éprouvé par leur usage existant (`CriteriaForm.css`) ;
+   - `remplacer` REPREND AUSSI la valeur exacte de la maquette (`actionStyles.remplacer`, l.562 :
+     bg `oklch(93% 0.06 55)`, texte `oklch(38% 0.12 55)`) — teinte absente du système `--c-ton-*`
+     (4 registres sémantiques génériques, pas un par verbe), donc écrite ici en littéral plutôt
+     qu'inventée : même pratique que `EvidenceBadge.css` (point vide, `oklch(80% 0.02 245)`) ;
+   - `reduire` EST ABSENTE DE LA MAQUETTE (elle ne portait que 4 verbes sur 5, cf. `tokens.css` sur
+     `--c-action-reduire`) : extrapolée ICI selon EXACTEMENT la même recette que les trois précédentes
+     (fond ≈ 93 % L / chroma 0,06, texte ≈ 38 % L / chroma 0,14), à la teinte 330 déjà choisie par
+     `--c-action-reduire` pour rester discriminable des quatre autres ;
+   - `maintenir` RÉUTILISE `--c-accent-decision`/`--c-accent-decision-soft` (déjà la paire fond-clair/
+     texte-saturé employée ailleurs dans l'app, ex. `AlertList.css`, `CriteriaForm.css`) — pas de
+     nouvelle couleur, cohérent avec la bordure gauche qui fait de même. */
+.option-card__action-pastille--ajouter {
+  background: var(--c-ton-succes-bg);
+  color: var(--c-ton-succes-text);
+}
+
+.option-card__action-pastille--remplacer {
+  background: oklch(93% 0.06 55);
+  color: oklch(38% 0.12 55);
+}
+
+.option-card__action-pastille--arreter {
+  background: var(--c-ton-danger-bg);
+  color: var(--c-ton-danger-text);
+}
+
+.option-card__action-pastille--reduire {
+  background: oklch(93% 0.06 330);
+  color: oklch(38% 0.14 330);
+}
+
+.option-card__action-pastille--maintenir {
+  background: var(--c-accent-decision-soft);
+  color: var(--c-accent-decision);
+}
+
+/* Pastille POSOLOGIE en attente (P11/S6) — `PastilleInfo` (S3) ne connaît que `ton="neutre"|"danger"`,
+   pas encore de registre `attention` (ambre, « il manque une dose », même famille que
+   `--c-attention*`/`--c-ton-attention-*` déjà utilisés ailleurs, ex. `.option-card__calculs--en-attente`
+   ci-dessous). Étendre `PastilleInfo` est HORS du périmètre « Modifier » de cette session
+   (`plans/P11/S6.md` : `OptionCard.*` et `carte-affichage.test.tsx` seulement — `PastilleInfo` est la
+   zone de S3). Plutôt que d'improviser un contournement sur un fichier hors périmètre, la couleur est
+   surchargée ICI, depuis CE fichier, via un sélecteur descendant ciblant la classe `--neutre` que
+   `PastilleInfo` pose par défaut : `OptionCard.tsx` enveloppe la pastille posologie d'un `<span>` portant
+   cette classe UNIQUEMENT quand `calculsEnAttente` n'est pas vide. Aucun effet sur `PastilleInfo`
+   lui-même ni sur son autre appelant (`CriteriaForm.tsx`, qui ne passe jamais `ton`).
+   NOTE POUR UNE SESSION FUTURE (signalée S7/S9) : à retirer si `PastilleInfo` gagne un vrai ton
+   `attention` — cette règle n'a plus lieu d'être le jour où `ton="attention"` existe nativement. */
+.option-card__pastille-attention .pastille-info--neutre {
+  color: var(--c-ton-attention-text);
+}
+
+/* Chevron « argumentaire » (P11/S6) — même gabarit de cible tactile que `PastilleInfo` (32×32 mini),
+   pour une rangée visuellement homogène : quatre déclencheurs de panneau côte à côte, trois pastilles
+   et un chevron, tous cliquables au même format. */
+.option-card__chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--c-text-faible);
+  cursor: pointer;
+}
+
+.option-card__chevron:hover,
+.option-card__chevron:focus-visible {
+  color: var(--c-text);
+}
+
+/* Rotation au lieu d'un second tracé : `aria-expanded` (posé par `OptionCard.tsx`) pilote directement le
+   CSS, aucun état dupliqué côté style. */
+.option-card__chevron .icon {
+  transition: transform 0.15s ease;
+}
+
+.option-card__chevron[aria-expanded='true'] .icon {
+  transform: rotate(180deg);
+}
+
+/* PANNEAUX (P11/S6) — les quatre `.option-card__panneau--*` partagent ce bloc : TOUJOURS rendus dans le
+   DOM (`OptionCard.tsx`), masqués par l'attribut HTML natif `hidden` (`display: none` du navigateur,
+   AUCUNE règle `display` n'est posée ici qui pourrait entrer en conflit). Padding horizontal aligné sur
+   la rangée (`--space-5`) pour que le contenu déplié reste sous l'intitulé, pas sous les pastilles. */
+.option-card__panneau {
+  padding: 0 var(--space-5) var(--space-5);
+}
+
+/* Séparateur + espacement UNIQUEMENT quand le panneau est OUVERT (`:not([hidden])`) : un panneau fermé
+   ne doit ajouter aucune ligne ni aucun espace résiduel à la carte — c'est cette règle qui fait tenir la
+   carte sur une ligne quand tout est replié. */
+.option-card__panneau:not([hidden]) {
+  border-top: 1px solid var(--c-border-subtle, rgba(0, 0, 0, 0.08));
+  padding-top: var(--space-4);
 }
 
 .option-card__effet {
@@ -150,7 +277,6 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 16px;
-  margin-bottom: 14px;
 }
 
 .option-card__list-title {
@@ -166,12 +292,12 @@
   color: var(--c-text);
 }
 
+/* Panneau « pourquoi » (P11/S6) — plus de bordure/espacement propres : `.option-card__panneau` (ouvert)
+   les porte désormais pour les quatre panneaux uniformément. */
 .option-card__pourquoi {
   font-size: 13px;
   color: var(--c-text-muted);
   font-style: italic;
-  border-top: 1px solid var(--c-pill-track);
-  padding-top: 12px;
 }
 
 /* R6 couche 2 : discret, comme le délai (R2) — un fait de tri à consulter, pas une alerte. */
@@ -181,13 +307,16 @@
   margin-top: 6px;
 }
 
-/* Doses calculées (`Option.calculs`) : la carte en portait le rendu depuis le câblage P3 sans qu'aucune
-   règle ne les distingue de la prose environnante. Même discrétion que le délai de bénéfice — un repère
+/* Doses calculées (`Option.calculs`) : même discrétion que le délai de bénéfice — un repère
    posologique, pas une injonction. */
 .option-card__calculs {
   font-size: 12px;
   color: var(--c-text-muted);
-  margin-bottom: 14px;
+  margin-bottom: 8px;
+}
+
+.option-card__calculs:last-child {
+  margin-bottom: 0;
 }
 
 /* Défaut J (recette référent, 2026-07-27) — une dose non calculable était omise EN SILENCE, la carte
@@ -199,87 +328,21 @@
   color: var(--c-attention);
 }
 
-/* `option.apercu` (T-076/S9), zone POSOLOGIE — correctif 2026-08-01 : même registre discret que
-   `.option-card__calculs` ci-dessus (même taille, même couleur muted), à dessein — les deux disent la
-   même chose (« ce qu'on prescrit ») et doivent se lire comme UN seul registre visuel, jamais comme le
-   rouge de `.option-card__ci`. Avant ce lot, ce texte vivait concaténé au libellé du `<summary>` fermé
-   et en empruntait la couleur d'alerte dès qu'une contre-indication existait — c'était le défaut mesuré
-   en recette (une posologie qui se lit à travers un avertissement de sécurité). */
+/* `option.apercu` (T-076/S9), zone POSOLOGIE — même registre discret que `.option-card__calculs`
+   ci-dessus (même taille, même couleur muted), à dessein : les deux disent la même chose (« ce qu'on
+   prescrit ») et se lisent comme UN seul registre visuel, jamais comme le rouge du panneau `--ci`. */
 .option-card__apercu {
   font-size: 12px;
   color: var(--c-text-muted);
-  margin-bottom: 14px;
+  margin-bottom: 8px;
 }
 
-/* ── DEUX DÉPLIS SÉPARÉS (second passage référent, 2026-08-01) ────────────────────────────────────
-   A5 (2026-07-27) avait mesuré une carte à 0,71-1,06 écran en largeur étroite — avantages/
-   inconvénients et effet attendu en étaient l'essentiel du volume — et introduit UN dépli fermé par
-   défaut pour tout ce qui INSTRUIT sans être ce sur quoi on agit dans la minute.
-   Le 2026-08-01, un premier correctif matinal avait sorti les contre-indications ACTIVES de ce dépli
-   pour les rendre TOUJOURS visibles (même défaut que la posologie : les deux se lisaient noyées dans
-   un même avertissement rouge). Rendu au référent, celui-ci a demandé un second passage le jour même :
-   la posologie reste toujours visible (§`.option-card__apercu`/`.option-card__calculs` ci-dessus,
-   inchangé), mais la sécurité NE DOIT PAS rester une bannière permanente du socle — elle retourne
-   derrière SON PROPRE dépli, replié par défaut, distinct de celui de l'argumentaire. Règle générale
-   `.option-card__detail` commune aux DEUX `<details>` de la carte (styles partagés : espacement,
-   séparateur, résumé cliquable) — c'est UNIQUEMENT la classe `--ci` ci-dessous qui distingue le
-   registre visuel de l'un par rapport à l'autre. */
-.option-card__detail {
-  margin-top: 12px;
-  border-top: 1px solid var(--c-border-subtle, rgba(0, 0, 0, 0.08));
-  padding-top: 10px;
-}
-
-.option-card__detail-summary {
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--c-accent-decision);
-  /* Cible tactile confortable : A5 exige le clic/tap, pas le survol — inutilisable au doigt. */
-  padding: 6px 2px;
-  list-style-position: inside;
-}
-
-.option-card__detail-summary:hover {
-  text-decoration: underline;
-}
-
-/* SB6 (P6, 2026-07-29), RESTAURÉ le 2026-08-01 (second passage) après une parenthèse où les contre-
-   indications avaient quitté tout dépli (matin du même jour) : le `<summary>` FERMÉ du dépli SÉCURITÉ
-   passe dans le registre d'alerte dédié (`--c-ci-warning`, `tokens.css`) UNIQUEMENT quand au moins une
-   contre-indication n'est pas écartée (`OptionCard.tsx` ajoute cette classe seulement dans ce cas, sur
-   CE dépli uniquement — jamais sur celui de l'argumentaire, qui reste neutre en permanence). C'est la
-   COULEUR qui porte le signal de sécurité, pas la position : la carte reste courte (repliée par
-   défaut), mais se repère de loin dès qu'il y a quelque chose à vérifier. `font-weight`, `cursor` et
-   `:hover` restent ceux de la règle générale ci-dessus, non redéfinis ici. */
-.option-card__detail-summary--ci {
-  color: var(--c-ci-warning);
-}
-
-/* Icône décorative du `<summary>` fermé — masquée aux technologies d'assistance (`aria-hidden`,
-   `OptionCard.tsx`) : le décompte + le mot « contre-indication(s) » qui suivent portent déjà
-   l'information en texte (lu par tout lecteur d'écran). */
-.option-card__detail-summary-icon {
-  font-weight: 700;
-}
-
-/* Le premier bloc d'un dépli ne doit pas coller au résumé une fois ouvert — cible le premier élément
-   après le <summary>, QUEL QU'IL SOIT (`.option-card__ci` dans le dépli sécurité, `.option-card__pourquoi`
-   dans celui de l'argumentaire), plutôt que de nommer un bloc précis. */
-.option-card__detail[open] summary + * {
-  margin-top: 8px;
-}
-
-/* DÉPLI SÉCURITÉ — contre-indications ACTIVES/INDÉTERMINÉES (D20/T-068). Historique : T-025 (P4/S4,
-   2026-07-28 matin) les avait remontées hors dépli ; SB3 les avait déplacées DANS un dépli unique
-   partagé avec l'argumentaire le même jour ; un premier correctif du 2026-08-01 (matin) les avait
-   ressorties TOUJOURS visibles ; le second passage référent, LE MÊME JOUR, les redépose ici — dans
-   leur PROPRE dépli, distinct de l'argumentaire, replié par défaut, mais reconnaissable fermé grâce à
-   `.option-card__detail-summary--ci` ci-dessus. Tokens réutilisés tels quels, aucun nouveau :
-   `--c-disclaimer-bg`/`--c-disclaimer-border`, EXACTEMENT ceux d'`AlertList.css`
-   (`.alert-list__item--attention`, le canal des alertes cliniques d'option) — surtout PAS
-   `--c-attention*` (`tokens.css`), réservé à « à confirmer » / « Doses non calculées » : un état de
-   saisie incomplète, jamais une interdiction clinique. */
+/* DÉPLI SÉCURITÉ — contre-indications ACTIVES/INDÉTERMINÉES (D20/T-068). Contenu INCHANGÉ depuis
+   SB6/T-068 ; seul le CONTENANT change de nature avec P11/S6 (panneau `hidden`, plus `<details>`).
+   Tokens réutilisés tels quels, aucun nouveau : `--c-disclaimer-bg`/`--c-disclaimer-border`, EXACTEMENT
+   ceux d'`AlertList.css` (`.alert-list__item--attention`, le canal des alertes cliniques d'option) —
+   surtout PAS `--c-attention*` (`tokens.css`), réservé à « à confirmer » / « Doses non calculées » : un
+   état de saisie incomplète, jamais une interdiction clinique. */
 .option-card__ci {
   font-size: 13px;
   line-height: 1.6;
@@ -288,7 +351,11 @@
   border: 1px solid var(--c-disclaimer-border);
   border-radius: var(--radius-sm);
   padding: 12px 14px;
-  margin-bottom: 14px;
+  margin-bottom: 8px;
+}
+
+.option-card__ci:last-child {
+  margin-bottom: 0;
 }
 
 .option-card__ci-label {
@@ -301,19 +368,21 @@
    pouvoir vérifier que l'outil l'a vue) et cesser d'ALERTER (c'est tout l'objet de la tâche). D'où :
    - AUCUN des tokens `--c-disclaimer-*` du bloc actif (`.option-card__ci` ci-dessus) : ce registre est
      celui de l'interdiction clinique, et une CI levée n'interdit rien. Elle reste néanmoins dans le
-     MÊME dépli sécurité que le bloc actif (et non dans celui de l'argumentaire, second passage
-     2026-08-01) : une contre-indication levée parle de sécurité, elle va avec la sécurité ;
+     MÊME panneau sécurité que le bloc actif : une contre-indication levée parle de sécurité, elle va
+     avec la sécurité ;
    - texte estompé (`--c-text-muted`) et BARRÉ : le barré dit « annulée », pas « atténuée » — c'est ce qui
      évite la lecture ambiguë d'un simple gris (« important mais secondaire »).
-   Le libellé, lui, n'est PAS barré : c'est la phrase qui porte la raison, elle doit se lire normalement.
-   Visibilité jugée en N2 (S10) : « assez visible pour rester vérifiable, assez discrète pour ne plus
-   alerter à tort » est un arbitrage humain, pas une valeur qu'on fixe ici. */
+   Le libellé, lui, n'est PAS barré : c'est la phrase qui porte la raison, elle doit se lire normalement. */
 .option-card__ci--levee {
   background: none;
   border: none;
   color: var(--c-text-muted);
   padding: 0;
-  margin-bottom: 14px;
+  margin-bottom: 8px;
+}
+
+.option-card__ci--levee:last-child {
+  margin-bottom: 0;
 }
 
 .option-card__ci--levee .option-card__ci-label {

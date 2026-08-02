@@ -1,7 +1,7 @@
 /**
  * Banc d'un nœud — COUCHE 3 « invariants », lot **affichage**.
  *
- * I12 — **le dépli d'une carte n'avale jamais un fait de sécurité.**
+ * I12 — **un panneau replié d'une carte n'avale jamais un fait de sécurité.**
  *
  * POURQUOI CET INVARIANT EXISTE, ET POURQUOI SUR LES NŒUDS RÉELS. Le 2026-07-27 au matin, un repli
  * d'affichage (« Autres pistes possibles (N) ») a caché la carte d'insuline d'initiation d'un patient
@@ -18,29 +18,34 @@
  *
  * MÉCANIQUE. Pour chaque nœud et chaque profil du banc, on rend la carte RÉELLE
  * (`renderToStaticMarkup(<OptionCard …>)`, alimentée par `construireVueDecision` — donc exactement ce
- * que `DecisionNodeScreen` affiche) et l'on découpe le HTML sur `<details>`. Tout ce que le socle doit
- * porter doit se trouver AVANT. Le test ne connaît ni nœud ni critère par son nom (D8) : il lit les
+ * que `DecisionNodeScreen` affiche) et l'on découpe le HTML sur les quatre panneaux
+ * `.option-card__panneau--*`. Le test ne connaît ni nœud ni critère par son nom (D8) : il lit les
  * `contre_indications`, les alertes et les doses depuis le contenu chargé.
  *
- * AMENDEMENT SB3 (P6, 2026-07-28), DEUX REVERTS LE 2026-08-01 — ÉTAT ACTUEL : DEUX DÉPLIS SÉPARÉS. SB3
- * avait déplacé les contre-indications dans UN dépli partagé avec l'argumentaire (compensé par le
- * libellé du `<summary>`, puis par une icône dédiée après SB6). Un premier correctif du 2026-08-01
- * (matin) les avait ressorties dans une zone TOUJOURS visible du socle, mesurant que le dépli partagé
- * mélangeait trois registres de lecture. Rendu au référent, un second passage LE MÊME JOUR a demandé
- * autre chose : la sécurité ne doit pas rester une bannière permanente du socle — elle retourne
- * derrière SON PROPRE dépli, SÉPARÉ de celui de l'argumentaire, replié par défaut, mais dont le
- * `<summary>` fermé porte le signal rouge dès qu'une contre-indication n'est pas écartée (D20/T-068).
+ * REFONDU le 2026-08-01 par P11/S6 (T-111, « carte en une ligne, tout au clic ») — TROISIÈME évolution
+ * de la structure de la carte après SB3 (P6, un dépli partagé) et le double revirement du 2026-08-01
+ * matin (dépli sécurité toujours visible, puis dépli sécurité propre et séparé de l'argumentaire —
+ * cf. l'historique complet dans `OptionCard.tsx`). L'arbitrage référent du même jour (question 3) fait
+ * tomber l'acquis « posologie toujours visible » : les DEUX `<details>` d'hier deviennent QUATRE
+ * panneaux `hidden`, TOUJOURS RENDUS dans le DOM (jamais en montage conditionnel — c'est précisément ce
+ * qui permet à CE test de continuer à localiser un texte fermé via `renderToStaticMarkup`), ouverts un
+ * par un par des `PastilleInfo` (P11/S3) dans la rangée :
  *
- * CE QUE §1 VÉRIFIE MAINTENANT : les contre-indications (TOUS états, actives ET levées) sont toujours
- * présentes dans le rendu, et TOUJOURS situées dans le PREMIER `<details>` (le dépli sécurité — il est
- * toujours rendu en premier quand il existe, cf. `OptionCard.tsx`), jamais dans le socle, jamais dans le
- * second `<details>` (l'argumentaire). Le helper `segments()` ci-dessous découpe le HTML aux frontières
- * des `<details>` successifs pour distinguer les trois zones.
+ * - `.option-card__panneau--pourquoi` — « Proposé parce que » et « Ce rang tient compte de » ;
+ * - `.option-card__panneau--posologie` — `option.apercu`, doses calculées, doses EN ATTENTE (défaut J) ;
+ * - `.option-card__panneau--ci` — contre-indications, TOUS états (actif/indéterminé/levé, T-068) ;
+ * - `.option-card__panneau--argumentaire` — effet attendu, délai, avantages/inconvénients.
  *
- * « PROPOSÉ PARCE QUE » ET « CE RANG TIENT COMPTE DE » REJOIGNENT LE DÉPLI ARGUMENTAIRE depuis le
- * 2026-08-01 (décision référent explicite, confirmée au second passage) : ils poussaient l'action vers
- * le bas alors qu'ils se lisent une fois par option. §4 vérifie qu'ils sont dans le dépli ARGUMENTAIRE
- * (le dernier), jamais dans le socle ni dans le dépli sécurité.
+ * CE QUE §1 VÉRIFIE MAINTENANT : les contre-indications (TOUS états) sont toujours présentes dans le
+ * rendu, et TOUJOURS situées dans `.option-card__panneau--ci` — jamais dans le socle (badges + rangée +
+ * `AlertList`), jamais dans un autre panneau. Le helper `zones()` ci-dessous découpe le HTML aux
+ * frontières des quatre panneaux (toujours quatre désormais, qu'il y ait ou non une contre-indication —
+ * c'est la différence structurelle majeure avec l'ancienne version de ce test, où le dépli sécurité
+ * n'existait que conditionnellement).
+ *
+ * §6 EST NOUVEAU : le ton (`PastilleInfo`) remplace l'ex-icône ⚠ comme signal de sécurité fermé —
+ * `.option-card__rangee` doit porter une pastille de ton `danger` si et seulement si une contre-
+ * indication n'est pas levée.
  */
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
@@ -67,27 +72,39 @@ const DELAI_MS = 120_000
  * toutes ses cartes. */
 const RENDUS_PAR_OPTION = 3
 
-/** Première partie du HTML d'une carte : tout ce qui précède le premier `<details>`. Une carte sans
- * aucun dépli renvoie tout son HTML (il n'y a rien à avaler). */
+/**
+ * Marqueur commun aux quatre panneaux (`OptionCard.tsx` : chaque panneau porte la classe de base
+ * `option-card__panneau` PUIS son modificateur `--pourquoi`/`--posologie`/`--ci`/`--argumentaire`) —
+ * unique dans le HTML rendu, aucun autre élément de la carte ne porte ce préfixe de classe.
+ *
+ * VOLONTAIREMENT sans le `<div class="` qui le précède dans le JSX : React rend l'attribut `id` AVANT
+ * `class` sur ces `<div>` (ordre des props dans `OptionCard.tsx`), donc `<div id="…" class="option-card
+ * __panneau…`. Ancrer le marqueur sur `class="` supposerait un ordre d'attributs qui n'est pas garanti
+ * — chercher directement le nom de classe, où qu'il tombe dans la balise, ne dépend d'aucun ordre.
+ */
+const MARQUEUR_PANNEAU = 'option-card__panneau--'
+
+/** Première partie du HTML d'une carte : tout ce qui précède le premier panneau (badges, rangée,
+ * `AlertList`) — jamais un panneau. Une carte sans aucun panneau rendu (ne devrait plus arriver depuis
+ * P11/S6, les quatre sont toujours rendus) renverrait tout son HTML, par défense symétrique de l'ancien
+ * comportement. */
 function socle(html: string): string {
-  const index = html.indexOf('<details')
+  const index = html.indexOf(MARQUEUR_PANNEAU)
   return index === -1 ? html : html.slice(0, index)
 }
 
 /**
- * Découpe le HTML d'une carte en (au plus) TROIS zones, aux frontières des `<details>` successifs :
- * `avant` (le socle, jamais un dépli), puis un dépli par `<details>` rencontré, dans l'ordre du DOM.
- * `OptionCard.tsx` rend AU PLUS deux `<details>` — sécurité (seulement si l'option porte au moins une
- * contre-indication, tous états confondus) puis argumentaire (toujours présent) — donc `zones.length`
- * vaut 2 (juste l'argumentaire) ou 3 (sécurité + argumentaire) selon le cas. Ni le nom du nœud ni celui
- * du critère n'y figurent (D8) : la fonction ne lit que la structure du HTML rendu.
+ * Découpe le HTML d'une carte en CINQ zones : `avant` (le socle, jamais un panneau), puis les quatre
+ * panneaux dans l'ordre du DOM (`pourquoi`, `posologie`, `ci`, `argumentaire` — `OptionCard.tsx` les
+ * rend TOUJOURS, dans CET ordre, qu'ils aient ou non du contenu). Ni le nom du nœud ni celui du critère
+ * n'y figurent (D8) : la fonction ne lit que la structure du HTML rendu.
  */
 function zones(html: string): string[] {
   const indices: number[] = []
-  let i = html.indexOf('<details')
+  let i = html.indexOf(MARQUEUR_PANNEAU)
   while (i !== -1) {
     indices.push(i)
-    i = html.indexOf('<details', i + 1)
+    i = html.indexOf(MARQUEUR_PANNEAU, i + 1)
   }
   const bornes = [0, ...indices, html.length]
   const decoupes: string[] = []
@@ -107,7 +124,18 @@ function echappe(texte: string): string {
     .replace(/'/g, '&#x27;')
 }
 
-describe('I12 — le dépli d’une carte n’avale jamais un fait de sécurité (moteur × affichage)', () => {
+/**
+ * Un panneau FERMÉ au rendu statique porte-t-il l'attribut `hidden` ? `zoneHtml` commence AU MILIEU de
+ * l'attribut `class` du `<div>` du panneau (`zones()` coupe au marqueur, pas au début de la balise) —
+ * il suffit de chercher `hidden` avant la première fermeture `>` de balise rencontrée, qui est
+ * nécessairement celle de CE `<div>` (aucun attribut de ce panneau ne contient `>`).
+ */
+function panneauFerme(zoneHtml: string): boolean {
+  const finBalise = zoneHtml.indexOf('>')
+  return finBalise !== -1 && zoneHtml.slice(0, finBalise).includes('hidden')
+}
+
+describe('I12 — un panneau replié d’une carte n’avale jamais un fait de sécurité (moteur × affichage)', () => {
   it.each(noeuds.map((node) => [node.id, node] as const))(
     'nœud %s',
     (_id, node) => {
@@ -128,7 +156,7 @@ describe('I12 — le dépli d’une carte n’avale jamais un fait de sécurité
             // 35 s à 535 s, et un worker Vitest tué en cours de route (« Worker exited unexpectedly »,
             // 3 tests silencieusement perdus). Un test qui fait tomber le banc ne protège rien.
             //
-            // Ce qui est vérifié ici est STRUCTUREL — un bloc du socle passé dans le dépli est le même
+            // Ce qui est vérifié ici est STRUCTUREL — un bloc du socle passé dans un panneau est le même
             // pour toutes les cartes d'une option. Il suffit donc de rendre chaque option quelques fois,
             // le temps que les profils lui aient fait porter ses différents contenus (contre-indications,
             // alertes, doses), pas une fois par profil.
@@ -147,16 +175,14 @@ describe('I12 — le dépli d’une carte n’avale jamais un fait de sécurité
                 contreIndications={optionVue.contreIndications}
               />,
             )
-            const avantDepli = socle(html)
-            // Zones du HTML rendu : [avant, sécurité?, argumentaire] ou [avant, argumentaire] selon que
-            // l'option porte au moins une contre-indication (cf. docstring de `zones()`).
-            const decoupes = zones(html)
-            const depliArgumentaire = decoupes[decoupes.length - 1]
-            const depliSecurite = optionVue.contreIndications.length > 0 ? decoupes[1] : ''
+            const avant = socle(html)
+            // [avant, pourquoi, posologie, ci, argumentaire] — toujours 5 zones (P11/S6 : les quatre
+            // panneaux sont toujours rendus, cf. docstring de tête).
+            const [, depliPourquoi, depliPosologie, depliCi, depliArgumentaire] = zones(html)
 
             // (1) CONTRE-INDICATIONS, TOUS ÉTATS — D21 : un fait de sécurité s'affiche avec son motif.
-            // SECOND PASSAGE DU 2026-08-01 (voir docstring de tête) : actives, indéterminées ET levées
-            // vivent TOUTES dans le dépli SÉCURITÉ, jamais dans le socle, jamais dans l'argumentaire.
+            // P11/S6 : actives, indéterminées ET levées vivent TOUTES dans le panneau `--ci`, jamais
+            // dans le socle, jamais dans un autre panneau.
             for (const { texte } of optionVue.contreIndications) {
               // Un extrait suffit et évite les faux négatifs sur la ponctuation typographique.
               const extrait = echappe(texte.slice(0, 40))
@@ -164,69 +190,72 @@ describe('I12 — le dépli d’une carte n’avale jamais un fait de sécurité
                 manquements.push(
                   `contre-indication absente du rendu — « ${optionVue.option.intitule} » : ${texte.slice(0, 60)}…`,
                 )
-              } else if (!depliSecurite.includes(extrait)) {
+              } else if (!depliCi.includes(extrait)) {
                 manquements.push(
-                  `contre-indication hors du dépli sécurité — « ${optionVue.option.intitule} » : ${texte.slice(0, 60)}…`,
+                  `contre-indication hors du panneau --ci — « ${optionVue.option.intitule} » : ${texte.slice(0, 60)}…`,
                 )
               }
             }
 
-            // (1b) SB6, RESTAURÉ le 2026-08-01 (second passage) — le `<summary>` FERMÉ du dépli sécurité
-            // doit porter l'icône ⚠ et le décompte EXACT quand des contre-indications actives/
-            // indéterminées existent, et n'afficher AUCUNE trace de ce registre d'alerte en leur absence
-            // (une carte qui ne porte QUE des CI levées garde un dépli sécurité neutre, cf.
-            // `OptionCard.test.tsx`).
-            //
-            // Le décompte ne porte que sur les contre-indications NON LEVÉES — celles que le dépli
-            // sécurité montre effectivement en registre d'alerte. Une contre-indication levée (`condition`
-            // fausse pour ce patient) ne doit plus gonfler ce chiffre.
-            const nombreCi = optionVue.contreIndications.filter((ci) => ci.etat !== 'levee').length
-            if (nombreCi > 0) {
-              if (!depliSecurite.includes('⚠')) {
-                manquements.push(`dépli sécurité sans icône d'alerte alors que des CI existent — « ${optionVue.option.intitule} »`)
-              }
-              if (!depliSecurite.includes(`${nombreCi} contre-indication`)) {
-                manquements.push(
-                  `dépli sécurité sans décompte exact (attendu ${nombreCi}) — « ${optionVue.option.intitule} »`,
-                )
-              }
-            } else if (depliSecurite.includes('⚠')) {
-              manquements.push(`dépli sécurité porte une icône d'alerte sans aucune CI active — « ${optionVue.option.intitule} »`)
-            }
-
-            // (2) ALERTES D'OPTION — même canal, même raison (D21). Restent dans le SOCLE, inchangé
-            // depuis A5 : elles ne se déplient jamais, quel que soit le passage sur les contre-
+            // (2) ALERTES D'OPTION — même canal, même raison (D21). Restent HORS de tout panneau,
+            // inchangé depuis A5 : elles ne se replient jamais, quel que soit l'état des contre-
             // indications.
             for (const alerte of optionVue.alertes) {
               const extrait = echappe(alerte.message.slice(0, 40))
-              if (!avantDepli.includes(extrait)) {
+              if (!avant.includes(extrait)) {
                 manquements.push(`alerte d'option repliée — « ${optionVue.option.intitule} »`)
               }
             }
 
-            // (3) DOSES — calculées ET non calculées. La seconde est le défaut J, corrigé le matin même :
-            // la replier le ferait revenir le jour de sa correction. Restent dans le SOCLE, inchangé.
+            // (3) DOSES — calculées ET non calculées. NOUVEAU CONTRAT P11/S6 : les deux vivent désormais
+            // dans le panneau `--posologie` (elles étaient dans le socle avant P11 — c'est exactement
+            // l'acquis que l'arbitrage référent du 2026-08-01 fait tomber, cf. docstring de tête
+            // `OptionCard.tsx`). La seconde est le défaut J, corrigé le 2026-07-27 : la replier sans
+            // signal la ferait revenir — §6 ci-dessous vérifie que le ton `attention` prend le relais.
             for (const ligne of optionVue.calculsEnAttente) {
-              if (!avantDepli.includes(echappe(ligne.libelle.slice(0, 30)))) {
-                manquements.push(`« doses non calculées » repliée — « ${optionVue.option.intitule} »`)
+              if (!depliPosologie.includes(echappe(ligne.libelle.slice(0, 30)))) {
+                manquements.push(`« doses non calculées » hors du panneau --posologie — « ${optionVue.option.intitule} »`)
               }
             }
             for (const ligne of optionVue.calculs) {
-              if (!avantDepli.includes(echappe(ligne.libelle.slice(0, 30)))) {
-                manquements.push(`dose calculée repliée — « ${optionVue.option.intitule} »`)
+              if (!depliPosologie.includes(echappe(ligne.libelle.slice(0, 30)))) {
+                manquements.push(`dose calculée hors du panneau --posologie — « ${optionVue.option.intitule} »`)
               }
             }
 
             // (4) LA JUSTIFICATION — « Proposé parce que » rend la carte auditable en consultation.
-            // Vit dans le dépli ARGUMENTAIRE (le dernier `<details>`) depuis le 2026-08-01 (décision
-            // référent explicite, confirmée au second passage) : jamais dans le socle, jamais dans le
-            // dépli sécurité.
+            // Vit dans le panneau `--pourquoi` (P11/S6) : jamais dans le socle, jamais dans un autre
+            // panneau.
             if (!html.includes('Proposé parce que')) {
               manquements.push(`« Proposé parce que » absente du rendu — « ${optionVue.option.intitule} »`)
-            } else if (!depliArgumentaire.includes('Proposé parce que')) {
+            } else if (!depliPourquoi.includes('Proposé parce que')) {
               manquements.push(
-                `« Proposé parce que » hors du dépli argumentaire — « ${optionVue.option.intitule} »`,
+                `« Proposé parce que » hors du panneau --pourquoi — « ${optionVue.option.intitule} »`,
               )
+            }
+
+            // (5) LES QUATRE PANNEAUX SONT FERMÉS PAR DÉFAUT — nouveau (P11/S6) : aucun n'est ouvert au
+            // premier rendu, condition nécessaire pour que la carte tienne sur une ligne.
+            for (const [nom, zone] of [
+              ['pourquoi', depliPourquoi],
+              ['posologie', depliPosologie],
+              ['ci', depliCi],
+              ['argumentaire', depliArgumentaire],
+            ] as const) {
+              if (!panneauFerme(zone)) {
+                manquements.push(`panneau --${nom} pas fermé par défaut (hidden manquant) — « ${optionVue.option.intitule} »`)
+              }
+            }
+
+            // (6) LE TON PORTE LE SIGNAL DE SÉCURITÉ — nouveau (P11/S6), remplace les anciennes
+            // assertions littérales sur `'⚠'` : quand au moins une contre-indication n'est PAS levée, la
+            // rangée contient une pastille de ton `danger` ; sinon aucune.
+            const nombreCiNonLevee = optionVue.contreIndications.filter((ci) => ci.etat !== 'levee').length
+            const rangeeDangerPresente = avant.includes('pastille-info--danger')
+            if (nombreCiNonLevee > 0 && !rangeeDangerPresente) {
+              manquements.push(`pastille de ton danger absente alors que des CI actives existent — « ${optionVue.option.intitule} »`)
+            } else if (nombreCiNonLevee === 0 && rangeeDangerPresente) {
+              manquements.push(`pastille de ton danger présente sans aucune CI active — « ${optionVue.option.intitule} »`)
             }
           }
         }

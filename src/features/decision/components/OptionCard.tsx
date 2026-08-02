@@ -1,4 +1,7 @@
+import { useId, useState } from 'react'
+import { Icon } from '../../shared/icons/Icon'
 import { EvidenceBadge } from '../../shared/badges/EvidenceBadge'
+import { PastilleInfo } from '../../shared/ui/PastilleInfo'
 import type { ActionOption, Alerte, Option } from '../content/node.types'
 import type { ContreIndicationEvaluee } from '../engine/evaluateNode'
 import { describeReasons } from '../lib/conditionText'
@@ -85,6 +88,10 @@ interface OptionCardProps {
  * propre et réutilise directement `--c-accent-decision` (`OptionCard.css`). `option.action` absent
  * (les 4 autres nœuds, et les options de `prescription`/`insuline` volontairement laissées sans
  * verbe) : aucune classe n'est ajoutée, la bordure reste celle d'aujourd'hui.
+ *
+ * CONSERVÉE TELLE QUELLE par S6 (P11) : deux canaux pour le même verbe (bordure + pastille, cf.
+ * `ACTION_LABEL` ci-dessous), volontairement redondants (`plans/P11/S6.md` étape 3). Nom de classe
+ * NON RENOMMABLE — `OptionCard.test.tsx` l.279-308 l'asserte à la lettre.
  */
 const ACTION_BORDER_CLASS: Record<ActionOption, string> = {
   ajouter: 'option-card--action-ajouter',
@@ -95,98 +102,94 @@ const ACTION_BORDER_CLASS: Record<ActionOption, string> = {
 }
 
 /**
- * Icône du verbe d'action (amélioration de lisibilité, 2026-08-01) — 100 % GÉNÉRIQUE : `ActionOption`
- * est une énumération FERMÉE à 5 valeurs, partagée par tout domaine qui l'emploie (D35), jamais un nom
- * de nœud ni un fait clinique. Un dictionnaire exhaustif sur une union fermée est sûr par construction
- * (TypeScript signale toute valeur manquante). Placée EN PLUS de l'intitulé complet, jamais à sa place :
- * l'intitulé d'une option est le texte clinique qu'un praticien applique, le tronquer pour ne garder
- * qu'« icône + classe thérapeutique » exigerait soit une réécriture heuristique du texte (risque de
- * perdre un mot qui compte), soit un nouveau champ de contenu à faire rédiger option par option — les
- * deux plus lourds qu'une icône de scan rapide, et non tranchés ici.
+ * Libellé de la pastille d'action (P11/S6, T-111) — REMPLACE `ACTION_ICON` (emoji, supprimé) : la
+ * maquette (l.273) porte le MOT du verbe sur fond teinté, jamais un pictogramme. Même dictionnaire
+ * exhaustif sur union fermée que `ACTION_BORDER_CLASS` ci-dessus (TypeScript signale toute valeur
+ * manquante). La bordure gauche (`ACTION_BORDER_CLASS`) reste posée EN PLUS de cette pastille — deux
+ * canaux pour la même information, déjà en place avant S6 et volontairement conservés.
  */
-const ACTION_ICON: Record<ActionOption, string> = {
-  ajouter: '➕',
-  remplacer: '🔄',
-  arreter: '⛔',
-  reduire: '➖',
-  maintenir: '➡️',
+const ACTION_LABEL: Record<ActionOption, string> = {
+  ajouter: 'Ajouter',
+  remplacer: 'Remplacer',
+  arreter: 'Arrêter',
+  reduire: 'Réduire',
+  maintenir: 'Maintenir',
 }
 
+/** Les quatre panneaux de la carte (P11/S6) — un seul ouvert à la fois, `null` = tous fermés. */
+type PanneauNom = 'pourquoi' | 'posologie' | 'ci' | 'argumentaire'
+
 /**
- * Carte d'option applicable (T-006 étape 2), ALLÉGÉE le 2026-07-27 — arbitrage référent A5, puis
- * RESTRUCTURÉE EN ZONES le 2026-08-01 (recette navigateur du même jour), puis AFFINÉE LE MÊME JOUR
- * (second passage référent, après avoir vu le premier rendu) — cf. plus bas, c'est CE second passage
- * qui décrit l'état actuel.
+ * Carte d'option applicable (T-006 étape 2), REFONDUE EN LIGNE UNIQUE le 2026-08-01 (P11/S6, T-111) —
+ * **arbitrage référent du même jour, question 3 : « carte en une ligne, tout au clic »**. Cette refonte
+ * AMENDE D34 et fait tomber un acquis posé le MATIN du même jour : « la posologie reste TOUJOURS
+ * visible » (cf. historique ci-dessous). Le référent a tranché en connaissance de cause — la compacité
+ * l'emporte, la posologie passe derrière une pastille. Ne pas rouvrir ce débat ici ; le point est tracé
+ * par D45 (S9).
  *
- * POURQUOI L'ALLÈGEMENT D'ORIGINE (A5). La recette visuelle a mesuré une carte à **0,71 à 1,06 écran**
- * en largeur étroite : il faut un défilement plein écran, parfois plus, pour passer d'une carte à la
- * suivante, et un profil banal en affiche cinq. Ce sont les avantages/inconvénients (3 à 6 puces
- * longues) et le paragraphe d'effet attendu qui font ce volume — les contre-indications, elles, ne
- * pèsent que 11 à 18 % de la hauteur.
+ * STRUCTURE ACTUELLE — une rangée TOUJOURS visible, quatre panneaux TOUJOURS RENDUS mais `hidden` :
  *
- * TROIS REGISTRES DE LECTURE — chacun à SA fréquence d'usage, chacun avec SON traitement, PAS le même
- * pour les trois. Un premier passage (2026-08-01, matin) avait sorti les contre-indications ACTIVES du
- * dépli pour les rendre TOUJOURS visibles, au même titre que la posologie — ça corrigeait le défaut
- * mesuré (une dose lue à travers un avertissement rouge), mais ça en créait un autre : la sécurité
- * occupait alors le socle en permanence, même hors contexte de prescription. Le référent, en voyant ce
- * premier rendu, a corrigé le tir : la posologie reste TOUJOURS visible (elle se lit à chaque
- * prescription), mais la sécurité retourne derrière SON PROPRE dépli, distinct de l'argumentaire — replié
- * par défaut comme avant, mais reconnaissable de loin par sa couleur quand elle n'est pas neutralisée. Le
- * rouge redevient donc un signal ponctuel (on l'ouvre pour vérifier), plus un état permanent du socle.
+ * 1. `.option-card__badges` (optionnel, AU-DESSUS de la rangée) — « Recommandée » / « Recommandation
+ *    officielle (France) » / « Mesure de sécurité ». Sortis de la rangée : le plus long (34 caractères)
+ *    déborderait une colonne de 380 px cumulé à l'intitulé. N'apparaît que sur 1 à 2 cartes par écran,
+ *    une ligne dédiée coûte donc peu.
+ * 2. `.option-card__rangee` — LA ligne : pastille d'action (mot du verbe, remplace l'ex-emoji), intitulé
+ *    (`flex: 1`), `EvidenceBadge` (pastille de texte — le rendu en points de P11/S5 a été révoqué par
+ *    arbitrage référent du 2026-08-02, P11/S10 T-117 ; c'est désormais l'élargissement de la mise en
+ *    page, T-118, qui rend cette ligne tenable), puis trois `PastilleInfo` (P11/S3) qui ouvrent chacune
+ *    UN panneau (« Proposé parce que », « Posologie » — si contenu, « Contre-indications » — si
+ *    l'option en porte), puis un chevron qui ouvre l'argumentaire.
+ * 3. `<AlertList variant="option">` — INCHANGÉ depuis A5, HORS de tout panneau. Un fait de sécurité
+ *    s'affiche avec son motif (D21) ; aucun arbitrage de cette session n'a porté dessus, et ça reste
+ *    vrai après elle.
+ * 4. Quatre panneaux, DANS CET ORDRE, chacun `hidden` quand fermé : `--pourquoi` (justification + motif
+ *    de rang), `--posologie` (aperçu, doses calculées, doses en attente — défaut J, cf. plus bas),
+ *    `--ci` (contre-indications actives/indéterminées puis levées, T-068, inchangé), `--argumentaire`
+ *    (effet attendu, délai, avantages/inconvénients).
  *
- * 1. SOCLE — POSOLOGIE, jamais repliable, registre NEUTRE (jamais rouge, quel que soit l'état des
- *    contre-indications) :
- *   - `calculs` (« Doses indicatives : 8 U/j ») — déjà hors dépli avant ce lot, inchangé ;
- *   - `option.apercu` (T-076/S9) — SORTI du libellé du `<summary>` où il était concaténé au compte de
- *     contre-indications (donc teinté rouge par contagion) : c'était le défaut d'origine, mesuré le
- *     2026-08-01. Rendu ici en ligne neutre, visible sans clic — CET ACQUIS EST CONSERVÉ TEL QUEL au
- *     second passage, le référent l'a validé explicitement ;
- *   - `calculsEnAttente` (« Doses non calculées : … à renseigner : Poids ») — la pousser derrière un
- *     dépli ferait revenir le défaut J (2026-07-27) ;
- *   - `option.alertes` — un fait de sécurité s'affiche avec son motif, il ne se déplie pas (inchangé).
+ * TOUJOURS RENDUS, JAMAIS EN MONTAGE CONDITIONNEL — et ce n'est pas cosmétique, deux raisons précises :
+ * (a) `aria-controls` d'une pastille doit pointer vers un élément qui EXISTE dans le DOM, ouvert ou non
+ * (motif standard d'une *disclosure* accessible) ; (b) c'est ce qui permet au garde-fou
+ * `engine/banc/carte-affichage.test.tsx` (I12) de continuer à vérifier OÙ vit chaque texte via
+ * `renderToStaticMarkup` — avec un montage conditionnel, un panneau fermé serait simplement absent du
+ * HTML et le test ne prouverait plus rien. Un panneau sans rien à montrer (ex. `--ci` sur une option
+ * sans aucune contre-indication) reste donc rendu, vide, masqué — aucune pastille ne pointe vers lui.
  *
- * 2. DÉPLI (`<details>`) — CONTRE-INDICATIONS, propre et distinct de l'argumentaire, REPLIÉ PAR DÉFAUT
- *    (comme avant le premier passage du 2026-08-01) :
- *   - le `<summary>` FERMÉ passe en registre d'alerte (`--c-ci-warning`, icône ⚠, décompte exact)
- *     UNIQUEMENT si au moins une contre-indication n'est pas écartée (état `active` ou `indetermine`,
- *     D20/T-068) — c'est la COULEUR qui porte le signal de sécurité maintenant, plus la position (le
- *     premier passage avait supprimé la position ET la couleur ; ce second passage restaure la position
- *     derrière un dépli mais garde le principe SB6 : un fait de sécurité fermé doit s'annoncer par autre
- *     chose que le bleu-lien neutre) ;
- *   - les contre-indications ACTIVES/INDÉTERMINÉES (`ciAffichees`) ET LEVÉES (`ciLevees`, T-068) vivent
- *     TOUTES LES DEUX ici, jamais dans l'argumentaire : elles parlent de sécurité, elles restent
- *     ensemble — une levée reste « désamorcée, jamais effacée », affichée en retrait sous les actives ;
- *   - ce dépli ne rend RIEN si l'option ne porte aucune contre-indication (aucun espace réservé).
+ * UN SEUL PANNEAU OUVERT À LA FOIS (`useState<PanneauNom | null>`), chevron d'argumentaire compris :
+ * ouvrir une pastille referme la précédente, sinon la carte « une ligne » redevient une carte haute dès
+ * trois clics — exactement ce que cette refonte visait à corriger.
  *
- * 3. DÉPLI (`<details>`) — ARGUMENTAIRE, SÉPARÉ du précédent, TOUJOURS neutre (jamais de variante
- *    rouge — la sécurité a son propre dépli, §2), REPLIÉ PAR DÉFAUT :
- *   - « Proposé parce que » et, quand il compte, le motif du rang (R6) — REJOINTS le 2026-08-01
- *     (décision référent explicite, confirmée au second passage) : ils poussaient l'action vers le bas
- *     alors qu'ils se lisent une fois par option, pas à chaque prescription ;
- *   - effet attendu, délai du bénéfice, avantages, inconvénients — inchangés.
+ * `PastilleInfo` (P11/S3) NE CONNAÎT QUE `ton="neutre"|"danger"` — suffisant pour la pastille CI
+ * (`danger` ssi une contre-indication n'est pas levée). La pastille POSOLOGIE a besoin d'un registre
+ * AMBRE (« il manque une dose ») qui n'existe pas encore sur ce composant : le détail du contournement
+ * — volontairement confiné à ce fichier, `PastilleInfo` n'est pas dans le périmètre « Modifier » de
+ * cette session — est documenté dans `OptionCard.css` (`.option-card__pastille-attention`).
  *
- * DEUX `<details>` SÉPARÉS, PAS UN SEUL — c'est le point précis du second passage référent : le premier
- * correctif avait résolu « le rouge avale la posologie » en supprimant purement le dépli de sécurité (le
- * rouge devenait alors un état permanent du socle). La bonne réponse gardait les deux problèmes séparés :
- * la posologie ne doit plus JAMAIS passer par un dépli (résolu, conservé), et la sécurité doit rester un
- * DÉPLI PROPRE qu'on ouvre pour vérifier, pas une bannière permanente ni un mélange avec l'argumentaire.
+ * HISTORIQUE (pourquoi la posologie a été, puis n'est plus, toujours visible). A5 (2026-07-27) avait
+ * mesuré une carte à 0,71-1,06 écran de haut, et replié argumentaire ET contre-indications derrière UN
+ * dépli, en laissant la posologie visible en permanence. Le 2026-08-01 au matin, un premier correctif
+ * avait séparé un second dépli dédié aux contre-indications (registre de sécurité propre, distinct de
+ * l'argumentaire) — TOUJOURS avec la posologie hors dépli. C'est CET acquis, « la posologie se lit à
+ * chaque prescription, jamais derrière un clic », que l'arbitrage référent du même jour (question 3,
+ * après avoir vu la maquette Claude Design) fait tomber : au profit d'une carte tenant sur une seule
+ * ligne, tout — posologie comprise — passe derrière une pastille. Le fait de sécurité (contre-
+ * indications, alertes d'option) garde un traitement séparé et plus visible (ton `danger`, `AlertList`
+ * hors panneau) ; SEULE la posologie perd sa visibilité permanente, décision assumée et tracée (D45).
  *
- * `<details>` NATIF (les deux), et c'est un choix, pas une facilité : ouverture au clic/tap (jamais au
- * survol — A5 l'exige, un survol est inutilisable au doigt en consultation), état géré par le navigateur
- * donc aucun `useState` à synchroniser, et accessibilité clavier + lecteur d'écran acquise sans code.
- *
- * GARDE-FOU : `banc/carte-affichage.test.ts` (I12) vérifie sur les six nœuds RÉELS qu'aucun texte
- * d'alerte d'option ou de dose n'atterrit jamais à l'intérieur d'un dépli (inchangé depuis A5), et que
- * les contre-indications (tous états) sont bien DANS le dépli de sécurité — plus jamais dans le socle,
- * plus jamais dans l'argumentaire.
+ * GARDE-FOU : `engine/banc/carte-affichage.test.tsx` (I12) vérifie sur les six nœuds RÉELS que les
+ * contre-indications (tous états) vivent dans `.option-card__panneau--ci`, que les alertes d'option et
+ * rien d'autre ne vit dans le socle, que les doses vivent dans `.option-card__panneau--posologie`, que
+ * « Proposé parce que » vit dans `.option-card__panneau--pourquoi`, que les quatre panneaux sont fermés
+ * par défaut, et qu'une contre-indication non levée fait apparaître une pastille de ton `danger` dans la
+ * rangée.
  *
  * SUITE T-068 (P9, 2026-07-30) — UNE CONTRE-INDICATION PEUT SE TAIRE. Le contenu peut attacher une
  * `condition` (même DSL qu'`exclusions`) à une contre-indication vérifiable ; l'état qui en résulte
  * (`active` / `levee` / `indetermine`) est calculé par le moteur (`engine/evaluateNode.ts`
  * `evaluerContreIndications`), porté par le modèle de vue (`lib/vueDecision.ts`
  * `OptionVue.contreIndications`) et rendu ici. Une contre-indication levée est DÉSAMORCÉE, jamais
- * effacée (bloc « Ne s'applique pas à ce patient », dans le dépli sécurité) et ne compte plus dans le
- * décompte du `<summary>`. Aucun changement pour une contre-indication sans `condition`.
+ * effacée (bloc « Ne s'applique pas à ce patient », dans le panneau `--ci`) et ne compte plus dans le
+ * décompte affiché à l'ouverture. Aucun changement pour une contre-indication sans `condition`.
  */
 /**
  * Repli du `contreIndications` non fourni (cf. la docstring de cette prop) : les contre-indications
@@ -222,10 +225,9 @@ export function OptionCard({
     .join(' ')
 
   // Présence des contre-indications — pilote leur rendu : TOUTES (actives, indéterminées ET levées)
-  // vivent désormais dans le MÊME dépli sécurité, distinct de l'argumentaire (second passage référent,
-  // 2026-08-01) — plus aucune n'est dans le socle, plus aucune dans l'argumentaire.
+  // vivent dans le MÊME panneau `--ci`, jamais ailleurs (garde-fou I12).
   //
-  // T-068 (P9, 2026-07-30) : la liste est SCINDÉE PAR ÉTAT à l'intérieur de ce dépli. Les contre-
+  // T-068 (P9, 2026-07-30) : la liste est SCINDÉE PAR ÉTAT à l'intérieur de ce panneau. Les contre-
   // indications `active` et `indetermine` gardent le rendu d'avant, à l'octet près (même bloc, même
   // libellé, même séparateur) ; seules les `levee` — une `condition` que les critères saisis ont rendue
   // FAUSSE — passent dans un second bloc, en retrait. Sur tout contenu sans `condition` (100 % du
@@ -237,37 +239,38 @@ export function OptionCard({
   const aDesContreIndications = ciAffichees.length > 0
   const aDesContreIndicationsDuTout = contreIndicationsVues.length > 0
 
-  // SB6 (P6, 2026-07-29), RESTAURÉ le 2026-08-01 (second passage) : libellé + classe conditionnelle du
-  // <summary> FERMÉ du dépli sécurité. Le décompte se déduit de `ciAffichees.length` : chaque
-  // `contre_indications` du YAML est UNE phrase, `.length` donne donc un compte clinique correct — porte
-  // sur les non-levées uniquement (une contre-indication levée ne gonfle plus ce chiffre), et une
-  // `indetermine` reste comptée puisqu'elle reste AFFICHÉE comme active (D20) : le chiffre annoncé carte
-  // fermée doit toujours être celui des lignes que le dépli montre dans le registre d'alerte.
-  const classeSummaryCi = [
-    'option-card__detail-summary',
-    aDesContreIndications && 'option-card__detail-summary--ci',
-  ]
-    .filter(Boolean)
-    .join(' ')
-  const libelleSummaryCi = aDesContreIndications
-    ? `${ciAffichees.length} ${ciAffichees.length > 1 ? 'contre-indications' : 'contre-indication'}`
-    : 'Contre-indications (aucune active)'
+  // Contenu de la pastille POSOLOGIE (P11/S6) — rendue seulement s'il y a quelque chose à montrer.
+  const enAttentePosologie = (calculsEnAttente?.length ?? 0) > 0
+  const aDuContenuPosologie = Boolean(option.apercu) || calculs.length > 0 || enAttentePosologie
 
-  // Le <summary> de l'ARGUMENTAIRE, lui, reste TOUJOURS neutre — la sécurité a désormais son propre
-  // dépli (ci-dessus), ce libellé n'a donc plus jamais rien à compenser.
-  const libelleSummaryArgumentaire = 'Proposé parce que, effet attendu et plus'
+  // Textes de survol (desktop, `PastilleInfo`) — même contenu que ce que le panneau montre en tête,
+  // condensé sur une ligne (le panneau, lui, peut en montrer plus : motif de rang, doses non calculées).
+  const texteProposeParceQue = describeReasons(reasons, option.motifs)
+  const texteSurvolPosologie =
+    option.apercu ??
+    (calculs.length > 0
+      ? calculs
+          .map((ligne) => `${ligne.libelle} ≈ ${Math.round(ligne.valeur)}${ligne.unite ? ` ${ligne.unite}` : ''}`)
+          .join(' · ')
+      : 'Doses non calculées — voir le détail')
+  const texteSurvolCi = aDesContreIndications
+    ? ciAffichees.map((ci) => ci.texte).join(' · ')
+    : 'Aucune contre-indication active'
+
+  // Un seul panneau ouvert à la fois (Décision clé n°2 de `PastilleInfo`, S3 ; même registre que
+  // `CriteriaForm.tsx` `detailOuvert`). `idBase` (React 19 `useId`) évite toute collision d'`id` entre
+  // plusieurs cartes montées sur le même écran.
+  const idBase = useId()
+  const idPourquoi = `${idBase}-pourquoi`
+  const idPosologie = `${idBase}-posologie`
+  const idCi = `${idBase}-ci`
+  const idArgumentaire = `${idBase}-argumentaire`
+  const [panneauOuvert, setPanneauOuvert] = useState<PanneauNom | null>(null)
+  const togglePanneau = (nom: PanneauNom) => setPanneauOuvert((actuel) => (actuel === nom ? null : nom))
 
   return (
     <div className={classeCarte}>
-      <div className="option-card__header">
-        <div className="option-card__title">
-          {option.action && (
-            <span aria-hidden="true" className="option-card__action-icon">
-              {ACTION_ICON[option.action]}
-            </span>
-          )}
-          {option.intitule}
-        </div>
+      {badge && (
         <div className="option-card__badges">
           {badge === 'recommandee' && <span className="option-card__recommended-badge">Recommandée</span>}
           {badge === 'reco-officielle' && (
@@ -275,145 +278,158 @@ export function OptionCard({
           )}
           {/* Arbitrage référent 2026-07-29 (cf. docstring de la prop `badge`) : une carte mise en avant
               PARCE QU'ELLE EST UNE MESURE DE SÉCURITÉ, et non parce qu'elle serait le meilleur choix
-              parmi plusieurs. Libellé volontairement court (`OptionCard.css` `.option-card__badges` gère
-              déjà le retour à la ligne mobile, mais un 3e libellé long l'y forcerait presque toujours). */}
+              parmi plusieurs. */}
           {badge === 'securite' && <span className="option-card__securite-badge">Mesure de sécurité</span>}
-          <EvidenceBadge niveau={toSharedNiveauPreuve(option.niveau_preuve)} />
         </div>
+      )}
+
+      {/* LA RANGÉE — toujours visible, une ligne (P11/S6). */}
+      <div className="option-card__rangee">
+        {option.action && (
+          <span
+            className={`option-card__action-pastille option-card__action-pastille--${option.action}`}
+          >
+            {ACTION_LABEL[option.action]}
+          </span>
+        )}
+        <span className="option-card__title">{option.intitule}</span>
+        <EvidenceBadge niveau={toSharedNiveauPreuve(option.niveau_preuve)} />
+        <PastilleInfo
+          icone="info"
+          libelle="Proposé parce que"
+          texte={texteProposeParceQue}
+          ouvert={panneauOuvert === 'pourquoi'}
+          onToggle={() => togglePanneau('pourquoi')}
+          panneauId={idPourquoi}
+        />
+        {aDuContenuPosologie && (
+          // Cf. docstring de tête : `PastilleInfo` ne porte pas encore de ton `attention` — cette classe
+          // (`OptionCard.css`) surcharge sa couleur SANS toucher au composant partagé.
+          <span className={enAttentePosologie ? 'option-card__pastille-attention' : undefined}>
+            <PastilleInfo
+              icone="gelule"
+              libelle="Posologie"
+              texte={texteSurvolPosologie}
+              ouvert={panneauOuvert === 'posologie'}
+              onToggle={() => togglePanneau('posologie')}
+              panneauId={idPosologie}
+            />
+          </span>
+        )}
+        {aDesContreIndicationsDuTout && (
+          <PastilleInfo
+            icone="triangle-alerte"
+            libelle="Contre-indications"
+            texte={texteSurvolCi}
+            ouvert={panneauOuvert === 'ci'}
+            onToggle={() => togglePanneau('ci')}
+            panneauId={idCi}
+            ton={aDesContreIndications ? 'danger' : 'neutre'}
+          />
+        )}
+        <button
+          type="button"
+          className="option-card__chevron"
+          aria-label="Argumentaire complet"
+          aria-expanded={panneauOuvert === 'argumentaire'}
+          aria-controls={idArgumentaire}
+          onClick={() => togglePanneau('argumentaire')}
+        >
+          <Icon nom="chevron-bas" />
+        </button>
       </div>
 
-      {/* ZONE POSOLOGIE — jamais repliable, registre NEUTRE (jamais rouge, y compris quand la carte
-          porte des contre-indications actives : deux registres, deux emplacements bien distincts). Cet
-          acquis du 2026-08-01 (matin) est CONSERVÉ TEL QUEL au second passage référent — c'était le
-          défaut visé, il reste corrigé. */}
-      {calculs.length > 0 && (
-        <div className="option-card__calculs">
-          <span className="option-card__calculs-label">Doses indicatives : </span>
-          {calculs.map((ligne, index) => (
-            <span key={`${index}-${ligne.libelle}`} className="option-card__calcul">
-              {ligne.libelle} ≈ {Math.round(ligne.valeur)}
-              {ligne.unite ? ` ${ligne.unite}` : ''}
-              {index < calculs.length - 1 ? ' · ' : ''}
-            </span>
-          ))}
-        </div>
-      )}
-
-      {/* `option.apercu` (T-076/S9) — SORTI du libellé du <summary> le 2026-08-01, où il était
-          concaténé au décompte de contre-indications et donc teinté du même rouge par contagion (le
-          défaut mesuré ce jour-là). Rendu ici en ligne neutre, visible sans clic : c'est l'objectif même
-          du champ (« un praticien qui cherche une posologie n'a aucune raison d'ouvrir un dépli »),
-          enfin atteint sans emprunter le registre d'alerte pour y parvenir. Absent → rien ne s'affiche,
-          rendu inchangé pour toute option qui ne le porte pas. */}
-      {option.apercu && (
-        <div className="option-card__apercu">
-          <span className="option-card__calculs-label">Posologie : </span>
-          {option.apercu}
-        </div>
-      )}
-
-      {/* Défaut J (recette référent, 2026-07-27) : une dose non calculable était OMISE en silence — la
-          carte s'affichait sans aucune dose, et rien n'indiquait qu'un poids la ferait apparaître. Le
-          critère manquant était pourtant DÉJÀ réclamé, mais dans le formulaire, à plusieurs sections
-          de là. On rétablit ici le seul lien qui manquait : la carte dit ce qu'elle attend. */}
-      {calculsEnAttente && calculsEnAttente.length > 0 && (
-        <div className="option-card__calculs option-card__calculs--en-attente">
-          <span className="option-card__calculs-label">Doses non calculées : </span>
-          {calculsEnAttente.map((ligne, index) => (
-            <span key={`${index}-${ligne.libelle}`} className="option-card__calcul">
-              {ligne.libelle} — à renseigner : {ligne.criteresManquants.map(labelForCritere).join(', ')}
-              {index < calculsEnAttente.length - 1 ? ' · ' : ''}
-            </span>
-          ))}
-        </div>
-      )}
-
       {/* Alertes PORTÉES PAR CETTE OPTION (addendum alertes d'option, GRAMMAIRE-NOEUD.md) : rendues
-          seulement ici, jamais sous le formulaire — à la différence des alertes de nœud (`AlertList`
-          rendue par `DecisionNodeScreen.tsx`), elles ne concernent QUE ce geste, déjà retenu ici. */}
+          seulement ici, HORS de tout panneau (D21, inchangé depuis A5) — jamais sous le formulaire,
+          à la différence des alertes de nœud (`AlertList` rendue par `DecisionNodeScreen.tsx`). */}
       <AlertList alertes={alertes} variant="option" />
 
-      {/* DÉPLI SÉCURITÉ, propre et distinct de l'argumentaire (second passage référent, 2026-08-01,
-          après le premier rendu). Replié par défaut, comme avant le tout premier correctif du même
-          jour — mais le `<summary>` FERMÉ porte le signal (icône ⚠, couleur `--c-ci-warning`, décompte
-          exact) dès qu'au moins une contre-indication n'est pas écartée (`aDesContreIndications`,
-          `active`/`indetermine`). Ne rend RIEN si l'option ne porte aucune contre-indication, quel que
-          soit son état (`aDesContreIndicationsDuTout`) — aucun espace réservé pour rien. */}
-      {aDesContreIndicationsDuTout && (
-        <details className="option-card__detail">
-          <summary className={classeSummaryCi}>
-            {/* Icône décorative : le décompte + le mot « contre-indication(s) » qui suivent portent déjà
-                l'information en texte (lu par tout lecteur d'écran) — l'icône n'ajoute qu'un repère
-                visuel, elle est donc masquée aux technologies d'assistance plutôt que doublée. */}
-            {aDesContreIndications && (
-              <span className="option-card__detail-summary-icon" aria-hidden="true">
-                ⚠{' '}
-              </span>
-            )}
-            {libelleSummaryCi}
-          </summary>
-
-          {/* Contre-indications ACTIVES/INDÉTERMINÉES — registre d'alerte (`--c-disclaimer-*`,
-              `OptionCard.css`), inchangé depuis SB3. */}
-          {aDesContreIndications && (
-            <div className="option-card__ci">
-              <span className="option-card__ci-label">
-                {ciAffichees.length} {ciAffichees.length > 1 ? 'contre-indications' : 'contre-indication'} :{' '}
-              </span>
-              {ciAffichees.map((ci) => ci.texte).join(' · ')}
-            </div>
-          )}
-
-          {/* T-068 (P9, 2026-07-30) — CONTRE-INDICATIONS DÉSAMORCÉES, jamais effacées. Une contre-
-              indication dont la `condition` est FAUSSE pour ce patient (« insuffisance rénale sévère »
-              chez quelqu'un dont le DFG saisi est normal) ne doit plus s'afficher comme un avertissement
-              actif — mais elle ne doit pas non plus disparaître : c'est la même exigence de transparence
-              que R4 pour les options écartées (`docs/decision/GRAMMAIRE-NOEUD.md`), qui les montre AVEC
-              leur motif plutôt que de les retirer en silence. Le praticien doit pouvoir vérifier que
-              l'outil a bien VU la contre-indication et sur quelle base il la juge sans objet.
-
-              Reste dans CE dépli (et non l'argumentaire, second passage 2026-08-01) : une contre-
-              indication levée parle de sécurité, elle va avec la sécurité — même si elle n'interdit
-              plus rien. Registre visuel neutre (`--levee` : estompé + barré, cf. `OptionCard.css`),
-              toujours PAS `--c-disclaimer-*` : ce bloc-ci n'interdit rien, contrairement au précédent. */}
-          {ciLevees.length > 0 && (
-            <div className="option-card__ci option-card__ci--levee">
-              <span className="option-card__ci-label">Ne s'applique pas à ce patient : </span>
-              <span className="option-card__ci-levee-texte">{ciLevees.map((ci) => ci.texte).join(' · ')}</span>
-            </div>
-          )}
-        </details>
-      )}
-
-      {/* A5 — LE DÉPLI, ARGUMENTAIRE — SÉPARÉ du dépli sécurité ci-dessus (second passage référent,
-          2026-08-01). Tout ce qui instruit la décision sans être ce sur quoi on agit dans la minute, ni
-          un fait de sécurité (celui-ci a son propre dépli). TOUJOURS neutre, plus jamais de variante
-          rouge. Fermé par défaut : c'est l'allègement lui-même, une carte ouverte n'allège rien.
-          `<details>` natif (cf. docstring de tête) — le navigateur porte l'état, le clavier et le
-          lecteur d'écran.
-
-          « Proposé parce que » et « Ce rang tient compte de » REJOIGNENT ce dépli le 2026-08-01
-          (décision référent explicite, confirmée au second passage) : ils poussaient l'action
-          (intitulé, badge, posologie) vers le bas alors qu'ils se lisent une fois par option, pas à
-          chaque prescription — gain net de hauteur de carte, l'objectif mesurable de ce correctif. */}
-      <details className="option-card__detail">
-        <summary className="option-card__detail-summary">{libelleSummaryArgumentaire}</summary>
-
-        {/* `option.motifs` (P10/S2) : une branche dont le contenu a rédigé le motif s'affiche avec CE
-            texte plutôt qu'avec sa traduction mécanique. Carte optionnelle et partielle — une branche
-            sans motif garde son texte d'avant T-079, à l'octet près (seul son EMPLACEMENT change ici,
-            le 2026-08-01). */}
-        <div className="option-card__pourquoi">Proposé parce que : {describeReasons(reasons, option.motifs)}</div>
-
-        {/* R6 couche 2 : pourquoi CE rang parmi les autres options de la famille — seulement quand une
-            vraie concurrence de rang existe (cf. `lib/vueDecision.ts` `OptionVue.motifRang`). Mêmes
-            motifs rédigés : un `priorite[].quand` reprend en général une branche déjà écrite dans
-            `conditions` (I24 n'indexe que celles-là), et la même situation clinique se dit alors du même
-            mot aux deux lignes. */}
+      {/* PANNEAU « POURQUOI » — justification + motif de rang, P11/S6. Ex-contenu du dépli argumentaire,
+          sorti dans son propre panneau (et sa propre pastille) : « Proposé parce que » et « Ce rang
+          tient compte de » se lisent une fois par option, ils méritent un accès direct plutôt que d'être
+          noyés dans l'argumentaire complet (effet/délai/avantages/inconvénients). */}
+      <div
+        id={idPourquoi}
+        className="option-card__panneau option-card__panneau--pourquoi"
+        hidden={panneauOuvert !== 'pourquoi'}
+      >
+        <div className="option-card__pourquoi">Proposé parce que : {texteProposeParceQue}</div>
         {motifRang && motifRang.length > 0 && (
-          <div className="option-card__rang">Ce rang tient compte de : {describeReasons(motifRang, option.motifs)}</div>
+          <div className="option-card__rang">
+            Ce rang tient compte de : {describeReasons(motifRang, option.motifs)}
+          </div>
         )}
+      </div>
 
+      {/* PANNEAU « POSOLOGIE » — P11/S6 fait tomber l'acquis « toujours visible » du 2026-08-01 matin
+          (cf. docstring de tête) : `option.apercu`, les doses calculées puis les doses EN ATTENTE
+          (défaut J, 2026-07-27 — la carte dit ce qu'elle attend) vivent maintenant ici, derrière la
+          pastille `gelule`, dans cet ordre. */}
+      <div
+        id={idPosologie}
+        className="option-card__panneau option-card__panneau--posologie"
+        hidden={panneauOuvert !== 'posologie'}
+      >
+        {option.apercu && (
+          <div className="option-card__apercu">
+            <span className="option-card__calculs-label">Posologie : </span>
+            {option.apercu}
+          </div>
+        )}
+        {calculs.length > 0 && (
+          <div className="option-card__calculs">
+            <span className="option-card__calculs-label">Doses indicatives : </span>
+            {calculs.map((ligne, index) => (
+              <span key={`${index}-${ligne.libelle}`} className="option-card__calcul">
+                {ligne.libelle} ≈ {Math.round(ligne.valeur)}
+                {ligne.unite ? ` ${ligne.unite}` : ''}
+                {index < calculs.length - 1 ? ' · ' : ''}
+              </span>
+            ))}
+          </div>
+        )}
+        {calculsEnAttente && calculsEnAttente.length > 0 && (
+          <div className="option-card__calculs option-card__calculs--en-attente">
+            <span className="option-card__calculs-label">Doses non calculées : </span>
+            {calculsEnAttente.map((ligne, index) => (
+              <span key={`${index}-${ligne.libelle}`} className="option-card__calcul">
+                {ligne.libelle} — à renseigner : {ligne.criteresManquants.map(labelForCritere).join(', ')}
+                {index < calculsEnAttente.length - 1 ? ' · ' : ''}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* PANNEAU « CONTRE-INDICATIONS » — registre de sécurité, INCHANGÉ depuis T-068 dans son contenu
+          (actives/indéterminées puis levées en retrait) ; seul son CONTENANT change de nature (panneau
+          `hidden` plutôt que `<details>`). Toujours rendu, même sans aucune contre-indication déclarée
+          (aucune pastille ne pointe alors vers lui — cf. docstring de tête). */}
+      <div id={idCi} className="option-card__panneau option-card__panneau--ci" hidden={panneauOuvert !== 'ci'}>
+        {aDesContreIndications && (
+          <div className="option-card__ci">
+            <span className="option-card__ci-label">
+              {ciAffichees.length} {ciAffichees.length > 1 ? 'contre-indications' : 'contre-indication'} :{' '}
+            </span>
+            {ciAffichees.map((ci) => ci.texte).join(' · ')}
+          </div>
+        )}
+        {ciLevees.length > 0 && (
+          <div className="option-card__ci option-card__ci--levee">
+            <span className="option-card__ci-label">Ne s'applique pas à ce patient : </span>
+            <span className="option-card__ci-levee-texte">{ciLevees.map((ci) => ci.texte).join(' · ')}</span>
+          </div>
+        )}
+      </div>
+
+      {/* PANNEAU « ARGUMENTAIRE » — effet attendu, délai, avantages/inconvénients. Ex-contenu du dépli
+          unique d'A5, amputé de « Proposé parce que »/« Ce rang tient compte de » (partis dans le
+          panneau `--pourquoi` ci-dessus) et des contre-indications (parties dans `--ci`). */}
+      <div
+        id={idArgumentaire}
+        className="option-card__panneau option-card__panneau--argumentaire"
+        hidden={panneauOuvert !== 'argumentaire'}
+      >
         <div className="option-card__effet">{option.effet_attendu}</div>
 
         {/* R2 : le délai est posé À CÔTÉ de l'effet, jamais confronté à l'espérance de vie du patient
@@ -442,7 +458,7 @@ export function OptionCard({
             ))}
           </div>
         </div>
-      </details>
+      </div>
     </div>
   )
 }

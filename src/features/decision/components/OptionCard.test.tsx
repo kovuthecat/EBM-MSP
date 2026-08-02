@@ -1,23 +1,21 @@
 /**
  * SB3 (P6, 2026-07-28) — T-040 : bordure gauche par verbe d'action (`option.action`).
  *
- * CONTRE-INDICATIONS — DEUX PASSAGES LE 2026-08-01. Un premier correctif (matin) avait sorti les
- * contre-indications ACTIVES hors de tout dépli, dans une zone TOUJOURS visible, pour corriger le
- * défaut mesuré en recette (la posologie se lisait à travers un avertissement rouge). Rendu au
- * référent, celui-ci a demandé un second passage LE MÊME JOUR : la posologie reste toujours visible
- * (acquis conservé), mais la sécurité ne doit pas devenir une bannière permanente du socle — elle
- * retourne derrière SON PROPRE dépli, distinct de celui de l'argumentaire, REPLIÉ PAR DÉFAUT (comme
- * avant le premier correctif), mais dont le `<summary>` FERMÉ passe en registre rouge dès qu'au moins
- * une contre-indication n'est pas écartée (D20/T-068). Les tests ci-dessous vérifient cette structure à
- * DEUX `<details>` ; les garanties structurelles restent les mêmes : une contre-indication n'est jamais
- * silencieusement omise, et une option sans contre-indication ne réserve toujours aucun espace.
+ * CONTRE-INDICATIONS — REFONDU le 2026-08-01 par P11/S6 (T-111, « carte en une ligne »). Après SB3
+ * (un dépli partagé avec l'argumentaire) puis deux revers le même jour (posologie toujours visible,
+ * puis dépli sécurité propre et distinct — cf. l'historique complet dans la docstring de tête
+ * d'`OptionCard.tsx`), l'arbitrage référent « carte en une ligne, tout au clic » remplace les DEUX
+ * `<details>` par QUATRE panneaux `hidden`, toujours rendus dans le DOM (`--pourquoi`, `--posologie`,
+ * `--ci`, `--argumentaire`), ouverts un par un via des `PastilleInfo` (S3) dans la rangée. Les tests
+ * ci-dessous vérifient cette structure ; les garanties de fond restent les mêmes : une contre-
+ * indication n'est jamais silencieusement omise, et le décompte affiché reste exact.
  */
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import type { Option } from '../content/node.types'
 import type { ContreIndicationEvaluee } from '../engine/evaluateNode'
 import { evaluerContreIndications } from '../engine/evaluateNode'
-import type { CalculAffiche } from '../lib/vueDecision'
+import type { CalculAffiche, CalculEnAttente } from '../lib/vueDecision'
 import { OptionCard } from './OptionCard'
 
 function optionDeBase(overrides: Partial<Option> = {}): Option {
@@ -37,15 +35,22 @@ function optionDeBase(overrides: Partial<Option> = {}): Option {
  * Rendu d'une carte. `contreIndications` est volontairement OMIS par défaut : les tests SB3/SB6
  * ci-dessous rendent donc la carte exactement comme avant T-068 (repli « toutes actives », cf.
  * `OptionCard.tsx`) — c'est ce qui fait d'eux, tels quels, le test de non-régression de T-068.
+ * `calculsEnAttente` (P11/S6) : ajouté en 4e paramètre optionnel pour les tests du ton `attention` de
+ * la pastille posologie, défaut `[]` pour ne rien changer aux appels existants.
  */
-function rendreCarte(option: Option, calculs: CalculAffiche[] = [], contreIndications?: ContreIndicationEvaluee[]) {
+function rendreCarte(
+  option: Option,
+  calculs: CalculAffiche[] = [],
+  contreIndications?: ContreIndicationEvaluee[],
+  calculsEnAttente: CalculEnAttente[] = [],
+) {
   return renderToStaticMarkup(
     <OptionCard
       option={option}
       badge={null}
       reasons={['toujours']}
       calculs={calculs}
-      calculsEnAttente={[]}
+      calculsEnAttente={calculsEnAttente}
       motifRang={undefined}
       alertes={[]}
       contreIndications={contreIndications}
@@ -53,80 +58,91 @@ function rendreCarte(option: Option, calculs: CalculAffiche[] = [], contreIndica
   )
 }
 
-describe('OptionCard — dépli sécurité, propre et distinct de l’argumentaire (second passage 2026-08-01)', () => {
-  it('place le bloc de contre-indications DANS un <details>, AVANT celui de l’argumentaire', () => {
+describe('OptionCard — panneaux P11/S6 (carte compacte à pastilles, 2026-08-01, T-111)', () => {
+  it('place le bloc de contre-indications DANS le panneau --ci, qui précède le panneau --argumentaire', () => {
     const html = rendreCarte(optionDeBase({ contre_indications: ['Grossesse.', 'Allaitement.'] }))
 
-    const indexPremierDetails = html.indexOf('<details')
+    const indexPanneauCi = html.indexOf('option-card__panneau--ci')
     const indexCi = html.indexOf('option-card__ci"')
-    const indexArgumentaire = html.indexOf('Proposé parce que, effet attendu et plus')
+    const indexPanneauArgumentaire = html.indexOf('option-card__panneau--argumentaire')
 
-    expect(indexPremierDetails).toBeGreaterThan(-1)
+    expect(indexPanneauCi).toBeGreaterThan(-1)
     expect(indexCi).toBeGreaterThan(-1)
-    expect(indexCi).toBeGreaterThan(indexPremierDetails) // dans un <details>, pas avant
-    expect(indexCi).toBeLessThan(indexArgumentaire) // le dépli sécurité précède celui de l'argumentaire
+    expect(indexCi).toBeGreaterThan(indexPanneauCi) // dans le panneau, pas avant
+    expect(indexCi).toBeLessThan(indexPanneauArgumentaire) // le panneau ci précède celui de l'argumentaire
   })
 
-  it('deux <details> SÉPARÉS existent quand il y a une contre-indication (pas un seul dépli partagé)', () => {
-    const html = rendreCarte(optionDeBase({ contre_indications: ['CI de test.'] }))
-    const nombreDetails = (html.match(/<details/g) ?? []).length
-    expect(nombreDetails).toBe(2)
+  it('les QUATRE panneaux (`--pourquoi`, `--posologie`, `--ci`, `--argumentaire`) sont TOUJOURS rendus, avec ou sans contre-indication', () => {
+    const avecCi = rendreCarte(optionDeBase({ contre_indications: ['CI de test.'] }))
+    const sansCi = rendreCarte(optionDeBase())
+
+    for (const html of [avecCi, sansCi]) {
+      expect((html.match(/option-card__panneau--(pourquoi|posologie|ci|argumentaire)/g) ?? []).length).toBe(4)
+    }
   })
 
-  it("une seule <details> quand il n'y a AUCUNE contre-indication (le dépli sécurité ne réserve aucun espace)", () => {
+  it("sans aucune contre-indication déclarée, le panneau --ci reste vide et aucune pastille « Contre-indications » n'apparaît dans la rangée", () => {
     const html = rendreCarte(optionDeBase())
-    const nombreDetails = (html.match(/<details/g) ?? []).length
-    expect(nombreDetails).toBe(1)
-    expect(html).not.toContain('option-card__ci')
+
+    expect(html).not.toContain('option-card__ci"')
+    expect(html).not.toContain('option-card__ci--levee')
+    expect(html).not.toContain('aria-label="Contre-indications"')
   })
 
-  it('place le bloc de contre-indications APRÈS les doses (posologie visible sans déplier, sécurité derrière son dépli)', () => {
+  it('place le panneau --posologie AVANT le panneau --ci (deux panneaux distincts, posologie puis sécurité, cet ordre)', () => {
     const html = rendreCarte(optionDeBase({ contre_indications: ['CI de test.'] }), [
       { libelle: 'Dose', valeur: 10, unite: 'U/j' },
     ])
 
-    const indexCalculs = html.indexOf('option-card__calculs')
-    const indexCi = html.indexOf('option-card__ci"')
+    const indexPanneauPosologie = html.indexOf('option-card__panneau--posologie')
+    const indexPanneauCi = html.indexOf('option-card__panneau--ci')
 
-    expect(indexCalculs).toBeGreaterThan(-1)
-    expect(indexCi).toBeGreaterThan(-1)
-    expect(indexCalculs).toBeLessThan(indexCi)
+    expect(indexPanneauPosologie).toBeGreaterThan(-1)
+    expect(indexPanneauCi).toBeGreaterThan(-1)
+    expect(indexPanneauPosologie).toBeLessThan(indexPanneauCi)
   })
 
-  // SB6 (P6, 2026-07-29), RESTAURÉ le 2026-08-01 (second passage) : l'icône ⚠, la couleur d'alerte
-  // dédiée et le décompte exact reviennent sur le `<summary>` FERMÉ du dépli sécurité — replié par
-  // défaut, mais reconnaissable de loin.
-  it('le <summary> du dépli sécurité porte l’icône ⚠, la couleur d’alerte dédiée et le décompte quand des contre-indications ACTIVES existent', () => {
+  // §5/§6 du garde-fou I12 (`carte-affichage.test.tsx`) au niveau du composant seul : le ton porte
+  // désormais le signal de sécurité, à la place de l'ex-icône ⚠ (supprimée, P11/S6 étape 7).
+  it('quand des contre-indications ACTIVES existent, la pastille « Contre-indications » porte le ton `danger`', () => {
     const html = rendreCarte(optionDeBase({ contre_indications: ['CI de test.', 'Autre CI.'] }))
 
-    expect(html).toContain('option-card__detail-summary--ci')
-    expect(html).toContain('⚠')
+    expect(html).toContain('aria-label="Contre-indications"')
+    expect(html).toContain('pastille-info--danger')
     expect(html).toContain('2 contre-indications')
-    expect(html).not.toContain('Contre-indications (aucune active)')
   })
 
-  it('le <summary> accorde le décompte au singulier pour une seule contre-indication ACTIVE', () => {
+  it('le décompte du panneau --ci s’accorde au singulier pour une seule contre-indication ACTIVE', () => {
     const html = rendreCarte(optionDeBase({ contre_indications: ['CI de test.'] }))
 
     expect(html).toContain('1 contre-indication')
     expect(html).not.toContain('1 contre-indications')
   })
 
-  it("le <summary> de l'ARGUMENTAIRE reste TOUJOURS neutre, même quand la carte porte des contre-indications actives", () => {
-    const avecCi = rendreCarte(optionDeBase({ contre_indications: ['CI de test.'] }))
-    const sansCi = rendreCarte(optionDeBase())
+  it("le panneau --pourquoi (« Proposé parce que ») reste séparé du panneau --ci, dans les deux sens", () => {
+    const html = rendreCarte(optionDeBase({ contre_indications: ['CI de test.'] }))
+    const indexPanneauPourquoi = html.indexOf('option-card__panneau--pourquoi')
+    const indexPanneauPosologie = html.indexOf('option-card__panneau--posologie')
+    const panneauPourquoi = html.slice(indexPanneauPourquoi, indexPanneauPosologie)
 
-    expect(avecCi).toContain('Proposé parce que, effet attendu et plus')
-    expect(sansCi).toContain('Proposé parce que, effet attendu et plus')
-    // La couleur d'alerte (`--ci`) ne doit JAMAIS être posée sur le <summary> de l'argumentaire — seul
-    // celui du dépli sécurité peut la porter (vérifié en cherchant la classe sur CE <summary> précis).
-    const summaryArgumentaire = avecCi.slice(avecCi.indexOf('Proposé parce que, effet attendu et plus') - 200)
-    expect(summaryArgumentaire.slice(0, 200)).not.toContain('option-card__detail-summary--ci')
+    expect(panneauPourquoi).toContain('Proposé parce que')
+    expect(panneauPourquoi).not.toContain('option-card__ci')
+  })
+
+  it('les quatre panneaux portent `hidden` au rendu statique (aucun ouvert par défaut)', () => {
+    const html = rendreCarte(optionDeBase({ contre_indications: ['CI de test.'] }), [
+      { libelle: 'Dose', valeur: 10, unite: 'U/j' },
+    ])
+    for (const nom of ['pourquoi', 'posologie', 'ci', 'argumentaire']) {
+      const indexPanneau = html.indexOf(`option-card__panneau--${nom}`)
+      const finBalise = html.indexOf('>', indexPanneau)
+      expect(html.slice(indexPanneau, finBalise)).toContain('hidden')
+    }
   })
 })
 
-describe('OptionCard — zone posologie (option.apercu, correctif 2026-08-01, CONSERVÉ tel quel au second passage)', () => {
-  it("affiche `option.apercu` en dehors de TOUT dépli, en registre neutre, même quand la carte porte des contre-indications actives", () => {
+describe('OptionCard — panneau posologie (P11/S6 amende D34 : la posologie passe derrière une pastille)', () => {
+  it("`option.apercu` vit DANS le panneau --posologie, hidden par défaut — n'est PLUS jamais visible sans clic (c'est exactement ce que l'arbitrage référent du 2026-08-01, question 3, a tranché)", () => {
     const html = rendreCarte(
       optionDeBase({
         contre_indications: ['CI de test.', 'Autre CI.'],
@@ -134,20 +150,41 @@ describe('OptionCard — zone posologie (option.apercu, correctif 2026-08-01, CO
       }),
     )
 
-    const indexPremierDetails = html.indexOf('<details')
+    const indexRangee = html.indexOf('option-card__rangee')
+    const indexPanneauPosologie = html.indexOf('option-card__panneau--posologie')
     const indexApercu = html.indexOf('option-card__apercu')
 
     expect(indexApercu).toBeGreaterThan(-1)
-    expect(indexApercu).toBeLessThan(indexPremierDetails) // visible sans déplier, avant le premier dépli
+    expect(indexApercu).toBeGreaterThan(indexPanneauPosologie) // dans le panneau, pas avant
     expect(html).toContain('dapagliflozine 10 mg/j (fixe) ; empagliflozine 10→25 mg/j')
-    // Le texte de l'aperçu ne doit plus jamais apparaître concaténé au décompte du dépli sécurité.
-    const summaryCi = html.slice(html.indexOf('option-card__detail-summary--ci'), html.indexOf('option-card__detail-summary--ci') + 300)
-    expect(summaryCi).not.toContain('dapagliflozine')
+    // La rangée elle-même (avant le premier panneau) ne porte plus jamais le bloc VISIBLE de posologie
+    // (`option-card__apercu`, même registre que le panneau). Le texte réapparaît bien dans la rangée,
+    // mais UNIQUEMENT dans la bulle de survol de `PastilleInfo` (`aria-hidden`, masquée par CSS sauf
+    // survol sur pointeur fin, S3) — ce n'est pas une régression de l'amendement D34 : cette bulle n'a
+    // jamais été le canal accessible/tactile de l'information (cf. docstring `PastilleInfo.tsx`).
+    const rangee = html.slice(indexRangee, html.indexOf('option-card__panneau--pourquoi'))
+    expect(rangee).not.toContain('option-card__apercu')
   })
 
   it("n'affiche rien quand l'option ne porte pas d'aperçu (rendu inchangé)", () => {
     const html = rendreCarte(optionDeBase())
     expect(html).not.toContain('option-card__apercu')
+  })
+
+  // Défaut J (recette référent, 2026-07-27) : préservé par P11/S6 (étape 5) via le TON de la pastille,
+  // maintenant que la ligne « Doses non calculées » n'est plus dans le socle.
+  it('la pastille posologie porte le ton `attention` (registre ambre) quand une dose reste EN ATTENTE', () => {
+    const html = rendreCarte(optionDeBase(), [], undefined, [
+      { libelle: 'Dose initiale', criteresManquants: ['poids'] },
+    ])
+
+    expect(html).toContain('option-card__pastille-attention')
+    expect(html).toContain('à renseigner :')
+  })
+
+  it("la pastille posologie reste au ton neutre (pas d'attention) quand il n'y a AUCUNE dose en attente", () => {
+    const html = rendreCarte(optionDeBase({ apercu: 'dose fixe' }))
+    expect(html).not.toContain('option-card__pastille-attention')
   })
 })
 
@@ -224,26 +261,28 @@ describe('OptionCard — T-068 (contre-indications vérifiables : active / levé
       evaluerContreIndications([{ texte: 'Insuffisance cardiaque.', condition: 'IC == true' }], { IC: false }, new Set()),
     )
     expect(html).toContain('1 contre-indication : ')
-    expect(html).toContain('⚠')
+    // P11/S6 : le ⚠ a disparu (étape 7), le ton `danger` de la pastille porte désormais ce signal.
+    expect(html).toContain('pastille-info--danger')
   })
 
-  it('toutes les contre-indications levées : le dépli sécurité existe TOUJOURS (rien à cacher), mais son <summary> fermé reste neutre — plus d’affordance de danger à tort', () => {
+  it('toutes les contre-indications levées : le panneau --ci existe TOUJOURS (rien à cacher), mais la pastille reste au ton neutre — plus d’affordance de danger à tort', () => {
     const ci = [{ texte: 'Grossesse.', condition: 'grossesse == true' }]
     const html = rendreCarte(optionDeBase({ contre_indications: ci }), [], evaluerContreIndications(ci, { grossesse: false }))
 
-    // Plus d'affordance de danger sur le <summary> fermé : c'est exactement ce que T-068 demande (ne
-    // plus alerter à tort). Mais le dépli sécurité, lui, existe toujours — la CI levée doit rester
-    // consultable quelque part, et sa place est ici, pas dans l'argumentaire (second passage 2026-08-01).
+    // Plus d'affordance de danger sur la pastille fermée : c'est exactement ce que T-068 demande (ne
+    // plus alerter à tort). Mais le panneau --ci, lui, existe toujours — la CI levée doit rester
+    // consultable quelque part, et sa place est ici, pas dans l'argumentaire (P11/S6).
     expect(html).not.toContain('option-card__ci"') // pas de bloc ACTIF (aucune CI active)
-    expect(html).not.toContain('⚠')
-    expect(html).not.toContain('option-card__detail-summary--ci')
-    expect(html).toContain('Contre-indications (aucune active)')
-    // Mais l'information n'a pas disparu pour autant : le bloc levée est bien dans ce dépli.
+    expect(html).not.toContain('pastille-info--danger')
+    // La pastille « Contre-indications » existe (il y a bien une CI déclarée, levée), au ton neutre.
+    expect(html).toContain('aria-label="Contre-indications"')
+    expect(html).toContain('pastille-info--neutre')
+    // Mais l'information n'a pas disparu pour autant : le bloc levée est bien dans ce panneau.
     expect(html).toContain('option-card__ci--levee')
     expect(html).toContain('Ne s&#x27;applique pas à ce patient : ')
     expect(html).toContain('Grossesse.')
-    const nombreDetails = (html.match(/<details/g) ?? []).length
-    expect(nombreDetails).toBe(2) // dépli sécurité (avec la levée) + dépli argumentaire
+    // Les quatre panneaux existent toujours (P11/S6), pas seulement « ci » + « argumentaire ».
+    expect((html.match(/option-card__panneau--(pourquoi|posologie|ci|argumentaire)/g) ?? []).length).toBe(4)
   })
 
   it('NON-RÉGRESSION : contre-indications sans condition → rendu STRICTEMENT identique, que l’état soit calculé ou non fourni', () => {
