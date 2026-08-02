@@ -1,5 +1,10 @@
 .decision-node {
-  max-width: 900px;
+  /* 1600px (P11/S10, arbitrage référent 2026-08-02, T-118) — remplace 900px : usage principal desktop
+     grand écran, les deux colonnes doivent occuper la largeur de l'écran. Le plafond reste : au-delà,
+     les lignes de texte clinique (intitulés, libellés de critère, argumentaires) deviendraient
+     illisibles (>90 caractères/ligne), lu en consultation, vite. 1600px n'est PAS une mesure — c'est le
+     seul chiffre de cette session à ne pas en être une ; soumis à la recette S8 (`VALIDATION.md`). */
+  max-width: 1600px;
   margin: 0 auto;
   padding: 32px 24px 80px;
 }
