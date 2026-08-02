@@ -2,6 +2,11 @@
    design/maquettes/prototype-ebm-msp-neuf-crans/project/MSP Menilmontant.dc.html
    (blocs showChrome / isHome / isMethode). Ne pas modifier sans repasser par le prototype. */
 
+/* Breakpoints (P11 S1, T-102) — 3 seuils réellement utilisés dans les CSS de composants : 480px, 640px
+   et 960px. Une media query n'accepte pas de `var()` (les custom properties sont interdites dans
+   `@media`) : ces valeurs restent donc écrites en dur dans chaque fichier, mais ne doivent prendre
+   AUCUNE autre valeur que ces trois seuils. Documentées ici pour mémoire, pas centralisables en CSS. */
+
 :root {
   /* Fond & surfaces */
   --c-bg: oklch(98% 0.006 240);
@@ -84,4 +89,58 @@
   /* Police */
   --font-system:
     -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  /* Échelle d'espacement (P11 S1, T-102) — dérivée des valeurs réellement employées dans le repo
+     (relève : 4, 6, 8, 10, 12, 14, 16, 20, 24, 32 px). 8 crans retenus : 14 et 20 fusionnés avec le
+     cran voisin pour rester sur une échelle courte. Additive : les composants existants gardent leurs
+     valeurs en dur et migreront progressivement vers ces tokens dans leurs sessions respectives
+     (S4→S7) ; aucune migration de masse n'est faite ici. */
+  --space-1: 4px;
+  --space-2: 6px;
+  --space-3: 8px;
+  --space-4: 10px;
+  --space-5: 12px;
+  --space-6: 16px;
+  --space-7: 24px;
+  --space-8: 32px;
+
+  /* Échelle typographique (P11 S1, T-102) — couvre les 6 tailles dominantes relevées dans le repo (11,
+     12, 13, 14, 15, 17 px). Additive, même remarque que l'échelle d'espacement ci-dessus. */
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-base: 13px;
+  --text-lg: 14px;
+  --text-xl: 15px;
+  --text-2xl: 17px;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.6;
+
+  /* Tons sémantiques (P11 S1, T-102) — couleur des champs de saisie par gravité clinique, palette de la
+     maquette `Traiter - Refonte ergonomie.dc.html` (fonction `palette`, l.458-463). `attention` aliase
+     les `--c-attention-*` existants au lieu de dupliquer leur valeur : `--c-attention` porte déjà le
+     sens « à confirmer », deux jeux de variables sur la même couleur divergeraient au premier
+     ajustement. */
+  --c-ton-neutre-border: oklch(80% 0.01 245);
+  --c-ton-neutre-bg: oklch(94% 0.006 240);
+  --c-ton-neutre-text: oklch(40% 0.02 245);
+
+  --c-ton-succes-border: oklch(70% 0.13 145);
+  --c-ton-succes-bg: oklch(93% 0.05 145);
+  --c-ton-succes-text: oklch(30% 0.1 145);
+
+  --c-ton-attention-border: var(--c-attention-border);
+  --c-ton-attention-bg: var(--c-attention-soft);
+  --c-ton-attention-text: var(--c-attention);
+
+  --c-ton-danger-border: oklch(76% 0.14 25);
+  --c-ton-danger-bg: oklch(93% 0.06 25);
+  --c-ton-danger-text: oklch(38% 0.14 25);
+
+  /* Pastilles d'état (P11 S1, T-102) — puces pleines de la maquette (l.116-119). Trois des quatre
+     aliasent des tokens existants ; seule l'ambre est nouvelle (les `--c-attention-*` ci-dessus restent
+     la version « champ », border/bg/text, pas une pastille pleine). */
+  --c-pastille-succes: var(--c-action-ajouter);
+  --c-pastille-attention: oklch(70% 0.16 85);
+  --c-pastille-danger: var(--c-action-arreter);
+  --c-pastille-info: var(--c-accent-decision);
 }
