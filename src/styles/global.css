@@ -56,3 +56,16 @@ svg {
   font-weight: 600;
   cursor: pointer;
 }
+
+/* Masquage accessible standard (P11/S5, T-109) : le contenu reste lu par un lecteur d'écran mais
+   n'occupe aucun espace visuel — utilisé partout où une information reste nécessaire au nom
+   accessible d'un élément sans devoir être visible à l'écran (ex. `EvidenceBadge`, badge de
+   niveau de preuve en points). */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
