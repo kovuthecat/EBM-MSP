@@ -6,9 +6,10 @@ import { CadrageList } from '../components/CadrageList'
 import { CriteriaForm } from '../components/CriteriaForm'
 import { OptionCard } from '../components/OptionCard'
 import { PopulationCible } from '../components/PopulationCible'
+import { Icon } from '../../shared/icons/Icon'
 import { getModuleDuNoeud } from '../content/loadModules'
 import { getNoeudById } from '../content/loadNodes'
-import type { CritereEntree } from '../content/node.types'
+import type { ActionOption, CritereEntree } from '../content/node.types'
 import type { Criteria, CriteriaValue } from '../engine/conditions'
 import { contraintesViolees } from '../engine/contraintes'
 import { criteresPertinents } from '../engine/relevance'
@@ -23,11 +24,22 @@ import {
 } from '../lib/formLayout'
 import { prioritesDeSaisie } from '../lib/prioritesSaisie'
 import { memoriserCriteres, reinitialiserSession, valeursReprises } from '../lib/sessionCriteres'
-import { plafonnerPistes, PLAFOND_PISTES } from '../lib/replierAffichage'
+import { plafonnerPistes, PLAFOND_PISTES, type PartitionAffichage } from '../lib/replierAffichage'
 import type { FamilleVue } from '../lib/vueDecision'
 import { construireVueDecision } from '../lib/vueDecision'
 import { formatDateRevue, labelForCritere, labelForDomaine } from '../lib/labels'
 import './DecisionNodeScreen.css'
+
+/**
+ * Seuil JS « écran étroit » (P11/S7, T-114) — extrait des deux appels `matchMedia` ci-dessous, qui
+ * l'écrivaient chacun en dur. TROIS copies de ce seuil coexistent dans le repo et NE PEUVENT PAS devenir
+ * une seule source : une custom property CSS (`tokens.css`) est interdite dans une `@media` (S1), donc
+ * `DecisionNodeScreen.css` garde ses deux valeurs littérales — `@media (min-width: 960px)` (l.31) et
+ * `@media (max-width: 959px)` (l.64). Cette constante est la troisième copie, côté JS ; le commentaire de
+ * tête de `tokens.css` explique pourquoi la CSS n'est pas centralisable. **Les trois valeurs doivent
+ * changer ENSEMBLE** — un seul endroit modifié sans les deux autres recrée l'incohérence que T-114 corrige.
+ */
+export const LARGEUR_ETROITE_MAX = 959
 
 interface DecisionNodeScreenProps {
   nodeId: string | undefined
@@ -60,6 +72,55 @@ function champsEnCause(expression: string, criteresEntree: CritereEntree[]): str
     }
   }
   return [...noms]
+}
+
+/**
+ * Nombre total d'options d'une liste de familles (aplatit `familles[].groupes[]`, `FamilleVue` de
+ * `lib/vueDecision.ts`) — SEULE fonction de ce compte (P11/S7, T-113) : partagée par le CTA flottant
+ * mobile et l'en-tête de la colonne de résultats (T-112), pour que les deux ne puissent jamais diverger.
+ */
+function compterOptions(familles: readonly FamilleVue[]): number {
+  return familles.reduce(
+    (total, famille) => total + famille.groupes.reduce((sousTotal, groupe) => sousTotal + groupe.length, 0),
+    0,
+  )
+}
+
+/** Ordre fixe de la légende (T-112) — celui de l'énumération `ActionOption` (`content/node.types.ts`),
+ * jamais l'ordre de rencontre : la légende doit rester identique d'un patient à l'autre sur un même nœud. */
+const ORDRE_ACTIONS: readonly ActionOption[] = ['ajouter', 'remplacer', 'arreter', 'reduire', 'maintenir']
+
+/**
+ * Libellé de chaque verbe pour la légende (T-112) — même dictionnaire français que `OptionCard.tsx`
+ * `ACTION_LABEL`, DUPLIQUÉ ici plutôt qu'importé : `OptionCard.*` est hors périmètre de cette session
+ * (S6, livrée) — on ne le modifie pas pour en exporter une constante partagée.
+ */
+const LEGENDE_ACTION_LABEL: Record<ActionOption, string> = {
+  ajouter: 'Ajouter',
+  remplacer: 'Remplacer',
+  arreter: 'Arrêter',
+  reduire: 'Réduire',
+  maintenir: 'Maintenir',
+}
+
+/**
+ * Verbes d'action RÉELLEMENT employés par au moins une option du nœud (T-112 étape 1), dans l'ordre fixe
+ * ci-dessus. Parcourt `vue.familles` EN ENTIER (pas seulement `principales`, cf. `plafonnerPistes`) :
+ * une carte repliée derrière « Autres pistes possibles » (K5, `lib/replierAffichage.ts`) reste dans le
+ * DOM — un `<details>` natif, jamais retiré — donc sa couleur doit rester lisible dans la légende même
+ * avant de le déplier. Tableau vide ⇒ le nœud n'emploie pas ce vocabulaire (les 4 nœuds DT2 sans verbe,
+ * `content/node.types.ts` `ActionOption`) : la légende ne doit alors rien rendre (étape 2).
+ */
+function verbesActionPresents(familles: readonly FamilleVue[]): ActionOption[] {
+  const presents = new Set<ActionOption>()
+  for (const famille of familles) {
+    for (const groupe of famille.groupes) {
+      for (const optionVue of groupe) {
+        if (optionVue.option.action) presents.add(optionVue.option.action)
+      }
+    }
+  }
+  return ORDRE_ACTIONS.filter((verbe) => presents.has(verbe))
 }
 
 /**
@@ -282,14 +343,15 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   // n'implémente pas `matchMedia` — sans cette garde, CHAQUE test qui monte l'écran plantait au premier
   // rendu (`TypeError: window.matchMedia is not a function`), bien avant la moindre assertion sur
   // D30/D31/D32/D25/T-024. Repli à `false` (écran large) : c'est le comportement historique, celui que
-  // ces tests vérifiaient déjà avant cette session.
+  // ces tests vérifiaient déjà avant cette session. Seuil `LARGEUR_ETROITE_MAX` (T-114) : la constante
+  // exportée en tête de fichier, plutôt que `959` en dur ici comme avant cette session.
   const supportsMatchMedia = typeof window !== 'undefined' && typeof window.matchMedia === 'function'
   const [isNarrow, setIsNarrow] = useState(() =>
-    supportsMatchMedia ? window.matchMedia('(max-width: 959px)').matches : false,
+    supportsMatchMedia ? window.matchMedia(`(max-width: ${LARGEUR_ETROITE_MAX}px)`).matches : false,
   )
   useEffect(() => {
     if (!supportsMatchMedia) return
-    const mql = window.matchMedia('(max-width: 959px)')
+    const mql = window.matchMedia(`(max-width: ${LARGEUR_ETROITE_MAX}px)`)
     const onChange = (event: MediaQueryListEvent) => setIsNarrow(event.matches)
     mql.addEventListener('change', onChange)
     return () => mql.removeEventListener('change', onChange)
@@ -301,18 +363,27 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   const scrollVersResultats = () => {
     resultatsColRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
-  // N du bouton flottant : nombre d'options RÉELLEMENT rendues comme cartes dans la colonne droite à cet
-  // instant — `vue.familles` aplati (`familles[].groupes[]` est `OptionVue[][]`, cf. `lib/vueDecision.ts`
-  // `FamilleVue`), PAS une estimation. Zéro dès qu'une contrainte suspend le panneau (D31) : dans cet
+  // PARTITION D'AFFICHAGE (K5, `lib/replierAffichage.ts`) calculée UNE SEULE FOIS ici (P11/S7, T-113) —
+  // c'est la MÊME partition que lit ensuite le rendu des cartes (`principales`/`repliees`, plus bas) : un
+  // second appel à `plafonnerPistes(vue)` à cet endroit diverge tôt ou tard du premier (défaut d'origine
+  // de cette tâche, cf. `plans/P11/S7.md` T-113 "Décision clé"). Repli sur une partition vide tant que
+  // `vue` n'existe pas encore (nœud en cours de calcul) — identique au comportement de `plafonnerPistes`
+  // quand rien ne dépasse le plafond.
+  const partitionAffichage = useMemo<PartitionAffichage>(
+    () => (vue ? plafonnerPistes(vue) : { principales: [], repliees: [], nbRepliees: 0 }),
+    [vue],
+  )
+  // N du bouton flottant ET de l'en-tête de la colonne de résultats (T-112, même variable) : nombre
+  // d'options EFFECTIVEMENT VISIBLES SANS GESTE SUPPLÉMENTAIRE, c'est-à-dire `partitionAffichage.principales`
+  // aplati — PAS `vue.familles` en entier comme avant cette session (défaut corrigé par T-113 : le compte
+  // incluait les cartes que le plafond K5 replie derrière « Autres pistes possibles », un nombre que le
+  // praticien ne retrouvait pas à l'écran). Zéro dès qu'une contrainte suspend le panneau (D31) : dans cet
   // état, `vue.familles` n'est de toute façon jamais consulté par le rendu (Étape 2 ci-dessous). T-057 :
   // ZÉRO aussi pendant la frontière de re-entrée — même principe, aucune carte n'est réellement rendue.
   const optionsRenduesCount = useMemo(() => {
     if (violations.length > 0 || afficherChoixReprise || !vue) return 0
-    return vue.familles.reduce(
-      (total, famille) => total + famille.groupes.reduce((sousTotal, groupe) => sousTotal + groupe.length, 0),
-      0,
-    )
-  }, [violations, afficherChoixReprise, vue])
+    return compterOptions(partitionAffichage.principales)
+  }, [violations, afficherChoixReprise, vue, partitionAffichage])
 
   if (!node) {
     return (
@@ -521,6 +592,10 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
     !vue.familles.some((famille) => famille.groupes.length > 0) &&
     vue.enAttente.length > 0
 
+  // Légende des couleurs d'action (T-112) : tableau vide sur les nœuds qui n'emploient pas ce vocabulaire
+  // (`vue` absent ou aucune option `action`) — l'en-tête ne rend alors aucune légende (étape 2).
+  const verbesPresents = vue ? verbesActionPresents(vue.familles) : []
+
   return (
     <div className="decision-node">
       {/* Retour vers le MODULE quand le nœud en fait partie (D22) : sans cela, on quitterait le module
@@ -532,11 +607,13 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
           className="decision-node__back"
           onClick={() => go('decisionModule', { moduleId: moduleDuNoeud.id })}
         >
-          ← Module : {moduleDuNoeud.titre}
+          <Icon nom="chevron-gauche" />
+          Module : {moduleDuNoeud.titre}
         </button>
       ) : (
         <button type="button" className="decision-node__back" onClick={() => go('decisionDomains')}>
-          ← Domaine : {labelForDomaine(node.domaine)}
+          <Icon nom="chevron-gauche" />
+          Domaine : {labelForDomaine(node.domaine)}
         </button>
       )}
       <h1 className="decision-node__title">{node.titre}</h1>
@@ -669,9 +746,36 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
             </div>
           ) : (
             <>
+          {/* T-112 (P11/S7) — EN-TÊTE DE COLONNE : titre de section existant + compte d'options visibles
+              (`optionsRenduesCount`, PARTAGÉ avec le CTA flottant mobile, T-113 : une seule source) +
+              légende des couleurs d'action. La légende elle-même reste conditionnelle (`verbesPresents`,
+              défini en tête de composant) : VIDE sur les nœuds qui n'emploient pas ce vocabulaire
+              (`cible-glycemique`, `statine`, `rhd-*`) — rien n'est alors rendu à sa place, jamais une
+              légende à 4 items écrite en dur (cf. "Décision clé", `plans/P11/S7.md`). */}
           {!decisionEnAttenteSeule && (
-          <div className="decision-node__section-title">
-            {decisifsManquants.length > 0 ? 'Options applicables — provisoire' : 'Options applicables'}
+          <div className="decision-node__results-header">
+            <div className="decision-node__section-title">
+              {decisifsManquants.length > 0 ? 'Options applicables — provisoire' : 'Options applicables'}
+              {optionsRenduesCount > 0 && (
+                <span className="decision-node__results-count">
+                  {' '}
+                  · {optionsRenduesCount} option{optionsRenduesCount > 1 ? 's' : ''}
+                </span>
+              )}
+            </div>
+            {verbesPresents.length > 0 && (
+              <div className="decision-node__legende">
+                {verbesPresents.map((verbe) => (
+                  <span key={verbe} className="decision-node__legende-item">
+                    <span
+                      className={`decision-node__legende-pastille decision-node__legende-pastille--${verbe}`}
+                      aria-hidden="true"
+                    />
+                    {LEGENDE_ACTION_LABEL[verbe]}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
           )}
           {!decisionEnAttenteSeule && decisifsManquants.length > 0 && (
@@ -774,8 +878,10 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
               // contre-indication ou une alerte active. La question laissée ouverte ce soir-là — « quel
               // signal du contenu dit qu'une carte ne peut pas être repliée ? » — a reçu sa réponse.
               // Rien n'est retiré : `principales ∪ repliees` est exactement `vue.familles`, et le bouton
-              // porte le compte exact de ce qu'il cache.
-              const { principales, repliees, nbRepliees } = plafonnerPistes(vue)
+              // porte le compte exact de ce qu'il cache. RÉUTILISE `partitionAffichage` (calculée plus
+              // haut, T-113) au lieu d'un second appel à `plafonnerPistes(vue)` — même partition que celle
+              // qui alimente déjà le compte du CTA flottant et l'en-tête de colonne (T-112).
+              const { principales, repliees, nbRepliees } = partitionAffichage
               if (nbRepliees === 0) return rendreFamilles(vue.familles)
               return (
                 <>
@@ -946,15 +1052,17 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
 
           {/* Bouton flottant mobile (< 960px) — masqué ≥ 960px, où la colonne résultats est `sticky`
               (toujours dans le viewport pendant la saisie, cf. CSS) : y dupliquer ce raccourci n'aurait
-              aucun usage. Compte `optionsRenduesCount` dérivé de `vue.familles` aplati (défini plus haut),
-              jamais une valeur inventée — 0 pendant une suspension D31, comme le panneau qu'il cible. */}
+              aucun usage. Compte `optionsRenduesCount` dérivé de `partitionAffichage.principales` aplati
+              (T-113, défini plus haut — PARTAGÉ avec l'en-tête de la colonne, T-112), jamais une valeur
+              inventée — 0 pendant une suspension D31, comme le panneau qu'il cible. */}
           {isNarrow && (
             <button
               type="button"
               className="decision-node__floating-recos"
               onClick={scrollVersResultats}
             >
-              Voir les recommandations ({optionsRenduesCount}) ↓
+              Voir les recommandations ({optionsRenduesCount})
+              <Icon nom="fleche-bas" className="decision-node__floating-recos-icone" />
             </button>
           )}
         </>

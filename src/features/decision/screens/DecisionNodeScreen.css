@@ -88,6 +88,95 @@
   z-index: 10;
 }
 
+/* T-113 — flèche du CTA en SVG (`<Icon nom="fleche-bas" />`, remplace le `↓` littéral), même gabarit que
+   la maquette (l.343 : `margin-left:8px;vertical-align:middle`, déjà porté par `.icon` de base). */
+.decision-node__floating-recos-icone {
+  margin-left: 6px;
+}
+
+/* T-112 (P11/S7) — EN-TÊTE DE LA COLONNE RÉSULTATS : le titre de section existant (ci-dessous) + le
+   compte d'options réellement visibles (partagé avec le CTA flottant mobile, T-113 : même variable
+   `optionsRenduesCount`) + la légende des couleurs d'action. La maquette (l.247) porte cette rangée en
+   `position: sticky; top: 0`, À L'INTÉRIEUR de la colonne — VOLONTAIREMENT NON REPRIS ICI.
+   `.decision-node__results-col` est ELLE-MÊME déjà `position: sticky; top: 72px` au-dessus de 960px
+   (règle plus bas) : un sticky imbriqué dans un sticky ne se comporte pas de façon garantie (recouvrement/
+   saut selon les navigateurs), et T-112 (`plans/P11/S7.md`, étape 4) demande explicitement de vérifier au
+   navigateur avant de l'activer, avec repli sur la variante non sticky si le rendu est faux. Cette session
+   tourne SANS navigateur in-app (bandeau S7 : Desktop requis, environnement réel = VSCode/terminal) — donc
+   sans moyen de vérifier. Repli choisi par prudence, conformément à la parade que la tâche prévoit
+   elle-même pour ce cas : la colonne entière défile déjà avec la page, cet en-tête n'est pas illisible pour
+   autant, seulement pas fixé en tête pendant le défilement. À revérifier par S8 (recette avec navigateur
+   réel) avant d'envisager de l'activer. */
+.decision-node__results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.decision-node__results-header .decision-node__section-title {
+  margin-bottom: 0;
+}
+
+.decision-node__results-count {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--c-text-muted);
+}
+
+/* Légende des couleurs d'action (T-112) — dérivée à l'écran des verbes RÉELLEMENT employés par le nœud
+   (`DecisionNodeScreen.tsx`), jamais une liste fixe : absente des nœuds qui n'emploient pas ce vocabulaire
+   (`cible-glycemique`, `statine`, `rhd-*`). Puce ronde + mot, reprise telle quelle de la maquette
+   (l.249-254) — pas la pastille pleine (fond teinté) des cartes (`OptionCard.css`
+   `.option-card__action-pastille`), volontairement plus discrète : une clé de lecture, pas une action. */
+.decision-node__legende {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: var(--c-text-muted);
+}
+
+.decision-node__legende-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.decision-node__legende-pastille {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.decision-node__legende-pastille--ajouter {
+  background: var(--c-action-ajouter);
+}
+
+.decision-node__legende-pastille--remplacer {
+  background: var(--c-action-remplacer);
+}
+
+.decision-node__legende-pastille--arreter {
+  background: var(--c-action-arreter);
+}
+
+.decision-node__legende-pastille--reduire {
+  background: var(--c-action-reduire);
+}
+
+/* `maintenir` n'a pas de token propre (`tokens.css`) : même teinte que `--c-accent-decision`, comme
+   `OptionCard.css` `.option-card--action-maintenir`. */
+.decision-node__legende-pastille--maintenir {
+  background: var(--c-accent-decision);
+}
+
+/* T-114 — fil d'Ariane en SVG (maquette l.18, `<Icon nom="chevron-gauche" />` remplace le `←` littéral) :
+   le bouton devient flex pour espacer icône et texte par `gap` plutôt que par une espace typographique. */
 .decision-node__back {
   border: none;
   background: transparent;
@@ -97,6 +186,9 @@
   margin-bottom: 16px;
   padding: 0;
   font: inherit;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .decision-node__title {
