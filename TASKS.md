@@ -23,8 +23,6 @@ plan** (statut dans son `index.md`) : `- T-ID — titre · → plans/…/S<k>.md
 ## Backlog — mécanique, exécutable sans arbitrage clinique
 
 - [ ] Vérifier sur le déployé (N1) : T-032/T-033/T-034 (P5, jamais confirmés hors local) · Claude + navigateur, low, env: Desktop
-- [ ] `GAJ` (`insuline`) affiché sous capteur alors qu'il n'est plus réclamé · Haiku, low
-- [ ] Suggestion d'espérance de vie (T-061/P8) ne se retrigger pas après « Reprendre les valeurs » · Sonnet, medium
 - [ ] `lib/replierAffichage.ts` (P9/S1) lit le champ brut, pas l'état évalué — sans effet actuel · Sonnet, low
 - [ ] `PastilleInfo` (S3) n'a que `ton="neutre"|"danger"` ; `OptionCard` (S6) surcharge donc la couleur
       ambre par CSS externe — ajouter un ton `attention` natif puis retirer la surcharge · Sonnet, low

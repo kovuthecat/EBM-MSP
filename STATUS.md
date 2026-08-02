@@ -18,14 +18,14 @@ Veille : **non commencé** (aucun code, `DECISIONS.md` D8 garde la place).
 | `cible-glycemique` | `valide` | v2.11 |
 | `statine` | `brouillon` | v1.20 |
 | `prescription` | `brouillon` | v0.45 |
-| `insuline` | `brouillon` | v0.37 |
+| `insuline` | `brouillon` | v0.38 |
 | `rhd-alimentation` | `brouillon` | v0.11 |
 | `rhd-activite-physique` | `brouillon` | v0.11 |
 
 Passage à `valide` conditionné à la relecture référent finale (`TASKS.md` §validation clinique).
 
 **Banc de tests** (`src/features/decision/engine/banc/`) : non-régression du contenu en 3 couches
-(vignettes, couverture, invariants). **980 tests, 11 skip, typecheck et build verts.**
+(vignettes, couverture, invariants). **982 tests, 11 skip, typecheck et build verts.**
 
 ## Chantier actif
 
@@ -56,9 +56,7 @@ détail : `plans/P7/index.md`.
 ## Ce qui casse / n'est pas testé
 
 - Onglet **« Veille » rend une page blanche** (texte `top: 0` caché sous la nav fixe) — mécanique, non cadré.
-- **`GAJ` (nœud `insuline`) reste réclamé même quand `mcg_disponible` est coché** — masquage manquant, cf. `TASKS.md`.
 - CTA flottant mobile (P6) : réserve mineure résiduelle, usage ordinaire ne la déclenche pas — laissé tel quel (référent, 2026-07-29).
-- **Suggestion d'espérance de vie (T-061) ne se retrigger pas après « Reprendre les valeurs de ce patient »** (T-057) : repart « en attente » au lieu de recalculer (cf. `docs/decision/validation/recette-P8-2026-07-30.md`).
 
 ## Bugs connus
 
@@ -74,7 +72,7 @@ détail : `plans/P7/index.md`.
 ## Comment vérifier l'état réel
 
 ```bash
-npm test          # 980 tests attendus, 11 skip
+npm test          # 982 tests attendus, 11 skip
 npm run typecheck # npx tsc --noEmit seul est factice (tsconfig.json en `files: []`, 0 fichier compilé)
 npm run build
 ```
