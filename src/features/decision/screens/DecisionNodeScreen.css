@@ -459,22 +459,22 @@
    des pistes, et combien. Le `<details>` natif porte l'accessibilité (clavier, lecteur d'écran,
    Ctrl+F du navigateur qui déplie automatiquement) sans une ligne de JavaScript. */
 .decision-node__repli {
-  margin-top: 1.25rem;
-  border-top: 1px solid var(--border, #d8dce3);
-  padding-top: 0.75rem;
+  margin-top: 20px;
+  border-top: 1px solid var(--c-border);
+  padding-top: 12px;
 }
 .decision-node__repli-resume {
   cursor: pointer;
   font-weight: 600;
-  color: var(--text-muted, #4a5568);
-  padding: 0.35rem 0;
+  color: var(--c-text-muted);
+  padding: 5.6px 0;
   list-style: revert;
 }
 .decision-node__repli-resume:hover {
-  color: var(--text, #1a202c);
+  color: var(--c-text);
 }
 .decision-node__repli-mention {
-  margin: 0.5rem 0 1rem;
-  font-size: 0.875rem;
-  color: var(--text-muted, #4a5568);
+  margin: 8px 0 16px;
+  font-size: 14px;
+  color: var(--c-text-muted);
 }
