@@ -260,7 +260,13 @@ criteres_entree:
     groupe: Surveillance glycémique
     min: 0.4
     max: 5
-    visible_si: "situation_insuline != naif"
+    # CORRECTIF PRÉ-RECETTE (2026-08-02, backlog `TASKS.md` non numéroté) : second terme ajouté, MÊME mécanisme que T-033 sur
+    # `TBR`/`CV_glycemique`/`profil_nocturne` ci-dessus. `GAJ` est le repère de repli quand il N'Y A PAS
+    # de capteur (cf. commentaire de `gaj_a_cible`/`gaj_basse`/`gaj_haute` plus bas : « la GAJ est le cas
+    # de repli quand il n'y a pas de MCG »). Sans ce second terme, un patient ÉQUIPÉ d'un capteur se
+    # voyait réclamer une saisie manuelle que le moteur n'utilise jamais dans son cas — bruit de saisie
+    # sur le nœud le plus lourd du domaine (34 critères), constaté et tracé dans `STATUS.md`/`TASKS.md`.
+    visible_si: "situation_insuline != naif AND mcg_disponible == false"
     # LA VALEUR ATTENDUE EST UNE HABITUDE, PAS UNE MESURE ISOLÉE (arbitrage référent, 2026-07-29).
     # Motif : la règle de descente retenue est celle d'ebmfrance, qui ne réagit pas à une glycémie basse
     # isolée (« 1 fois sur 3 : ne rien changer ; plus souvent : −2 U »). Encoder cette fréquence aurait
@@ -312,26 +318,37 @@ criteres_entree:
   # que si l'on lit 0,70 comme une borne de cible ; lue comme un seuil d'alerte, elle tombe.
   #
   # PAS DE GARDE `GAJ > 0` sur `gaj_basse`, à la différence de la convention posée par P7/T-048 sur les
-  # dérivés d'HbA1c — et c'est délibéré : le seul chemin qui remet `GAJ` à sa valeur par défaut (0) est
-  # le masquage `visible_si: situation_insuline != naif`, or `situation_insuline != naif` est DÉJÀ le
-  # premier terme de la conjonction. Ajouter `GAJ > 0` introduirait le littéral `0` dans les règles du
-  # nœud, donc la valeur `1` dans le domaine de tirage du banc (`seuilsNumeriques`, `banc/profils.ts`,
-  # qui ajoute chaque littéral ±1) : un rééchantillonnage complet du banc, pour un garde-fou inatteignable.
+  # dérivés d'HbA1c — et c'est délibéré : les seuls chemins qui remettent `GAJ` à sa valeur par défaut (0)
+  # sont les deux masquages `visible_si` (`situation_insuline != naif AND mcg_disponible == false`,
+  # correctif pré-recette 2026-08-02), et les DEUX termes sont DÉJÀ répétés en tête de chaque dérivé
+  # ci-dessous (R8, `docs/decision/GRAMMAIRE-NOEUD.md`). Ajouter `GAJ > 0` introduirait le littéral `0`
+  # dans les règles du nœud, donc la valeur `1` dans le domaine de tirage du banc (`seuilsNumeriques`,
+  # `banc/profils.ts`, qui ajoute chaque littéral ±1) : un rééchantillonnage complet du banc, pour un
+  # garde-fou inatteignable.
+  #
+  # `mcg_disponible == false` RÉPÉTÉ ICI (et non seulement dans le `visible_si` de `GAJ`) — correctif
+  # pré-recette 2026-08-02, R8 : sans ce second terme, un patient non naïf ÉQUIPÉ d'un capteur (`GAJ`
+  # masqué, donc remis à 0) verrait ces trois dérivés lus sur `GAJ = 0` par `calculerCriteresDerives`
+  # (qui ne connaît pas `renseignes`, cf. sa docstring) — `gaj_basse` serait alors calculé `true` (0 < 0,7)
+  # pour un patient dont on n'a simplement rien demandé. La détermination effective (`determinesEffectifs`)
+  # neutralise déjà ce risque pour le MOTEUR (elle exclut `gaj_basse` de `effectifs` puisque `GAJ` n'est
+  # pas dans `primitifs`) — cette répétition protège la LECTURE du contenu, pas seulement l'exécution :
+  # R8 l'exige indépendamment de ce filet ternaire, cf. `invariants-contenu.test.ts` I10.
   - nom: gaj_a_cible
     type: bool
-    derive: "situation_insuline != naif AND GAJ >= 0.7 AND GAJ <= 1.3"
+    derive: "situation_insuline != naif AND mcg_disponible == false AND GAJ >= 0.7 AND GAJ <= 1.3"
   - nom: gaj_basse
     type: bool
     # Glycémie à jeun SOUS la cible : la basale est trop forte la nuit. Ne titre jamais à la hausse —
     # `exclusions` de « Titrer la basale » ET déclencheur du geste correctif (« Corriger l'hypoglycémie
     # ou la variabilité », qui porte déjà la conduite : −2 U, ou −10 % au-delà de 40 U/j).
-    derive: "situation_insuline != naif AND GAJ < 0.7"
+    derive: "situation_insuline != naif AND mcg_disponible == false AND GAJ < 0.7"
   - nom: gaj_haute
     type: bool
     # Glycémie à jeun AU-DESSUS de la cible : c'est le pivot de titration du repli sans MCG. Remplace
     # `gaj_a_cible == false` dans les `conditions` de « Titrer la basale » — même population MOINS les
     # patients en hypoglycémie à jeun, qui basculent sur `gaj_basse`.
-    derive: "situation_insuline != naif AND GAJ > 1.3"
+    derive: "situation_insuline != naif AND mcg_disponible == false AND GAJ > 1.3"
   # E-03 (2026-07-26), REDÉFINI le 2026-07-30 (P8/S7, arbitrage référent) : PIVOT nocturne de la situation
   # « basale seule ». Le modèle change de forme, pas de principe — le référent avait dit trois fois (dont
   # recette capture 8) : « titrer sur la courbe nocturne, pas la GAJ ; la GAJ est le cas de repli quand il
@@ -1810,8 +1827,28 @@ meta:
   date_revue: "2026-07-31"
   auteur: "référent DT2 (Thibault) + Opus + Claude Code"
   statut: valide
-  version: "0.37"
+  version: "0.38"
   changelog:
+    - date: "2026-08-02"
+      auteur: "Claude Code (correctif pré-recette)"
+      resume: >-
+        `GAJ` MASQUÉ SOUS CAPTEUR — correctif ciblé, signalé dans `STATUS.md`/`TASKS.md` avant recette.
+        Le `visible_si` de `GAJ` (nœud le plus lourd du domaine, 34 critères) ne portait que
+        `situation_insuline != naif` : un patient équipé d'un capteur (`mcg_disponible == true`) se
+        voyait donc réclamer une glycémie à jeun manuelle que le moteur n'utilise jamais dans son cas —
+        les options qui lisent `gaj_a_cible`/`gaj_basse`/`gaj_haute` sont toutes déjà gardées par
+        `mcg_disponible == false AND …`, ce qui confirmait le champ inutile sous MCG. Second terme
+        ajouté : `visible_si: "situation_insuline != naif AND mcg_disponible == false"`. R8
+        (`docs/decision/GRAMMAIRE-NOEUD.md`) oblige à répéter ce garde dans CHAQUE expression qui lit
+        `GAJ`, pas seulement dans son `visible_si` — sinon un `GAJ` masqué (remis à sa valeur par défaut
+        0 par `calculerCriteresDerives`, qui ignore `renseignes`) continuerait de piloter
+        `gaj_a_cible`/`gaj_basse`/`gaj_haute` en lecture brute pour un patient sous capteur. Le second
+        terme `mcg_disponible == false` est donc ajouté en tête des trois `derive` correspondants, à côté
+        de `situation_insuline != naif` déjà présent. Aucune option, alerte ni seuil clinique modifié :
+        pur nettoyage de saisie, vérifié par l'invariant I10 (`banc/invariants-contenu.test.ts`, R8) sans
+        nouvelle dérogation à `VIOLATIONS_R8_CONNUES_T018`. Snapshots de caractérisation régénérés après
+        relecture clinique du diff (les lignes « à renseigner : … GAJ » disparaissent pour les profils
+        sous capteur ; aucune option ne change de conclusion).
     - date: "2026-08-01"
       auteur: "Claude Code (P10/S9, T-086)"
       resume: >-
