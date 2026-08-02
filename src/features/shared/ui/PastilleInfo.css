@@ -1,0 +1,56 @@
+.pastille-info {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.pastille-info--neutre {
+  color: var(--c-text-faible);
+}
+
+.pastille-info--danger {
+  color: var(--c-ton-danger-text);
+}
+
+/* Info-bulle : masquée par défaut, JSX toujours présent (cf. docstring du composant) — seul le CSS
+   ci-dessous la révèle, uniquement sur pointeur fin capable de survol (souris/trackpad), jamais au
+   doigt (aucun geste tactile ne déclenche `:hover`, donc aucun piège pour un usage tactile). */
+.pastille-info__bulle {
+  display: none;
+  position: absolute;
+  /* Ancrée à droite du bouton, jamais à gauche : la colonne des recommandations est étroite
+     (minmax(380px, 1fr)) et une bulle ancrée à gauche sortirait de l'écran. */
+  top: 100%;
+  right: 0;
+  margin-top: 6px;
+  width: max-content;
+  max-width: 280px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--c-text);
+  color: var(--c-surface);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  line-height: var(--leading-normal);
+  text-align: left;
+  white-space: normal;
+  box-shadow: 0 8px 24px oklch(20% 0.02 245 / 0.12);
+  /* Au-dessus des cartes et du header applicatif (Header.css : 20). */
+  z-index: 30;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .pastille-info:hover .pastille-info__bulle,
+  .pastille-info:focus-visible .pastille-info__bulle {
+    display: block;
+  }
+}
