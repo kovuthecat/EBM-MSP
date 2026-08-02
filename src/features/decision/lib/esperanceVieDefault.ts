@@ -38,3 +38,28 @@ export function hasEsperanceVieCritere(criteresEntree: CritereEntree[]): boolean
 
 /** Champs dont dépend la suggestion — sert à savoir quand la recalculer. */
 export const ESPERANCE_VIE_DRIVERS = ['age', 'fragilite', 'comorbidite_grave', 'antecedent_cv'] as const
+
+/**
+ * Calcule la valeur à suggérer pour `esperance_vie`, ou `undefined` si rien ne doit changer — MÊME calcul
+ * que portaient séparément `handleCriteriaChange` et `handleConfirmerChamps` (`DecisionNodeScreen.tsx`,
+ * T-061), extrait ici pour qu'un troisième appelant (la reprise de session au clic sur « Reprendre les
+ * valeurs de ce patient », T-057 x T-061, défaut signalé en recette P8 2026-07-30 §Scénario A/C) ne le
+ * réécrive pas une troisième fois. Ne suggère JAMAIS si le praticien a déjà choisi `esperance_vie`
+ * lui-même (`dejaChoisieAMain`) — un choix manuel ne se fait écraser par aucun appelant — ni si aucun des
+ * noms de `nomsChanges` n'est un driver de la suggestion (`ESPERANCE_VIE_DRIVERS`), ni si le nœud ne porte
+ * pas ce critère à 3 valeurs (`hasEsperanceVieCritere`). `criteria` doit déjà porter les valeurs à jour
+ * des drivers — cette fonction ne lit que `criteria`, elle ne fusionne rien : c'est à l'appelant de placer
+ * la valeur retournée où il faut (`next.esperance_vie` en cours de saisie, ou un `setCriteria` fonctionnel
+ * une fois l'événement passé).
+ */
+export function suggestionEsperanceVieSiApplicable(
+  criteresEntree: CritereEntree[],
+  criteria: Criteria,
+  dejaChoisieAMain: boolean,
+  nomsChanges: readonly string[],
+): EsperanceVieValue | undefined {
+  if (dejaChoisieAMain) return undefined
+  if (!nomsChanges.some((nom) => (ESPERANCE_VIE_DRIVERS as readonly string[]).includes(nom))) return undefined
+  if (!hasEsperanceVieCritere(criteresEntree)) return undefined
+  return suggestEsperanceVie(criteria)
+}

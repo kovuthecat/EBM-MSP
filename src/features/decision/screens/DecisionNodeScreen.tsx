@@ -14,7 +14,7 @@ import type { Criteria, CriteriaValue } from '../engine/conditions'
 import { contraintesViolees } from '../engine/contraintes'
 import { criteresPertinents } from '../engine/relevance'
 import { describeNonApplicable, describeReasons } from '../lib/conditionText'
-import { ESPERANCE_VIE_DRIVERS, hasEsperanceVieCritere, suggestEsperanceVie } from '../lib/esperanceVieDefault'
+import { hasEsperanceVieCritere, suggestionEsperanceVieSiApplicable } from '../lib/esperanceVieDefault'
 import {
   appliquerPreremplissage,
   buildDefaultCriteria,
@@ -430,10 +430,10 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
     // `esperanceVieDefault.ts` : « pas un fait clinique », CLAUDE.md invariant 6), jamais une
     // affirmation.
     const espChoisieAMain = touched.has('esperance_vie') || nom === 'esperance_vie'
-    const dependClicheEsp = (ESPERANCE_VIE_DRIVERS as readonly string[]).includes(nom)
     const nomsAPreremplirEsp: string[] = []
-    if (!espChoisieAMain && dependClicheEsp && hasEsperanceVieCritere(node.criteres_entree)) {
-      next.esperance_vie = suggestEsperanceVie(next)
+    const suggestionEsp = suggestionEsperanceVieSiApplicable(node.criteres_entree, next, espChoisieAMain, [nom])
+    if (suggestionEsp !== undefined) {
+      next.esperance_vie = suggestionEsp
       nomsAPreremplirEsp.push('esperance_vie')
     }
 
@@ -531,17 +531,42 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
     // T-061 (Étape 5) — « Rien à signaler » ne passe PAS par `handleCriteriaChange` : sans ce relais, la
     // suggestion d'`esperance_vie` restait muette quand `fragilite`/`comorbidite_grave`/`antecedent_cv`
     // étaient soldés par ce bouton plutôt que cliqués un par un — pourtant LE geste réel du praticien
-    // mesuré en recette (N2, N7). Même garde-fou qu'à la saisie directe (`espChoisieAMain` ci-dessus) :
-    // ne recalcule rien si le praticien a déjà choisi lui-même `esperance_vie`. Les drapeaux confirmés
-    // restent à leur valeur INCHANGÉE (`false`, la présomption de contenu) — seul `touched` bouge — donc
-    // `suggestEsperanceVie` se relit sur `criteria` tel quel, sans fusion supplémentaire.
-    const espChoisieAMain = touched.has('esperance_vie')
-    const declencheSuggestionEsp = noms.some((nom) => (ESPERANCE_VIE_DRIVERS as readonly string[]).includes(nom))
-    if (!espChoisieAMain && declencheSuggestionEsp && hasEsperanceVieCritere(node.criteres_entree)) {
-      const suggestion = suggestEsperanceVie(criteria)
+    // mesuré en recette (N2, N7). Même garde-fou qu'à la saisie directe (`espChoisieAMain` ci-dessus,
+    // `suggestionEsperanceVieSiApplicable` factorise les deux) : ne recalcule rien si le praticien a déjà
+    // choisi lui-même `esperance_vie`. Les drapeaux confirmés restent à leur valeur INCHANGÉE (`false`, la
+    // présomption de contenu) — seul `touched` bouge — donc la suggestion se relit sur `criteria` tel
+    // quel, sans fusion supplémentaire.
+    const suggestion = suggestionEsperanceVieSiApplicable(node.criteres_entree, criteria, touched.has('esperance_vie'), noms)
+    if (suggestion !== undefined) {
       if (criteria.esperance_vie !== suggestion) {
         setCriteria((previous) => ({ ...previous, esperance_vie: suggestion }))
       }
+      setPreremplis((previous) => new Set(previous).add('esperance_vie'))
+    }
+  }
+
+  /**
+   * T-057 x T-061 (P8 · S2, correctif recette 2026-07-30 §Scénario A/C, « signalé, non corrigé ») —
+   * « Reprendre les valeurs de ce patient » lève la frontière SANS jamais relancer la suggestion
+   * d'espérance de vie : le clic ne passait ni par `handleCriteriaChange` ni par `handleConfirmerChamps`
+   * — les deux SEULS chemins qui déclenchaient T-061 avant ce correctif — alors que `criteria` porte déjà,
+   * depuis l'initialisation de l'état (`reprises`/`valeursReprises`, en tête de composant), les valeurs
+   * reprises des drivers (`age`, `fragilite`, `comorbidite_grave`, `antecedent_cv`). `esperance_vie`
+   * repartait donc « à confirmer » pour un patient dont l'âge et la fragilité étaient pourtant déjà
+   * connus. `repris` sert de `nomsChanges` à `suggestionEsperanceVieSiApplicable` : ce sont exactement les
+   * critères dont la valeur vient de « changer » par ce geste — les mêmes noms qu'aurait vus
+   * `handleCriteriaChange` si le praticien les avait retapés un par un sur cet écran. Le garde-fou
+   * habituel s'applique intact : si `esperance_vie` fait elle-même partie des critères repris (choisie à
+   * la main sur un nœud précédent, donc déjà dans `touched`), rien n'est recalculé — une reprise EST un
+   * choix du praticien (D28), jamais écrasée.
+   */
+  const handleReprendreValeurs = () => {
+    setFrontiereLevee(true)
+    const suggestion = suggestionEsperanceVieSiApplicable(node.criteres_entree, criteria, touched.has('esperance_vie'), [
+      ...repris,
+    ])
+    if (suggestion !== undefined) {
+      setCriteria((previous) => ({ ...previous, esperance_vie: suggestion }))
       setPreremplis((previous) => new Set(previous).add('esperance_vie'))
     }
   }
@@ -731,7 +756,7 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                 <button
                   type="button"
                   className="decision-node__reprise-frontiere-bouton"
-                  onClick={() => setFrontiereLevee(true)}
+                  onClick={handleReprendreValeurs}
                 >
                   Reprendre les valeurs de ce patient
                 </button>
