@@ -141,6 +141,85 @@ describe('OptionCard — panneaux P11/S6 (carte compacte à pastilles, 2026-08-0
   })
 })
 
+/**
+ * P12/S10 (T-136, arbitrage référent du 2026-08-02, point 4) — « quand un écran ne porte qu'une seule
+ * option, sa carte s'affiche ouverte ». La carte ne le sait jamais par elle-même (elle ne voit pas ses
+ * sœurs) : `carteUnique` est une prop transmise par l'appelant (`DecisionNodeScreen.tsx`, sur
+ * `optionsRenduesCount === 1` — le compte des options AFFICHÉES, T-113). Ici, on ne teste que l'effet de
+ * la prop sur LE COMPOSANT, indépendamment de qui la calcule.
+ */
+describe('OptionCard — carteUnique (P12/S10, T-136 : carte seule sur son écran = carte dépliée)', () => {
+  it('par défaut (`carteUnique` omis) : comportement inchangé, les quatre panneaux restent fermés', () => {
+    const html = rendreCarte(optionDeBase())
+    for (const nom of ['pourquoi', 'posologie', 'ci', 'argumentaire']) {
+      const indexPanneau = html.indexOf(`option-card__panneau--${nom}`)
+      const finBalise = html.indexOf('>', indexPanneau)
+      expect(html.slice(indexPanneau, finBalise)).toContain('hidden')
+    }
+  })
+
+  it('`carteUnique={true}` : le panneau --argumentaire est ouvert par défaut (pas de `hidden`)', () => {
+    const html = renderToStaticMarkup(
+      <OptionCard
+        option={optionDeBase()}
+        badge={null}
+        reasons={['toujours']}
+        calculs={[]}
+        calculsEnAttente={[]}
+        motifRang={undefined}
+        alertes={[]}
+        carteUnique
+      />,
+    )
+    const indexPanneau = html.indexOf('option-card__panneau--argumentaire')
+    const finBalise = html.indexOf('>', indexPanneau)
+    expect(html.slice(indexPanneau, finBalise)).not.toContain('hidden')
+  })
+
+  it('`carteUnique={true}` : les panneaux --pourquoi, --posologie et --ci restent fermés (un seul panneau change d’état initial)', () => {
+    const html = renderToStaticMarkup(
+      <OptionCard
+        option={optionDeBase({ contre_indications: ['CI de test.'], apercu: 'dose fixe' })}
+        badge={null}
+        reasons={['toujours']}
+        calculs={[]}
+        calculsEnAttente={[]}
+        motifRang={undefined}
+        alertes={[]}
+        carteUnique
+      />,
+    )
+    for (const nom of ['pourquoi', 'posologie', 'ci']) {
+      const indexPanneau = html.indexOf(`option-card__panneau--${nom}`)
+      const finBalise = html.indexOf('>', indexPanneau)
+      expect(html.slice(indexPanneau, finBalise)).toContain('hidden')
+    }
+  })
+
+  it("`carteUnique={true}` : l'argument EBM (`effet_attendu`) est lisible dans le HTML sans dépendre d'un clic — c'est exactement ce que la régression P11 (recette N2) avait mis derrière le chevron", () => {
+    const html = renderToStaticMarkup(
+      <OptionCard
+        option={optionDeBase({
+          effet_attendu: "Réduction de l'IDM non fatal, pas de la mortalité ; bénéfice absolu modeste.",
+        })}
+        badge={null}
+        reasons={['toujours']}
+        calculs={[]}
+        calculsEnAttente={[]}
+        motifRang={undefined}
+        alertes={[]}
+        carteUnique
+      />,
+    )
+    const indexPanneauArgumentaire = html.indexOf('option-card__panneau--argumentaire')
+    const indexEffet = html.indexOf("Réduction de l&#x27;IDM non fatal")
+    expect(indexEffet).toBeGreaterThan(indexPanneauArgumentaire)
+    // Le panneau qui le porte n'est pas `hidden` : pas besoin de simuler un clic pour le lire.
+    const finBalise = html.indexOf('>', indexPanneauArgumentaire)
+    expect(html.slice(indexPanneauArgumentaire, finBalise)).not.toContain('hidden')
+  })
+})
+
 describe('OptionCard — panneau posologie (P11/S6 amende D34 : la posologie passe derrière une pastille)', () => {
   it("`option.apercu` vit DANS le panneau --posologie, hidden par défaut — n'est PLUS jamais visible sans clic (c'est exactement ce que l'arbitrage référent du 2026-08-01, question 3, a tranché)", () => {
     const html = rendreCarte(

@@ -1,7 +1,8 @@
 import { useId, useMemo, useRef, useState } from 'react'
 import type { Contrainte, CritereEntree } from '../content/node.types'
 import type { Criteria, CriteriaValue } from '../engine/conditions'
-import { criteresPilotes, grouperChamps, valeursProposeesDepuisSaisie } from '../lib/formLayout'
+import { determinesEffectifs, evaluerNombre } from '../engine/deriveCritere'
+import { champEstVisible, criteresPilotes, grouperChamps, valeursProposeesDepuisSaisie } from '../lib/formLayout'
 import {
   describeEnumValue,
   iconForEnumValue,
@@ -77,6 +78,21 @@ interface CriteriaFormProps {
    * absent → le bouton de pied de section ne s'affiche pas (rétro‑compatible).
    */
   onConfirmerChamps?: (noms: string[]) => void
+  /**
+   * Critères DÉCISIFS que le praticien a déclarés « je ne l'aurai pas » (T-134, P12/S9 — recette du
+   * 02/08, N7 : l'albuminurie manque au dossier de l'EHPAD et n'y sera jamais). NE VIENT JAMAIS de
+   * `touched`/`renseignes` — c'est un ensemble PARALLÈLE, purement d'ÉCRAN : `lib/formLayout.ts`
+   * `decisifsAConfirmer` en tient déjà compte pour ne plus RÉCLAMER ce champ (donc `aConfirmer` reçu ici
+   * ne le contient plus une fois déclaré), mais le moteur, lui, continue de tenir le critère pour NON
+   * DÉTERMINÉ (R7/D20) — ce composant ne fait que RENDRE l'état, jamais le produire.
+   */
+  indisponibles?: ReadonlySet<string>
+  /**
+   * Déclare (ou annule, second clic — TOGGLE) qu'un critère décisif restera inconnu. Optionnel : absent →
+   * aucune affordance « Indisponible » ne s'affiche (rétro-compatible), même repli que
+   * `onConfirmerChamps`.
+   */
+  onDeclarerIndisponible?: (nom: string) => void
   /**
    * Un champ `nombre` vient d'être VIDÉ par le praticien (D20 R7, SPEC-valeur-indeterminee.md §2, défauts
    * de recette 12.2/13.3) : appelé À LA PLACE d'`onChange` quand l'input devient une chaîne vide — DISTINCT
@@ -155,6 +171,8 @@ export function CriteriaForm({
   pertinents,
   aConfirmer,
   onConfirmerChamps,
+  indisponibles,
+  onDeclarerIndisponible,
   onEffacer,
   contraintesViolees,
   repris,
@@ -291,6 +309,58 @@ export function CriteriaForm({
   // a plus lieu d'y envoyer le praticien, et le champ redevient un champ comme les autres.
   const pilotes = useMemo(() => criteresPilotes(criteresEntree), [criteresEntree])
 
+  /**
+   * VALEUR CALCULÉE D'UN CRITÈRE DÉRIVÉ NUMÉRIQUE (T-133, P12/S8) — le point que le brief avait
+   * initialement omis du périmètre « Modifier » : un critère `type: nombre` porteur d'un `derive`
+   * (IMC = poids / taille / taille, CK_x_normale = CK_UI_L / CK_normale_sup…) n'est jamais un champ
+   * saisissable (`grouperChamps`, `lib/formLayout.ts`, l'exclut de `groupe.champs` plus bas) — mais SA
+   * VALEUR doit rester visible, sans quoi une faute de frappe sur un OPÉRANDE (poids, taille) déplace
+   * silencieusement la recommandation sans que rien à l'écran ne le signale. C'était le mode d'échec
+   * qu'échanger « calcul de tête risqué » contre « calcul automatique invisible » aurait ouvert.
+   *
+   * GÉNÉRIQUE (invariant CLAUDE.md 5) : aucun nom de critère ni de nœud connu d'avance — n'importe quel
+   * domaine obtient ce rendu en déclarant `type: nombre` + `derive`. Rendue dans LE MÊME `groupe` que le
+   * critère le déclare (`critere.groupe`, laissé en place dans le contenu bien qu'il ne pilote plus le
+   * rendu du CHAMP lui-même) : par construction du contenu, c'est celui de ses opérandes (IMC et
+   * poids/taille partagent le même `groupe` sur `prescription`, CK_x_normale et CK_UI_L/CK_normale_sup le
+   * même sur `statine`) — donc « près des champs qui l'alimentent », sans avoir à les identifier un par un.
+   */
+  const derivesNumeriques = useMemo(
+    () => criteresEntree.filter((c) => c.derive != null && c.type === 'nombre'),
+    [criteresEntree],
+  )
+  // Ensemble EFFECTIF des critères déterminés (D20, `engine/deriveCritere.ts`) : calculé UNE FOIS ici,
+  // comme `pilotes` ci-dessus — mêmes `criteresEntree`/`criteria`/`touched` que le reste de ce composant
+  // (`criteriaGroupement` n'entre pas ici : c'est `criteria`, la valeur EN DIRECT, qui doit décider si le
+  // calcul affiché est à jour, pas la source temporisée de la visibilité).
+  const effectifsDerives = useMemo(
+    () => determinesEffectifs(criteresEntree, criteria, touched),
+    [criteresEntree, criteria, touched],
+  )
+
+  /** Valeur calculée d'un critère DÉRIVÉ numérique, ou `null` si NON CALCULABLE (un opérande manque, ou
+   *  une division par zéro, D20) — JAMAIS `0` par défaut : c'est la même garde que le moteur applique déjà
+   *  (`engine/deriveCritere.ts` `evaluerNombre`), rendue visible ici plutôt que muette. */
+  const valeurCalculee = (critere: CritereEntree): number | null =>
+    critere.derive == null ? null : evaluerNombre(critere.derive, criteria, effectifsDerives)
+
+  /** Ligne « Libellé valeur · calculé » — LECTURE SEULE, jamais un champ (ni `<input>`, ni saisissable) :
+   *  MÊME registre visuel que « · calculé, à vérifier » (K6, suggestion d'espérance de vie,
+   *  `criteria-form__field-repris` ci-dessous, réutilisé tel quel — aucun registre inventé). Absente tant
+   *  qu'un opérande manque (jamais affichée à `0`) OU si le critère porte lui-même un `visible_si` faux
+   *  (même règle de visibilité que n'importe quel autre champ du nœud). */
+  const renderValeurCalculee = (critere: CritereEntree) => {
+    if (!champEstVisible(critere, criteriaGroupement ?? criteria, touched)) return null
+    const valeur = valeurCalculee(critere)
+    if (valeur == null) return null
+    return (
+      <p key={critere.nom} className="criteria-form__valeur-calculee">
+        {labelForCritere(critere.nom)} {valeur.toFixed(1).replace('.', ',')}
+        <span className="criteria-form__field-repris"> · calculé</span>
+      </p>
+    )
+  }
+
   // Estompage (remarque 6) : un critère hors de `pertinents` n'a, pour CE patient, aucun effet sur la reco.
   // Absent (`pertinents` non fourni) → jamais estompé. Un champ déjà `touched` n'est JAMAIS estompé (tâche
   // 6b) : la valeur saisie par le praticien reste pleinement lisible même redevenue non décisive. Générique :
@@ -337,6 +407,44 @@ export function CriteriaForm({
   // signalait déjà comme forte (56 % des champs sur `statine`, 65 % sur RHD Alimentation). L'effet réel
   // est mesuré dans `docs/decision/validation/chantier-2026-07-27/mesure-densite-marqueurs.md`.
   const estAConfirmer = (critere: CritereEntree) => aConfirmer?.has(critere.nom) === true
+
+  /**
+   * T-134 (P12/S9) — affordance « Indisponible » sur un champ DÉCISIF, à côté du marqueur « · à
+   * confirmer » : le praticien y déclare qu'il ne renseignera jamais ce critère (« je ne l'aurai pas »,
+   * recette du 02/08, N7). GÉNÉRIQUE PAR `aConfirmer` (tous types confondus, comme le marqueur lui-même,
+   * A8) — pas restreint au `nombre` : contrairement à un `bool` ordinaire, dont le « non » par défaut EST
+   * déjà une réponse clinique (D20), un `bool`/`liste` DÉCISIF encore `à confirmer` porte la MÊME
+   * incertitude qu'un `nombre`/`enum` non saisi (aucune présomption ne s'applique, sinon il ne serait pas
+   * dans `aConfirmer`) — la même impossibilité de dire « je ne sais pas » s'y pose donc identiquement.
+   *
+   * TOGGLE, pas une déclaration à sens unique : un second clic sur la mention DÉJÀ déclarée annule (même
+   * `onDeclarerIndisponible`, cf. sa docstring) — une correction de saisie ne doit jamais être définitive.
+   *
+   * Une fois déclaré, `aConfirmer` reçu ICI ne contient plus ce nom (`decisifsAConfirmer` l'exclut déjà,
+   * `lib/formLayout.ts`) : `estAConfirmer` redevient donc `false`, ce qui suffit à faire disparaître le
+   * marqueur ambre « · à confirmer » sans aucune logique supplémentaire ici — seule la mention « ·
+   * indisponible » (ci-dessous) reste affichée, portée par `indisponibles` et non par `aConfirmer`.
+   *
+   * `null` si ni décisif-non-confirmé, ni déjà déclaré (rien à montrer), ou si l'appelant n'a pas fourni
+   * `onDeclarerIndisponible` (rétro-compatible, comme `onConfirmerChamps`).
+   */
+  const renderIndisponible = (critere: CritereEntree) => {
+    if (!onDeclarerIndisponible) return null
+    const declare = indisponibles?.has(critere.nom) === true
+    if (!declare && !estAConfirmer(critere)) return null
+    return (
+      <button
+        type="button"
+        className={
+          declare ? 'criteria-form__field-indisponible-tag' : 'criteria-form__field-indisponible-bouton'
+        }
+        onClick={() => onDeclarerIndisponible(critere.nom)}
+        title={declare ? 'Redemander ce critère' : 'Ce critère restera inconnu : cesser de le réclamer'}
+      >
+        {declare ? '· indisponible' : 'Indisponible'}
+      </button>
+    )
+  }
 
   /** Ce champ commande-t-il l'affichage d'autres champs, et attend-il encore sa réponse ? (A7) */
   const estPilote = (critere: CritereEntree) => pilotes.has(critere.nom) && !touched.has(critere.nom)
@@ -409,16 +517,21 @@ export function CriteriaForm({
           )}
         </label>
       )
-      // SANS aide : le `<label>` est rendu TEL QUEL, enfant direct de la grille — aucun changement de
-      // structure pour les dizaines de booléens du domaine qui n'en portent pas. L'enveloppe n'existe que
-      // là où il y a quelque chose à envelopper.
-      if (!critere.aide) return champ
+      // T-134 (P12/S9) — même raison que l'aide juste au-dessus : l'affordance « Indisponible » DOIT
+      // rester HORS du `<label>`, sinon cliquer dessus cocherait la case (le `<label>` propage le clic à
+      // son `<input>` associé) — exactement le défaut que le commentaire ci-dessus évite déjà pour l'aide.
+      const indisponible = renderIndisponible(critere)
+      // SANS aide NI affordance indisponible : le `<label>` est rendu TEL QUEL, enfant direct de la
+      // grille — aucun changement de structure pour les dizaines de booléens du domaine qui n'en portent
+      // pas/ne sont pas décisifs. L'enveloppe n'existe que là où il y a quelque chose à envelopper.
+      if (!critere.aide && !indisponible) return champ
       // Enveloppe SANS style propre au-delà de l'occupation de grille (`--avec-aide`) : elle ne doit pas
       // ajouter un second cadre autour du `<label>`, qui porte déjà le sien.
       return (
         <div key={critere.nom} className="criteria-form__avec-aide">
           {champ}
           {renderAide(critere)}
+          {indisponible}
         </div>
       )
     }
@@ -449,6 +562,7 @@ export function CriteriaForm({
               {labelForCritere(critere.nom)}
               {pilote && <span className="criteria-form__field-pilote"> · détermine la suite</span>}
               {confirmer && <span className="criteria-form__field-todo"> · à confirmer</span>}
+              {renderIndisponible(critere)}
               {renderOrigine(critere)}
               {renderDetailPastille(critere)}
             </div>
@@ -506,6 +620,7 @@ export function CriteriaForm({
             {pilote && <span className="criteria-form__field-pilote"> · détermine la suite</span>}
             {dim && moteurADeQuoiJuger && <span className="criteria-form__field-note"> · sans effet sur la reco actuelle</span>}
             {confirmer && <span className="criteria-form__field-todo"> · à confirmer</span>}
+            {renderIndisponible(critere)}
             {renderOrigine(critere)}
             {renderDetailPastille(critere)}
           </div>
@@ -776,6 +891,13 @@ export function CriteriaForm({
             {estOuvert ? (
               <>
                 <div className="criteria-form__grid">{groupe.champs.map(renderChamp)}</div>
+
+                {/* T-133 (P12/S8) : valeur(s) calculée(s) des critères DÉRIVÉS numériques de CETTE section
+                    (même `groupe` que leurs opérandes, cf. docstring de `derivesNumeriques`) — rendues
+                    APRÈS la grille des champs saisissables, jamais MÊLÉES à elle (ce ne sont pas des champs). */}
+                {derivesNumeriques
+                  .filter((d) => (d.groupe ?? undefined) === groupe.libelle)
+                  .map(renderValeurCalculee)}
 
                 {afficherPiedDeSection && (
                   <div className="criteria-form__group-footer">

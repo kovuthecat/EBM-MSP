@@ -1,4 +1,4 @@
-import { useId, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { Icon } from '../../shared/icons/Icon'
 import { EvidenceBadge } from '../../shared/badges/EvidenceBadge'
 import { PastilleInfo } from '../../shared/ui/PastilleInfo'
@@ -80,6 +80,27 @@ interface OptionCardProps {
    * sans contre-indication — le pire des deux mondes pour un fait de sécurité.
    */
   contreIndications?: ContreIndicationEvaluee[]
+  /**
+   * Vrai QUAND CETTE CARTE EST LA SEULE RENDUE SUR L'ÉCRAN (P12/S10, T-136, arbitrage référent du
+   * 2026-08-02, point 4). LA CARTE NE LE SAIT PAS PAR ELLE-MÊME — elle ne voit ni ses sœurs ni le nœud :
+   * l'appelant (`screens/DecisionNodeScreen.tsx`) compte les options EFFECTIVEMENT AFFICHÉES
+   * (`optionsRenduesCount`, T-113 — `partitionAffichage.principales` aplati, PAS `vue.familles` en
+   * entier : une carte reléguée derrière « Autres pistes possibles (N) » ne compte pas comme visible) et
+   * transmet le résultat de cette comparaison, jamais un nom de nœud (invariant CLAUDE.md 5).
+   *
+   * EFFET : le panneau `--argumentaire` (effet attendu, délai, avantages/inconvénients — c'est là que
+   * vit la phrase EBM que P11 a mise derrière le chevron, cf. `panneauOuvert` ci-dessous) s'ouvre PAR
+   * DÉFAUT au lieu de `null`. Le chevron reste utilisable pour le replier : ceci ne change que l'ÉTAT
+   * INITIAL d'un `useState`, jamais le mécanisme d'un seul panneau ouvert à la fois (D45, non révoqué).
+   * UN `useEffect` RESYNCHRONISE cet état à CHAQUE CHANGEMENT de valeur de cette prop (pas seulement au
+   * montage) : un formulaire qui se remplit progressivement peut faire passer la même carte (même
+   * `key`) de seule à accompagnée sans la démonter — sans cette resynchronisation, un panneau ouvert au
+   * moment « seule » restait ouvert pour toujours, même après que d'autres cartes soient apparues.
+   *
+   * Défaut `false` : tout appelant qui ne transmet pas cette prop (les bancs de test, un futur
+   * consommateur) obtient exactement le comportement d'avant cette session — quatre panneaux fermés.
+   */
+  carteUnique?: boolean
 }
 
 /**
@@ -159,6 +180,15 @@ type PanneauNom = 'pourquoi' | 'posologie' | 'ci' | 'argumentaire'
  * ouvrir une pastille referme la précédente, sinon la carte « une ligne » redevient une carte haute dès
  * trois clics — exactement ce que cette refonte visait à corriger.
  *
+ * EXCEPTION D'ÉTAT INITIAL (P12/S10, T-136, arbitrage référent du 2026-08-02, point 4) : quand la prop
+ * `carteUnique` est vraie — cette carte est la SEULE rendue sur l'écran de son nœud — `panneauOuvert`
+ * démarre sur `'argumentaire'` au lieu de `null`. Ça ne révoque ni D45 ni la règle ci-dessus (toujours un
+ * seul panneau ouvert, le chevron replie toujours) : seul l'état de DÉPART change, pour un cas où il n'y
+ * a aucune concurrence de place entre cartes (il n'y en a qu'une). C'est la régression P11 signalée en
+ * recette (N2, « Fixer la cible ») : l'argument EBM (`effet_attendu`) vivait avant la refonte directement
+ * sur la carte, la refonte l'a mis derrière le même chevron que sur un écran à cinq cartes — là où le
+ * budget d'espace qui justifiait le repli n'existe pas, puisqu'il n'y a qu'une carte à montrer.
+ *
  * `PastilleInfo` (P11/S3) NE CONNAÎT QUE `ton="neutre"|"danger"` — suffisant pour la pastille CI
  * (`danger` ssi une contre-indication n'est pas levée). La pastille POSOLOGIE a besoin d'un registre
  * AMBRE (« il manque une dose ») qui n'existe pas encore sur ce composant : le détail du contournement
@@ -180,8 +210,9 @@ type PanneauNom = 'pourquoi' | 'posologie' | 'ci' | 'argumentaire'
  * contre-indications (tous états) vivent dans `.option-card__panneau--ci`, que les alertes d'option et
  * rien d'autre ne vit dans le socle, que les doses vivent dans `.option-card__panneau--posologie`, que
  * « Proposé parce que » vit dans `.option-card__panneau--pourquoi`, que les quatre panneaux sont fermés
- * par défaut, et qu'une contre-indication non levée fait apparaître une pastille de ton `danger` dans la
- * rangée.
+ * par défaut SANS `carteUnique`, et qu'une contre-indication non levée fait apparaître une pastille de
+ * ton `danger` dans la rangée. Complété par P12/S10 (T-136) : un second bloc du même fichier couvre le
+ * cas `carteUnique` — `--argumentaire` seul ouvert par défaut, les trois autres restent fermés.
  *
  * SUITE T-068 (P9, 2026-07-30) — UNE CONTRE-INDICATION PEUT SE TAIRE. Le contenu peut attacher une
  * `condition` (même DSL qu'`exclusions`) à une contre-indication vérifiable ; l'état qui en résulte
@@ -215,6 +246,7 @@ export function OptionCard({
   motifRang,
   alertes,
   contreIndications,
+  carteUnique = false,
 }: OptionCardProps) {
   const classeCarte = [
     'option-card',
@@ -265,8 +297,25 @@ export function OptionCard({
   const idPosologie = `${idBase}-posologie`
   const idCi = `${idBase}-ci`
   const idArgumentaire = `${idBase}-argumentaire`
-  const [panneauOuvert, setPanneauOuvert] = useState<PanneauNom | null>(null)
+  // ÉTAT INITIAL (P12/S10, T-136) : `'argumentaire'` quand cette carte est seule sur son écran
+  // (`carteUnique`, cf. docstring de la prop) — c'est là que vit la phrase EBM que P11 avait mise
+  // derrière le chevron. `null` dans tous les autres cas, comportement inchangé depuis P11/S6.
+  const [panneauOuvert, setPanneauOuvert] = useState<PanneauNom | null>(carteUnique ? 'argumentaire' : null)
   const togglePanneau = (nom: PanneauNom) => setPanneauOuvert((actuel) => (actuel === nom ? null : nom))
+
+  // RESYNCHRONISATION SUR CHANGEMENT DE `carteUnique` (P12/S10, T-136 — bug trouvé au navigateur, pas
+  // par le banc de test : `useState(carteUnique ? …)` ne fixe qu'un état INITIAL, lu une seule fois au
+  // montage). Sur un formulaire qui se remplit progressivement, la MÊME carte (même `key`, cf.
+  // `DecisionNodeScreen.tsx`) peut d'abord être seule à l'écran puis rejointe par d'autres — vérifié en
+  // conditions réelles sur `prescription` (« Metformine — instaurer ou poursuivre » : seule carte après
+  // l'étape « orientation », rejointe par trois autres après « terrain »). Sans cet effet, son panneau
+  // `--argumentaire` restait ouvert pour toujours, la carte perdant la compacité de D45 dès qu'elle
+  // cessait d'être seule. Ne s'exécute QUE quand `carteUnique` change de valeur (tableau de dépendances)
+  // — jamais sur un simple re-rendu à `carteUnique` inchangé, donc jamais sur un repli manuel de
+  // l'utilisateur (clic sur le chevron) pendant que la carte reste seule.
+  useEffect(() => {
+    setPanneauOuvert(carteUnique ? 'argumentaire' : null)
+  }, [carteUnique])
 
   return (
     <div className={classeCarte}>

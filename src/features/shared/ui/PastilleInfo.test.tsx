@@ -10,6 +10,14 @@
  *
  * Aucun test ne mesure le CSS (media query `hover`/`pointer`, positionnement `right: 0`) : jsdom n'a pas
  * de moteur de rendu, cf. `/verif-visuelle` pour la vérification visuelle (checklist Mode B).
+ *
+ * T-128 (P12/S7) — la bulle de survol et le panneau affichaient le même texte en double au clic (le focus
+ * ouvre la bulle EN PLUS du panneau). Corrigé côté CSS seul (`PastilleInfo.css`,
+ * `.pastille-info[aria-expanded='true'] .pastille-info__bulle { display: none }`) : le bouton portait déjà
+ * `aria-expanded`, verrouillé par le test « `ouvert: true` → aria-expanded="true" » ci-dessous — c'est
+ * exactement l'attribut dont dépend le correctif CSS, donc ce test existant EST le test de non-régression
+ * du contrat qui rend T-128 possible (si `aria-expanded` cessait de refléter `ouvert`, la bulle cesserait de
+ * s'effacer). Aucun nouveau test jsdom : le rendu visuel reste hors de portée de jsdom (cf. ci-dessus).
  */
 import { cleanup, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'

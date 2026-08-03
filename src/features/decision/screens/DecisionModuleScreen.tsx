@@ -56,7 +56,8 @@ export function DecisionModuleScreen({ moduleId, go }: DecisionModuleScreenProps
       <div className="decision-module__primer-question">{module.primer.question}</div>
       <p className="decision-module__primer-note">
         Cette question oriente, elle ne verrouille rien : les deux axes restent ouverts, dans l'ordre
-        que vous voulez, et rien de ce qui est saisi dans l'un n'est repris dans l'autre.
+        que vous voulez, et leurs conseils respectifs ne se mélangent jamais. Les critères de terrain déjà
+        renseignés ailleurs dans cette consultation peuvent, eux, pré-remplir certains champs communs.
       </p>
 
       <section className="decision-module__orientations">

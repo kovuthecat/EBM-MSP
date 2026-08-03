@@ -202,6 +202,44 @@ describe('decisifsAConfirmer — le contenu réel du nœud `prescription`', () =
     expect(decisifsAConfirmer(node.criteres_entree, criteria, pertinents, pertinents)).toEqual([])
   })
 
+  /**
+   * T-134 (P12/S9) — recette du 02/08, N7 : l'albuminurie manque au dossier de l'EHPAD et n'y sera
+   * jamais. `indisponibles` (5ᵉ paramètre, optionnel) doit exclure un nom de la liste réclamée SANS rien
+   * changer d'autre — PUREMENT SOUSTRACTIF, jamais une reconstruction du filtre. Le critère lui-même
+   * reste NON déterminé pour le moteur (R7/D20) : ce test ne porte QUE sur ce que l'écran RÉCLAME, jamais
+   * sur `touched`/`effectifs`, qui ne reçoivent jamais `indisponibles` (cf. la docstring de la fonction).
+   */
+  it("exclut un critère déclaré INDISPONIBLE de la liste réclamée, sans rien changer d'autre", () => {
+    const criteria = profil({ intention: 'initier' })
+    const pertinents = criteresPertinents(node, criteria)
+    const vide = new Set<string>()
+    const sansDeclaration = decisifsAConfirmer(node.criteres_entree, criteria, vide, pertinents)
+    // Précondition du test : sur ce profil, l'albuminurie est bien décisive et non confirmée — sans quoi
+    // ce test ne prouverait rien (cf. `CriteriaForm.test.tsx`, qui utilise la même variable comme exemple
+    // d'enum décisif).
+    expect(sansDeclaration).toContain('albuminurie')
+
+    const avecDeclaration = decisifsAConfirmer(
+      node.criteres_entree,
+      criteria,
+      vide,
+      pertinents,
+      new Set(['albuminurie']),
+    )
+    expect(avecDeclaration).not.toContain('albuminurie')
+    // PUREMENT SOUSTRACTIF : le reste de la liste est BYTE À BYTE identique, rien d'autre ne bouge.
+    expect(avecDeclaration).toEqual(sansDeclaration.filter((nom) => nom !== 'albuminurie'))
+  })
+
+  it('sans 5ᵉ paramètre, le comportement est STRICTEMENT inchangé (non-régression, T-134)', () => {
+    const criteria = profil({ intention: 'initier' })
+    const pertinents = criteresPertinents(node, criteria)
+    const vide = new Set<string>()
+    expect(decisifsAConfirmer(node.criteres_entree, criteria, vide, pertinents)).toEqual(
+      decisifsAConfirmer(node.criteres_entree, criteria, vide, pertinents, undefined),
+    )
+  })
+
   it("masque bien les traitements en cours à l'initiation, et les montre sinon", () => {
     const visibles = (criteria: Criteria) =>
       grouperChamps(node.criteres_entree, criteria).flatMap((g) => g.champs.map((c) => c.nom))

@@ -336,12 +336,22 @@ export function champsVisibles(
  * estompé et bloquant, sans issue pour l'utilisateur. En dérivant réclamé ET estompé de la MÊME source
  * (`pertinents`), la contradiction devient impossible par construction ; le filtre de visibilité ajoute
  * la seconde impasse à éviter (réclamer un champ que l'écran n'affiche pas).
+ *
+ * `indisponibles` (T-134, P12/S9, optionnel) — critères que le praticien a déclarés « je ne l'aurai
+ * pas » (recette du 02/08, N7 : l'albuminurie manque au dossier de l'EHPAD et n'y sera jamais). PUREMENT
+ * SOUSTRACTIF, et volontairement HORS MOTEUR : ce paramètre ne touche ni `touched`, ni `effectifs`
+ * ci-dessous — un nom qui y figure reste NON DÉTERMINÉ pour `determinesEffectifs`/`evaluateCondition`
+ * exactement comme avant (R7/D20, aucune option ne peut donc changer par ce geste). Il est retiré
+ * seulement de la LISTE renvoyée ici, celle que l'écran lit pour compter « à confirmer » et marquer le
+ * champ — c'est la distinction que la recette réclamait : le critère cesse d'être RÉCLAMÉ sans jamais
+ * devenir RENSEIGNÉ. Absent (repli) : comportement RIGOUREUSEMENT INCHANGÉ, comme le reste de ce fichier.
  */
 export function decisifsAConfirmer(
   criteresEntree: CritereEntree[],
   criteria: Criteria,
   touched: ReadonlySet<string>,
   pertinents: ReadonlySet<string> | undefined,
+  indisponibles?: ReadonlySet<string>,
 ): string[] {
   if (!pertinents) return []
   // `touched` PASSÉ COMME `renseignes` (correctif du 2026-07-27, cause racine S3). Cet appel omettait
@@ -372,5 +382,7 @@ export function decisifsAConfirmer(
   // même code, pas deux copies qui pourraient un jour différer.
   const derives = calculerCriteresDerives(criteresEntree, criteria)
   const effectifs = determinesEffectifs(criteresEntree, derives, touched) ?? new Set<string>()
-  return [...pertinents].filter((nom) => !effectifs.has(nom) && visibles.has(nom))
+  return [...pertinents].filter(
+    (nom) => !effectifs.has(nom) && visibles.has(nom) && indisponibles?.has(nom) !== true,
+  )
 }

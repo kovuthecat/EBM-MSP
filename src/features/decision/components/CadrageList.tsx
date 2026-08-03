@@ -27,9 +27,18 @@ export function CadrageList({ cadrage }: CadrageListProps) {
   // état géré par le navigateur, accessibilité clavier/lecteur d'écran acquise sans code). Le contenu
   // reste TOUJOURS présent dans le DOM (replié ≠ absent) : rien n'est perdu, seule la mise en avant
   // change — même principe que le dépli du panneau « en attente » (B2, `lib/prioritesSaisie.ts`).
+  //
+  // ACCROCHE CHIFFRÉE (P12/S10, T-135, arbitrage référent du 2026-08-02, point 1) : un `<summary>`
+  // générique ne donnait au praticien aucune raison d'ouvrir un bloc qu'il n'ouvre jamais — la recette du
+  // 02/08 (N15) notait que la liste repliée était « exactement » ce qui le faisait hésiter, mais qu'il ne
+  // savait pas qu'elle était là. Le compte est DÉRIVÉ de `cadrage.length` (jamais écrit en dur) : un
+  // libellé qui annoncerait un nombre faux serait pire qu'un titre générique. Toujours ≥ 1 ici (le early
+  // return ci-dessus élimine le cas vide, donc jamais de « 0 position »).
+  const nombre = cadrage.length
+  const libelle = `Ce que dit la preuve — ${nombre} position${nombre > 1 ? 's' : ''} de lecture`
   return (
-    <details className="cadrage-list" aria-label="Ce que dit la preuve pour ce nœud">
-      <summary className="cadrage-list__summary">Ce que dit la preuve pour ce nœud</summary>
+    <details className="cadrage-list" aria-label={libelle}>
+      <summary className="cadrage-list__summary">{libelle}</summary>
       {cadrage.map((enonce, index) => (
         <p className="cadrage-list__item" key={`${index}-${enonce.slice(0, 24)}`}>
           {enonce}

@@ -34,12 +34,18 @@ import './DecisionNodeScreen.css'
  * Seuil JS « écran étroit » (P11/S7, T-114) — extrait des deux appels `matchMedia` ci-dessous, qui
  * l'écrivaient chacun en dur. TROIS copies de ce seuil coexistent dans le repo et NE PEUVENT PAS devenir
  * une seule source : une custom property CSS (`tokens.css`) est interdite dans une `@media` (S1), donc
- * `DecisionNodeScreen.css` garde ses deux valeurs littérales — `@media (min-width: 960px)` (l.31) et
- * `@media (max-width: 959px)` (l.64). Cette constante est la troisième copie, côté JS ; le commentaire de
+ * `DecisionNodeScreen.css` garde ses deux valeurs littérales — `@media (min-width: 1200px)` (l.36) et
+ * `@media (max-width: 1199px)` (l.69). Cette constante est la troisième copie, côté JS ; le commentaire de
  * tête de `tokens.css` explique pourquoi la CSS n'est pas centralisable. **Les trois valeurs doivent
  * changer ENSEMBLE** — un seul endroit modifié sans les deux autres recrée l'incohérence que T-114 corrige.
+ *
+ * Remonté de 959/960 à 1199/1200 (P12/S3, T-123, D47) : remesure sur les intitulés raccourcis par S2
+ * (nœud `prescription`, 4 cartes) — la zone 1000-1100px est la seule où la grille à deux colonnes fait
+ * encore déborder un titre de carte sur plusieurs lignes (0/4 puis 2/4 cartes sur une ligne), alors que
+ * l'empilé (< seuil) et le large (≥ 1280px) tiennent déjà 4/4. 1200 fait passer toute cette zone dans le
+ * régime empilé, où la colonne résultats a la pleine largeur de l'écran plutôt que la moitié d'une grille.
  */
-export const LARGEUR_ETROITE_MAX = 959
+export const LARGEUR_ETROITE_MAX = 1199
 
 interface DecisionNodeScreenProps {
   nodeId: string | undefined
@@ -84,6 +90,26 @@ function compterOptions(familles: readonly FamilleVue[]): number {
     (total, famille) => total + famille.groupes.reduce((sousTotal, groupe) => sousTotal + groupe.length, 0),
     0,
   )
+}
+
+/**
+ * T-134 (P12/S9) — phrase de LOYAUTÉ : la reco a été rendue SANS les critères que le praticien a
+ * déclarés indisponibles (« je ne l'aurai pas », recette du 02/08, N7 : l'albuminurie manque au dossier
+ * de l'EHPAD et n'y sera jamais). RÉUTILISE LE REGISTRE du bloc de cadrage plutôt que d'inventer un ton
+ * nouveau (D24, `content/decision/noeuds/diabete-type-2/prescription.yaml` § cadrage : « une option
+ * "Recommandée" ne les a pas évalués, c'est au praticien de le faire ») — même assertion, appliquée ici à
+ * un critère précis plutôt qu'à un pan entier hors périmètre du nœud.
+ *
+ * GÉNÉRIQUE (D8) : `labels` vient de `labelForCritere`, comme partout ailleurs dans cet écran — aucun nom
+ * de critère connu d'avance. `undefined` si rien à dire (aucune déclaration), pour que l'appelant décide
+ * de ne rien rendre plutôt que de tester une chaîne vide.
+ */
+function texteIndisponibles(labels: readonly string[]): string | undefined {
+  if (labels.length === 0) return undefined
+  const liste = labels.join(', ')
+  return labels.length === 1
+    ? `Recommandation rendue sans le critère ${liste} : vous avez indiqué ne pas l'avoir. Il n'a pas été évalué, c'est au praticien de le faire.`
+    : `Recommandation rendue sans les critères ${liste} : vous avez indiqué ne pas les avoir. Ils n'ont pas été évalués, c'est au praticien de le faire.`
 }
 
 /** Ordre fixe de la légende (T-112) — celui de l'énumération `ActionOption` (`content/node.types.ts`),
@@ -198,6 +224,15 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
         )
       : new Set(),
   )
+  // T-134 (P12/S9) — critères DÉCISIFS que le praticien a déclarés « je ne l'aurai pas » (recette du
+  // 02/08, N7 : l'albuminurie manque au dossier de l'EHPAD et n'y sera jamais). ENSEMBLE PUREMENT
+  // D'ÉCRAN, JAMAIS FUSIONNÉ à `touched`/`preremplis`/`criteresRenseignes` : il n'est transmis NULLE PART
+  // comme `renseignes` (`construireVueDecision`/`criteresPertinents`/`contraintesViolees` ne le reçoivent
+  // jamais) — le critère reste NON DÉTERMINÉ pour le moteur exactement comme avant (R7/D20). Il n'est lu
+  // QUE par `decisifsAConfirmer` (pour cesser de RÉCLAMER le champ) et par le rendu de cet écran (mention
+  // de loyauté sur la reco, filtrage du cartouche EN ATTENTE, plus bas) : DÉCLARER QU'ON NE SAIT PAS NE
+  // PRODUIT JAMAIS UN SAVOIR, donc aucune option ne peut bouger par ce seul geste.
+  const [indisponibles, setIndisponibles] = useState<Set<string>>(() => new Set())
   const [argOpen, setArgOpen] = useState(false)
   // R4 (`docs/decision/GRAMMAIRE-NOEUD.md`) : les options NON RETENUES (faute de condition) sont une
   // information d'EXPLICATION, consultée sur demande — fermée par défaut, jamais poussée à l'écran
@@ -327,13 +362,34 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   // plus être simultanément « sans effet » et exigé. Calculé sur la MÊME source différée que `pertinents`
   // (`criteriaDiffere`, pas `criteria`) : sinon la visibilité (immédiate) et la pertinence (temporisée)
   // pourraient transitoirement se contredire (ex. un champ tout juste démasqué mais pas encore réévalué).
+  // T-134 : `indisponibles` transmis en 5ᵉ paramètre — PUREMENT SOUSTRACTIF (cf. sa docstring dans
+  // `lib/formLayout.ts`), ne change RIEN à `criteresRenseignes`/`effectifs` calculés à l'intérieur.
   const decisifsManquants = useMemo(
-    () => decisifsAConfirmer(node?.criteres_entree ?? [], criteriaDiffere, criteresRenseignes, pertinents),
-    [node, criteriaDiffere, criteresRenseignes, pertinents],
+    () => decisifsAConfirmer(node?.criteres_entree ?? [], criteriaDiffere, criteresRenseignes, pertinents, indisponibles),
+    [node, criteriaDiffere, criteresRenseignes, pertinents, indisponibles],
+  )
+
+  // T-134 (P12/S9) — phrase de loyauté (cf. `texteIndisponibles` en tête de fichier) : `undefined` tant
+  // qu'aucun critère n'est déclaré indisponible sur CE nœud (repli historique implicite, rien ne change
+  // pour une session qui n'utilise pas ce geste).
+  const mentionIndisponibles = useMemo(
+    () => texteIndisponibles([...indisponibles].map(labelForCritere)),
+    [indisponibles],
+  )
+
+  // T-134 — LA MÊME liste `vue.enAttente` (le moteur, jamais touché : les options qui y figurent restent
+  // EXACTEMENT celles qu'`evaluateNode` a tranchées EN ATTENTE), mais chaque `manquants` amputé des
+  // critères déclarés indisponibles — c'est CE QU'ON RÉCLAME au praticien qui change, jamais ce qui est
+  // proposé/écarté/en attente. `vue.enAttente.length`/`.option` restent lus sur `vue` BRUT partout ailleurs
+  // (titre du cartouche, compte du dépli) : seule la liste de critères NOMMÉS dans le corps du bloc passe
+  // par cette version filtrée.
+  const enAttenteAffichable = useMemo(
+    () => (vue ? vue.enAttente.map((e) => ({ ...e, manquants: e.manquants.filter((nom) => !indisponibles.has(nom)) })) : []),
+    [vue, indisponibles],
   )
 
   // P6/SB1 — DEUX COLONNES (formulaire à gauche, résultats sticky à droite sur écran large, empilés en
-  // dessous de 960px). `isNarrow` PILOTE UNIQUEMENT LA MISE EN PAGE (bouton flottant, cf. plus bas) —
+  // dessous de 1200px, cf. D47). `isNarrow` PILOTE UNIQUEMENT LA MISE EN PAGE (bouton flottant, cf. plus bas) —
   // aucune des règles D30/D31/D32/D25/T-024 ne lit cet état : elles restent décidées par `vue`/
   // `violations` seuls, inchangés par cette session. `matchMedia` plutôt qu'un listener `resize` brut
   // (repris de la maquette `design/maquettes/Maquette upgrade UI.zip`, script du nœud `prescription`) :
@@ -344,7 +400,8 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   // rendu (`TypeError: window.matchMedia is not a function`), bien avant la moindre assertion sur
   // D30/D31/D32/D25/T-024. Repli à `false` (écran large) : c'est le comportement historique, celui que
   // ces tests vérifiaient déjà avant cette session. Seuil `LARGEUR_ETROITE_MAX` (T-114) : la constante
-  // exportée en tête de fichier, plutôt que `959` en dur ici comme avant cette session.
+  // exportée en tête de fichier, plutôt que `959` (aujourd'hui `1199`, D47) en dur ici comme avant cette
+  // session.
   const supportsMatchMedia = typeof window !== 'undefined' && typeof window.matchMedia === 'function'
   const [isNarrow, setIsNarrow] = useState(() =>
     supportsMatchMedia ? window.matchMedia(`(max-width: ${LARGEUR_ETROITE_MAX}px)`).matches : false,
@@ -485,6 +542,16 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
         return suivant
       })
     }
+    // T-134 : une déclaration « je ne l'aurai pas » cesse d'avoir un objet dès qu'une VRAIE valeur est
+    // saisie sur ce même champ — sans ce retrait, la mention « · indisponible » resterait affichée à côté
+    // d'une réponse désormais réelle (contradiction visuelle, jamais rencontrée jusqu'ici).
+    if (indisponibles.has(nom)) {
+      setIndisponibles((previous) => {
+        const suivant = new Set(previous)
+        suivant.delete(nom)
+        return suivant
+      })
+    }
     // K6 : mémoriser APRÈS coup, sur l'état déjà nettoyé — un champ que ce changement vient de masquer
     // ne doit pas partir en session avec la valeur qu'il avait juste avant d'être remis à zéro.
     memoriserCriteres(node.criteres_entree, avecPrerempli, touchedApres)
@@ -527,6 +594,16 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
       for (const nom of noms) suivant.add(nom)
       return suivant
     })
+    // T-134 : même retrait que `handleCriteriaChange` — un drapeau confirmé « Rien à signaler » cesse
+    // d'être « déclaré indisponible » s'il l'était (cas rare : le praticien avait cliqué « Indisponible »
+    // sur ce champ AVANT de solder toute la section d'un coup).
+    if (noms.some((nom) => indisponibles.has(nom))) {
+      setIndisponibles((previous) => {
+        const suivant = new Set(previous)
+        for (const nom of noms) suivant.delete(nom)
+        return suivant
+      })
+    }
 
     // T-061 (Étape 5) — « Rien à signaler » ne passe PAS par `handleCriteriaChange` : sans ce relais, la
     // suggestion d'`esperance_vie` restait muette quand `fragilite`/`comorbidite_grave`/`antecedent_cv`
@@ -546,29 +623,50 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   }
 
   /**
-   * T-057 x T-061 (P8 · S2, correctif recette 2026-07-30 §Scénario A/C, « signalé, non corrigé ») —
-   * « Reprendre les valeurs de ce patient » lève la frontière SANS jamais relancer la suggestion
-   * d'espérance de vie : le clic ne passait ni par `handleCriteriaChange` ni par `handleConfirmerChamps`
-   * — les deux SEULS chemins qui déclenchaient T-061 avant ce correctif — alors que `criteria` porte déjà,
-   * depuis l'initialisation de l'état (`reprises`/`valeursReprises`, en tête de composant), les valeurs
-   * reprises des drivers (`age`, `fragilite`, `comorbidite_grave`, `antecedent_cv`). `esperance_vie`
-   * repartait donc « à confirmer » pour un patient dont l'âge et la fragilité étaient pourtant déjà
-   * connus. `repris` sert de `nomsChanges` à `suggestionEsperanceVieSiApplicable` : ce sont exactement les
-   * critères dont la valeur vient de « changer » par ce geste — les mêmes noms qu'aurait vus
-   * `handleCriteriaChange` si le praticien les avait retapés un par un sur cet écran. Le garde-fou
-   * habituel s'applique intact : si `esperance_vie` fait elle-même partie des critères repris (choisie à
-   * la main sur un nœud précédent, donc déjà dans `touched`), rien n'est recalculé — une reprise EST un
-   * choix du praticien (D28), jamais écrasée.
+   * T-134 (P12/S9) — le praticien déclare qu'un critère DÉCISIF restera inconnu (« je ne l'aurai pas »,
+   * recette du 02/08, N7). TOGGLE (un second clic annule) : `CriteriaForm.tsx` `renderIndisponible`
+   * rappelle CE MÊME handler que le champ porte déjà la mention ou non.
+   *
+   * NE TOUCHE JAMAIS `criteria`/`touched`/`criteresRenseignes` : `indisponibles` est un ensemble
+   * SÉPARÉ, jamais fusionné à `renseignes` nulle part dans ce fichier (cf. sa docstring de déclaration,
+   * ci-dessus) — le critère reste NON DÉTERMINÉ pour `construireVueDecision`/`criteresPertinents`
+   * exactement comme avant ce clic (R7/D20). Seul `decisifsAConfirmer` (banni­ère « Reco provisoire ») et
+   * le rendu du cartouche EN ATTENTE, plus bas, en tiennent compte — jamais le moteur : AUCUNE option ne
+   * peut donc changer par ce geste, seul ce qu'on RÉCLAME encore change.
+   */
+  const handleDeclarerIndisponible = (nom: string) => {
+    setIndisponibles((previous) => {
+      const suivant = new Set(previous)
+      if (suivant.has(nom)) suivant.delete(nom)
+      else suivant.add(nom)
+      return suivant
+    })
+  }
+
+  /**
+   * « Reprendre les valeurs de ce patient » lève la frontière de re-entrée (D28) — ET NE RECALCULE PLUS
+   * `esperance_vie`, VOLONTAIREMENT, depuis P12/S1 (2026-08-02).
+   *
+   * ⚠ CE COMMENTAIRE REMPLACE UNE VERSION ANTÉRIEURE OÙ CE CLIC RELANÇAIT LA SUGGESTION (T-057 x T-061,
+   * P8 · S2, 2026-07-30) — cf. `esperanceVieDefault.ts`, docstring de `suggestionEsperanceVieSiApplicable`,
+   * pour l'historique complet des DEUX défauts successifs sur ce mécanisme. En résumé : recalculer à
+   * partir des drivers REPRIS peut faire changer SILENCIEUSEMENT une suggestion déjà affichée, dès qu'un
+   * driver ne porte pas `partage: true` (le cas réel d'`antecedent_cv`/`comorbidite_grave` sur
+   * `cible-glycemique` — ils reviennent alors à leur défaut `false` après une ré-entrée, sans qu'aucune
+   * réponse n'ait changé). Une garde de complétude sur les drivers a été essayée puis retirée : elle ne
+   * pouvait jamais être satisfaite sur CE nœud (`presomption_non: true` sur ces deux critères — un `bool`
+   * présumé est déterminé sans jamais être `touched`) et cassait AUSSI `handleCriteriaChange`/
+   * `handleConfirmerChamps`, qui n'amputent pourtant aucun dossier.
+   *
+   * LE REMÈDE : ne plus recalculer sur ce chemin, point. `esperance_vie` reste « à confirmer » après une
+   * reprise — le champ vide, le praticien répond directement sur CE nœud (`handleCriteriaChange`/
+   * `handleConfirmerChamps`, jamais touchés par ce retrait) — plutôt qu'une valeur qui pourrait avoir
+   * changé sans un mot. Compromis assumé : un patient dont TOUS les drivers étaient repris ne voit plus
+   * la suggestion pré-remplie automatiquement à la ré-ouverture (perte réelle par rapport à T-057 x
+   * T-061) ; la sûreté (jamais de valeur qui change en silence) l'emporte sur ce confort.
    */
   const handleReprendreValeurs = () => {
     setFrontiereLevee(true)
-    const suggestion = suggestionEsperanceVieSiApplicable(node.criteres_entree, criteria, touched.has('esperance_vie'), [
-      ...repris,
-    ])
-    if (suggestion !== undefined) {
-      setCriteria((previous) => ({ ...previous, esperance_vie: suggestion }))
-      setPreremplis((previous) => new Set(previous).add('esperance_vie'))
-    }
   }
 
   /**
@@ -593,6 +691,7 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
     setTouched(new Set())
     setRepris(new Set())
     setPreremplis(new Set())
+    setIndisponibles(new Set())
     setFrontiereLevee(false)
   }
 
@@ -661,8 +760,8 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
         </div>
       ) : (
         <>
-          {/* P6/SB1 — DEUX COLONNES génériques (formulaire à gauche, résultats sticky à droite ≥ 960px ;
-              empilées en dessous, cf. CSS). Le moteur produit `familles`/`groupes` de façon identique
+          {/* P6/SB1 — DEUX COLONNES génériques (formulaire à gauche, résultats sticky à droite ≥ 1200px,
+              D47 ; empilées en dessous, cf. CSS). Le moteur produit `familles`/`groupes` de façon identique
               pour les 6 nœuds DT2 : une seule disposition, pas une redisposition par nœud. AUCUNE des
               conditions ci-dessous n'a été réordonnée ni dupliquée par rapport au flux vertical précédent
               — seul leur conteneur DOM change (T-036 "Hors périmètre" : ne pas toucher au comportement). */}
@@ -678,6 +777,8 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                 touched={criteresRenseignes}
                 pertinents={pertinents}
                 aConfirmer={new Set(decisifsManquants)}
+                indisponibles={indisponibles}
+                onDeclarerIndisponible={handleDeclarerIndisponible}
                 repris={repris}
                 preremplis={preremplis}
                 hints={
@@ -746,7 +847,7 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
             // (rendus hors de ce bloc, ci-dessus/en tête de page) : une information de sécurité ne se
             // cache jamais, comme pendant une suspension D31.
             <div className="decision-node__reprise-frontiere">
-              <div className="decision-node__reprise-frontiere-titre">Ce nœud a déjà été ouvert dans cette consultation</div>
+              <div className="decision-node__reprise-frontiere-titre">Des valeurs de cette consultation pré-remplissent cet écran</div>
               <p className="decision-node__reprise-frontiere-texte">
                 Les critères déjà renseignés proviennent de votre saisie sur un autre écran de cette
                 consultation (« repris de votre saisie », dans le formulaire) ; rien n'a encore été saisi
@@ -811,6 +912,14 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
               confirment d'un clic par « Rien à signaler ». La recommandation peut encore changer.
             </p>
           )}
+          {/* T-134 (P12/S9) — LOYAUTÉ : la reco a été rendue SANS les critères déclarés indisponibles.
+              Registre NEUTRE (comme `CadrageList` — ni fond d'alerte, ni couleur de vigilance) : contrairement
+              au bandeau ambre ci-dessus, rien n'est ici « à faire » — cette mention CONSTATE un manquant déjà
+              résolu (le praticien a tranché « je ne l'aurai pas »), elle ne réclame plus rien. Les deux
+              mentions peuvent coexister (un critère résolu ainsi, un autre encore réellement en attente). */}
+          {!decisionEnAttenteSeule && mentionIndisponibles && (
+            <p className="decision-node__indisponible-mention">{mentionIndisponibles}</p>
+          )}
           {decisionEnAttenteSeule ? null : vue && vue.familles.some((famille) => famille.groupes.length > 0) ? (
             (() => {
               // Regroupement PAR FAMILLE (`Noeud.familles` si déclarées, sinon repli historique — cf.
@@ -825,6 +934,16 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
               // 2026-07-25) et les doses calculées sont déjà résolus dans `vue` — l'écran ne calcule plus
               // rien, il assemble.
               let cle = 0
+              // T-136 (P12/S10, arbitrage référent 2026-08-02 point 4) — QUI SAIT qu'il n'y a qu'une
+              // carte à l'écran ? Cet écran, pas la carte : `optionsRenduesCount` (T-113, défini plus
+              // haut) est déjà le compte des options EFFECTIVEMENT AFFICHÉES (`partitionAffichage
+              // .principales` aplati), pas des options applicables — une carte reléguée derrière
+              // « Autres pistes possibles (N) » ne rend donc jamais ce booléen vrai. Calculé UNE FOIS ici
+              // et transmis à toutes les cartes de `rendreFamilles` (repliées comprises : si ce booléen
+              // est vrai, `repliees` est structurellement vide, cf. `lib/replierAffichage.ts` — un total
+              // affiché de 1 ne peut pas coexister avec un repli, `plafonnerPistes` ne replie qu'au-delà
+              // du plafond K5).
+              const carteUnique = optionsRenduesCount === 1
               // Extrait en fonction le 2026-07-27 (repli d'affichage) : le même rendu sert maintenant DEUX
               // fois — les pistes du meilleur rang, puis celles repliées derrière le bouton. Le corps est
               // rigoureusement inchangé ; seule la source des familles devient un paramètre.
@@ -843,6 +962,7 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                       motifRang={optionVue.motifRang}
                       alertes={optionVue.alertes}
                       contreIndications={optionVue.contreIndications}
+                      carteUnique={carteUnique}
                     />
                   ))
                   if (groupe.length < 2) return cartes
@@ -984,7 +1104,23 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                 // RIEN N'EST PERDU (R4/D20) : le détail option par option reste intégralement accessible,
                 // d'un clic, dans le dépli ci-dessous. On change ce qui est mis EN AVANT, jamais ce qui est
                 // disponible.
-                const priorites = prioritesDeSaisie(vue.enAttente)
+                // T-134 (P12/S9) : `enAttenteAffichable`, pas `vue.enAttente` brut — les critères déclarés
+                // indisponibles ne sont plus RÉCLAMÉS ici (cf. sa docstring plus haut). Les OPTIONS listées
+                // par `vue.enAttente.length` ci-dessus (titre, compte du dépli) restent inchangées : c'est
+                // la liste de ce qu'on demande qui se réduit, jamais le fait qu'une option reste en attente.
+                const priorites = prioritesDeSaisie(enAttenteAffichable)
+                if (priorites.length === 0) {
+                  // TOUT ce qui manquait encore a été déclaré indisponible : le T-060 cité ci-dessus a déjà
+                  // montré qu'un encadré coloré sans corps se lit comme un bug — la mention de loyauté
+                  // ci-dessus (`mentionIndisponibles`) explique le POURQUOI, celle-ci dit que ces options
+                  // précises restent malgré tout en attente (R7 : le moteur ne peut toujours pas trancher).
+                  return (
+                    <p className="decision-node__en-attente-item">
+                      Ces options restent en attente : le seul critère qui les distingue encore a été
+                      déclaré indisponible ci-dessus.
+                    </p>
+                  )
+                }
                 if (priorites.length <= 3) {
                   return (
                     <p className="decision-node__en-attente-item">
@@ -1008,10 +1144,12 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                     </p>
                     <details className="decision-node__en-attente-detail">
                       <summary>Voir le détail, option par option ({vue.enAttente.length})</summary>
-                      {vue.enAttente.map((enAttente, index) => (
+                      {enAttenteAffichable.map((enAttente, index) => (
                         <p key={`${index}-${enAttente.option.intitule}`} className="decision-node__en-attente-item">
-                          {enAttente.option.intitule} — à renseigner :{' '}
-                          {enAttente.manquants.map(labelForCritere).join(', ')}
+                          {enAttente.option.intitule} —{' '}
+                          {enAttente.manquants.length > 0
+                            ? `à renseigner : ${enAttente.manquants.map(labelForCritere).join(', ')}`
+                            : 'en attente sans les critères déclarés indisponibles ci-dessus'}
                         </p>
                       ))}
                     </details>
@@ -1075,7 +1213,7 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
             </div>
           </div>
 
-          {/* Bouton flottant mobile (< 960px) — masqué ≥ 960px, où la colonne résultats est `sticky`
+          {/* Bouton flottant mobile (< 1200px, D47) — masqué ≥ 1200px, où la colonne résultats est `sticky`
               (toujours dans le viewport pendant la saisie, cf. CSS) : y dupliquer ce raccourci n'aurait
               aucun usage. Compte `optionsRenduesCount` dérivé de `partitionAffichage.principales` aplati
               (T-113, défini plus haut — PARTAGÉ avec l'en-tête de la colonne, T-112), jamais une valeur

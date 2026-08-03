@@ -18,8 +18,10 @@
    vertical unique (jusqu'à 3 écrans de défilement pour voir les 5 cartes d'un nœud multi-options, recette
    du 2026-07-28). Une seule disposition pour les 6 nœuds DT2 — le moteur produit `familles`/`groupes` de
    façon identique quel que soit le nœud (T-036 "Décision clé"), ce n'est pas une redisposition par nœud.
-   Mobile-first : empilée par défaut (`display: block`), grille à deux colonnes à partir de 960px (seuil
-   de la maquette `design/maquettes/Maquette upgrade UI.zip`, nœud `prescription`). */
+   Mobile-first : empilée par défaut (`display: block`), grille à deux colonnes à partir de 1200px (seuil
+   960px de la maquette `design/maquettes/Maquette upgrade UI.zip`, nœud `prescription`, remonté à 1200px
+   par P12/S3, T-123, D47 : sur les intitulés raccourcis par S2, la grille à 960-1199px force encore un
+   titre de carte sur plusieurs lignes — remesure dans `DECISIONS.md` D47). */
 .decision-node__body {
   display: block;
 }
@@ -33,7 +35,7 @@
   margin-top: 24px;
 }
 
-@media (min-width: 960px) {
+@media (min-width: 1200px) {
   .decision-node__body {
     display: grid;
     grid-template-columns: minmax(420px, 1fr) minmax(380px, 1fr);
@@ -54,26 +56,26 @@
 }
 
 /* T-046 (P6/SB7, défaut S6 point 1c) — RÉSERVE D'ESPACE pour le bouton flottant ci-dessous, sur toute la
-   plage mobile où il existe (même seuil `max-width: 959px` que `isNarrow` côté JS, cf. `DecisionNodeScreen.tsx`
-   et `@media (min-width: 960px)` ci-dessus). Le CTA est `position: fixed` : il ne participe jamais au flux
-   du document, donc rien ne l'empêche de se superposer au dernier contenu visible quand la page atteint le
-   bas de son défilement. Mesuré en recette (S6, 375×812, nœud Insulinothérapie) : bouton flottant top 724 /
-   bottom 796 dans un viewport de 812px, soit une empreinte de 88px depuis le bas du viewport (72px de
-   hauteur + 16px de `bottom`) — le bouton « Suivant » de fin de section (`CriteriaForm.css`
-   `.criteria-form__group-suivant-bouton`) s'y trouvait recouvert à 69 % (chevauchement mesuré : 33 des
-   48px de sa hauteur). En réservant, en pied de page mobile, une marge supérieure à cette empreinte (88px
-   + respiration), le document peut toujours défiler plus loin que ce point : plus aucun contenu réel ne
-   peut rester coincé dans la bande que le CTA recouvre en permanence. Remplace le `padding-bottom: 80px`
-   de la règle de base ci-dessus, seulement en dessous de 960px — au-dessus, le CTA n'existe pas (masqué,
-   cf. commentaire du bouton lui-même). */
-@media (max-width: 959px) {
+   plage mobile où il existe (même seuil `max-width: 1199px`, D47, que `isNarrow` côté JS, cf.
+   `DecisionNodeScreen.tsx` et `@media (min-width: 1200px)` ci-dessus). Le CTA est `position: fixed` : il
+   ne participe jamais au flux du document, donc rien ne l'empêche de se superposer au dernier contenu
+   visible quand la page atteint le bas de son défilement. Mesuré en recette (S6, 375×812, nœud
+   Insulinothérapie) : bouton flottant top 724 / bottom 796 dans un viewport de 812px, soit une empreinte
+   de 88px depuis le bas du viewport (72px de hauteur + 16px de `bottom`) — le bouton « Suivant » de fin de
+   section (`CriteriaForm.css` `.criteria-form__group-suivant-bouton`) s'y trouvait recouvert à 69 %
+   (chevauchement mesuré : 33 des 48px de sa hauteur). En réservant, en pied de page mobile, une marge
+   supérieure à cette empreinte (88px + respiration), le document peut toujours défiler plus loin que ce
+   point : plus aucun contenu réel ne peut rester coincé dans la bande que le CTA recouvre en permanence.
+   Remplace le `padding-bottom: 80px` de la règle de base ci-dessus, seulement en dessous de 1200px —
+   au-dessus, le CTA n'existe pas (masqué, cf. commentaire du bouton lui-même). */
+@media (max-width: 1199px) {
   .decision-node {
     padding-bottom: 140px;
   }
 }
 
-/* Bouton flottant mobile (< 960px, cf. `DecisionNodeScreen.tsx` `isNarrow`) — saute au début de la
-   colonne résultats. Masqué à partir de 960px : la colonne résultats y est `sticky` (ci-dessus), donc
+/* Bouton flottant mobile (< 1200px, D47, cf. `DecisionNodeScreen.tsx` `isNarrow`) — saute au début de la
+   colonne résultats. Masqué à partir de 1200px : la colonne résultats y est `sticky` (ci-dessus), donc
    déjà dans le viewport en permanence pendant la saisie — dupliquer le raccourci n'y aurait aucun usage. */
 .decision-node__floating-recos {
   position: fixed;
@@ -103,8 +105,8 @@
    compte d'options réellement visibles (partagé avec le CTA flottant mobile, T-113 : même variable
    `optionsRenduesCount`) + la légende des couleurs d'action. La maquette (l.247) porte cette rangée en
    `position: sticky; top: 0`, À L'INTÉRIEUR de la colonne — VOLONTAIREMENT NON REPRIS ICI.
-   `.decision-node__results-col` est ELLE-MÊME déjà `position: sticky; top: 72px` au-dessus de 960px
-   (règle plus bas) : un sticky imbriqué dans un sticky ne se comporte pas de façon garantie (recouvrement/
+   `.decision-node__results-col` est ELLE-MÊME déjà `position: sticky; top: 72px` au-dessus de 1200px
+   (D47, règle plus bas) : un sticky imbriqué dans un sticky ne se comporte pas de façon garantie (recouvrement/
    saut selon les navigateurs), et T-112 (`plans/P11/S7.md`, étape 4) demande explicitement de vérifier au
    navigateur avant de l'activer, avec repli sur la variante non sticky si le rendu est faux. Cette session
    tourne SANS navigateur in-app (bandeau S7 : Desktop requis, environnement réel = VSCode/terminal) — donc
@@ -228,8 +230,22 @@
   color: var(--c-text);
 }
 
+/* T-134 (P12/S9) — reco rendue SANS un critère déclaré indisponible : NEUTRE, délibérément, MÊME REGISTRE
+   que `CadrageList.css` (ni fond d'alerte, ni couleur de vigilance — un simple filet latéral). Contrairement
+   à `.decision-node__provisional` ci-dessus (ambre, une action reste à faire), rien n'est ici « à faire » :
+   c'est un fait déjà réglé qu'on rend loyalement visible, pas une question qui attend une réponse — le
+   confondre avec l'ambre le rendrait à tort anxiogène (N2, `S9.md`). */
+.decision-node__indisponible-mention {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border-left: 3px solid var(--c-border);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--c-text-muted);
+}
+
 /* Section par FAMILLE clinique (`Option.famille`, correctif « priorité multi-natures ») : regroupe les
-   options d'une même nature d'acte (ex. « Agent à ajouter — en choisir un ») sous un titre dédié, dans
+   options d'une même nature d'acte (ex. « Le choix de l'agent — en choisir un ») sous un titre dédié, dans
    l'ordre de 1re apparition du contenu (cf. `groupesParFamille`, `engine/evaluateNode.ts`). Absente des
    nœuds sans `famille` déclarée (repli à plat, cf. l'écran) : ce style ne s'applique alors jamais. */
 .decision-node__famille {

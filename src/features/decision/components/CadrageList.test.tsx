@@ -16,6 +16,40 @@ describe('CadrageList', () => {
     expect(html).toContain('Seconde position.')
   })
 
+  // P12/S10 (T-135, arbitrage référent 2026-08-02 point 1) — le `<summary>` générique devient une
+  // accroche chiffrée, dérivée de `cadrage.length` (jamais écrite en dur).
+  it('le libellé replié compte les énoncés au pluriel', () => {
+    const html = renderToStaticMarkup(
+      <CadrageList cadrage={['Un.', 'Deux.', 'Trois.']} />,
+    )
+    expect(html).toContain('3 positions de lecture')
+  })
+
+  it('le libellé replié accorde le singulier pour un seul énoncé', () => {
+    const html = renderToStaticMarkup(<CadrageList cadrage={['Un seul énoncé.']} />)
+    expect(html).toContain('1 position de lecture')
+    expect(html).not.toContain('1 positions')
+  })
+
+  it("le compte affiché est exact, dérivé du contenu réel (pas une valeur écrite en dur)", () => {
+    const html5 = renderToStaticMarkup(
+      <CadrageList cadrage={['A.', 'B.', 'C.', 'D.', 'E.']} />,
+    )
+    expect(html5).toContain('5 positions de lecture')
+    expect(html5).not.toContain('3 positions')
+  })
+
+  it("un cadrage vide ne rend rien — jamais un libellé « 0 position »", () => {
+    const html = renderToStaticMarkup(<CadrageList cadrage={[]} />)
+    expect(html).toBe('')
+    expect(html).not.toContain('0 position')
+  })
+
+  it('le `aria-label` du `<details>` reprend exactement le libellé visible (pas de nom accessible divergent)', () => {
+    const html = renderToStaticMarkup(<CadrageList cadrage={['Un.', 'Deux.']} />)
+    expect(html).toContain('aria-label="Ce que dit la preuve — 2 positions de lecture"')
+  })
+
   it("n'emprunte aucune classe d'alerte (D24 : un cadrage n'est pas un signal)", () => {
     // Le point du champ `cadrage` est de SORTIR ces énoncés du canal des alertes (D21, interdit n°2).
     // Les rendre avec le style d'une alerte reproduirait à l'écran le défaut corrigé dans le contenu :

@@ -77,6 +77,7 @@ const {
   NODE_PREREMPLISSAGE,
   NODE_EGALITE,
   NODE_PRIORITES,
+  NODE_INDISPONIBLE,
 } = vi.hoisted(() => {
   function opt(intitule: string, conditions: string[], extra: Partial<Option> = {}): Option {
     const seule = conditions.length === 1 ? conditions[0] : undefined
@@ -316,6 +317,34 @@ const {
     }
   }
 
+  /**
+   * T-134 (P12/S9) — un critère DÉCISIF qui ne bloque JAMAIS l'option (reproduit le mécanisme réel de la
+   * recette du 02/08, N7 : sur `prescription`, l'albuminurie ne fait jamais basculer iSGLT2 en `enAttente`
+   * — l'option reste `applicable` quelle que soit sa valeur — et pourtant `engine/relevance.ts` la voit
+   * DÉCISIVE parce qu'elle fait apparaître/disparaître une ALERTE D'OPTION selon sa valeur, ce qui change
+   * la signature de la vue). L'unique option est un socle `["toujours"]` (jamais `enAttente`, jamais
+   * `nonRetenue`) ; seule son ALERTE dépend d'`albuminurie` — c'est CETTE dimension, et elle seule, que la
+   * perturbation détecte : `albuminurie` est donc `pertinent` (« décisif ») sans jamais être un critère
+   * `enAttente` d'aucune option, exactement le cas que le bandeau « Reco provisoire » doit pouvoir résoudre
+   * SANS qu'aucune carte ne bouge.
+   */
+  function buildIndisponibleNode(): Noeud {
+    return {
+      id: 'noeud-interaction-indisponible-test',
+      domaine: 'test',
+      titre: 'Nœud de test (indisponible)',
+      population_cible: 'test',
+      selection: 'multi-options',
+      criteres_entree: [{ nom: 'albuminurie', type: 'enum', valeurs: ['normo', 'micro', 'macro'], groupe: 'Bilan' }],
+      options: [
+        opt('Socle protecteur', ['toujours'], {
+          alertes: [{ quand: 'albuminurie == macro', message: 'Alerte de test : albuminurie macro' }],
+        }),
+      ],
+      ...metaCommune(),
+    }
+  }
+
   return {
     NODE: buildNode(),
     NODE_CONTRAINTE: buildContrainteNode(),
@@ -324,6 +353,7 @@ const {
     NODE_PREREMPLISSAGE: buildPreremplissageNode(),
     NODE_EGALITE: buildEgaliteNode(),
     NODE_PRIORITES: buildPrioritesNode(),
+    NODE_INDISPONIBLE: buildIndisponibleNode(),
   }
 })
 
@@ -337,7 +367,16 @@ const {
 // dernier est hoisté au-dessus des imports, une constante ordinaire ne l'est pas — seuls `NODE`,
 // `NODE_CONTRAINTE`, etc. (issus de `vi.hoisted` ci-dessus) sont sûrs à référencer ici.
 vi.mock('../content/loadNodes', () => {
-  const tousLesNoeudsTest = [NODE, NODE_CONTRAINTE, NODE_SUSPENDU, NODE_RIEN_A_PROPOSER, NODE_PREREMPLISSAGE, NODE_EGALITE, NODE_PRIORITES]
+  const tousLesNoeudsTest = [
+    NODE,
+    NODE_CONTRAINTE,
+    NODE_SUSPENDU,
+    NODE_RIEN_A_PROPOSER,
+    NODE_PREREMPLISSAGE,
+    NODE_EGALITE,
+    NODE_PRIORITES,
+    NODE_INDISPONIBLE,
+  ]
   return {
     getNoeudById: (id: string) => tousLesNoeudsTest.find((n) => n.id === id),
     getNoeudsByDomaine: () => tousLesNoeudsTest,
@@ -751,5 +790,94 @@ describe('DecisionNodeScreen — B2 : sur formulaire vierge, le panneau « en at
       el.classList.contains('decision-node__en-attente-item'),
     )
     expect(auPremierNiveau).toHaveLength(1)
+  })
+})
+
+/**
+ * T-134 (P12/S9) — « JE NE L'AURAI PAS » : LE PRATICIEN DÉCLARE QU'UN CRITÈRE DÉCISIF RESTERA INCONNU.
+ *
+ * Reproduit le SCÉNARIO DE RÉFÉRENCE de la recette du 02/08 (N7, Mme Chevallier, 88 ans, EHPAD :
+ * l'albuminurie manque au dossier et n'y sera jamais) SANS dépendre du contenu réel `prescription` —
+ * `NODE_INDISPONIBLE` ci-dessus reproduit le MÊME mécanisme (un critère décisif via une ALERTE d'option,
+ * qui ne bloque JAMAIS l'unique option `["toujours"]`, cf. sa docstring). Trois exigences, dans l'ordre où
+ * `S9.md` les pose : (1) non-régression stricte tant que rien n'est déclaré ; (2) après déclaration, la
+ * reco cesse d'être « provisoire » ET la mention de loyauté apparaît ; (3) AUCUNE option n'a changé — la
+ * même carte, avant et après, jamais une autre.
+ */
+describe('DecisionNodeScreen — T-134 : déclarer un critère indisponible', () => {
+  it('AVANT toute déclaration : comportement STRICTEMENT inchangé (non-régression)', () => {
+    const { container } = render(<DecisionNodeScreen nodeId={NODE_INDISPONIBLE.id} go={() => {}} />)
+    expect(titresOptionsProposees(container)).toEqual(['Socle protecteur'])
+    const banniere = container.querySelector('.decision-node__provisional')
+    expect(banniere?.textContent).toMatch(/Reco provisoire/)
+    expect(banniere?.textContent).toMatch(/1 critère décisif non confirmé/)
+    // Aucune mention de loyauté tant que rien n'est déclaré — elle n'a pas d'objet.
+    expect(container.querySelector('.decision-node__indisponible-mention')).toBeNull()
+    expect(screen.getByRole('button', { name: 'Indisponible' })).toBeTruthy()
+  })
+
+  it("après déclaration : la reco cesse d'être provisoire, la mention d'absence apparaît, AUCUNE option ne change", () => {
+    const { container } = render(<DecisionNodeScreen nodeId={NODE_INDISPONIBLE.id} go={() => {}} />)
+    const avant = titresOptionsProposees(container)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Indisponible' }))
+
+    // AUCUNE OPTION NE CHANGE (garde-fou R7 — « Si bloqué » de S9.md) : même carte unique, avant/après.
+    expect(titresOptionsProposees(container)).toEqual(avant)
+    expect(titresOptionsProposees(container)).toEqual(['Socle protecteur'])
+
+    // La reco n'est plus « provisoire ».
+    expect(container.querySelector('.decision-node__provisional')).toBeNull()
+
+    // La mention de loyauté nomme le critère et RÉUTILISE le registre du bloc de cadrage (« c'est au
+    // praticien de le faire », `content/decision/noeuds/diabete-type-2/prescription.yaml` § cadrage).
+    const mention = container.querySelector('.decision-node__indisponible-mention')
+    expect(mention).toBeTruthy()
+    expect(mention?.textContent).toMatch(/Albuminurie/)
+    expect(mention?.textContent).toMatch(/c'est au praticien de le faire/)
+
+    // Le bouton d'action a cédé la place à la mention déclarée (elle-même cliquable, pour annuler).
+    expect(screen.queryByRole('button', { name: 'Indisponible' })).toBeNull()
+    expect(screen.getByRole('button', { name: '· indisponible' })).toBeTruthy()
+  })
+
+  it('un second clic ANNULE la déclaration (toggle) : le critère redevient réclamé normalement', () => {
+    const { container } = render(<DecisionNodeScreen nodeId={NODE_INDISPONIBLE.id} go={() => {}} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Indisponible' }))
+    fireEvent.click(screen.getByRole('button', { name: '· indisponible' }))
+
+    expect(container.querySelector('.decision-node__provisional')?.textContent).toMatch(/1 critère décisif non confirmé/)
+    expect(container.querySelector('.decision-node__indisponible-mention')).toBeNull()
+    expect(screen.getByRole('button', { name: 'Indisponible' })).toBeTruthy()
+  })
+
+  /**
+   * T-134, étape 4 de S9.md : « exclus les critères déclarés indisponibles … du cartouche EN ATTENTE ».
+   * Réutilise `NODE` (comportement 1/2/4 ci-dessus, trois critères décisifs non confirmés dont
+   * `nb_facteurs_risque` bloque « Renfort » en `enAttente`) plutôt qu'un nœud dédié — c'est le SEUL nœud
+   * synthétique de ce fichier où un critère décisif RÉCLAMÉ par le cartouche EN ATTENTE (pas seulement le
+   * bandeau « Reco provisoire ») peut être déclaré indisponible.
+   */
+  it('T-134 — le cartouche EN ATTENTE cesse aussi de nommer le critère déclaré indisponible', () => {
+    const { container } = renderNode()
+    // AVANT : les trois critères manquants (seuil ≤ 3, B2) sont nommés, `nb_facteurs_risque` compris.
+    const avant = container.querySelector('.decision-node__en-attente-item')
+    expect(avant?.textContent).toMatch(/Nb facteurs risque/i)
+
+    // Le bouton « Indisponible » DU CHAMP NOMBRE, distingué des deux autres (un par critère décisif) par
+    // sa proximité DOM avec l'unique `<input type="number">` du nœud.
+    const champNombre = nombreInput().closest('.criteria-form__field')
+    const boutonNombre = champNombre?.querySelector('.criteria-form__field-indisponible-bouton')
+    expect(boutonNombre).toBeTruthy()
+    fireEvent.click(boutonNombre as Element)
+
+    // APRÈS : `nb_facteurs_risque` a disparu de ce qui est réclamé, les deux autres critères restent.
+    const apres = container.querySelector('.decision-node__en-attente-item')
+    expect(apres?.textContent).not.toMatch(/Nb facteurs risque/i)
+    expect(apres?.textContent).toMatch(/Evenement grave/i)
+    expect(apres?.textContent).toMatch(/Ascvd etablie/i)
+
+    // « Traitement de base » (`["toujours"]`) reste la SEULE option affichée — aucune option n'a changé.
+    expect(titresOptionsProposees(container)).toEqual(['Traitement de base'])
   })
 })

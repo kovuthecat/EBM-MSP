@@ -51,6 +51,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { noeuds } from '../../content/loadNodes.ts'
 import { OptionCard } from '../../components/OptionCard.tsx'
+import type { OptionVue } from '../../lib/vueDecision.ts'
 import { construireVueDecision } from '../../lib/vueDecision.ts'
 import { calculerCriteresDerives } from '../deriveCritere.ts'
 import { genererProfils, tailleBanc } from './profils.ts'
@@ -268,4 +269,77 @@ describe('I12 — un panneau replié d’une carte n’avale jamais un fait de s
     },
     DELAI_MS,
   )
+})
+
+/**
+ * I12 (carte unique) — P12/S10, T-136. Le lot ci-dessus (§5) affirme que les quatre panneaux sont
+ * fermés par défaut ; c'est vrai UNIQUEMENT sans la prop `carteUnique` (arbitrage référent du
+ * 2026-08-02, point 4 — « quand un écran ne porte qu'une seule option, sa carte s'affiche ouverte »,
+ * cf. `OptionCard.tsx` docstring de tête). Ce lot distingue ce second cas : SEUL `--argumentaire`
+ * s'ouvre par défaut, les trois autres restent fermés — c'est là, et nulle part ailleurs dans les
+ * quatre panneaux, que vit l'argument EBM que P11 avait mis derrière le chevron (`effet_attendu`,
+ * délai, avantages/inconvénients).
+ *
+ * Ce qui est testé ici est le comportement du COMPOSANT (une prop booléenne, cf. `OptionCard.tsx`), pas
+ * un contenu particulier (D8) : une seule option réelle, prise au premier profil qui en produit une sur
+ * le banc, suffit — inutile de reparcourir les 40 profils × 6 nœuds du lot ci-dessus pour ça.
+ */
+describe('I12 (carte unique) — le panneau --argumentaire s’ouvre par défaut quand la carte est seule sur son écran (P12/S10, T-136)', () => {
+  function premiereOptionReelle(): OptionVue {
+    for (const node of noeuds) {
+      for (const criteria of genererProfils(node, Math.min(5, tailleBanc(node)))) {
+        const derives = calculerCriteresDerives(node.criteres_entree, criteria)
+        const vue = construireVueDecision(node, derives)
+        for (const famille of vue.familles) {
+          for (const groupe of famille.groupes) {
+            if (groupe.length > 0) return groupe[0]
+          }
+        }
+      }
+    }
+    throw new Error('aucune option trouvée sur le banc — I12 (carte unique) ne peut pas se monter')
+  }
+
+  const optionVue = premiereOptionReelle()
+
+  function rendre(carteUnique: boolean) {
+    return renderToStaticMarkup(
+      <OptionCard
+        option={optionVue.option}
+        badge={optionVue.badge}
+        reasons={optionVue.reasons}
+        calculs={optionVue.calculs}
+        calculsEnAttente={optionVue.calculsEnAttente}
+        motifRang={optionVue.motifRang}
+        alertes={optionVue.alertes}
+        contreIndications={optionVue.contreIndications}
+        carteUnique={carteUnique}
+      />,
+    )
+  }
+
+  it('sans `carteUnique` (défaut, comme tout appelant d’avant cette session) : les quatre panneaux restent fermés', () => {
+    const html = rendre(false)
+    const [, pourquoi, posologie, ci, argumentaire] = zones(html)
+    for (const zone of [pourquoi, posologie, ci, argumentaire]) {
+      expect(panneauFerme(zone)).toBe(true)
+    }
+  })
+
+  it('avec `carteUnique={true}` : SEUL le panneau --argumentaire est ouvert par défaut, les trois autres restent fermés', () => {
+    const html = rendre(true)
+    const [, pourquoi, posologie, ci, argumentaire] = zones(html)
+    expect(panneauFerme(pourquoi)).toBe(true)
+    expect(panneauFerme(posologie)).toBe(true)
+    expect(panneauFerme(ci)).toBe(true)
+    expect(panneauFerme(argumentaire)).toBe(false)
+  })
+
+  it('avec `carteUnique={true}`, l’argument EBM (`effet_attendu`) vit dans le panneau --argumentaire OUVERT — lisible sans clic', () => {
+    const html = rendre(true)
+    const extrait = optionVue.option.effet_attendu.slice(0, 40)
+    const [, , , , argumentaire] = zones(html)
+    expect(argumentaire).toContain(echappe(extrait))
+    expect(panneauFerme(argumentaire)).toBe(false)
+  })
 })

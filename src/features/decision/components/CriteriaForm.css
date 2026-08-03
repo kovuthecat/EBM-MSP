@@ -347,6 +347,16 @@
   color: var(--c-attention);
 }
 
+/* T-133 (P12/S8) : valeur d'un critère DÉRIVÉ numérique (IMC, multiple de la normale…), en LECTURE SEULE
+   près des champs qui l'alimentent — ce n'est pas un champ, jamais mêlée à `.criteria-form__grid`. Le
+   suffixe « · calculé » reste porté par `.criteria-form__field-repris` (déjà défini plus bas), réutilisé
+   tel quel — même registre visuel que « · calculé, à vérifier » (K6, espérance de vie), aucun style inventé. */
+.criteria-form__valeur-calculee {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--c-text);
+}
+
 .criteria-form__group-rien {
   flex: none;
   margin-left: auto;
@@ -500,6 +510,49 @@
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+}
+
+/* T-134 (P12/S9) — affordance « Indisponible » sur un champ décisif non confirmé : le praticien déclare
+   qu'il ne le renseignera jamais. Discrète, NEUTRE (pas d'ambre — cf. `--c-attention-*` du marqueur « à
+   confirmer » juste au-dessus) : ce n'est pas une donnée qui manque à corriger, c'est un geste qui
+   RÉSOUT le manque, il n'a pas à porter le même signal visuel que ce qu'il éteint. Style de lien discret,
+   même gabarit que les autres suffixes de champ (« · repris de votre saisie »…). */
+.criteria-form__field-indisponible-bouton {
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-text-faible);
+  background: none;
+  border: none;
+  padding: 0;
+  margin-left: 6px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.criteria-form__field-indisponible-bouton:hover {
+  color: var(--c-text);
+}
+
+/* Une fois déclaré : mention discrète, MÊME registre que « · calculé » / « · repris de votre saisie »
+   (`.criteria-form__field-repris`) — un fait à savoir, pas une action à faire. Reste cliquable (bouton,
+   pas un `<span>`) pour annuler la déclaration d'un second clic. */
+.criteria-form__field-indisponible-tag {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--c-text-faible);
+  background: none;
+  border: none;
+  padding: 0;
+  margin-left: 4px;
+  text-decoration: underline dotted;
+  cursor: pointer;
+}
+
+.criteria-form__field-indisponible-tag:hover {
+  color: var(--c-text);
 }
 
 /* K6 — champ PRÉ-REMPLI depuis la session : une valeur que le praticien a saisie sur un autre nœud de la

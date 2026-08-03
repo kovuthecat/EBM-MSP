@@ -97,11 +97,12 @@ const CRITERE_LABELS: Record<string, string> = {
   diabete_complique: "Diabète compliqué (atteinte d'organe : rétinopathie, néphropathie, neuropathie, macrovasculaire)",
   // Nœud F « Statine » — lot intolérance du 2026-07-27.
   intolerance_statine: 'Intolérance aux statines (non / rapportée / avérée)',
-  // Le « 0 = non dosé » fait partie du libellé, et pas seulement du commentaire du contenu : c'est la
-  // valeur par défaut du champ, et un praticien doit pouvoir le laisser tel quel sans croire qu'il affirme
-  // une CK normale. Le parcours NHS demande d'ailleurs de NE PAS doser les CK chez un patient
-  // asymptomatique — le champ n'apparaît que si une intolérance est rapportée ou avérée.
-  CK_x_normale: 'CK, en multiples de la normale (0 = non dosé)',
+  // « (0 = non dosé) » RETIRÉ le 2026-08-03 (T-133, P12/S8) : `CK_x_normale` est devenu un critère DÉRIVÉ
+  // (`CK_UI_L / CK_normale_sup`), plus une saisie directe — la mention décrivait la convention de l'ANCIEN
+  // champ saisi, désormais fausse (un `CK_UI_L` non renseigné rend le multiple INDÉTERMINÉ, D20, jamais
+  // `0` par convention). Le libellé sert encore : dans les phrases « Proposé parce que : … » (condition
+  // humanisée sur le critère dérivé) et dans la ligne « · calculé » (`CriteriaForm.tsx`, T-133).
+  CK_x_normale: 'CK, en multiples de la normale',
   dialyse: 'Dialyse',
   cetonemie: 'Cétonémie',
   hypoglycemie_recente: 'Hypoglycémie récente',
@@ -155,6 +156,16 @@ const CRITERE_LABELS: Record<string, string> = {
   pre_repas_haute: 'Glycémie avant le repas au-dessus de la cible (> 1,30 g/L) — bolus insuffisant',
   pre_repas_basse: 'Glycémie avant le repas sous la cible (< 0,70 g/L) — bolus trop fort',
   poids: 'Poids (kg)',
+  // Ajouté T-133 (P12/S8) : `taille` alimente désormais le calcul de l'IMC (`prescription`, DÉRIVÉ,
+  // `poids / taille / taille`) — l'unité est portée ICI, dans le libellé affiché, pas dans le nom de
+  // variable technique (S8.md, « choisis, et dis lequel dans le libellé »).
+  taille: 'Taille (m)',
+  // Ajoutés T-133 (P12/S8) : `CK_UI_L`/`CK_normale_sup` alimentent désormais `CK_x_normale` (`statine`,
+  // DÉRIVÉ, `CK_UI_L / CK_normale_sup`) — remplacent la saisie directe du multiple de la normale par ce
+  // que le compte-rendu de laboratoire donne réellement : la valeur mesurée et la borne haute de la
+  // normale du labo (qui varie d'un laboratoire à l'autre, d'où un champ plutôt qu'une constante).
+  CK_UI_L: 'CK mesurées (UI/L)',
+  CK_normale_sup: 'Borne haute de la normale du laboratoire (UI/L)',
   dose_basale_actuelle: 'Dose de basale actuelle (U/j)',
   dose_rapide_actuelle: 'Dose de rapide actuelle (U/j)',
   over_basalisation: 'Sur-basalisation (dose basale > 0,5 U/kg)',
@@ -414,8 +425,12 @@ const ENUM_VALUE_DESCRIPTIONS: Record<string, string> = {
   // Profils AGP (nœud E « Insuline ») — comment lire la courbe et ce qu'elle oriente. RENOMMÉS le
   // 2026-07-30 (P8/S7) : la courbe plate gagne ici un GESTE qu'elle n'avait pas avant cette session
   // (« ne pas sur-titrer... ») — cf. `insuline.yaml` v0.34, dérivés `profil_nocturne_permet_titration`/
-  // `profil_nocturne_a_cible`.
-  baisse_continue: "Baisse glycémique en 2ᵉ partie de nuit sur l'AGP → réduire la basale, envisager un analogue de 2ᵉ génération, relâcher la cible.",
+  // `profil_nocturne_a_cible`. CORRIGÉ le 2026-08-02 (T-067, P12/S4) : cette valeur ne déclenche plus
+  // « Corriger l'hypoglycémie... » (2ᵉ génération, relâcher la cible) mais la carte dédiée « Réduire la
+  // basale » — le tooltip ne doit plus promettre un geste que cette sélection ne déclenche plus.
+  // RECORRIGÉ le 2026-08-02 (2ᵉ passe) : le chiffre est porté par HAS 2024 R.87/SFD 2025 Avis 18
+  // (accord d'experts), pas une symétrie sans donnée — cf. commentaire de l'option dans `insuline.yaml`.
+  baisse_continue: "Baisse glycémique en 2ᵉ partie de nuit sur l'AGP → réduire la basale (−2 U, ou −10 % au-delà de 40 U/j — HAS 2024 R.87, SFD 2025 Avis 18).",
   hausse_continue: "Remontée glycémique de ~4 h au réveil (couverture basale insuffisante) → titrer la basale.",
   courbe_plate: "Courbe nocturne régulière, sans hausse ni baisse marquée → si l'HbA1c reste au-dessus de l'objectif, la basale n'est pas en cause : ne pas sur-titrer, intensifier autrement (GLP-1 puis bolus).",
   hausse_entre_repas: "Pic glycémique après un repas alors que la glycémie à jeun est correcte → GLP-1 puis bolus, ou augmenter le bolus déjà en place, au repas le plus hyperglycémiant.",

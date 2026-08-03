@@ -54,3 +54,18 @@
     display: block;
   }
 }
+
+/* T-128 (P12/S7, recette du 02/08) — LA BULLE S'EFFACE QUAND LE PANNEAU QU'ELLE DOUBLE S'OUVRE. Un clic
+   donne le focus ET ouvre le panneau (`ouvert`, détenu par le parent — cf. docstring de PastilleInfo.tsx) :
+   sans cette règle, la bulle de survol (`:focus-visible`, ci-dessus) restait affichée PAR-DESSUS le panneau
+   qui montre le même texte juste en dessous — mesuré en recette, bulle de y 477 à 529, panneau à y 504,
+   chevauchement de 25 px. `aria-expanded` est déjà posé sur le bouton par le parent (via `PastilleInfo.tsx`) :
+   on s'y accroche plutôt que de dupliquer l'état ouvert/fermé côté CSS. Cette règle vient APRÈS la media
+   query ci-dessus, à spécificité égale (`.pastille-info[aria-expanded] .pastille-info__bulle` = deux classes
+   + un attribut, comme `.pastille-info:hover .pastille-info__bulle`) : l'ordre du fichier tranche, elle
+   gagne. NE TOUCHE PAS À `:focus-visible` lui-même : au clavier, quand le panneau est FERMÉ, `Tab` donne le
+   focus sans l'ouvrir — la bulle reste alors le SEUL accès à ce texte hors du panneau, et doit rester
+   visible. Cette règle n'agit que quand `aria-expanded="true"`, jamais quand il vaut `"false"`. */
+.pastille-info[aria-expanded='true'] .pastille-info__bulle {
+  display: none;
+}

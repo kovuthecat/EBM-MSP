@@ -288,6 +288,105 @@ describe('CriteriaForm — pied de section (tâches 4 & 5)', () => {
   })
 })
 
+// T-134 (P12/S9) — « je ne l'aurai pas » : affordance « Indisponible » sur un champ DÉCISIF, à côté du
+// marqueur « à confirmer ». GÉNÉRIQUE PAR `aConfirmer` (pas restreint au `nombre`, contrairement au
+// marqueur visuel des tâches 3/4 ci-dessus) : un `bool`/`liste` décisif encore `aConfirmer` porte la même
+// incertitude qu'un `nombre`/`enum` non saisi (cf. `renderIndisponible`, `CriteriaForm.tsx`).
+describe("CriteriaForm — affordance « Indisponible » sur un champ décisif (T-134)", () => {
+  const CRITERES: CritereEntree[] = [
+    { nom: 'HbA1c_actuelle', type: 'nombre', groupe: 'Section' },
+    { nom: 'ASCVD_etablie', type: 'bool', groupe: 'Section' },
+    { nom: 'albuminurie', type: 'enum', valeurs: ['normo', 'macro'], groupe: 'Section' },
+  ]
+
+  it('affiche « Indisponible » sur un champ décisif non confirmé, avec un handler fourni', () => {
+    const html = renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={CRITERES}
+        criteria={buildDefaultCriteria(CRITERES)}
+        touched={new Set()}
+        pertinents={new Set(['HbA1c_actuelle'])}
+        aConfirmer={new Set(['HbA1c_actuelle'])}
+        onDeclarerIndisponible={() => {}}
+        onChange={() => {}}
+      />,
+    )
+    expect(html).toContain('Indisponible')
+  })
+
+  it("n'affiche pas « Indisponible » sans `onDeclarerIndisponible` fourni (rétro-compatible)", () => {
+    const html = renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={CRITERES}
+        criteria={buildDefaultCriteria(CRITERES)}
+        touched={new Set()}
+        pertinents={new Set(['HbA1c_actuelle'])}
+        aConfirmer={new Set(['HbA1c_actuelle'])}
+        onChange={() => {}}
+      />,
+    )
+    expect(html).not.toContain('Indisponible')
+  })
+
+  it("n'affiche pas « Indisponible » sur un champ qui n'est ni décisif ni déclaré", () => {
+    const html = renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={CRITERES}
+        criteria={buildDefaultCriteria(CRITERES)}
+        touched={new Set()}
+        pertinents={new Set()}
+        aConfirmer={new Set()}
+        onDeclarerIndisponible={() => {}}
+        onChange={() => {}}
+      />,
+    )
+    expect(html).not.toContain('Indisponible')
+  })
+
+  it('une fois déclaré (`indisponibles`), affiche « · indisponible » MÊME si `aConfirmer` ne contient plus ce nom (le cas réel : `decisifsAConfirmer` l’a déjà exclu)', () => {
+    const html = renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={CRITERES}
+        criteria={buildDefaultCriteria(CRITERES)}
+        touched={new Set()}
+        pertinents={new Set(['albuminurie'])}
+        aConfirmer={new Set()} // déjà exclu, comme le renverrait `decisifsAConfirmer` après déclaration
+        indisponibles={new Set(['albuminurie'])}
+        onDeclarerIndisponible={() => {}}
+        onChange={() => {}}
+      />,
+    )
+    expect(html).toContain('indisponible')
+    // Le marqueur ambre « à confirmer » a disparu — remplacé, pas cumulé.
+    expect(html).not.toContain('· à confirmer')
+  })
+
+  /**
+   * Même raison que l'aide de contenu (`renderAide`, cf. `CriteriaForm.tsx`) : un `<label>` propage le
+   * clic à son `<input>` associé — une affordance cliquable À L'INTÉRIEUR cocherait la case par accident.
+   * Vérifié structurellement (HTML statique) : le texte du bouton n'apparaît jamais ENTRE l'ouverture et
+   * la fermeture du `<label>` de la case, seulement après.
+   */
+  it("sur un champ `bool`, le bouton « Indisponible » reste HORS du `<label>` de la case (ne la coche jamais par accident)", () => {
+    const html = renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={CRITERES}
+        criteria={buildDefaultCriteria(CRITERES)}
+        touched={new Set()}
+        pertinents={new Set(['ASCVD_etablie'])}
+        aConfirmer={new Set(['ASCVD_etablie'])}
+        onDeclarerIndisponible={() => {}}
+        onChange={() => {}}
+      />,
+    )
+    const debutLabel = html.indexOf('<label')
+    const finLabel = html.indexOf('</label>', debutLabel)
+    const interieurLabel = html.slice(debutLabel, finLabel)
+    expect(interieurLabel).not.toContain('Indisponible')
+    expect(html).toContain('Indisponible') // présent, mais après la fermeture du `<label>`
+  })
+})
+
 // Tâche 6b (recette référent) : un champ déjà `touched` n'est jamais estompé, même redevenu non pertinent.
 describe('CriteriaForm — un champ `touched` n’est jamais estompé (tâche 6b)', () => {
   const CRITERES: CritereEntree[] = [{ nom: 'age', type: 'nombre' }]
@@ -737,5 +836,68 @@ describe('CriteriaForm — tons sémantiques par valeur d’énumération (T-107
       />,
     )
     expect(html).not.toContain('data-ton')
+  })
+})
+
+/**
+ * T-133 (P12/S8) — valeur calculée d'un critère DÉRIVÉ NUMÉRIQUE (`type: nombre` porteur d'un `derive`
+ * arithmétique, ex. IMC = `poids / taille / taille`) : elle doit se LIRE comme calculée, jamais comme
+ * saisie — même registre visuel que « · calculé, à vérifier » (K6, suggestion d'espérance de vie),
+ * réutilisé tel quel (`criteria-form__field-repris`).
+ *
+ * CRITÈRES SYNTHÉTIQUES (D8 : le composant ne connaît aucun nom de critère par avance) — `poids`/`taille`/
+ * `IMC` choisis pour la lisibilité du test, mais rien dans `CriteriaForm.tsx` ne les nomme.
+ */
+describe('CriteriaForm — valeur calculée d’un critère DÉRIVÉ numérique (T-133, P12/S8)', () => {
+  const CRITERES: CritereEntree[] = [
+    { nom: 'poids', type: 'nombre', groupe: 'Section' },
+    { nom: 'taille', type: 'nombre', groupe: 'Section' },
+    { nom: 'IMC', type: 'nombre', groupe: 'Section', derive: 'poids / taille / taille' },
+  ]
+
+  it('les deux opérandes renseignés → la valeur calculée s’affiche, marquée « · calculé »', () => {
+    const html = renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={CRITERES}
+        criteria={{ poids: 78.03, taille: 1.7, IMC: 0 }}
+        touched={new Set(['poids', 'taille'])}
+        onChange={() => {}}
+      />,
+    )
+    expect(html).toContain('· calculé')
+    expect(html).toContain('27,0') // 78,03 / 1,7 / 1,7 = 27 pile.
+  })
+
+  it('un opérande MANQUE (taille non renseignée) → RIEN affiché, jamais « IMC 0 » (D20 — même garde que le moteur)', () => {
+    const html = renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={CRITERES}
+        criteria={{ poids: 78.03, taille: 0, IMC: 0 }}
+        touched={new Set(['poids'])} // `taille` délibérément absent de `touched`.
+        onChange={() => {}}
+      />,
+    )
+    expect(html).not.toContain('· calculé')
+    // Le garde-fou visé PRÉCISÉMENT : jamais une valeur « IMC 0 » qui affirmerait à tort un calcul complet.
+    expect(html).not.toContain('IMC 0')
+  })
+
+  it('la valeur calculée n’est JAMAIS saisissable — un texte, pas un champ', () => {
+    const html = renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={CRITERES}
+        criteria={{ poids: 78.03, taille: 1.7, IMC: 0 }}
+        touched={new Set(['poids', 'taille'])}
+        onChange={() => {}}
+      />,
+    )
+    // Exactement 2 `<input>` dans ce nœud synthétique (poids, taille) : IMC, dérivé, n'en produit AUCUN —
+    // sa valeur n'apparaît que dans un `<p>` de lecture (`criteria-form__valeur-calculee`), jamais un champ.
+    expect((html.match(/<input/g) ?? []).length).toBe(2)
+    expect(html).toContain('criteria-form__valeur-calculee')
+    expect(html).toContain('27,0')
+    expect(html).toContain('· calculé')
+    // Ni `<select>` ni `<textarea>` non plus (aucune autre forme de champ saisissable côté React).
+    expect(html).not.toContain('<select')
   })
 })
