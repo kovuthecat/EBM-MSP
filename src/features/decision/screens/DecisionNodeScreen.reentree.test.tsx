@@ -22,7 +22,7 @@ import type { Noeud, Option } from '../content/node.types'
 import { reinitialiserSession } from '../lib/sessionCriteres'
 import { DecisionNodeScreen } from './DecisionNodeScreen'
 
-const { NOEUD_A, NOEUD_B, NOEUD_ESP_A, NOEUD_ESP_B } = vi.hoisted(() => {
+const { NOEUD_A, NOEUD_B, NOEUD_ESP_A, NOEUD_ESP_B, NOEUD_CIBLE_A, NOEUD_CIBLE_B } = vi.hoisted(() => {
   const SOCLE: Option = {
     intitule: 'Socle',
     role: 'socle',
@@ -100,19 +100,70 @@ const { NOEUD_A, NOEUD_B, NOEUD_ESP_A, NOEUD_ESP_B } = vi.hoisted(() => {
     }
   }
 
+  // P12/S1 (2026-08-02) — TROISIÈME couple synthétique, un miroir FIDÈLE de l'encodage réel du nœud
+  // `cible-glycemique` sur les quatre drivers d'espérance de vie — pas une approximation :
+  //  - `antecedent_cv`/`comorbidite_grave` NE PORTENT PAS `partage: true` (contrairement à
+  //    `NOEUD_ESP_A`/`NOEUD_ESP_B` ci-dessus) : c'est l'absence qui amputait un dossier repris ;
+  //  - `antecedent_cv`/`comorbidite_grave` portent `presomption_non: true`, `fragilite` NON (même
+  //    répartition que le nœud réel) : c'est CETTE asymétrie précise qui a fait qu'une garde de
+  //    complétude des drivers `touched` ne pouvait JAMAIS être satisfaite sur le nœud réel (un `bool`
+  //    présumé est déterminé sans jamais être `touched`) — cf. `esperanceVieDefault.ts` pour l'historique
+  //    complet. `OPTION_FRAGILE` rend `fragilite` DÉCISIVE (seul booléen qui peut apparaître dans
+  //    `aConfirmer`, donc seul que « Rien à signaler » touche jamais) — nécessaire au test de couverture
+  //    ci-dessous (régression exacte mesurée au navigateur sur la vignette N2 : Âge → Ancienneté →
+  //    « Rien à signaler » → plus aucune carte).
+  function buildNoeudCible(id: string): Noeud {
+    const OPTION_FRAGILE: Option = {
+      intitule: 'Option fragile',
+      role: 'geste',
+      conditions: ['fragilite == true'],
+      avantages: [],
+      inconvenients: [],
+      effet_attendu: 'non chiffrable',
+      niveau_preuve: 'faible',
+    }
+    return {
+      id,
+      domaine: 'test',
+      titre: `Nœud de test cible (${id})`,
+      population_cible: 'test',
+      selection: 'multi-options',
+      criteres_entree: [
+        { nom: 'age', type: 'nombre', min: 0, max: 110, partage: true },
+        { nom: 'fragilite', type: 'bool', partage: true },
+        { nom: 'comorbidite_grave', type: 'bool', presomption_non: true },
+        { nom: 'antecedent_cv', type: 'bool', presomption_non: true },
+        { nom: 'esperance_vie', type: 'enum', valeurs: ['longue', 'intermediaire', 'limitee'], partage: true },
+      ],
+      options: [SOCLE, OPTION_FRAGILE],
+      argumentaire: 'x',
+      sources: {
+        references_primaires: [],
+        synthese_critique: { donnee: '', references: [] },
+        reco_officielle: { source: '', position: '', divergence: false, explication: '' },
+      },
+      incertitudes: [],
+      veille_liee: [],
+      meta: { date_revue: '2026-01-01', auteur: 'test', statut: 'valide', version: '1.0', changelog: [] },
+    }
+  }
+
   return {
     NOEUD_A: buildNode('noeud-A'),
     NOEUD_B: buildNode('noeud-B'),
     NOEUD_ESP_A: buildNoeudEsperanceVie('noeud-esp-A'),
     NOEUD_ESP_B: buildNoeudEsperanceVie('noeud-esp-B'),
+    NOEUD_CIBLE_A: buildNoeudCible('noeud-cible-A'),
+    NOEUD_CIBLE_B: buildNoeudCible('noeud-cible-B'),
   }
 })
 
 vi.mock('../content/loadNodes', () => ({
-  getNoeudById: (id: string) => [NOEUD_A, NOEUD_B, NOEUD_ESP_A, NOEUD_ESP_B].find((n) => n.id === id),
-  getNoeudsByDomaine: () => [NOEUD_A, NOEUD_B, NOEUD_ESP_A, NOEUD_ESP_B],
-  noeuds: [NOEUD_A, NOEUD_B, NOEUD_ESP_A, NOEUD_ESP_B],
-  noeudsParDomaine: { test: [NOEUD_A, NOEUD_B, NOEUD_ESP_A, NOEUD_ESP_B] },
+  getNoeudById: (id: string) =>
+    [NOEUD_A, NOEUD_B, NOEUD_ESP_A, NOEUD_ESP_B, NOEUD_CIBLE_A, NOEUD_CIBLE_B].find((n) => n.id === id),
+  getNoeudsByDomaine: () => [NOEUD_A, NOEUD_B, NOEUD_ESP_A, NOEUD_ESP_B, NOEUD_CIBLE_A, NOEUD_CIBLE_B],
+  noeuds: [NOEUD_A, NOEUD_B, NOEUD_ESP_A, NOEUD_ESP_B, NOEUD_CIBLE_A, NOEUD_CIBLE_B],
+  noeudsParDomaine: { test: [NOEUD_A, NOEUD_B, NOEUD_ESP_A, NOEUD_ESP_B, NOEUD_CIBLE_A, NOEUD_CIBLE_B] },
 }))
 
 vi.mock('../content/loadModules', () => ({
@@ -165,6 +216,22 @@ describe('DecisionNodeScreen — frontière de re-entrée (T-057, P8 · S2)', ()
     expect(titresCartes(container)).toEqual([])
     expect(screen.getByText('Reprendre les valeurs de ce patient')).toBeTruthy()
     expect(screen.getByText('Repartir de zéro')).toBeTruthy()
+  })
+
+  // T-129 (P12/S7, 2026-08-02) — LE TITRE NE DOIT PLUS AFFIRMER « CE NŒUD A DÉJÀ ÉTÉ OUVERT » : ce
+  // nœud (B) n'a JAMAIS été ouvert avant dans cette consultation, seules ses valeurs sont pré-remplies
+  // depuis un AUTRE nœud (A). L'ancien titre était donc faux dans le cas le plus fréquent (recette du
+  // 02/08). Le composant ne distingue pas « déjà ouvert » de « alimenté par un autre écran » (mémoire de
+  // session par NOM de critère seulement, cf. `lib/sessionCriteres.ts` — aucun id de nœud mémorisé) : un
+  // titre unique, vrai dans les deux cas, est donc le bon niveau de correction.
+  it('le titre du bandeau de re-entrée décrit ce qui est vrai, y compris quand ce nœud précis n’a jamais été ouvert', () => {
+    const { unmount } = render(<DecisionNodeScreen nodeId={NOEUD_A.id} go={() => {}} />)
+    fireEvent.change(champCiblePartagee(), { target: { value: '7' } })
+    unmount()
+
+    render(<DecisionNodeScreen nodeId={NOEUD_B.id} go={() => {}} />)
+    expect(screen.getByText('Des valeurs de cette consultation pré-remplissent cet écran')).toBeTruthy()
+    expect(screen.queryByText('Ce nœud a déjà été ouvert dans cette consultation')).toBeNull()
   })
 
   it('« Reprendre les valeurs de ce patient » lève la frontière, une fois, pour ce montage', () => {
@@ -225,18 +292,31 @@ describe('DecisionNodeScreen — frontière de re-entrée (T-057, P8 · S2)', ()
 })
 
 /**
- * T-061 x T-057 — LE DÉFAUT DE CETTE SESSION, signalé en recette P8 (2026-07-30, §Scénario A/C, « signalé,
- * non corrigé ») : « Reprendre les valeurs de ce patient » levait la frontière ci-dessus SANS jamais
- * relancer la suggestion auto d'espérance de vie (T-061, `DecisionNodeScreen.esperanceVie.test.tsx`) —
- * `esperance_vie` restait « à confirmer » pour un patient dont l'âge et la fragilité venaient pourtant
- * d'être repris de l'écran précédent. Aucun test existant ne combinait les deux mécanismes :
- * `esperanceVie.test.tsx` ne passe jamais par une reprise de session (nœud monté à neuf) ; les tests
- * ci-dessus ne portent que sur `cible_partagee`, un critère que `hasEsperanceVieCritere` ne reconnaît pas
- * — T-061 n'y est structurellement jamais exercée. D'où ce second couple de nœuds (`NOEUD_ESP_A`/
- * `NOEUD_ESP_B`, déclarés en tête de fichier) et ce second `describe`, plutôt que d'étendre le premier.
+ * HISTORIQUE DE CE `describe` — deux corrections successives sur le MÊME mécanisme, à connaître avant
+ * de le retoucher (cf. aussi `esperanceVieDefault.ts`, docstring de `suggestionEsperanceVieSiApplicable`,
+ * pour le détail complet) :
+ *
+ *  1. T-061 x T-057 (P8 · S2, 2026-07-30) — « Reprendre les valeurs de ce patient » levait la frontière
+ *     de re-entrée SANS jamais relancer la suggestion auto d'espérance de vie : `esperance_vie` restait
+ *     « à confirmer » pour un patient dont l'âge et la fragilité venaient pourtant d'être repris. Corrigé
+ *     en faisant recalculer CE clic à partir des drivers repris.
+ *  2. P12/S1 (2026-08-02) — ce recalcul pouvait faire CHANGER SILENCIEUSEMENT une suggestion déjà
+ *     affichée, dès qu'un driver ne circule pas par la mémoire de session (`antecedent_cv`/
+ *     `comorbidite_grave`, pas `partage: true` sur le nœud réel `cible-glycemique` — constat n° 2 de la
+ *     recette du 2026-08-02). Un premier correctif (garde de complétude des 4 drivers) a lui-même cassé
+ *     le nœud réel (ses deux critères portent `presomption_non: true`, jamais `touched`) — retiré au
+ *     profit du remède retenu : **« Reprendre » ne recalcule plus jamais `esperance_vie`**. Le premier
+ *     test ci-dessous, qui verrouillait le comportement (1), est donc ADAPTÉ pour verrouiller (2) à la
+ *     place ; le second (garde-fou « choix manuel jamais écrasé ») reste inchangé — sa vérité ne dépend
+ *     pas de ce que fait ce clic, seulement de l'état déjà repris à l'ouverture.
+ *
+ * `esperanceVie.test.tsx` (T-061) ne passe jamais par une reprise de session (nœud monté à neuf) ; les
+ * tests du describe précédent ne portent que sur `cible_partagee`, un critère que `hasEsperanceVieCritere`
+ * ne reconnaît pas. D'où ce couple de nœuds dédié (`NOEUD_ESP_A`/`NOEUD_ESP_B`, déclarés en tête de
+ * fichier) et ce `describe` séparé plutôt que d'étendre le premier.
  */
-describe('DecisionNodeScreen — la reprise relance la suggestion d’espérance de vie (T-057 x T-061)', () => {
-  it('« Reprendre les valeurs de ce patient » recalcule esperance_vie à partir des drivers repris', () => {
+describe('DecisionNodeScreen — la reprise ne recalcule plus la suggestion d’espérance de vie (P12/S1)', () => {
+  it('« Reprendre les valeurs de ce patient » ne recalcule PLUS esperance_vie, même quand tous les drivers sont repris', () => {
     const { unmount } = render(<DecisionNodeScreen nodeId={NOEUD_ESP_A.id} go={() => {}} />)
     fireEvent.change(champAge(), { target: { value: '88' } })
     fireEvent.click(checkbox(/Fragilité/))
@@ -244,20 +324,27 @@ describe('DecisionNodeScreen — la reprise relance la suggestion d’espérance
     unmount()
 
     render(<DecisionNodeScreen nodeId={NOEUD_ESP_B.id} go={() => {}} />)
-    // Avant le clic : la frontière de re-entrée est affichée, et rien n'a encore été (re)posé pour
-    // `esperance_vie` — LE DÉFAUT signalé en recette laissait ce segment ainsi indéfiniment.
+    // Avant le clic : la frontière de re-entrée est affichée, rien n'a encore été (re)posé pour
+    // `esperance_vie`.
     expect(screen.getByText('Reprendre les valeurs de ce patient')).toBeTruthy()
     expect(segmentEsperanceVie('Limitée').getAttribute('aria-pressed')).toBe('false')
 
     fireEvent.click(screen.getByText('Reprendre les valeurs de ce patient'))
 
-    // `comorbidite_grave` (reprise) suffit seule à suggérer 'limitee' (`suggestEsperanceVie`) — le
-    // correctif recalcule bien la suggestion à partir des valeurs REPRISES, exactement comme si le
-    // praticien venait de les saisir ici.
-    expect(segmentEsperanceVie('Limitée').getAttribute('aria-pressed')).toBe('true')
+    // LE REMÈDE (P12/S1, 2026-08-02) : même avec les QUATRE drivers effectivement repris (ce couple de
+    // nœuds les déclare tous `partage: true`, cas le plus favorable qui soit), ce clic NE calcule plus
+    // rien pour `esperance_vie` — la fonctionnalité livrée par T-061 x T-057 est délibérément retirée
+    // (cf. docstring ci-dessus) au profit de la sûreté : le champ reste vide, le praticien répond
+    // directement sur ce nœud.
+    expect(segmentEsperanceVie('Limitée').getAttribute('aria-pressed')).toBe('false')
     expect(segmentEsperanceVie('Longue').getAttribute('aria-pressed')).toBe('false')
-    // Marquée comme suggérée (`preremplis`), jamais comme affirmée par le praticien (`touched`) — même
-    // mention que T-061 sur un montage frais (D20, `CriteriaForm.tsx` `renderOrigine`).
+    expect(screen.queryByText('· calculé, à vérifier', { exact: false })).toBeNull()
+
+    // Le praticien répond directement SUR CE NŒUD (B) : le chemin `handleCriteriaChange`, jamais touché
+    // par ce retrait, calcule la suggestion normalement — la fonctionnalité T-061 reste intacte, seule la
+    // reprise automatique a été retirée.
+    fireEvent.click(checkbox(/Antécédent cardiovasculaire/))
+    expect(segmentEsperanceVie('Limitée').getAttribute('aria-pressed')).toBe('true')
     expect(screen.getByText('· calculé, à vérifier', { exact: false })).toBeTruthy()
   })
 
@@ -276,5 +363,78 @@ describe('DecisionNodeScreen — la reprise relance la suggestion d’espérance
     // ce correctif).
     expect(segmentEsperanceVie('Longue').getAttribute('aria-pressed')).toBe('true')
     expect(segmentEsperanceVie('Limitée').getAttribute('aria-pressed')).toBe('false')
+  })
+})
+
+/**
+ * P12/S1 (2026-08-02) — DEUX RÉGRESSIONS SUR LE MÊME NŒUD RÉEL (`cible-glycemique`), CORRIGÉES L'UNE
+ * APRÈS L'AUTRE LE MÊME JOUR. `NOEUD_CIBLE_A`/`NOEUD_CIBLE_B` (déclarés en tête de fichier) miment
+ * l'encodage réel EXACT des quatre drivers (`partage` ET `presomption_non`), pas une approximation —
+ * c'est précisément cette exactitude qui manquait à `NOEUD_ESP_A`/`NOEUD_ESP_B` du describe précédent
+ * et qui a laissé passer la seconde régression en recette.
+ *
+ * 1. CONSTAT N° 2 (recette 2026-08-02) : nœud cible avec ☑ antécédent cardiovasculaire → espérance de
+ *    vie « Intermédiaire ». On quitte le nœud, on y revient, on clique « Reprendre les valeurs de ce
+ *    patient » → `antecedent_cv` (pas `partage: true` sur le nœud réel) revenait absent, et la
+ *    suggestion se recalculait quand même sur ce dossier amputé, faisant flotter silencieusement
+ *    l'espérance de vie affichée vers « Longue », badge `Recommandée` inchangé. Corrigé en retirant
+ *    l'appel à la suggestion depuis ce chemin (cf. `esperanceVieDefault.ts` pour l'historique complet,
+ *    y compris un premier correctif — une garde de complétude des drivers — tenté puis retiré).
+ * 2. RÉGRESSION DE CE PREMIER CORRECTIF, mesurée au navigateur sur la vignette N2 (Âge → Ancienneté →
+ *    « Rien à signaler ») : la garde de complétude ne pouvait JAMAIS être satisfaite sur le nœud réel,
+ *    où `antecedent_cv`/`comorbidite_grave` portent `presomption_non: true` (un `bool` présumé est
+ *    déterminé sans jamais être `touched` — « Rien à signaler » ne les touche donc jamais,
+ *    `CriteriaForm.tsx` `boolsAConfirmer` filtrant sur `aConfirmer`). Le nœud le plus utilisé du produit
+ *    ne rendait plus AUCUNE carte. Le second test ci-dessous verrouille exactement ce cas — le trou de
+ *    couverture qui a laissé passer cette régression (aucun test existant, avant ce jour, ne combinait
+ *    `presomption_non` et « Rien à signaler » sur les drivers d'espérance de vie).
+ */
+describe('DecisionNodeScreen — suggestion d’espérance de vie sur un nœud fidèle au nœud réel (P12/S1)', () => {
+  it('constat n° 2 : aller-retour entre deux nœuds → la cible (l’espérance de vie suggérée) ne change pas', () => {
+    const { unmount } = render(<DecisionNodeScreen nodeId={NOEUD_CIBLE_A.id} go={() => {}} />)
+    // `age` (partagé, pour que la reprise ait quelque chose à proposer) + `antecedent_cv` coché — EXACTEMENT
+    // le geste du constat n° 2, rien de plus (`fragilite`/`comorbidite_grave` restent à leur défaut, non
+    // touchés : plus besoin de les déterminer explicitement, la garde de complétude a été retirée).
+    fireEvent.change(champAge(), { target: { value: '45' } })
+    fireEvent.click(checkbox(/Antécédent cardiovasculaire/))
+
+    // `antecedent_cv` seul (aucun autre facteur de gravité, âge < 75) → palier « intermédiaire »,
+    // exactement le constat n° 2 de la recette.
+    expect(segmentEsperanceVie('Intermédiaire').getAttribute('aria-pressed')).toBe('true')
+    unmount()
+
+    // « On va sur Traiter, on revient » — modélisé, comme le describe précédent, par une sortie/réouverture
+    // (nœud à l'identique, id différent : le mécanisme testé est la mémoire de session, pas le contenu).
+    render(<DecisionNodeScreen nodeId={NOEUD_CIBLE_B.id} go={() => {}} />)
+    // `age` revient (partagé) ; `antecedent_cv` NE revient PAS (pas `partage: true`, exactement comme sur
+    // `cible-glycemique`). Rien n'est encore (re)posé pour `esperance_vie` sur ce montage frais.
+    expect(screen.getByText('Reprendre les valeurs de ce patient')).toBeTruthy()
+    expect(segmentEsperanceVie('Intermédiaire').getAttribute('aria-pressed')).toBe('false')
+
+    fireEvent.click(screen.getByText('Reprendre les valeurs de ce patient'))
+
+    // LE REMÈDE : ce clic ne calcule plus RIEN pour `esperance_vie`, quel que soit ce qui a ou n'a pas
+    // été repris — le champ reste VIDE, le praticien répond (R7), plutôt que de flotter en silence vers
+    // « Longue » (le défaut du constat n° 2, badge `Recommandée` inchangé).
+    expect(segmentEsperanceVie('Intermédiaire').getAttribute('aria-pressed')).toBe('false')
+    expect(segmentEsperanceVie('Longue').getAttribute('aria-pressed')).toBe('false')
+    expect(segmentEsperanceVie('Limitée').getAttribute('aria-pressed')).toBe('false')
+    expect(screen.queryByText('· calculé, à vérifier', { exact: false })).toBeNull()
+  })
+
+  it('« Rien à signaler » déclenche la suggestion même quand les autres drivers portent presomption_non (trou de couverture qui a laissé passer la régression du 2026-08-02)', () => {
+    render(<DecisionNodeScreen nodeId={NOEUD_CIBLE_A.id} go={() => {}} />)
+
+    // Vignette N2 : Âge (59) → « Rien à signaler ». `comorbidite_grave`/`antecedent_cv` (presomption_non)
+    // ne sont JAMAIS touchés par ce bouton — seule `fragilite` (décisive via `OPTION_FRAGILE`, SANS
+    // presomption_non) l'est. Si une garde exigeait un jour que les QUATRE drivers soient `touched`, ce
+    // test échouerait : c'est exactement le trou qui a laissé passer la régression mesurée au navigateur.
+    fireEvent.change(champAge(), { target: { value: '59' } })
+    fireEvent.click(screen.getByText('Rien à signaler'))
+
+    // 59 ans (< 75), aucun facteur de gravité (fragilite confirmée « non » ; comorbidite_grave/
+    // antecedent_cv présumés « non », jamais touchés) → palier « longue ».
+    expect(segmentEsperanceVie('Longue').getAttribute('aria-pressed')).toBe('true')
+    expect(screen.getByText('· calculé, à vérifier', { exact: false })).toBeTruthy()
   })
 })
