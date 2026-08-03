@@ -66,16 +66,16 @@ avant d'ouvrir P12, sinon le plan s'empile sur une base que personne ne sert.
 
 | Session | Tâches | Titre | Modèle | Effort | Env. | Dépend de | Zone modifiée | Statut |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [S1](S1.md) | T-119, T-120 | Sûreté : la cible d'HbA1c cesse de changer toute seule | Sonnet | high | — | — | `src/features/decision/lib/esperanceVieDefault.ts`, `src/features/decision/screens/DecisionNodeScreen.tsx`, `content/decision/noeuds/diabete-type-2/cible-glycemique.yaml` | [ ] |
-| [S2](S2.md) | T-121 | Intitulés : le motif sort du titre (3 nœuds de prescription) | Sonnet | high | — | — | `content/decision/noeuds/diabete-type-2/{prescription,insuline,statine}.yaml`, `src/features/decision/engine/banc/__snapshots__/` | [ ] |
-| [S3](S3.md) | T-122, T-123 | Mise en page : le seuil des deux colonnes et leur équilibre | Sonnet | medium | Desktop | S1, S2 | `src/features/decision/screens/DecisionNodeScreen.css`, `.tsx`, `DECISIONS.md` | [ ] |
-| [S4](S4.md) | T-067 | La branche AGP appariée : dire quoi baisser, pas la table | Sonnet | high | — | S2 | `content/decision/noeuds/diabete-type-2/insuline.yaml` | [ ] |
-| [S5](S5.md) | T-124, T-125 | Titres de groupe et motifs restés bruts | Sonnet | medium | — | S2, S3, S4 | `content/decision/noeuds/diabete-type-2/*.yaml`, `src/features/decision/screens/DecisionNodeScreen.tsx` | [ ] |
-| [S6](S6.md) | T-126, T-127 | Déprescription : onze aperçus muets et une alerte manquante | Sonnet | high | — | S2, S5 | `content/decision/noeuds/diabete-type-2/prescription.yaml` | [ ] |
-| [S7](S7.md) | T-128→T-132 | Propreté : cinq défauts qui coûtent de la confiance | Sonnet | medium | Desktop | S3, S6 | `src/features/shared/ui/PastilleInfo.css`, `src/features/decision/screens/DecisionNodeScreen.tsx`, `content/decision/modules/diabete-type-2/rhd.yaml`, `content/decision/noeuds/diabete-type-2/*.argumentaire.md`, `statine.yaml`, `engine/banc/` | [ ] |
-| [S8](S8.md) | T-133 | Conversions d'unités : le critère dérivé numérique | Sonnet | high | — | S6 | `src/features/decision/engine/deriveCritere.ts`, `schema/noeud.schema.json`, `content/decision/noeuds/diabete-type-2/{prescription,statine}.yaml` | [ ] |
-| [S9](S9.md) | T-134 | « Je ne l'ai pas » : la valeur *indisponible* | Sonnet | xhigh | — | S8 | `src/features/decision/engine/`, `src/features/decision/lib/formLayout.ts`, `src/features/decision/components/CriteriaForm.tsx`, `content/` | [ ] |
-| [S10](S10.md) | T-135, T-136 | Ce qui se voit sans un clic : accroche chiffrée, carte unique dépliée | Sonnet | medium | Desktop | S3 | `src/features/decision/screens/DecisionNodeScreen.tsx`, `.css`, `src/features/decision/components/OptionCard.tsx` | [ ] |
+| [S1](S1.md) | T-119, T-120 | Sûreté : la cible d'HbA1c cesse de changer toute seule | Sonnet | high | — | — | `src/features/decision/lib/esperanceVieDefault.ts`, `src/features/decision/screens/DecisionNodeScreen.tsx`, `content/decision/noeuds/diabete-type-2/cible-glycemique.yaml` | [x] — 2026-08-03 |
+| [S2](S2.md) | T-121 | Intitulés : le motif sort du titre (3 nœuds de prescription) | Sonnet | high | — | — | `content/decision/noeuds/diabete-type-2/{prescription,insuline,statine}.yaml`, `src/features/decision/engine/banc/__snapshots__/` | [x] — 2026-08-03 |
+| [S3](S3.md) | T-122, T-123 | Mise en page : le seuil des deux colonnes et leur équilibre | Sonnet | medium | Desktop | S1, S2 | `src/features/decision/screens/DecisionNodeScreen.css`, `.tsx`, `DECISIONS.md` | [x] — 2026-08-03 |
+| [S4](S4.md) | T-067 | La branche AGP appariée : dire quoi baisser, pas la table | Sonnet | high | — | S2 | `content/decision/noeuds/diabete-type-2/insuline.yaml` | [x] — 2026-08-03 |
+| [S5](S5.md) | T-124, T-125 | Titres de groupe et motifs restés bruts | Sonnet | medium | — | S2, S3, S4 | `content/decision/noeuds/diabete-type-2/*.yaml`, `src/features/decision/screens/DecisionNodeScreen.tsx` | [x] — 2026-08-03 |
+| [S6](S6.md) | T-126, T-127 | Déprescription : onze aperçus muets et une alerte manquante | Sonnet | high | — | S2, S5 | `content/decision/noeuds/diabete-type-2/prescription.yaml` | [x] — 2026-08-03 |
+| [S7](S7.md) | T-128→T-132 | Propreté : cinq défauts qui coûtent de la confiance | Sonnet | medium | Desktop | S3, S6 | `src/features/shared/ui/PastilleInfo.css`, `src/features/decision/screens/DecisionNodeScreen.tsx`, `content/decision/modules/diabete-type-2/rhd.yaml`, `content/decision/noeuds/diabete-type-2/*.argumentaire.md`, `statine.yaml`, `engine/banc/` | [x] — 2026-08-03 |
+| [S8](S8.md) | T-133 | Conversions d'unités : le critère dérivé numérique | Sonnet | high | — | S6 | `src/features/decision/engine/deriveCritere.ts`, `schema/noeud.schema.json`, `content/decision/noeuds/diabete-type-2/{prescription,statine}.yaml` | [x] — 2026-08-03 |
+| [S9](S9.md) | T-134 | « Je ne l'ai pas » : la valeur *indisponible* | Sonnet | xhigh | — | S8 | `src/features/decision/engine/`, `src/features/decision/lib/formLayout.ts`, `src/features/decision/components/CriteriaForm.tsx`, `content/` | [x] — 2026-08-03 |
+| [S10](S10.md) | T-135, T-136 | Ce qui se voit sans un clic : accroche chiffrée, carte unique dépliée | Sonnet | medium | Desktop | S3 | `src/features/decision/screens/DecisionNodeScreen.tsx`, `.css`, `src/features/decision/components/OptionCard.tsx` | [x] — 2026-08-03 |
 
 ## Ordonnancement
 
@@ -120,6 +120,30 @@ Les six points ouverts au cadrage ont été tranchés. **Aucune session n'a à l
    formulaire et les blocs de texte gardent leur plafond. Motif : D46 visait la longueur de ligne
    d'un paragraphe, sans objet pour une rangée de carte. → **S3/T-123**.
 7. **S9 reste dans P12, en dernier**, avec sa condition d'arrêt inchangée.
+
+## Bilan de clôture — 2026-08-03
+
+**Dix sessions livrées. N0 : 1048 tests passés, 11 skip, 0 échec** (départ du plan : 982), typecheck
+et build verts, mesuré machine libre.
+
+**Une seule tâche n'a pas été livrée : T-120** (implication athérome ⇒ antécédent cardiovasculaire).
+STOP fondé, vérifié des deux côtés : `cible-glycemique.yaml` ne déclare pas `ASCVD_etablie`, donc une
+règle `preremplissage` qui le lit ne s'évaluerait jamais. La sûreté visée est de toute façon acquise
+par T-119. Arbitrage porté dans `VALIDATION.md` — recommandation : abandonner.
+
+**Six corrections après revue de l'orchestrateur**, aucune détectée par la suite de tests : garde
+d'espérance de vie trop stricte (S1, le nœud le plus utilisé ne rendait plus rien) · trois intitulés
+vidés de leur sens clinique (S2) · une provenance fausse contredite par le nœud lui-même (S4) · un nom
+de famille cliniquement faux (S5) · une exigence de validation dont le fichier n'était pas dans le
+périmètre de modification (S8). **Quatre de ces six venaient d'une erreur de ce plan, pas de
+l'exécution** : une intention juste accompagnée d'une contrainte qui la contredit. Un `S<k>.md` dont
+la section « Validation » exige ce que la section « Modifier » interdit est un piège que seul
+l'orchestrateur peut voir.
+
+**Ce qui a marché** : rejouer les vignettes de la recette au navigateur à chaque vague plutôt qu'à la
+fin, et exiger qu'un garde-fou soit vu **rouge** avant d'être vert. Les trois dernières sessions
+(S7 : invariant 11/13 rouge · S8 : 14 tests de propagation rouges · S9 : filtre désactivé pour voir
+le test critique échouer) l'ont appliqué d'elles-mêmes, la pratique s'étant propagée de brief en brief.
 
 ## Le fil rouge
 

@@ -4,7 +4,7 @@ Photo à l'instant T. Mis à jour en fin de session. L'historique (comment on es
 `git log`, `DECISIONS.md`/`docs/commun/decisions/` et les changelogs de contenu — pas ici.
 Plafond : 80 lignes (appliqué par hook).
 
-> **Dernière mise à jour :** 2026-08-02
+> **Dernière mise à jour :** 2026-08-03
 
 ## Ce qui existe
 
@@ -15,48 +15,46 @@ Veille : **non commencé** (aucun code, `DECISIONS.md` D8 garde la place).
 
 | nœud | statut | dernière version |
 | --- | --- | --- |
-| `cible-glycemique` | `valide` | v2.11 |
-| `statine` | `brouillon` | v1.20 |
-| `prescription` | `brouillon` | v0.45 |
-| `insuline` | `brouillon` | v0.38 |
-| `rhd-alimentation` | `brouillon` | v0.11 |
-| `rhd-activite-physique` | `brouillon` | v0.11 |
+| `cible-glycemique` | `valide` | v2.12 |
+| `statine` | `brouillon` | v1.23 |
+| `prescription` | `brouillon` | v0.57 |
+| `insuline` | `brouillon` | v0.44 |
+| `rhd-alimentation` | `brouillon` | v0.12 |
+| `rhd-activite-physique` | `brouillon` | v0.13 |
 
 Passage à `valide` conditionné à la relecture référent finale (`TASKS.md` §validation clinique).
 
 **Banc de tests** (`src/features/decision/engine/banc/`) : non-régression du contenu en 3 couches
-(vignettes, couverture, invariants). **982 tests, 11 skip, typecheck et build verts.**
+(vignettes, couverture, invariants) + **I25, aucun jargon de projet dans un champ affiché** (P12/S7).
+**1048 tests, 11 skip, typecheck et build verts.**
 
 ## Chantier actif
 
-**Plan P11 — clos et poussé 2026-08-02** (langage visuel maquette, module Décision) : S1-S10 livrées
-(icônes D44, carte compacte D45, largeur d'écran D46). Recette S8 sans défaut N1 mais **DOM/console
-seule** (captures impossibles) : carte tient-elle sur une ligne (arrêt S6, 960-1050px) **non vérifié
-au pixel**, cf. `TASKS.md`. N2 en attente, cf. `VALIDATION.md`.
-
-**Plan P10 : clos le 2026-08-01** (S1-S11 livrées, vérifiées N0 + N1, pas encore commitées/poussées).
-Les branches de condition n'affichent plus que ce qui est vrai pour le patient, un motif rédigé peut
-remplacer une branche illisible, les options non retenues se lisent en énumération négative, six nœuds
-portent désormais un `cadrage` disant ce qu'ils ignorent, iSGLT2/AR GLP‑1 descendent à la molécule et à
-la dose (sourcé RCP), l'infobulle « Risque hypoglycémique du schéma » est posée. Deux sessions (S8, S10)
-concluent par un STOP documenté plutôt qu'un changement (aucune source FR sur la vitesse de désescalade
-insuline ; l'ordre des familles ne peut pas être rendu générique sans notion nouvelle de contenu) —
-cf. `TASKS.md`. Relecture référent (N2) en attente, cf. `VALIDATION.md`.
+**Plan P12 — clos le 2026-08-03** (suites de la recette praticien naïf du 2026-08-02) : S1-S10
+livrées. La cible d'HbA1c ne se recalcule plus à la reprise de session ; les intitulés d'options
+nomment le geste, le motif se lit dans « Proposé parce que » ; le seuil des deux colonnes passe à
+1200 px (**D47**, D46 confirmé par la mesure) ; la baisse continue nocturne déclenche « Réduire la
+basale », chiffrée (T-067, reprise de P8) ; les 11 cartes de déprescription portent une posologie ou
+déclarent qu'aucun rythme n'est sourcé ; une alerte préventive d'acidocétose euglycémique est posée ;
+les blocs repliés annoncent leur contenu ; une carte seule s'affiche dépliée ; poids/taille et CK en
+UI/L remplacent l'IMC et les multiples calculés de tête (critères dérivés **numériques**, extension
+du moteur) ; le praticien peut déclarer qu'un critère restera **indisponible**. Une seule tâche non
+livrée, **T-120**, STOP fondé — cf. `plans/P12/index.md` §Bilan de clôture. N2 : `VALIDATION.md`.
 
 **Plan PV1 — module Veille, cadré le 2026-07-31, pas démarré** (`plans/PV1/index.md`) : 10 sessions,
 deux éditions hebdomadaires produites **à la main** (`2026-W30`, `2026-W31`, en rétrospectif) avant
 tout code, puis gel du modèle et câblage V1/V2. Les plans Veille sont préfixés `PV`.
 
-**Plan P7** (cadré 2026-07-29, toujours ouvert) : il manque SA2 (validité HbA1c) et S2 (recette) —
-détail : `plans/P7/index.md`.
+**Plan P7** (cadré 2026-07-29, toujours ouvert) : il manque SA2 (validité HbA1c) et S2 (recette).
+SA2 est débloquée depuis P12/S10 (l'accroche chiffrée des blocs repliés) — détail `plans/P7/index.md`.
 
-**Plan P8** : quasi clos le 2026-07-30 (S1-S8 livrées, vérifiées N0+N1, commitées). **S9/T-067
-(« réduire la basale », chiffrée) reste ouverte** — aucune carte dédiée encodée, cf. `TASKS.md`.
+**Plan P8 — clos** : S1-S8 livrées et commitées ; **T-067 a été reprise et livrée par P12/S4**.
 
 ## Ce qui casse / n'est pas testé
 
-- Onglet **« Veille » rend une page blanche** (texte `top: 0` caché sous la nav fixe) — mécanique, non cadré.
-- CTA flottant mobile (P6) : réserve mineure résiduelle, usage ordinaire ne la déclenche pas — laissé tel quel (référent, 2026-07-29).
+- Onglet **« Veille » rend une page blanche** — mécanique, non cadré (appartient à PV1/S6).
+- CTA flottant mobile : depuis **D47** il apparaît jusqu'à 1199 px de large (contre 959 px avant),
+  donc sur des fenêtres de bureau non maximisées. Jugement d'usage en attente, cf. `VALIDATION.md`.
 
 ## Bugs connus
 
@@ -68,11 +66,14 @@ détail : `plans/P7/index.md`.
 - **Passe B — sécurité à l'effort** (`rhd-activite-physique`, `modèle: Opus, effort: high`).
 - **Validation clinique référent finale** (`prescription`, `insuline`, RHD ×2 → `statut: valide`) :
   session dédiée à programmer, cf. `TASKS.md`.
+- **Albuminurie non convertie** : `derive` ne sait produire qu'un booléen ou un nombre, jamais un
+  libellé d'énumération — le praticien saisit toujours une catégorie là où son labo rend un ratio A/C.
 
 ## Comment vérifier l'état réel
 
 ```bash
-npm test          # 982 tests attendus, 11 skip
-npm run typecheck # npx tsc --noEmit seul est factice (tsconfig.json en `files: []`, 0 fichier compilé)
+npm test          # 1048 tests attendus, 11 skip — mesurer MACHINE LIBRE (aucun serveur de dev en
+                  # cours) : le banc de sécurité rend des verdicts au hasard sous charge
+npm run typecheck # `npx tsc --noEmit` seul est factice (tsconfig.json en `files: []`, 0 fichier)
 npm run build
 ```
