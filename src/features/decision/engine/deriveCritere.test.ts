@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { CritereEntree } from '../content/node.types'
-import { ConditionError, INDETERMINE, type Criteria } from './conditions'
+import { ConditionError, INDETERMINE, evaluateCondition, type Criteria } from './conditions'
 import {
   calculerCriteresDerives,
   criteresReferences,
@@ -215,3 +215,121 @@ describe('determinesEffectifs — ensemble effectif des critères déterminés (
     expect(indetermine.has('cible_atteinte')).toBe(false)
   })
 })
+
+// =========================================================================================================
+// T-133 (P12/S8) — CRITÈRES DÉRIVÉS NUMÉRIQUES (voie B) : un critère `type: nombre` porteur d'un `derive`
+// arithmétique reçoit une VALEUR (pas un booléen). ÉCRITS AVANT LE CODE (brief S8.md, étape 1) : au moment
+// où ces tests sont ajoutés, `calculerCriteresDerives` ne connaît que le chemin booléen (`evaluerDerive`)
+// et `resoudreArithTernaire` ne supporte qu'UN SEUL opérateur binaire — les deux prochains blocs DOIVENT
+// donc échouer avant l'extension du moteur (chaîne d'opérateurs pour l'IMC, `poids / taille / taille`), et
+// le troisième bloc (propagation D20) est LE CŒUR de la tâche : c'est lui qui doit rester rouge tant que
+// l'indéterminé n'est pas correctement propagé à travers un dérivé numérique.
+// =========================================================================================================
+
+describe('resoudreArithTernaire / evaluerNombre — CHAÎNE de plusieurs opérateurs (T-133, poids / taille / taille pour l’IMC)', () => {
+  it('applique les opérateurs de GAUCHE À DROITE (pas un regroupement du membre de droite)', () => {
+    // (poids / taille) / taille = (70 / 1.75) / 1.75 = 40 / 1.75 ≈ 22,857 — PAS poids / (taille / taille) = 70.
+    expect(evaluerNombre('poids / taille / taille', { poids: 70, taille: 1.75 })).toBeCloseTo(22.857, 2)
+  })
+
+  it('un opérande manquant PROPAGE l’indéterminé à travers toute la chaîne (jamais un calcul partiel)', () => {
+    expect(evaluerNombre('poids / taille / taille', { taille: 1.75 })).toBeNull()
+  })
+
+  it('une division par zéro À N’IMPORTE QUEL MAILLON de la chaîne rend indéterminé (jamais Infinity/NaN)', () => {
+    expect(evaluerNombre('poids / taille / taille', { poids: 70, taille: 0 })).toBeNull()
+  })
+
+  it('un opérateur unique (forme historique) reste inchangé — non-régression de la chaîne à 1 maillon', () => {
+    expect(evaluerNombre('poids * 0.15', { poids: 80 })).toBeCloseTo(12)
+  })
+})
+
+describe('calculerCriteresDerives — critère `type: nombre` porteur d’un `derive` (T-133, IMC)', () => {
+  const criteresIMC: CritereEntree[] = [
+    { nom: 'poids', type: 'nombre' },
+    { nom: 'taille', type: 'nombre' },
+    { nom: 'IMC', type: 'nombre', derive: 'poids / taille / taille' },
+  ]
+
+  it('pose la VALEUR NUMÉRIQUE calculée sur le critère dérivé (pas un booléen)', () => {
+    const entree: Criteria = { poids: 70, taille: 1.75, IMC: 999 } // 999 : valeur bidon, doit être écrasée
+    const out = calculerCriteresDerives(criteresIMC, entree)
+    expect(typeof out.IMC).toBe('number')
+    expect(out.IMC).toBeCloseTo(22.857, 2)
+  })
+
+  it('CK_x_normale (autre dérivé numérique du domaine, statine) : rapport CK_UI_L / CK_normale_sup', () => {
+    const criteresCK: CritereEntree[] = [
+      { nom: 'CK_UI_L', type: 'nombre' },
+      { nom: 'CK_normale_sup', type: 'nombre' },
+      { nom: 'CK_x_normale', type: 'nombre', derive: 'CK_UI_L / CK_normale_sup' },
+    ]
+    const out = calculerCriteresDerives(criteresCK, { CK_UI_L: 725, CK_normale_sup: 145 })
+    expect(out.CK_x_normale).toBeCloseTo(5, 5)
+  })
+})
+
+describe("determinesEffectifs — critère `type: nombre` dérivé (T-133) : est-il DÉTERMINÉ selon ses opérandes ?", () => {
+  const criteresIMC: CritereEntree[] = [
+    { nom: 'poids', type: 'nombre' },
+    { nom: 'taille', type: 'nombre' },
+    { nom: 'IMC', type: 'nombre', derive: 'poids / taille / taille' },
+  ]
+
+  it('DÉTERMINÉ quand poids ET taille sont tous deux renseignés', () => {
+    const criteria = calculerCriteresDerives(criteresIMC, { poids: 70, taille: 1.75 })
+    const effectifs = determinesEffectifs(criteresIMC, criteria, new Set(['poids', 'taille']))!
+    expect(effectifs.has('IMC')).toBe(true)
+  })
+
+  it('INDÉTERMINÉ (absent de l’ensemble effectif) quand le poids manque, même si la taille est connue', () => {
+    const criteria = calculerCriteresDerives(criteresIMC, { poids: 70, taille: 1.75 })
+    const effectifs = determinesEffectifs(criteresIMC, criteria, new Set(['taille']))! // poids absent
+    expect(effectifs.has('IMC')).toBe(false)
+  })
+
+  it('INDÉTERMINÉ quand la taille manque, même si le poids est connu', () => {
+    const criteria = calculerCriteresDerives(criteresIMC, { poids: 70, taille: 1.75 })
+    const effectifs = determinesEffectifs(criteresIMC, criteria, new Set(['poids']))! // taille absente
+    expect(effectifs.has('IMC')).toBe(false)
+  })
+})
+
+describe(
+  "PROPAGATION DE L'INDÉTERMINÉ (D20) À TRAVERS UN DÉRIVÉ NUMÉRIQUE — LE CŒUR DE LA TÂCHE (T-133). " +
+    'Si le poids manque, l’IMC n’est pas « 0 », il est INDÉTERMINÉ, et une comparaison qui le lit (IMC >= 30) ' +
+    'doit rester INDÉTERMINÉE — jamais `false`. Un IMC qui vaudrait 0 par défaut ferait disparaître ' +
+    'silencieusement des options chez un patient incomplet (cf. « Si bloqué », S8.md).',
+  () => {
+    const criteresIMC: CritereEntree[] = [
+      { nom: 'poids', type: 'nombre' },
+      { nom: 'taille', type: 'nombre' },
+      { nom: 'IMC', type: 'nombre', derive: 'poids / taille / taille' },
+    ]
+
+    it('poids ET taille renseignés : `IMC >= 30` est tranchée normalement (vrai ici, IMC ≈ 31,1)', () => {
+      const criteria = calculerCriteresDerives(criteresIMC, { poids: 90, taille: 1.7 })
+      const effectifs = determinesEffectifs(criteresIMC, criteria, new Set(['poids', 'taille']))
+      expect(evaluateCondition('IMC >= 30', criteria, effectifs)).toBe(true)
+    })
+
+    it('LE POIDS MANQUE : `IMC >= 30` reste INDÉTERMINÉE — jamais `false` (pas d’IMC « 0 » qui ferait disparaître l’option)', () => {
+      const criteria = calculerCriteresDerives(criteresIMC, { poids: 90, taille: 1.7 })
+      const effectifs = determinesEffectifs(criteresIMC, criteria, new Set(['taille'])) // poids non renseigné
+      expect(evaluateCondition('IMC >= 30', criteria, effectifs)).toBe(INDETERMINE)
+    })
+
+    it('LA TAILLE MANQUE : `IMC < 22` reste INDÉTERMINÉE de la même façon', () => {
+      const criteria = calculerCriteresDerives(criteresIMC, { poids: 90, taille: 1.7 })
+      const effectifs = determinesEffectifs(criteresIMC, criteria, new Set(['poids'])) // taille non renseignée
+      expect(evaluateCondition('IMC < 22', criteria, effectifs)).toBe(INDETERMINE)
+    })
+
+    it('AUCUN opérande renseigné (formulaire vierge) : `IMC >= 30` indéterminée, pas faussement `false`', () => {
+      const criteria = calculerCriteresDerives(criteresIMC, { poids: 0, taille: 0 })
+      const effectifs = determinesEffectifs(criteresIMC, criteria, new Set())
+      expect(evaluateCondition('IMC >= 30', criteria, effectifs)).toBe(INDETERMINE)
+    })
+  },
+)

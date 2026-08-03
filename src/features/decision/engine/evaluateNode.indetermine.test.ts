@@ -5,6 +5,7 @@
  */
 import { describe, expect, it } from 'vitest'
 import type { CritereEntree, Noeud, Option } from '../content/node.types.ts'
+import { calculerCriteresDerives, determinesEffectifs } from './deriveCritere.ts'
 import { evaluateNode } from './evaluateNode.ts'
 
 /** Fabrique une option minimale (les champs cliniques d'affichage ne changent pas la sélection). */
@@ -273,6 +274,75 @@ describe('evaluateNode — alertes de nœud : une alerte indéterminée ne s’a
     expect(res.alertes.map((al) => al.message)).toEqual(['Alerte rénale'])
   })
 })
+
+describe(
+  'evaluateNode — CRITÈRE DÉRIVÉ NUMÉRIQUE (T-133, P12/S8, IMC = poids / taille / taille) : ' +
+    'PROPAGATION DE L’INDÉTERMINÉ BOUT EN BOUT, cœur de la tâche — un poids manquant ne doit JAMAIS ' +
+    'faire disparaître silencieusement une option gardée par un seuil d’IMC.',
+  () => {
+    const criteres: CritereEntree[] = [
+      { nom: 'poids', type: 'nombre' },
+      { nom: 'taille', type: 'nombre' },
+      { nom: 'IMC', type: 'nombre', derive: 'poids / taille / taille' },
+    ]
+
+    it('poids et taille renseignés (IMC ≈ 31,1) : l’option gardée par `IMC >= 30` est APPLICABLE, jamais en attente', () => {
+      const brut = { poids: 90, taille: 1.7 }
+      const derives = calculerCriteresDerives(criteres, brut)
+      const renseignes = new Set(['poids', 'taille'])
+      const effectifs = determinesEffectifs(criteres, derives, renseignes)
+      const a = opt('A', ['IMC >= 30'])
+      const node = makeNode([a], criteres)
+      const res = evaluateNode(node, derives, effectifs)
+      expect(noms(res.applicable)).toEqual(['A'])
+      expect(res.enAttente.size).toBe(0)
+    })
+
+    it(
+      'LE POIDS MANQUE : l’option n’est NI applicable NI non retenue — elle part EN ATTENTE, avec `poids` ' +
+        'nommé (jamais un nom dérivé) parmi les critères à renseigner',
+      () => {
+        const brut = { poids: 90, taille: 1.7 }
+        const derives = calculerCriteresDerives(criteres, brut)
+        const renseignes = new Set(['taille']) // poids NON renseigné
+        const effectifs = determinesEffectifs(criteres, derives, renseignes)
+        const a = opt('A', ['IMC >= 30'])
+        const node = makeNode([a], criteres)
+        const res = evaluateNode(node, derives, effectifs)
+        expect(res.applicable).toEqual([]) // jamais affirmée applicable sur un poids manquant
+        expect(res.nonRetenues.has(a)).toBe(false) // jamais écartée à tort (affirmerait IMC < 30)
+        expect(res.enAttente.has(a)).toBe(true) // le seul état correct : en attente
+        expect(res.enAttente.get(a)).toContain('poids')
+      },
+    )
+
+    it('LA TAILLE MANQUE : même garantie, symétrique', () => {
+      const brut = { poids: 90, taille: 1.7 }
+      const derives = calculerCriteresDerives(criteres, brut)
+      const renseignes = new Set(['poids']) // taille NON renseignée
+      const effectifs = determinesEffectifs(criteres, derives, renseignes)
+      const a = opt('A', ['IMC >= 30'])
+      const node = makeNode([a], criteres)
+      const res = evaluateNode(node, derives, effectifs)
+      expect(res.applicable).toEqual([])
+      expect(res.enAttente.has(a)).toBe(true)
+      expect(res.enAttente.get(a)).toContain('taille')
+    })
+
+    it('une EXCLUSION gardée par un seuil d’IMC indéterminé bascule aussi en attente, jamais silencieusement levée', () => {
+      const brut = { poids: 90, taille: 1.7 }
+      const derives = calculerCriteresDerives(criteres, brut)
+      const renseignes = new Set<string>() // rien de renseigné
+      const effectifs = determinesEffectifs(criteres, derives, renseignes)
+      const a = opt('A', ['toujours'], { exclusions: ['IMC < 22'] })
+      const node = makeNode([a], criteres)
+      const res = evaluateNode(node, derives, effectifs)
+      expect(res.applicable).toEqual([])
+      expect(res.excluded.has(a)).toBe(false) // pas écartée à tort
+      expect(res.enAttente.has(a)).toBe(true)
+    })
+  },
+)
 
 describe('evaluateNode — ordered-first-match : halte sur indéterminé (D20, l’ordre du nœud fait foi)', () => {
   const criteres: CritereEntree[] = [
