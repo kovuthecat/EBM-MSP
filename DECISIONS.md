@@ -57,6 +57,7 @@ Format du détail : cf. `Templates/DECISIONS.md`. Les décisions caduques descen
 - 2026-08-01 — **D44 · Kit d'icônes SVG partagé (amende D9)** — `src/features/shared/icons/`, 17 tracés recopiés de la maquette, `currentColor` piloté par token, zéro dépendance runtime → [détail](docs/commun/decisions/2026-08-01-d44-kit-d-icones-svg-partage.md)
 - 2026-08-01 — **D45 · Carte d'option compacte à pastilles (amende D34)** — posologie et CI derrière un clic ; badge de preuve resté textuel (points essayés T-109 puis révoqués arbitrage 2026-08-02) ; validation d'usage ouverte → [détail](docs/commun/decisions/2026-08-01-d45-carte-d-option-compacte-a-pastilles.md)
 - 2026-08-02 — **D46 · La mise en page occupe la largeur de l'écran** — `.decision-node` 900→1600px, arbitrage référent (pas une mesure), plafond soumis au jugement N2 (`VALIDATION.md`) → [détail](docs/commun/decisions/2026-08-02-d46-mise-en-page-occupe-la-largeur-de-l-ecran.md)
+- 2026-08-02 — **D47 · Seuil deux colonnes remonté à 1200px (amende D45/D46, D46 confirmé)** — `LARGEUR_ETROITE_MAX` 959→1199 et `@media` 960→1200 ; remesure post-S2 : l'empilé bat la grille sur toute la zone 1000-1100px ; pas de rééquilibrage de colonnes (aucun effet mesurable au-dessus du seuil) → [détail](docs/commun/decisions/2026-08-02-d47-seuil-deux-colonnes-remonte-a-1200px.md)
 
 ## Décisions ouvertes (à trancher avec le comité MSP)
 
