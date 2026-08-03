@@ -339,6 +339,25 @@ describe.each(noeuds.map((node) => [node.id, node] as const))('banc — invarian
  */
 const VIOLATIONS_R8_CONNUES_T018 = new Map<string, string>([
   [
+    'statine :: CK_UI_L',
+    'T-133 (P12/S8, 2026-08-03) : masqué par `visible_si: "intolerance_statine != non"`, lu par le ' +
+      "DÉRIVÉ `CK_x_normale` (`CK_UI_L / CK_normale_sup`) SANS répéter ce garde — MÊME MÉCANISME que " +
+      "`insuline :: mcg_disponible` ci-dessous (« I10 ne voit pas l'« acquis » d'un derive, qui ne vit " +
+      "dans aucune option »), pas un défaut de fond : TOUTES les options qui lisent `CK_x_normale` " +
+      "portent déjà, dans leur PROPRE condition, le garde `intolerance_statine != non` — vérifié, et " +
+      "c'est ce que confirme I11 (`banc/impasse.test.ts`), vert sur `statine`. Un patient sans intolérance " +
+      '(`intolerance_statine == non`) voit donc ces options court-circuitées à `false` sur LEUR PROPRE ' +
+      "garde AVANT même que `CK_x_normale` ne soit lu — aucune option ne part réellement en attente sur un " +
+      'champ invisible. Ne PAS répéter le garde À L\'INTÉRIEUR de l\'expression `derive` (qui n\'est que de ' +
+      "l'arithmétique pure, `CK_UI_L / CK_normale_sup` — aucune grammaire pour y insérer un `AND` " +
+      'booléen sans changer la NATURE du critère, `type: nombre`).',
+  ],
+  [
+    'statine :: CK_normale_sup',
+    'T-133 (P12/S8, 2026-08-03) : même mécanisme, même dérivé, même nœud que `statine :: CK_UI_L` ' +
+      'ci-dessus — cf. son motif complet.',
+  ],
+  [
     'insuline :: mcg_disponible',
     "D30/T-018 (2026-07-28) : masqué par `situation_insuline != naif`, non éligible à `presomption_non` " +
       "sur ce nœud (garde une condition d'option `role: securite` réelle) — violations réelles limitées " +

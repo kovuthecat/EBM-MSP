@@ -22,7 +22,7 @@ risque…) restent affichés. Les gestes se combinent — **ajouter / switcher /
 metformine, avec une **palette glycémique** (cf. ci‑dessous), une place résiduelle SU/gliptine et un **gate
 insuline d'initiation** (catabolisme).
 
-**Ajout 2026‑07‑26 (chantier prérequis/I7/intention, non clinique)** : les deux options d'insuline
+**Ajout 2026‑07‑26 (prérequis/I7/intention, non clinique)** : les deux options d'insuline
 (« Insuline d'initiation », « Envisager l'insuline ») excluent désormais explicitement le patient déjà
 sous insuline (alignées sur les 6 autres options d'ajout du nœud). Une nouvelle alerte informative
 (`intention == deprescrire`) explique qu'un ajout affiché malgré une intention de déprescription reflète
@@ -31,7 +31,7 @@ une indication transverse ou un switch, jamais une contradiction — le primer r
 indication d'organe) reste, pour l'iSGLT2, un **arbitrage clinique non tranché**, volontairement non
 encodé (cf. `incertitudes` du YAML) — pour la **metformine**, voir le lot suivant.
 
-**Ajout 2026‑07‑26, 2e série (arbitrages référent)** : deux décisions cliniques.
+**Ajout 2026‑07‑26 (arbitrages référent)** : deux décisions cliniques.
 
 1. **Déprescription de la metformine sous 3 conditions cumulatives** — arbitrage resté ouvert depuis la
    capture 6, tranché par le référent : *« on peut la déprescrire si sur-traitement chez une personne
@@ -61,7 +61,7 @@ encodé (cf. `incertitudes` du YAML) — pour la **metformine**, voir le lot sui
    rechercher**, avant d'orienter vers un ajustement de schéma (nœud E) ; seuil 3 mmol/L, suspicion de DT1
    et renvoi au nœud E inchangés.
 
-**Ajout 2026‑07‑26, 4e série (deux audits red-team indépendants, sécurité + silences)** : quatre défauts
+**Ajout 2026‑07‑26 (deux audits de sécurité indépendants, sécurité + silences)** : quatre défauts
 GRAVES corrigés.
 
 1. **Sulfamide et metformine sous DFG < 30 : deux gestes contradictoires affichés ensemble.** « Arrêter »
@@ -88,14 +88,12 @@ GRAVES corrigés.
    glinide »), **sans** exiger la fragilité — celle-ci ne conditionne que la déprescription de la
    metformine, dernier agent réputé « sûr » à garder.
 
-Détail des profils exacts, des règles en cause et des vignettes ajoutées :
-`docs/decision/validation/chantier-2026-07-26/redteam-clinique-securite.md` (findings 1-3) et
-`redteam-clinique-silences.md` (finding F1). Résiduel signalé, non corrigé faute de source : aucune option
+Limite signalée, non corrigée faute de source : aucune option
 « Arrêter le glinide » dédiée n'existe dans ce nœud (contrairement au sulfamide) — un patient sous glinide
 **seul** à DFG < 30 perd donc son geste de réduction sans verdict de remplacement (cf. `incertitudes` du
 YAML).
 
-**Ajout 2026‑07‑26, 3e série (arbitrage référent, chantier vignettes — recette capture 1, problème 2)** :
+**Ajout 2026‑07‑26 (arbitrage référent, recette capture 1, problème 2)** :
 « Réduire la posologie de la metformine » se déclenchait sur la seule fourchette de DFG, sans connaître la
 dose **ACTUELLE** du patient — impossible de savoir si une réduction s'impose sans elle. Le référent :
 *« Metformine présente devrait peut-être demander de renseigner la dose. »* Nouveau critère
@@ -284,8 +282,8 @@ Ces garde‑fous sont des **décisions référent** (seuils pragmatiques) : la p
 
 ## Insuffisance rénale — les seuils, et ce qui les porte réellement
 
-*Section ajoutée le 2026-07-27, après une collecte de preuve et une re-vérification adversariale qui a rouvert
-chaque source primaire. Elle corrige une attribution que le nœud portait depuis l'origine.*
+*Section ajoutée le 2026-07-27, après une revue de preuve dédiée qui a rouvert chaque source primaire. Elle
+corrige une attribution que le nœud portait depuis l'origine.*
 
 ### Le seuil de 30 des sulfamides n'est pas une convention — c'est une citation
 
@@ -311,8 +309,8 @@ portée par au moins deux sociétés savantes **étrangères** : l'Endocrine Soc
 not be used with an eGFR < 30* », recommandation graduée) et la Société suisse d'endocrinologie 2012
 (gliclazide seul jusqu'à 40, glimépiride contre-indiqué < 60). Aucune source **française** de rang
 recommandation ne la porte, et les seuils étrangers contrediraient les RCP français. Motif rectifié au
-passage : « aucune source **française** », et non « aucune source » — la collecte avait écrit la seconde
-formulation, qui est fausse.
+passage : « aucune source **française** », et non « aucune source » — une version antérieure employait la
+seconde formulation, qui est fausse.
 
 ### Le glinide n'est pas un sulfamide, et son RCP le dit
 
@@ -323,18 +321,19 @@ Elle retirait donc au patient sous répaglinide **le geste que son propre RCP re
 - **Aucune contre-indication rénale** au RCP (rubrique 4.3, cinq contre-indications, aucune rénale — vérifié
   jusque sur le RCP centralisé EMA de Novonorm) ; élimination hépatobiliaire à plus de 90 %.
 - **Exposition doublée en insuffisance rénale sévère** : ASC ×2 entre 20 et 39 ml/min après cinq jours de
-  traitement (rubrique 5.2). L'étude sous-jacente a été identifiée par le red-team : **Schumacher 2001**,
+  traitement (rubrique 5.2). L'étude sous-jacente est **Schumacher 2001**,
   34 patients. C'est très exactement ce qui justifie une **prudence posologique**, c'est-à-dire le geste que
   l'option propose. Une alerte d'option le porte à partir de DFG < 40.
 - **Deux sources françaises de rang recommandation le nomment** : SFD 2025 Avis n° 12 bis (liste fermée des
   molécules utilisables sous DFG 15, répaglinide compris) et HAS 2024 R.78, grade C.
 
-**Ce qui reste ouvert, et qu'il ne faut pas clore.** La collecte proposait de fermer le résiduel « pas de
-donnée sous 20 ml/min » au motif qu'une PK spécifique de l'hémodialysé existerait — Marbury 2000, bras de six
-patients avec dosage du dialysat, « *hemodialysis did not significantly affect repaglinide clearance* ». Le
-red-team a montré que ce bras est en **dose unique ×2 avec washout** : il établit que l'hémodialyse n'épure
-pas le répaglinide, **pas** qu'une prise prandiale répétée soit sûre chez le dialysé. Il a aussi relevé la
-phrase que la collecte omettait, dans le même résumé — « *the elimination rate constant in the group with
+**Ce qui reste ouvert, et qu'il ne faut pas clore.** Une clôture du résiduel « pas de
+donnée sous 20 ml/min » a été envisagée un temps, au motif qu'une PK spécifique de l'hémodialysé existerait —
+Marbury 2000, bras de six
+patients avec dosage du dialysat, « *hemodialysis did not significantly affect repaglinide clearance* ». Une
+vérification a montré que ce bras est en **dose unique ×2 avec washout** : il établit que l'hémodialyse n'épure
+pas le répaglinide, **pas** qu'une prise prandiale répétée soit sûre chez le dialysé. Le même résumé porte
+aussi une phrase omise dans un premier temps — « *the elimination rate constant in the group with
 severe renal impairment decreased after 1 week of treatment* », soit un signal d'accumulation — et le fait que
 l'étiquetage FDA **nie** l'existence de toute étude sous CrCl 20 ou en hémodialyse. Formulation juste :
 l'option est **soutenue par une recommandation** (SFD, sous 15) mais **sans donnée pharmacocinétique d'état
@@ -373,9 +372,9 @@ lecture clinique.
 ### Quelle gliptine sous DFG 30
 
 Le nœud proposait « sitagliptine 25 mg, dialyse incluse », en trois endroits. La SFD 2025 écrit **deux fois**
-que cette forme **n'est pas commercialisée en France** et désigne à sa place la **vildagliptine 50 mg/j**. Le
-red-team n'avait pas pu ouvrir la base de données publique des médicaments et avait explicitement laissé le
-point au référent plutôt que de le deviner — la bonne conduite, et elle a payé : **le référent a vérifié, la
+que cette forme **n'est pas commercialisée en France** et désigne à sa place la **vildagliptine 50 mg/j**. Une
+première vérification n'avait pas pu ouvrir la base de données publique des médicaments, et le point avait
+alors été explicitement laissé au référent plutôt que deviné — la bonne conduite, et elle a payé : **le référent a vérifié, la
 sitagliptine 25 mg n'est effectivement pas disponible en France**. Les trois libellés nomment donc désormais
 la vildagliptine. Le rang et les conditions de l'option gliptine sont **inchangés** : seule la molécule
 nommée change, aucune exclusion rénale n'a été ajoutée, aucune source n'en porte.
@@ -391,8 +390,8 @@ cohérence, `metformine_deprescriptible`), mais **aucune source déjà présente
 bénéfice spécifiquement pour le répaglinide** — les trois sources rénales du nœud (Schumacher, Marbury,
 Hasslacher) portent la pharmacocinétique, pas le bénéfice/risque sur critère dur. Écrire un argumentaire par
 analogie avec le sulfamide aurait été inventer une preuve (invariant 6, CLAUDE.md). La tâche a donc été
-rendue en l'état, puis relancée après une collecte de preuve dédiée, **vérifiée source par source contre
-PubMed/le texte intégral** — plusieurs PMID renvoyés par la collecte initiale (OpenEvidence) étaient faux,
+rendue en l'état, puis relancée après une revue de preuve dédiée, **vérifiée source par source contre
+PubMed/le texte intégral** — plusieurs PMID renvoyés par la recherche automatisée initiale (OpenEvidence) étaient faux,
 corrigés ci-dessous.*
 
 **Ce que le fond du nœud a déjà tranché ailleurs (rappel) : le sens de la décision référent ne change pas.**
@@ -481,7 +480,7 @@ mortalité/CV et hypoglycémie sévère sont deux axes différents. C'est une co
 la balance, en particulier chez un patient dont l'hypoglycémie sous sulfamide serait la préoccupation
 première — c'est ce que porte, dans la carte, la mention de la « contrainte propre au glinide ».
 
-**Deux PMID corrigés au passage** (l'agent de collecte avait renvoyé des identifiants faux, vérifiés par
+**Deux PMID corrigés au passage** (une première recherche automatisée avait renvoyé des identifiants faux, vérifiés par
 recherche croisée) : Leonard et al. 2018 est **29108130**, pas 29139156 (article de biochimie sans rapport) ;
 Monami et al. 2014 (méta-analyse hypoglycémie sous sulfamides) est **24635837**, pas 25266331 (article sur le
 comportement des chèvres). Monami 2014 n'est **pas** versé dans `sources.references_primaires` ni cité
@@ -504,7 +503,7 @@ ajustement fin de l'insuline (ce nœud recommande l'insuline d'*initiation* ou o
   formulaires propres (même logique).
 - Bénéfice dur du switch lui‑même : indirect (valeur comparée des classes) ; additivité iSGLT2+AR GLP‑1 :
   non démontrée sur critère dur (PRECIDENTD) ; désintensification : preuve faible / accord d'experts.
-- Désintensification du **socle** (2e série, 2026‑07‑26) : **partiellement tranchée** pour la metformine
+- Désintensification du **socle** (2026‑07‑26) : **partiellement tranchée** pour la metformine
   seule, sous les 3 conditions cumulatives ci‑dessus (`metformine_deprescriptible`) — **divergence déclarée**
   avec la reco officielle (HAS maintient la metformine quelles que soient les comorbidités). Reste **non
   tranché** : la désintensification de l'iSGLT2 sans indication d'organe, et le cas d'un sur‑traité qui ne

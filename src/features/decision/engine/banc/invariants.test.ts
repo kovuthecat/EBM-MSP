@@ -34,15 +34,20 @@ import { genererPairesBooleennes, genererProfils, tailleBanc } from './profils.t
 // Constantes de contenu (nœud `prescription`, domaine DT2) — SEUL endroit du dépôt autorisé à nommer
 // des options par fragment d'intitulé / famille, cf. avertissement en tête de fichier.
 // ---------------------------------------------------------------------------------------------------
-const FAMILLE_AGENT_A_AJOUTER = 'Agent à ajouter'
+// Constante nommée « ...AJOUTER » pour rester lisible dans son historique git ; la VALEUR est le
+// libellé réel de la famille, renommée deux fois (P12/S5, T-124) : « Agent à ajouter » (verbe parfois
+// faux) → « Agent glycémique » (mécanisme faux, démenti par le motif d'« Introduire un iSGLT2 » chez un
+// coronarien) → « Le choix de l'agent » — ne revendique plus ni verbe ni mécanisme, seulement ce que la
+// famille EST structurellement (cf. prescription.yaml, commentaire du bloc `familles`).
+const FAMILLE_AGENT_A_AJOUTER = "Le choix de l'agent"
 
 const INTRO_ISGLT2 = 'Introduire un iSGLT2'
 const INTRO_GLP1 = 'Introduire un AR GLP' // tronqué avant le trait d'union insécable de « GLP‑1 »
 const INTRO_TIRZEPATIDE = 'Introduire le tirzépatide'
 const AGENTS_A_BENEFICE_ORGANE_INTRO = [INTRO_ISGLT2, INTRO_GLP1, INTRO_TIRZEPATIDE]
 
-const GLIPTINE_PLACE_RESIDUELLE = 'Gliptine (sitagliptine)'
-const SULFAMIDE_PLACE_RESIDUELLE = 'Sulfamide (gliclazide MR ou glimépiride)'
+const GLIPTINE_PLACE_RESIDUELLE = 'Gliptine — option glycémique'
+const SULFAMIDE_PLACE_RESIDUELLE = 'Sulfamide — option glycémique'
 const INSULINE_ENVISAGER = 'Envisager l'
 const INSULINE_INITIATION = "Insuline d'initiation"
 const AGENTS_PUREMENT_GLYCEMIQUES_INTRO = [
@@ -57,7 +62,7 @@ const ARRET_GLIPTINE_REDONDANTE = 'Arrêter la gliptine redondante'
 const VERDICTS_GLIPTINE = [SWITCH_GLIPTINE, ARRET_GLIPTINE_REDONDANTE]
 
 const SWITCH_SULFAMIDE = 'Remplacer le sulfamide'
-const ARRET_SULFAMIDE_DFG = 'Arrêter le sulfamide (DFG'
+const ARRET_SULFAMIDE_DFG = 'Arrêter le sulfamide'
 const REDUIRE_SULFAMIDE = 'Réduire la posologie du sulfamide'
 const DESINTENSIFIER = 'Désintensifier'
 const VERDICTS_SULFAMIDE = [SWITCH_SULFAMIDE, ARRET_SULFAMIDE_DFG, REDUIRE_SULFAMIDE, DESINTENSIFIER]
@@ -283,7 +288,7 @@ describe.each(noeuds.map((node) => [node.id, node] as const))(
 // ---------------------------------------------------------------------------------------------------
 // Invariants 3-7 : SPÉCIFIQUES au domaine DT2 (nœud `prescription` uniquement) — propriétés cliniques,
 // pas des propriétés de moteur. Ne s'appliquent à aucun autre nœud (statine, insuline, rhd, cible
-// glycémique n'ont pas la notion de « gliptine »/« sulfamide »/famille « Agent à ajouter »).
+// glycémique n'ont pas la notion de « gliptine »/« sulfamide »/famille « Le choix de l'agent »).
 // ---------------------------------------------------------------------------------------------------
 describe('banc — invariants spécifiques au domaine DT2 (nœud prescription, validés référent 2026-07-25)', () => {
   const node = getNoeudById('prescription')
@@ -367,7 +372,7 @@ describe('banc — invariants spécifiques au domaine DT2 (nœud prescription, v
     DELAI_BANC_MS,
   )
 
-  it('6 — à `fragilite` près (toutes choses égales par ailleurs), fragilite=true ne produit jamais PLUS d’options « Agent à ajouter » que fragilite=false', () => {
+  it('6 — à `fragilite` près (toutes choses égales par ailleurs), fragilite=true ne produit jamais PLUS d’options « Le choix de l’agent » que fragilite=false', () => {
     const paires = genererPairesBooleennes(node, taille, 'fragilite')
     const violations: string[] = []
     const compteAgentAAjouter = (profil: Criteria) =>

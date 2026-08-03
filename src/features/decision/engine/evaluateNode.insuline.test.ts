@@ -152,7 +152,10 @@ const has = (list: string[], sub: string) => list.some((t) => t.includes(sub))
 const GLP1_NAIF = 'Envisager un GLP-1'
 const INITIER_BASALE = 'Initier une insuline basale'
 const ANALOGUE_2G = 'Choisir un analogue basal'
-const CORRIGER_HYPO = 'variabilité (réduire la dose'
+const CORRIGER_HYPO = "Corriger l'hypoglycémie ou la variabilité"
+// T-067 (P12/S4, 2026-08-02) : nouvelle carte, déclenchée par le seul signal `profil_nocturne ==
+// baisse_continue` — retiré des déclencheurs de `CORRIGER_HYPO` ci-dessus (qui garde TBR/CV/GAJ basse).
+const REDUIRE_BASALE = 'Réduire la basale'
 const NE_PAS_SURTITRER = 'Ne pas sur-titrer la basale'
 const TITRER = 'Titrer la basale'
 const AJOUTER_GLP1_BB = 'Ajouter un GLP-1 / une association fixe'
@@ -247,15 +250,16 @@ describe('insuline — décisions référent 2026-07-26 implémentées (E-02/E-0
   )
 
   it(
-    'E-06 — sécurité ET efficacité sont désormais CUMULABLES (défaut recette capture 9, corrigé 2026-07-26). ' +
-      'Référent (2026-07-26) : « oui, action de contrôle glycémique en fonction des autres critères : soit ' +
-      'un traitement non insulinique, soit ajouter un bolus. » En situation « basale seule », une ' +
-      'hypoglycémie nocturne continue d\'exclure À LA FOIS « Titrer la basale » ET « Ne pas sur-titrer… » ' +
-      '(leurs deux jeux d\'`exclusions` portent la même clause `profil_nocturne == baisse_continue`, ex-' +
-      '`profil_glycemique contient hypo_nocturne`) — mais le geste de sécurité « Corriger l\'hypoglycémie… » ' +
-      'n\'est plus seul : une option d\'efficacité cumulable (traitement non insulinique OU ajout d\'un ' +
-      'bolus), réutilisée telle quelle depuis la situation « basale_plus_bolus », répond désormais à ' +
-      'l\'HbA1c (8 % vs cible 7 %) restée au-dessus de la cible.',
+    'E-06 — sécurité/ajustement ET efficacité sont désormais CUMULABLES (défaut recette capture 9, corrigé ' +
+      '2026-07-26). Référent (2026-07-26) : « oui, action de contrôle glycémique en fonction des autres ' +
+      'critères : soit un traitement non insulinique, soit ajouter un bolus. » En situation « basale seule ' +
+      '», une hypoglycémie nocturne continue d\'exclure À LA FOIS « Titrer la basale » ET « Ne pas ' +
+      'sur-titrer… » (leurs deux jeux d\'`exclusions` portent la même clause `profil_nocturne == ' +
+      'baisse_continue`, ex-`profil_glycemique contient hypo_nocturne`) — mais le geste « Réduire la ' +
+      'basale » (ex-« Corriger l\'hypoglycémie… », déplacé T-067/P12-S4 le 2026-08-02) n\'est plus seul : ' +
+      'une option d\'efficacité cumulable (traitement non insulinique OU ajout d\'un bolus), réutilisée ' +
+      'telle quelle depuis la situation « basale_plus_bolus », répond désormais à l\'HbA1c (8 % vs cible ' +
+      '7 %) restée au-dessus de la cible.',
     () => {
       const o = {
         situation_insuline: 'basale_seule',
@@ -276,13 +280,82 @@ describe('insuline — décisions référent 2026-07-26 implémentées (E-02/E-0
         poids: 75,
       } as Partial<Criteria>
       const t = titles(o)
-      // Le geste de sécurité, lui, est bien proposé (non contesté par cette vignette).
-      expect(has(t, CORRIGER_HYPO)).toBe(true)
-      // Manquant : aucun geste d'efficacité cumulé (non insulinique ou bolus) n'accompagne la sécurité.
+      // T-067 (P12/S4, 2026-08-02) : ce signal (baisse continue nocturne, seul) ne déclenche plus
+      // « Corriger l'hypoglycémie… » (qui garde TBR/CV/GAJ basse) mais la carte dédiée « Réduire la
+      // basale », chiffrée — le cas de non-régression demandé par `plans/P8/S9.md` étape 1.
+      expect(has(t, REDUIRE_BASALE)).toBe(true)
+      expect(has(t, CORRIGER_HYPO)).toBe(false)
+      // Manquant : aucun geste d'efficacité cumulé (non insulinique ou bolus) n'accompagne l'ajustement.
       expect(t.some((intitule) => /GLP-1|bolus/i.test(intitule))).toBe(true)
     },
   )
+
+  // MIROIR du cas ci-dessus (P8/S9 étape 1) : un TBR élevé SANS baisse continue nocturne doit toujours
+  // afficher « Corriger l'hypoglycémie ou la variabilité » — le déplacement du seul déclencheur de FORME
+  // ne doit rien retirer aux trois déclencheurs de SEUIL qui restent sur cette option.
+  it(
+    'T-067 (P12/S4, 2026-08-02) — miroir de non-régression : TBR > 4 SANS baisse continue nocturne ' +
+      'continue de déclencher « Corriger l\'hypoglycémie ou la variabilité » (déclencheur de SEUIL, ' +
+      'inchangé), et PAS « Réduire la basale » (déclencheur de FORME, absent ici).',
+    () => {
+      const o = {
+        situation_insuline: 'basale_seule',
+        mcg_disponible: true,
+        TBR: 5,
+        CV_glycemique: 20,
+        profil_nocturne: 'courbe_plate',
+        HbA1c_actuelle: 8,
+        HbA1c_cible: 7,
+        dose_basale_actuelle: 20,
+        poids: 75,
+      } as Partial<Criteria>
+      const t = titles(o)
+      expect(has(t, CORRIGER_HYPO)).toBe(true)
+      expect(has(t, REDUIRE_BASALE)).toBe(false)
+    },
+  )
 })
+
+describe(
+  'insuline — vignette N11 (recette praticien naïf 2026-08-02, critère de fin de plans/P12/S4.md) : ' +
+    'insuline + capteur, basal-bolus COMPLET, baisse continue nocturne',
+  () => {
+    it(
+      'Mme Renard (68 ans, capteur, hypoglycémies nocturnes) — le moteur connaît déjà la branche ' +
+        '(profil AGP = baisse continue), et « Réduire la basale » nomme désormais le geste ET le chiffre, ' +
+        'au lieu de laisser le praticien apparier lui-même dans « Optimiser la répartition du ' +
+        'basal-bolus ». « Corriger l\'hypoglycémie… » reste fermée en `basal_bolus` (bénéfice de bord de ' +
+        'B3a : la nouvelle carte, ouverte partout où il y a une basale, comble ce trou aussi ici).',
+      () => {
+        const o = {
+          situation_insuline: 'basal_bolus',
+          mcg_disponible: true,
+          profil_nocturne: 'baisse_continue',
+          HbA1c_actuelle: 8,
+          HbA1c_cible: 7,
+          TBR: 2,
+          CV_glycemique: 20,
+          dose_basale_actuelle: 24,
+          dose_rapide_actuelle: 10,
+          poids: 80,
+        } as Partial<Criteria>
+        const t = titles(o)
+        expect(has(t, REDUIRE_BASALE)).toBe(true)
+        // Bénéfice de bord de B3a : `basal_bolus` reste hors périmètre de `CORRIGER_HYPO` (inchangé).
+        expect(has(t, CORRIGER_HYPO)).toBe(false)
+        // La carte générale continue de s'afficher à côté : pas de doublon retiré, coexistence voulue.
+        expect(has(t, OPTIMISER_BB)).toBe(true)
+        // Le chiffre est bien câblé sur l'option (patron exact de « Basale après +2 U »), condition
+        // nécessaire à ce que la carte porte un chiffre à l'écran (le rendu lui-même est hors périmètre
+        // moteur, cf. `lib/vueDecision.ts`/`OptionCard.tsx`).
+        const option = evalProfile(o).applicable.find((opt) => opt.intitule === REDUIRE_BASALE)
+        expect(option?.calculs).toEqual([
+          { libelle: 'Basale réduite (−2 U)', expression: 'dose_basale_actuelle - 2', unite: 'U/j' },
+        ])
+      },
+    )
+  },
+)
 
 describe('insuline — E-04 : sur-basalisation réelle (dose 40 U / poids 70 kg), GAJ hors cible', () => {
   // ATTENTE RÉVISÉE le 2026-07-27 (arbitrage référent, après collecte + red-team). Cette vignette

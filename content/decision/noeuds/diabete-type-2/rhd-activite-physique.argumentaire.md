@@ -1,8 +1,7 @@
 # Activité physique — module RHD — argumentaire exhaustif
 
-> Niveau de lecture 3 (preuve complète). Document autonome distillé de
-> `docs/decision/validation/chantier-2026-07-26/rhd-collecte-activite-physique.md` (grille + bibliothèque
-> de pistes, révisée après red-team) et `redteam-collectes-rhd.md`. Prend appui sur
+> Niveau de lecture 3 (preuve complète). Document autonome distillé du dossier de preuve — sources croisées
+> et vérifiées. Prend appui sur
 > `docs/decision/noeuds/H-rhd.md` §3 (sous-dossier H3, constat « aucun bénéfice CV dur propre à
 > l'exercice »). **BROUILLON en attente de validation référent.**
 
@@ -10,7 +9,7 @@
 
 Sur l'axe activité physique, **aucun essai contrôlé randomisé d'exercice isolé, dans le diabète de type 2
 établi, ne démontre de bénéfice sur un critère cardiovasculaire ou de mortalité**. C'est un constat de
-l'état réel de la preuve, confirmé par une passe de collecte de preuve dédiée et son red-team, pas une
+l'état réel de la preuve, confirmé par une revue de preuve dédiée, pas une
 lacune de ce nœud : **zéro piste de ce nœud ne porte l'étiquette « bénéfice EBM sur critère dur »**. Le
 corpus HAS/PNNS mobilisé ci-dessous enrichit le REGISTRE des pistes proposées, jamais leur niveau de
 preuve.
@@ -113,7 +112,7 @@ sédentaire, aucune contre-indication, aucun vécu négatif) : seule cette piste
 ressource nommée localement — ex. maison sport-santé identifiée sur le territoire de la MSP — n'a pas été
 encodée faute d'annuaire de structures dans le corpus documentaire de ce nœud, cf. §5).
 
-**Note sur la piste « Maintenir/diversifier » (correction red-team B-2)** : son ancrage n'est plus la
+**Note sur la piste « Maintenir/diversifier » (correction B-2)** : son ancrage n'est plus la
 recommandation HAS R.24 (qui prescrit un programme structuré pour un patient QUI EN A BESOIN, pas un
 principe de maintien pour un patient déjà actif ≥ 4×/semaine), mais le point EBM directeur (régularité
 prédictive, grade A). R.24 n'est retenue que pour la COMPOSITION d'un programme si le patient souhaite
@@ -159,7 +158,7 @@ donnée chronique à recueillir dans ce nœud.
 
 ### Hypoglycémie sous insulinosécréteur (alerte, pas blocage — arbitrage référent explicite)
 
-Le red-team des collectes (finding B-3) avait signalé, sans trancher, la question de savoir si l'alerte
+Une vérification antérieure (finding B-3) avait signalé, sans trancher, la question de savoir si l'alerte
 D15 existante (hypoglycémie sous insuline/sulfamide/glinide, déjà encodée côté nœud `rhd` pour l'usage
 alimentation) devait passer d'un simple déclenchement à un blocage effectif pour l'usage activité physique
 — le mécanisme visé ici (hypoglycémie À L'EFFORT, R.27) étant cliniquement distinct de celui déjà arbitré
@@ -188,7 +187,7 @@ déclenche exactement dans les mêmes cas.
   vague ou faible motivation ») s'appuyait sur S7, non repris (R5) ; recréer un critère dédié pour cette
   seule piste aurait gonflé le socle contre la consigne de charge de saisie.
 - **Piste « ressource locale nommée »** — dépend entièrement de la constitution d'un annuaire de structures
-  d'activité physique adaptée/maison sport-santé du territoire, hors périmètre de cette collecte ; recoupe
+  d'activité physique adaptée/maison sport-santé du territoire, hors périmètre de ce nœud ; recoupe
   le projet `annuaire-msp` (mémoire projet — pas encore en production).
 - **Distinction membres supérieurs/inférieurs pour le mal perforant plantaire** — signalée comme limite
   (§4 ci-dessus), non modélisée : demanderait un fractionnement plus fin de la pratique structurée qu'un
@@ -205,7 +204,4 @@ déclenche exactement dans les mêmes cas.
   « Réduire le temps passé assis », « Rester en forme après 65 ans » (2026-07-26)
 - Santé publique France/PNNS — affiche « Pour un mode de vie plus équilibré, chaque petit pas compte »
 
-Traçabilité complète des citations page par page, et l'ensemble des findings red-team (0 HAUTE, 1 MOYENNE,
-2 BASSE) avec leur correction :
-`docs/decision/validation/chantier-2026-07-26/rhd-collecte-activite-physique.md` et
-`redteam-collectes-rhd.md`.
+Traçabilité complète des citations page par page dans le dossier de preuve de ce nœud.

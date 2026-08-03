@@ -77,6 +77,14 @@ options:
       - "antecedent_cv == false"
       - "comorbidite_grave == false"
       - "fragilite == false"
+    # T-125 (P12/S5) : trois motifs sur les gardes booléens négatifs, non couverts jusqu'ici — sans eux
+    # `describeReasons` retombait sur la traduction mécanique (« Antécédent cardiovasculaire : non »,
+    # etc.), un « : non » de fin de phrase qui trahit la sérialisation plutôt qu'une raison clinique
+    # (même défaut que celui relevé en recette sur `prescription.yaml`, cf. son changelog).
+    motifs:
+      "antecedent_cv == false": "Aucun antécédent cardiovasculaire"
+      "comorbidite_grave == false": "Aucune comorbidité grave"
+      "fragilite == false": "Patient non fragile"
     avantages:
       - "Bénéfice microvasculaire et effet legacy (IDM/mortalité différés, profil UKPDS du sujet jeune) si atteint sans hypoglycémie."
     inconvenients:
@@ -218,8 +226,23 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude Code"
   statut: valide
-  version: "2.11"
+  version: "2.12"
   changelog:
+    - date: "2026-08-02"
+      auteur: "Claude Code (P12/S5, T-125) — en attente de relecture référent"
+      resume: >-
+        MOTIFS RÉDIGÉS — trois branches booléennes négatives de l'option « Cible ~6,5 % (6,5–7 %) »
+        (`antecedent_cv == false`, `comorbidite_grave == false`, `fragilite == false`) n'avaient pas de
+        `motifs` : `describeReasons` retombait sur la traduction mécanique, qui affiche un « : non » en
+        fin de phrase (« Antécédent cardiovasculaire : non » etc.) — lisible comme du code plutôt que
+        comme une raison clinique (même défaut relevé en recette du 02/08 sur `prescription.yaml`, où il
+        touchait deux vignettes). Trois motifs ajoutés, formulation positive de l'absence du facteur
+        (« Aucun antécédent cardiovasculaire », « Aucune comorbidité grave », « Patient non fragile »).
+        AUCUNE `condition`/`exclusions`/`priorite`/`famille`/`niveau_preuve` touchée : uniquement le
+        bloc `motifs`, purement d'affichage (`Option.motifs` est classé `inerte`, `evaluateNode` ne le
+        lit pas). Vérifié à la source (`docs/decision/GRAMMAIRE-NOEUD.md` R6) et par I24
+        (`engine/banc/invariants-contenu.test.ts`), qui refuse toute clé de motif ne désignant pas une
+        branche réellement présente dans les `conditions` de l'option.
     - date: "2026-07-31"
       auteur: "Claude Code (P10, extension post-S5) — en attente de relecture référent"
       resume: >-

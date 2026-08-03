@@ -240,6 +240,10 @@ options:
     role: geste
     conditions:
       - "temps_assis_quotidien == quatre_a_huit_h OR temps_assis_quotidien == plus_8h OR rupture_sedentarite_habituelle == false"
+    # T-125 (P12/S5) : motif sur la branche booléenne négative — sans lui, rendu mécanique en
+    # « Interrompt habituellement les longues périodes assises : non », lisible comme du code.
+    motifs:
+      "rupture_sedentarite_habituelle == false": "Aucune interruption habituelle des périodes assises"
     priorite: 2
     famille: "Rupture de sédentarité"
     avantages:
@@ -253,6 +257,10 @@ options:
     role: geste
     conditions:
       - "temps_assis_quotidien == quatre_a_huit_h OR temps_assis_quotidien == plus_8h OR rupture_sedentarite_habituelle == false"
+    # T-125 (P12/S5) : motif sur la branche booléenne négative — sans lui, rendu mécanique en
+    # « Interrompt habituellement les longues périodes assises : non », lisible comme du code.
+    motifs:
+      "rupture_sedentarite_habituelle == false": "Aucune interruption habituelle des périodes assises"
     priorite: 3
     famille: "Rupture de sédentarité"
     avantages:
@@ -265,6 +273,10 @@ options:
     role: geste
     conditions:
       - "temps_assis_quotidien == quatre_a_huit_h OR temps_assis_quotidien == plus_8h OR rupture_sedentarite_habituelle == false"
+    # T-125 (P12/S5) : motif sur la branche booléenne négative — sans lui, rendu mécanique en
+    # « Interrompt habituellement les longues périodes assises : non », lisible comme du code.
+    motifs:
+      "rupture_sedentarite_habituelle == false": "Aucune interruption habituelle des périodes assises"
     priorite: 3
     famille: "Rupture de sédentarité"
     avantages:
@@ -383,6 +395,10 @@ options:
     role: geste
     conditions:
       - "limitation_physique_connue == true OR difficulte_acces_activite == true OR offre_proximite_connue == false"
+    # T-125 (P12/S5) : motif sur la branche booléenne négative — sans lui, rendu mécanique en
+    # « Offre d'activité de proximité connue : non », lisible comme du code.
+    motifs:
+      "offre_proximite_connue == false": "Aucune offre de proximité déjà identifiée"
     priorite:
       - quand: "limitation_physique_connue == true"
         rang: 1
@@ -551,12 +567,12 @@ sources:
       lien: ""
   synthese_critique:
     donnee: >-
-      Aucune revue secondaire indépendante consultée pour ce chantier ne revendique de bénéfice
+      Aucune revue secondaire indépendante consultée pour ce nœud ne revendique de bénéfice
       cardiovasculaire dur propre à l'exercice isolé dans le diabète de type 2 établi — position cohérente
       avec le constat de preuve retenu ici (le bénéfice cardiovasculaire dur des mesures hygiéno-diététiques
       reste porté par le régime méditerranéen, nœud sœur `rhd-alimentation`, pas par l'activité physique
       seule). Aucune synthèse dédiée spécifiquement aux gestes d'activité physique de ce nœud n'a été
-      identifiée dans le corpus rassemblé pour ce chantier (signalé plutôt qu'inventé).
+      identifiée dans le corpus rassemblé pour ce nœud (signalé plutôt qu'inventé).
     references:
       - nom: "Prescrire"
         detail: "Fiche Diabète de type 2 : situe l'activité physique, avec les mesures diététiques, en 1er choix — sans revendiquer elle-même de bénéfice cardiovasculaire dur propre à l'exercice isolé."
@@ -589,11 +605,11 @@ sources:
       dur (Look AHEAD neutre) — les repères officiels mobilisés ici enrichissent le registre des pistes
       proposées, jamais leur niveau de preuve.
 incertitudes:
-  - "Aucune piste de ce nœud ne porte l'étiquette « bénéfice EBM sur critère dur » — constat de l'état réel de la preuve sur cet axe (Look AHEAD neutre sur le critère cardiovasculaire primaire et sur la mortalité ; aucun ECR d'exercice isolé dans le DT2 établi ne montre de bénéfice sur critère dur), pas une lacune de cette collecte."
+  - "Aucune piste de ce nœud ne porte l'étiquette « bénéfice EBM sur critère dur » — constat de l'état réel de la preuve sur cet axe (Look AHEAD neutre sur le critère cardiovasculaire primaire et sur la mortalité ; aucun ECR d'exercice isolé dans le DT2 établi ne montre de bénéfice sur critère dur), pas une lacune de cette revue de preuve."
   - "Seuil de rupture de sédentarité : divergence documentée entre 3 sources HAS/institutionnelles pour le même geste (« au moins 1 minute toutes les heures », grade C, DT2, retenu par défaut ; « 4 à 5 minutes toutes les heures et demie », non gradée, fiche métier obésité ; « minimum 1 à 5 minutes », non gradée, avec réserve explicite d'incertitude sur la littérature internationale sous-jacente) — signalé, tranché par le référent en faveur du repère le plus bas et le mieux gradé, pas résolu au sens d'une convergence des sources."
   - "Le verrou de sécurité à l'effort bloque, par construction, l'ensemble de la famille « pratique structurée » dès qu'un signe est positif — y compris pour une neuropathie/mal perforant plantaire, dont une source HAS précise que la contre-indication porte spécifiquement sur l'activité physique des membres INFÉRIEURS (les activités des membres supérieurs restant permises). TRANCHÉ le 2026-07-27 (référent) : garder le blocage, mais RESTITUER l'information par une alerte de nœud dédiée (`neuropathie_ou_mal_perforant_plantaire == true`), qui nomme ce qui reste possible — activités des membres supérieurs, travail en décharge — et invite à orienter vers une pratique adaptée plutôt qu'à conclure à l'absence d'activité possible. La distinction membres supérieurs/inférieurs n'est toujours PAS modélisée dans les options (le nœud ne recueille pas de quoi qualifier chaque piste par segment corporel, et le faire coûterait un critère de plus pour une situation peu fréquente) : le choix est donc de dire, plutôt que de filtrer. Alerte de NŒUD et non d'option, délibérément — une alerte d'option ne serait jamais rendue, l'option étant précisément exclue."
   - "G1 (évaluation médicale avant intensité si inactif/facteur de risque cardiovasculaire) et G7 (glycémie avant l'effort, seuil de vigilance 2,5 g/L) sont portés par une alerte D'OPTION sur « Envisager un programme d'activité physique adaptée », pas par des critères d'entrée collectés : ce sont des rappels de bonne pratique et d'auto-surveillance ponctuelle, pas des données chroniques du patient."
-  - "L'hypoglycémie sous insuline/sulfamide/glinide reste une alerte simple (jamais un blocage) : arbitrage référent explicite qui tranche le point laissé ouvert par le red-team des collectes (finding B-3) — le mécanisme visé ici (hypoglycémie À L'EFFORT) est cliniquement distinct de celui déjà arbitré côté alimentation (hypoglycémie par restriction des apports), les deux nœuds convergent malgré tout vers le même canal (alerte, pas exclusion)."
+  - "L'hypoglycémie sous insuline/sulfamide/glinide reste une alerte simple (jamais un blocage) : arbitrage référent explicite qui tranche un point laissé ouvert par une passe de vérification antérieure — le mécanisme visé ici (hypoglycémie À L'EFFORT) est cliniquement distinct de celui déjà arbitré côté alimentation (hypoglycémie par restriction des apports), les deux nœuds convergent malgré tout vers le même canal (alerte, pas exclusion)."
   - "PLAFOND D'AFFICHAGE — RÉSOLU le 2026-07-27 (décision référent). La dette était consignée à l'identique dans les DEUX nœuds RHD : le rang (`priorite`) était déclaré dans le contenu mais l'écran affichait tout à plat, si bien que le rang n'était jamais vu. L'écran REPLIE désormais les pistes au-delà du meilleur rang derrière un bouton « Autres pistes possibles (N) » (`lib/replierAffichage.ts`, testé à part). CE QUE CE N'EST PAS : un plafond. Rien n'est retiré ni filtré — la partition conserve exactement les options d'entrée, le bouton porte leur nombre exact, et un clic les rend. Trois cas ne replient délibérément rien : moins de 4 options applicables (écran non encombré), aucun rang défini (nœud en `ordered-first-match`, où `priorite` est ignoré par D11), et toutes les options au même rang (le contenu les déclare équivalentes ; en cacher une partie inventerait une hiérarchie qu'il ne pose pas). Une option sans rang est traitée comme prioritaire : le doute ne cache jamais."
   - "« Poursuivre les habitudes actuelles… » n'est pas un sentinel `default` : sa condition (2-3×/semaine ET rupture de sédentarité déjà habituelle) est un sous-ensemble NÉCESSAIRE, mais pas exactement équivalent, du cas où les 8 axes de recueil sont tous favorables — elle peut donc aussi s'afficher (à raison, cumulée à d'autres pistes) chez un patient favorable sur ces deux seuls axes sans l'être sur tous les autres. Choix assumé, même logique que le nœud sœur `rhd-alimentation`."
   - "TRANCHÉ le 2026-07-27 (référent) : PAS de nommage de structures dans le contenu clinique. La piste GÉNÉRIQUE existe déjà (« Orienter vers une structure d'activité physique adaptée… », déclenchée par une limitation physique, une difficulté d'accès ou une offre de proximité inconnue) et suffit — le praticien connaît son secteur. Aucun code n'a donc été nécessaire. Décision de fond : nommer des structures figerait dans un nœud clinique des données qui vieillissent et créerait une dépendance à `annuaire-msp` ; si un annuaire arrive, il sera consommé par l'écran, jamais recopié dans le contenu."
@@ -602,8 +618,35 @@ meta:
   date_revue: "2026-07-26"
   auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
   statut: brouillon
-  version: "0.11"
+  version: "0.13"
   changelog:
+    - date: "2026-08-02"
+      auteur: "Claude Code (P12/S7, T-131) — en attente de relecture référent"
+      resume: >-
+        NETTOYAGE RÉDACTIONNEL — jargon de projet retiré des champs affichés (`incertitudes`,
+        `sources.synthese_critique.donnee`) et de `rhd-activite-physique.argumentaire.md` : références
+        internes (« red-team », noms de fichiers `chantier-*`/`redteam-*`, « collecte » au sens interne du
+        terme, « chantier ») reformulées ou retirées, aucune n'était clinique. Aucune `condition`,
+        `exclusions`, `priorite` ni contre-indication modifiée — vérifié par relecture des diffs. Recette
+        du 30/07 puis du 02/08 (3ᵉ passe sur ce défaut) : invariant de banc ajouté
+        (`engine/banc/jargon-projet.test.ts`, I25) pour empêcher une 4ᵉ occurrence.
+    - date: "2026-08-02"
+      auteur: "Claude Code (P12/S5, T-125) — en attente de relecture référent"
+      resume: >-
+        MOTIFS RÉDIGÉS — quatre branches booléennes négatives restées brutes, MANQUÉES par l'inventaire
+        P10/S6 ci-dessous (qui en comptait 3 sur 24, toutes corrigées à l'époque, mais pas celles-ci) :
+        `rupture_sedentarite_habituelle == false` sur les trois options de la famille « Rupture de
+        sédentarité » (« Se lever et bouger… », « S'appuyer sur un repère du quotidien… », « Transformer
+        une pause… ») et `offre_proximite_connue == false` sur « Orienter vers une structure d'activité
+        physique adaptée… ». Même défaut que celui relevé par la recette du 02/08 sur `prescription.yaml`
+        (N3, N5) : sans `motifs`, `describeReasons` rend un « Label : non » de fin de phrase — lisible
+        comme du code. CAUSE, sur les quatre : aucun `motifs` déclaré (1ʳᵉ cause du brief T-125) — pas un
+        mésappariement de clé, I24 en garde déjà l'existant. CORRECTIF : formulation positive de l'absence
+        du facteur (« Aucune interruption habituelle des périodes assises », « Aucune offre de proximité
+        déjà identifiée »). AUCUNE `condition`/`exclusions`/`priorite`/`famille`/`niveau_preuve` touchée
+        sur aucune option — uniquement les blocs `motifs`, purement d'affichage (`Option.motifs` classé
+        `inerte`, `evaluateNode` ne le lit pas). Balayage exhaustif des 6 nœuds DT2 documenté dans le
+        changelog de `prescription.yaml` (même session).
     - date: "2026-07-31"
       auteur: "Claude Code (P10/S6, T-083) — en attente de relecture référent"
       resume: >-

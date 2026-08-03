@@ -107,13 +107,18 @@ describe('groupesExAequo — cas réel (nœud `prescription`, recette référent
   // aucune indication d'organe ici, les deux options ne sont applicables que via `palette_glycemique_ouverte`
   // — `nettement_au_dessus` est, à l'initiation, la seule valeur qui l'ouvre (remplace l'ancien seuil
   // absolu HbA1c ≥ 8,5 % désormais relatif à l'objectif du patient).
+  //
+  // `poids`/`taille` (T-133, P12/S8) REMPLACENT `IMC: 25` — `IMC` est désormais un DÉRIVÉ
+  // (`poids / taille / taille`) : poids=72,25 kg, taille=1,7 m reproduisent EXACTEMENT le même IMC = 25
+  // (72,25 / 1,7 / 1,7 = 25 pile), le scénario clinique du profil reste inchangé.
   const PROFIL: Criteria = {
     ...buildDefaultCriteria(node.criteres_entree),
     intention: 'initier',
     position_vs_cible: 'nettement_au_dessus',
     HbA1c_actuelle: 8.6,
     DFG: 74,
-    IMC: 25,
+    poids: 72.25,
+    taille: 1.7,
     albuminurie: 'normo',
     ASCVD_etablie: false,
     insuffisance_cardiaque: false,
@@ -381,7 +386,7 @@ describe('groupesParFamille — cas réel (nœud `prescription`, correctif « pr
   }
 
   it(
-    'iSGLT2 (famille « Agent à ajouter ») et réduction du sulfamide (famille « Alléger ») au même rang 2 : ' +
+    'iSGLT2 (famille « Le choix de l’agent ») et réduction du sulfamide (famille « Alléger ») au même rang 2 : ' +
       'jamais dans le même groupe d’égalité, malgré le rang partagé',
     () => {
       // Sulfamide mal toléré (intolérance) + IC : deux gestes DIFFÉRENTS de nature, tous deux rang 2,
@@ -397,7 +402,9 @@ describe('groupesParFamille — cas réel (nœud `prescription`, correctif « pr
         DFG: 70,
         albuminurie: 'normo',
         ASCVD_etablie: false,
-        IMC: 27,
+        // `poids`/`taille` (T-133) : reproduisent IMC = 27 (78,03 / 1,7 / 1,7 = 27 pile).
+        poids: 78.03,
+        taille: 1.7,
         HbA1c_actuelle: 8,
         classes_a_benefice_indisponibles: false,
       }
@@ -420,7 +427,7 @@ describe('groupesParFamille — cas réel (nœud `prescription`, correctif « pr
     },
   )
 
-  it('sans comorbidité (profil recette référent) : iSGLT2 et AR GLP-1 restent à égalité DANS la même famille « Agent à ajouter »', () => {
+  it('sans comorbidité (profil recette référent) : iSGLT2 et AR GLP-1 restent à égalité DANS la même famille « Le choix de l’agent »', () => {
     // Reprend le profil de la recette référent (cf. describe ci-dessus, S7-ui Lot 2) : intention=initier,
     // HbA1c 8.6, DFG 74, IMC 25, pas d'ASCVD, pas d'IC → rien ne distingue iSGLT2 d'AR GLP-1.
     const criteria: Criteria = {
@@ -429,14 +436,16 @@ describe('groupesParFamille — cas réel (nœud `prescription`, correctif « pr
       position_vs_cible: 'nettement_au_dessus',
       HbA1c_actuelle: 8.6,
       DFG: 74,
-      IMC: 25,
+      // `poids`/`taille` (T-133) : reproduisent IMC = 25 (72,25 / 1,7 / 1,7 = 25 pile).
+      poids: 72.25,
+      taille: 1.7,
       albuminurie: 'normo',
       ASCVD_etablie: false,
       insuffisance_cardiaque: false,
     }
     const res = evaluer(criteria)
     const familles = groupesParFamille(node, res.applicable, res.rangs)
-    const familleAgent = familles.find((f) => f.libelle === 'Agent à ajouter')
+    const familleAgent = familles.find((f) => f.libelle === "Le choix de l'agent")
     expect(familleAgent).toBeDefined()
     expect(familleAgent!.exclusive).toBe(true)
     const groupeIsglt2 = familleAgent!.groupes.find((g) => g.some((o) => o.intitule.includes('iSGLT2')))
@@ -446,7 +455,7 @@ describe('groupesParFamille — cas réel (nœud `prescription`, correctif « pr
   })
 
   it('non-régression du correctif précédent : `insuffisance_cardiaque` reste un critère PERTINENT sur ce profil', () => {
-    // Cocher l'IC rompt l'égalité iSGLT2/AR GLP-1 (elle bascule dans le groupe « Agent à ajouter » avec un
+    // Cocher l'IC rompt l'égalité iSGLT2/AR GLP-1 (elle bascule dans le groupe « Le choix de l'agent » avec un
     // rang différent) : l'écran change, donc `criteresPertinents` doit continuer à le signaler comme
     // décisif, même maintenant que la signature de `relevance.ts` passe par `groupesParFamille`.
     const criteria: Criteria = {
@@ -455,7 +464,9 @@ describe('groupesParFamille — cas réel (nœud `prescription`, correctif « pr
       position_vs_cible: 'nettement_au_dessus',
       HbA1c_actuelle: 8.6,
       DFG: 74,
-      IMC: 25,
+      // `poids`/`taille` (T-133) : reproduisent IMC = 25 (72,25 / 1,7 / 1,7 = 25 pile).
+      poids: 72.25,
+      taille: 1.7,
       albuminurie: 'normo',
       ASCVD_etablie: false,
       insuffisance_cardiaque: false,
@@ -504,7 +515,9 @@ describe('ordre des sections — stable quel que soit le patient', () => {
     ...buildDefaultCriteria(node.criteres_entree),
     HbA1c_actuelle: 8,
     DFG: 80,
-    IMC: 27,
+    // `poids`/`taille` (T-133) : reproduisent IMC = 27 (78,03 / 1,7 / 1,7 = 27 pile).
+    poids: 78.03,
+    taille: 1.7,
     age: 60,
     albuminurie: 'normo',
     esperance_vie: 'longue',

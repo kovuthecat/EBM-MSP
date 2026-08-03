@@ -406,9 +406,9 @@ describe('computeBadges — cas réel (nœud `prescription`, « le badge, c’es
       expect(badges.get(remplacerSU!)).toBe('recommandee')
       expect(badges.get(isglt2!)).toBe('recommandee')
 
-      // Dans la famille exclusive « Agent à ajouter », une option hors du groupe de tête (ex. la
+      // Dans la famille exclusive « Le choix de l'agent », une option hors du groupe de tête (ex. la
       // gliptine de bas rang, applicable ici via `palette_glycemique_ouverte`) n'est PAS badgée.
-      const familleAgent = familles.find((f) => f.libelle === 'Agent à ajouter')
+      const familleAgent = familles.find((f) => f.libelle === "Le choix de l'agent")
       expect(familleAgent).toBeDefined()
       expect(familleAgent!.exclusive).toBe(true)
       const horsTete = res.applicable.find(

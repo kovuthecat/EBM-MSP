@@ -24,8 +24,10 @@ cadrage:
     objectif chiffré à atteindre, et ne calculent aucun score d'adhérence. La négociation avec le patient
     fait partie du geste : une piste refusée n'est pas un échec, c'est une information.
   - >-
-    Chaque axe est autonome. On peut n'en ouvrir qu'un, dans n'importe quel ordre, sans que l'autre ait
-    été renseigné — aucune valeur ne circule de l'un à l'autre.
+    Chaque axe est autonome : on peut n'en ouvrir qu'un, dans n'importe quel ordre, sans que l'autre ait
+    été renseigné. Leurs conseils respectifs ne se mélangent jamais — mais les critères de terrain
+    partagés (dont la fragilité) circulent d'un nœud à l'autre, comme entre tous les nœuds de cette
+    consultation.
   - >-
     Hors périmètre des deux nœuds : l'objectif de perte de poids et la rémission, la prescription
     diététique détaillée (orientation vers le diététicien de la structure) et le bilan d'aptitude
@@ -49,13 +51,15 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude Code"
   statut: brouillon
-  version: "0.1"
+  version: "0.2"
   changelog:
-    - date: "2026-07-26"
+    - date: "2026-08-02"
       auteur: "référent DT2 + Claude Code"
       resume: >-
-        Création — premier module au sens de D22, dont le mécanisme était décidé depuis le 2026-07-26 mais
-        dont l'écran n'existait pas : le champ `module: RHD` était porté par les deux nœuds et n'était lu
-        par AUCUN code. Cadrage partagé repris des deux `population_cible` (déduplication, I4) et primer
-        d'orientation à deux voies. Aucun critère partagé (garde-fou R1) : le socle de terrain commun
-        évoqué par D22 suppose un état de saisie inter-écrans, non arbitré à ce jour.
+        T-130 (P12/S7) — le cadrage affirmait « aucune valeur ne circule de l'un à l'autre », ce qui est
+        FAUX depuis que `fragilite` (et les autres critères `partage: true`) circulent bien entre
+        `rhd-alimentation` et `rhd-activite-physique`, comme entre tous les nœuds de la consultation (D28,
+        2026-07-27) — recette du 2026-08-02, N8. Le code n'a jamais menti (`partage: true` posé sur les
+        deux nœuds depuis D28) : seul le texte affirmait une étanchéité totale qui n'existe pas. Reformulé
+        pour dire ce qui est vrai : les CONSEILS des deux axes ne se mélangent jamais, mais les critères de
+        TERRAIN partagés circulent. Aucun critère ajouté à ce fichier (garde-fou R1 inchangé).

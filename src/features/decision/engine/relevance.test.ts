@@ -41,7 +41,11 @@ const PROFIL: Criteria = {
   insuffisance_cardiaque: false,
   DFG: 80,
   albuminurie: 'normo',
-  IMC: 26,
+  // `poids`/`taille` (T-133, P12/S8) REMPLACENT `IMC: 26` — `IMC` est désormais un critère DÉRIVÉ
+  // (`poids / taille / taille`) : poids=75,14 kg, taille=1,7 m reproduisent EXACTEMENT le même IMC = 26
+  // (75,14 / 1,7 / 1,7 = 26 pile).
+  poids: 75.14,
+  taille: 1.7,
   age: 60,
   fragilite: false,
   denutrition: false,
@@ -64,7 +68,12 @@ describe('relevance — criteresPertinents', () => {
 
   it('inclut les critères décisifs (comorbidités, terrain, traitements)', () => {
     expect(pertinents.has('ASCVD_etablie')).toBe(true) // active AR GLP-1 / iSGLT2
-    expect(pertinents.has('IMC')).toBe(true) // ≥ 30 active AR GLP-1 / tirzépatide ; < 22 exclut
+    // `IMC` n'est plus SAISISSABLE depuis T-133 (P12/S8) — c'est un DÉRIVÉ (`poids / taille / taille`),
+    // jamais perturbé pour lui-même par `criteresPertinents` (qui ne perturbe que les critères saisis).
+    // Ce sont désormais SES DEUX PRIMITIVES qui portent la décisivité : perturber l'une ou l'autre fait
+    // franchir un seuil d'IMC (≥ 30 active AR GLP-1 / tirzépatide ; < 22 exclut).
+    expect(pertinents.has('poids')).toBe(true)
+    expect(pertinents.has('taille')).toBe(true)
     expect(pertinents.has('DFG')).toBe(true) // < 60/30/20 bascule iSGLT2 / metformine
     expect(pertinents.has('traitements_en_cours')).toBe(true) // pilote tout
   })
@@ -102,7 +111,9 @@ describe('relevance — égalité de rang par défaut ne doit pas masquer un cri
     position_vs_cible: 'nettement_au_dessus',
     HbA1c_actuelle: 8.6,
     DFG: 74,
-    IMC: 25,
+    // `poids`/`taille` (T-133) : reproduisent IMC = 25 (72,25 / 1,7 / 1,7 = 25 pile).
+    poids: 72.25,
+    taille: 1.7,
     albuminurie: 'normo',
     ASCVD_etablie: false,
     insuffisance_cardiaque: false,

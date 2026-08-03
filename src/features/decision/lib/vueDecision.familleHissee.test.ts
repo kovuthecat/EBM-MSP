@@ -7,7 +7,9 @@
  * mécanisme devait résoudre :
  *  - NON-RÉGRESSION PERMANENTE — le test de reproduction du défaut (vignette N7, `plans/P10/S10.md`
  *    § « Étape 2 »), recréé ici depuis le bilan de cette session antérieure, attente INVERSÉE : sur ce
- *    profil, « Traitement à alléger » précède désormais « Agent à ajouter » ;
+ *    profil, « Traitement à alléger » précède désormais « Le choix de l’agent » (renommée deux fois
+ *    P12/S5 T-124 : « Agent à ajouter » puis « Agent glycémique », toutes deux écartées — cf. le
+ *    commentaire du bloc `familles` de `prescription.yaml`) ;
  *  - non-régression explicite : sur une intention d'initiation ou d'intensification, l'ordre des
  *    familles de `prescription` reste identique à celui déclaré dans le contenu (aucune n'est hissée).
  */
@@ -21,7 +23,7 @@ const node = getNoeudById('prescription')
 if (!node) throw new Error('Nœud "prescription" introuvable (content/decision/noeuds/diabete-type-2/prescription.yaml).')
 
 describe('T-087 — non-régression permanente : N7, intention « déprescrire »', () => {
-  it('« Traitement à alléger » précède désormais « Agent à ajouter » (le défaut de la recette référent est corrigé)', () => {
+  it('« Traitement à alléger » précède désormais « Le choix de l’agent » (le défaut de la recette référent est corrigé)', () => {
     // Profil calqué sur la vignette N7 (Mme Chevallier, 88 ans) — reproduit à l'identique depuis
     // `plans/P10/S10.md` § « Étape 2 », attente inversée.
     const criteriaBrut: Criteria = {
@@ -46,7 +48,7 @@ describe('T-087 — non-régression permanente : N7, intention « déprescrire �
 
     const vue = construireVueDecision(node!, criteriaBrut)
     const libelles = vue.familles.map((f) => f.libelle)
-    const idxAjouter = libelles.indexOf('Agent à ajouter')
+    const idxAjouter = libelles.indexOf("Le choix de l'agent")
     const idxAlleger = libelles.indexOf('Traitement à alléger')
 
     expect(idxAjouter).toBeGreaterThanOrEqual(0)
@@ -55,7 +57,7 @@ describe('T-087 — non-régression permanente : N7, intention « déprescrire �
 
     // Aucune option n'a disparu, aucune n'a changé de famille : les deux familles gardent le même
     // CONTENU qu'avant le hissage — seul l'ORDRE des sections a bougé (garde-fou explicite du brief).
-    const familleAjouter = vue.familles.find((f) => f.libelle === 'Agent à ajouter')
+    const familleAjouter = vue.familles.find((f) => f.libelle === "Le choix de l'agent")
     const familleAlleger = vue.familles.find((f) => f.libelle === 'Traitement à alléger')
     expect(familleAjouter!.groupes.flat().length).toBeGreaterThan(0)
     expect(familleAlleger!.groupes.flat().length).toBeGreaterThan(0)
@@ -82,7 +84,7 @@ describe('T-087 — non-régression explicite : intention d’initiation ou d’
     "À faire d'emblée — sécurité",
     'Socle du traitement',
     'Traitement à corriger ou remplacer',
-    'Agent à ajouter',
+    "Le choix de l'agent",
     'Traitement à alléger',
     'Aucun geste — surveiller',
   ]

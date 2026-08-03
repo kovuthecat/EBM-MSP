@@ -1,10 +1,8 @@
 # Alimentation — module RHD — argumentaire exhaustif
 
-> Niveau de lecture 3 (preuve complète). Document autonome distillé de
-> `docs/decision/validation/chantier-2026-07-26/rhd-collecte-alimentation.md` (grille + bibliothèque de
-> pistes, révisée après red-team — 4 findings HAUTE corrigés), `redteam-collectes-rhd.md`,
-> `cible-mediterraneenne-medas.md` (MEDAS en source primaire) et `docs/decision/noeuds/H-rhd.md` §3
-> (sous-dossier H3, PREDIMED/CORDIOPREV). **BROUILLON en attente de validation référent.**
+> Niveau de lecture 3 (preuve complète). Document autonome distillé du dossier de preuve — sources croisées
+> et vérifiées (MEDAS en source primaire, `docs/decision/noeuds/H-rhd.md` §3, sous-dossier H3,
+> PREDIMED/CORDIOPREV). **BROUILLON en attente de validation référent.**
 
 ## En bref
 
@@ -16,8 +14,8 @@ alimentaire à bénéfice cardiovasculaire **dur** démontré. Trois points stru
   CORDIOPREV randomisent un régime méditerranéen supplémenté (huile d'olive ou fruits à coque), pas un
   changement isolé d'huile ou l'ajout de quelques noix. Aucune piste de ce nœud ne revendique donc
   l'étiquette « bénéfice EBM sur critère dur » — cette étiquette est portée par ce document et par le champ
-  `argumentaire` du YAML (le « cap » du module), décision du référent qui va au-delà de ce que la collecte
-  de contenu avait elle-même tranché.
+  `argumentaire` du YAML (le « cap » du module), décision du référent qui va au-delà de ce qu'une première
+  analyse du contenu avait elle-même tranché.
 - **Aucun score.** Le score MEDAS (14 items, l'instrument qui mesure l'adhérence dans PREDIMED) sert
   uniquement à choisir QUELS axes recueillir (fruits à coque, légumineuses, poisson, viande rouge, vin) —
   jamais à calculer un score administré au patient.
@@ -126,7 +124,7 @@ plus proches de la preuve randomisée) et documenté comme limite dans `incertit
 | Fruits à coque | Fruits à coque, légumineuses, poisson | Savoir-faire diététique (non EBM)* | Santé publique France (repère non gradé) |
 | Légumineuses | Fruits à coque, légumineuses, poisson | Savoir-faire diététique (non EBM) | Santé publique France (repère non gradé) |
 | Poisson | Fruits à coque, légumineuses, poisson | Savoir-faire diététique (non EBM) | Santé publique France (repère non gradé) |
-| Repas à heures régulières | Structure des repas | Savoir-faire diététique (non EBM) | EBM Guidelines, sous-section non gradée (correction red-team A-4) |
+| Repas à heures régulières | Structure des repas | Savoir-faire diététique (non EBM) | EBM Guidelines, sous-section non gradée (correction A-4) |
 | Manger sans se presser | Structure des repas | Savoir-faire diététique (non EBM) | EBM Guidelines + HAS, sous-section non gradée |
 | Réduire le grignotage | Structure des repas | Savoir-faire diététique (non EBM) | HAS + EBM Guidelines (item de recueil) |
 | Peser 2-3 fois | Portions | Savoir-faire diététique (non EBM) | SFD/AFDN, rapport groupe de travail glucides |
@@ -150,14 +148,14 @@ proche du bras testé, mais l'étiquette reste « savoir-faire diététique » c
 l'étiquette « bénéfice EBM sur critère dur » (décision référent, §1 ci-dessus). La proximité au bras
 randomisé justifie leur RANG (priorité d'affichage 1), pas leur étiquette de preuve.
 
-**Note sur B1/U1/M2 (correction red-team A-1) :** la citation SFD 2025 initialement attachée à ces trois
+**Note sur B1/U1/M2 (correction A-1) :** la citation SFD 2025 initialement attachée à ces trois
 pistes (« en évitant… la consommation d'aliments ultra-transformés et de boissons sucrées », p.21) a été
 retirée : vérifiée, cette phrase appartient à la section consacrée aux patients DT2 avec stéatose hépatique
 associée (§8.7/Avis n°15), pas à une recommandation générale DT2 (Avis n°14, p.17, qui ne mentionne ni les
 boissons sucrées ni les ultratransformés). Recherche exhaustive confirmée : 0 autre occurrence dans les 32
 pages du document. Ces pistes restent sourcées par ailleurs (EBM Guidelines, HAS, Santé publique France).
 
-**Note sur B2 (correction red-team A-3) :** la référence Salame et al. (*Lancet Diabetes Endocrinol* 2024,
+**Note sur B2 (correction A-3) :** la référence Salame et al. (*Lancet Diabetes Endocrinol* 2024,
 cohorte NutriNet-Santé) initialement citée à l'appui documente en réalité les ÉMULSIFIANTS, pas les
 édulcorants — un signal distinct dans la même note de la revue source. Retirée ; le signal sur les
 édulcorants reste cité sans référence bibliographique précise, comme la source elle-même le présente.
@@ -172,7 +170,7 @@ parcours surpoids-obésité (p.43) :
 1. Restriction volontaire en quantité, avec épisodes de « craquage » — liste « perturbations de
    l'alimentation » de la source (pas la liste DSM-5).
 2. Manger seul ou en cachette, se sentir coupable après avoir mangé — même liste, pas DSM-5 non plus
-   (correction red-team A-6 : les deux premiers signes de la source précédente les attribuaient à tort à
+   (correction A-6 : les deux premiers signes d'une version antérieure les attribuaient à tort à
    la liste DSM-5).
 3. Antécédent de demande de régime amaigrissant ou habitudes alimentaires très restrictives — seul signe
    appartenant littéralement à la liste DSM-5 de la source.
@@ -253,7 +251,7 @@ conduite — à patient identique, l'alerte se déclenche exactement dans les m�
 
 ## 5. Ce qui n'a pas été repris, et pourquoi
 
-- **R2 (« explorer le contexte avant de juger »)** — le red-team l'a reclassée savoir-faire (elle
+- **R2 (« explorer le contexte avant de juger »)** — reclassée savoir-faire (elle
   transforme un item de RECUEIL de la HAS en recommandation d'action, inférence raisonnable mais non
   littérale) ; c'est aussi une consigne de posture de consultation pour le praticien, pas un geste
   patient-facing. Omise pour garder la bibliothèque de pistes centrée sur des gestes négociables.
@@ -285,6 +283,4 @@ conduite — à patient identique, l'alerte se déclenche exactement dans les m�
 - SFD 2025 — prise de position (Darmon et al., *Méd. Mal. Métab.* 2025;19(8):630-662)
 - Prescrire — fiche DT2 (résumé critique interne, `docs/decision/sources/prescrire-dt2.md`, P9/P10)
 
-Traçabilité complète des citations page par page, et l'ensemble des findings red-team (4 HAUTE, 4 MOYENNE)
-avec leur correction : `docs/decision/validation/chantier-2026-07-26/rhd-collecte-alimentation.md` et
-`redteam-collectes-rhd.md`.
+Traçabilité complète des citations page par page dans le dossier de preuve de ce nœud.
