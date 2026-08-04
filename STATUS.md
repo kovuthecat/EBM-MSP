@@ -4,7 +4,7 @@ Photo à l'instant T. Mis à jour en fin de session. L'historique (comment on es
 `git log`, `DECISIONS.md`/`docs/commun/decisions/` et les changelogs de contenu — pas ici.
 Plafond : 80 lignes (appliqué par hook).
 
-> **Dernière mise à jour :** 2026-08-03
+> **Dernière mise à jour :** 2026-08-04
 
 ## Ce qui existe
 
@@ -17,7 +17,7 @@ Veille : **non commencé** (aucun code, `DECISIONS.md` D8 garde la place).
 | --- | --- | --- |
 | `cible-glycemique` | `valide` | v2.12 |
 | `statine` | `brouillon` | v1.23 |
-| `prescription` | `brouillon` | v0.57 |
+| `prescription` | `brouillon` | v0.60 |
 | `insuline` | `brouillon` | v0.44 |
 | `rhd-alimentation` | `brouillon` | v0.12 |
 | `rhd-activite-physique` | `brouillon` | v0.13 |
@@ -25,30 +25,26 @@ Veille : **non commencé** (aucun code, `DECISIONS.md` D8 garde la place).
 Passage à `valide` conditionné à la relecture référent finale (`TASKS.md` §validation clinique).
 
 **Banc de tests** (`src/features/decision/engine/banc/`) : non-régression du contenu en 3 couches
-(vignettes, couverture, invariants) + **I25, aucun jargon de projet dans un champ affiché** (P12/S7).
-**1048 tests, 11 skip, typecheck et build verts.**
+(vignettes, couverture, invariants) + **I25, aucun jargon de projet dans un champ affiché**.
 
 ## Chantier actif
 
-**Plan P12 — clos le 2026-08-03** (suites de la recette praticien naïf du 2026-08-02) : S1-S10
-livrées. La cible d'HbA1c ne se recalcule plus à la reprise de session ; les intitulés d'options
-nomment le geste, le motif se lit dans « Proposé parce que » ; le seuil des deux colonnes passe à
-1200 px (**D47**, D46 confirmé par la mesure) ; la baisse continue nocturne déclenche « Réduire la
-basale », chiffrée (T-067, reprise de P8) ; les 11 cartes de déprescription portent une posologie ou
-déclarent qu'aucun rythme n'est sourcé ; une alerte préventive d'acidocétose euglycémique est posée ;
-les blocs repliés annoncent leur contenu ; une carte seule s'affiche dépliée ; poids/taille et CK en
-UI/L remplacent l'IMC et les multiples calculés de tête (critères dérivés **numériques**, extension
-du moteur) ; le praticien peut déclarer qu'un critère restera **indisponible**. Une seule tâche non
-livrée, **T-120**, STOP fondé — cf. `plans/P12/index.md` §Bilan de clôture. N2 : `VALIDATION.md`.
+**Plan P12 — clos le 2026-08-03** (suites de la recette praticien naïf du 2026-08-02) : S1-S10 livrées.
+Une seule tâche non livrée, **T-120**, STOP fondé — cf. `plans/P12/index.md` §Bilan de clôture.
+N2 : `VALIDATION.md`.
 
-**Plan PV1 — module Veille, cadré le 2026-07-31, pas démarré** (`plans/PV1/index.md`) : 10 sessions,
-deux éditions hebdomadaires produites **à la main** (`2026-W30`, `2026-W31`, en rétrospectif) avant
-tout code, puis gel du modèle et câblage V1/V2. Les plans Veille sont préfixés `PV`.
+**Plan PV1 — module Veille, cadré le 2026-07-31, pas démarré** (`plans/PV1/index.md`) : 10 sessions, deux
+éditions hebdomadaires produites **à la main** avant tout code, puis gel du modèle et câblage.
 
-**Plan P7** (cadré 2026-07-29, toujours ouvert) : il manque SA2 (validité HbA1c) et S2 (recette).
-SA2 est débloquée depuis P12/S10 (l'accroche chiffrée des blocs repliés) — détail `plans/P7/index.md`.
+**Plan P7** (cadré 2026-07-29, ouvert) : manquent SA2 (validité HbA1c) et S2. **P8 — clos** (S1-S8).
 
-**Plan P8 — clos** : S1-S8 livrées et commitées ; **T-067 a été reprise et livrée par P12/S4**.
+**Refonte de l'argumentaire (2026-08-04, hors plan — retour de recette navigateur, **D48**)** : l'écran
+ne cite plus que des sources primaires (les revues secondaires sortent du modèle) ; les divergences avec
+la recommandation officielle se lisent en trois faces comparables ; les incertitudes se fondent sur la
+donnée ou son absence, jamais sur qui a tranché ; deux champs jusque-là **jamais rendus** le sont —
+`Noeud.argumentaire` (« Comment ce nœud raisonne ») et `Option.references`, dans un panneau « État des
+preuves » que le badge de niveau de preuve ouvre. **Propagé aux 6 nœuds** et à l'écran « Méthode » ;
+aucune dette, I25 (`jargon-projet.test.ts`) porte 9 marqueurs sans exemption.
 
 ## Ce qui casse / n'est pas testé
 
@@ -68,6 +64,12 @@ SA2 est débloquée depuis P12/S10 (l'accroche chiffrée des blocs repliés) —
   session dédiée à programmer, cf. `TASKS.md`.
 - **Albuminurie non convertie** : `derive` ne sait produire qu'un booléen ou un nombre, jamais un
   libellé d'énumération — le praticien saisit toujours une catégorie là où son labo rend un ratio A/C.
+- **`terrain_fragile` déclaré DEUX FOIS avec des définitions différentes** (`insuline` sans
+  `hypo_severe_recurrente`, `prescription` avec) — ce que l'invariant I4 interdit, mais qu'il ne peut pas
+  voir puisqu'il est vérifié par nœud. Trouvé pendant la propagation de D48. **À arbitrer** : soit
+  `prescription` recueille l'antécédent et les deux convergent, soit son dérivé est renommé.
+- **Contrainte de schéma à rendre opposable** (D48) : « `divergences` non vide quand `divergence: true` »
+  est désormais vraie sur les 6 nœuds, la contrainte peut être posée.
 
 ## Comment vérifier l'état réel
 

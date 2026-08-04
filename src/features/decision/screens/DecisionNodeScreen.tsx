@@ -4,7 +4,7 @@ import { AlertList } from '../components/AlertList'
 import { ArgumentPanel } from '../components/ArgumentPanel'
 import { CadrageList } from '../components/CadrageList'
 import { CriteriaForm } from '../components/CriteriaForm'
-import { OptionCard } from '../components/OptionCard'
+import { BasRangChip, OptionBadgeChip, OptionCard } from '../components/OptionCard'
 import { PopulationCible } from '../components/PopulationCible'
 import { Icon } from '../../shared/icons/Icon'
 import { getModuleDuNoeud } from '../content/loadModules'
@@ -949,6 +949,22 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
               // rigoureusement inchangé ; seule la source des familles devient un paramètre.
               const rendreFamilles = (familles: FamilleVue[]) => familles.map((famille, indexFamille) => {
                 const sectionsGroupes = famille.groupes.map((groupe) => {
+                  // BADGE/BAS-RANG PARTAGÉS (2026-08-04, demande utilisateur) — QUAND TOUTES les cartes
+                  // d'un groupe d'égalité (≥ 2, cf. `groupe.length < 2` plus bas) portent le MÊME `badge`
+                  // (respectivement le même `bas_rang`), le chip correspondant est hoisté UNE FOIS
+                  // au-dessus de la paire (`badgeMasque`/`basRangMasque` sur chaque carte) plutôt que
+                  // répété carte par carte — même logique pour les deux chips, l'un n'implique pas l'autre
+                  // (une paire peut partager le badge sans partager `bas_rang`, ou l'inverse). `null`/
+                  // `false` dès qu'UNE carte diverge : repli sur le rendu historique, chip par carte,
+                  // jamais un chip qui mentirait pour la carte qui ne le porte pas.
+                  const badgeCommun =
+                    groupe.length >= 2 && groupe[0].badge != null && groupe.every((ov) => ov.badge === groupe[0].badge)
+                      ? groupe[0].badge
+                      : null
+                  const basRangCommun =
+                    groupe.length >= 2 &&
+                    Boolean(groupe[0].option.bas_rang) &&
+                    groupe.every((ov) => Boolean(ov.option.bas_rang) === true)
                   const cartes = groupe.map((optionVue) => (
                     <OptionCard
                       // `intitule` n'est pas garanti unique (cf. commentaire `EvaluateNodeResult` dans
@@ -956,6 +972,7 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                       key={`${cle++}-${optionVue.option.intitule}`}
                       option={optionVue.option}
                       badge={optionVue.badge}
+                      actionEffective={optionVue.actionEffective}
                       reasons={optionVue.reasons}
                       calculs={optionVue.calculs}
                       calculsEnAttente={optionVue.calculsEnAttente}
@@ -963,11 +980,22 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                       alertes={optionVue.alertes}
                       contreIndications={optionVue.contreIndications}
                       carteUnique={carteUnique}
+                      badgeMasque={badgeCommun != null}
+                      basRangMasque={basRangCommun}
+                      // Bibliographie du nœud, pour que la carte résolve `option.references` (ids) en
+                      // titres cliquables dans son panneau « État des preuves » (2026-08-04).
+                      bibliographie={node.sources.references_primaires}
                     />
                   ))
                   if (groupe.length < 2) return cartes
                   return (
                     <div className="decision-node__egalite" key={`egalite-${cle}`}>
+                      {(badgeCommun != null || basRangCommun) && (
+                        <div className="decision-node__egalite-badges">
+                          {badgeCommun != null && <OptionBadgeChip badge={badgeCommun} />}
+                          {basRangCommun && <BasRangChip />}
+                        </div>
+                      )}
                       {/* Mention NEUTRE (correctif « priorité multi-natures ») : elle affirmait avant
                           « aucune de ces options n'est préférable à l'autre », faux pour des gestes
                           cumulables. La nuance « en choisir un » / « cumulables » est désormais portée

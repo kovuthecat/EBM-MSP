@@ -140,6 +140,9 @@ const MARQUEURS = {
   // emplacement porteur d'expression situé sur une FAMILLE — G2 vérifie que le collecteur y descend,
   // faute de quoi cette expression échapperait à toute vérification de syntaxe et de critères connus.
   familleprioritaireSi: 'MARQUEUR_famille_prioritaire_si == 14',
+  // 2026-08-04 : `action_si[].quand` (badge d'action conditionnel, `Option.action_si`), même traitement
+  // que `priorite[].quand` — G2 vérifie que le collecteur y descend.
+  actionSiQuand: 'MARQUEUR_action_si_quand == 15',
 } as const
 
 function noeudSynthetique(): Noeud {
@@ -179,6 +182,7 @@ function noeudSynthetique(): Noeud {
         prerequis: [MARQUEURS.prerequis],
         exclusions: [MARQUEURS.exclusions],
         priorite: [{ quand: MARQUEURS.prioriteQuand, rang: 1 }],
+        action_si: [{ quand: MARQUEURS.actionSiQuand, action: 'ajouter' }],
         alertes: [{ quand: MARQUEURS.alerteOption, message: 'marqueur' }],
         calculs: [{ libelle: 'marqueur', expression: MARQUEURS.calcul }],
         // T-068 : les DEUX formes côte à côte — la chaîne (historique, inerte, aucun fragment attendu)
@@ -197,7 +201,7 @@ function noeudSynthetique(): Noeud {
     argumentaire: '',
     sources: {
       references_primaires: [],
-      synthese_critique: { donnee: '', references: [] },
+      synthese_critique: { donnee: '' },
       reco_officielle: { source: '', position: '', divergence: false, explication: '' },
     },
     incertitudes: [],
@@ -242,6 +246,8 @@ describe('G2 — le collecteur visite tous les emplacements porteurs d’express
       // littéraux dans les domaines de tirage du banc comme s'ils étaient des frontières cliniques,
       // exactement la confusion que la ligne `contrainte` ci-dessus verrouille dans l'autre sens.
       [MARQUEURS.familleprioritaireSi, 'affichage'],
+      // 2026-08-04 : badge d'action conditionnel (`Option.action_si`), même nature que `priorite[].quand`.
+      [MARQUEURS.actionSiQuand, 'decision'],
     ]
 
     const violations: string[] = []
@@ -279,6 +285,7 @@ describe('G2 — le collecteur visite tous les emplacements porteurs d’express
         'critereEntree.visible_si',
         // A3 (2026-08-01) : premier emplacement porteur d'expression situé sur une FAMILLE.
         'famille.prioritaire_si',
+        'option.action_si',
         'option.calculs',
         'option.conditions',
         'option.exclusions',

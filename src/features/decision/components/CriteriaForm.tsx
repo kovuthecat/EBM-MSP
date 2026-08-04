@@ -219,6 +219,21 @@ export function CriteriaForm({
   // être unique dans TOUT le document, pas seulement dans ce formulaire).
   const idBase = useId()
   const [detailOuvert, setDetailOuvert] = useState<string | null>(null)
+
+  // SAISIE TOLÉRANTE (`CritereEntree.unite_flexible`, 2026-08-04) — texte TEL QUE TAPÉ pour les champs
+  // concernés, le temps de la frappe : `criteria[nom]` reste la valeur COMMISE (un nombre), mais l'input
+  // affiche cette mémoire tampon locale tant qu'elle existe, pour ne jamais réécrire sous les doigts du
+  // praticien un « 1, » intermédiaire (pas encore un nombre valide) ou un « 170 » pas encore corrigé en
+  // 1,70 (la correction d'échelle n'a lieu qu'au blur, cf. `onBlur` plus bas). Vidée (retrait de la clé)
+  // dès le blur, pour que le champ retombe sur `criteria[nom]` — source de vérité — au prochain rendu.
+  const [texteFlexible, setTexteFlexible] = useState<Record<string, string>>({})
+  const retirerTexteFlexible = (nom: string) =>
+    setTexteFlexible((etat) => {
+      if (!(nom in etat)) return etat
+      const suivant = { ...etat }
+      delete suivant[nom]
+      return suivant
+    })
   const toggleDetail = (nom: string) => setDetailOuvert((actuel) => (actuel === nom ? null : nom))
 
   /** `Libellé : description` par valeur du critère ayant une description cataloguée (`describeEnumValue`),
@@ -501,11 +516,18 @@ export function CriteriaForm({
           data-pilote={pilote || undefined}
           data-debut-ligne={critere.debut_de_ligne || undefined}
         >
+          {/* Drapeau plutôt que case à cocher (2026-08-04, demande utilisateur) : contour au repos,
+              rempli une fois coché — la classe `criteria-form__field--flag` portait déjà ce nom avant ce
+              changement, la case native n'en avait encore que le nom. La case reste dans le DOM
+              (accessibilité clavier/lecteur d'écran, `:checked` pilote l'icône en CSS pur) mais devient
+              visuellement invisible (`criteria-form__flag-input`) au profit de l'icône juste à côté. */}
           <input
             type="checkbox"
+            className="criteria-form__flag-input"
             checked={Boolean(criteria[critere.nom])}
             onChange={(event) => onChange(critere.nom, event.target.checked)}
           />
+          <Icon nom="drapeau" taille={16} className="criteria-form__flag-icon" />
           {!libelleMasque && (
             <span className="criteria-form__checkbox-label">
               {labelForCritere(critere.nom)}
@@ -655,6 +677,69 @@ export function CriteriaForm({
               </option>
             ))}
           </select>
+        ) : critere.type === 'nombre' && critere.unite_flexible ? (
+          // SAISIE TOLÉRANTE (`CritereEntree.unite_flexible`, 2026-08-04) — `<input type="text">` : un
+          // `<input type="number">` REFUSE la virgule dans la plupart des navigateurs, donc `taille` ne
+          // peut pas rester un input natif si la virgule doit être acceptée. `inputMode="decimal"` garde
+          // un clavier numérique sur mobile malgré le `type="text"`.
+          <input
+            type="text"
+            inputMode="decimal"
+            className="criteria-form__input"
+            placeholder="—"
+            value={
+              texteFlexible[critere.nom] ??
+              (touched.has(critere.nom) ? String(criteria[critere.nom] ?? '') : '')
+            }
+            onChange={(event) => {
+              const brut = event.target.value
+              setTexteFlexible((etat) => ({ ...etat, [critere.nom]: brut }))
+              if (brut.trim() === '') {
+                if (onEffacer) onEffacer(critere.nom)
+                else onChange(critere.nom, 0)
+                return
+              }
+              // Commis TEL QUEL pendant la frappe (virgule → point, AUCUNE correction d'échelle ici : cf.
+              // docstring `unite_flexible`, la réécrire sous les doigts casserait la saisie de « 170 »
+              // dès « 17 »). Une chaîne pas encore un nombre valide (« 1, », « - ») ne commet rien : le
+              // tampon local (`texteFlexible`) garde l'affichage, `criteria[nom]` reste sa dernière valeur
+              // valide.
+              const normalise = Number(brut.replace(',', '.'))
+              if (Number.isFinite(normalise)) onChange(critere.nom, normalise)
+            }}
+            onBlur={(event) => {
+              const brut = event.target.value
+              if (brut.trim() === '') {
+                retirerTexteFlexible(critere.nom)
+                return
+              }
+              const normalise = Number(brut.replace(',', '.'))
+              if (!Number.isFinite(normalise)) {
+                retirerTexteFlexible(critere.nom)
+                return
+              }
+              // CORRECTION D'ÉCHELLE (« 170 » → 1,70) — seulement au blur, seulement si `min`/`max` sont
+              // déclarés (sinon aucun domaine où atterrir) et seulement si la valeur brute est HORS
+              // domaine : une saisie déjà dans [min, max] n'est jamais retouchée, même si sa forme
+              // divisée y tomberait aussi (ex. 1,7 ÷ 10 = 0,17 ne doit jamais remplacer 1,7 valide).
+              let valeurFinale = normalise
+              if (
+                critere.min != null &&
+                critere.max != null &&
+                !(normalise >= critere.min && normalise <= critere.max)
+              ) {
+                const candidate = [normalise / 10, normalise / 100].find(
+                  (v) => v >= critere.min! && v <= critere.max!,
+                )
+                if (candidate != null) valeurFinale = candidate
+              }
+              onChange(critere.nom, valeurFinale)
+              // Retombe sur `criteria[nom]` (source de vérité) au prochain rendu plutôt que de garder ce
+              // tampon : évite un texte figé qui ne suivrait plus une valeur changée par ailleurs (reprise
+              // de session, pré-remplissage).
+              retirerTexteFlexible(critere.nom)
+            }}
+          />
         ) : critere.type === 'nombre' ? (
           <input
             type="number"
@@ -713,6 +798,14 @@ export function CriteriaForm({
                   key={valeur}
                   type="button"
                   className="criteria-form__segment"
+                  // GÉNÉRIQUE, indexé par la VALEUR d'énumération (2026-08-04, demande utilisateur :
+                  // icônes plus lisibles au premier coup d'œil) — même mécanisme que `data-on`/`data-ton`
+                  // ci-dessous, jamais un nom de critère en dur. Pilote UNIQUEMENT la couleur de l'icône
+                  // (`.criteria-form__segment-icon`, `CriteriaForm.css`), scopée aux 4 valeurs d'`intention`
+                  // qui n'ont pas de `ton` clinique (`iconForEnumValue` en est le seul autre consommateur) :
+                  // une valeur qui a déjà un `ton` (position_vs_cible, albuminurie…) n'est pas concernée,
+                  // ces règles ne ciblent que les 4 verbes par leur nom exact.
+                  data-valeur={valeur}
                   data-on={selectionne || undefined}
                   // A9 (arbitrage référent, 2026-07-27 soir) : `data-on` ne pilote QUE le style — rien
                   // n'exposait la valeur retenue à un lecteur d'écran, qui annonçait trois boutons

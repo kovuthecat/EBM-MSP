@@ -158,7 +158,7 @@ describe('OptionCard — carteUnique (P12/S10, T-136 : carte seule sur son écra
     }
   })
 
-  it('`carteUnique={true}` : le panneau --argumentaire est ouvert par défaut (pas de `hidden`)', () => {
+  it('`carteUnique={true}` : le panneau --preuves est ouvert par défaut (pas de `hidden`)', () => {
     const html = renderToStaticMarkup(
       <OptionCard
         option={optionDeBase()}
@@ -171,12 +171,12 @@ describe('OptionCard — carteUnique (P12/S10, T-136 : carte seule sur son écra
         carteUnique
       />,
     )
-    const indexPanneau = html.indexOf('option-card__panneau--argumentaire')
+    const indexPanneau = html.indexOf('option-card__panneau--preuves')
     const finBalise = html.indexOf('>', indexPanneau)
     expect(html.slice(indexPanneau, finBalise)).not.toContain('hidden')
   })
 
-  it('`carteUnique={true}` : les panneaux --pourquoi, --posologie et --ci restent fermés (un seul panneau change d’état initial)', () => {
+  it('`carteUnique={true}` : les quatre autres panneaux restent fermés (un seul panneau change d’état initial)', () => {
     const html = renderToStaticMarkup(
       <OptionCard
         option={optionDeBase({ contre_indications: ['CI de test.'], apercu: 'dose fixe' })}
@@ -189,10 +189,12 @@ describe('OptionCard — carteUnique (P12/S10, T-136 : carte seule sur son écra
         carteUnique
       />,
     )
-    for (const nom of ['pourquoi', 'posologie', 'ci']) {
+    // `--argumentaire` rejoint la liste des panneaux fermés le 2026-08-04 : l'argument EBM a déménagé
+    // dans `--preuves`, qui est désormais le seul ouvert d'office.
+    for (const nom of ['pourquoi', 'posologie', 'ci', 'argumentaire']) {
       const indexPanneau = html.indexOf(`option-card__panneau--${nom}`)
       const finBalise = html.indexOf('>', indexPanneau)
-      expect(html.slice(indexPanneau, finBalise)).toContain('hidden')
+      expect(html.slice(indexPanneau, finBalise), `panneau --${nom}`).toContain('hidden')
     }
   })
 
@@ -211,12 +213,17 @@ describe('OptionCard — carteUnique (P12/S10, T-136 : carte seule sur son écra
         carteUnique
       />,
     )
-    const indexPanneauArgumentaire = html.indexOf('option-card__panneau--argumentaire')
+    // `--preuves` depuis le 2026-08-04 (l'effet chiffré y a déménagé) : c'est le CONTENU qui est
+    // garanti lisible sans clic, pas un nom de panneau — l'intention de T-136 est inchangée.
+    const indexPanneauPreuves = html.indexOf('option-card__panneau--preuves')
     const indexEffet = html.indexOf("Réduction de l&#x27;IDM non fatal")
-    expect(indexEffet).toBeGreaterThan(indexPanneauArgumentaire)
+    expect(indexEffet).toBeGreaterThan(indexPanneauPreuves)
     // Le panneau qui le porte n'est pas `hidden` : pas besoin de simuler un clic pour le lire.
-    const finBalise = html.indexOf('>', indexPanneauArgumentaire)
-    expect(html.slice(indexPanneauArgumentaire, finBalise)).not.toContain('hidden')
+    const finBalise = html.indexOf('>', indexPanneauPreuves)
+    expect(html.slice(indexPanneauPreuves, finBalise)).not.toContain('hidden')
+    // ET il ne reste pas en double dans `--argumentaire`, qui ne porte plus que les avantages et les
+    // inconvénients.
+    expect(html.indexOf("Réduction de l&#x27;IDM non fatal", html.indexOf('option-card__panneau--argumentaire'))).toBe(-1)
   })
 })
 

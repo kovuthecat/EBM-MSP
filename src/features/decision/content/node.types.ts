@@ -223,6 +223,26 @@ export interface CritereEntree {
    */
   paliers?: number[]
   /**
+   * SAISIE TOLÉRANTE d'un critère `nombre` (2026-08-04, demande utilisateur sur `taille`) : le champ
+   * devient un `<input type="text">` (au lieu du `<input type="number">` natif) qui accepte la VIRGULE
+   * comme séparateur décimal (« 1,70 » aussi bien que « 1.70 »), et se corrige tout seul si la valeur
+   * saisie tombe hors du domaine [`min`, `max`] mais que la diviser par 10 ou 100 l'y ramène (« 170 » →
+   * 1,70 si `min`/`max` bornent des mètres). Motif : un `<input type="number">` REFUSE la virgule dans la
+   * plupart des navigateurs (le clavier français la tape par réflexe), et une taille en CENTIMÈTRES est la
+   * confusion d'unité la plus commune sur ce champ précis.
+   *
+   * LA CORRECTION D'UNITÉ NE S'APPLIQUE QU'AU FLOU (`CriteriaForm.tsx`) — jamais au moteur : la valeur
+   * COMMISE reste toujours en mètres (ou l'unité déclarée par le libellé du champ, cf. `taille`), la
+   * correction a simplement lieu AVANT l'écriture dans `criteria`, au blur, jamais pendant la frappe (sans
+   * quoi taper « 170 » caractère par caractère se ferait réécrire sous les doigts dès « 17 »).
+   *
+   * REQUIERT `min`/`max` déclarés (sans eux, aucun domaine où « atterrir » : le champ accepte la virgule
+   * mais ne tente aucune correction d'échelle). GÉNÉRIQUE, pas réservé à `taille` (invariant CLAUDE.md 5) :
+   * tout critère `nombre` dont l'unité se prête à une confusion d'échelle par 10 peut le déclarer. Optionnel
+   * : absent ou `false` → `<input type="number">` natif, comportement historique inchangé.
+   */
+  unite_flexible?: boolean
+  /**
    * SUPPRIME LE LIBELLÉ PROPRE DU CHAMP dans le formulaire (amélioration de lisibilité, 2026-08-01) —
    * opt-in, réservé au champ SEUL dans sa section, dont le titre de `groupe` porte déjà toute
    * l'information (« Je souhaite : » au-dessus des quatre boutons d'intention, par exemple). Répéter le
@@ -252,6 +272,17 @@ export interface CritereEntree {
 export interface PrioriteConditionnelle {
   quand: string
   rang: number
+}
+
+/**
+ * Règle d'action CONDITIONNELLE (2026-08-04, demande utilisateur), même forme que
+ * `PrioriteConditionnelle` ci-dessus : si `quand` (condition DSL, même grammaire que `conditions`) est
+ * vraie AU SENS STRICT (jamais `INDETERMINE`, D20) pour le patient courant, le badge d'action affiché
+ * bascule sur `action` PLUTÔT QUE la valeur statique d'`Option.action` — cf. `Option.action_si`.
+ */
+export interface ActionConditionnelle {
+  quand: string
+  action: ActionOption
 }
 
 /**
@@ -332,6 +363,37 @@ export interface Option {
    * n'emploient pas ce vocabulaire et n'en auront jamais besoin.
    */
   action?: ActionOption
+  /**
+   * SURCHARGE CONDITIONNELLE du badge d'action (2026-08-04, demande utilisateur) — ex. la metformine
+   * socle : « Ajouter » pour un patient qui n'en prend pas encore, « Maintenir » pour un patient déjà
+   * sous metformine, alors que c'est TOUJOURS LA MÊME OPTION (`conditions: ["toujours"]`, `role: socle`)
+   * qui s'affiche dans les deux cas — un `Option.action` statique ne peut représenter qu'UNE valeur.
+   *
+   * Règles évaluées EN ORDRE, PREMIÈRE VRAIE retenue (même sémantique que `Option.priorite`
+   * conditionnel) ; `action` (ci-dessus) reste le REPLI si aucune règle ne matche (y compris
+   * indéterminée, D20 — jamais de bascule sur une donnée manquante). PUR AFFICHAGE, calculé une fois par
+   * rendu dans `lib/vueDecision.ts` (`OptionVue.actionEffective`), jamais par `evaluateNode` : ne change
+   * ni la sélection, ni le tri, ni aucune `condition`/`exclusion` — seulement le mot lu sur la pastille et
+   * la couleur de bordure de la carte (`OptionCard.tsx`).
+   *
+   * Optionnel, générique à tout domaine : absent → `action` seule pilote l'affichage, comportement
+   * rigoureusement inchangé.
+   */
+  action_si?: ActionConditionnelle[]
+  /**
+   * Option clinique de BAS RANG, proposée faute de mieux (ex. gliptine/sulfamide sans bénéfice sur
+   * critère dur, en l'absence d'iSGLT2/AR GLP‑1 disponibles) — DISTINCT de `role` (qui reste `geste` :
+   * c'est un choix thérapeutique ordinaire, pas une sécurité ni un repli mécanique `["default"]`).
+   *
+   * PUR AFFICHAGE (`OptionCard.tsx`) : une étiquette + un attenuement visuel de la carte. Aucun effet
+   * sur la sélection, le tri ni le badge `recommandee`/`securite` — une option `bas_rang` peut très
+   * bien rester `recommandee` : c'est alors la MEILLEURE option DISPONIBLE pour ce patient, pas la
+   * meilleure dans l'absolu, et les deux signaux ont vocation à coexister.
+   *
+   * Optionnel, générique à tout domaine (invariant CLAUDE.md 5) : absent ou `false` → rendu historique
+   * inchangé. Ajouté le 2026-08-04 (demande utilisateur sur `prescription`).
+   */
+  bas_rang?: boolean
   avantages: string[]
   inconvenients: string[]
   /** Effet absolu / NNT / NNH, sinon la chaîne `"non chiffrable"`. */
@@ -443,6 +505,21 @@ export interface Option {
    */
   apercu?: string
   /**
+   * TEXTE DÉTAILLÉ DE POSOLOGIE (schéma de titration, adaptation posologique, conseils d'observance) —
+   * 2026-08-04, demande utilisateur : ce texte vivait jusqu'ici dans `avantages` (ex. le protocole de
+   * titration de la metformine), ce qui le noyait dans l'argumentaire clinique (bénéfice/risque) au lieu
+   * du panneau POSOLOGIE où un praticien qui cherche « comment je prescris » le cherche réellement.
+   *
+   * DISTINCT d'`apercu` : `apercu` est UNE LIGNE COURTE affichée même carte repliée (titre du dépli),
+   * celui-ci est la PROSE COMPLÈTE affichée seulement le panneau `--posologie` ouvert (mêmes puces que
+   * `avantages`/`inconvenients`, cf. `OptionCard.tsx`). Les deux peuvent coexister : `apercu` reste le
+   * résumé, `posologie_detail` le détail.
+   *
+   * Optionnel : absent → le panneau posologie garde son rendu historique (`apercu` + `calculs` +
+   * `calculsEnAttente` seuls).
+   */
+  posologie_detail?: string[]
+  /**
    * Rang de priorité en mode `multi-options` : les options applicables sont triées par rang
    * croissant (tri stable ; absente = rang le plus faible). Soit un **entier** (rang FIXE, D13),
    * soit une **liste de règles** `{ quand, rang }` (rang CONDITIONNEL, D14 : 1re règle dont `quand`
@@ -511,40 +588,86 @@ export interface ReferencePrimaire {
 }
 
 /**
- * Citation bibliographique d'une revue secondaire indépendante (DECISIONS.md D23) : jamais évaluée par
- * le moteur, jamais le sujet grammatical d'un argument affiché — seulement une référence à côté de la
- * donnée qui, elle, porte l'argument (`Source.synthese_critique.donnee`).
+ * Citation PRÉCISE d'un texte de recommandation officielle (`Source.reco_officielle.references`) : un
+ * organisme + l'endroit exact du texte (numéro d'avis, de recommandation, de tableau, de rubrique de
+ * RCP). Jamais évaluée par le moteur.
+ *
+ * REMPLACE `ReferenceCritique` (2026-08-04). Celle-ci portait les revues secondaires indépendantes de
+ * `synthese_critique.references`, canal SUPPRIMÉ : elles s'affichaient à l'écran comme la référence
+ * d'une position, ce qui laissait le nom d'une revue tenir lieu de preuve — l'inverse exact de ce que
+ * D23 visait en les sortant du sujet grammatical des phrases. Ce qui a été LU pour construire une
+ * position reste tracé en commentaire YAML et dans l'argumentaire exhaustif : c'est de la méthode, pas
+ * de la preuve, et ça n'a rien à faire sur un écran de consultation.
  */
-export interface ReferenceCritique {
+export interface CitationReco {
+  /** Organisme + année, court (ex. « SFD 2025 », « RCP metformine (ANSM) »). */
   nom: string
-  /** URL, si disponible. */
+  /** URL ou DOI, si disponible. */
   lien?: string
-  /** Précision bibliographique libre (référence d'article, restriction d'accès, date d'édition...). */
+  /** Référence interne au texte — c'est ce qui rend la citation vérifiable, sa raison d'être. */
   detail?: string
 }
 
 /**
+ * UNE divergence entre la recommandation officielle et la position de l'outil, en forme COMPARABLE
+ * (ajouté le 2026-08-04).
+ *
+ * MOTIF : `reco_officielle.explication` mélangeait convergences et divergences dans un seul paragraphe
+ * de prose numéroté « (1)… (2)… (3)… », rendu en bas de panneau sous les deux colonnes. Le lecteur n'y
+ * pouvait ni compter les divergences, ni voir pour chacune qui dit quoi, ni sur quelles données l'écart
+ * se fonde. Les trois faces d'une divergence sont trois champs distincts, pas trois propositions d'une
+ * même phrase.
+ *
+ * Aucun effet moteur : `evaluateNode` ne le lit pas.
+ */
+export interface DivergenceReco {
+  /** Le point en litige, en quelques mots — sert de titre au bloc. */
+  sujet: string
+  /** Ce que dit la recommandation, énoncé SANS le contredire dans la même phrase. */
+  position_officielle: string
+  /** Ce que fait l'outil, et en quoi c'est différent. */
+  position_outil: string
+  /**
+   * SUR QUELLES DONNÉES l'écart se fonde : essais, méta-analyses, ou absence de donnée. Jamais « le
+   * référent a tranché », jamais le nom d'une revue de synthèse — une divergence sans appui dans les
+   * données n'est pas une divergence argumentée, c'est une préférence (invariant CLAUDE.md 6). « Aucun
+   * essai n'a testé ce point » est un appui parfaitement valide.
+   */
+  appui: string
+}
+
+/**
  * Modèle réorganisé PAR NATURE de source (DECISIONS.md D23), pas par titre de publication : une donnée
- * publiée (`references_primaires`), une synthèse critique INDÉPENDANTE qui interprète ces données
- * (`synthese_critique` — fusion des ex-champs `medicalement_geek`/`prescrire` : Prescrire, Médicalement
- * Geek/DragiWebdo, Minerva, ebmfrance/Duodecim... y sont citables en RÉFÉRENCE, jamais le sujet
- * grammatical de l'argument), une recommandation OFFICIELLE (`reco_officielle` — HAS, SFD, ADA/EASD,
- * KDIGO... des organismes qui émettent une recommandation formelle, à distinguer d'une revue secondaire
- * indépendante même riche en données).
+ * publiée (`references_primaires`), une lecture des données qui les interprète (`synthese_critique`),
+ * une recommandation OFFICIELLE (`reco_officielle` — HAS, SFD, ADA/EASD, KDIGO... des organismes qui
+ * émettent une recommandation formelle).
+ *
+ * AMENDEMENT DU 2026-08-04 : `synthese_critique.references` est supprimé (cf. `CitationReco`), remplacé
+ * par `appuis` qui pointe vers les ESSAIS de `references_primaires`. L'écran ne cite plus que des
+ * sources primaires et des textes officiels.
  */
 export interface Source {
   references_primaires: ReferencePrimaire[]
   synthese_critique: {
-    /** Argument sourcé par la donnée. Chaîne vide acceptée si aucune synthèse critique indépendante n'a été identifiée pour ce nœud. */
+    /** Argument sourcé par la donnée. Chaîne vide acceptée si le nœud n'a pas de lecture distincte de la recommandation officielle. */
     donnee: string
-    /** Revues secondaires indépendantes consultées — citables en bibliographie, ne portent jamais elles-mêmes l'argument de `donnee`. */
-    references: ReferenceCritique[]
+    /**
+     * Ids de `references_primaires` qui portent `donnee` — même mécanique et même raison d'être que
+     * `Option.sources_ids` : une position doit dire de quoi elle est tirée. Optionnel.
+     */
+    appuis?: string[]
   }
   reco_officielle: {
-    /** Organisme(s) émettant une recommandation OFFICIELLE. Une revue secondaire indépendante n'a pas sa place ici — cf. `synthese_critique.references` (D23). */
+    /** Organisme(s) + année, COURT : c'est un titre de bloc à l'écran, pas un paragraphe d'argumentation. */
     source: string
+    /** Citations précises des textes officiels (numéros d'avis, de tableau, de rubrique). Optionnel. */
+    references?: CitationReco[]
+    /** Ce que la recommandation DIT, énoncé pour lui-même — ni sa critique, ni sa bibliographie. */
     position: string
     divergence: boolean
+    /** Les divergences, une par entrée. Absent : l'écran retombe sur `explication` seule (rendu historique). */
+    divergences?: DivergenceReco[]
+    /** LECTURE D'ENSEMBLE : sur quoi outil et recommandation sont d'accord, et dans quel cadre lire les écarts. */
     explication: string
   }
 }

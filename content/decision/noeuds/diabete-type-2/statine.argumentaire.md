@@ -2,7 +2,7 @@
 
 > Niveau de lecture 3 (preuve complète). Document autonome distillé du dossier de preuve
 > `docs/decision/noeuds/F-statine.md` (sources croisées et vérifiées, PMID/DOI confirmés contre la source
-> primaire). **BROUILLON en attente de validation référent.**
+> primaire). **Brouillon, en attente de relecture clinique.**
 
 ## En bref
 
@@ -17,9 +17,9 @@ de l'HbA1c** et du traitement antidiabétique. Trois situations :
 - **Diabète non compliqué à faible risque absolu** (récent, sans autre facteur de risque) → **décision
   partagée** (bénéfice absolu faible).
 - **Statine indisponible** — intolérance **avérée**, ou CK > 4 fois la normale avant initiation → la classe
-  est retirée et une carte terminale oriente vers les alternatives hypolipémiantes. *(Ajouté le
-  2026-07-27 : jusque-là, l'outil affichait « atorvastatine 40-80 mg » à un patient dont le dossier
-  déclarait qu'il ne pouvait pas en prendre, avec une simple alerte à côté.)*
+  est retirée et une carte terminale oriente vers les alternatives hypolipémiantes. *(L'outil affichait
+  auparavant « atorvastatine 40-80 mg » à un patient dont le dossier déclarait qu'il ne pouvait pas en
+  prendre, avec une simple alerte à côté.)*
 
 À quoi s'ajoute une conduite qui n'est pas un tier de risque mais un geste de sécurité : **CK > 4 fois la
 normale sous traitement → interrompre 4 à 6 semaines et réévaluer**, avant tout autre raisonnement.
@@ -99,11 +99,10 @@ est *prouvé* par ECR dédié est celle de **CARDS** (diabétiques **40-75 ans a
 nul**. → chez un diabétique **récent (< 10 ans), non compliqué et sans autre facteur de risque**, le bénéfice
 absolu est faible → **décision partagée** plutôt qu'automatisme. Une ancienneté qui s'allonge, une complication
 (atteinte d'organe) ou l'apparition d'un facteur de risque font basculer vers le traitement — **l'âge
-n'intervient pas dans cette bascule** : décision référent 2026-07-26 (F-statine §9.4), qui écarte un
-gate d'âge proposé un temps (« tout dépend de l'ancienneté du diabète et des atteintes d'organe, on colle à la
-grille »). **SCORE2-Diabète** (aide à l'estimation du risque absolu, seuils fixes ESC 2023) peut affiner le
-jugement dans cette situation précise — c'est d'ailleurs la seule où l'outil suggère de le calculer (alerte
-dédiée depuis 2026-07-26, F-statine §9.5) — avec une réserve : il n'est **validé que 40-69 ans**, et un profil
+n'intervient pas dans cette bascule** : tout dépend de l'ancienneté du diabète et des atteintes d'organe,
+et un seuil d'âge n'est soutenu par aucune donnée. **SCORE2-Diabète** (aide à l'estimation du risque
+absolu, seuils fixes ESC 2023) peut affiner le jugement dans cette situation précise — c'est d'ailleurs la
+seule où l'outil suggère de le calculer — avec une réserve : il n'est **validé que 40-69 ans**, et un profil
 sans critère de grille (diabète récent, non compliqué, sans FDR) est souvent **plus jeune**, donc
 potentiellement hors de cette plage. La reco française 2026 range ce profil en « risque modéré » et fait de
 l'initiation une **décision partagée** si le LDL reste au-dessus de la cible malgré les mesures d'hygiène.
@@ -132,14 +131,14 @@ statine, et relève d'un éventuel nœud ultérieur « risque résiduel ».)*
 
 **Sujet > 75 ans en prévention primaire** : preuve plus faible et moins directe. La méta **CTT par âge 2019**
 montre un bénéfice atténué (**RR 0,87 par mmol/L**, p-trend 0,06) et **peu de preuves directes** en prévention
-primaire chez le très âgé ; **PROSPER** : sous-groupe prévention primaire **RR 0,94 (0,78-1,14) NS** (borne IC
-corrigée le 2026-07-26 — c'est un RR, pas un HR), mortalité **RR 1,07 (0,86-1,35)** (pas de bénéfice) ; **aucun essai randomisé
+primaire chez le très âgé ; **PROSPER** : sous-groupe prévention primaire **RR 0,94 (0,78-1,14) NS** —
+c'est bien un RR et non un HR —, mortalité **RR 1,07 (0,86-1,35)** (pas de bénéfice) ; **aucun essai randomisé
 dédié au sujet très âgé** (StAREE exclut les diabétiques ; PREVENTABLE en cours). → **individualiser** (espérance
 de vie, fragilité). Le seuil « ~2,5 ans » avancé par la reco SFE/SFD/NSFA/SFC 2026 est une **EXTRAPOLATION**
 (méta Yourman 2021 portant sur des sujets de **50 à 75 ans**, jamais mesurée directement au-delà — confirmé en
 texte intégral : la reco assume elle-même cette extrapolation dans la phrase suivant sa citation) : à utiliser
-comme repère, pas comme mesure directe du sujet très âgé — d'où la
-reformulation de l'alerte du YAML le 2026-07-26 (dit l'extrapolation, ne retire pas le chiffre). En prévention
+comme repère, pas comme mesure directe du sujet très âgé. L'alerte du nœud dit
+l'extrapolation et ne retire pas le chiffre. En prévention
 secondaire, le bénéfice persiste à tout âge.
 
 **Dialyse / maladie rénale terminale** : **ne pas INITIER** une statine. **4D** (atorvastatine, DT2
@@ -149,14 +148,13 @@ global est porté par les **non-dialysés** (sous-groupe dialyse non concluant).
 place**, sa poursuite est raisonnable. En maladie rénale chronique **non dialysée** (stade 3-5), la statine
 reste indiquée.
 
-*(Encodage, 2026-07-26, F-statine.md §9.1 : le nœud distingue désormais l'initiation de la poursuite via le
-critère `statine_deja_en_place` — l'option « haute intensité » n'est plus proposée à un patient dialysé qui
-n'a pas déjà de statine en cours ; la poursuite reste possible. La contradiction entre l'ancienne alerte et
-la carte affichée, relevée en recette, est corrigée pour ce cas ; le tier « discuter »/le repli « intensité
-modérée » restent, eux, hors de cette exclusion — limite documentée dans `incertitudes` du YAML.)*
+*(Le nœud distingue l'initiation de la poursuite : l'option « haute intensité » n'est pas proposée à un
+patient dialysé qui n'a pas déjà de statine en cours, la poursuite reste possible. Le tier « discuter » et
+le repli « intensité modérée » restent, eux, hors de cette exclusion — limite documentée dans les
+incertitudes du nœud.)*
 
-**Cas particulier du cas particulier — dialysé ET en prévention secondaire (ASCVD établie), pas encore sous
-statine** *(2026-07-26)* : le nœud est en `ordered-first-match` — retirer
+**Cas particulier du cas particulier — dialysé ET en prévention secondaire, pas encore sous
+statine** : le nœud est en `ordered-first-match` — retirer
 l'option « haute intensité » par l'exclusion ci-dessus fait continuer la boucle vers l'option suivante, qui
 ne regarde jamais `ASCVD_etablie`. Sans correctif, ce patient (12,5 % du banc réaliste du nœud) atterrissait
 sur « Discuter […] à faible risque absolu » ou sur le repli « prévention primaire, intensité modérée » — un
@@ -174,7 +172,7 @@ au cas par cas, pas de conduite inventée au-delà de ce que le dossier établit
   le non-diabétique. Chez un patient **déjà diabétique**, cet argument **ne s'applique pas**.
 - **Symptômes musculaires** : la méta CTT sur données individuelles 2022 montre un excès réel **seulement la
   1re année** (RR 1,07), nul ensuite, et **> 90 % des symptômes musculaires rapportés ne sont pas attribuables**
-  à la statine (~1 sur 15). *(Ce constat alimente une alerte du nœud, ciblée depuis le 2026-07-27 sur la seule
+  à la statine (~1 sur 15). *(Ce constat alimente une alerte du nœud, ciblée sur la seule
   valeur `rapportee` du critère `intolerance_statine` : adressé à un patient dont l'intolérance est AVÉRÉE, ce
   message l'inviterait à ignorer son propre dossier. La conduite à tenir, elle, n'est plus un trou du dossier
   — voir le § 6 bis ci-dessous.)*
@@ -190,8 +188,8 @@ au cas par cas, pas de conduite inventée au-delà de ce que le dossier établit
 
 ## 6 bis. Intolérance aux statines — ce que la donnée établit, et ce qu'on en fait
 
-*Section ajoutée le 2026-07-27, après une revue de preuve dédiée qui a corrigé cinq affirmations d'une version
-antérieure, et la lecture en source primaire des deux documents NICE, restés inaccessibles jusque-là.*
+*Cette section a été construite sur une revue de preuve dédiée et sur la lecture en source primaire des
+deux documents NICE.*
 
 ### Une intolérance rapportée n'est pas une intolérance
 
@@ -252,7 +250,7 @@ Le champ n'apparaît donc qu'à partir du moment où une intolérance est rappor
 de 10 fois la normale la statine est arrêtée **définitivement** (« *stopped permanently* »). Le parcours NHS
 ne réserve l'arrêt définitif qu'à la **myosite nécrosante auto-immune** — évoquée devant une faiblesse
 musculaire progressive et des CK qui ne se normalisent pas malgré l'arrêt. Le nœud suit le parcours NHS
-(décision référent) pour ne pas fermer définitivement la classe à un patient à haut risque cardiovasculaire
+pour ne pas fermer définitivement la classe à un patient à haut risque cardiovasculaire
 qui pourrait la tolérer autrement ; la position française est **affichée dans la carte**, pas effacée.
 
 ### Quand la statine est vraiment indisponible
@@ -291,7 +289,7 @@ phrase de **texte courant, non graduée** — la table des recommandations gradu
 aucune recommandation sur cette molécule. Il n'y a donc pas d'écart de **rang** à opposer, seulement un écart
 de **place**. Et la reco française rapporte CLEAR fidèlement (« −13 % de MACE, −23 % d'IDM, sans effet sur
 l'AVC ni la mortalité ») : la divergence ne vient pas d'une lecture biaisée des chiffres. Le nœud affiche les
-deux positions **sans trancher** (décision référent).
+deux positions **sans trancher**.
 
 Statut réglementaire français, pour mémoire : avis favorable de la Commission de la transparence le
 **12/02/2025**, arrêté du 09/12/2025, **remboursement effectif au 12/12/2025** à 65 %, dans un périmètre
@@ -325,7 +323,7 @@ cibles de LDL, et une stratégie de treat-to-target n'est pas supérieure à une
 indépendamment du LDL de base ; en prévention primaire, décider sur le **risque cardiovasculaire global**,
 pas sur les chiffres lipidiques.
 
-*(Retrait 2026-07-26, D23 : l'ancienne mention « molécule préférée = simvastatine » n'était adossée à aucun
+*(D23 : l'ancienne mention « molécule préférée = simvastatine » n'était adossée à aucun
 essai comparatif entre statines dans le dossier de preuve, et contredisait le § 6 Sécurité ci-dessous
 — simvastatine/atorvastatine ont PLUS d'interactions CYP3A4 que pravastatine/rosuvastatine/pitavastatine.
 Retirée plutôt que marquée « donnée à fournir », pour ne pas laisser deux positions contradictoires dans le
@@ -340,12 +338,12 @@ tous les diabétiques.
 ## 8. Incertitudes
 
 - Mortalité toutes causes en prévention primaire du DT2 : **non démontrée**.
-- Seuil du tier « bas risque » : TRANCHÉ 2026-07-26 (F-statine §9.4) — pas de seuil d'âge, la
-  bascule suit uniquement `anciennete_diabete_annees < 10`, `autres_FDRCV == 0` et `diabete_complique ==
-  false` (grille française 2026) ; un gate d'âge proposé un temps a été rejeté par le référent.
+- Seuil du tier « bas risque » : pas de seuil d'âge — la bascule suit uniquement
+  `anciennete_diabete_annees < 10`, `autres_FDRCV == 0` et `diabete_complique == false` (grille française
+  2026). Aucune donnée ne soutient un gate d'âge.
 - Prévention primaire > 75 ans : preuve faible (essais en cours ; le seuil « ~2,5 ans » de la reco 2026 est
   une extrapolation d'une méta 50-75 ans, pas une mesure directe — § 5).
-- Dialyse + ASCVD établie, pas encore de statine (§ 5, 2026-07-26) : la conduite optimale
+- Dialyse + ASCVD établie, pas encore de statine (§ 5) : la conduite optimale
   n'est PAS tranchée par ce dossier — ni l'excès d'une haute intensité non prouvée en dialyse (4D, AURORA) ni
   le sous-traitement d'un risque de prévention secondaire réel ne sont démontrés pour ce sous-groupe précis.
   Signalé au praticien par une alerte plutôt que résolu par une conduite inventée.

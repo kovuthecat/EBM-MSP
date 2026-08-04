@@ -113,6 +113,48 @@
   white-space: nowrap;
 }
 
+/* BAS RANG (2026-08-04, demande utilisateur) — QUATRIÈME chip, cumulable avec les trois ci-dessus (une
+   option `bas_rang` peut très bien rester `recommandee` : la meilleure option DISPONIBLE, pas la
+   meilleure dans l'absolu — cf. docstring `Option.bas_rang`, `node.types.ts`). Bordure POINTILLÉE,
+   jamais pleine ni colorée comme les trois autres : le motif pointillé est déjà, ailleurs dans cet écran,
+   celui d'« équivalent, pas la meilleure information qu'on puisse donner » (`.decision-node__egalite`,
+   `DecisionNodeScreen.css`) — le réemployer ici fait lire les deux comme un même registre visuel plutôt
+   que d'inventer un quatrième code couleur. Neutre (`--c-text-muted`/`--c-border`), jamais rouge/ambre :
+   ce n'est ni un danger ni une question en attente, juste un rang clinique inférieur à dire clairement. */
+.option-card__bas-rang-badge {
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--c-pill-track);
+  color: var(--c-text-muted);
+  border: 1px dashed var(--c-border);
+  padding: 3px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+/* CARTE ATTÉNUÉE (2026-08-04) — complète le chip ci-dessus : la carte elle-même doit se lire en retrait
+   des agents à bénéfice prouvé, pas seulement porter une étiquette de plus dans un en-tête déjà chargé.
+   Fond légèrement recessé (`--c-bg`, le fond de PAGE, à la place du blanc `--c-surface` de toutes les
+   autres cartes) — écart volontairement subtil (98 % L vs 99,5 % L) : une option `bas_rang` reste une
+   conduite à tenir légitime (HAS/SFD), jamais un état désactivé/grisé au sens formulaire. */
+.option-card--bas-rang {
+  background: var(--c-bg);
+}
+
+/* Neutralise l'accent VERT « ajouter » (`--c-action-ajouter`, ton succès) sur une carte bas rang, bordure
+   comme pastille : le vert dit « bon choix, à ajouter », un signal positif fort qui contredirait
+   directement l'étiquette ci-dessus. Ne cible QUE la combinaison bas-rang + ajouter (le seul verbe que ces
+   options portent, `prescription.yaml`) — les autres verbes (`--action-remplacer`, `--action-arreter`...)
+   ne sont pas concernés, aucune option `bas_rang` ne les porte à ce jour. */
+.option-card--bas-rang.option-card--action-ajouter {
+  border-left-color: var(--c-border);
+}
+
+.option-card--bas-rang .option-card__action-pastille--ajouter {
+  background: var(--c-pill-track);
+  color: var(--c-text-secondary);
+}
+
 /* LA RANGÉE (P11/S6) — toujours visible, UNE ligne (maquette l.272 : `display:flex;align-items:
    center;gap:10px;padding:9px 12px`, repris via les tokens d'espacement S1 les plus proches :
    `--space-3` ≈ 9px, `--space-4` = 10px, `--space-5` = 12px). `min-width: 0` sur les enfants flexibles
@@ -122,13 +164,29 @@
 .option-card__rangee {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
+  /* `flex-wrap: wrap` (bug égalité, 2026-08-04) : filet de sécurité pour les colonnes étroites de
+     `.decision-node__egalite-grid`, où la rangée n'a physiquement pas la place d'un intitulé long
+     (mesuré : jusqu'à 625px de large pour tenir sur une ligne) à côté du badge de preuve et des
+     pastilles. Sans ce filet, la carte reste sur une seule ligne à tout prix mais `overflow: hidden`
+     sur `.option-card` masque ce qui déborde — pas de dégradation visible, mais le titre est ensuite
+     écrasé (cf. `.option-card__title` ci-dessous) pour compenser. Neutre sur les cartes pleine largeur
+     (nœuds à une seule option par ligne) : tout y tient déjà sur une ligne, donc aucun retour à la
+     ligne ne s'y déclenche — la « carte une ligne » (P11/S6) n'est pas révoquée, seulement plus fragile
+     à défaut d'espace. */
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
   padding: var(--space-3) var(--space-5);
 }
 
 .option-card__title {
   flex: 1;
-  min-width: 0;
+  /* Plancher (bug égalité, 2026-08-04) : `min-width: 0` laissait l'intitulé s'effondrer à 0px dès que
+     les voisins `flex-shrink: 0` (pastille d'action, badge de preuve, pastilles, chevron) ne tenaient
+     déjà plus dans la colonne — chaque mot de l'intitulé se retrouvait alors sur sa propre ligne
+     (constaté en recette sur `.decision-node__egalite-grid`, colonnes ~350px). Le plancher force le
+     reste de la rangée (badge, pastilles) à passer à la ligne suivante plutôt que d'écraser le texte
+     jusqu'à l'illisible — cf. `flex-wrap` ci-dessus. */
+  min-width: 90px;
   font-size: 13px;
   font-weight: 600;
   color: var(--c-text);
@@ -279,6 +337,48 @@
   font-size: 12px;
   color: var(--c-text-muted);
   margin-bottom: 14px;
+}
+
+/* LE BADGE DE NIVEAU DE PREUVE EST UNE COMMANDE (2026-08-04) — bouton transparent qui n'ajoute AUCUNE
+   décoration : ce qu'on voit reste exactement `EvidenceBadge`, composant partagé et inchangé. Seuls le
+   curseur et l'anneau de focus trahissent qu'on peut cliquer, plus le léger retrait au survol. */
+.option-card__preuves-toggle {
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  line-height: 0;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.option-card__preuves-toggle:hover {
+  opacity: 0.8;
+}
+
+.option-card__preuves-toggle:focus-visible {
+  outline: 2px solid var(--c-accent-decision);
+  outline-offset: 2px;
+}
+
+/* Les essais qui portent les chiffres de l'option (`option.references` → `references_primaires`) :
+   affichés pour la première fois le 2026-08-04 — le contenu portait cette traçabilité depuis le
+   2026-07-27 sans qu'aucun écran ne la rende. */
+.option-card__essais {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--c-text-muted);
+  margin-bottom: 14px;
+}
+
+.option-card__essais-label {
+  font-weight: 700;
+}
+
+.option-card__essais a {
+  color: inherit;
 }
 
 .option-card__lists {

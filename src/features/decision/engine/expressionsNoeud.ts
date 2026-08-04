@@ -113,6 +113,17 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
     intitule: 'inerte',
     role: 'inerte', // A3 : déclaration de nature, pas une expression (cf. `RoleOption`)
     action: 'inerte', // P6/S0 (2026-07-28) : même nature que `role` — un verbe descriptif, pas une expression (cf. `ActionOption`)
+    // 2026-08-04 — même nature que `priorite` conditionnel (D14) ci-dessous : `action_si` lui-même est un
+    // CONTENEUR (liste de règles `{ quand, action }`), `decision` désigne la nature de son `quand`, seul
+    // sous-champ porteur d'expression — `action` (la valeur choisie) est aussi inerte que `priorite[].rang`.
+    // Récoltée dans `fragmentsDuNoeud` ci-dessous, même traitement que `priorite[].quand`.
+    action_si: 'decision',
+    // 2026-08-04 — drapeau de PRÉSENTATION pure (étiquette + atténuement visuel de la carte,
+    // `OptionCard.tsx`), même nature que `libelle_masque` : ne porte ni ne déclenche aucune expression.
+    bas_rang: 'inerte',
+    // 2026-08-04 — prose d'affichage (panneau POSOLOGIE), même nature qu'`apercu`/`contre_indications` :
+    // jamais évaluée, aucune expression.
+    posologie_detail: 'inerte',
     avantages: 'inerte',
     inconvenients: 'inerte',
     effet_attendu: 'inerte',
@@ -193,6 +204,10 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
     // `libelle_masque` (2026-08-01) : drapeau de PRÉSENTATION pure — supprime une ligne de texte dans le
     // formulaire, ne porte ni ne déclenche aucune expression.
     libelle_masque: 'inerte',
+    // `unite_flexible` (2026-08-04) : même nature — bascule le rendu de l'input (texte tolérant à la
+    // virgule/à l'échelle plutôt que `<input type="number">` natif), ne porte ni ne déclenche aucune
+    // expression DSL.
+    unite_flexible: 'inerte',
   },
   // `prioritaire_si` (arbitrage référent A3, 2026-08-01) = expression d'AFFICHAGE, au même titre que
   // `visible_si` : elle hisse une famille en tête de l'écran quand elle est vraie pour ce patient, et
@@ -203,7 +218,16 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
   // jamais de l'applicabilité d'une option. `evaluateNode` ne la lit pas.
   reglePreremplissage: { quand: 'affichage', valeur: 'inerte' },
   referencePrimaire: { id: 'inerte', titre: 'inerte', annee: 'inerte', lien: 'inerte', type_critere: 'inerte' },
-  referenceCritique: { nom: 'inerte', lien: 'inerte', detail: 'inerte' },
+  // `citationReco` remplace `referenceCritique` (2026-08-04, retrait des revues secondaires de l'écran)
+  // et `divergenceReco` est nouveau : deux définitions de pure bibliographie/rédaction, aucune n'entre
+  // dans une expression DSL.
+  citationReco: { nom: 'inerte', lien: 'inerte', detail: 'inerte' },
+  divergenceReco: {
+    sujet: 'inerte',
+    position_officielle: 'inerte',
+    position_outil: 'inerte',
+    appui: 'inerte',
+  },
   sources: { references_primaires: 'inerte', synthese_critique: 'inerte', reco_officielle: 'inerte' },
   changelogEntry: { date: 'inerte', auteur: 'inerte', resume: 'inerte', veille_source: 'inerte' },
   meta: { date_revue: 'inerte', auteur: 'inerte', statut: 'inerte', version: 'inerte', changelog: 'inerte' },
@@ -246,6 +270,11 @@ export function fragmentsDuNoeud(node: Noeud): FragmentExpression[] {
     if (Array.isArray(option.priorite)) {
       option.priorite.forEach((regle, j) => pousser(regle.quand, 'decision', `${base}.priorite[${j}].quand`))
     }
+    // 2026-08-04 — même traitement que `priorite[].quand` juste au-dessus : `action_si` est la forme
+    // conditionnelle du badge d'action (`Option.action_si`), son `quand` est une expression DÉCISION au
+    // même titre (résolue par `lib/vueDecision.ts`, hors moteur, mais c'est la NATURE de l'expression qui
+    // classe le champ, pas QUI l'évalue — cf. `NatureChamp`).
+    ;(option.action_si ?? []).forEach((regle, j) => pousser(regle.quand, 'decision', `${base}.action_si[${j}].quand`))
     // L'OMISSION HISTORIQUE, dans les deux copies à la fois. Une alerte d'option est un canal de sécurité
     // à part entière (D21) : son `quand` est une expression du même DSL, évaluée par la même brique
     // (`evaluateAlertesDeListe`) que celui d'une alerte de nœud.

@@ -2,18 +2,20 @@
 
 > **Statut** : proposition issue du bilan du premier domaine (DT2), écrite le 2026-07-26. **Non
 > arbitrée** — les étapes et les portes de sortie sont à valider par le référent avant d'engager le
-> deuxième domaine.
+> deuxième domaine. **Complétée le 2026-08-04** (revue de conception
+> `validation/revue-conception-fable-2026-08-04.md`) : items de checklist 2.1/2.4/2.5, nouvelles lignes
+> de la table des pièges (§4), invariants de rendu en porte P6 — même statut de proposition.
 >
 > **Portée** : ce document ne parle d'**aucun domaine clinique**. Il dit **dans quel ordre** construire
 > un module et **à quelles conditions** passer à l'étape suivante. Il ne dit pas comment écrire un
-> nœud — c'est `GRAMMAIRE-NOEUD.md` (règles R1→R9), consulté *pendant* l'écriture. Ce document-ci se
+> nœud — c'est `GRAMMAIRE-NOEUD.md` (règles R1→R12), consulté *pendant* l'écriture. Ce document-ci se
 > suit *avant et autour*.
 
 | document | répond à | consulté |
 |---|---|---|
 | `PROJECT_BRIEF.md` · `BRIEF_DECISION.md` | quoi, pour qui | au cadrage |
 | **`CONSTRUIRE-UN-MODULE.md`** *(ce fichier)* | **dans quel ordre, avec quelles portes** | **du début à la fin** |
-| `GRAMMAIRE-NOEUD.md` | comment écrire un nœud correct (R1→R9) | à l'écriture et à la relecture |
+| `GRAMMAIRE-NOEUD.md` | comment écrire un nœud correct (R1→R12) | à l'écriture et à la relecture |
 | `00-global.md` | comment sourcer et red-teamer (méthode, illustrée sur DT2) | à la collecte |
 | `schema/noeud.schema.json` | le contrat exécutable | en permanence, par les tests |
 | `DECISIONS.md` | les arbitrages transverses (D1→D23) | quand une règle surprend |
@@ -294,6 +296,14 @@ vérifié sans eux — ce sont, à eux seuls, les trois invariants qui auraient 
 graves de la recette navigateur du 2026-07-28 (formulaire vierge qui recommande, option de sécurité
 inatteignable, écran muet).
 
+**Ajout du 2026-08-04 — les invariants de RENDU font partie de la piste B.** Quatre défauts de la revue
+de conception (expression brute, « : non », littéral dupliqué, méta-texte de fabrication) sont des
+propriétés du **texte rendu**, transversales à tous les nœuds, et chacun avait déjà été corrigé *sur un
+nœud* sans être recherché sur les autres. Ils se testent par grep sur la sortie du modèle de vue —
+liste exacte dans `GRAMMAIRE-NOEUD.md` R6, volet rendu. Un correctif de rendu validé sur le nœud où le
+défaut a été constaté n'est **pas** clos tant que son invariant transversal n'est pas vert partout :
+c'est la parade mécanique à la famille « correctif non propagé au nœud voisin ».
+
 ---
 
 ### P7 — Recette référent sur le déployé
@@ -308,6 +318,17 @@ juillet 2026 ont, à elles seules, trouvé plus de défauts graves que cinq rapp
 unitaires cumulés — une classe de défaut entière (l'écran qui affirme sur une donnée absente, qui se tait,
 ou dont une carte contredit l'alerte qu'elle contient) n'était atteignable par **aucun** des deux
 instruments existants, qui n'interrogent jamais la page telle qu'un praticien la lit réellement.
+
+**Deux gestes à ajouter au protocole de recette navigateur** (revue du 2026-08-04 — les deux plus gros
+constats hors audit y ont été trouvés ainsi) :
+
+- **jouer les allers-retours, pas seulement les parcours** : changer l'intention ou la situation *sur un
+  formulaire rempli*, revenir, et relire l'état complet (c'est ce qui a exposé la perte de saisies R12
+  et l'impasse R11 — invisibles sur tout parcours linéaire, donc invisibles pour un banc de vignettes
+  qui saisit toujours dans l'ordre) ;
+- **relire les résumés de sections repliées après chaque geste global** (« Rien à signaler ») : c'est le
+  seul contrôle dont dispose le praticien sur ce qu'il a déclaré, et le seul endroit où la portée
+  instantanée du geste se voit.
 
 **Porte de sortie P7** : recette référent **et** recette navigateur closes, sans défaut grave ouvert.
 
@@ -354,6 +375,16 @@ instruments existants, qui n'interrogent jamais la page telle qu'un praticien la
       continue) — le message qui explique comment s'en passer existe (« Sans MCG : titrer la basale sur
       la glycémie à jeun ») mais est rendu **sous** la ligne qui les réclame : un praticien sans capteur
       découvre l'impasse avant l'explication, pas après.
+- [ ] **S'il est masqué (`visible_si`) sous une valeur du primer, il n'est pas décisif sous cette
+      valeur — ou il est dérivé de cette valeur** (R11, 2026-08-04). Le cas N25 : *Initier* masque la
+      section TRAITEMENT, le moteur continue de réclamer « Traitements en cours », et l'option de
+      sécurité qui en dépend (insuline d'initiation) devient inatteignable. La forme correcte est une
+      dérivation déclarée (*Initier* ⇒ traitements = ∅, statut `suggere`), pas un trou.
+- [ ] **Partagé en session (`partage`) s'il est objectif et stable en cours de consultation** — jamais
+      s'il est un jugement. Constaté le 2026-08-04 : le **poids** n'était pas partagé entre
+      `prescription` et `insuline` alors qu'il venait d'être saisi et qu'il pilote les doses calculées
+      du second nœud. À l'écriture d'un nœud, passer la liste des critères contre le catalogue et
+      déclarer le partage explicitement, dans les deux sens (ce que je fournis, ce que je réutilise).
 
 ### 2.2 Option
 
@@ -412,7 +443,18 @@ instruments existants, qui n'interrogent jamais la page telle qu'un praticien la
       convergeaient vers le même tier, de sorte que le formulaire vierge produisait une recommandation
       ferme, unique, entièrement fondée sur des champs non saisis.
 - [ ] **Un concept clinique = un encodage** — invariant I4 ; cf. les deux définitions du risque
-      hypoglycémique dans `insuline`.
+      hypoglycémique dans `insuline`. Le même défaut existe **entre nœuds** et se voit à la session :
+      la Fragilité répondue sur `cible-glycemique` n'arrive pas sur `prescription` alors qu'elle
+      circule entre les deux nœuds RHD (2026-08-04) — deux encodages du même fait cassent le partage
+      sans qu'aucun écran ne le dise.
+- [ ] **La bascule du primer conserve les saisies** (R12, 2026-08-04) : pour toute saisie et toute
+      bascule A→B→A, l'état final égale l'état initial — et la persistance est **uniforme** entre
+      sections (sur `insuline`, la bascule perdait la surveillance mais gardait le profil nocturne :
+      l'état restauré déclarait un profil AGP sans capteur).
+- [ ] **Si le primer et un critère encodent le même fait, ils sont synchronisés ou surveillés.**
+      Constaté : `Situation = Basale seule` coexistait, sur le même écran, avec « Insuline basale »
+      non cochée dans les traitements — aucune dérivation, aucune alerte d'incohérence. Déclarer la
+      dérivation (dans les deux sens, statut `suggere`) ou, à défaut, une alerte de cohérence.
 - [ ] **Les limites connues sont écrites dans `incertitudes`**, pas laissées tacites (`6561c53` :
       trois limites documentées au moment même de la correction).
 
@@ -424,6 +466,12 @@ instruments existants, qui n'interrogent jamais la page telle qu'un praticien la
       il oriente, il ne verrouille pas.** Deux gros boutons de choix se lisent spontanément comme un
       aiguillage exclusif — sans une phrase qui l'infirme, le praticien croit devoir choisir et n'ouvre
       jamais le second axe.
+- [ ] **Chaque orientation porte des indices situationnels, pas des catégories.** Le pattern vérifié
+      sur l'écran RHD (2026-08-04) : sous chaque axe, deux ou trois phrases de reconnaissance
+      (« *Le patient décrit spontanément ce qu'il mange* », « *Une expérience passée négative bloque
+      la reprise* ») — le praticien reconnaît sa consultation au lieu d'interpréter un intitulé. C'est
+      aussi la réponse au point d'entrée manqué de N25 (« Insulinothérapie » ne désigne pas « quoi
+      faire d'une cétonurie ») : les indices disent les situations, le titre dit le sujet.
 - [ ] **Aucune saisie sur l'écran de module** — garde-fou R1 : un module est un *flux d'écran*, jamais un
       chaînage. Aucune valeur ne circule vers un nœud, chaque nœud reste évaluable seul. À tenir par un
       test (« l'écran de module ne contient aucun `input`/`select`/`textarea` »), sinon l'érosion est
@@ -542,6 +590,14 @@ Table de relecture rapide. Chaque ligne est un défaut **constaté**, pas antici
 | **L'écran change sous les doigts** | cocher un critère fait passer une carte déjà lue derrière un repli sans signal (D-17) ; un bandeau de contrainte inséré en tête pousse tout le formulaire de 60 px pendant la frappe (D-15) | ancrer ce qui apparaît/disparaît ; ne jamais insérer un bloc au-dessus de ce que le praticien est en train de lire |
 | **La réponse arrive hors de portée du regard** | 2 207 px entre « à renseigner : Espérance de vie » et son champ ; 848 px entre une contrainte et le champ qu'elle corrige — mesuré, aucun des deux renvois n'était cliquable (D-15, D-16) | mesurer la distance à l'écran avant de livrer, pas seulement relire le contenu ; un renvoi doit s'atteindre en un geste |
 | **Garde répété de la mauvaise polarité** | répéter un garde en tête d'un terme (R8) protège une citation POSITIVE (`contient X`) mais, sur une citation NÉGATIVE (`ne_contient_pas X`) du même critère masqué, force le terme à `false` pour un patient qui la satisfait pourtant trivialement — huit options d'ajout de `prescription` exclues à tort pour tout patient `initier`, régression pire que le défaut d'origine, essayée puis revertée (P4/S9, T-031 ; `engine/banc/impasse.test.ts` `IMPASSES_CONNUES_T018`) | vérifier la POLARITÉ (positive/négative) du terme avant de répéter un garde mécaniquement — R8 dit qu'il faut protéger un terme, pas dans quel sens |
+| **Critère décisif dans une section masquée** | « À renseigner pour trancher : Traitements en cours » sous un formulaire dont l'intention *Initier* a supprimé la section Traitements ; l'option de sécurité qui en dépendait (insuline d'initiation, patient à cétonurie) ni proposée, ni écartée, ni nommée (N25, 2026-08-04) | R11 : sous chaque valeur du primer, tout critère décisif est saisissable ou dérivé de cette valeur |
+| **Bascule de primer qui efface les saisies** | Optimiser→Initier→Intensifier vide TRAITEMENT et TOLÉRANCE sans un mot ; sur `insuline`, la même bascule perd la surveillance mais garde le profil nocturne — état restauré contradictoire (AGP sans capteur), toléré en silence (2026-08-04) | R12 : séparer valeur et visibilité ; invariant A→B→A = identité, uniforme sur toutes les sections |
+| **Geste global à portée instantanée** | « Rien à signaler » ne répond qu'aux drapeaux décisifs *à cet instant* : « Dénutrition », devenue décisive quand poids et taille sont arrivés, redevient « à confirmer » dans une section que le praticien croit soldée — et le résumé replié ne liste que les drapeaux explicitement répondus (D13, 2026-08-04) | un geste global vaut pour toute la section, drapeaux futurs compris, et le résumé l'affiche en entier |
+| **Deux rendus de la même négation** | « Pas de MCG en place » sur une carte, « MCG disponible : non » sur la carte voisine du même écran (`insuline`, 2026-08-04) | R6 volet rendu : un seul moteur de rendu + libellés négatifs déclarés ; invariant textuel « aucun rendu ne contient “: non” » |
+| **Dérivé agrégatif au motif générique** | « écarté : Signe imposant un avis (limitation, ischémie, rétinopathie, pied) » — quatre composants énumérés, deux vrais, impossible de savoir lesquels (D7, 2026-08-04) | R6 volet rendu : un dérivé agrégatif se rend par ses composants vrais |
+| **Le titre survit à la bande qui le contredit** | à CK 60 fois la normale, la carte s'intitule encore « Interrompre 4 à 6 semaines et réévaluer » et son encart doit écrire « Ce n'est PLUS la séquence décrite ci-dessus » (D6, 2026-08-04) — or le test des 20 secondes ne retient que le titre | quand une bande de valeur change la conduite, elle change le TITRE de la carte, pas seulement un encart |
+| **Références en registre de changelog** | un titre d'essai porte « Le nœud n'avait encodé que la montée » et « affiché par ce nœud » (`insuline`, 2026-08-04) — méta-texte de fabrication dans l'écran praticien | une référence dit ce que dit la source, jamais ce que fait le nœud ; l'auto-critique de l'outil vit en alerte ou en cadrage ; invariant textuel sur « ce nœud », « encodé » |
+| **Conclusion de nœud jamais exportée** | la « Cible ≤ 7 % » rendue par `cible-glycemique` n'existe pas en session : « Par rapport à l'objectif » se re-juge à la main deux clics plus tard (D12, 2026-08-04) | R1 (précision 2026-08-04) : la conclusion s'exporte en valeur suggérée « · calculé, à vérifier », la question directe reste posée |
 
 ---
 

@@ -85,10 +85,10 @@ population_cible: >-
   motif alimentaire méditerranéen — jamais un objectif chiffré à atteindre, jamais un score d'adhérence.
   Autonome : évaluable seul, sans prérequis d'un autre nœud (R1). Hors périmètre : objectif de perte de
   poids et rémission (aucun nœud ne les porte à ce jour) ; prescription diététique détaillée
-  (orientation vers le diététicien de la structure) ; instrument de repérage TCA validé (le verrou ci-dessous
-  reformule les signes d'appel HAS, ce n'est pas un score — il ORIENTE, il ne bloque plus aucune piste
-  depuis le 2026-07-27). AUCUNE RESTRICTION, chiffrée ou non : ce nœud modifie des habitudes, il ne
-  prescrit pas de régime (principe référent, 2026-07-27). Les repères sont ceux de Santé publique France /
+  (orientation vers le diététicien de la structure) ; instrument validé de repérage des troubles du
+  comportement alimentaire (le repérage ci-dessous reformule des signes d'appel, ce n'est pas un score — il
+  ORIENTE, il ne bloque aucune piste). AUCUNE RESTRICTION, chiffrée ou non : ce nœud modifie des habitudes,
+  il ne prescrit pas de régime. Les repères sont ceux de Santé publique France /
   Manger-Bouger — trois directions, « Augmenter », « Aller vers », « Réduire », jamais une quantité.
 selection: multi-options
 argumentaire_exhaustif: "rhd-alimentation.argumentaire.md"
@@ -601,34 +601,44 @@ cadrage:
     artérielle, ni le repérage d'un syndrome d'apnées du sommeil (l'objectif de perte de poids et la
     rémission sont hors périmètre du module RHD dans son ensemble — voir l'écran d'aiguillage).
 argumentaire: >
-  Le seul bénéfice démontré sur un critère cardiovasculaire DUR parmi les mesures alimentaires est celui du
-  régime de type méditerranéen DANS SON ENSEMBLE — PREDIMED (composite cardiovasculaire majeur, HR 0,69 pour le
-  bras huile d'olive vierge extra et 0,72 pour le bras fruits à coque, essai initialement rétracté puis republié
-  après correction méthodologique en 2018) et CORDIOPREV (HR 0,72, prévention secondaire, ~50 % de diabétiques).
-  C'est le MOTIF ALIMENTAIRE SUPPLÉMENTÉ qui a été randomisé, jamais un geste isolé de changement d'huile ou
-  d'ajout de fruits à coque pris séparément — aucune piste de ce nœud ne revendique donc ce bénéfice pour
-  elle-même : l'étiquette de preuve dure appartient à ce cap, pas à une carte affichée plus bas (décision
-  référent). Ce nœud ne mesure et n'affiche aucun écart à ce motif — il n'administre jamais le score MEDAS à 14
-  items (l'instrument qui opérationnalise l'adhérence dans PREDIMED) : il s'en sert seulement comme cadre pour
-  choisir quels axes recueillir (fruits à coque, légumineuses, poisson, viande rouge/charcuterie, vin), jamais
-  comme un instrument scoré. Le recueil porte sur une direction et une fréquence déclarées, jamais une quantité
-  comparée à un seuil ; les pistes proposées sont concrètes, négociables et plutôt petites que grandes — un
-  outil qui demanderait la fréquence de restauration rapide puis répondrait « réduisez la restauration rapide »
-  tomberait exactement dans le registre culpabilisant que la HAS met en garde contre (« la stabilisation du
-  poids est déjà un succès »). Chaque piste porte sa propre étiquette de provenance (recommandation officielle
-  française — HAS, SFD, Santé publique France/PNNS — ou savoir-faire diététique non gradé) : aucune n'est
-  présentée avec plus de force que sa source ne l'affirme. Le repérage d'un trouble du comportement alimentaire NE BLOQUE PLUS aucune piste depuis le
-  2026-07-27 : il ORIENTE (diététicien, et avis spécialisé en TCA). Décision référent, sur un principe qui
-  recadre le nœud entier — en médecine générale on modifie des habitudes alimentaires, on ne prescrit pas de
-  régime et on ne propose pas de restriction chiffrée. Un verrou anti-restriction n'a donc plus d'objet, et
-  les trois exclusions qu'il portait bloquaient en réalité une substitution, un repère qualitatif hérité
-  d'une piste supprimée, et un seul geste chiffré depuis réécrit sur les repères de Santé publique France. que la HAS cite elle-même comme mesure
-  d'accompagnement du trouble du comportement alimentaire. La fragilité/dénutrition (un IMC élevé ne l'exclut
-  pas) bloque les mêmes pistes restrictives, indépendamment du repérage TCA. Le vin est recueilli — il est un
-  item du score MEDAS et appartient au tableau clinique (interactions hépatiques, triglycérides, hypoglycémie
-  sous insulinosécréteur) — mais jamais proposé par aucune piste : refus délibéré de proposer de l'alcool en
-  soins primaires. La perte de poids sous traitement insulinosécréteur ou insuline majore le risque
-  d'hypoglycémie si les apports baissent (alerte, pas un blocage).
+  Le seul bénéfice démontré sur un critère cardiovasculaire DUR, parmi les mesures alimentaires, est celui
+  du régime de type méditerranéen PRIS DANS SON ENSEMBLE : PREDIMED (critère cardiovasculaire majeur
+  composite, HR 0,69 pour le bras huile d'olive vierge extra et 0,72 pour le bras fruits à coque — essai
+  rétracté puis republié après correction méthodologique en 2018) et CORDIOPREV (HR 0,72, prévention
+  secondaire, environ la moitié de diabétiques). Ce qui a été randomisé, c'est un MOTIF ALIMENTAIRE
+  SUPPLÉMENTÉ, jamais un geste isolé de changement d'huile ou d'ajout de fruits à coque. Aucune piste de ce
+  nœud ne revendique donc ce bénéfice pour elle-même : l'étiquette de preuve dure appartient au cap
+  d'ensemble, pas à une carte prise séparément.
+
+
+  Ce nœud ne mesure et n'affiche aucun écart à ce motif. Il n'administre jamais le score MEDAS à 14 items,
+  l'instrument qui opérationnalise l'adhérence dans PREDIMED : il s'en sert seulement comme cadre pour
+  choisir les axes à recueillir — fruits à coque, légumineuses, poisson, viande rouge et charcuterie, vin.
+  Le recueil porte sur une direction et une fréquence déclarées, jamais sur une quantité comparée à un
+  seuil.
+
+
+  Les pistes proposées sont concrètes, négociables, et plutôt petites que grandes. Un outil qui demanderait
+  la fréquence de restauration rapide puis répondrait « réduisez la restauration rapide » tomberait
+  exactement dans le registre culpabilisant contre lequel les recommandations mettent en garde — « la
+  stabilisation du poids est déjà un succès ». Chaque piste porte son étiquette de provenance,
+  recommandation officielle française ou savoir-faire diététique non gradé : aucune n'est présentée avec
+  plus de force que sa source n'en affirme.
+
+
+  Le repérage d'un trouble du comportement alimentaire NE BLOQUE aucune piste : il ORIENTE, vers un
+  diététicien et vers un avis spécialisé. Le principe qui gouverne le nœud entier l'explique — en médecine
+  générale on modifie des habitudes alimentaires, on ne prescrit pas de régime et on ne propose pas de
+  restriction chiffrée. Un verrou anti-restriction n'a donc pas d'objet dans un nœud qui ne propose aucune
+  restriction. La fragilité et la dénutrition, en revanche — qu'un IMC élevé n'exclut pas — bloquent bien
+  les pistes restrictives, indépendamment du repérage.
+
+
+  Le vin est recueilli, parce qu'il est un item du score MEDAS et qu'il appartient au tableau clinique
+  (interactions hépatiques, triglycérides, hypoglycémie sous insulinosécréteur). Il n'est proposé par
+  aucune piste : refus délibéré de proposer de l'alcool en soins primaires. Enfin, une perte de poids sous
+  insulinosécréteur ou sous insuline majore le risque d'hypoglycémie si les apports baissent — c'est une
+  alerte, jamais un blocage.
 sources:
   references_primaires:
     - id: predimed
@@ -697,51 +707,116 @@ sources:
       plus proche disponible dans le domaine porte sur l'intervention de perte de poids en soins primaires
       (DiRECT, régime méditerranéen) au niveau du nœud `rhd`, dont le périmètre est plus large que les
       pistes alimentaires ci-dessus.
-    references:
-      - nom: "Prescrire"
-        detail: "Fiche Diabète de type 2, résumé critique interne (docs/decision/sources/prescrire-dt2.md, P9/P10)."
-      - nom: "Médicalement Geek / DragiWebdo"
-        lien: "https://www.medicalement-geek.com/2017/12/dragi-webdo-n163.html"
-        detail: "Couverture générale de l'intervention de perte de poids en soins primaires (DiRECT, régime méditerranéen), pas une synthèse dédiée aux gestes alimentaires de ce nœud."
+    appuis:
+      - predimed
+      - cordioprev
+      - medas-schroder
+    # REVUES SECONDAIRES CONSULTÉES — retirées de l'écran le 2026-08-04 (le champ
+    # `synthese_critique.references` n'existe plus au schéma). Motif : rendues sous la position comme
+    # « Réf. : Prescrire », elles se lisaient « Prescrire dit que » — exactement ce que D23 avait voulu
+    # empêcher en les sortant du sujet grammatical des arguments. Elles restent CONSULTÉES et tracées
+    # ici ; l'écran ne cite plus que des essais et des textes de recommandation officiels.
+    # - nom: "Prescrire"
+    # detail: "Fiche Diabète de type 2, résumé critique interne (docs/decision/sources/prescrire-dt2.md, P9/P10)."
+    # - nom: "Médicalement Geek / DragiWebdo"
+    # lien: "https://www.medicalement-geek.com/2017/12/dragi-webdo-n163.html"
+    # detail: "Couverture générale de l'intervention de perte de poids en soins primaires (DiRECT, régime méditerranéen), pas une synthèse dédiée aux gestes alimentaires de ce nœud."
   reco_officielle:
-    source: >-
-      HAS — Stratégie thérapeutique du DT2 (2024, R.30-R.38) et Parcours surpoids-obésité de l'adulte (2023) ;
-      SFD 2025 (prise de position, §8.7/Avis n°15, scope MASLD/MASH — pas une reco DT2 générale sur ce point) ;
-      Santé publique France/PNNS (« 50 petites astuces… ») ; Lifestyle education in
-      type 2 diabetes (EBM Guidelines/Duodecim, gradé selon la section).
+    source: "HAS 2024/2023 · SFD 2025 · Santé publique France (PNNS) · EBM Guidelines (Duodecim)"
+    references:
+      - nom: "HAS 2024"
+        detail: "Stratégie thérapeutique du DT2, volet nutrition — R.30 à R.38."
+      - nom: "HAS 2023"
+        detail: "Parcours de soins Surpoids et obésité de l'adulte — non-culpabilisation, « la stabilisation du poids est déjà un succès »."
+      - nom: "HAS 2019"
+        detail: "Fiche de repérage des troubles du comportement alimentaire — recherche systématique d'une hyperphagie boulimique en situation de surpoids ou d'obésité. Population cible déclarée : les jeunes, en particulier adolescentes et jeunes femmes."
+      - nom: "SFD 2025"
+        detail: "Prise de position, §8.7 et Avis n° 15 — périmètre MASLD/MASH, et non une recommandation générale du DT2 sur ce point."
+      - nom: "Santé publique France / PNNS"
+        detail: "« 50 petites astuces… », guides Manger-Bouger — repères de population générale."
+      - nom: "USPSTF 2022"
+        detail: "Dépistage des troubles du comportement alimentaire chez l'adolescent et l'adulte sans signe ni symptôme : preuves INSUFFISANTES pour évaluer la balance bénéfices-risques (I statement)."
+      - nom: "EBM Guidelines / Duodecim"
+        detail: "Lifestyle education in type 2 diabetes, gradé selon la section."
     position: >-
-      Alimentation de type méditerranéen recommandée en 1re ligne, avec des repères chiffrés destinés à la
-      population générale (au moins 5 fruits et légumes par jour, poisson 2 fois par semaine dont 1 gras,
-      légumineuses au moins 2 fois par semaine, une petite poignée de fruits à coque par jour, réduire les
-      boissons sucrées et les produits ultratransformés) et une insistance sur la non-culpabilisation
-      (« la stabilisation du poids est déjà un succès », éviter les régimes restrictifs rigides).
+      Alimentation de type méditerranéen en première ligne, avec des repères chiffrés destinés à la
+      population générale — au moins 5 fruits et légumes par jour, du poisson 2 fois par semaine dont 1
+      gras, des légumineuses au moins 2 fois par semaine, une petite poignée de fruits à coque par jour,
+      moins de boissons sucrées et de produits ultratransformés. Insistance sur la non-culpabilisation et
+      sur l'évitement des régimes restrictifs rigides.
     divergence: true
+    divergences:
+      - sujet: "Les repères chiffrés comme objectif donné au patient"
+        position_officielle: >-
+          Les repères nutritionnels sont exprimés en valeurs chiffrées, quotidiennes ou hebdomadaires.
+        position_outil: >-
+          L'outil ne les administre jamais comme objectif. Ils sont cités comme contexte de ce qui a été
+          recommandé ou testé, jamais comme cible affichée dans une piste ; le recueil porte sur une
+          direction déclarée, pas sur une quantité comparée à un seuil.
+        appui: >-
+          Ce qui a été randomisé dans PREDIMED et CORDIOPREV, c'est un motif alimentaire d'ensemble, pas
+          l'atteinte d'un chiffre par item. Aucune donnée n'établit de seuil individuel dont le
+          franchissement produirait le bénéfice. Afficher une cible reviendrait à mesurer un écart, donc à
+          produire un score d'adhérence — et à entrer dans le registre culpabilisant que les
+          recommandations elles-mêmes déconseillent.
+      - sujet: "Le repérage d'un trouble du comportement alimentaire"
+        position_officielle: >-
+          La HAS demande de rechercher systématiquement une hyperphagie boulimique en situation de surpoids
+          ou d'obésité.
+        position_outil: >-
+          L'outil ne dépiste pas systématiquement : il pose trois signes d'appel, et un signe positif
+          n'ouvre qu'une orientation — il ne retire aucune piste au patient.
+        appui: >-
+          Les deux recommandations disponibles ne disent pas la même chose : l'USPSTF conclut que les
+          preuves sont insuffisantes pour évaluer la balance bénéfices-risques d'un dépistage chez la
+          personne sans signe ni symptôme. S'y ajoute une question de performance : la valeur prédictive
+          positive du SCOFF-F dans cette population est estimée entre ~21 % et ~38 %, et sa valeur
+          prédictive négative de ~99 % reflète surtout la faible prévalence — à 5 % de prévalence, un test
+          négatif ne fait gagner que 4 points. Réserve de périmètre : le patient de ce nœud, adulte
+          diabétique d'âge moyen ou avancé, n'appartient à la population cible déclarée d'aucun des deux
+          documents HAS invoqués.
     explication: >-
-      Les repères officiels (HAS, PNNS) s'expriment en valeurs chiffrées quotidiennes ou hebdomadaires.
-      Ce nœud choisit délibérément de NE JAMAIS les administrer comme objectif chiffré au patient (décision
-      référent, CONCEPTION-module-rhd.md §4bis-0) : administrer une cible reviendrait à mesurer un écart, donc
-      à calculer un score d'adhérence — exactement ce que l'invariant « aucun score caché » proscrit, et le
-      registre culpabilisant que la HAS elle-même met en garde contre. Les repères chiffrés restent cités,
-      mais uniquement comme CONTEXTE de ce qui a été recommandé ou testé (en-tête du module et argumentaire
-      exhaustif), jamais comme une cible affichée dans une piste.
+      Aucun désaccord sur le fond : l'alimentation de type méditerranéen est le bon cap, elle se propose en
+      première ligne, et la non-culpabilisation est un principe partagé — c'est même une recommandation
+      officielle qui le formule le plus nettement. Les deux écarts ci-dessus portent sur la manière de
+      délivrer le conseil et sur ce qu'on fait d'un repérage, pas sur leur bien-fondé.
 incertitudes:
-  - "L'étiquette « bénéfice EBM sur critère dur » du régime méditerranéen (PREDIMED, CORDIOPREV) porte sur le motif alimentaire supplémenté dans son ensemble, jamais sur une piste isolée de ce nœud (décision référent) — y compris l'huile d'olive et les fruits à coque, les deux composants réellement randomisés."
-  - "Aucune version française validée du MEDAS n'a été identifiée (recherche documentée, cible-mediterraneenne-medas.md §4) : l'instrument sert ici uniquement de cadre de définition des axes recueillis (S9-S12, A12), jamais d'instrument administré ou scoré — ce qui rend l'absence de validation linguistique sans conséquence pour cet usage."
-  - "CHANGEMENT DE RÔLE DU VERROU TCA — 2026-07-27, décision référent, sur un principe qui recadre tout le nœud : « dans le cadre des RHD en médecine générale on ne propose pas de restriction calorique, en tout cas pas chiffrée ; on propose des modifications d'habitudes alimentaires, jamais de régime. » Conséquence directe : un verrou qui existe pour empêcher qu'on demande une restriction à un patient à risque de TCA n'a plus d'objet dans un nœud qui n'en propose aucune. Les TROIS exclusions qu'il portait sont retirées, et l'inventaire de ce qu'elles bloquaient réellement montre qu'aucune n'était à sa place : (a) « repérer un moment de grignotage et lui trouver une ALTERNATIVE » est une substitution, rien n'y est retiré ni chiffré ; (b) « se repérer aux proportions dans l'assiette » est un RELIQUAT — ce blocage protégeait de la piste de PESÉE supprimée la veille, et son propre `inconvenients` continuait de décrire une piste qui n'existait plus ; (c) la piste viande/charcuterie était bien un geste chiffré (« diviser par deux »), mais elle a été RÉÉCRITE sans chiffre sur les repères de Santé publique France / Manger-Bouger. Le verrou conditionne désormais les deux options d'ORIENTATION, et rien d'autre. Ce qu'il reste vrai d'en dire : il reformule 3 signes d'appel HAS, ce n'est pas un instrument validé — un résultat négatif ne garantit rien, un positif ne confirme rien."
-  - "PERFORMANCE DU VERROU TCA : TOUJOURS INCONNUE — mais l'enjeu a changé de nature le 2026-07-27. Aucune étude n'a évalué ce OU logique de 3 signes larges ; rien ne permet d'affirmer que sa spécificité vaut mieux que celle du SCOFF-F. Tant qu'il servait de TEST BLOQUANT, c'était un vrai problème : un blocage binaire fondé sur une spécificité inconnue, et une première analyse écartait le SCOFF-F au motif que ses défauts sont MESURÉS tout en conservant une alternative dont les défauts ne le sont pas — une asymétrie de traitement corrigée depuis. En DÉCLENCHEUR D'ORIENTATION, la même incertitude coûte beaucoup moins cher : un faux positif propose une orientation de plus, là où il retirait auparavant des pistes au patient. L'incertitude demeure, sa conséquence a été réduite. Pour mémoire, chiffres corrigés : la VPP attendue du SCOFF-F dans cette population n'est pas « ≈ 20 % », comme une première estimation l'affirmait, mais comprise entre ≈ 21 % (Kutz 2020) et ≈ 38 % (Botella 2013, méta-analyse non incluse dans la première recherche) ; et sa VPN de ≈ 99 % reflète surtout la faible prévalence — à 5 % de prévalence la probabilité pré-test est déjà de 95 %, le gain d'un test négatif est de 4 points. Ne pas s'en servir pour « lever » la prudence."
-  - "DIVERGENCE DE RECOMMANDATIONS sur le repérage lui-même, portée ici faute d'un champ dédié dans le schéma (`sources.reco_officielle.divergence` est un booléen qui qualifie la position de l'OUTIL, pas un conflit entre deux institutions). La HAS 2019 : « Rechercher SYSTÉMATIQUEMENT une hyperphagie boulimique en cas de situation de surpoids ou d'obésité. » L'USPSTF 2022, à l'inverse : « les preuves actuelles sont INSUFFISANTES pour évaluer la balance bénéfices-risques du dépistage des troubles du comportement alimentaire chez l'adolescent et l'adulte » (I statement, chez les personnes sans signes ni symptômes). Le nœud se tient entre les deux — il ne dépiste pas systématiquement, mais pose trois signes d'appel. CE POSITIONNEMENT N'EST TOUJOURS PAS ARBITRÉ EXPLICITEMENT et reste, à ce jour, un résultat de construction. Le lot du 2026-07-27 en réduit toutefois l'enjeu : le repérage ne FERME plus aucune piste, il ouvre seulement des orientations, ce qui rapproche le nœud de la position USPSTF (pas de dépistage à conséquence) sans renoncer à ce que demande la HAS (chercher, chez ces patients-là). Réserve de périmètre à connaître : le patient de ce nœud — adulte DT2 d'âge moyen ou avancé, en surpoids — n'appartient à la population cible DÉCLARÉE d'aucun des deux documents HAS invoqués (RBP 2010 : enfants, adolescents et jeunes adultes, anorexie mentale ; fiche 2019 : jeunes, en particulier adolescentes et jeunes femmes)."
-  - "TRANCHÉ le 2026-07-27 (référent) : la piste de PESÉE est SUPPRIMÉE — « trop contraignant et difficile en consultation de médecine générale ». Cela résout aussi la tension de source qui était consignée ici : le rapport SFD situait la pesée chez les patients pratiquant un comptage précis (insulinothérapie fonctionnelle) et sa généralisation au DT2 tout-venant n'était pas soutenue. La famille « Portions » ne conserve qu'une piste, recentrée sur les PROPORTIONS DANS L'ASSIETTE. LIMITE ASSUMÉE : aucune proportion chiffrée n'est affirmée (pas de « moitié de légumes, quart de féculents ») — le dossier de preuve de ce nœud ne source aucun ratio, et l'inventer irait contre l'invariant 6. Le repère reste donc qualitatif : la place RELATIVE des composantes. Si le référent veut un ratio explicite, il faudra le sourcer (guides Manger-Bouger / HAS déjà au dossier du module, non dépouillés sur ce point précis)."
-  - "PLAFOND D'AFFICHAGE — RÉSOLU le 2026-07-27 (décision référent). La dette était consignée à l'identique dans les DEUX nœuds RHD : le rang (`priorite`) était déclaré dans le contenu mais l'écran affichait tout à plat, si bien que le rang n'était jamais vu. L'écran REPLIE désormais les pistes au-delà du meilleur rang derrière un bouton « Autres pistes possibles (N) » (`lib/replierAffichage.ts`, testé à part). CE QUE CE N'EST PAS : un plafond. Rien n'est retiré ni filtré — la partition conserve exactement les options d'entrée, le bouton porte leur nombre exact, et un clic les rend. Trois cas ne replient délibérément rien : moins de 4 options applicables (écran non encombré), aucun rang défini (nœud en `ordered-first-match`, où `priorite` est ignoré par D11), et toutes les options au même rang (le contenu les déclare équivalentes ; en cacher une partie inventerait une hiérarchie qu'il ne pose pas). Une option sans rang est traitée comme prioritaire : le doute ne cache jamais."
-  - "Mal perforant plantaire, rétinopathie et autres contre-indications à l'EFFORT (verrou du nœud sœur `rhd-activite-physique`) n'ont aucune portée ici : ce nœud ne collecte que des critères alimentaires."
-  - "« Continuer ce qui fonctionne déjà » n'est pas un sentinel `default` : sa condition (huile d'olive ET fruits à coque réguliers) est un sous-ensemble NÉCESSAIRE, mais pas exactement équivalent, du cas où les 13 axes de recueil sont tous favorables — elle peut donc aussi s'afficher (à raison, cumulée à d'autres pistes) chez un patient favorable sur ces deux seuls axes sans l'être sur tous les autres. Choix assumé : couvrir à coup sûr le cas muet complet plutôt que viser une équivalence stricte impossible à exprimer dans le DSL sans sentinel réellement atteignable."
-  - "Le rapprochement entre `alimentation_emotionnelle` (déclencheur de « Manger sans se presser ») et la tachyphagie citée par la source pour cette même piste est une extrapolation raisonnée (les deux notions sont voisines mais non identiques dans le corpus) — signalé, pas inventé."
+  - "Le bénéfice sur critère dur du régime méditerranéen porte sur le motif alimentaire SUPPLÉMENTÉ dans son ensemble (PREDIMED, CORDIOPREV), jamais sur une piste isolée — y compris l'huile d'olive et les fruits à coque, pourtant les deux composants réellement randomisés. Aucun essai n'a testé un geste seul."
+  - "Aucune version française validée du MEDAS n'a été identifiée. Sans conséquence pour cet usage : l'instrument sert de cadre pour choisir les axes recueillis, il n'est jamais administré ni scoré."
+  - "Les trois signes d'appel de trouble du comportement alimentaire reformulent des signes issus d'une recommandation ; ce n'est pas un instrument validé. Aucune étude n'a évalué la performance de cette combinaison : un résultat négatif ne garantit rien, un positif ne confirme rien. Depuis que le repérage n'ouvre qu'une orientation et ne ferme plus aucune piste, un faux positif coûte une proposition de plus — il ne retire plus rien au patient."
+  - "Ne pas se servir d'un dépistage négatif pour lever la prudence : la valeur prédictive négative élevée du SCOFF-F (~99 %) reflète surtout la faible prévalence. À 5 % de prévalence, la probabilité pré-test d'absence de trouble est déjà de 95 % — un test négatif ne fait gagner que 4 points."
+  - "Aucune proportion chiffrée n'est affirmée pour la piste « se repérer aux proportions dans l'assiette » — ni moitié de légumes, ni quart de féculents. Aucune source du dossier ne chiffre ce ratio ; le repère reste qualitatif, la place RELATIVE des composantes. La piste de pesée des aliments a été retirée : elle relève des patients pratiquant un comptage précis en insulinothérapie fonctionnelle, et sa généralisation au diabète de type 2 tout-venant n'est soutenue par aucune source."
+  - "Les contre-indications à l'EFFORT — mal perforant plantaire, rétinopathie — n'ont aucune portée ici : ce nœud ne recueille que des critères alimentaires."
+  - "La piste « continuer ce qui fonctionne déjà » n'est pas un repli par défaut : sa condition (huile d'olive ET fruits à coque réguliers) peut être vraie chez un patient favorable sur ces deux axes sans l'être sur les onze autres. Elle s'affiche alors avec d'autres pistes, ce qui est voulu."
+  - "Rapprocher l'alimentation émotionnelle de la tachyphagie, que la source cite pour la piste « manger sans se presser », est une extrapolation raisonnée : les deux notions sont voisines sans être identiques dans le corpus."
 veille_liee: []
 meta:
   date_revue: "2026-07-26"
   auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
   statut: brouillon
-  version: "0.12"
+  version: "0.13"
   changelog:
+    - date: "2026-08-04"
+      auteur: "Claude Code — en attente de relecture référent"
+      resume: >-
+        REFONTE DE L'ARGUMENTAIRE (D48), propagation depuis le nœud `prescription`. (1) `argumentaire`
+        réécrit en cinq paragraphes — le champ est désormais AFFICHÉ (« Comment ce nœud raisonne ») ; il
+        portait deux phrases tronquées par une édition antérieure (« … depuis le 2026-07-27 : il
+        ORIENTE. » suivi d'un fragment orphelin « que la HAS cite elle-même comme mesure
+        d'accompagnement »), corrigées au passage. (2) Deux `divergences[]` en forme comparable : les
+        repères chiffrés non administrés au patient, et le repérage d'un trouble du comportement
+        alimentaire. LA SECONDE RÈGLE UN MANQUE SIGNALÉ DANS LE NŒUD LUI-MÊME : une incertitude expliquait
+        porter le conflit HAS 2019 / USPSTF 2022 « faute d'un champ dédié dans le schéma » — ce champ
+        existe désormais, le conflit y est descendu avec ses chiffres de valeur prédictive. (3)
+        `reco_officielle.source` resserré, détail vérifiable descendu dans `references[]` (dont l'USPSTF,
+        jusque-là cité nulle part en source). (4) `synthese_critique.appuis` cite PREDIMED, CORDIOPREV et
+        le MEDAS. (5) Les 11 incertitudes deviennent 8, toutes fondées sur la donnée ou son absence : les
+        journaux de décision, les dates d'arbitrage et deux notes purement techniques (repliement
+        d'affichage, mécanique de sentinelle) sortent. Aucun fait clinique perdu — performance inconnue
+        des trois signes d'appel, piège de la valeur prédictive négative à faible prévalence, absence de
+        ratio chiffré pour les proportions dans l'assiette, retrait de la pesée, tous conservés. (6)
+        Argumentaire exhaustif nettoyé de ses attributions de décision. Aucune condition, aucun seuil,
+        aucune option touchés.
     - date: "2026-08-02"
       auteur: "Claude Code (P12/S7, T-131) — en attente de relecture référent"
       resume: >-

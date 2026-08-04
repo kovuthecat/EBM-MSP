@@ -15,9 +15,50 @@
   margin-bottom: 16px;
 }
 
+/* « Comment ce nœud raisonne » (`node.argumentaire`) — replié par défaut : la logique du nœud se lit une
+   fois, pas à chaque consultation. */
+.argument-panel__raisonnement {
+  margin-bottom: 16px;
+}
+
+.argument-panel__raisonnement-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-text-faible);
+  cursor: pointer;
+}
+
+.argument-panel__raisonnement-toggle svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* `pre-line` : le champ `argumentaire` est un bloc YAML `>` dont les lignes vides sont significatives —
+   elles font les paragraphes. Sans ça, six paragraphes de raisonnement se rendent en un seul pavé, ce
+   qui est exactement le défaut de lisibilité que cette refonte corrige. Les espaces multiples restent
+   normalisés (`pre-line`, pas `pre-wrap`) : le repli de lignes du YAML ne doit rien laisser voir. */
+.argument-panel__raisonnement-body {
+  margin: 10px 0 0;
+  padding-left: 20px;
+  border-left: 2px solid var(--c-pill-track);
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--c-text-muted);
+  white-space: pre-line;
+}
+
+/* 320px et non 240 : sous 300px de colonne, une phrase clinique dense (« HR ~0,61-0,73 (NNT ~19-31) »)
+   se casse en trois lignes de trois mots — c'est le défaut de lisibilité relevé en recette. */
 .argument-panel__columns {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 16px;
   margin-bottom: 16px;
 }
@@ -32,6 +73,44 @@
   font-size: 12px;
   font-weight: 700;
   margin-bottom: 8px;
+}
+
+/* Le ou les organismes, sous le titre de colonne — court par contrat de schéma (`reco_officielle.source`
+   est un titre, pas un paragraphe : le détail vérifiable vit dans `references`). */
+.argument-panel__column-source {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-text-muted);
+  margin-bottom: 10px;
+}
+
+/* Citations précises des textes officiels : numéro d'avis, de tableau, de rubrique de RCP. */
+.argument-panel__citations {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  border-top: 1px solid var(--c-pill-track);
+  padding-top: 10px;
+}
+
+.argument-panel__citation {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--c-text-muted);
+  margin-bottom: 6px;
+}
+
+.argument-panel__citation:last-child {
+  margin-bottom: 0;
+}
+
+.argument-panel__citation-nom {
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+.argument-panel__citation-nom a {
+  color: inherit;
 }
 
 .argument-panel__column-title--reco {
@@ -94,6 +173,80 @@
   background: var(--c-accent-decision);
   color: white;
   flex-shrink: 0;
+}
+
+/* UNE DIVERGENCE = UN BLOC À TROIS FACES (2026-08-04). La prose numérotée d'avant (« Divergences :
+   (1)… (2)… (3)… ») était rendue en un seul paragraphe sous les colonnes : le lecteur ne pouvait ni les
+   compter, ni voir pour chacune qui dit quoi. Les trois faces sont ici une `<dl>` — c'est bien une liste
+   de définitions (un intitulé, sa valeur), pas un tableau : rien n'aligne les faces d'une divergence sur
+   celles d'une autre. */
+.argument-panel__divergence-bloc {
+  border: 1px solid var(--c-border);
+  border-left: 3px solid var(--c-accent-decision);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+
+.argument-panel__divergence-sujet {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--c-text);
+  margin-bottom: 10px;
+}
+
+.argument-panel__divergence-faces {
+  display: grid;
+  grid-template-columns: minmax(120px, max-content) 1fr;
+  gap: 6px 14px;
+  margin: 0;
+}
+
+.argument-panel__divergence-face {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  line-height: 1.7;
+}
+
+.argument-panel__divergence-face--reco {
+  color: var(--c-accent-decision);
+}
+
+.argument-panel__divergence-face--outil {
+  color: var(--c-accent-veille);
+}
+
+.argument-panel__divergence-face--appui {
+  color: var(--c-text-faible);
+}
+
+.argument-panel__divergence-texte {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--c-text);
+}
+
+/* Une seule colonne sous 560px : à deux colonnes étroites, l'intitulé de face (« Sur quelles données »)
+   se casse et le texte tombe à ~120px de large. */
+@media (max-width: 560px) {
+  .argument-panel__divergence-faces {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .argument-panel__divergence-texte {
+    margin-bottom: 8px;
+  }
+}
+
+.argument-panel__accord {
+  margin: 0 0 16px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--c-text);
 }
 
 .argument-panel__section-title {

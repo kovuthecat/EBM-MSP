@@ -4,6 +4,9 @@
 > ajoutées après la recette élargie du 2026-07-26 (nœuds `insuline`, `statine`, `rhd`) — R7 livrée
 > (D20), R8 livrée (D21). **R9 est une proposition non arbitrée.** **R7 amendée et R10 ajoutée** après
 > la recette navigateur du 2026-07-28 (D30, D32 ; `docs/decision/validation/recette-navigateur-2026-07-28.md`).
+> **R6 amendée (volet rendu), R11 et R12 ajoutées (propositions non arbitrées)** après la revue de
+> conception du 2026-08-04 (`docs/decision/validation/revue-conception-fable-2026-08-04.md`), qui a
+> confronté l'audit du même jour au comportement réel des cinq nœuds.
 > **Portée** : ce document ne parle **d'aucun domaine clinique**. Il énonce les **règles** que doit
 > respecter l'écriture de n'importe quel nœud, DT2 ou futur domaine — il se consulte *pendant*
 > l'écriture. Le **procédé** de construction d'un module (ordre des étapes, portes de sortie,
@@ -39,6 +42,17 @@ HbA1c à la cible** ») : cette phrase était le rapport de bug.
 autre nœud, on ne rend pas ce nœud obligatoire : le praticien peut n'ouvrir que le nœud qui
 l'intéresse. On **pose la question** dans le nœud qui en a besoin, et l'autre nœud reste une aide
 proposée, jamais un prérequis.
+
+> **Précision ajoutée le 2026-08-04 — la question directe peut être pré-remplie, jamais escamotée.**
+> La revue de conception a montré le coût du corollaire pris sans nuance : le praticien qui vient de
+> faire fixer « Cible ≤ 7 % » par le nœud voisin doit re-juger à la main « Par rapport à l'objectif »
+> deux clics plus tard — la conclusion que l'outil vient de rendre n'existe nulle part comme valeur de
+> session. La forme compatible avec R1 : un nœud peut **exporter sa conclusion vers la mémoire de
+> session** (D28), et le nœud qui pose la question directe la pré-remplit en valeur **suggérée**
+> (« · calculé, à vérifier », statut `suggere` — D20 : jamais citée comme un fait du patient). Le nœud
+> reste évaluable seul, la question reste posée, le praticien confirme — mais il ne recalcule pas de
+> tête ce que l'outil vient d'afficher. Proposition non arbitrée, détail dans
+> `validation/revue-conception-fable-2026-08-04.md` (P1).
 
 **Vérification.** Le champ `nature` (ci-dessous) rend la règle mécaniquement testable : aucun critère
 de nature `etat` ne doit avoir un `derive` mentionnant un critère de nature `intention`.
@@ -249,6 +263,36 @@ l'option ; le moteur dit pourquoi elle est là.** À appliquer à la relecture d
 > l'explique* — ce qui rouvre la contradiction estompé/affiché que la recette a déjà fait remonter une
 > fois. **Livrer après l'unification, pas avant.**
 
+**Volet rendu, ajouté le 2026-08-04 — R6 vaut pour TOUT texte de condition rendu, par UN SEUL chemin.**
+La revue de conception du 2026-08-04 a montré R6 appliquée et violée **sur le même écran** : le motif de
+carte disait « *Proposé parce que : Metformine déjà en cours et Dose de metformine excessive pour ce DFG
+(30-44)* » (branche vraie, libellés nommés — R6 respectée) pendant que la ligne d'écartement, deux
+centimètres plus bas, affichait la disjonction brute complète (« *Metformine écarté : Traitements en
+cours comprend Metformine et DFG ≥ 45 et DFG < 60 et Dose > 2000 ou … ou …* » — trois branches, une
+seule vraie). Même dédoublement sur `insuline` : « *Pas de MCG en place* » (libellé négatif déclaré) sur
+une carte, « *MCG disponible : non* » sur la carte voisine. Le correctif de R6 avait été validé sur le
+chemin « motif » et jamais porté sur le chemin « écartement » — c'est la famille « correctif non propagé
+au nœud voisin », version rendu. Quatre conséquences :
+
+- **un seul moteur de rendu de conditions**, partagé par les motifs de carte, les lignes d'écartement et
+  le panneau « pourquoi pas » — deux implémentations divergent toujours, la question n'est que quand ;
+- **les littéraux identiques d'une conjonction se dédupliquent** (constaté : « …et MCG disponible et
+  TBR > 4 **et MCG disponible** et CV > 36 » — chaque sous-condition apportait son propre préfixe) ;
+- **une citation négative passe par un libellé négatif déclaré dans le contenu** (« Pas de MCG en
+  place »), jamais par le suffixe « : non » accolé au libellé positif, qui se lit à l'envers ;
+- **un dérivé agrégatif se rend par ses composants vrais, jamais par son libellé générique.** Constaté
+  sur `rhd-activite-physique` : « écarté : Signe imposant un avis avant la pratique structurée
+  (limitation, ischémie d'effort, rétinopathie, pied) » énumère les quatre composants possibles sans
+  dire lesquels sont vrais chez ce patient — réduire aux branches vraies ne suffit pas si l'agrégation
+  a déjà effacé l'information.
+
+**Les invariants de recette qui ferment la famille**, à exécuter sur le texte rendu de **tous** les
+nœuds (c'est leur transversalité qui empêche le correctif local non propagé) : aucun texte rendu ne
+contient « : non » ; aucun motif rendu ne contient une disjonction (« ou » suivi d'une conjonction) ;
+aucun motif rendu ne répète un littéral ; aucune référence rendue ne parle du nœud lui-même (« ce
+nœud », « encodé », « verbatim » — registre du changelog constaté dans deux titres d'essais du nœud
+`insuline`).
+
 **Arbitrage à trancher — indication vs prérequis.** Toutes les conditions vraies ne sont pas des
 *raisons*. Sur l'option iSGLT2, `ASCVD_etablie == true` justifie ; `traitements_en_cours ne_contient_pas
 iSGLT2` est un prérequis de cohérence dont l'énoncé n'apprend rien. Aucune règle mécanique ne les sépare
@@ -450,6 +494,65 @@ donc survécu à cinq rapports d'audit et 769 tests unitaires.
 
 Un nœud ne se déclare pas vérifié (`CONSTRUIRE-UN-MODULE.md`, porte de sortie P6) tant que ces deux
 invariants ne sont pas verts.
+
+---
+
+## R11 *(proposition, non arbitrée — 2026-08-04)* — La visibilité d'un critère ne gouverne jamais sa décisivité
+
+**Règle proposée.** Pour toute valeur du primer (intention, situation), tout critère **décisif** sous
+cette valeur doit être **soit saisissable** (sa section est affichée), **soit dérivé** de cette valeur
+(valeur calculée, affichée « · déduit de …, à vérifier », modifiable). Masquer la section d'un critère
+que le moteur continue de réclamer produit une impasse : l'écran demande l'impossible.
+
+**Le cas — le défaut le plus grave de la recette du 2026-08-04 (N25).** L'intention *Initier* masque la
+section TRAITEMENT (élégant : on ne déclare pas « aucun traitement » pour un patient naïf), mais le
+critère `traitements_en_cours` reste décisif — l'option « Insuline d'initiation », dont ce patient à
+cétonurie avait un besoin urgent, en dépend. Résultat, verbatim : « *À renseigner pour trancher :
+Traitements en cours* » sous un formulaire qui n'a plus de section Traitements. L'option existait, était
+bien écrite (motif, contre-indication, mise en garde DT1) et s'est rendue parfaitement dès que le
+critère a été fourni par un autre chemin : **rien ne manquait au contenu, c'est le modèle
+visibilité/décisivité qui était incohérent.**
+
+**La forme correcte** est une **dérivation déclarée** : `intention == initier` ⇒ `traitements_en_cours
+= ∅` — même mécanisme que la suggestion d'espérance de vie, même statut (`suggere`, jamais cité comme un
+fait — R1 et D20 restent entiers : la dérivation remplit la question, elle ne l'escamote pas ; le
+praticien la voit et peut la corriger en changeant d'intention).
+
+**Complément à R8 §`visible_si`.** R8 couvrait déjà le sens « une valeur saisie puis masquée continue
+d'agir » ; R11 couvre le sens inverse — « une valeur jamais saisissable continue d'être exigée ». Les
+deux disent la même chose : `visible_si` est de l'ergonomie ; le moteur, lui, doit recevoir soit une
+valeur, soit une dérivation, jamais un trou.
+
+**Invariant de banc proposé.** Pour chaque valeur de primer : l'ensemble des critères décisifs
+(`determinesEffectifs`) est inclus dans l'union {critères dont la section est visible} ∪ {critères
+dérivés sous cette valeur}. Vérifiable mécaniquement, aucune relecture clinique.
+
+---
+
+## R12 *(proposition, non arbitrée — 2026-08-04)* — Une bascule de primer ne détruit jamais une saisie
+
+**Règle proposée.** Changer la valeur du primer (intention, situation) change ce qui est **visible** et
+ce qui **alimente le moteur** — jamais ce qui est **mémorisé**. Les valeurs des sections masquées sont
+conservées et restaurées si la section réapparaît. Invariant : *pour toute saisie S et toute bascule
+A→B→A, l'état final égale S*.
+
+**Le cas.** Sur `prescription` : Optimiser → Initier → Intensifier fait revenir les sections TRAITEMENT
+et TOLÉRANCE **vides** — metformine, dose et intolérance digestive détruites sans un mot. Sur
+`insuline`, pire, parce qu'incohérent : Basale → Naïf → Basale perd MCG, TBR, CV, glycémie à jeun et la
+dose de basale, mais **conserve** le profil nocturne — l'état restauré est alors contradictoire (un
+profil AGP déclaré, aucun capteur déclaré) et le nœud le tolère en silence. Le praticien qui corrige sa
+situation en cours d'entretien — cas réel et fréquent — perd des saisies sans le savoir, ou hérite d'un
+état mixte qu'aucun écran ne signale.
+
+**Pourquoi c'est une règle de grammaire et pas un bug d'écran.** La perte vient d'une confusion de
+modèle : l'état du formulaire et sa visibilité vivent dans la même structure, si bien que démonter une
+section démonte ses valeurs. La séparation état/visibilité est la même exigence que le volet écran de
+R7 (« une propriété affichée se lit à la source qui fait autorité ») appliquée à l'écriture : la source
+qui fait autorité pour une saisie est la mémoire de saisie, pas l'arbre des sections montées.
+
+**Articulation avec R11.** Pendant qu'une section est masquée, ses valeurs mémorisées n'alimentent pas
+le moteur (sinon une valeur invisible agirait — l'interdit de R8) ; c'est la **dérivation** de R11 qui
+alimente le moteur sous cette valeur de primer. Les deux règles se livrent ensemble.
 
 ---
 

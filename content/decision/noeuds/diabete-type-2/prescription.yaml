@@ -129,6 +129,48 @@ criteres_entree:
     # coché puis décoché. Condition d'emploi vérifiée : défaut vide (nombre non saisi), critère ni `partage`
     # ni `preremplissage` — le masquage initial n'efface donc rien.
     masque_si_indetermine: true
+
+  # TOLÉRANCE ET PRÉFÉRENCES — regroupées ici le 2026-08-04 (demande utilisateur), juste après le
+  # traitement dont elles discutent la tolérance et les modalités : cette section vivait scindée en deux
+  # (tolérance dans « Signaux d'alerte », préférence dans « Terrain »), loin l'une de l'autre alors
+  # qu'elle se lit comme un même moment de l'entretien (« comment se passe le traitement actuel, et
+  # qu'est-ce que le patient accepterait »). Aucun effet moteur : `groupe` est pure présentation
+  # (`lib/formLayout.ts`) — mêmes critères, mêmes conditions, seule leur section d'affichage change.
+  - nom: intolerance_traitement
+    type: bool
+    groupe: Tolérance et préférences
+    # INITIER = naïf de tout traitement : on ne peut être intolérant à un traitement qui n'a jamais été
+    # instauré (décision référent, recette 2026-07-25). `nature_intolerance` suit en cascade (déjà masqué
+    # derrière `intolerance_traitement == true`, lui-même désormais masqué à l'initiation).
+    visible_si: "intention != initier"
+  - nom: nature_intolerance
+    type: liste
+    groupe: Tolérance et préférences
+    # Sous-question : sans objet tant qu'aucune intolérance n'est signalée.
+    visible_si: "intolerance_traitement == true"
+    # FAIL-CLOSED (2026-07-29, recette référent) — même motif que `dose_metformine` : une sous-question ne
+    # se pose pas avant sa question principale. Condition d'emploi vérifiée : défaut vide (liste vide),
+    # critère ni `partage` ni `preremplissage`.
+    masque_si_indetermine: true
+    # MULTIVALUÉ depuis le 2026-07-29 (recette référent) — était un `enum` à choix unique. Une intolérance
+    # réelle en cumule volontiers plusieurs : un AR GLP‑1 mal toléré donne des troubles digestifs ET une
+    # perte de poids excessive, et le choix unique obligeait à taire l'une des deux, donc à priver le nœud
+    # d'une des branches qui la lit (« Réduire la posologie de l'AR GLP‑1 » teste les deux).
+    # `aucune` RETIRÉ avec la conversion : une liste vide dit déjà « aucune nature précisée », alors qu'un
+    # `enum` à choix unique avait besoin d'une valeur explicite pour représenter ce même état. Aucune règle
+    # du nœud ne la citait (vérifié : zéro occurrence de `nature_intolerance == aucune`), le retrait ne
+    # change donc aucune évaluation.
+    # PAS de `presomption_non` : ce critère participe aux conditions d'une option `role: securite`
+    # (« Réduire la posologie de la metformine »), il n'y est mécaniquement pas éligible (D30).
+    valeurs: [digestive, uro_genitale, perte_poids, cutanee, autre]
+  - nom: preference_injection
+    type: enum
+    groupe: Tolérance et préférences
+    valeurs: [indifferent, accepte, refuse]
+    # `partage` ajouté le 2026-07-29 (recette référent, item F/point 5) : encodage désormais IDENTIQUE
+    # sur tous les nœuds qui le déclarent (type, valeurs, bornes, presomption_non) — condition I19.
+    partage: true
+
   - nom: HbA1c_actuelle
     type: nombre
     min: 4
@@ -238,6 +280,10 @@ criteres_entree:
     type: nombre
     min: 1.4
     max: 2.1
+    # SAISIE TOLÉRANTE (2026-08-04, demande utilisateur) : virgule acceptée (« 1,70 ») et correction
+    # automatique au blur si la valeur est saisie en centimètres (« 170 » → 1,70) — cf. docstring
+    # `CritereEntree.unite_flexible`, `node.types.ts`.
+    unite_flexible: true
     groupe: Ce qui oriente le choix
   - nom: IMC
     type: nombre
@@ -262,19 +308,21 @@ criteres_entree:
     # explicitement (`engine/deriveCritere.test.ts`, `engine/evaluateNode.indetermine.test.ts`).
     derive: "poids / taille / taille"
 
-  # 4. CE QUI RESTREINT — drapeaux de sécurité et de tolérance (gating négatif, gel S1 §4/§5).
+  # 4. CE QUI RESTREINT — drapeaux de sécurité (gating négatif, gel S1 §4/§5). La tolérance au traitement
+  # en cours a rejoint la section « Tolérance et préférences » (2026-08-04, demande utilisateur) — voir
+  # `intolerance_traitement`/`nature_intolerance`, juste après le groupe « Traitement ».
   - nom: symptomes_glucotoxicite
     # `partage` ajouté le 2026-07-29 (recette référent, item F) : même concept, encodage IDENTIQUE
     # sur tous les nœuds qui le déclarent (type, valeurs, bornes) — condition de l'invariant I19.
     partage: true
     type: bool
-    groupe: Signaux d'alerte et tolérance
+    groupe: Signaux d'alerte
   - nom: cetonemie
     type: bool
-    groupe: Signaux d'alerte et tolérance
+    groupe: Signaux d'alerte
   - nom: hypoglycemie_recente
     type: bool
-    groupe: Signaux d'alerte et tolérance
+    groupe: Signaux d'alerte
     # INITIER = naïf de tout traitement : on ne peut pas être en hypoglycémie SOUS traitement quand
     # aucun traitement n'est encore prescrit (décision référent, recette 2026-07-25). Question sans objet.
     visible_si: "intention != initier"
@@ -283,42 +331,14 @@ criteres_entree:
     presomption_non: true
   - nom: denutrition
     type: bool
-    groupe: Signaux d'alerte et tolérance
+    groupe: Signaux d'alerte
   - nom: infections_uro_genitales_recidivantes
     type: bool
-    groupe: Signaux d'alerte et tolérance
+    groupe: Signaux d'alerte
     # T-018 (P4/S1, D30) : éligible mécaniquement à presomption_non (ne participe qu'à des `alertes` de
     # nœud sur ce critère, jamais à une condition d'option `role: securite` ni à une `exclusions`).
     presomption_non: true
-  - nom: intolerance_traitement
-    type: bool
-    groupe: Signaux d'alerte et tolérance
-    # INITIER = naïf de tout traitement : on ne peut être intolérant à un traitement qui n'a jamais été
-    # instauré (décision référent, recette 2026-07-25). `nature_intolerance` suit en cascade (déjà masqué
-    # derrière `intolerance_traitement == true`, lui-même désormais masqué à l'initiation).
-    visible_si: "intention != initier"
-  - nom: nature_intolerance
-    type: liste
-    groupe: Signaux d'alerte et tolérance
-    # Sous-question : sans objet tant qu'aucune intolérance n'est signalée.
-    visible_si: "intolerance_traitement == true"
-    # FAIL-CLOSED (2026-07-29, recette référent) — même motif que `dose_metformine` : une sous-question ne
-    # se pose pas avant sa question principale. Condition d'emploi vérifiée : défaut vide (liste vide),
-    # critère ni `partage` ni `preremplissage`.
-    masque_si_indetermine: true
-    # MULTIVALUÉ depuis le 2026-07-29 (recette référent) — était un `enum` à choix unique. Une intolérance
-    # réelle en cumule volontiers plusieurs : un AR GLP‑1 mal toléré donne des troubles digestifs ET une
-    # perte de poids excessive, et le choix unique obligeait à taire l'une des deux, donc à priver le nœud
-    # d'une des branches qui la lit (« Réduire la posologie de l'AR GLP‑1 » teste les deux).
-    # `aucune` RETIRÉ avec la conversion : une liste vide dit déjà « aucune nature précisée », alors qu'un
-    # `enum` à choix unique avait besoin d'une valeur explicite pour représenter ce même état. Aucune règle
-    # du nœud ne la citait (vérifié : zéro occurrence de `nature_intolerance == aucune`), le retrait ne
-    # change donc aucune évaluation.
-    # PAS de `presomption_non` : ce critère participe aux conditions d'une option `role: securite`
-    # (« Réduire la posologie de la metformine »), il n'y est mécaniquement pas éligible (D30).
-    valeurs: [digestive, uro_genitale, perte_poids, cutanee, autre]
-
-  # 5. LE TERRAIN ET LES PRÉFÉRENCES — modulent, décident rarement seuls.
+  # 5. LE TERRAIN — module, décide rarement seul.
   - nom: age
     # `partage` ajouté le 2026-07-29 (recette référent, item F) : même concept, encodage IDENTIQUE
     # sur tous les nœuds qui le déclarent (type, valeurs, bornes) — condition de l'invariant I19.
@@ -326,26 +346,26 @@ criteres_entree:
     type: nombre
     min: 18
     max: 105
-    groupe: Terrain et préférences
+    groupe: Terrain
   - nom: fragilite
     # `partage` ajouté le 2026-07-29 (recette référent, item F/point 5) : encodage désormais IDENTIQUE
     # sur tous les nœuds qui le déclarent (type, valeurs, bornes, presomption_non) — condition I19.
     partage: true
     type: bool
-    groupe: Terrain et préférences
+    groupe: Terrain
   - nom: esperance_vie
     # `partage` ajouté le 2026-07-29 (recette référent, item F) : même concept, encodage IDENTIQUE
     # sur tous les nœuds qui le déclarent (type, valeurs, bornes) — condition de l'invariant I19.
     partage: true
     type: enum
-    groupe: Terrain et préférences
+    groupe: Terrain
     valeurs: [longue, intermediaire, limitee]
   - nom: risque_hypoglycemie_schema
     # `partage` ajouté le 2026-07-29 (recette référent, item F) : même concept, encodage IDENTIQUE
     # sur tous les nœuds qui le déclarent (type, valeurs, bornes) — condition de l'invariant I19.
     partage: true
     type: enum
-    groupe: Terrain et préférences
+    groupe: Terrain
     valeurs: [faible, eleve]
     # `aide` ajouté T-086 (P10/S9, 2026-08-01), en réponse au rapport de recette (« aucune définition,
     # aucune infobulle » sur le champ qui fait basculer « Désintensifier » au clic « Élevé »).
@@ -360,13 +380,6 @@ criteres_entree:
       (sécrétagogue — sulfamide, glinide — ou insuline, dose élevée, prises irrégulières ou repas
       sautés), ou si le terrain exposerait un futur traitement même sans hypoglycémiant actuel (âge
       avancé, insuffisance rénale, fragilité, hypoglycémie sévère antérieure). « Faible » sinon.
-  - nom: preference_injection
-    type: enum
-    groupe: Terrain et préférences
-    valeurs: [indifferent, accepte, refuse]
-    # `partage` ajouté le 2026-07-29 (recette référent, item F/point 5) : encodage désormais IDENTIQUE
-    # sur tous les nœuds qui le déclarent (type, valeurs, bornes, presomption_non) — condition I19.
-    partage: true
   # `classes_a_benefice_indisponibles` RETIRÉ le 2026-07-29 (décision référent). C'était un drapeau SAISI
   # qui demandait au praticien de conclure lui-même « les classes à bénéfice dur sont inutilisables » —
   # alors que le nœud sait déjà le calculer : les deux dérivés `isglt2_indisponible` / `aglp1_indisponible`
@@ -536,6 +549,55 @@ criteres_entree:
     # rejouant le banc de 180 profils (`genererProfils`, profil #121 : iSGLT2+tirzépatide, fragile,
     # sous_objectif, aucun sulfamide/gliptine/glinide/insuline → carte socle exclue SANS remplacement).
     derive: "intention != initier AND traitements_en_cours contient metformine AND position_vs_cible == sous_objectif AND fragilite == true AND traitements_en_cours ne_contient_pas sulfamide AND traitements_en_cours ne_contient_pas gliptine AND traitements_en_cours ne_contient_pas glinide AND traitements_en_cours ne_contient_pas insuline_basale AND traitements_en_cours ne_contient_pas insuline_rapide"
+  # BUG CORRIGÉ EN DEUX TEMPS (2026-08-04, retour utilisateur en recette navigateur).
+  #
+  # 1er retour : la carte socle affichait « Maintenir » PENDANT que la carte « Metformine [réduire] »
+  # (sécurité, plus bas) affichait « Réduire » — deux pastilles CONTRADICTOIRES pour LA MÊME MOLÉCULE, dès
+  # que le badge d'action conditionnel du socle (`action_si`, ajouté le même jour) s'est mis à distinguer
+  # « Ajouter »/« Maintenir ». Avant ce champ, le socle n'affichait aucun verbe et la contradiction restait
+  # silencieuse.
+  #
+  # 2e retour, sur le correctif du 1er (première version : `action_si` du socle basculait sur « Réduire »
+  # au lieu de « Maintenir ») : « toujours 3 cartes distinctes là où il n'en faudrait qu'une seule » — la
+  # cohérence textuelle ne suffisait pas, il restait DEUX cartes qui disaient la même chose (le socle ET la
+  # carte de sécurité, chacune « Réduire Metformine »), PLUS une troisième carte générique (« Optimiser
+  # l'agent mal toléré », plus bas) qui ne sait pas identifier metformine comme la molécule en cause.
+  #
+  # CORRECTIF RETENU, calqué sur le garde-fou DFG < 30 déjà en place juste au-dessus (même mécanisme) : le
+  # socle EXCLUT désormais la situation où la carte de sécurité « Metformine [réduire] » est indiquée
+  # (`exclusions` plus bas), au lieu d'essayer de l'imiter par un badge. Une seule carte reste à l'écran —
+  # la carte de sécurité, plus précise (dose exacte, contre-indications propres).
+  #
+  # PAS DE CRITÈRE DÉRIVÉ ICI — ESSAYÉ, PUIS ABANDONNÉ (2026-08-04, trouvé par le banc, pas deviné).
+  # `CritereEntree.derive` propage l'indétermination SANS court-circuit (`engine/deriveCritere.ts`
+  # `evaluerDeriveTernaire` : « un opérande INDETERMINE, à n'importe quel maillon, rend l'expression
+  # ENTIÈRE INDETERMINE » — juste pour une chaîne ARITHMÉTIQUE comme `poids / taille / taille`, où c'est
+  # le comportement voulu) — CONTRAIREMENT à `evaluateCondition` (utilisé par `conditions`/`exclusions`),
+  # qui applique la logique de Kleene correcte pour un ET booléen : un opérande FAUX rend le ET faux, MÊME
+  # SI un autre opérande du même ET est indéterminé. Un premier essai avait donc écrit ce fait comme un
+  # critère `derive: bool`, avec le garde R8 (« traitements_en_cours contient metformine AND » répété en
+  # tête de chaque terme) — I10 passait, mais I11 (`banc/impasse.test.ts`) continuait de réclamer
+  # `intolerance_traitement` pour un patient jamais traité par metformine : le garde en tête ne
+  # court-circuitait rien via l'évaluateur de `derive`, contrairement à `evaluateCondition`. D'où
+  # l'expression écrite EN CLAIR, deux fois (ci-dessous et dans « Optimiser l'agent mal toléré » plus bas),
+  # directement dans une `exclusions` — jamais dans un `derive`.
+  #
+  # MÊMES FAITS QUE `options[].conditions[1]` de la carte « Metformine [réduire] » (D'INTENTION DUPLIQUÉS,
+  # PAS UN OUBLI) : refactoriser la carte de réduction pour lire une expression commune aurait touché sa
+  # logique déjà couverte par les vignettes P-39/P-50/P-57/P-58/RT-S2 (banc de tests) — le risque de
+  # régression sur une carte de SÉCURITÉ dépassait le bénéfice d'un DRY ici. Un futur écart serait un vrai
+  # bug (les deux cartes diraient des choses différentes) : si l'une change, l'autre doit être relue.
+  #
+  # 2e retour utilisateur, deuxième volet : « Optimiser l'agent mal toléré » (générique, neuf classes
+  # possibles, plus bas) est redondante avec la carte « Metformine [réduire] » PRÉCISÉMENT quand metformine
+  # est le SEUL agent en cours — la carte spécifique couvre alors déjà tout ce que la carte générique
+  # pourrait dire (dose ET intolérance digestive). `metformine_seule_en_cours` reste, LUI, un critère
+  # `derive` légitime : il ne lit que `traitements_en_cours` (jamais masqué à indétermination sur les
+  # citations positives, cf. `IMPASSES_CONNUES_T018` — aucun opérande indéterminé à propager, la limite
+  # ci-dessus ne s'applique donc pas ici).
+  - nom: metformine_seule_en_cours
+    type: bool
+    derive: "traitements_en_cours contient metformine AND traitements_en_cours ne_contient_pas iSGLT2 AND traitements_en_cours ne_contient_pas aGLP1 AND traitements_en_cours ne_contient_pas tirzepatide AND traitements_en_cours ne_contient_pas sulfamide AND traitements_en_cours ne_contient_pas gliptine AND traitements_en_cours ne_contient_pas insuline_basale AND traitements_en_cours ne_contient_pas insuline_rapide AND traitements_en_cours ne_contient_pas glinide"
 # `familles` (correctif « ordre accidentel / badge multi-natures », 2026-07-25) : déclaration EXPLICITE
 # des sections du panneau de résultats, présentation pure (aucun effet moteur, cf.
 # schema/noeud.schema.json). L'ORDRE DE CE TABLEAU EST L'ORDRE D'AFFICHAGE — « urgence d'abord » (décision
@@ -641,8 +703,24 @@ familles:
     exclusive: false
 options:
   # ---- Gate / socle -------------------------------------------------------------------------------------
-  - intitule: "Metformine — instaurer ou poursuivre"
+  - intitule: "Metformine"
     role: socle
+    # BADGE D'ACTION CONDITIONNEL (2026-08-04, demande utilisateur) — cette carte est TOUJOURS la même
+    # option (`conditions: ["toujours"]`) qu'elle instaure ou poursuive, mais le verbe lu sur la pastille
+    # doit refléter LEQUEL des deux c'est réellement pour ce patient. `action` reste le repli (patient
+    # naïf, cas le plus fréquent en instauration) ; `action_si` bascule sur « Maintenir » dès que la
+    # metformine est déjà en cours — cf. `Option.action_si`, `node.types.ts`.
+    #
+    # PAS DE RÈGLE « RÉDUIRE » ICI (retirée le 2026-08-04, 2e retour utilisateur) : une première version
+    # en ajoutait une, pour que le socle s'accorde avec la carte « Metformine [réduire] » (sécurité,
+    # plus bas) plutôt que de la contredire. Ça réglait la CONTRADICTION mais pas la DUPLICATION (deux
+    # cartes disant « Réduire Metformine »). Le correctif retenu va plus loin : le socle EXCLUT désormais
+    # la situation où la carte de sécurité est indiquée (`exclusions` plus bas, même mécanisme que
+    # `DFG < 30` juste en dessous) — une seule carte reste à l'écran, la plus précise des deux.
+    action: ajouter
+    action_si:
+      - quand: "traitements_en_cours contient metformine"
+        action: maintenir
     conditions:
       - "toujours"
     priorite: 0
@@ -656,18 +734,16 @@ options:
       # fou `DFG < 30` déjà en place au-dessus (qui protège symétriquement contre l'option « Arrêter la
       # metformine »).
       - "metformine_deprescriptible == true"
+      # AJOUTÉ le 2026-08-04 (retour utilisateur, 2e passe) : même mécanisme que les deux exclusions
+      # ci-dessus, pour la même raison — QUAND la carte de sécurité « Metformine [réduire] » est indiquée,
+      # elle EST la conduite à tenir, plus précise (dose exacte, contre-indications propres) que le socle
+      # générique. Sans cette exclusion, les deux cartes coexistaient en double emploi. EXPRESSION EN
+      # CLAIR, PAS UN CRITÈRE DÉRIVÉ (cf. le long commentaire plus haut, juste avant `metformine_seule_en_cours`,
+      # pour le pourquoi) — IDENTIQUE à `options[].conditions[1]` de la carte « Metformine [réduire] »,
+      # à relire ensemble si l'une des deux change.
+      - "traitements_en_cours contient metformine AND DFG >= 45 AND DFG < 60 AND dose_metformine > 2000 OR traitements_en_cours contient metformine AND DFG >= 30 AND DFG < 45 AND dose_metformine > 1000 OR traitements_en_cours contient metformine AND intention != initier AND intolerance_traitement == true AND nature_intolerance contient digestive"
     avantages:
       - "Reco officielle française maintenue en 1re intention (coût, recul, tolérance, absence d'hypoglycémie) ; suffit SEULE sans indication d'agent à bénéfice d'organe."
-      # AJOUT T-075 (P9/S8, 2026-07-30) : protocole de titration, en réponse au rapport de recette N1
-      # (« Aucune dose, aucune titration. "Instaurer ou poursuivre" n'est pas une prescription. »). Vise
-      # UNIQUEMENT l'INSTAURATION (patient naïf) — le protocole n'a pas de sens chez un patient déjà
-      # stabilisé sous metformine, d'où le préfixe explicite. Source unique et nommée : Assurance Maladie
-      # (ameli), mémo médecin « Prescription de metformine chez le patient diabétique de type 2 » (aucune
-      # date d'édition visible sur le document). Ne modifie ni ne contredit les contre-indications/paliers
-      # rénaux déjà encodés dans ce nœud (DFG < 30 = CI ; réduction 45-59/30-44) : la table DFG du mémo
-      # (≥60 → 3 g/j, 45-59 → 2 g/j, 30-44 → 1 g/j, <30 → CI) est identique aux seuils déjà présents.
-      - "En INSTAURATION : définir une dose de départ puis l'augmenter par palier d'1 semaine à 15 jours selon la tolérance digestive jusqu'à la dose cible, en 2 à 3 prises en milieu ou fin de repas — exemple du mémo pour une cible de 2 g/j (Glucophage 1000 mg) : ½ cp matin + ½ cp soir pendant 15 jours, puis ½ cp matin + 1 cp soir pendant 15 jours, puis 1 cp matin + 1 cp soir pendant 1 mois ; si nausées/diarrhées non supportées, revenir au palier précédent pendant 15 jours avant de reprendre l'augmentation (source : Assurance Maladie / ameli, mémo « Prescription de metformine chez le patient diabétique de type 2 »)."
-      - "Observance : répartir les prises selon les préférences du patient en conservant une prise en milieu/fin de repas ; comprimés sécables en cas de troubles de déglutition ; l'embonate de metformine (Stagid®, quantité de metformine base plus faible) peut faciliter l'instauration (même source : Assurance Maladie / ameli, mémo « Prescription de metformine chez le patient diabétique de type 2 »)."
     inconvenients:
       - "Bénéfice propre sur critère dur de preuve faible : à ne pas confondre avec un bénéfice cardiovasculaire prouvé."
       - "EXCEPTION à la poursuite — intolérance digestive (surtout si un AR GLP‑1 est aussi en cours) : la metformine étant l'agent au bénéfice le plus faible, sa réduction / son arrêt est à privilégier (cf. option « réduire l'agent mal toléré » et alerte)."
@@ -682,8 +758,21 @@ options:
     # ci-dessus : c'est exactement ce que la vignette N1 réclamait, lisible en 2 minutes de consultation
     # sans ouvrir le dépli.
     apercu: "instauration : paliers de 15 j jusqu'à dose cible (ex. 2 g/j en 1 mois), 2-3 prises au repas"
+    # DÉPLACÉ depuis `avantages` le 2026-08-04 (demande utilisateur) : le protocole de titration se lisait
+    # dans l'argumentaire bénéfice/risque au lieu du panneau POSOLOGIE. AJOUT D'ORIGINE T-075 (P9/S8,
+    # 2026-07-30), en réponse au rapport de recette N1 (« Aucune dose, aucune titration. "Instaurer ou
+    # poursuivre" n'est pas une prescription. »). Vise UNIQUEMENT l'INSTAURATION (patient naïf) — le
+    # protocole n'a pas de sens chez un patient déjà stabilisé sous metformine, d'où le préfixe explicite.
+    # Source unique et nommée : Assurance Maladie (ameli), mémo médecin « Prescription de metformine chez
+    # le patient diabétique de type 2 » (aucune date d'édition visible sur le document). Ne modifie ni ne
+    # contredit les contre-indications/paliers rénaux déjà encodés dans ce nœud (DFG < 30 = CI ; réduction
+    # 45-59/30-44) : la table DFG du mémo (≥60 → 3 g/j, 45-59 → 2 g/j, 30-44 → 1 g/j, <30 → CI) est
+    # identique aux seuils déjà présents.
+    posologie_detail:
+      - "En INSTAURATION : définir une dose de départ puis l'augmenter par palier d'1 semaine à 15 jours selon la tolérance digestive jusqu'à la dose cible, en 2 à 3 prises en milieu ou fin de repas — exemple du mémo pour une cible de 2 g/j (Glucophage 1000 mg) : ½ cp matin + ½ cp soir pendant 15 jours, puis ½ cp matin + 1 cp soir pendant 15 jours, puis 1 cp matin + 1 cp soir pendant 1 mois ; si nausées/diarrhées non supportées, revenir au palier précédent pendant 15 jours avant de reprendre l'augmentation (source : Assurance Maladie / ameli, mémo « Prescription de metformine chez le patient diabétique de type 2 »)."
+      - "Observance : répartir les prises selon les préférences du patient en conservant une prise en milieu/fin de repas ; comprimés sécables en cas de troubles de déglutition ; l'embonate de metformine (Stagid®, quantité de metformine base plus faible) peut faciliter l'instauration (même source : Assurance Maladie / ameli, mémo « Prescription de metformine chez le patient diabétique de type 2 »)."
   # ---- Sécurité rénale metformine ----------------------------------------------------------------------
-  - intitule: "Arrêter la metformine (DFG < 30)"
+  - intitule: "Metformine (DFG < 30)"
     role: securite
     action: arreter
     conditions:
@@ -713,7 +802,7 @@ options:
     niveau_preuve: faible
     # AJOUT T-126 (P12/S6, 2026-08-03) — rapport OpenEvidence du 2026-08-02, cf. `meta.changelog`.
     apercu: "arrêt immédiat, sans décroissance : contre-indication formelle dès DFG < 30 (KDIGO 2022)."
-  - intitule: "Réduire la posologie de la metformine"
+  - intitule: "Metformine"
     role: securite
     action: reduire
     # GATING SUR LA DOSE (décision référent, 2026-07-26, 3e série — recette capture 1, problème 2) : avant
@@ -765,8 +854,15 @@ options:
     # Le geste reste EXACTEMENT le même : c'est l'étiquette qui devient honnête, pas la conduite.
     niveau_preuve: faible
     # AJOUT T-126 (P12/S6, 2026-08-03) — rapport OpenEvidence du 2026-08-02, cf. `meta.changelog`.
-    apercu: "dose maximale divisée par 2 entre DFG 30 et 45 (2 000 → 1 000 mg/j) ; initiation ≤ 500 mg (KDIGO 2022 / RCP ANSM — déjà à l'alerte de nœud)."
-  - intitule: "Arrêter le sulfamide (DFG < 30)"
+    # TEXTE CORRIGÉ le 2026-08-04 (retour utilisateur : « la posologie n'est pas adaptée au DFG renseigné »).
+    # L'ancienne formulation (« dose maximale divisée par 2 entre DFG 30 et 45 ») décrivait la TRANSITION
+    # entre les deux paliers plutôt que CHAQUE palier avec son propre seuil — un patient à DFG 55 (palier
+    # 45‑59, max 2000 mg/j) lisait « entre DFG 30 et 45 » sans savoir lequel des deux chiffres le concernait
+    # RÉELLEMENT. AUCUN seuil chiffré n'a changé (toujours 2000/45‑59 et 1000/30‑44, RCP ANSM — mêmes
+    # valeurs que `motifs`/l'alerte de nœud ci-dessous) : seule la PHRASE devient sans ambiguïté, chaque
+    # palier associé explicitement à SON DFG.
+    apercu: "dose maximale ajustée au DFG : ≤ 2 000 mg/j si DFG 45‑59, ≤ 1 000 mg/j si DFG 30‑44 ; initiation ≤ 500 mg (KDIGO 2022 / RCP ANSM — déjà à l'alerte de nœud)."
+  - intitule: "Sulfamide (DFG < 30)"
     role: securite
     action: arreter
     conditions:
@@ -805,7 +901,7 @@ options:
     # AJOUT T-126 (P12/S6, 2026-08-03) — rapport OpenEvidence du 2026-08-02, cf. `meta.changelog`.
     apercu: "arrêt, sans décroissance ; l'hypoglycémie peut persister après la dernière prise, par accumulation (RCP, rubrique 4.4) — seuil DFG < 30 cité par la SFD (2023/2025)."
   # ---- Sécurité — acidocétose euglycémique sous iSGLT2 --------------------------------------------------
-  - intitule: "Suspendre l'iSGLT2"
+  - intitule: "iSGLT2"
     role: securite
     action: arreter
     # AJOUT (2026-07-26, 4e série, red-team clinique sécurité HAUTE-3, PRIORITÉ ABSOLUE DU LOT) : aucune
@@ -892,7 +988,7 @@ options:
       - texte: "Cétonémie ≥ 3 mmol/L → urgence (insuline + hospitalisation), hors périmètre du nœud."
         condition: "cetonemie == true"
   # ---- Ajout d'un agent protecteur (fix bug 9 : priorités conditionnelles) ------------------------------
-  - intitule: "Introduire un iSGLT2"
+  - intitule: "iSGLT2"
     role: geste
     action: ajouter
     conditions:
@@ -939,11 +1035,17 @@ options:
       # des trois molécules n'était nommée dans le corps de la carte malgré cela. Pas de hiérarchie ajoutée
       # entre elles : la protection cardio‑rénale est un effet de classe (D12), cohérent avec le premier
       # `avantages` ci‑dessus qui ne l'attribue à aucune molécule en particulier.
-      - "Trois molécules commercialisées et remboursées en France pour le diabète de type 2, sans hiérarchie de bénéfice établie entre elles sur la protection cardio‑rénale (effet de classe, D12) : dapagliflozine (Forxiga) 10 mg/j — dose unique, pas de titration ; empagliflozine (Jardiance) 10 mg/j puis 25 mg/j (dose maximale) si DFG ≥ 60 mL/min/1,73 m² et besoin d'un contrôle glycémique renforcé ; canagliflozine (Invokana) 100 mg/j puis 300 mg/j (dose maximale) dans les mêmes conditions de DFG — troisième iSGLT2 commercialisé et remboursé en France (déclaration de commercialisation 2024, base de données publique des médicaments). Sources : RCP (EMA/ANSM) de chaque spécialité, rubrique 4.2."
+      # CANAGLIFLOZINE RETIRÉE le 2026-08-04 (retour utilisateur — « non disponible en France ») : la
+      # mention « troisième iSGLT2 commercialisé et remboursé » datait d'une vérification 2024 (T-084,
+      # ci-dessus) et n'est plus tenue pour à jour. EN ATTENTE DE RELECTURE RÉFÉRENT (source non re-vérifiée
+      # par ce lot — invariant 6, signaler plutôt qu'inventer) : la référence bibliographique CREDENCE
+      # (essai canagliflozine, `references` plus bas) reste, elle, une preuve valide de l'effet de CLASSE,
+      # indépendamment de la disponibilité commerciale actuelle de la molécule qui l'a établi.
+      - "Deux molécules commercialisées et remboursées en France pour le diabète de type 2, sans hiérarchie de bénéfice établie entre elles sur la protection cardio‑rénale (effet de classe, D12) : dapagliflozine (Forxiga) 10 mg/j — dose unique, pas de titration ; empagliflozine (Jardiance) 10 mg/j puis 25 mg/j (dose maximale) si DFG ≥ 60 mL/min/1,73 m² et besoin d'un contrôle glycémique renforcé. Sources : RCP (EMA/ANSM) de chaque spécialité, rubrique 4.2."
     inconvenients:
       - "Pas d'effet sur l'IDM ni l'AVC ; en athérome pur SANS IC ni maladie rénale, préférer un AR GLP‑1."
       - "Infections génito‑urinaires récidivantes / gangrène de Fournier ; ne pas initier si DFG < 20 ; risque d'acidocétose (suspendre si jeûne, chirurgie, sepsis)."
-      - "Le seuil de DFG en dessous duquel le RCP déconseille D'INITIER diffère selon la molécule (dose d'instauration seulement — n'élargit ni ne réduit l'exclusion DFG < 20 ci‑dessus) : empagliflozine < 20, dapagliflozine < 25, canagliflozine < 30 (une canagliflozine déjà en cours reste poursuivie à 100 mg/j jusqu'à la dialyse). Entre 20 et 24 mL/min/1,73 m², seule l'empagliflozine est donc soutenue par son propre RCP pour une instauration."
+      - "Le seuil de DFG en dessous duquel le RCP déconseille D'INITIER diffère selon la molécule (dose d'instauration seulement — n'élargit ni ne réduit l'exclusion DFG < 20 ci‑dessus) : empagliflozine < 20, dapagliflozine < 25. Entre 20 et 24 mL/min/1,73 m², seule l'empagliflozine est donc soutenue par son propre RCP pour une instauration."
     effet_attendu: >-
       Hospit. IC HR ~0,61‑0,73 (NNT ~19‑31 / 16‑26 mois) ; progression rénale HR ~0,56‑0,76 (NNT DAPA‑CKD 19,
       CREDENCE 22). IDM/AVC non réduits.
@@ -960,7 +1062,12 @@ options:
       # concerne pas cette option « Introduire », réservée par `prerequis` au patient pas encore sous iSGLT2).
       - texte: "Ne pas initier si DFG < 20 (poursuivre jusqu'à la dialyse si déjà en cours — KDIGO 2024)."
         condition: "DFG < 20"
-      - "Infections génito‑urinaires récidivantes ; antécédent de gangrène de Fournier ; prudence si artériopathie évoluée / amputation (signal canagliflozine)."
+      # « Prudence si artériopathie évoluée / amputation » RETIRÉE le 2026-08-04 (retour utilisateur :
+      # canagliflozine non disponible en France) — ce signal était SPÉCIFIQUEMENT attribué à la
+      # canagliflozine (CANVAS), pas établi comme effet de classe pour dapagliflozine/empagliflozine : le
+      # garder sans attribution aurait prêté à ces deux molécules un signal qui n'est pas le leur
+      # (invariant 6 — ne pas affirmer au-delà de ce que la source portait).
+      - "Infections génito‑urinaires récidivantes ; antécédent de gangrène de Fournier."
       - "En cas d'IC avec saxagliptine en cours : arrêter la saxagliptine (signal SAVOR), ne pas se contenter d'ajouter l'iSGLT2."
     # AJOUT T-127 (P12/S6, 2026-08-03) — arbitrage référent du 2026-08-02, cf. `meta.changelog`. Canal
     # UNIQUE (D21/R8, `docs/decision/GRAMMAIRE-NOEUD.md`) pour un fait de sécurité qui QUALIFIE ce geste
@@ -991,8 +1098,8 @@ options:
           l'iSGLT2 ne le partage pas).
     # AJOUT P10/S7 (2026-08-01, T-084) — mécanisme T-076/P9·S9, réutilisé tel quel (générique) : apercu
     # affiché dans le titre du dépli REPLIÉ, reprenant sans recalcul les chiffres du 3e `avantages` ci-dessus.
-    apercu: "dapagliflozine 10 mg/j (fixe) ; empagliflozine 10→25 mg/j ; canagliflozine 100→300 mg/j (DFG ≥ 60)"
-  - intitule: "Introduire un AR GLP‑1"
+    apercu: "dapagliflozine 10 mg/j (fixe) ; empagliflozine 10→25 mg/j (DFG ≥ 60)"
+  - intitule: "AR GLP‑1"
     role: geste
     action: ajouter
     # LEVÉE DU VERROU (référent, 2026-07-25) : `ne_contient_pas gliptine` retiré. La non-association
@@ -1127,7 +1234,7 @@ options:
     # AJOUT P10/S7 (2026-08-01, T-084) — mécanisme T-076/P9·S9, réutilisé tel quel (générique) : apercu
     # affiché dans le titre du dépli REPLIÉ, reprenant sans recalcul les chiffres des `avantages` ci-dessus.
     apercu: "liraglutide 0,6→1,8 mg/j ; sémaglutide 0,25→1 mg/sem (FR) ; dulaglutide 0,75/1,5→4,5 mg/sem"
-  - intitule: "Introduire le tirzépatide"
+  - intitule: "Tirzépatide"
     role: geste
     action: ajouter
     conditions:
@@ -1260,7 +1367,7 @@ options:
   # Exclusions restreintes aux seules structurelles (gate catabolique) : celles du remplaçant (IMC < 22,
   # dénutrition, propres à l'AR GLP‑1) ne portent plus sur CE verdict, cf. R3 (« les exclusions du verdict
   # sont structurelles, jamais celles d'une destination »).
-  - intitule: "Remplacer la gliptine"
+  - intitule: "Gliptine"
     role: geste
     action: remplacer
     conditions:
@@ -1296,7 +1403,7 @@ options:
       - tran-kramer
     contre_indications:
       - "Ne pas maintenir la gliptine en association avec un AR GLP‑1 : la remplacer. Les contre-indications propres au remplaçant retenu s'appliquent (voir l'option correspondante)."
-  - intitule: "Arrêter la gliptine redondante"
+  - intitule: "Gliptine (redondante)"
     role: geste
     action: arreter
     conditions:
@@ -1326,7 +1433,7 @@ options:
   # iSGLT2/AR GLP‑1 ci‑dessus), elle n'autorise plus le geste. `hypoglycemie_recente`/`hba1c_sous_cible`
   # restent des gardes-fous DISTINCTS : dans ces deux cas, on déprescrit, on ne switche pas (cf. l'option
   # de désintensification).
-  - intitule: "Remplacer le sulfamide"
+  - intitule: "Sulfamide"
     role: geste
     action: remplacer
     conditions:
@@ -1408,7 +1515,7 @@ options:
   # (patients déjà avancés dans leur parcours). Le signal RENFORCE la justification clinique du remplacement
   # quand une alternative existe ; il ne remplace pas la neutralité de classe comme motif — les deux sont
   # dits, distinctement, ci-dessous.
-  - intitule: "Remplacer le glinide"
+  - intitule: "Glinide"
     role: geste
     action: remplacer
     conditions:
@@ -1499,6 +1606,24 @@ options:
     # moteur, pas supposé).
     prerequis:
       - "intention != initier AND traitements_en_cours contient metformine OR intention != initier AND traitements_en_cours contient iSGLT2 OR intention != initier AND traitements_en_cours contient aGLP1 OR intention != initier AND traitements_en_cours contient tirzepatide OR intention != initier AND traitements_en_cours contient sulfamide OR intention != initier AND traitements_en_cours contient gliptine OR intention != initier AND traitements_en_cours contient insuline_basale OR intention != initier AND traitements_en_cours contient insuline_rapide OR intention != initier AND traitements_en_cours contient glinide"
+    # AJOUTÉ le 2026-08-04 (retour utilisateur, « toujours 3 cartes distinctes là où il n'en faudrait
+    # qu'une seule ») — cette carte GÉNÉRIQUE (neuf classes possibles, cf. `prerequis`) ne sait pas
+    # identifier LAQUELLE des neuf est en cause : quand metformine est le SEUL agent en cours ET qu'elle
+    # doit réellement être réduite (dose excessive pour le DFG OU intolérance digestive — même expression
+    # que l'exclusion du socle plus haut, à relire ensemble si l'une change), la carte dédiée « Metformine
+    # [réduire] » (sécurité, plus bas) couvre déjà TOUT ce que cette carte générique pourrait dire pour ce
+    # patient, avec la dose exacte en plus. La garder affichée à côté n'ajoutait rien, seulement une
+    # reformulation vague de la même conduite.
+    # SCOPE ÉTROIT À DESSEIN : ne s'exclut QUE si metformine est SEULE (`metformine_seule_en_cours`) — un
+    # patient sous metformine ET un autre agent intolérant (ex. sulfamide) a toujours besoin de cette carte
+    # pour CET AUTRE agent, qu'aucune carte dédiée ne couvre.
+    # EXPRESSION EN CLAIR (PAS `metformine_a_reduire == true`) — même motif que le socle plus haut : un
+    # critère `derive` ne court-circuite pas un ET dont un opérande est faux (`evaluerDeriveTernaire`),
+    # contrairement à `evaluateCondition` qui évalue cette `exclusions`. `metformine_seule_en_cours`, lui,
+    # reste un `derive` légitime (aucun opérande masqué à indétermination) — cf. le commentaire complet
+    # juste avant sa déclaration.
+    exclusions:
+      - "metformine_seule_en_cours == true AND traitements_en_cours contient metformine AND DFG >= 45 AND DFG < 60 AND dose_metformine > 2000 OR metformine_seule_en_cours == true AND traitements_en_cours contient metformine AND DFG >= 30 AND DFG < 45 AND dose_metformine > 1000 OR metformine_seule_en_cours == true AND traitements_en_cours contient metformine AND intention != initier AND intolerance_traitement == true AND nature_intolerance contient digestive"
     priorite: 2
     famille: "Traitement à alléger"
     avantages:
@@ -1565,7 +1690,7 @@ options:
     contre_indications:
       - "Ne JAMAIS retirer un iSGLT2 ni un AR GLP‑1 pour désintensifier : bénéfice cardio‑rénal maintenu quelle que soit la glycémie (ADA 13.14d grade A). La désintensification ne cible que sulfamide / glinide / excès d'insuline."
   # ---- Déprescrire par RÉDUCTION de dose (distinct par traitement ; le praticien juge la dose, S8) -------
-  - intitule: "Réduire la posologie de l'insuline"
+  - intitule: "Insuline"
     role: geste
     action: reduire
     # GÉNÉRALISATION position_vs_cible (2026-07-26, 4e série, red-team clinique silences F1) : voir le
@@ -1594,7 +1719,7 @@ options:
     # âgé (vignette N7 de la recette du 02/08 : « je baisse les 12 UI de combien ? » reste À DESSEIN sans
     # réponse chiffrée hors relais, cette carte étant l'une des trois affichées sur ce profil).
     apercu: "en relais thérapeutique (introduction d'un autre agent) : −10 à −20 %, ou −20 à −30 % si à l'objectif ou hypoglycémie — jamais d'arrêt brutal sans relais (avis d'experts, AAFP 2026 / JAMA Cardiol 2020) ; en allègement isolé hors relais : au jugement clinique, aucun rythme chiffré sourcé."
-  - intitule: "Réduire la posologie de l'AR GLP‑1"
+  - intitule: "AR GLP‑1"
     role: geste
     action: reduire
     conditions:
@@ -1618,7 +1743,7 @@ options:
     # sur l'ARRÊT complet (pas sur la réduction elle-même) : sert d'argument pour réduire plutôt
     # qu'arrêter, pas de guide de titration chiffré.
     apercu: "données sur l'arrêt complet (pas la réduction) : ~50 % de la baisse d'HbA1c reprise en 8-12 sem., ~60 % du poids repris à 52 sem. (EClinicalMedicine 2026) — argument pour réduire plutôt qu'arrêter ; surveiller 4-12 semaines après le geste."
-  - intitule: "Réduire la posologie du tirzépatide"
+  - intitule: "Tirzépatide"
     role: geste
     action: reduire
     conditions:
@@ -1662,7 +1787,7 @@ options:
   # scission, qui suit d'ailleurs le modèle déjà appliqué au sulfamide (« Arrêter le sulfamide » est une
   # option distincte). Pas d'option « Arrêter le glinide » en miroir : sans contre-indication RCP, aucun
   # fondement à un arrêt motivé par le seul DFG (R3 — un arrêt est un geste, il lui faut une indication).
-  - intitule: "Réduire la posologie du sulfamide"
+  - intitule: "Sulfamide"
     role: geste
     action: reduire
     # GÉNÉRALISATION position_vs_cible (2026-07-26, 4e série, red-team clinique silences F1) : voir le
@@ -1697,7 +1822,7 @@ options:
     # la même raison (vignette N7 : cette carte y est affichée hors tout contexte de relais AR GLP‑1 — il
     # y est d'ailleurs écarté par IMC < 22 et dénutrition).
     apercu: "à l'introduction d'un AR GLP‑1 : arrêt si HbA1c ≤ 7,5 % · −50 % si 7,6-8,5 % · maintien si > 8,5 % (avis d'experts, JAMA Cardiol 2020) ; en allègement isolé hors relais : au jugement clinique, aucun rythme chiffré sourcé."
-  - intitule: "Réduire la posologie du glinide"
+  - intitule: "Glinide"
     role: geste
     action: reduire
     conditions:
@@ -1736,7 +1861,7 @@ options:
     # de la session) : le gabarit validé pour un cas sans donnée.
     apercu: "réduire au jugement clinique — aucun rythme chiffré sourcé pour la déprescription programmée (demi-vie courte, prise prandiale : une suspension immédiate est généralement bien tolérée)."
   # ---- Déprescription de la metformine (arbitrage référent 2026-07-26, 2e série) -----------------------
-  - intitule: "Déprescrire la metformine"
+  - intitule: "Metformine (désintensification)"
     role: geste
     action: arreter
     # DÉCISION RÉFÉRENT (2026-07-26, 2e série) : arbitrage resté ouvert depuis la capture 6. Trois
@@ -1792,9 +1917,14 @@ options:
     effet_attendu: "Simplification thérapeutique ; pas de perte de bénéfice d'organe (par construction)."
     niveau_preuve: faible
   # ---- Place résiduelle SU / gliptine (classes protectrices indisponibles) ------------------------------
-  - intitule: "Gliptine — option glycémique orale de bas rang"
+  - intitule: "Gliptine"
     role: geste
     action: ajouter
+    # BAS RANG (2026-08-04, demande utilisateur) : agent glycémique sans bénéfice sur critère dur,
+    # proposé faute de mieux quand iSGLT2/AR GLP‑1 sont indisponibles ou la palette ouverte — cf.
+    # `Option.bas_rang` (`node.types.ts`). Pilote une étiquette + un attenuement visuel de la carte,
+    # aucun effet sur la sélection ni le tri.
+    bas_rang: true
     conditions:
       - "isglt2_indisponible == true AND aglp1_indisponible == true OR palette_glycemique_ouverte == true"
       - "position_vs_cible != sous_objectif"
@@ -1848,9 +1978,14 @@ options:
     # molécule nommée change. Pas d'exclusion rénale ajoutée (aucune n'est portée par la source).
     contre_indications:
       - "SITAGLIPTINE (dose au DFG : 100 mg si ≥ 45 ; 50 mg si 30‑44). En dessous de 30 (dialyse incluse), la SFD 2025 nomme la VILDAGLIPTINE 50 mg/j : la forme sitagliptine 25 mg n'est pas commercialisée en France. Ne pas utiliser saxagliptine (IC + retrait FR) ni lina/alogliptine (non commercialisées FR). Éruption bulleuse → évoquer pemphigoïde, arrêter."
-  - intitule: "Sulfamide — option glycémique de bas rang"
+  - intitule: "Sulfamide"
     role: geste
     action: ajouter
+    # BAS RANG (2026-08-04, demande utilisateur) : agent glycémique sans bénéfice sur critère dur,
+    # proposé faute de mieux quand iSGLT2/AR GLP‑1 sont indisponibles ou la palette ouverte — cf.
+    # `Option.bas_rang` (`node.types.ts`). Pilote une étiquette + un attenuement visuel de la carte,
+    # aucun effet sur la sélection ni le tri.
+    bas_rang: true
     conditions:
       - "isglt2_indisponible == true AND aglp1_indisponible == true OR palette_glycemique_ouverte == true"
       - "position_vs_cible != sous_objectif"
@@ -2184,39 +2319,54 @@ cadrage:
     traitements hyperkaliémiants associés), ni d'hémoglobine, ni de poids sec / état volémique, ni de
     refus global de traitement du patient (au-delà de la préférence vis-à-vis de l'injectable) : une
     option « Recommandée » ne les a pas évalués, c'est au praticien de le faire.
+# « COMMENT CE NŒUD RAISONNE » — rendu depuis le 2026-08-04 dans le panneau d'argumentaire, replié par
+# défaut (`ArgumentPanel.tsx`). Ce champ était obligatoire au schéma et AFFICHÉ NULLE PART ; il portait
+# donc, sans conséquence visible, un mélange de logique du nœud et de journal de chantier (« repris en
+# source primaire le 2026-07-27 », « vérifié par le référent », numéros de correction). Réécrit pour ce
+# qu'il est : l'exposé du RAISONNEMENT, en paragraphes, lisible par un praticien qui découvre le nœud.
+# L'historique des corrections vit dans `meta.changelog` ; le détail essai par essai dans l'argumentaire
+# exhaustif. Les lignes vides sont significatives (bloc `>`) : elles font les paragraphes à l'écran.
 argumentaire: >
-  Ce nœud unique outille toute la prescription non‑insulinique du DT2, à partir de L'INTENTION du praticien
-  (initier / intensifier / optimiser / déprescrire) qui organise la saisie et déduit la position vs objectif,
-  sans jamais masquer un geste transverse indiqué. La hiérarchie de valeur est constante : iSGLT2 et AR GLP‑1
-  ont un bénéfice d'organe démontré (CVOT vs placebo, critères durs) EN PRÉSENCE de la comorbidité
-  correspondante (IC/rein pour l'iSGLT2, athérome pour l'AR GLP‑1) ; sulfamides et gliptines n'ont aucun
-  bénéfice d'organe (essais de sécurité CV neutres). Quand l'objectif n'est pas atteint, iSGLT2 et AR GLP‑1
-  sont aussi des LEVIERS GLYCÉMIQUES à part entière (sans hypoglycémie, perte de poids), disponibles même sans
-  comorbidité — la comorbidité les PRIORISE, elle ne conditionne pas leur disponibilité (ordre préférentiel
-  HAS R.74 : iSGLT2/AR GLP‑1 > iDPP4 > sulfamide) ; insuline, sulfamide et gliptine restent des agents
-  possibles « avec leurs limites » (bas rang), l'insuline en repli quand la palette non‑insulinique est
-  épuisée. Fix de préférence : en athérome pur, l'AR GLP‑1 passe DEVANT l'iSGLT2 (sans effet démontré sur
-  l'IDM/l'AVC). On SWITCHE un agent de faible valeur ou mal toléré, jamais en associant gliptine + AR GLP‑1
-  (même voie incrétine). On DÉPRESCRIT (fort sur les hypoglycémiants ; réduction ou arrêt) : un HbA1c < 6,5 %
-  sous agent hypoglycémiant est une iatrogénie à corriger à tout âge, sans jamais retirer un agent protecteur.
-  Un gating négatif de terrain empêche les erreurs du sujet fragile : AR GLP‑1 et tirzépatide exclus chez le
-  maigre (IMC < 22) ou le dénutri (même obèse), tirzépatide réservé à l'obésité, iSGLT2 déconseillé en cas
-  d'infections génito‑urinaires récidivantes. En état catabolique, une insuline d'initiation (transitoire)
-  s'impose ; son schéma (titration, doses) est ensuite ajusté et suivi dans la durée. NB EBM : lorsqu'iSGLT2/AR GLP‑1 sont proposés au SEUL titre
-  glycémique (sans comorbidité), leur bénéfice attendu est glycémique (absence d'hypoglycémie, poids), PAS le
-  bénéfice d'organe des populations enrichies des CVOT (EMPA-REG OUTCOME ; DAPA-CKD, NNT 19/2,4 ans ;
-  EMPEROR-Reduced, NNT 19) — d'où une place plus restreinte pour la dapagliflozine hors indication d'organe
-  (divergence de degré, cf. divergence).
-  VOLET RÉNAL, repris en source primaire le 2026-07-27 : le seuil de 30 des sulfamides n'est plus présenté
-  comme une « convention KDIGO » — la KDIGO ne porte aucun chiffre sur cette classe, c'est la SFD qui cite le
-  seuil dans la même phrase que la contre-indication, sur deux éditions. Le glinide en est distingué : aucune
-  contre-indication rénale à son RCP, élimination hépatobiliaire, exposition doublée en IRC sévère qui
-  justifie une prudence posologique — et deux sources françaises le nomment nommément sous DFG 15. Le sujet
-  âgé FRAGILE se voit désormais retirer le sulfamide par une exclusion (la SFD 2025 a durci « éviter » en
-  « ne jamais utiliser » chez le dépendant ; sur-blocage assumé, le nœud n'ayant pas cette catégorie). Le
-  garde-fou d'HbA1c devient conditionnel : 7 % si DFG < 30 sous glinide ou insuline, 6,5 % sinon. Et sous
-  DFG 30, la gliptine nommée est la VILDAGLIPTINE 50 mg/j — la forme sitagliptine 25 mg n'est pas
-  commercialisée en France, vérifié par le référent.
+  Ce nœud couvre toute la prescription non insulinique du diabète de type 2. Il part de l'INTENTION du
+  praticien — initier, intensifier, optimiser ou déprescrire — qui organise la saisie et détermine ce qui
+  est proposé, sans jamais masquer un geste transverse indiqué par ailleurs.
+
+
+  La hiérarchie de valeur est constante. Les iSGLT2 et les AR GLP‑1 ont un bénéfice d'organe démontré
+  contre placebo, sur critères durs, EN PRÉSENCE de la comorbidité correspondante : insuffisance cardiaque
+  et maladie rénale pour les iSGLT2, athérome pour les AR GLP‑1. Les sulfamides et les gliptines n'en ont
+  aucun — leurs essais de sécurité cardiovasculaire sont neutres.
+
+
+  Quand l'objectif glycémique n'est pas atteint, iSGLT2 et AR GLP‑1 sont aussi des leviers glycémiques à
+  part entière — sans hypoglycémie, avec perte de poids — et restent disponibles même sans comorbidité.
+  La comorbidité les PRIORISE, elle ne conditionne pas leur disponibilité. Insuline, sulfamide et gliptine
+  restent des agents possibles mais de repli, l'insuline quand la palette non insulinique est épuisée. En
+  athérome pur, l'AR GLP‑1 passe devant l'iSGLT2, qui n'a pas d'effet démontré sur l'infarctus ni sur
+  l'AVC.
+
+
+  On remplace un agent de faible valeur ou mal toléré plutôt que d'empiler : jamais une gliptine avec un
+  AR GLP‑1, qui empruntent la même voie incrétine. On allège franchement les agents hypoglycémiants — une
+  HbA1c sous 6,5 % sous sulfamide, glinide ou insuline est une iatrogénie à corriger, à tout âge — sans
+  jamais retirer un agent protecteur.
+
+
+  Un ensemble de garde-fous de terrain écarte les erreurs du sujet fragile. L'AR GLP‑1 est exclu sous un
+  IMC de 22, et la dénutrition l'exclut même chez l'obèse — on peut être obèse et dénutri, et l'incrétine
+  aggraverait la dénutrition. Le tirzépatide est réservé à l'obésité et exclu chez le dénutri. L'iSGLT2,
+  lui, n'est pas retiré mais rétrogradé en fin de liste, avec une alerte, en cas d'infections
+  génito-urinaires récidivantes. En état catabolique, une insuline d'initiation transitoire s'impose ; son
+  schéma se règle ensuite ailleurs.
+
+
+  Le volet rénal suit les textes à la lettre plutôt qu'une convention. Le seuil de DFG 30 des sulfamides
+  vient de la SFD, qui l'écrit dans la même phrase que la contre-indication, sur deux éditions — la KDIGO
+  ne porte aucun chiffre sur cette classe. Le glinide s'en distingue : son RCP ne pose aucune
+  contre-indication rénale, son élimination est hépatobiliaire, et son exposition doublée en insuffisance
+  rénale sévère justifie une prudence posologique, pas un arrêt. Le plancher d'HbA1c passe de 6,5 % à 7 %
+  sous DFG 30 quand un glinide ou une insuline est en cours. Et sous DFG 30, la gliptine utilisable est la
+  vildagliptine à 50 mg par jour, la sitagliptine 25 mg n'étant pas commercialisée en France.
 sources:
   references_primaires:
     - id: empa-reg
@@ -2392,25 +2542,47 @@ sources:
       les comorbidités, relégation des sulfamides et des gliptines (aucun bénéfice d'organe démontré),
       désintensification du sujet âgé fragile validée par un essai randomisé (Grant 2025 : hypoglycémie
       sévère non aggravée par l'allègement, 4,7 % vs 6,5 % NS).
-    references:
-      - nom: "Médicalement Geek"
-        lien: "https://www.medicalement-geek.com/2023/01/les-traitements-du-diabete-formule-all.html"
-      - nom: "Prescrire"
-        detail: "Résumé sous droit d'auteur ; réf. Rev Prescrire 2023;43(478):595-605 ; synthèses docs/decision/sources/prescrire-dt2.md."
+    # LES ESSAIS QUI PORTENT CETTE LECTURE, et plus les revues qui l'ont commentée. Le champ
+    # `references` (Médicalement Geek, Prescrire) a été RETIRÉ du modèle : il s'affichait sous la
+    # position comme « Réf. : Prescrire », ce que le lecteur lit « Prescrire dit que » — exactement ce
+    # que D23 avait voulu empêcher en les sortant du sujet grammatical des phrases d'argument. Les deux
+    # revues restent CONSULTÉES et tracées ici et dans l'argumentaire exhaustif ; c'est de la méthode,
+    # pas de la preuve, et ça n'a rien à faire sur un écran de consultation.
+    #   — Médicalement Geek / DragiWebdo :
+    #     https://www.medicalement-geek.com/2023/01/les-traitements-du-diabete-formule-all.html
+    #   — Prescrire : Rev Prescrire 2023;43(478):595-605 (droit d'auteur — résumé seul) ; synthèses
+    #     dans docs/decision/sources/prescrire-dt2.md.
+    appuis:
+      - empa-reg
+      - dapa-ckd
+      - emperor-reduced
+      - surpass-cvot
+      - tecos
+      - savor-timi-53
+      - lee-pemphigoide
+      - tosca-it
+      - griffin-metformine
+      - grant
   reco_officielle:
-    source: >-
-      HAS 2024 (Stratégie thérapeutique DT2, R.45‑R.105) ; SFD 2025 (Med Mal Metab 2025;19:630‑662, Avis
-      3/5/5bis/6/11‑15) ; ADA Standards of Care 2026 ; KDIGO 2022 ; RCP metformine/iSGLT2/incrétines (ANSM).
-      Sur le volet rénal : SFD, prise de position 2025 (Méd Mal Métab 2025;19(8):630-662, DOI
-      10.1016/j.mmm.2025.10.002) — Tableau I notes 1-2, note 6, Avis n° 12 et n° 12 bis : c'est elle, et non
-      la KDIGO, qui porte le seuil de 30 des sulfamides, le plancher d'HbA1c de 7 % sous glinide ou insuline
-      en IRC sévère, le « ne jamais utiliser » chez le sujet âgé dépendant, et la liste fermée des molécules
-      utilisables sous DFG 15 (dont le répaglinide, et la vildagliptine 50 mg/j — la sitagliptine 25 mg n'étant
-      pas commercialisée en France). HAS 2024, R.78 (grade C) : nomme le répaglinide pour sa demi-vie courte et
-      sa « non-CI » en maladie rénale. La KDIGO 2022 ne porte aucun chiffre sur les sulfamides : le seuil de
-      30 n'est pas une convention KDIGO. Endocrine Society 2019 (PMID 30903688) : porte bien des seuils
-      chiffrés par molécule (glimépiride < 30, glyburide < 60), écartée délibérément — source non française,
-      périmètre ≥ 65 ans, gliclazide absent, et ses seuils contrediraient les RCP français.
+    # COURT : c'est un titre de bloc à l'écran. Tout le détail vérifiable (numéros d'avis, de tableau, de
+    # rubrique) est descendu dans `references` ci-dessous, où il est lisible ligne à ligne au lieu de
+    # former un paragraphe de dix lignes rendu comme un en-tête de colonne.
+    source: "HAS 2024 · SFD 2025 · ADA 2026 · KDIGO 2022 · RCP ANSM"
+    references:
+      - nom: "HAS 2024"
+        detail: "Stratégie thérapeutique du DT2, R.45 à R.105 — ordre préférentiel R.74, non-association GLP‑1/iDPP4 R.80, désintensification R.102/103/105. R.78 (grade C) nomme le répaglinide pour sa demi-vie courte et son absence de contre-indication rénale. Ne nomme jamais un sulfamide individuel et ne porte aucun seuil de DFG pour cette classe."
+      - nom: "SFD 2025"
+        lien: "https://doi.org/10.1016/j.mmm.2025.10.002"
+        detail: "Méd Mal Métab 2025;19(8):630-662 — Avis 3/5/5bis/6/11-15. C'est ce texte, et non la KDIGO, qui porte : le seuil de DFG 30 des sulfamides (Tableau I notes 1-2 + Avis 12), le plancher d'HbA1c de 7 % sous glinide ou insuline en insuffisance rénale sévère, le « ne jamais utiliser » chez le sujet âgé dépendant (note 6), et la liste fermée des molécules utilisables sous DFG 15 (Avis 12 bis — dont le répaglinide et la vildagliptine 50 mg/j)."
+      - nom: "ADA 2026"
+        detail: "Standards of Care — section 13.14 (désintensification du sujet âgé)."
+      - nom: "KDIGO 2022"
+        detail: "Ne chiffre que la metformine et les iSGLT2 (Figure 23). Aucun seuil sur les sulfamides : le seuil de DFG 30 n'est donc pas une convention KDIGO, il vient de la SFD."
+      - nom: "RCP ANSM"
+        detail: "Metformine (adaptation au DFG : 3 g ≥ 60, 2 g 45-59, 1 g 30-44, contre-indication < 30), iSGLT2, incrétines, répaglinide (rubrique 4.3 : cinq contre-indications, aucune rénale ; rubrique 5.2 : exposition doublée entre 20 et 39 ml/min)."
+      - nom: "Endocrine Society 2019"
+        lien: "https://pubmed.ncbi.nlm.nih.gov/30903688/"
+        detail: "Porte des seuils par molécule (glimépiride < 30, glyburide < 60). ÉCARTÉE : source non française, périmètre ≥ 65 ans, gliclazide absent, et ses seuils contrediraient les RCP français."
     position: >-
       Sur socle metformine + mode de vie : en cas de maladie CV établie, IC ou MRC, prescrire d'emblée un
       iSGLT2 ou un AR GLP‑1 (ou tirzépatide) à bénéfice prouvé, quel que soit l'HbA1c ; en obésité (IMC ≥ 30),
@@ -2419,125 +2591,201 @@ sources:
       SFD Avis 5 bis ; ADA 13.14), en maintenant iSGLT2/AR GLP‑1. Sécurité rénale metformine : 3 g ≥ 60,
       2 g 45‑59, 1 g 30‑44, CI < 30.
     divergence: true
+    # CINQ DIVERGENCES, une par entrée, chacune en trois faces comparables. Elles remplacent le paragraphe
+    # de prose numéroté « (1)… (2)… (3)… » qui vivait dans `explication` : on ne pouvait ni les compter, ni
+    # voir pour chacune qui dit quoi et sur quelles données. Ce qui était compté « (2) granularité EBM » y
+    # empilait en fait trois écarts de nature différente — ils sont ici séparés.
+    divergences:
+      - sujet: "Place des gliptines"
+        position_officielle: >-
+          HAS et SFD conservent aux gliptines une place résiduelle : sans bénéfice d'organe, mais bien
+          tolérées, sans hypoglycémie et sans prise de poids, elles restent une option quand les classes à
+          bénéfice prouvé sont inutilisables.
+        position_outil: >-
+          L'outil ne les supprime pas, mais il refuse de les présenter comme un choix parmi d'autres : la
+          carte porte une étiquette « option de repli » et un rendu atténué, et son rang la place derrière
+          tous les agents à bénéfice démontré. Elle ne remonte au premier plan que lorsque les deux classes
+          protectrices sont réellement inutilisables chez ce patient.
+        appui: >-
+          Quatre essais de sécurité cardiovasculaire contre placebo, tous neutres sur les critères durs
+          (TECOS : MACE et insuffisance cardiaque neutres, HR 1,00). SAVOR-TIMI 53 montre en outre un signal
+          d'insuffisance cardiaque sous saxagliptine (HR 1,27). S'y ajoutent des effets indésirables
+          documentés : pemphigoïde bulleuse (HR 1,42 contre sulfamide), signal de pancréatite. C'est le même
+          socle de preuve des deux côtés, soupesé différemment — pas une donnée que l'un aurait et pas
+          l'autre.
+      - sujet: "Bénéfice d'organe et bénéfice glycémique"
+        position_officielle: >-
+          Les recommandations placent iSGLT2 et AR GLP‑1 en tête sur la base d'un bénéfice de classe, sans
+          distinguer systématiquement l'indication d'organe de l'indication glycémique, ni la molécule
+          testée de sa classe.
+        position_outil: >-
+          L'outil sépare les deux : quand ces classes sont proposées au seul titre glycémique, il annonce un
+          bénéfice glycémique (absence d'hypoglycémie, poids) et non le bénéfice d'organe. Il nomme la
+          molécule quand la protection est molécule-spécifique.
+        appui: >-
+          Les essais qui établissent le bénéfice d'organe ont été menés sur des populations ENRICHIES en
+          insuffisance cardiaque ou en maladie rénale (EMPA-REG OUTCOME ; DAPA-CKD, NNT 19 sur 2,4 ans ;
+          EMPEROR-Reduced, NNT 19), pas sur une population purement glycémique. Transposer leur résultat à
+          un patient sans comorbidité serait une extrapolation, pas une lecture.
+      - sujet: "Garde-fous de terrain (IMC bas, dénutrition, infections génito-urinaires)"
+        position_officielle: >-
+          Ces situations relèvent, dans les recommandations, du jugement clinique et de la rubrique
+          « précautions d'emploi ». Aucune n'en fait une règle qui retire une classe de la proposition.
+        position_outil: >-
+          L'outil en fait des règles. Deux d'entre elles retirent l'option : l'AR GLP‑1 chez le maigre
+          (IMC < 22) ou le dénutri même obèse, le tirzépatide chez le dénutri. La troisième rétrograde
+          seulement : l'iSGLT2 tombe en fin de liste, avec une alerte, en cas d'infections
+          génito-urinaires récidivantes — il reste proposable, il cesse d'être proposé en premier.
+        appui: >-
+          Aucun essai n'a testé ces seuils, et l'outil ne prétend pas le contraire : la direction est
+          établie (perte de poids et fonte musculaire sous incrétines, risque infectieux génito-urinaire
+          sous gliflozine), le chiffre est un repère. C'est un écart de FORME — une précaution transformée
+          en règle — assumé du côté sûr, cf. la première entrée de « ce qui reste incertain ».
+      - sujet: "Association iSGLT2 + AR GLP‑1"
+        position_officielle: >-
+          Les recommandations autorisent l'association et la présentent comme une intensification
+          possible.
+        position_outil: >-
+          L'outil la propose comme la COEXISTENCE de deux indications distinctes — un séquençage —, jamais
+          comme une synergie.
+        appui: >-
+          Le bénéfice additif sur critères durs n'est démontré par aucun essai ; PRECIDENTD est en cours.
+          L'additivité glycémique et pondérale, elle, est acquise : c'est ce que l'outil annonce, et rien
+          de plus.
+      - sujet: "Déprescription de la metformine"
+        position_officielle: >-
+          La metformine reste le socle du traitement quelles que soient les comorbidités : les
+          recommandations n'envisagent pas son retrait chez un patient qui la tolère.
+        position_outil: >-
+          L'outil propose sa déprescription sous trois conditions cumulatives strictes : sur-traitement
+          déclaré, fragilité, et tous les autres agents en cours à bénéfice dur démontré. Hors de ces trois
+          conditions réunies, il ne la propose jamais.
+        appui: >-
+          Le bénéfice de la metformine sur critère dur n'est pas démontré contre placebo (Griffin 2017,
+          méta-analyse ; Boussageon 2012, non significatif). C'est une absence de preuve, pas une preuve
+          d'absence — d'où le niveau de preuve faible porté par l'option, et les trois verrous. L'écart
+          avec les recommandations est déclaré sur la carte elle-même, jamais présenté comme un
+          alignement.
     explication: >-
-      Convergence forte sur la direction (relégation SU/gliptines, priorité iSGLT2/AR GLP‑1 par comorbidité,
-      non‑association gliptine+GLP‑1, désintensification). Divergences : (1) sur les gliptines — aucun
-      bénéfice sur critère dur dans 4 CVOT (TECOS neutre ; SAVOR-TIMI 53, signal d'insuffisance cardiaque
-      HR 1,27 pour la saxagliptine) et effets indésirables documentés (pemphigoïde bulleuse HR 1,42, signal
-      de pancréatite) : une lecture plus prudente les écarte entièrement de la place résiduelle, là où
-      HAS/SFD les y maintiennent, bien tolérées pour le reste — même socle de preuve, soupesé différemment ;
-      (2) granularité EBM — l'outil ne
-      durcit pas les gains hypo/poids/HbA1c en bénéfice cardio‑rénal, nomme la molécule quand la protection est
-      molécule‑spécifique, et ajoute un gating négatif de terrain (IMC bas/dénutrition/infections uro) absent
-      des recos en tant que règle algorithmique. L'association iSGLT2 + AR GLP‑1 = coexistence de deux
-      indications (séquençage), pas synergie prouvée (bénéfice dur additif non démontré). (3) DÉPRESCRIPTION
-      METFORMINE (arbitrage référent du 2026-07-26) : la HAS maintient la metformine comme socle
-      quelles que soient les comorbidités ; l'outil propose désormais sa déprescription sous 3 conditions
-      cumulatives strictes (sur-traitement déclaré + fragilité + tous les autres agents en cours à bénéfice
-      dur démontré, cf. option dédiée et `metformine_deprescriptible`) — appui sur l'absence de bénéfice
-      démontré vs placebo (Griffin 2017, Boussageon 2012 NS), déclaré comme divergence dans l'option
-      elle-même, jamais présenté comme un alignement HAS/SFD/ADA.
+      Sur la direction, les deux lectures se rejoignent largement : relégation des sulfamides et des
+      gliptines derrière les classes à bénéfice démontré, priorité aux iSGLT2 et aux AR GLP‑1 selon la
+      comorbidité, non-association d'une gliptine et d'un AR GLP‑1 (même voie incrétine), désintensification
+      du sujet âgé sur-traité en maintenant les agents protecteurs. Les écarts ci-dessus ne portent pas sur
+      le sens du traitement mais sur son grain : ce qu'on annonce comme bénéfice, à quel patient, et sous
+      quelles réserves.
+# CE QUI RESTE INCERTAIN — RÈGLE DE RÉDACTION (2026-08-04, demande utilisateur) : chaque entrée se fonde
+# sur une DONNÉE ou sur son ABSENCE, jamais sur qui a tranché. Le praticien qui lit ne connaît pas les
+# arbitrages du dépôt ; citer une décision interne transforme un argument vérifiable en argument
+# d'autorité, et ne lui apprend rien. Ces entrées portaient jusqu'ici le journal de chantier — dates
+# d'arbitrage, « RÉSOLU le… », PMID corrigés, historique des vérifications de sources. Cette mémoire n'est
+# pas perdue : elle vit dans `meta.changelog`, dans les commentaires de ce fichier et dans l'argumentaire
+# exhaustif, qui sont ses trois places légitimes. Garde-fou : `engine/banc/jargon-projet.test.ts` (I25).
 incertitudes:
-  - "Seuils de terrain (IMC 22 pour les AR GLP‑1 ; obésité 30 pour le tirzépatide) = repères pragmatiques (décision référent) : la preuve borne la direction, pas le chiffre exact."
-  - "Remboursement FR « intolérance/CI metformine → monothérapie AR GLP‑1 » : CONFIRMÉ (formulaire Assurance Maladie dulaglutide/liraglutide, Art. 61 convention médicale, arrêté du 10/01/2025). Le formulaire vise dulaglutide/liraglutide ; sémaglutide/autres = formulaires propres (même logique)."
-  - "Bénéfice dur de la substitution elle-même : jamais testé en switch (argument indirect = valeur comparée des classes)."
-  - "Additivité iSGLT2 + AR GLP‑1 sur critères durs : non démontrée (PRECIDENTD en cours) ; additivité glycémique/pondérale acquise."
-  - "Désintensification : preuve faible / accord d'experts ; pas d'ECR de devenirs durs."
-  - "Chaînage inter-nœuds A→prescription : PAS de chaînage (R1, docs/decision/GRAMMAIRE-NOEUD.md) — la cible individualisée du nœud A n'est pas importée automatiquement, la position vs objectif est DÉCLARÉE ici (`position_vs_cible`), le nœud A restant une aide, jamais un prérequis ; le garde-fou < 6,5 % (`hba1c_sous_cible`) reste absolu, indépendant de la cible. Chaînage prescription→E (insuline) : hors moteur (P3+)."
-  - "PRÉMISSE FAUSSE, entrée corrigée le 2026-07-27 (question du référent : « pourquoi l'intensification glycémique est-elle fermée par l'IMC > 30 ? »). Elle ne l'est PAS : aucun verrou IMC ne ferme l'intensification dans ce nœud — vérifié en faisant tourner le profil dans le moteur. Un obèse dénutri, au-dessus de sa cible, avec l'intention INTENSIFIER reçoit bien iSGLT2, gliptine et sulfamide ; seules les incrétines sont écartées, par la dénutrition, à juste titre. La sortie appauvrie [socle metformine, poursuivre] décrite par l'ancienne entrée ne survient qu'avec l'intention OPTIMISER, où la palette glycémique est fermée par l'INTENTION DÉCLARÉE (`palette_glycemique_ouverte`, séquençage référent S8) — l'IMC n'y est pour rien. Reste, si on veut, une vraie question de cohérence sans rapport avec l'obésité : que faire d'un patient déclaré au-dessus de sa cible dont le praticien déclare l'intention « optimiser » ? Le nœud lui propose alors le socle et la poursuite, ce qui est fidèle à l'intention déclarée (R1) mais peut surprendre."
-  - "L'indisponibilité des deux classes à bénéfice dur (`isglt2_indisponible == true AND aglp1_indisponible == true`) supprime l'introduction d'iSGLT2 / AR GLP-1 / tirzépatide / association et ouvre l'intensification glycémique résiduelle (correction S3-S7, M1) : cohérent avec la niche SU/gliptine qui n'existe que lorsque ces classes sont inutilisables. Depuis le 2026-07-29, cette indisponibilité est CALCULÉE à partir des motifs durs déjà encodés (DFG, infections génito-urinaires, dénutrition, IMC, classe déjà en cours) au lieu d'être un drapeau saisi — la préférence du patient pour ou contre l'injectable n'y entre volontairement pas, elle ne joue que sur le rang."
-  - "Repli O11 (« pas de remplaçant protecteur pertinent ») : encodé en ALERTE A9 (2 disjonctions pur-AND, causes IMC<22 / dénutrition sans indication iSGLT2) + rappel en prose dans l'option. Couvre le cas sans indication protectrice ; ne se déclenche pas si un remplaçant serait valide."
-  - "Élargir la désintensification au SOCLE (metformine, iSGLT2 sans indication d'organe), au-delà de sulfamide/glinide/insuline : demandé par le référent (recette capture 6, 2026-07-26) — PARTIELLEMENT TRANCHÉ le 2026-07-26 pour la METFORMINE SEULE : l'arbitrage référent (« sur-traitement chez une personne fragile et tous les autres agents à bénéfice dur ») est désormais encodé (option « Déprescrire la metformine », critère `metformine_deprescriptible`). TRANCHÉ le 2026-07-27 pour l'iSGLT2 : PAS de déprescription sur le seul motif de l'absence d'indication d'organe (statu quo). Motif référent : un iSGLT2 sans indication d'organe garde un effet glycémique et un bénéfice rénal possible ; le retirer sur ce seul fondement demanderait une preuve que le dossier ne contient pas. Il ne s'allège donc que s'il pose un risque avéré — c'est l'option « Reconsidérer un agent protecteur prescrit hors indication ET posant un risque », déjà en place. Reste NON tranché : TRANCHÉ le 2026-07-27 (référent) — le comportement actuel est SUFFISANT et devient une décision assumée : un patient sur-traité qui ne réunit pas les 3 conditions relève des options d'allègement existantes (sulfamide, glinide, insuline), la metformine étant le SOCLE et donc le dernier agent qu'on retire. La séquence n'a pas besoin d'être encodée davantage : elle découle de ce qui est proposé. Conséquence sur le profil de la capture 6 (ASCVD établie + sous_objectif + intention déprescrire, sans SU/glinide/insuline en cours) : SI ce profil est aussi `fragilite == true`, il devient désormais éligible à la nouvelle option de déprescription de la metformine (en plus de la carte « Introduire un AR GLP‑1 » déjà affichée, indication transverse légitime, `:342`) ; si `fragilite == false`, son comportement reste inchangé (aucune option de désintensification applicable) — non revérifié sur la vignette exacte de la capture 6, dont le détail de `fragilite` n'est pas reproduit dans ce commentaire (invariant CLAUDE.md 6 : signaler plutôt qu'inventer)."
-  - "GLINIDE SEUL (sans sulfamide) + DFG < 30 : RÉSOLU le 2026-07-26 — l'option unique
-    « Réduire la posologie du sulfamide / du glinide » a été SCINDÉE en deux, l'exclusion `DFG < 30`
-    ne portant plus que sur la branche sulfamide. La vérification en source primaire établit que le
-    répaglinide n'a AUCUNE contre-indication rénale au RCP (rubrique 4.3), s'élimine à > 90 % par voie
-    hépatobiliaire, et que l'exposition doublée en IRC sévère (ASC ×2 entre 20 et 39 ml/min, rubrique 5.2)
-    justifie une prudence posologique — c'est-à-dire précisément le geste que l'option propose. L'exclusion
-    héritée retirait donc à ce patient le geste que son propre RCP recommande.
-    ÉTAT DES TROIS LIMITES au 2026-07-27 :
-    (b) CLOS — deux sources françaises de rang recommandation nomment le répaglinide : SFD 2025 Avis n° 12
-    bis (liste fermée des molécules utilisables sous DFG 15, répaglinide nommément) et HAS 2024 R.78
-    (grade C, « répaglinide (demi-vie courte) et en raison de sa « non-CI » en cas de maladie rénale »). Le
-    sourçage ne repose plus sur le seul RCP. (Une première recherche automatisée affirmait qu'aucun texte
-    français ne traitait le sujet — c'était faux, deux fois ; les deux documents ont depuis été retrouvés.)
-    (c) CLOS — le RCP centralisé EMA de Novonorm a depuis été retrouvé et vérifié sans difficulté : rubrique
-    4.3, cinq contre-indications, AUCUNE rénale ; rubriques 4.2 et 5.2 identiques aux génériques consultés.
-    (a) MAINTENU, REDESCENDU D'UN CRAN — et surtout PAS clos, contrairement à une clôture envisagée un temps
-    au motif qu'une PK spécifique de l'hémodialysé existerait (Marbury 2000, bras
-    n = 6 avec dosage du dialysat : « hemodialysis did not significantly affect repaglinide clearance »).
-    Une vérification a montré que ce bras est en DOSE UNIQUE ×2 avec washout : il établit que l'hémodialyse
-    n'épure pas le répaglinide, PAS qu'une prise prandiale répétée soit sûre chez le dialysé — deux
-    affirmations différentes. Une phrase omise dans un premier temps, dans le même résumé, précise :
-    « the elimination rate constant in the group with severe renal impairment decreased after 1 week of
-    treatment » (signal d'accumulation en administration répétée), et le fait que l'étiquetage FDA NIE
-    positivement l'existence de toute étude sous CrCl 20 ou en hémodialyse.
-    Formulation juste : l'option est SOUTENUE PAR UNE RECOMMANDATION (SFD, sous 15) mais SANS donnée
-    pharmacocinétique d'état d'équilibre en dialyse, et avec un signal d'accumulation en IR sévère. Pas de
-    borne inférieure à poser dans le nœud ; c'est la prudence posologique qui reste le geste, et elle est
-    déjà ce que l'option propose."
-  - "SEUIL « DFG < 30 » DU SULFAMIDE — RÉSOLU le 2026-07-27 : ce n'est plus une convention,
-    c'est une CITATION. L'entrée disait vrai sur les RCP (ni le gliclazide ni le glimépiride ne chiffrent
-    l'« insuffisance rénale sévère ») mais attribuait le seuil de 30 à une « convention KDIGO/SFD ».
-    Vérification en source primaire, puis re-vérification indépendante :
-    — la KDIGO 2022 ne porte AUCUN chiffre sur les sulfamides (recherche exhaustive sur les 9 dénominations
-    de molécules ; sa Figure 23 ne chiffre que metformine et iSGLT2). L'attribution KDIGO était fausse et a
-    été retirée du nœud (option « Arrêter le sulfamide »).
-    — la SFD, elle, porte le chiffre et la contre-indication DANS LA MÊME PHRASE, sur deux éditions (2023
-    et 2025) : Tableau I note 1 (stade 4 = 15-29, stade 5 = < 15) + note 2 (« Les sulfamides hypoglycémiants
-    sont contre-indiqués en cas d'IRC sévère ou terminale ») + Avis n° 12 (« DFG entre 15 et 29 […] ou
-    terminale (DFG < 15) […] (SU contre-indiqués) »). Il n'y a aucune déduction à faire.
-    — la HAS 2024 ne nomme JAMAIS un sulfamide individuel (0 occurrence de `clazide|piride|clamide|pizide`
-    dans ses 17 249 lignes) et ne porte aucun seuil de DFG pour la classe ; le guide HAS parcours MRC non
-    plus (il se récuse explicitement sur le glycémique). Le négatif HAS est complet et fermé.
-    RESTE NON ENCODÉ, délibérément : la DISTINCTION entre molécules (gliclazide métabolisé en métabolites
-    inactifs vs glimépiride produisant un métabolite M1 actif qui s'accumule) est réelle et portée par au
-    moins deux sociétés savantes ÉTRANGÈRES — Endocrine Society 2019 (glimépiride « should not be used with
-    an eGFR < 30 », recommandation graduée 1|⊕⊕OO, PMID 30903688) et Société suisse d'endocrinologie et de
-    diabétologie 2012 (gliclazide seul jusqu'à 40, glimépiride contre-indiqué < 60). Aucune source
-    FRANÇAISE de rang recommandation ne la porte, et les seuils étrangers (40 / 60) contrediraient les RCP
-    français. Décision maintenue : ne pas l'encoder. Motif rectifié : « aucune source FRANÇAISE », et non
-    « aucune source » — une version antérieure de cette entrée employait la seconde formulation, qui est fausse."
-  - "SUJET ÂGÉ « DÉPENDANT » — SUR-BLOCAGE ASSUMÉ (décision référent 2026-07-27). La SFD 2025
-    distingue deux crans : « éviter » chez le sujet âgé FRAGILE, « ne JAMAIS utiliser » chez le sujet âgé
-    DÉPENDANT (Tableau I note 6 ; durcissement par rapport à 2023, qui écrivait « préférable d'éviter » pour
-    les deux). Le nœud n'a pas de catégorie « dépendant » : `fragilite` est un booléen. Le référent a
-    tranché pour poser l'exclusion sur ce booléen plutôt que de créer un statut gériatrique à trois valeurs
-    (qui aurait obligé à reprendre tous les dérivés consommant `fragilite`). Conséquence assumée : le
-    sulfamide est désormais RETIRÉ chez le sujet fragile, alors que la source dit seulement de l'éviter.
-    Sur-blocage délibéré, du côté sûr d'un garde-fou d'hypoglycémie. Si un statut gériatrique à trois
-    valeurs est créé un jour (ici ou ailleurs dans le domaine), cette exclusion doit être resserrée sur
-    `dépendant` et le cran « fragile » redescendu en alerte."
-  - "PLANCHER D'HbA1c CONDITIONNEL — le garde-fou `hba1c_sous_cible` vaut désormais 7 % (et non 6,5 %)
-    quand DFG < 30 ET glinide ou insuline en cours, conformément à la SFD 2025 Avis n° 12. NON TRANCHÉ, et
-    signalé plutôt que deviné : la SFD attache ce plancher au couple « IRC sévère + glinide/insuline » ;
-    elle ne dit rien du patient à DFG < 30 sous un AUTRE agent hypoglycémiant, ni du patient sous
-    glinide/insuline à DFG 30-44. Ces deux zones restent au plancher général de 6,5 %. C'est la lecture
-    littérale de la source ; ce n'est pas nécessairement la bonne lecture clinique."
-  - "GLIPTINE UTILISABLE SOUS DFG 30 — RÉSOLU le 2026-07-27. Le point de fait est TRANCHÉ : le référent a vérifié, la sitagliptine 25 mg n'est effectivement pas commercialisée en France. La SFD 2025 disait donc vrai, et l'extension de la décision aux trois endroits du nœud (option « Arrêter le sulfamide », option gliptine, alerte « place résiduelle en insuffisance rénale ») était justifiée : sous DFG 30, le nœud nomme la VILDAGLIPTINE 50 mg/j. Ce que la question a fait apparaître au passage et qui reste vrai : une première vérification n'avait pas pu ouvrir la BDPM, et le point avait alors été explicitement laissé au référent plutôt que deviné (invariant 6) — c'est la bonne conduite, et elle a payé. La tension apparente avec la décision du nœud D (« gliptine FR = sitagliptine ») n'en est pas une : celle-là porte sur la CLASSE disponible en France, celle-ci sur le DOSAGE utilisable en rénal sévère."
-  - "ABSENCE DE BÉNÉFICE DUR DU RÉPAGLINIDE — RÉSOLU le 2026-07-30 (T-063). La première tentative de cette
-    tâche s'était arrêtée bloquée : le nœud traitait déjà le glinide comme un agent sans bénéfice dur à
-    plusieurs endroits (désintensification, alerte de cohérence, `metformine_deprescriptible`), mais
-    AUCUNE source du nœud ne documentait cette absence de bénéfice SPÉCIFIQUEMENT pour le répaglinide, et
-    les 3 sources déjà présentes (Schumacher/Marbury/Hasslacher) portaient uniquement la pharmacocinétique
-    rénale, pas le bénéfice/risque sur critère dur — invariant 6 (« signaler plutôt qu'inventer »), pas
-    d'argumentaire par analogie avec le sulfamide. Levé par une revue de preuve dédiée, vérifiée en
-    primaire PMID par PMID (deux identifiants PMID relevés initialement étaient FAUX, corrigés : Leonard 2018 =
-    29108130, pas 29139156 ; Monami 2014 = 24635837, pas 25266331 — ce dernier NON versé, faute d'avoir pu
-    confirmer indépendamment le sous-résultat qu'il est censé porter). Preuve DÉLIBÉRÉMENT non présentée
-    comme un fait clos : absence d'ECR dédié (Grenet 2019) + signal de mortalité au niveau CLASSE sans
-    signal MACE (Mannucci 2020) + signal repaglinide-spécifique de grade TRÈS FAIBLE, observationnel, avec
-    ses réserves de confusion nommées une à une (Huang & Yeh 2019) — `niveau_preuve: tres_faible` sur la
-    carte, à dessein différent du `modere` du sulfamide/de la gliptine, qui reposent sur des CVOT neutres
-    en ECR. Détail complet, sources et réserves : argumentaire, section « Le glinide rejoint les agents
-    sans bénéfice sur critère dur »."
+  - "Seuils de terrain (IMC 22 pour les AR GLP‑1, IMC 30 pour le tirzépatide) : aucun essai ne les a testés. La direction est établie — perte de poids et fonte musculaire sous incrétines, bénéfice pondéral chez l'obèse — mais le chiffre exact est un repère pragmatique, pas un résultat."
+  - "Bénéfice sur critère dur de la substitution elle-même : jamais testé en switch. Les classes ont été comparées au placebo, pas l'une à l'autre chez un patient déjà traité — l'argument reste indirect, tiré de leur valeur comparée."
+  - "Additivité de l'association iSGLT2 + AR GLP‑1 sur critères durs : non démontrée, PRECIDENTD en cours. L'additivité glycémique et pondérale, elle, est acquise."
+  - "Désintensification : un seul essai randomisé documente son innocuité (Grant 2025 — hypoglycémie sévère non aggravée par l'allègement, 4,7 % contre 6,5 %, non significatif). Aucun essai de mortalité ni d'événements durs ; le reste repose sur un accord d'experts."
+  - "Metformine en 1re intention : le bénéfice sur critère dur n'est pas démontré contre placebo (Griffin 2017, méta-analyse ; Boussageon 2012, non significatif). C'est une absence de preuve et non une preuve d'absence — les essais disponibles manquent de puissance sur ces critères."
+  - "iSGLT2 prescrit sans indication d'organe : il n'est pas proposé à l'allègement sur ce seul motif. Il garde un effet glycémique, et un bénéfice rénal reste possible ; aucune donnée ne soutient son retrait dans cette situation. Il ne s'allège que s'il pose un risque avéré."
+  - "Répaglinide, bénéfice sur critère dur : aucun essai randomisé dédié n'existe — une méta-analyse en réseau cherchant spécifiquement ces essais n'en a trouvé aucun (Grenet 2019, 34 essais / 175 966 patients). Le signal de mortalité disponible porte sur la CLASSE des insulinosécréteurs, sulfamides et glinides poolés (Mannucci 2020 : mortalité toute cause OR 1,11, p = 0,04 ; MACE non significatif). Le seul signal propre au répaglinide est observationnel et non causal, sans ajustement sur l'IMC ni sur l'HbA1c (Huang & Yeh 2019)."
+  - "Répaglinide en dialyse : aucune donnée pharmacocinétique en administration répétée. La seule étude du patient hémodialysé est en dose unique (Marbury 2000, n = 6) — elle établit que l'hémodialyse n'épure pas la molécule, pas qu'une prise prandiale répétée soit sûre. Un signal d'accumulation est décrit après une semaine de traitement en insuffisance rénale sévère, et l'étiquetage FDA nie l'existence de toute étude sous 20 ml/min ou en dialyse. La prudence posologique est ce que la donnée soutient ; un seuil chiffré ne l'est pas."
+  - "Sulfamides, distinction entre molécules : elle est réelle et documentée — le gliclazide donne des métabolites inactifs, le glimépiride un métabolite M1 actif qui s'accumule en insuffisance rénale. Elle n'est pas encodée : aucun texte français de rang recommandation ne la chiffre, et les seuils étrangers disponibles (40 et 60 ml/min) contrediraient les RCP français."
+  - "Plancher d'HbA1c en insuffisance rénale sévère : le plancher de 7 % est attaché, dans la source, au couple « DFG < 30 ET glinide ou insuline en cours ». Rien n'est publié pour le patient à DFG < 30 sous un autre agent hypoglycémiant, ni pour le patient sous glinide ou insuline à DFG 30-44. Ces deux zones restent au plancher général de 6,5 % — c'est la lecture littérale de la source, pas nécessairement la meilleure lecture clinique."
+  - "Sujet âgé et sulfamides : la source distingue deux crans, « éviter » chez le sujet fragile et « ne jamais utiliser » chez le sujet dépendant. Le nœud ne dispose que d'un critère de fragilité binaire et retire donc le sulfamide dès le premier cran. Sur-blocage assumé, du côté sûr d'un garde-fou d'hypoglycémie."
+  - "Position vis-à-vis de l'objectif : elle est DÉCLARÉE dans ce nœud, jamais importée de celui qui fixe la cible — chaque nœud reste évaluable seul. Le garde-fou d'HbA1c < 6,5 % est absolu et ne dépend donc pas de la cible individuelle du patient."
+  - "Intention « optimiser » : elle ferme la palette glycémique. Un patient déclaré au-dessus de sa cible avec cette intention ne reçoit que le socle et la poursuite du traitement. C'est fidèle à l'intention saisie, et ça peut surprendre."
+  - "Indisponibilité des deux classes à bénéfice démontré : elle est calculée à partir des motifs durs déjà saisis (DFG, infections génito-urinaires, dénutrition, IMC, classe déjà en cours), et ouvre alors l'intensification glycémique résiduelle. La préférence du patient vis-à-vis de l'injectable n'y entre volontairement pas : elle ne joue que sur le rang d'affichage, jamais sur la disponibilité d'une classe."
+  - "Remboursement en France de la monothérapie par AR GLP‑1 après intolérance ou contre-indication à la metformine : confirmé pour le dulaglutide et le liraglutide (formulaire Assurance Maladie, arrêté du 10/01/2025). Les autres molécules relèvent de formulaires propres, de même logique, non vérifiés un à un."
 veille_liee: []
 meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.57"
+  version: "0.60"
   changelog:
+    - date: "2026-08-04"
+      auteur: "Claude Code — en attente de relecture référent"
+      resume: >-
+        REFONTE DE L'ARGUMENTAIRE — LISIBILITÉ ET NATURE DES ARGUMENTS (retour utilisateur en recette
+        navigateur). Cinq changements de contenu, tous sur des champs AFFICHÉS.
+        (1) LES DIVERGENCES SONT STRUCTURÉES. Le paragraphe de prose numéroté « (1)… (2)… (3)… » de
+        `reco_officielle.explication`, rendu en bas de panneau sous les deux colonnes, devient CINQ entrées
+        `divergences[]` à trois faces comparables (ce que dit la recommandation / ce que fait l'outil / sur
+        quelles données). Ce qui y était compté « (2) granularité EBM » empilait en réalité trois écarts de
+        nature différente — bénéfice d'organe vs glycémique, garde-fous de terrain, association iSGLT2 +
+        AR GLP‑1 — désormais séparés. `explication` ne porte plus que les points d'accord.
+        (2) LES REVUES SECONDAIRES SORTENT DE L'ÉCRAN. `synthese_critique.references` (Médicalement Geek,
+        Prescrire) est supprimé du modèle : la ligne « Réf. : Prescrire » sous une position se lit
+        « Prescrire dit que », ce que D23 avait précisément voulu empêcher en les sortant du sujet
+        grammatical des arguments. Remplacé par `appuis`, qui cite les ESSAIS (10 ids de
+        `references_primaires`). Les deux revues restent consultées et tracées en commentaire YAML.
+        (3) `reco_officielle.source` RESSERRÉ à un titre de bloc (« HAS 2024 · SFD 2025 · … ») ; ses dix
+        lignes de détail bibliographique passent dans le nouveau `references[]`, où chaque citation est
+        vérifiable ligne à ligne (numéro d'avis, de tableau, de rubrique de RCP).
+        (4) LES INCERTITUDES SONT RÉÉCRITES SUR LA DONNÉE. 16 entrées devenues 15, toutes fondées sur une
+        donnée publiée ou sur son absence explicite. Sortent : les dates d'arbitrage, les « RÉSOLU le… »,
+        l'historique des PMID corrigés, les mentions de qui a tranché — rien de tout cela n'apprend quoi
+        que ce soit au praticien qui lit, et le citer transforme un argument vérifiable en argument
+        d'autorité. AUCUN FAIT CLINIQUE PERDU : chaque entrée conserve sa substance (absence d'ECR dédié
+        au répaglinide, dose unique de l'étude en dialyse, distinction gliclazide/glimépiride non
+        encodée, lecture littérale du plancher d'HbA1c, sur-blocage du sulfamide chez le sujet fragile) ;
+        c'est l'appareil de chantier qui part, et il reste dans ce changelog et les commentaires.
+        (5) `argumentaire` (le champ court) RÉÉCRIT EN SIX PARAGRAPHES. Il était obligatoire au schéma et
+        AFFICHÉ NULLE PART — d'où le mélange logique du nœud / journal qui s'y était installé sans
+        conséquence visible. L'écran l'affiche désormais (« Comment ce nœud raisonne »), il est donc écrit
+        pour être lu.
+        GARDE-FOU : `engine/banc/jargon-projet.test.ts` (I25) gagne quatre marqueurs — qui-a-tranché,
+        date de chantier, statut de chantier en capitales, identifiant de tâche — et couvre les nouveaux
+        champs affichés. Les cinq autres nœuds sont en dette nommée et sous cliquet.
+    - date: "2026-08-04"
+      auteur: "Claude Code — en attente de relecture référent"
+      resume: >-
+        DOUBLE CORRECTIF METFORMINE (retour utilisateur en recette navigateur, deux passes) : (1) la
+        carte socle et la carte de sécurité « Metformine [réduire] » affichaient des badges d'action
+        CONTRADICTOIRES (« Maintenir » / « Réduire ») pour le même patient — le socle EXCLUT désormais
+        la situation où la carte de sécurité est indiquée (`exclusions`, même mécanisme que le garde-fou
+        DFG < 30 déjà en place), une seule carte reste à l'écran. (2) « Optimiser l'agent mal toléré »
+        (générique) était redondante avec cette même carte de sécurité quand metformine est le SEUL
+        agent en cours : exclue dans ce cas précis (nouveau critère dérivé `metformine_seule_en_cours`),
+        reste affichée dès qu'un AUTRE agent est aussi en cause. LEÇON D'ARCHITECTURE retenue en route :
+        un premier essai encodait le fait « dose à réduire » comme critère `derive` — `evaluerDeriveTernaire`
+        (`engine/deriveCritere.ts`) ne court-circuite PAS un ET dont un opérande est faux (utile pour une
+        chaîne arithmétique comme l'IMC, dangereux pour un ET booléen), contrairement à `evaluateCondition`
+        (conditions/exclusions) — corrigé en écrivant l'expression EN CLAIR dans les deux `exclusions`
+        plutôt que dans un `derive`. Trouvé par `banc/impasse.test.ts` (I11), pas deviné.
+        AU PASSAGE : texte de posologie de la metformine réécrit (« dose maximale divisée par 2 entre
+        DFG 30 et 45 » associait les deux seuils au même patient) — les deux paliers sont maintenant
+        énoncés séparément avec leur propre borne de DFG.
+        CANAGLIFLOZINE RETIRÉE des `avantages`/`contre_indications`/`apercu` de l'option iSGLT2 (retour
+        utilisateur : non disponible en France) — la mention datait d'une vérification 2024 (T-084),
+        non re-vérifiée par ce lot. La référence bibliographique CREDENCE (essai canagliflozine) reste
+        en `references` : preuve valide de l'effet de classe, indépendante de la disponibilité
+        commerciale actuelle de la molécule qui l'a établi.
+    - date: "2026-08-04"
+      auteur: "Claude Code — en attente de relecture référent"
+      resume: >-
+        SIMPLIFICATION DES INTITULÉS DE CARTE (demande utilisateur, retour de recette sur
+        `.decision-node__egalite-grid`) : sur les options qui portent déjà un badge d'action
+        (« Ajouter »/« Remplacer »/« Arrêter »/« Réduire »), l'intitulé ne répète plus le verbe —
+        il ne garde que le nom de la molécule/famille (« Introduire un iSGLT2 » → « iSGLT2 »,
+        « Arrêter la metformine (DFG < 30) » → « Metformine (DFG < 30) »). Qualificatif conservé
+        partout où deux cartes de même molécule et même action coexistent (ex. « Metformine
+        (DFG < 30) » vs « Metformine (désintensification) », « Gliptine (redondante) ») pour
+        rester distinguables au premier coup d'œil, sans rouvrir la carte. Options sans `action`
+        (socle metformine, options hédgées comme « Envisager l'insuline », négations comme
+        « Poursuivre le traitement en cours et réévaluer ») volontairement NON touchées : le
+        verbe n'y est pas redondant avec un badge, ou porte une nuance clinique que le pastille
+        d'action ne dit pas. `insuline.yaml` laissé en l'état dans ce lot (risque clinique
+        similaire, à traiter séparément).
+        AJOUTÉ `Option.bas_rang` (booléen, schéma + `node.types.ts`) sur les deux options « ajouter »
+        de gliptine et de sulfamide (agents sans bénéfice sur critère dur, proposés faute de mieux) :
+        pilote une étiquette et un attenuement visuel dédiés (`OptionCard.tsx`/`.css`), aucun effet
+        sur la sélection ni le tri. Les intitulés de ces deux options ont perdu leur suffixe
+        « — option ... de bas rang » (redondant avec la nouvelle étiquette).
+        AJOUTÉ `taille.unite_flexible: true` (nouveau champ générique `CritereEntree.unite_flexible`,
+        schéma + `node.types.ts` + `CriteriaForm.tsx`) : le champ accepte désormais la virgule décimale
+        et corrige seul une saisie en centimètres (« 170 » → 1,70 m) au blur. Aucun effet sur `IMC`
+        (toujours `poids / taille / taille`) ni sur aucune condition du nœud.
     - date: "2026-08-03"
       auteur: "Claude Code (P12/S8, T-133) — en attente de relecture référent"
       resume: >-

@@ -311,6 +311,10 @@
         "libelle_masque": {
           "type": "boolean",
           "description": "OPTIONNEL — supprime le libelle propre de ce champ dans le formulaire (amelioration de lisibilite, 2026-08-01), reserve au champ SEUL dans sa section dont le titre de `groupe` porte deja l'information (ex. « Je souhaite : » au-dessus des boutons d'intention, au lieu de repeter « Intention therapeutique » juste en dessous). Opt-in explicite, jamais une regle automatique sur la cardinalite du groupe : un contenu qui ne le declare pas garde le rendu historique. Aucun effet moteur, aucune contrainte de validation deduite."
+        },
+        "unite_flexible": {
+          "type": "boolean",
+          "description": "OPTIONNEL, criteres `nombre` UNIQUEMENT (2026-08-04, demande utilisateur sur `taille`) — le champ devient un input texte tolerant : virgule ACCEPTEE comme separateur decimal (un `<input type=\"number\">` natif la refuse), et une valeur saisie hors de [min, max] mais qui y rentre une fois divisee par 10 ou 100 est corrigee automatiquement AU BLUR, jamais pendant la frappe (« 170 » -> 1,70 si min/max bornent des metres). REQUIERT min ET max declares, sinon aucune correction d'echelle n'est tentee (la virgule reste acceptee). Pure presentation (`CriteriaForm.tsx`) : la valeur ECRITE dans `criteria` reste toujours un nombre dans l'unite declaree, le moteur ne voit jamais la chaine brute ni la confusion d'echelle. GENERIQUE, pas reserve a `taille` : tout critere `nombre` dont l'unite se prete a une confusion d'echelle par 10 peut le declarer. Absent ou `false` = `<input type=\"number\">` natif, comportement historique inchange."
         }
       }
     },
@@ -387,6 +391,30 @@
           ],
           "description": "Verbe d'action pour piloter un badge couleur a l'ecran (SB3) — RESERVE aux noeud dont le contenu emploie deja ce vocabulaire (prescription, insuline). Pas un champ a remplir par defaut sur tout noeud futur : les 4 autres noeud (cible-glycemique, statine, rhd-alimentation, rhd-activite-physique) n'ont pas ce vocabulaire dans leur contenu et ne doivent jamais le recevoir de force. Optionnel."
         },
+        "action_si": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["quand", "action"],
+            "properties": {
+              "quand": {
+                "type": "string",
+                "minLength": 1
+              },
+              "action": {
+                "type": "string",
+                "enum": ["ajouter", "remplacer", "arreter", "reduire", "maintenir"]
+              }
+            }
+          },
+          "description": "OPTIONNEL (2026-08-04, demande utilisateur) — surcharge CONDITIONNELLE du badge d'action : premiere regle dont `quand` est VRAIE au sens strict (jamais INDETERMINE, D20) l'emporte ; `action` (propriete voisine) reste le repli si aucune regle ne matche. PUR AFFICHAGE (`lib/vueDecision.ts` `OptionVue.actionEffective`), aucun effet sur la selection ni le tri. Absent = `action` seule pilote l'affichage, comportement historique inchange."
+        },
+        "bas_rang": {
+          "type": "boolean",
+          "description": "Option clinique de bas rang, proposee faute de mieux (ex. gliptine/sulfamide sans benefice sur critere dur, en l'absence d'iSGLT2/AR GLP-1 disponibles) — DISTINCT de `role` (qui reste `geste`, l'option est un choix therapeutique ordinaire, pas une securite ni un repli mecanique). PUR AFFICHAGE : pilote une etiquette et un attenuement visuel de la carte (`OptionCard.tsx`), aucun effet sur la selection, le tri ni le badge `recommandee`/`securite` — une option `bas_rang` peut tres bien rester `recommandee` (c'est alors la MEILLEURE option DISPONIBLE, pas la meilleure dans l'absolu). Optionnel, generique a tout domaine : absent ou `false` = comportement rigoureusement identique a avant ce champ (ajoute 2026-08-04, demande utilisateur sur `prescription`)."
+        },
         "conditions": {
           "type": "array",
           "minItems": 1,
@@ -437,6 +465,15 @@
           "type": "string",
           "minLength": 1,
           "description": "T-076 (P9/S9). Court apercu du contenu de l'option (une ligne, pas une prose), affiche dans le titre du <summary> REPLIE, avant meme de l'ouvrir — ex. les molecules/doses deja citees dans `contre_indications`, jamais un texte different ni un chiffre recalcule. Motif : le titre du deplier ne portait jusqu'ici qu'un compte de contre-indications ou un libelle generique, jamais un extrait du contenu utile — un praticien qui cherche une posologie n'avait aucune raison de l'ouvrir sur la seule promesse de contre-indications. Optionnel et generique, applique au cas par cas par le contenu : une option qui ne le porte pas garde le rendu actuel du titre, rigoureusement inchange."
+        },
+        "posologie_detail": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "OPTIONNEL (2026-08-04, demande utilisateur) — texte detaille de posologie (schema de titration, adaptation posologique, conseils d'observance), affiche dans le panneau POSOLOGIE (`OptionCard.tsx`), jamais dans l'argumentaire avantages/inconvenients. Distinct d'`apercu` (une ligne courte, titre du depli replie) : ce champ porte la prose complete, visible seulement panneau ouvert. Absent = rendu historique du panneau (apercu + calculs seuls)."
         },
         "priorite": {
           "description": "Rang en mode multi-options : options triees par rang croissant (tri stable ; absente = rang faible). Entier = rang FIXE (D13) ; liste de regles {quand, rang} = rang CONDITIONNEL (D14, 1re regle dont `quand` — condition DSL ou 'default' — est vraie ; placer 'default' EN DERNIER, sinon les regles suivantes sont mortes). Ignore en ordered-first-match.",
@@ -565,32 +602,66 @@
         }
       }
     },
-    "referenceCritique": {
+    "citationReco": {
       "type": "object",
       "additionalProperties": false,
       "required": [
         "nom"
       ],
-      "description": "Citation bibliographique d'une revue secondaire independante, dans `sources.synthese_critique.references` (DECISIONS.md D23). Jamais evaluee par le moteur ; jamais le sujet grammatical d'un argument affiche — seulement une reference a cote de la donnee qui, elle, porte l'argument.",
+      "description": "Citation PRECISE d'un texte de recommandation officielle, dans `sources.reco_officielle.references` (ex. « SFD 2025 » + detail « Tableau I notes 1-2, Avis n° 12 »). Jamais evaluee par le moteur. REMPLACE l'ex-definition `referenceCritique` (2026-08-04) : celle-ci portait les revues secondaires independantes de `synthese_critique.references`, canal SUPPRIME — l'ecran ne cite plus que des sources primaires (essais, meta-analyses) et des textes de recommandation officiels, jamais une revue de synthese. Ce qui a ete LU pour construire une position reste trace en commentaire YAML et dans l'argumentaire exhaustif, hors de l'ecran.",
       "properties": {
         "nom": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "description": "Organisme + annee, court (ex. « SFD 2025 », « HAS 2024 », « RCP metformine (ANSM) »)."
         },
         "lien": {
           "type": "string",
-          "description": "URL, si disponible."
+          "description": "URL ou DOI, si disponible."
         },
         "detail": {
           "type": "string",
-          "description": "Precision bibliographique libre (reference d'article, restriction d'acces, date d'edition...)."
+          "description": "Reference interne au texte : numero d'avis, de recommandation, de tableau, de rubrique de RCP. C'est ce qui rend la citation VERIFIABLE — c'est sa raison d'etre."
+        }
+      }
+    },
+    "divergenceReco": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sujet",
+        "position_officielle",
+        "position_outil",
+        "appui"
+      ],
+      "description": "UNE divergence entre la recommandation officielle et la position de l'outil, en forme COMPARABLE (ajoute le 2026-08-04). MOTIF : `explication` melangeait convergences et divergences dans un seul paragraphe de prose numerote « (1)... (2)... (3)... », ou le lecteur ne pouvait ni compter les divergences ni voir, pour chacune, qui dit quoi et sur quelles donnees. Les trois faces d'une divergence sont trois champs distincts, pas trois propositions d'une meme phrase. AUCUN effet moteur : `evaluateNode` ne le lit pas.",
+      "properties": {
+        "sujet": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Le point en litige, en quelques mots (ex. « Place des gliptines », « Deprescription de la metformine »). Sert de titre au bloc."
+        },
+        "position_officielle": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Ce que dit la recommandation, ENONCE SANS LE CONTREDIRE dans la meme phrase — la contradiction vit dans `position_outil`."
+        },
+        "position_outil": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Ce que fait l'outil, et en quoi c'est different."
+        },
+        "appui": {
+          "type": "string",
+          "minLength": 1,
+          "description": "SUR QUELLES DONNEES l'ecart se fonde : essais, meta-analyses, absence de donnee. Jamais « le referent a tranche », jamais le nom d'une revue de synthese — une divergence sans appui dans les donnees n'est pas une divergence argumentee, c'est une preference (invariant CLAUDE.md 6). Dire « aucun essai n'a teste ce point » est un appui parfaitement valide."
         }
       }
     },
     "sources": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Modele reorganise PAR NATURE de source (DECISIONS.md D23), pas par titre de publication : une donnee publiee (references_primaires), une synthese critique INDEPENDANTE qui interprete ces donnees (synthese_critique — Prescrire, Medicalement Geek/DragiWebdo, Minerva, ebmfrance/Duodecim... y sont citables en REFERENCE, jamais le sujet grammatical de l'argument), une recommandation OFFICIELLE (reco_officielle — HAS, SFD, ADA/EASD, KDIGO... des organismes qui emettent une recommandation formelle, a distinguer d'une revue secondaire independante meme si elle est riche en donnees).",
+      "description": "Modele reorganise PAR NATURE de source (DECISIONS.md D23), pas par titre de publication : une donnee publiee (references_primaires), une lecture des donnees qui les interprete (synthese_critique), une recommandation OFFICIELLE (reco_officielle — HAS, SFD, ADA/EASD, KDIGO...). AMENDEMENT DU 2026-08-04 : `synthese_critique.references` (les revues secondaires independantes — Prescrire, Medicalement Geek/DragiWebdo, Minerva, ebmfrance...) est SUPPRIME. Ces revues restaient affichees a l'ecran comme reference d'une position, ce qui laissait le nom d'une revue tenir lieu de preuve la ou D23 voulait precisement l'inverse. L'ecran ne cite plus que des sources primaires (via `synthese_critique.appuis` -> `references_primaires`) et des textes de recommandation officiels (`reco_officielle.references`). Ce qui a ete LU pour construire une position reste trace en commentaire YAML et dans l'argumentaire exhaustif — c'est de la methode, pas de la preuve.",
       "required": [
         "references_primaires",
         "synthese_critique",
@@ -607,21 +678,20 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "donnee",
-            "references"
+            "donnee"
           ],
-          "description": "Position critique independante (ex-medicalement_geek + ex-prescrire, fusionnes D23). `donnee` porte l'ARGUMENT — fonde sur les essais/meta-analyses (deja cites dans references_primaires ou repris ici), jamais sur le nom d'une revue. `references` cite les revues qui ont ete lues pour la construire : elles restent des references bibliographiques legitimes, jamais le sujet d'une phrase d'argument.",
+          "description": "LECTURE DES DONNEES par l'outil (ex-medicalement_geek + ex-prescrire, fusionnes D23 ; `references` retire le 2026-08-04). `donnee` porte l'ARGUMENT — fonde sur les essais/meta-analyses, jamais sur le nom d'une revue ni sur qui a tranche. `appuis` designe, par leurs ids, les essais de `references_primaires` qui la portent.",
           "properties": {
             "donnee": {
               "type": "string",
-              "description": "Argument source par la donnee. Chaine vide acceptee si aucune synthese critique independante n'a ete identifiee pour ce noeud."
+              "description": "Argument source par la donnee. Chaine vide acceptee si le noeud n'a pas de lecture distincte de la recommandation officielle."
             },
-            "references": {
+            "appuis": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/referenceCritique"
+                "type": "string"
               },
-              "description": "Revues secondaires independantes consultees (Prescrire, Medicalement Geek/DragiWebdo, Minerva, RecoMedicales, Louvain Medical, ebmfrance/Duodecim...). Citables en bibliographie ; ne portent jamais elles-memes l'argument de `donnee`."
+              "description": "OPTIONNEL (2026-08-04) — ids de `references_primaires` qui portent `donnee`. Meme mecanique que `option.sources_ids`, et meme raison d'etre : une position doit dire DE QUOI elle est tiree. Remplace l'ex-`references` (revues secondaires) : ce sont desormais les ESSAIS qui sont cites a cote de la position, pas les revues qui l'ont commentee. Un id inconnu de `references_primaires` est une erreur de contenu (invariant de banc)."
             }
           }
         },
@@ -637,17 +707,33 @@
           "properties": {
             "source": {
               "type": "string",
-              "description": "Organisme(s) emettant une recommandation OFFICIELLE (HAS, SFD, ADA/EASD, KDIGO, RCP ANSM...). Une revue secondaire independante (Prescrire, Medicalement Geek, ebmfrance...) n'a pas sa place ici — cf. `synthese_critique.references` (D23)."
+              "description": "Organisme(s) emettant une recommandation OFFICIELLE (HAS, SFD, ADA/EASD, KDIGO, RCP ANSM...), avec leur annee — COURT, c'est un titre de bloc a l'ecran. Une revue secondaire independante (Prescrire, Medicalement Geek, ebmfrance...) n'a pas sa place ici. RESSERRE le 2026-08-04 : le detail bibliographique verifiable (numeros d'avis, de tableau, de rubrique) va dans `references`, pas ici — ce champ avait derive en paragraphe d'argumentation de dix lignes rendu comme un titre de colonne."
+            },
+            "references": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/citationReco"
+              },
+              "description": "OPTIONNEL (2026-08-04) — citations PRECISES des textes officiels : numero d'avis, de recommandation, de tableau, de rubrique de RCP. C'est ce qui rend la position verifiable ligne a ligne."
             },
             "position": {
-              "type": "string"
+              "type": "string",
+              "description": "CE QUE LA RECOMMANDATION DIT, enonce pour lui-meme. Ni sa critique (elle vit dans `divergences[].position_outil`), ni sa bibliographie (elle vit dans `references`)."
             },
             "divergence": {
               "type": "boolean",
-              "description": "true si la position raisonnee de l'outil diverge de la reco officielle citee."
+              "description": "true si la position raisonnee de l'outil diverge de la reco officielle citee. CIBLE : quand il vaut true, `divergences` doit etre non vide — un drapeau de divergence sans divergence nommee n'apprend rien au lecteur. PAS ENCORE OPPOSABLE : au 2026-08-04 seul le noeud `prescription` porte `divergences[]`, les cinq autres gardent leur prose dans `explication`. La contrainte (`required` sous `if divergence: true`) se pose des que les six noeuds sont migres — la poser maintenant invaliderait cinq noeuds justes."
+            },
+            "divergences": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/divergenceReco"
+              },
+              "description": "OPTIONNEL (2026-08-04) — les divergences, UNE PAR ENTREE, chacune en trois faces comparables (cf. `divergenceReco`). Absent : l'ecran retombe sur la prose d'`explication` seule (rendu historique, aucun noeud casse)."
             },
             "explication": {
-              "type": "string"
+              "type": "string",
+              "description": "LECTURE D'ENSEMBLE de la comparaison : sur quoi outil et recommandation SONT D'ACCORD, et dans quel cadre lire les ecarts. Depuis le 2026-08-04, le DETAIL des divergences vit dans `divergences[]` et n'a plus a etre recopie ici en prose numerotee."
             }
           }
         }

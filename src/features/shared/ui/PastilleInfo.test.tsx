@@ -11,6 +11,11 @@
  * Aucun test ne mesure le CSS (media query `hover`/`pointer`, positionnement `right: 0`) : jsdom n'a pas
  * de moteur de rendu, cf. `/verif-visuelle` pour la vérification visuelle (checklist Mode B).
  *
+ * 2026-08-04 (hors plan, demande utilisateur) — la bulle de survol montre désormais le LIBELLÉ du bouton
+ * et non plus `texte` : un aperçu du contenu au survol se lisait mal en un coup d'œil. Le test de présence
+ * permanente dans le DOM porte donc sur le libellé, et vérifie au passage que `texte` n'est plus rendu par
+ * ce composant (seul le panneau du parent le porte — c'est ce qui garde l'information à un seul endroit).
+ *
  * T-128 (P12/S7) — la bulle de survol et le panneau affichaient le même texte en double au clic (le focus
  * ouvre la bulle EN PLUS du panneau). Corrigé côté CSS seul (`PastilleInfo.css`,
  * `.pastille-info[aria-expanded='true'] .pastille-info__bulle { display: none }`) : le bouton portait déjà
@@ -96,8 +101,8 @@ describe('PastilleInfo', () => {
     expect(bulle?.getAttribute('aria-hidden')).toBe('true')
   })
 
-  it('le texte est présent dans le DOM quel que soit `ouvert` (masqué par le CSS, pas par le JSX)', () => {
-    const { rerender } = render(
+  it('la bulle porte le LIBELLÉ et reste dans le DOM quel que soit `ouvert` (masquée par le CSS, pas par le JSX)', () => {
+    const { container, rerender } = render(
       <PastilleInfo
         icone="triangle-alerte"
         libelle="Contre-indications"
@@ -107,7 +112,9 @@ describe('PastilleInfo', () => {
         panneauId="panneau-ci"
       />,
     )
-    expect(screen.getByText('Insuffisance rénale sévère')).toBeTruthy()
+    expect(container.querySelector('.pastille-info__bulle')?.textContent).toBe('Contre-indications')
+    // `texte` n'est PAS rendu ici : il appartient au panneau du parent, seul porteur du contenu.
+    expect(screen.queryByText('Insuffisance rénale sévère')).toBeNull()
 
     rerender(
       <PastilleInfo
@@ -119,7 +126,7 @@ describe('PastilleInfo', () => {
         panneauId="panneau-ci"
       />,
     )
-    expect(screen.getByText('Insuffisance rénale sévère')).toBeTruthy()
+    expect(container.querySelector('.pastille-info__bulle')?.textContent).toBe('Contre-indications')
   })
 
   it('`ton="danger"` ajoute la classe de registre attendue', () => {

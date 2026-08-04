@@ -22,7 +22,7 @@
  */
 import { describe, expect, it } from 'vitest'
 import { getNoeudById, noeuds } from '../../content/loadNodes.ts'
-import type { Noeud } from '../../content/node.types.ts'
+import type { Noeud, Option } from '../../content/node.types.ts'
 import type { Criteria } from '../conditions.ts'
 import { INDETERMINE, evaluateCondition } from '../conditions.ts'
 import { evaluateNode, groupesParFamille } from '../evaluateNode.ts'
@@ -41,40 +41,54 @@ import { genererPairesBooleennes, genererProfils, tailleBanc } from './profils.t
 // famille EST structurellement (cf. prescription.yaml, commentaire du bloc `familles`).
 const FAMILLE_AGENT_A_AJOUTER = "Le choix de l'agent"
 
-const INTRO_ISGLT2 = 'Introduire un iSGLT2'
-const INTRO_GLP1 = 'Introduire un AR GLP' // tronqué avant le trait d'union insécable de « GLP‑1 »
-const INTRO_TIRZEPATIDE = 'Introduire le tirzépatide'
-const AGENTS_A_BENEFICE_ORGANE_INTRO = [INTRO_ISGLT2, INTRO_GLP1, INTRO_TIRZEPATIDE]
+/**
+ * FRAGMENTS DEVENUS PRÉDICATS (2026-08-04) — la simplification des intitulés (demande utilisateur : « le
+ * badge d'action suffit, le titre peut se limiter au nom de la molécule ») a rendu plusieurs options
+ * TEXTUELLEMENT IDENTIQUES alors qu'elles restent cliniquement distinctes (ex. « iSGLT2 » nomme désormais
+ * aussi bien l'option qui l'INTRODUIT que celle qui le SUSPEND — deux options mutuellement exclusives sur
+ * un même profil, distinguées à l'écran par la seule pastille d'action). Un simple `.includes(fragment)`
+ * ne les départage plus : chaque prédicat ci-dessous combine le fragment de texte ET le champ qui portait
+ * déjà la distinction à l'écran (`action`/`bas_rang`) — jamais un simple renommage de constante.
+ */
+const estIntroISGLT2 = (o: Option) => o.intitule === 'iSGLT2' && o.action === 'ajouter'
+// `startsWith` plutôt qu'égalité stricte : tronqué avant le trait d'union insécable de « GLP‑1 », même
+// esquive que l'ancienne constante `INTRO_GLP1`.
+const estIntroGLP1 = (o: Option) => o.intitule.startsWith('AR GLP') && o.action === 'ajouter'
+const estIntroTirzepatide = (o: Option) => o.intitule === 'Tirzépatide' && o.action === 'ajouter'
+const AGENTS_A_BENEFICE_ORGANE_INTRO = [estIntroISGLT2, estIntroGLP1, estIntroTirzepatide]
 
-const GLIPTINE_PLACE_RESIDUELLE = 'Gliptine — option glycémique'
-const SULFAMIDE_PLACE_RESIDUELLE = 'Sulfamide — option glycémique'
-const INSULINE_ENVISAGER = 'Envisager l'
-const INSULINE_INITIATION = "Insuline d'initiation"
+// `bas_rang` (nouveau champ, cf. `node.types.ts`) plutôt que `action === 'ajouter'` seul : c'est
+// LITTÉRALEMENT le champ qui porte « option de place résiduelle » — plus précis qu'un simple filtre sur
+// le verbe si un jour une AUTRE option `ajouter` non `bas_rang` s'ajoutait sur la même molécule.
+const estGliptinePlaceResiduelle = (o: Option) => o.intitule === 'Gliptine' && o.bas_rang === true
+const estSulfamidePlaceResiduelle = (o: Option) => o.intitule === 'Sulfamide' && o.bas_rang === true
+const estInsulineEnvisager = (o: Option) => o.intitule.startsWith("Envisager l'") // texte inchangé, unique
+const estInsulineInitiation = (o: Option) => o.intitule === "Insuline d'initiation" // texte inchangé, unique
 const AGENTS_PUREMENT_GLYCEMIQUES_INTRO = [
-  GLIPTINE_PLACE_RESIDUELLE,
-  SULFAMIDE_PLACE_RESIDUELLE,
-  INSULINE_ENVISAGER,
-  INSULINE_INITIATION,
+  estGliptinePlaceResiduelle,
+  estSulfamidePlaceResiduelle,
+  estInsulineEnvisager,
+  estInsulineInitiation,
 ]
 
-const SWITCH_GLIPTINE = 'Remplacer la gliptine' // -> AR GLP-1 (switch), seule option de ce nom
-const ARRET_GLIPTINE_REDONDANTE = 'Arrêter la gliptine redondante'
-const VERDICTS_GLIPTINE = [SWITCH_GLIPTINE, ARRET_GLIPTINE_REDONDANTE]
+const estSwitchGliptine = (o: Option) => o.intitule === 'Gliptine' && o.action === 'remplacer'
+const estArretGliptineRedondante = (o: Option) => o.intitule === 'Gliptine (redondante)' // qualificatif conservé, reste unique
+const VERDICTS_GLIPTINE = [estSwitchGliptine, estArretGliptineRedondante]
 
-const SWITCH_SULFAMIDE = 'Remplacer le sulfamide'
-const ARRET_SULFAMIDE_DFG = 'Arrêter le sulfamide'
-const REDUIRE_SULFAMIDE = 'Réduire la posologie du sulfamide'
-const DESINTENSIFIER = 'Désintensifier'
-const VERDICTS_SULFAMIDE = [SWITCH_SULFAMIDE, ARRET_SULFAMIDE_DFG, REDUIRE_SULFAMIDE, DESINTENSIFIER]
+const estSwitchSulfamide = (o: Option) => o.intitule === 'Sulfamide' && o.action === 'remplacer'
+const estArretSulfamideDFG = (o: Option) => o.intitule === 'Sulfamide (DFG < 30)' // qualificatif conservé, reste unique
+const estReduireSulfamide = (o: Option) => o.intitule === 'Sulfamide' && o.action === 'reduire'
+const estDesintensifier = (o: Option) => o.intitule.startsWith('Désintensifier') // texte inchangé, unique
+const VERDICTS_SULFAMIDE = [estSwitchSulfamide, estArretSulfamideDFG, estReduireSulfamide, estDesintensifier]
 
 /** Agent sans bénéfice dur → ses options de « verdict » (remplacement / arrêt / allègement), invariant 5. */
-const VERDICTS_PAR_AGENT: Record<string, string[]> = {
+const VERDICTS_PAR_AGENT: Record<string, ((o: Option) => boolean)[]> = {
   gliptine: VERDICTS_GLIPTINE,
   sulfamide: VERDICTS_SULFAMIDE,
 }
 
-function intitules(node: Noeud, profil: Criteria): string[] {
-  return evaluateNode(node, profil).applicable.map((option) => option.intitule)
+function optionsApplicables(node: Noeud, profil: Criteria): Option[] {
+  return evaluateNode(node, profil).applicable
 }
 
 // ---------------------------------------------------------------------------------------------------
@@ -308,10 +322,8 @@ describe('banc — invariants spécifiques au domaine DT2 (nœud prescription, v
     profils.forEach((profil, i) => {
       const { applicable, rangs } = evaluateNode(node, profil)
       const badges = computeBadges(groupesParFamille(node, applicable, rangs))
-      const gliptineRecommandee = applicable.some(
-        (o) => o.intitule.includes(GLIPTINE_PLACE_RESIDUELLE) && badges.get(o) === 'recommandee',
-      )
-      const glp1Recommande = applicable.some((o) => o.intitule.includes(INTRO_GLP1) && badges.get(o) === 'recommandee')
+      const gliptineRecommandee = applicable.some((o) => estGliptinePlaceResiduelle(o) && badges.get(o) === 'recommandee')
+      const glp1Recommande = applicable.some((o) => estIntroGLP1(o) && badges.get(o) === 'recommandee')
       if (gliptineRecommandee && glp1Recommande) violations.push(`profil #${i}`)
     })
     expect(violations).toEqual([])
@@ -324,8 +336,8 @@ describe('banc — invariants spécifiques au domaine DT2 (nœud prescription, v
       if (!Array.isArray(traitements)) return
       const dejaCombine = traitements.includes('gliptine') && (traitements.includes('aGLP1') || traitements.includes('tirzepatide'))
       if (!dejaCombine) return
-      const t = intitules(node, profil)
-      if (!t.some((x) => x.includes(ARRET_GLIPTINE_REDONDANTE))) violations.push(`profil #${i}`)
+      const opts = optionsApplicables(node, profil)
+      if (!opts.some(estArretGliptineRedondante)) violations.push(`profil #${i}`)
     })
     expect(violations).toEqual([])
   }, DELAI_BANC_MS)
@@ -335,8 +347,8 @@ describe('banc — invariants spécifiques au domaine DT2 (nœud prescription, v
     profils.forEach((profil, i) => {
       const dfg = profil.DFG
       if (typeof dfg !== 'number' || dfg >= 30) return
-      const t = intitules(node, profil)
-      if (t.some((x) => x.includes(SULFAMIDE_PLACE_RESIDUELLE))) violations.push(`profil #${i} (DFG=${dfg})`)
+      const opts = optionsApplicables(node, profil)
+      if (opts.some(estSulfamidePlaceResiduelle)) violations.push(`profil #${i} (DFG=${dfg})`)
     })
     expect(violations).toEqual([])
   }, DELAI_BANC_MS)
@@ -358,12 +370,12 @@ describe('banc — invariants spécifiques au domaine DT2 (nœud prescription, v
       profils.forEach((profil, i) => {
         const traitements = profil.traitements_en_cours
         if (!Array.isArray(traitements)) return
-        const t = intitules(node, profil)
-        const introduitAgentOrgane = AGENTS_A_BENEFICE_ORGANE_INTRO.some((fragment) => t.some((x) => x.includes(fragment)))
+        const opts = optionsApplicables(node, profil)
+        const introduitAgentOrgane = AGENTS_A_BENEFICE_ORGANE_INTRO.some((pred) => opts.some(pred))
         if (!introduitAgentOrgane) return
         for (const agent of Object.keys(VERDICTS_PAR_AGENT)) {
           if (!traitements.includes(agent)) continue
-          const verdictApplicable = VERDICTS_PAR_AGENT[agent].some((fragment) => t.some((x) => x.includes(fragment)))
+          const verdictApplicable = VERDICTS_PAR_AGENT[agent].some((pred) => opts.some(pred))
           if (!verdictApplicable) violations.push(`profil #${i} :: agent "${agent}" sans verdict applicable`)
         }
       })
@@ -412,9 +424,10 @@ describe('banc — invariants spécifiques au domaine DT2 (nœud prescription, v
         if (profil.position_vs_cible !== 'sous_objectif') return
         // Gate catabolique : urgence métabolique, hors du champ de cet invariant (voir ci-dessus).
         if (profil.symptomes_glucotoxicite === true || profil.cetonemie === true) return
-        const t = intitules(node, profil)
-        for (const fragment of AGENTS_PUREMENT_GLYCEMIQUES_INTRO) {
-          if (t.some((x) => x.includes(fragment))) violations.push(`profil #${i} :: "${fragment}"`)
+        const opts = optionsApplicables(node, profil)
+        for (const pred of AGENTS_PUREMENT_GLYCEMIQUES_INTRO) {
+          const trouve = opts.find(pred)
+          if (trouve) violations.push(`profil #${i} :: "${trouve.intitule}"`)
         }
       })
       expect(violations).toEqual([])

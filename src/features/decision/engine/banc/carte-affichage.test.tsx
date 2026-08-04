@@ -34,7 +34,8 @@
  * - `.option-card__panneau--pourquoi` — « Proposé parce que » et « Ce rang tient compte de » ;
  * - `.option-card__panneau--posologie` — `option.apercu`, doses calculées, doses EN ATTENTE (défaut J) ;
  * - `.option-card__panneau--ci` — contre-indications, TOUS états (actif/indéterminé/levé, T-068) ;
- * - `.option-card__panneau--argumentaire` — effet attendu, délai, avantages/inconvénients.
+ * - `.option-card__panneau--preuves` — effet chiffré, délai, essais qui les portent (2026-08-04) ;
+ * - `.option-card__panneau--argumentaire` — avantages/inconvénients.
  *
  * CE QUE §1 VÉRIFIE MAINTENANT : les contre-indications (TOUS états) sont toujours présentes dans le
  * rendu, et TOUJOURS situées dans `.option-card__panneau--ci` — jamais dans le socle (badges + rangée +
@@ -95,10 +96,17 @@ function socle(html: string): string {
 }
 
 /**
- * Découpe le HTML d'une carte en CINQ zones : `avant` (le socle, jamais un panneau), puis les quatre
- * panneaux dans l'ordre du DOM (`pourquoi`, `posologie`, `ci`, `argumentaire` — `OptionCard.tsx` les
- * rend TOUJOURS, dans CET ordre, qu'ils aient ou non du contenu). Ni le nom du nœud ni celui du critère
- * n'y figurent (D8) : la fonction ne lit que la structure du HTML rendu.
+ * Découpe le HTML d'une carte en SIX zones : `avant` (le socle, jamais un panneau), puis les cinq
+ * panneaux dans l'ordre du DOM (`pourquoi`, `posologie`, `ci`, `preuves`, `argumentaire` —
+ * `OptionCard.tsx` les rend TOUJOURS, dans CET ordre, qu'ils aient ou non du contenu). Ni le nom du nœud
+ * ni celui du critère n'y figurent (D8) : la fonction ne lit que la structure du HTML rendu.
+ *
+ * ⚠ LE DÉCOUPAGE EST POSITIONNEL, et c'est un piège avéré. L'ajout du panneau `--preuves` le 2026-08-04
+ * a décalé d'un cran tout ce qui le suit : les destructurations écrites pour quatre panneaux ont continué
+ * de PASSER en désignant, sous le nom `argumentaire`, le panneau `preuves` qui venait de prendre sa
+ * place — et le vrai panneau `--argumentaire` n'était alors plus vérifié du tout. Un vert obtenu sans
+ * rien garantir. `panneauNomme` ci-dessous ferme cette porte : on désigne un panneau par son MODIFICATEUR,
+ * jamais par son rang. Toute destructuration positionnelle ajoutée ici rouvrirait le même piège.
  */
 function zones(html: string): string[] {
   const indices: number[] = []
@@ -113,6 +121,17 @@ function zones(html: string): string[] {
     decoupes.push(html.slice(bornes[k], bornes[k + 1]))
   }
   return decoupes
+}
+
+/**
+ * Le panneau portant CE modificateur (`pourquoi`, `posologie`, `ci`, `preuves`, `argumentaire`), désigné
+ * par son nom et jamais par son rang — cf. l'avertissement de `zones` ci-dessus. Lève si le panneau est
+ * absent : `OptionCard.tsx` les rend tous, toujours ; une absence est un défaut, pas un cas à ignorer.
+ */
+function panneauNomme(html: string, nom: string): string {
+  const zone = zones(html).find((z) => z.startsWith(`${MARQUEUR_PANNEAU}${nom}`))
+  if (zone === undefined) throw new Error(`panneau --${nom} absent du rendu de la carte`)
+  return zone
 }
 
 /** Échappement HTML minimal, aligné sur ce que produit `renderToStaticMarkup`. */
@@ -177,9 +196,13 @@ describe('I12 — un panneau replié d’une carte n’avale jamais un fait de s
               />,
             )
             const avant = socle(html)
-            // [avant, pourquoi, posologie, ci, argumentaire] — toujours 5 zones (P11/S6 : les quatre
-            // panneaux sont toujours rendus, cf. docstring de tête).
-            const [, depliPourquoi, depliPosologie, depliCi, depliArgumentaire] = zones(html)
+            // Désignation PAR NOM, jamais par rang (cf. l'avertissement de `zones`) : les cinq panneaux
+            // sont toujours rendus, mais leur ORDRE n'est pas un contrat de ce banc.
+            const depliPourquoi = panneauNomme(html, 'pourquoi')
+            const depliPosologie = panneauNomme(html, 'posologie')
+            const depliCi = panneauNomme(html, 'ci')
+            const depliPreuves = panneauNomme(html, 'preuves')
+            const depliArgumentaire = panneauNomme(html, 'argumentaire')
 
             // (1) CONTRE-INDICATIONS, TOUS ÉTATS — D21 : un fait de sécurité s'affiche avec son motif.
             // P11/S6 : actives, indéterminées ET levées vivent TOUTES dans le panneau `--ci`, jamais
@@ -235,12 +258,13 @@ describe('I12 — un panneau replié d’une carte n’avale jamais un fait de s
               )
             }
 
-            // (5) LES QUATRE PANNEAUX SONT FERMÉS PAR DÉFAUT — nouveau (P11/S6) : aucun n'est ouvert au
+            // (5) LES CINQ PANNEAUX SONT FERMÉS PAR DÉFAUT — nouveau (P11/S6) : aucun n'est ouvert au
             // premier rendu, condition nécessaire pour que la carte tienne sur une ligne.
             for (const [nom, zone] of [
               ['pourquoi', depliPourquoi],
               ['posologie', depliPosologie],
               ['ci', depliCi],
+              ['preuves', depliPreuves],
               ['argumentaire', depliArgumentaire],
             ] as const) {
               if (!panneauFerme(zone)) {
@@ -272,19 +296,20 @@ describe('I12 — un panneau replié d’une carte n’avale jamais un fait de s
 })
 
 /**
- * I12 (carte unique) — P12/S10, T-136. Le lot ci-dessus (§5) affirme que les quatre panneaux sont
+ * I12 (carte unique) — P12/S10, T-136. Le lot ci-dessus (§5) affirme que les cinq panneaux sont
  * fermés par défaut ; c'est vrai UNIQUEMENT sans la prop `carteUnique` (arbitrage référent du
  * 2026-08-02, point 4 — « quand un écran ne porte qu'une seule option, sa carte s'affiche ouverte »,
- * cf. `OptionCard.tsx` docstring de tête). Ce lot distingue ce second cas : SEUL `--argumentaire`
- * s'ouvre par défaut, les trois autres restent fermés — c'est là, et nulle part ailleurs dans les
- * quatre panneaux, que vit l'argument EBM que P11 avait mis derrière le chevron (`effet_attendu`,
- * délai, avantages/inconvénients).
+ * cf. `OptionCard.tsx` docstring de tête). Ce lot distingue ce second cas : SEUL `--preuves` s'ouvre par
+ * défaut, les quatre autres restent fermés — c'est là, depuis le 2026-08-04, que vit l'argument EBM que
+ * P11 avait mis derrière le chevron (`effet_attendu`, délai, essais). Il vivait jusque-là dans
+ * `--argumentaire` : c'est le CONTENU qui a déménagé, l'intention de l'arbitrage est inchangée — ce qui
+ * est rouvert d'office est la donnée EBM, pas un nom de panneau.
  *
  * Ce qui est testé ici est le comportement du COMPOSANT (une prop booléenne, cf. `OptionCard.tsx`), pas
  * un contenu particulier (D8) : une seule option réelle, prise au premier profil qui en produit une sur
  * le banc, suffit — inutile de reparcourir les 40 profils × 6 nœuds du lot ci-dessus pour ça.
  */
-describe('I12 (carte unique) — le panneau --argumentaire s’ouvre par défaut quand la carte est seule sur son écran (P12/S10, T-136)', () => {
+describe('I12 (carte unique) — le panneau --preuves s’ouvre par défaut quand la carte est seule sur son écran (P12/S10, T-136)', () => {
   function premiereOptionReelle(): OptionVue {
     for (const node of noeuds) {
       for (const criteria of genererProfils(node, Math.min(5, tailleBanc(node)))) {
@@ -318,28 +343,49 @@ describe('I12 (carte unique) — le panneau --argumentaire s’ouvre par défaut
     )
   }
 
-  it('sans `carteUnique` (défaut, comme tout appelant d’avant cette session) : les quatre panneaux restent fermés', () => {
+  const TOUS = ['pourquoi', 'posologie', 'ci', 'preuves', 'argumentaire'] as const
+
+  it('sans `carteUnique` (défaut, comme tout appelant d’avant cette session) : les cinq panneaux restent fermés', () => {
     const html = rendre(false)
-    const [, pourquoi, posologie, ci, argumentaire] = zones(html)
-    for (const zone of [pourquoi, posologie, ci, argumentaire]) {
-      expect(panneauFerme(zone)).toBe(true)
+    for (const nom of TOUS) {
+      expect(panneauFerme(panneauNomme(html, nom)), `panneau --${nom}`).toBe(true)
     }
   })
 
-  it('avec `carteUnique={true}` : SEUL le panneau --argumentaire est ouvert par défaut, les trois autres restent fermés', () => {
+  it('avec `carteUnique={true}` : SEUL le panneau --preuves est ouvert par défaut, les quatre autres restent fermés', () => {
     const html = rendre(true)
-    const [, pourquoi, posologie, ci, argumentaire] = zones(html)
-    expect(panneauFerme(pourquoi)).toBe(true)
-    expect(panneauFerme(posologie)).toBe(true)
-    expect(panneauFerme(ci)).toBe(true)
-    expect(panneauFerme(argumentaire)).toBe(false)
+    for (const nom of TOUS) {
+      expect(panneauFerme(panneauNomme(html, nom)), `panneau --${nom}`).toBe(nom !== 'preuves')
+    }
   })
 
-  it('avec `carteUnique={true}`, l’argument EBM (`effet_attendu`) vit dans le panneau --argumentaire OUVERT — lisible sans clic', () => {
+  it('avec `carteUnique={true}`, l’argument EBM (`effet_attendu`) vit dans le panneau --preuves OUVERT — lisible sans clic', () => {
     const html = rendre(true)
     const extrait = optionVue.option.effet_attendu.slice(0, 40)
-    const [, , , , argumentaire] = zones(html)
-    expect(argumentaire).toContain(echappe(extrait))
-    expect(panneauFerme(argumentaire)).toBe(false)
+    const preuves = panneauNomme(html, 'preuves')
+    expect(preuves).toContain(echappe(extrait))
+    expect(panneauFerme(preuves)).toBe(false)
+    // ET NULLE PART AILLEURS : c'est ce que la destructuration positionnelle ne prouvait plus après
+    // l'insertion du panneau (cf. l'avertissement de `zones`). Sans cette seconde assertion, un
+    // `effet_attendu` resté en double dans `--argumentaire` passerait inaperçu.
+    expect(panneauNomme(html, 'argumentaire')).not.toContain(echappe(extrait))
+  })
+
+  /**
+   * LE BADGE DE NIVEAU DE PREUVE EST LA COMMANDE DU PANNEAU (2026-08-04). Vérifié sur la STRUCTURE
+   * (`aria-controls` pointe vers l'`id` du panneau `--preuves`) et non sur un clic : le rendu est
+   * statique ici, et c'est de toute façon le lien ARIA — pas le gestionnaire d'événement — qui fait
+   * qu'une *disclosure* est utilisable au clavier et par un lecteur d'écran.
+   */
+  it('le badge de niveau de preuve commande le panneau --preuves (aria-controls vers son id)', () => {
+    const html = rendre(false)
+    const bouton = /<button[^>]*class="option-card__preuves-toggle"[^>]*>/.exec(html)?.[0]
+    expect(bouton, 'aucun bouton .option-card__preuves-toggle dans la rangée').toBeTruthy()
+    const cible = /aria-controls="([^"]+)"/.exec(bouton!)?.[1]
+    expect(cible, 'le bouton du badge ne déclare aucun aria-controls').toBeTruthy()
+    // Sur le HTML ENTIER, pas sur la zone : `zones` découpe AU marqueur, qui est à l'intérieur de
+    // l'attribut `class` — l'`id` du panneau, écrit juste avant, tombe donc à la fin de la zone
+    // PRÉCÉDENTE. C'est une propriété du découpage, pas un défaut du rendu.
+    expect(html).toContain(`id="${cible}" class="option-card__panneau option-card__panneau--preuves"`)
   })
 })

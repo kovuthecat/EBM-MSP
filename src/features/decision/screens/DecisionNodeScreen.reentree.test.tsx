@@ -54,7 +54,7 @@ const { NOEUD_A, NOEUD_B, NOEUD_ESP_A, NOEUD_ESP_B, NOEUD_CIBLE_A, NOEUD_CIBLE_B
       argumentaire: 'x',
       sources: {
         references_primaires: [],
-        synthese_critique: { donnee: '', references: [] },
+        synthese_critique: { donnee: '' },
         reco_officielle: { source: '', position: '', divergence: false, explication: '' },
       },
       incertitudes: [],
@@ -91,7 +91,7 @@ const { NOEUD_A, NOEUD_B, NOEUD_ESP_A, NOEUD_ESP_B, NOEUD_CIBLE_A, NOEUD_CIBLE_B
       argumentaire: 'x',
       sources: {
         references_primaires: [],
-        synthese_critique: { donnee: '', references: [] },
+        synthese_critique: { donnee: '' },
         reco_officielle: { source: '', position: '', divergence: false, explication: '' },
       },
       incertitudes: [],
@@ -139,7 +139,7 @@ const { NOEUD_A, NOEUD_B, NOEUD_ESP_A, NOEUD_ESP_B, NOEUD_CIBLE_A, NOEUD_CIBLE_B
       argumentaire: 'x',
       sources: {
         references_primaires: [],
-        synthese_critique: { donnee: '', references: [] },
+        synthese_critique: { donnee: '' },
         reco_officielle: { source: '', position: '', divergence: false, explication: '' },
       },
       incertitudes: [],

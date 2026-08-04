@@ -365,8 +365,11 @@ describe('computeBadges — cas réel (nœud `prescription`, « le badge, c’es
         classes_a_benefice_indisponibles: false,
       }
       const { res, badges } = evaluerBadges(criteria)
-      const reduireGLP1 = res.applicable.find((o) => o.intitule.includes("Réduire la posologie de l'AR GLP"))
-      const isglt2 = res.applicable.find((o) => o.intitule.includes('Introduire un iSGLT2'))
+      // Intitulés simplifiés (2026-08-04, demande utilisateur) : « AR GLP‑1 »/« iSGLT2 » nomment
+      // désormais AUSSI l'introduction que la réduction/suspension de la même molécule — `action`
+      // départage, même logique que `invariants.test.ts`/`evaluateNode.prescription.test.ts`.
+      const reduireGLP1 = res.applicable.find((o) => o.intitule.startsWith('AR GLP') && o.action === 'reduire')
+      const isglt2 = res.applicable.find((o) => o.intitule === 'iSGLT2' && o.action === 'ajouter')
       expect(reduireGLP1).toBeDefined()
       expect(isglt2).toBeDefined()
       expect(badges.get(reduireGLP1!)).toBe('recommandee')
@@ -397,8 +400,10 @@ describe('computeBadges — cas réel (nœud `prescription`, « le badge, c’es
         classes_a_benefice_indisponibles: false,
       }
       const { res, familles, badges } = evaluerBadges(criteria)
-      const remplacerSU = res.applicable.find((o) => o.intitule.includes('Remplacer le sulfamide'))
-      const isglt2 = res.applicable.find((o) => o.intitule.includes('Introduire un iSGLT2'))
+      // Intitulés simplifiés (2026-08-04, demande utilisateur) — `action` départage « Sulfamide » du
+      // remplacement vs de la réduction/l'arrêt, même logique que le bloc précédent.
+      const remplacerSU = res.applicable.find((o) => o.intitule === 'Sulfamide' && o.action === 'remplacer')
+      const isglt2 = res.applicable.find((o) => o.intitule === 'iSGLT2' && o.action === 'ajouter')
       expect(remplacerSU).toBeDefined()
       expect(isglt2).toBeDefined()
       expect(res.rangs.get(remplacerSU!)).toBe(4)

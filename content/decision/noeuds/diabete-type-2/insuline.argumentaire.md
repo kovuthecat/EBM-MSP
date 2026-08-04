@@ -1,17 +1,11 @@
 # Insulinothérapie du DT2 — argumentaire exhaustif
 
 > Niveau de lecture 3 (preuve complète). Document autonome distillé du dossier de preuve
-> `docs/decision/noeuds/E-insuline.md` (sources croisées et vérifiées, PMID/DOI
-> vérifiés et **corrigés** contre source primaire — §5b). **VALIDÉ CLINIQUEMENT PAR LE RÉFÉRENT le
-> 2026-07-29** (`insuline.yaml` v0.31, `meta.statut: valide`).
+> `docs/decision/noeuds/E-insuline.md`, sources croisées et vérifiées, identifiants PMID et DOI contrôlés
+> et corrigés contre la source primaire. Validé cliniquement.
 >
-> **Mis à jour le 2026-07-29 — passe A « piloter l'insuline sans capteur »** (revue de preuve dédiée,
-> conciliation, 8 arbitrages référent). Nouveautés : **§ 5 bis** (la branche
-> capillaire, entièrement neuve) ; correction de deux mésattributions dans du contenu **publié** (l'algorithme
-> de titration n'est **pas** celui de Treat-to-Target ; le seuil de 1,80 g/L n'est porté par **aucune** des
-> trois références qui lui étaient adossées) et d'un chiffre **sans aucune source** (« ± 10-20 % », dont la
-> borne haute n'existe nulle part et qui s'affichait en dose calculée). Dossier de preuve correspondant :
-> `docs/decision/noeuds/E-insuline.md` **§3 SOUS-DOSSIER E6**.
+> Ce document expose le raisonnement du nœud et l'état des preuves qui le portent. L'historique de ses
+> corrections vit dans le changelog du nœud, pas ici.
 
 ## En bref
 
@@ -64,8 +58,8 @@ identifié dans le dossier de preuve), auto-ajustement **+2 U** si la glycémie 
 cible **3 matins de suite** (ou **+10 %** par paliers si dose > 40 U), adaptation **tous les 3 jours** ;
 cible **0,70-1,30 g/L**.
 
-*Sourçage corrigé le 2026-07-29 (passe A, défauts D2/D3).* Cet algorithme était présenté comme « validé par
-Treat-to-Target ». **Il ne l'est pas** : Riddle 2003 (PMID 14578243) titre **par semaine**, en paliers
+*Attribution à ne pas rétablir.* Cet algorithme a été présenté comme « validé par Treat-to-Target ».
+**Il ne l'est pas** : Riddle 2003 (PMID 14578243) titre **par semaine**, en paliers
 **gradués +2/+4/+6/+8 U** selon l'écart, vers une cible **≤ 1,00 g/L**. Rien de ce que l'outil affiche ne
 vient de cet essai — **seul le « ~60 % atteignent la cible » est de lui**, et il vaut pour le *principe*
 d'une titration pilotée par la glycémie à jeun, pas pour ce protocole-ci. Chaque élément est désormais rendu
@@ -76,10 +70,10 @@ ici **n'avait aucune source** — la SFD écrit 10 %, l'ADA 10-15 %, personne n'
 **Aucun essai n'a jamais randomisé une règle de titration de ce type**, ni *a fortiori* une règle de
 descente : c'est un accord d'experts, à force forte et à certitude très faible.
 
-**Cohérence de saisie (2026-07-26).** Un patient déclaré « naïf d'insuline » ne peut, par définition, avoir
-déjà une insuline basale dans ses traitements en cours — le prérequis qui retire silencieusement l'option
-« Initier une insuline basale » dans ce cas (2026-07-25) est correct mais insuffisant seul : une alerte de
-nœud le dit désormais explicitement au praticien (incohérence situation/traitements déclarés).
+**Cohérence de saisie.** Un patient déclaré « naïf d'insuline » ne peut, par définition, avoir déjà une
+insuline basale dans ses traitements en cours. Le prérequis qui retire silencieusement l'option
+« Initier une insuline basale » dans ce cas est correct, mais insuffisant seul : une alerte de nœud dit
+explicitement au praticien que la situation et les traitements déclarés se contredisent.
 
 ## 2. Choix de la molécule basale — hypoglycémie nocturne (substitut) vs sévère (dur)
 
@@ -87,14 +81,12 @@ Chez le patient à risque d'hypoglycémie (âgé, fragile, insuffisance rénale,
 antécédent d'hypoglycémie sévère récurrente — cf. `risque_hypoglycemique_eleve`, ci-dessous**), préférer un **analogue
 de 2ᵉ génération** (glargine U300 ou degludec) à glargine U100 / détémir, a fortiori à la NPH.
 
-*Correction 2026-07-26.* L'antécédent d'hypoglycémie sévère
-récurrente (`hypo_severe_recurrente`) — le signal de sécurité le plus direct collecté par ce nœud, un fait
-observé plutôt qu'un drapeau déclaratif de fragilité — n'orientait jusqu'ici jamais ce choix : un patient
-non fragile, non âgé, à espérance de vie longue, dont le SEUL marqueur de risque était cet antécédent,
-recevait la même recommandation qu'un patient sans aucun facteur de risque. Le même signal pilotait
-pourtant déjà, plus loin dans ce nœud, la désintensification du basal-bolus (§4) — même concept de
-sécurité, deux encodages. Fusionné dans le dérivé `risque_hypoglycemique_eleve` (arbitrage, cf. `insuline.yaml`
-`incertitudes` — le référent doit pouvoir revoir ce choix).
+**Pourquoi l'antécédent d'hypoglycémie sévère entre dans ce choix.** C'est le signal de sécurité le plus
+direct que recueille ce nœud — un fait observé, et non un drapeau déclaratif de fragilité. Un patient non
+fragile, non âgé, à espérance de vie longue, dont le SEUL marqueur de risque est cet antécédent, doit
+recevoir la même prudence qu'un patient âgé : il est donc versé au dérivé `risque_hypoglycemique_eleve`,
+qui pilote à la fois ce choix de molécule et la désintensification du basal-bolus (§4). Un même concept de
+sécurité, un seul encodage.
 
 | Comparaison | Hypo nocturne / symptomatique (substitut) | Hypo SÉVÈRE (dur) |
 | --- | --- | --- |
@@ -116,30 +108,26 @@ bénéfice affiché = hypoglycémie **nocturne**, l'hypoglycémie sévère rése
 
 Sur une basale insuffisante — glycémie à jeun (ou, quand la MCG est disponible, profil **nocturne**, cf.
 §5) à la cible mais HbA1c au-dessus (écart post-prandial), **ou** sur-basalisation franche (dose/poids >
-~0,5 U/kg) même si la glycémie à jeun reste hors cible —, **ne pas sur-titrer la basale**. Depuis
-2026-07-26, `over_basalisation == true` **exclut** l'option « Titrer la basale » et déclenche, à lui seul,
-ce relais (indépendamment de la glycémie à jeun) : la sur-basalisation est en elle-même une raison de ne pas
-titrer davantage.
+~0,5 U/kg) même si la glycémie à jeun reste hors cible —, **ne pas sur-titrer la basale**. La
+sur-basalisation déclenche ce relais à elle seule, indépendamment de la glycémie à jeun : c'est en
+elle-même une raison de ne pas titrer davantage.
 
-**Cumul sécurité/efficacité en « basale seule » (2026-07-26).** Jusqu'ici, une hypoglycémie/variabilité
-nocturne ou une sur-basalisation ne laissait qu'un geste de sécurité (réduire la dose, temporiser) : l'HbA1c
-au-dessus de la cible restait sans réponse. Les 2 options d'intensification décrites plus bas (GLP-1/
-association fixe, ajout d'un bolus) sont désormais **aussi** applicables en situation « basale seule »
-quand l'un de ces 2 signaux est présent ET que la cible n'est pas atteinte — **cumulables** avec le geste de
-sécurité, jamais une alternative à lui. Contenu clinique réutilisé à l'identique (aucune nouvelle
-justification) ; portée volontairement limitée à ces 2 signaux, cf. incertitudes §9.
+**Un geste de sécurité ne doit pas laisser l'HbA1c sans réponse.** Une hypoglycémie ou une variabilité
+nocturne, comme une sur-basalisation, appellent d'abord un geste de sécurité — réduire la dose, temporiser.
+Mais si la cible n'est pas atteinte, ce geste seul laisse le patient sans conduite pour son déséquilibre.
+Les deux options d'intensification décrites plus bas — AR GLP-1 ou association fixe, ajout d'un bolus —
+sont donc **aussi** applicables en situation « basale seule » quand l'un de ces signaux est présent et que
+la cible n'est pas atteinte. Elles se **cumulent** avec le geste de sécurité, elles ne s'y substituent
+jamais.
 
-**Garde-fou d'hypoglycémie en « basale_plus_bolus » (2026-07-26).** La situation intermédiaire
-(basale + un bolus) ne portait, jusqu'à ce lot, **aucune** `exclusions` sur ses 2 options d'escalade — un
-antécédent d'hypoglycémie sévère récurrente ou un TBR élevé n'empêchait rien. Corrigé sur le modèle de
-« Titrer la basale » : les 2 options d'escalade **excluent** TBR > 4 %, CV > 36 % et un profil nocturne
-d'hypoglycémie. *Deux amendements du 2026-07-29 (passe A) portent sur cette phrase, qui en comptait quatre
-de plus.* (1) **« TBR sévère > 1 % » a disparu** : ce critère est retiré du nœud — il n'est **jamais
-obtenable sans capteur**, et il en fallait un que le patient sans MCG puisse déclencher (c'est désormais
-une **glycémie à jeun sous 0,70 g/L**). (2) **L'antécédent d'hypoglycémie sévère récurrente n'exclut plus
-rien** : le référent a tranché qu'*« un antécédent d'hypoglycémie sévère sous un ancien schéma ne présume
-pas du risque sous le schéma actuel — il ne doit pas empêcher de titrer »*. Il n'a pas disparu pour autant
-— sa **portée reste universelle**, mais par le canal d'une **alerte de nœud** (R8 : commenter, non
+**Garde-fou d'hypoglycémie en situation « basale + un bolus ».** Les deux options d'escalade de cette
+situation **excluent** un temps sous la cible supérieur à 4 %, un coefficient de variation supérieur à
+36 %, et un profil nocturne d'hypoglycémie — même modèle que « Titrer la basale ». Deux précisions
+importantes. D'abord, aucun critère n'est exigé qui suppose un capteur : le patient sans mesure continue
+déclenche le même garde-fou par une **glycémie à jeun sous 0,70 g/L**. Ensuite, l'antécédent
+d'hypoglycémie sévère récurrente **n'exclut rien** : un épisode survenu sous un schéma ANTÉRIEUR ne présume
+pas du risque sous le schéma actuel, et il ne doit donc pas empêcher de titrer. Il n'a pas disparu pour
+autant — sa **portée reste universelle**, mais par le canal d'une **alerte de nœud** (R8 : commenter, non
 commander), et il continue d'alimenter `risque_hypoglycemique_eleve`. Pour que l'exclusion ne se traduise
 pas par un silence (aucune réponse offerte),
 « Corriger l'hypoglycémie ou la variabilité... » (jusqu'ici propre à « basale seule ») est réutilisée telle
@@ -162,54 +150,41 @@ morbi-mortalité CV pour les associations fixes → bénéfice **substitutif**. 
 
 ## 4. Adaptation du basal-bolus & désintensification
 
-Le basal-bolus est **inclus dans le périmètre du MG** (arbitrage référent §8-5). Optimiser la répartition
+Le basal-bolus est **inclus dans le périmètre de la médecine générale**. Optimiser la répartition
 (~50/50) et ajuster **à partir des doses actuelles**, guidé par le profil AGP : hypo nocturne → réduire la
 basale ; phénomène de l'aube → augmenter la basale ; excursions post-prandiales → augmenter / avancer le
 bolus ; hypo interprandiale → réduire le bolus. Le **calcul formel des ratios glucides-insuline et du facteur
-de sensibilité n'est pas inclus** (éducation spécialisée). Depuis 2026-07-26, cette optimisation
-couvre aussi la situation « basale_plus_bolus » une fois ses 2 gestes d'ajout (GLP-1, bolus) épuisés — cette
-situation intermédiaire retombait jusqu'ici sur le seul repli « poursuivre et réévaluer » malgré une cible
-non atteinte.
+de sensibilité n'est pas inclus** (éducation spécialisée). Cette optimisation couvre aussi la situation
+« basale + un bolus » une fois ses deux gestes d'ajout épuisés — sans quoi cette situation intermédiaire
+retomberait sur le seul repli « poursuivre et réévaluer » malgré une cible non atteinte.
 
-**Réduire la basale sur signal AGP — carte à part entière depuis le 2026-08-02 (T-067, `plans/P12/S4.md`,
-exécutant les arbitrages référent B3a/B3b/B3c du 2026-07-30 de `plans/P8/S9.md`).** Jusqu'ici, « baisse
-continue nocturne → réduire la basale » n'existait que dans la phrase ci-dessus ; le praticien devait
-l'appliquer lui-même, y compris en « basale seule » et en « basale + 1 bolus », où « Optimiser la
-répartition… » ne s'affiche pas (défaut mesuré en N11 de la recette du 2026-08-02). La baisse continue
-nocturne (lecture AGP, `profil_nocturne == baisse_continue`) déclenche désormais une option « Réduire la
-basale » à part entière, ouverte dans **tout** schéma comportant une basale, chiffrée sur le patron exact
-de la montée (`calculs` : « Basale réduite (−2 U) » = `dose_basale_actuelle - 2` ; prose citant aussi le
-palier −10 % au-delà de 40 U/j, réévaluation à 3 jours). Retirée en contrepartie du déclencheur de
-« Corriger l'hypoglycémie ou la variabilité », qui garde ses trois déclencheurs de SEUIL (TBR > 4 %,
-CV > 36 %, glycémie à jeun basse sans capteur).
+**Réduire la basale sur signal du profil — une carte à part entière.** « Baisse continue nocturne →
+réduire la basale » n'a de valeur que si le praticien la voit : cette lecture ne peut pas rester une
+phrase de prose, y compris en « basale seule » et en « basale + un bolus », deux situations où
+« Optimiser la répartition… » ne s'affiche pas. Une baisse continue de la glycémie nocturne déclenche donc
+une option « Réduire la basale » à part entière, ouverte dans **tout** schéma comportant une basale, et
+chiffrée sur le patron exact de la montée : −2 U, ou −10 % au-delà de 40 U/j, avec une réévaluation à
+3 jours. Le même signal a été retiré, en contrepartie, du déclencheur de « Corriger l'hypoglycémie ou la
+variabilité », qui garde ses trois déclencheurs de SEUIL (temps sous la cible supérieur à 4 %, coefficient
+de variation supérieur à 36 %, glycémie à jeun basse sans capteur).
 
-**Provenance — corrigée le 2026-08-02 en 2ᵉ passe.** La 1ʳᵉ rédaction de cette carte écrivait « par
-symétrie avec le protocole de titration ; aucune donnée propre à la décroissance », en application
-littérale d'une rectification de `plans/P12/S4.md` citant un rapport OpenEvidence (« aucun schéma de
-décroissance validé **par essai** n'existe pour l'insuline hors relais thérapeutique »). Vérification
-faite (comme le prescrit l'étape 5 de `plans/P8/S9.md`) et signalée à l'orchestrateur plutôt que tranchée
-seule : le nœud cite déjà HAS 2024 R.87 et SFD 2025 Avis 18 comme portant EXPLICITEMENT la règle dans les
-deux sens pour la descente RÉACTIVE (§ ci-dessous) — exactement le registre de cette carte. **La
-confusion identifiée** : OpenEvidence affirme l'absence d'un ESSAI (niveau de certitude), pas l'absence
-d'une SOURCE (existence d'un accord d'experts qui, lui, n'est pas contesté). L'arbitrage référent du
-2026-07-30 (« chiffrer par symétrie faute de donnée ») reposait sur une absence que le nœud lui-même
-contredit — une prémisse factuelle à corriger, pas une décision clinique à rouvrir. **Provenance
-corrigée** : les chiffres sont portés par HAS 2024 R.87 et SFD 2025 Avis 18 (accord d'experts, grade AE),
-`niveau_preuve: modere`, alignée sur « Corriger l'hypoglycémie ou la variabilité » qui porte les mêmes
-chiffres pour le même registre de descente réactive. La nuance qui reste vraie et conservée sur la
-carte : aucun essai n'a randomisé cette règle de décroissance contre une autre stratégie — un accord
-d'experts encadre le geste, il ne le démontre pas.
+**Ce qui porte ces chiffres.** Ils viennent de HAS 2024 R.87 et de SFD 2025 Avis 18, qui énoncent
+explicitement la règle **dans les deux sens** pour la descente RÉACTIVE — exactement le registre de cette
+carte. Ce n'est donc pas une extrapolation par symétrie depuis le protocole de titration : la source
+existe. La nuance qui reste vraie, et qui est portée sur la carte : aucun essai n'a randomisé cette règle
+de décroissance contre une autre stratégie. Un accord d'experts encadre le geste, il ne le démontre pas —
+absence d'ESSAI ne veut pas dire absence de SOURCE, et les deux se confondent facilement.
 
 **Désintensification.** Chez le sujet fragile, à espérance de vie limitée, âgé (≥ 75 ans), à risque
-hypoglycémique élevé, ou avec hypoglycémies sévères récurrentes (`risque_hypoglycemique_eleve`, dérivé aligné
-2026-07-26 sur celui du nœud A, **et englobant depuis le 2026-07-26 l'antécédent d'hypoglycémie
-sévère récurrente** — jusqu'ici ce même signal pilotait la désintensification sans jamais orienter le choix
-de la molécule à l'initiation, cf. § 2) : relâcher la cible, simplifier le schéma, réduire les doses,
-envisager un GLP-1 pour réduire les besoins — éviter le surtraitement (HAS 2024 R.103 ; SFD 2025 Avis 21).
-*L'âge seul (≥ 75 ans, sans case « fragile » cochée) suffit désormais à déclencher l'allègement — auparavant
-absent du gate, ce qui pouvait priver un octogénaire à l'objectif de toute proposition d'allègement.*
+hypoglycémique élevé, ou avec hypoglycémies sévères récurrentes — le dérivé
+`risque_hypoglycemique_eleve` réunit ces signaux, et englobe l'antécédent d'hypoglycémie sévère récurrente,
+qui oriente aussi le choix de molécule à l'initiation (cf. § 2) : relâcher la cible, simplifier le schéma,
+réduire les doses, envisager un AR GLP-1 pour réduire les besoins — éviter le surtraitement (HAS 2024
+R.103 ; SFD 2025 Avis 21). *L'âge seul, 75 ans et plus, suffit à déclencher l'allègement, sans qu'une case
+« fragile » soit cochée : sans quoi un octogénaire à l'objectif ne recevrait aucune proposition
+d'allègement.*
 
-**Vitesse de descente d'une désescalade PROGRAMMÉE — non sourcée, STOP explicite (P10/S8, 2026-07-31).**
+**Vitesse de descente d'une désescalade PROGRAMMÉE — non sourcée, et laissée telle quelle.**
 Ni R.103 (accord d'experts, **aucun chiffre**, vérifié p. 29 du PDF HAS) ni l'Avis 21 de la SFD (qui
 chiffre une **cible** glycémique du sujet fragile/dépendant — préprandial 1-2 g/L — pas un rythme de
 réduction) ne disent de combien ni à quel rythme réduire. R.105 chiffre un écart (< 0,5 % d'HbA1c) mais
@@ -218,11 +193,11 @@ le sens de l'écart. C'est une question **différente** de la descente RÉACTIVE
 variabilité documentée (§ ci-dessus et alerte E6-g du dossier de preuve), pour laquelle R.87/Avis 18 sont
 au contraire explicitement chiffrés (−2 U, ou −10 % au-delà de 40 U/j, tous les 3 jours) — reprendre ce
 chiffre ici par symétrie serait exactement l'inférence par analogie que `DECISIONS.md` D23 interdit :
-l'asymétrie est clinique, pas seulement arithmétique. Recherche complémentaire (web, guides de
-déprescription gériatriques) : rien de plus qu'un guide canadien à preuve très faible (Farrell 2017, 2
-études avant-après), hors corpus français, non retenu. **Conduite affichée : jugement clinique, surveillance
-rapprochée** — position alignée sur celle de la carte sœur « Réduire la posologie de l'insuline » de
-`prescription.yaml` (P9/S8).
+l'asymétrie est clinique, pas seulement arithmétique. Une recherche complémentaire dans les guides de
+déprescription gériatriques ne donne rien de plus qu'un guide canadien à preuve très faible (Farrell 2017,
+deux études avant-après), hors corpus français, non retenu. **Conduite affichée : jugement clinique,
+surveillance rapprochée** — position alignée sur celle de la carte sœur « Réduire la posologie de
+l'insuline » du nœud de prescription.
 
 **Orientation.** Alerte vers le spécialiste (± pompe / boucle fermée = centres initiateurs, hors initiation
 MG) si le **déséquilibre persiste malgré l'optimisation** ou en **situation particulière** (hypoglycémies
@@ -240,8 +215,9 @@ sévères récurrentes / non-perception, instabilité marquée, grossesse ou pro
 
 **Cibles (Battelino 2019).** Standard : TIR > 70 %, TBR < 4 % (< 70 mg/dL) et < 1 % (< 54), TAR < 25 % (> 180)
 et < 5 % (> 250), CV ≤ 36 %, sur ≥ 14 jours / ≥ 70 % de données. **Assouplies** (âgé / haut risque) : TIR >
-50 %, TBR < 1 %. Les cibles ont **évolué** (le référentiel SFD 2017 visait TIR 60 %) — à afficher comme
-repères d'interprétation, non comme objectifs validés sur les complications.
+50 %, TBR < 1 %. Ces cibles ont **évolué dans le temps** — un référentiel de 2017 visait un temps dans la
+cible de 60 % — et sont à afficher comme des repères d'interprétation, jamais comme des objectifs validés
+sur les complications.
 
 **Preuve clinique.** MOBILE (DT2 sous basale seule) : HbA1c **−0,4 %**, TIR **+15 points** (substituts) ;
 FreeDM2 2026 (DT2 sous basale + iSGLT2/GLP-1) : HbA1c −0,6 % / −0,5 %, hypoglycémie sévère 0 vs 2 ; méta Jancev
@@ -251,21 +227,19 @@ titration**. La réduction d'hospitalisations pour hypoglycémie sévère est un
 (Nathanson, registre suédois, RR 0,51), non confirmé en ECR.
 
 **Deux axes dans le moteur.** *Axe CONTRÔLE* (TIR, TAR, GMI) : redondant avec l'HbA1c qui gate déjà →
-interprétation + alertes seulement. *Axe SÉCURITÉ* (TBR, CV > 36 %, hypo nocturnes — **« TBR sévère »
-retiré le 2026-07-29**, cf. § 5 bis) : critère
+interprétation + alertes seulement. *Axe SÉCURITÉ* (TBR, CV > 36 %, hypoglycémies nocturnes — le « TBR sévère »
+n'est pas retenu : il n'est jamais obtenable sans capteur, cf. § 5 bis) : critère
 **dur** (EBM DEVOTE) → **gate** les recommandations de sécurité (réduire la dose, 2ᵉ génération, relâcher la
 cible, désintensifier). Sans MCG : repli sur la **glycémie à jeun** (titration) et les **profils capillaires
 6-7 points** (intensification).
 
-**Pivot de « basale seule » (E-03, 2026-07-26, REDÉFINI le 2026-07-30 — P8/S7, arbitrage référent).** Le
-référent a répété 3 fois (dont recette capture 8) que la glycémie à jeun n'est plus le bon pivot pour
-décider de titrer une basale — l'aspect **nocturne** de la courbe prime, la GAJ n'étant que le cas de repli
-en l'absence de MCG (« ce qui est maintenant rare »). Le moteur lit `profil_nocturne` (ex-`profil_glycemique`
-; et non plus `GAJ`) comme pivot QUAND `mcg_disponible == true`. **Ce que le 2026-07-30 renverse** : jusque-là
-un profil « stable » (rien de notable) OU « phénomène de l'aube » (glycémie qui remonte en fin de nuit)
-admettaient l'un et l'autre la titration. Le référent tranche que la courbe **plate** (ex-« stable »), si
-l'HbA1c reste au-dessus de l'objectif, dit que **la basale n'est pas en cause** — seule une **hausse
-continue** (couverture insuffisante) admet désormais la titration ; une courbe plate route vers « Ne pas
+**Le pivot de la situation « basale seule ».** La glycémie à jeun n'est pas le bon pivot pour décider de
+titrer une basale : c'est la FORME de la courbe nocturne qui prime, la glycémie à jeun n'étant que le
+repli en l'absence de capteur. Le moteur lit donc `profil_nocturne` comme pivot quand la mesure continue
+est disponible. **Et une courbe PLATE n'admet pas la titration** : si l'HbA1c reste au-dessus de
+l'objectif alors que la nuit est sans relief, cela dit que **la basale n'est pas en cause** — monter la
+dose n'aiderait pas. Seule une **hausse continue** (couverture insuffisante) admet la titration ; une
+courbe plate route vers « Ne pas
 sur-titrer la basale — intensifier autrement » (GLP-1 puis bolus). Le second terme (HbA1c au-dessus de
 l'objectif) n'est PAS composé dans le dérivé `profil_nocturne_a_cible` lui-même — `cible_atteinte` est
 lui-même un dérivé, et le nœud borne ses dérivés à un seul niveau de dérivation (`deriveCritere.ts` n'enchaîne
@@ -273,30 +247,30 @@ jamais un `derive` sur un autre) — il est porté par les `conditions` des opti
 portaient déjà pour d'autres raisons : composer ce repli ne change la liste d'aucune option concernée
 (vérifié). L'ex-« excursions post-prandiales » (post-prandial, donc diurne) n'a plus de rôle sur le pivot
 NOCTURNE : ce signal a rejoint son propre champ `profil_entre_repas` (`hausse_entre_repas`), gaté sur la
-présence d'un bolus. **Le repli SANS MCG a changé le 2026-07-29** (comportement inchangé depuis) : ce n'est
-plus « la glycémie à jeun hors de l'intervalle » (`gaj_a_cible == false`) mais « **au-dessus** de l'intervalle »
-(`gaj_haute`). La distinction n'est pas cosmétique — l'ancienne formulation confondait *au-dessus* et *en
-dessous*, si bien qu'une glycémie du matin **basse** ouvrait la proposition d'**augmenter** la dose. Trois
+présence d'un bolus. **Le repli SANS capteur lit « au-dessus de l'intervalle », et non « hors de
+l'intervalle ».** La distinction n'est pas cosmétique : la seconde formulation confond *au-dessus* et *en
+dessous*, si bien qu'une glycémie du matin **basse** ouvrirait la proposition d'**augmenter** la dose.
+Trois
 états distincts remplacent le booléen : `gaj_basse` (< 0,70 g/L, qui **retire** la titration et **ouvre** le
 geste correctif), `gaj_a_cible` (0,70-1,30) et `gaj_haute` (> 1,30, qui autorise la titration). Point de
-vigilance appliqué, inchangé depuis 2026-07-26 : `profil_nocturne` non renseigné (un `enum` n'a pas de
+vigilance appliqué : `profil_nocturne` non renseigné (un `enum` n'a pas de
 présomption, D30) n'est **ni** une courbe plate **ni** une hausse — l'absence de réponse ne se lit jamais
 comme une information rassurante ni comme un motif de titrer (même défaut que D20).
 
 **Interprétation → décision (lecture de l'AGP).** TBR élevé, CV > 36 % → corriger l'hypoglycémie ou la
 variabilité (↓ basale, 2ᵉ génération, relâcher la cible) ; **baisse continue nocturne → réduire la basale**,
-chiffré par symétrie avec la titration, carte à part entière depuis le 2026-08-02 (T-067, § ci-dessus) ;
+carte à part entière et chiffrée sur le patron de la titration (§ ci-dessus) ;
 glycémie à jeun / TAR nocturne, hausse continue nocturne → titrer la basale ; courbe nocturne PLATE avec
 une HbA1c au-dessus de l'objectif → la basale n'est pas en cause, ne pas sur-titrer, intensifier autrement ;
 glycémie à jeun à la cible mais TAR diurne / TIR bas, ou hausse entre les repas → écart prandial → GLP-1
 puis bolus ; baisse entre les repas → ↓ bolus.
 
-## 5 bis. Piloter sans capteur — la branche capillaire (passe A, 2026-07-29)
+## 5 bis. Piloter sans capteur — la branche capillaire
 
 La majorité des patients DT2 insulino-traités suivis en médecine générale **n'ont pas de capteur en
-permanence** : refus, rupture de capteur entre deux consultations, ou simple non-prescription. Jusqu'au
-2026-07-29, l'outil savait raisonner sur une courbe et retombait, sans capteur, sur la seule glycémie à
-jeun. Cette section dit ce que la preuve autorise dans cette branche — et ce qu'elle n'autorise pas.
+permanence** : refus, rupture de capteur entre deux consultations, ou simple non-prescription. Savoir
+raisonner sur une courbe ne suffit donc pas — il faut aussi savoir raisonner sans. Cette section dit ce que
+la preuve autorise dans cette branche, et ce qu'elle n'autorise pas.
 
 **Toutes les données ci-dessous ont été vérifiées en source primaire ; les PMID
 ont été re-vérifiés contre PubMed et non repris d'OpenEvidence** (6 des 7 PMID rendus par OE lors de cette
@@ -361,12 +335,13 @@ patients**. C'est affiché sur les cartes concernées comme une **raison de prud
 *vs* pas d'autosurveillance chez l'insulino-traité — et **il est négatif** (différence d'HbA1c
 **0,0 % [−0,2 ; +0,2]**). S'y ajoute que **Prescrire est un blanc total sur ce sujet** (7 termes testés, zéro
 occurrence) : l'outil n'a **aucune contre-expertise indépendante sur son propre instrument de mesure**,
-alors que ses deux sources chiffrantes sont institutionnelles et que la SFD porte des conflits d'intérêts
-dispositifs. **Décision du référent, verbatim** : *« Non. Prête à confusion. Les glycémies capillaires
-permettent a minima au soignant de raisonner en l'absence de MCG. »* L'autosurveillance n'est pas ici une
-intervention thérapeutique dont on vanterait l'effet — c'est **l'instrument sans lequel il n'y a pas de
-décision du tout** ; lui opposer l'absence d'effet propre serait une erreur de catégorie, qui désarmerait le
-praticien sans rien lui offrir à la place. *Silence délibéré, consigné pour ne pas être « corrigé ».*
+alors que ses deux sources chiffrantes sont institutionnelles et portent des liens d'intérêt avec les
+fabricants de dispositifs. **Le nœud n'énonce pourtant PAS que l'autosurveillance est sans bénéfice
+démontré, et c'est délibéré.** Ce n'est pas ici une intervention thérapeutique dont on vanterait l'effet —
+c'est **l'instrument sans lequel il n'y a pas de décision du tout**. Lui opposer l'absence d'effet propre
+serait une erreur de catégorie : cela désarmerait le praticien sans rien lui offrir à la place, en
+particulier quand la mesure continue n'est pas disponible. *Silence délibéré, consigné pour ne pas être
+« corrigé ».*
 
 ### La branche est souvent réversible — et l'outil le propose désormais en premier
 
@@ -375,12 +350,11 @@ un DT2 sous 1-2 injections **dont l'équilibre n'est pas atteint**. Le plafond d
 les insulino-traités : **l'obstacle à densifier la surveillance est clinique, pas économique.**
 
 L'option « Envisager d'instaurer une mesure continue du glucose » s'affiche **en tête**, dans une famille
-dédiée (« Avant de décider — la mesure »). **Portée exacte fixée par le référent** : *« Proposer une MCG est
-une option valable car elle est parfois oubliée chez certains patients, mais il faut aussi noter que
-certains patients la refusent ou se trouvent en rupture de capteur entre deux consultations. Il faut donc
-pouvoir raisonner en l'absence de MCG, mais le raisonnement est moins fiable. Si pas d'urgence on peut donc
-le différer en attente de données de MCG. »* → **le raisonnement du jour J porte sur les données qu'on a** ;
-l'option est une ouverture, jamais un préalable. Le terme « dont l'équilibre n'est pas atteint » est encodé
+dédiée (« Avant de décider — la mesure »). **Sa portée exacte** : proposer une mesure continue est utile
+parce qu'on y pense trop peu, mais certains patients la refusent ou sont en rupture de capteur entre deux
+consultations. Il faut donc pouvoir raisonner sans — en sachant que le raisonnement est alors moins fiable
+—, et différer la décision en attendant les données quand rien n'est urgent. **Le raisonnement du jour
+porte sur les données qu'on a** ; l'option est une ouverture, jamais un préalable. Le terme « dont l'équilibre n'est pas atteint » est encodé
 littéralement : sans lui, l'option préemptait le repli chez le patient déjà à l'objectif.
 
 ### Ce que la preuve NE permet PAS d'encoder
@@ -413,18 +387,16 @@ Le nœud aide au **calcul** (pas seulement au conseil) à partir du **poids** et
   **ou réduite** de 1 ou 2 UI » — alors que l'outil n'en encodait que la montée.
 - **Basal-plus** : ≈ 10 % de la dose basale actuelle (ou 4 U) au repas principal.
 - **Over-basalisation** : repère dose basale / poids > 0,5 U/kg (dérivé `over_basalisation`) → basculer vers
-  GLP-1 / bolus plutôt que monter la basale. **Porté verbatim par la SFD 2025, Avis n° 19** *(correction du
-  2026-07-29 : l'outil affirmait qu'« aucune source SFD ne porte ce seuil » — c'était faux, et ce verdict
-  d'absence venait d'une vérification qui n'avait jamais ouvert le PDF du corpus local)*. Il reste **faiblement
-  fondé** (post-hoc non pré-spécifié d'Umpierrez 2019 ; retiré par l'ADA en 2025, maintenu par l'AACE ;
-  aucun essai n'a comparé « plafonner puis intensifier autrement » à « continuer à titrer »), d'où son canal :
-  **déclencheur** du relais, et non plus exclusion de « Titrer la basale » (retirée le 2026-07-27).
+  AR GLP-1 ou bolus plutôt que monter la basale. **Porté verbatim par la SFD 2025, Avis n° 19.** Il reste
+  **faiblement fondé** : post-hoc non pré-spécifié d'Umpierrez 2019, retiré par l'ADA en 2025 et maintenu
+  par l'AACE, et aucun essai n'a comparé « plafonner puis intensifier autrement » à « continuer à titrer ».
+  D'où son canal : **déclencheur** du relais « intensifier autrement », jamais exclusion de « Titrer la
+  basale ».
 
 > ⚠ **Aucun de ces chiffres n'a été randomisé.** Ils viennent d'accords d'experts concordants (HAS, SFD,
 > ebmfrance) et non d'une stratégie validée : ils **encadrent** le geste, ils ne le **démontrent** pas. La
-> borne « ±10-**20** % » qui a longtemps figuré ici n'avait, elle, **aucune source du tout** — la SFD écrit
-> 10 %, l'ADA 10-15 %, personne n'écrit 20 %. Elle était allée jusqu'à l'écran sous forme de **dose
-> calculée** (« Basale réduite (−20 %) »), corrigée le 2026-07-29.
+> borne « ±10-**20** % » n'a, elle, **aucune source du tout** — la SFD écrit 10 %, l'ADA 10-15 %, personne
+> n'écrit 20 %. À ne pas rétablir : elle avait atteint l'écran sous forme de dose calculée.
 
 Périmètre : basale → basal-bolus (médecine générale) ; **hors** ratios glucides-insuline / facteur de
 sensibilité formels et pompe / boucle fermée.
@@ -482,88 +454,51 @@ affichée au premier niveau de l'écran (cf. § 5 bis, motif détaillé).*
 la hiérarchie NPH / analogues dans nos sources, et il n'existe pas de prise de position CMG dédiée (la seule
 source généraliste réelle est Joubert 2025, favorable à la MCG). Elles ne sont pas encodées.
 
-## 9. Incertitudes
+## 9. Ce qui reste incertain
 
-- **Les deux seuils capillaires de l'outil (0,70-1,30 g/L ; < 1,80 g/L à 2 h) ne reposent sur aucun essai.**
-  Doctrine HAS (2011, reprise en 2025) et SFD, sans grade imprimé ni essai cité : **force forte, certitude
-  très faible**. L'outil s'écarte en outre de la lettre de la HAS sur la borne haute (1,30 et non 1,20),
-  au profit de la SFD et de l'ADA — divergence assumée par le référent.
-- **Aucune règle de titration — ni de montée, ni de descente — n'a jamais été randomisée.** Les pas (± 2 U,
-  ± 10 %), le rythme (3 jours) et le déclencheur (« 3 matins de suite ») sont des accords d'experts
-  concordants. *Treat-to-Target ne valide que le principe d'une titration pilotée par la glycémie à jeun,
-  pas ce protocole* (correction du 2026-07-29).
-- **Cibler la glycémie post-prandiale n'a jamais amélioré un critère dur** (HEART2D nul mais **séparation
-  glycémique non obtenue** — « pas démontré », jamais « réfuté » ; ACE et NAVIGATOR nuls ; IDF verbatim).
-  L'outil **affiche** 1,80 g/L comme cible officielle sans le faire **agir** : à ne pas « corriger ».
-- **Le garde-fou de sur-titration par créneaux horaires n'a aucun socle** : personne n'a randomisé
-  « heure → composant », Bergenstal 2008 le présuppose dans ses deux bras, le découpage en quatre périodes
-  n'existe nulle part, les fenêtres nocturnes divergent d'un essai à l'autre. Reporté par le référent,
-  **à rouvrir seulement si une preuve nouvelle apparaît**.
-- **Chez l'âgé, la preuve porte sur la cible, pas sur la vitesse** : SENIOR randomise deux insulines à
-  cible commune et n'a testé ni un pas ni un intervalle différents.
-- **L'autosurveillance glycémique n'a pas démontré de bénéfice propre chez l'insulino-traité** (Nauck 2014,
-  n = 300, différence d'HbA1c 0,0 %) et manque 93 % des épisodes hypoglycémiques (Munshi, série de 40 sujets
-  âgés, population mixte). **L'outil ne l'énonce délibérément pas** — arbitrage référent motivé, cf. § 5 bis.
-- MCG : cibles = consensus ; lien TIR-complications observationnel ; bénéfice en DT2 sur substituts, sans
-  preuve sur critères durs ni mortalité.
-- Bénéfice microvasculaire de l'insuline = extrapolé du contrôle glycémique, non démontré par un essai dédié.
-- Seuil d'over-basalisation 0,5 U/kg = repère **non validé par ECR**, mais **bien porté verbatim par la
-  SFD 2025, Avis n° 19** *(corrigé le 2026-07-29 : l'argumentaire affirmait le contraire, sur la foi d'un
-  verdict d'absence rendu sans ouvrir le corpus local)*. Il **n'est plus une exclusion** de « Titrer la
-  basale » depuis le 2026-07-27 — seulement un **déclencheur** du relais « intensifier autrement », les
-  deux options coexistant sous le tri par rang.
-- 2ᵉ génération : hypoglycémie sévère démontrée pour degludec vs glargine U100 seulement ; 1ʳᵉ génération vs
-  NPH non significative ; pas de supériorité inter-2ᵉ-génération.
-- Associations fixes : bénéfice substitutif, aucun CVOT dédié.
-- Câblage formulaire (P3) : dérivés, calcul des doses, tooltips AGP, variable `hypo_severe_recurrente`.
-- **Pivot nocturne (E-03, implémenté 2026-07-26, REDÉFINI le 2026-07-30 — P8/S7) :**
-  `profil_nocturne_permet_titration` / `profil_nocturne_a_cible` remplacent `gaj_a_cible` comme pivot de
-  « basale seule » quand `mcg_disponible == true`. *Amendé le 2026-07-29 : le pivot du repli sans MCG est
-  désormais `gaj_haute` (> 1,30 g/L) et non plus `gaj_a_cible == false`, qui englobait l'hypoglycémie à
-  jeun — cf. § 5.* **TRANCHÉ le 2026-07-30 :** la courbe plate (ex-« stable ») cesse d'admettre la
-  titration — seule une hausse continue le fait ; une courbe plate avec HbA1c au-dessus de l'objectif route
-  vers « Ne pas sur-titrer... — intensifier autrement ». `profil_glycemique` (`liste` de 4 valeurs) et le
-  critère propre `hypo_interprandiale` sont remplacés par deux `enum` — `profil_nocturne`
-  (baisse/hausse/plate) et `profil_entre_repas` (hausse/baisse/pas de signal). L'ex-« excursions
-  post-prandiales » (qui alimentait `profil_nocturne_a_cible` jusqu'au 2026-07-29) rejoint
-  `profil_entre_repas` et n'a plus de rôle sur le pivot nocturne — le point resté « non tranché » dans une
-  version antérieure de cette entrée (hypo interprandiale n'alimentant aucun des deux dérivés nocturnes)
-  reste vrai sous la nouvelle forme : ni la hausse ni la baisse entre les repas n'entrent dans le pivot
-  nocturne, l'une comme l'autre étant des signaux diurnes qui accusent le bolus, pas la basale. L'assimilation
-  « hausse continue → admet la titration » reste une lecture clinique standard, inchangée depuis 2026-07-26.
-- **Cumul sécurité/efficacité (E-04b/E-06, implémenté 2026-07-26) :** les options d'intensification de
-  « basale_plus_bolus » sont réutilisées en « basale seule », mais seulement sur les 2 signaux nommés par
-  le référent (hypoglycémie/variabilité nocturne, sur-basalisation) — le cas « GAJ/profil nocturne à la
-  cible SEUL » reste sans option d'efficacité dédiée (prose uniquement), non généralisé faute de mandat.
-  Ces 2 options portent leurs `priorite` d'origine (1/2), qui chevauchent en « basale seule » celles, sans
-  rapport clinique, des options de sécurité (le nœud ne déclare pas de `familles`) — signalé, non corrigé.
-  Même chevauchement introduit en sens inverse ci-dessous : « Corriger l'hypoglycémie... » et
-  « Optimiser la répartition du basal-bolus », réutilisées en « basale_plus_bolus », y chevauchent les
-  options d'escalade — même limite, même non-correction assumée.
-- **RÉSOLU 2026-07-26** — « Désintensifier / alléger le
-  schéma » (basal-bolus) : l'alignement sur `risque_hypoglycemique_eleve` (2026-07-26) avait préservé
-  `hypo_severe_recurrente` comme déclencheur indépendant, en OR littéral, distinct de ce que décrivait la
-  consigne référent d'alors — et jamais lu par « Choisir un analogue basal de 2ᵉ génération » (§2), même
-  concept de sécurité encodé deux fois (invariant I4). Arbitrage tranché : `hypo_severe_recurrente` est
-  désormais **fusionné dans `risque_hypoglycemique_eleve`** plutôt que laissé en déclencheur indépendant par option — à
-  confirmer par le référent, deux conséquences : (1) le OR littéral sur « Désintensifier » a été retiré
-  (redondant) ; (2) la population des alertes « cibles MCG assouplies » (§5) s'élargit au même signal.
-- **Situation « basale_plus_bolus » (2026-07-26) :**
-  cette situation intermédiaire n'avait ni option de sécurité (401/401 profils à risque du banc sans aucune
-  réponse à une hypoglycémie documentée) ni option de titration/optimisation une fois ses 2 gestes d'ajout
-  épuisés (60/92 profils, cible non atteinte). Corrigé par réutilisation de 2 options déjà écrites pour
-  d'autres situations (§3, §4) et par l'ajout d'`exclusions` aux 2 options d'escalade, sur le modèle de
-  « Titrer la basale ». Point à confirmer par le référent : les `exclusions` ajoutées incluent
-  `hypo_severe_recurrente == true`, en plus des 4 signaux MCG du modèle cité — nécessaire pour couvrir le
-  profil exact du rapport (TBR bas, TBR sévère nul, seul l'antécédent signale le risque), mais c'est une
-  extension de périmètre au-delà du mandat explicite pour ce canal précis.
-  **TRANCHÉ le 2026-07-29, en sens inverse** : l'antécédent est **retiré de ces `exclusions`** — il
-  n'empêche plus de titrer, parce qu'un épisode survenu **sous un schéma antérieur** ne présume pas du
-  risque sous le schéma actuel. Sa portée reste universelle, par le canal d'une **alerte de nœud**. Le
-  signal « TBR sévère » invoqué ci-dessus n'existe plus dans le nœud (retiré en début de passe A :
-  inobtenable sans capteur).
+- **Les deux seuils capillaires de l'outil — 0,70 à 1,30 g/L, et moins de 1,80 g/L à 2 heures — ne
+  reposent sur aucun essai.** C'est de la doctrine française, sans grade imprimé ni essai cité : force
+  forte, certitude très faible. L'outil s'écarte en outre de la lettre de la source sur la borne haute
+  (1,30 et non 1,20), au profit de la position d'autres sociétés savantes.
+- **Aucune règle de titration — ni de montée, ni de descente — n'a jamais été randomisée.** Les pas
+  (± 2 U, ± 10 %), le rythme (3 jours) et le déclencheur (« 3 matins de suite ») sont des accords
+  d'experts concordants. Treat-to-Target ne valide que le PRINCIPE d'une titration pilotée par la glycémie
+  à jeun, pas ce protocole.
+- **Cibler la glycémie post-prandiale n'a jamais amélioré un critère dur.** HEART2D est nul, mais la
+  séparation glycémique visée n'a pas été obtenue — c'est un « non démontré », jamais un « réfuté » ; ACE
+  et NAVIGATOR sont nuls ; l'IDF l'écrit en toutes lettres. L'outil AFFICHE 1,80 g/L comme cible
+  officielle sans le faire AGIR : c'est délibéré.
+- **Le garde-fou de sur-titration par créneaux horaires n'a aucun socle.** Personne n'a randomisé
+  l'attribution « heure de la journée → composant à modifier » ; Bergenstal 2008 la présuppose dans ses
+  deux bras ; le découpage en quatre périodes n'existe dans aucune source ; les fenêtres nocturnes
+  divergent d'un essai à l'autre. Non encodé, faute de preuve.
+- **Un antécédent d'hypoglycémie sévère sous un schéma ANTÉRIEUR ne présume pas du risque sous le schéma
+  actuel.** Il n'empêche donc pas de titrer. Sa portée reste universelle, par le canal d'une alerte de
+  nœud plutôt que d'une exclusion.
+- **Le seuil de sur-basalisation à 0,5 U/kg/j est faiblement fondé, et les sociétés savantes divergent.**
+  Il est verbatim dans la recommandation française ; il a été retiré par l'ADA en 2025 et maintenu par
+  l'AACE. Son support de données est un post-hoc poolé non pré-spécifié, financé par le fabricant. Aucun
+  essai n'a comparé « plafonner puis intensifier autrement » à « continuer à titrer », et les doses
+  d'entretien réellement atteintes à la cible s'étalent de 0,34 à 0,78 U/kg. C'est pourquoi il déclenche
+  une conduite sans jamais interdire la titration.
+- **La vitesse de descente d'une désescalade programmée n'est pas sourcée.** Aucune donnée ne dit à quel
+  rythme réduire ; le nœud ne le chiffre donc pas.
+- **L'autosurveillance glycémique n'a pas fait la preuve d'un bénéfice propre** chez le diabétique de
+  type 2 insulino-traité (Nauck 2014, négatif). Le nœud ne l'énonce pas, et c'est délibéré : ce n'est pas
+  une intervention thérapeutique mais l'INSTRUMENT DE MESURE sans lequel il n'y a pas de décision — lui
+  opposer l'absence d'effet propre serait une erreur de catégorie, qui désarmerait le praticien sans rien
+  lui offrir à la place.
+- **Une courbe nocturne plate avec une HbA1c au-dessus de l'objectif dit « la basale n'est pas en
+  cause »**, et non « la titration reste ouverte » : seule une hausse continue pendant la nuit signe une
+  couverture insuffisante. Symétriquement, une hypoglycémie entre les repas accuse le bolus. Lecture
+  clinique standard du profil, pas un résultat d'essai.
+- **Les cibles de temps dans la cible sont un consensus d'experts**, pas un critère dur : le lien avec les
+  complications est observationnel, et le bénéfice de la mesure continue dans le diabète de type 2 porte
+  sur des critères de substitution.
+- **Les associations fixes n'ont aucun essai de morbi-mortalité dédié** : leur bénéfice est sur critères
+  de substitution.
 
-## Sources (PMID/DOI vérifiés et corrigés contre source primaire)
+## Sources (PMID et DOI vérifiés contre la source primaire)
 
 - **ORIGIN** — Gerstein HC et al., *N Engl J Med* 2012;367(4):319-28. PMID 22686416 · DOI 10.1056/NEJMoa1203858.
 - **ORIGINALE** — ORIGIN Trial Investigators, *Diabetes Care* 2016;39(5):709-16. PMID 26681720.
@@ -590,7 +525,7 @@ source généraliste réelle est Joubert 2025, favorable à la MCG). Elles ne so
 - **Nathanson (registre suédois)** — Nathanson D et al., *Diabetologia* 2025;68(1):41-51. PMID 39460755.
 - **Reco** — SFD 2025 (Darmon P et al., *Méd. Mal. Métab.* 2025;19(8):630-662) ; HAS 2024 « Stratégie thérapeutique du DT2 » ; ADA *Standards of Care* 2026 (ch. 7 DOI 10.2337/dc26-S007 ; ch. 9 DOI 10.2337/dc26-S009) ; ADA/EASD 2022 (Davies MJ et al., PMID 36148880) ; AACE 2022 (PMID 35963508) / 2026 (Samson) ; Joubert M et al. 2025 (*Méd. Mal. Métab.* 19:331-347) ; ebmfrance/Duodecim « Insulinothérapie dans le DT2 » (ebm00491).
 
-### Ajouts de la passe A « pilotage sans capteur » (2026-07-29)
+### Références de la branche « pilotage sans capteur »
 
 > **Tous les PMID ci-dessous ont été re-vérifiés contre PubMed.** Aucun n'est
 > repris d'OpenEvidence : **6 des 7 PMID rendus par OE lors de cette passe étaient faux**, tout en pointant

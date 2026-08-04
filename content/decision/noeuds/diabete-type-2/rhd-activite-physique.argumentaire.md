@@ -3,7 +3,7 @@
 > Niveau de lecture 3 (preuve complète). Document autonome distillé du dossier de preuve — sources croisées
 > et vérifiées. Prend appui sur
 > `docs/decision/noeuds/H-rhd.md` §3 (sous-dossier H3, constat « aucun bénéfice CV dur propre à
-> l'exercice »). **BROUILLON en attente de validation référent.**
+> l'exercice »). **Brouillon, en attente de relecture clinique.**
 
 ## En bref — la réserve majeure
 
@@ -96,8 +96,8 @@ l'intensité ou la perte de poids initiale, que le recueil et les pistes cherche
 | Poursuivre les habitudes actuelles et rester attentif à la régularité | Maintien | Recommandation officielle | EBM Guidelines, point directeur régularité (grade A) |
 
 **Note sur « Poursuivre les habitudes actuelles… »** : ce n'est volontairement pas un sentinel `["default"]`.
-Le cas réellement muet (les 8 axes de recueil simultanément favorables — proche du profil « B » de la
-recette) existe cliniquement mais sa conjonction complète échappe à l'échantillonnage stratifié du banc
+Le cas réellement muet — les 8 axes de recueil simultanément favorables — existe cliniquement, mais sa
+conjonction complète échappe à l'échantillonnage stratifié du banc
 mécanique (vérifié : 0/1120 profils générés l'atteignent). Démontré par le raisonnement suivant : dans le
 cas muet complet, `frequence_activite_structuree` ne peut être ni « jamais »/« 1×/semaine » (déclenche
 « Intégrer du mouvement… »/« Suivre ses pas ») ni « 4× ou plus » combiné à une bonne rupture de sédentarité
@@ -129,9 +129,9 @@ Quatre signes, ancrés sur HAS DT2 R.19/R.27/R.28 :
 - **Rétinopathie non stabilisée ou proliférante** — R.27/R.28 (manœuvre à glotte fermée).
 - **Neuropathie périphérique ou mal perforant plantaire** — R.27/R.28.
 
-**Décision de bucketing (référent, `CONCEPTION-module-rhd.md` §4)** : ce verrou bloque UNIQUEMENT la
-montée d'intensité et la pratique structurée ; il laisse passer les déplacements actifs, l'activité
-quotidienne et la rupture de sédentarité. **Limite documentée** : une source HAS précise que la
+**Ce que ce verrou bloque, et ce qu'il laisse passer** : il ferme UNIQUEMENT la montée d'intensité et la
+pratique structurée ; les déplacements actifs, l'activité quotidienne et la rupture de sédentarité restent
+ouverts. Ce qui est risqué, c'est l'effort soutenu, pas le mouvement. **Limite documentée** : une source HAS précise que la
 contre-indication du mal perforant plantaire porte spécifiquement sur l'activité physique des membres
 INFÉRIEURS (« les AP des membres supérieurs sont permises ») — cette nuance n'est pas modélisée séparément
 ici (le verrou bloque la famille « pratique structurée » dans son ensemble, sans distinguer membres
@@ -156,17 +156,15 @@ neutralisé la piste pour sa population cible même.
 physique) » (HAS R.28). Repère d'auto-surveillance ponctuelle du patient au moment de l'effort, pas une
 donnée chronique à recueillir dans ce nœud.
 
-### Hypoglycémie sous insulinosécréteur (alerte, pas blocage — arbitrage référent explicite)
+### Hypoglycémie sous insulinosécréteur — une alerte, jamais un blocage
 
-Une vérification antérieure (finding B-3) avait signalé, sans trancher, la question de savoir si l'alerte
-D15 existante (hypoglycémie sous insuline/sulfamide/glinide, déjà encodée côté nœud `rhd` pour l'usage
-alimentation) devait passer d'un simple déclenchement à un blocage effectif pour l'usage activité physique
-— le mécanisme visé ici (hypoglycémie À L'EFFORT, R.27) étant cliniquement distinct de celui déjà arbitré
-côté alimentation (hypoglycémie PAR RESTRICTION DES APPORTS). **Arbitrage référent (explicite pour cette
-tâche) : alerte simple, pas un blocage.** Les deux nœuds convergent donc vers le même canal malgré des
-mécanismes cliniques différents.
+Le mécanisme visé ici — l'hypoglycémie À L'EFFORT (R.27) — est cliniquement distinct de celui traité côté
+alimentation, l'hypoglycémie PAR RESTRICTION DES APPORTS. La question s'est posée de savoir si celui-ci
+justifiait un blocage là où celui-là ne donne qu'une alerte. **Réponse retenue : une alerte, dans les deux
+cas.** Une hypoglycémie d'effort se prévient en adaptant la collation ou la dose, pas en renonçant à
+bouger ; bloquer reviendrait à retirer au patient une conduite utile pour un risque qui se gère.
 
-**Ce qui est demandé au praticien pour la déclencher (2026-07-29).** Un booléen,
+**Ce qui est demandé au praticien pour la déclencher.** Un booléen,
 `insuline_ou_insulinosecreteur`, et non plus la liste `traitements_en_cours` à neuf classes — même
 changement, le même jour, que sur le nœud sœur `rhd-alimentation`, et pour la même raison : cette alerte
 était la SEULE règle du nœud à lire ce critère, et elle n'y lisait que quatre valeurs (insuline basale,
@@ -201,7 +199,7 @@ déclenche exactement dans les mêmes cas.
 - HAS — Guide des connaissances sur l'activité physique et la sédentarité (juillet 2022)
 - HAS — Parcours de soins Surpoids et obésité de l'adulte, Fiche 5 (2023)
 - Santé publique France — « 10 petites astuces anti-sédentarité » ; pages « Augmenter l'activité physique »,
-  « Réduire le temps passé assis », « Rester en forme après 65 ans » (2026-07-26)
+  « Réduire le temps passé assis », « Rester en forme après 65 ans »
 - Santé publique France/PNNS — affiche « Pour un mode de vie plus équilibré, chaque petit pas compte »
 
 Traçabilité complète des citations page par page dans le dossier de preuve de ce nœud.

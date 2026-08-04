@@ -6,7 +6,7 @@ interface PastilleInfoProps {
   icone: NomIcone
   /** Nom accessible du bouton (« Contre-indications », « Posologie »…) — jamais décoratif. */
   libelle: string
-  /** Texte montré au survol ET dans le panneau du parent. */
+  /** Texte du panneau rendu par le PARENT — depuis le 2026-08-04, plus montré au survol. */
   texte: string
   /** État détenu par le PARENT (cf. Décision clé n° 2). */
   ouvert: boolean
@@ -45,9 +45,9 @@ interface PastilleInfoProps {
  * `aria-hidden`, on remplacerait un `title=` (déjà écarté) par un piège équivalent pour les lecteurs
  * d'écran : un second texte, non annoncé de façon fiable, dupliquant celui du panneau.
  *
- * Le texte de la bulle reste toujours présent dans le DOM, `ouvert` ou non : c'est le CSS seul (media
+ * Le contenu de la bulle reste toujours présent dans le DOM, `ouvert` ou non : c'est le CSS seul (media
  * query + `:hover`/`:focus-visible`) qui la montre ou la masque, jamais le JSX — sinon aucune info-bulle
- * ne pourrait apparaître au survol.
+ * ne pourrait apparaître au survol. Ce contenu est le LIBELLÉ depuis le 2026-08-04 (cf. commentaire JSX).
  */
 export function PastilleInfo({
   icone,
@@ -58,6 +58,10 @@ export function PastilleInfo({
   panneauId,
   ton = 'neutre',
 }: PastilleInfoProps) {
+  // `texte` n'alimente plus la bulle de survol (cf. commentaire JSX plus bas) mais reste une prop
+  // REQUISE de l'interface : elle documente l'intention du bouton pour l'appelant, qui devrait la perdre
+  // de vue si elle disparaissait. `void` silence volontairement `noUnusedParameters` — pas un oubli.
+  void texte
   return (
     <button
       type="button"
@@ -68,8 +72,13 @@ export function PastilleInfo({
       onClick={onToggle}
     >
       <Icon nom={icone} />
+      {/* Bulle de survol (2026-08-04, demande utilisateur) : montre désormais le LIBELLÉ du bouton
+          (« Posologie », « Contre-indications »...) plutôt que le contenu (`texte`) — un aperçu du
+          contenu au survol se lisait mal en un coup d'œil (parfois une phrase entière), alors que le
+          panneau déplié au clic reste la seule vraie source de ce texte (cf. docstring de tête :
+          l'info-bulle n'est jamais l'unique porteuse de l'information). */}
       <span className="pastille-info__bulle" aria-hidden="true">
-        {texte}
+        {libelle}
       </span>
     </button>
   )

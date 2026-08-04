@@ -59,7 +59,7 @@
  * dans `signatureVue` comme les autres dimensions (totalité) : un critère qui ne change QUE la liste des
  * options en attente doit rester DÉCISIF pour `engine/relevance.ts`.
  */
-import type { Alerte, CritereEntree, Noeud, Option } from '../content/node.types.ts'
+import type { ActionOption, Alerte, CritereEntree, Noeud, Option } from '../content/node.types.ts'
 import type { Criteria } from '../engine/conditions.ts'
 import { evaluateCondition, termesVrais } from '../engine/conditions.ts'
 import { calculerCriteresDerives, determinesEffectifs, evaluerNombre } from '../engine/deriveCritere.ts'
@@ -92,6 +92,14 @@ export interface CalculEnAttente {
 export interface OptionVue {
   option: Option
   badge: OptionBadge
+  /**
+   * Badge d'action EFFECTIVEMENT affiché pour CE patient (2026-08-04, demande utilisateur) — résolution
+   * de `option.action_si` (première règle strictement vraie, D20) avec repli sur `option.action` statique
+   * si aucune ne matche ou si `action_si` est absent (`resoudreActionEffective` ci-dessous). `undefined`
+   * ssi ni l'un ni l'autre n'est déclaré (nœuds hors `prescription`/`insuline`, cf. docstring
+   * `Option.action`) — `OptionCard.tsx` retombe alors sur l'absence de pastille, comportement historique.
+   */
+  actionEffective?: ActionOption
   /**
    * Justification SITUATIONNELLE (R6, `docs/decision/GRAMMAIRE-NOEUD.md`) : les termes `OR` de
    * `option.conditions` réellement VRAIS pour CE patient — jamais la règle recopiée telle quelle
@@ -381,6 +389,28 @@ function nettoyerNonRetenues(
 }
 
 /**
+ * Résout le badge d'action EFFECTIVEMENT affiché pour ce patient (`Option.action_si`, 2026-08-04,
+ * demande utilisateur) — même sémantique que `resolvePriorite`/`estHissee` (`engine/evaluateNode.ts`)
+ * pour leurs propres règles conditionnelles : PREMIÈRE règle dont `quand` s'évalue STRICTEMENT VRAIE
+ * (`=== true`, jamais `INDETERMINE` — D20, une donnée manquante ne fait jamais basculer l'affichage)
+ * l'emporte. Repli sur `option.action` (statique) si `action_si` est absent OU si aucune règle ne
+ * matche — c'est ce qui rend ce champ un pur AJOUT : une option qui ne le déclare pas garde exactement
+ * le rendu d'avant ce champ.
+ */
+function resoudreActionEffective(
+  option: Option,
+  criteria: Criteria,
+  effectifs: ReadonlySet<string> | undefined,
+): ActionOption | undefined {
+  if (option.action_si) {
+    for (const regle of option.action_si) {
+      if (evaluateCondition(regle.quand, criteria, effectifs) === true) return regle.action
+    }
+  }
+  return option.action
+}
+
+/**
  * Construit le modèle de vue complet d'un nœud pour un jeu de critères. Recalcule les critères
  * dérivés en entrée (`calculerCriteresDerives`) avant d'évaluer le nœud — comme le faisait
  * `relevance.ts` — puis regroupe par famille (`groupesParFamille`) et calcule les badges
@@ -427,6 +457,7 @@ export function construireVueDecision(node: Noeud, criteria: Criteria, renseigne
           (option): OptionVue => ({
             option,
             badge: badges.get(option) ?? null,
+            actionEffective: resoudreActionEffective(option, derived, effectifs),
             reasons: raisonsSituationnelles(option.conditions, derived),
             calculs: calculsAffiches(option, criteria, effectifs),
             calculsEnAttente: calculsEnAttente(option, criteria, node.criteres_entree, effectifs),

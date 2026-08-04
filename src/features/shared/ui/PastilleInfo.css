@@ -13,8 +13,13 @@
   line-height: 0;
 }
 
+/* Plus visible (2026-08-04, demande utilisateur) : `--c-text-faible` (62 % L, chroma quasi nul) se
+   fondait dans la rangée, au point d'être facilement manqué — remplacé par l'accent de décision déjà
+   utilisé partout ailleurs pour « ce qui mérite l'œil » (badge « Recommandée », focus), plutôt qu'une
+   nouvelle couleur inventée pour ces deux seules icônes (« Proposé parce que », « Posologie »). `danger`
+   ci-dessous reste inchangé — un fait de sécurité garde son propre registre rouge. */
 .pastille-info--neutre {
-  color: var(--c-text-faible);
+  color: var(--c-accent-decision);
 }
 
 .pastille-info--danger {

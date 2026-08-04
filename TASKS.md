@@ -15,12 +15,13 @@ plan** (statut dans son `index.md`) : `- T-ID — titre · → plans/…/S<k>.md
 ## Backlog — né de P12 (2026-08-03), non cadré
 
 - [ ] **T-120** — implication athérome ⇒ antécédent CV : STOP fondé, **abandonner ?** cf. `VALIDATION.md`.
-- [ ] Alerte d'acidocétose euglycémique chez le patient **déjà** sous iSGLT2 qui devient dénutri
-      (aujourd'hui elle ne se déclenche que si l'iSGLT2 est *proposé*) · Sonnet, low — arbitrage d'abord.
-- [ ] Face visible de la carte iSGLT2 : elle porte `Preuve élevée` sans dire qu'elle est cardio-rénale
-      (effet croisé S2×S5) · 3 pistes dans `VALIDATION.md` · Sonnet, low — arbitrage d'abord.
+- [ ] Alerte d'acidocétose euglycémique chez le patient **déjà** sous iSGLT2 devenu dénutri (ne se déclenche aujourd'hui que si l'iSGLT2 est *proposé*) · Sonnet, low — arbitrage d'abord.
+- [ ] Face visible de la carte iSGLT2 : `Preuve élevée` sans dire qu'elle est cardio-rénale (effet croisé S2×S5) · 3 pistes dans `VALIDATION.md` · Sonnet, low — arbitrage d'abord.
 - [ ] Titre court par entrée de `cadrage` (schéma + 6 nœuds) : l'accroche compterait les contenus, pas les contenants · Sonnet, medium.
-- [ ] Au retour sur un nœud, nommer les champs non repris (l'antécédent CV revient décoché en silence) · Sonnet, low.
+
+## Plan P13 — cadré 2026-08-04, pas démarré (statut/détail : `plans/P13/index.md`)
+
+- T-137→T-159 — suites de la revue de conception du 04/08 : N25 (S1), options en attente (S2), saisies détruites à la bascule (S3), rendu des conditions + I28-I31 (S4), session (S5-S6), contenu (S7), finitions (S8). **2 arbitrages référent avant S1** (cf. `index.md`).
 
 ## Plan PV1 — Veille, cadré 2026-07-31, pas démarré (statut/détail : `plans/PV1/index.md`)
 

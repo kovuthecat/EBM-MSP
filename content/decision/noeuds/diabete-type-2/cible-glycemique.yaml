@@ -192,22 +192,52 @@ sources:
       HbA1c < 6,5 % sous agent hypoglycémiant — hors du profil UKPDS (sujet jeune, diabète récent,
       sans maladie cardiovasculaire). Individualiser plutôt qu'appliquer une bande unique ; éviter le
       sur-traitement reste l'objectif, pas la baisse d'HbA1c en soi.
-    references:
-      - nom: "Prescrire"
-        detail: "« Diabète de type 2 chez un adulte » (Premiers Choix, févr 2026) ; « Quand la metformine ne suffit pas » (Rev Prescrire 2023;43(478):595-605) — résumé, droit d'auteur."
-      - nom: "Médicalement Geek / DragiWebdo"
-        lien: "https://www.medicalement-geek.com/p/diabetologie.html"
+    appuis:
+      - accord
+      - advance
+      - boussageon
+      - ukpds-80
+      - turnbull-control
+    # REVUES SECONDAIRES CONSULTÉES — retirées de l'écran le 2026-08-04 (le champ
+    # `synthese_critique.references` n'existe plus au schéma). Motif : rendues sous la position comme
+    # « Réf. : Prescrire », elles se lisaient « Prescrire dit que » — exactement ce que D23 avait voulu
+    # empêcher en les sortant du sujet grammatical des arguments. Elles restent CONSULTÉES et tracées
+    # ici ; l'écran ne cite plus que des essais et des textes de recommandation officiels.
+    # - nom: "Prescrire"
+    # detail: "« Diabète de type 2 chez un adulte » (Premiers Choix, févr 2026) ; « Quand la metformine ne suffit pas » (Rev Prescrire 2023;43(478):595-605) — résumé, droit d'auteur."
+    # - nom: "Médicalement Geek / DragiWebdo"
+    # lien: "https://www.medicalement-geek.com/p/diabetologie.html"
   reco_officielle:
-    source: "HAS 2024 (Stratégie thérapeutique du DT2, Annexe 3 — cibles 2013 maintenues) ; ADA Standards of Care ; ACP 2018"
-    position: "Individualisée : ≤7 % (la plupart) ; ≤6,5 % si récent, EV>15 ans, sans MCV ; ≤8 % comorbidité grave / EV limitée / macro évoluée ; <9 % âgé dépendant"
+    source: "HAS 2024 · ADA Standards of Care · ACP 2018"
+    references:
+      - nom: "HAS 2024"
+        detail: "Stratégie thérapeutique du DT2 (RBP validée le 30/05/2024), Annexe 3 — les cibles de 2013 sont maintenues."
+      - nom: "ADA"
+        detail: "Standards of Care in Diabetes, section « Glycemic Goals », édition en cours."
+      - nom: "ACP 2018"
+        detail: "Guidance statement — bande cible 7 à 8 % chez la plupart des adultes."
+    position: "Individualisée : ≤ 7 % pour la plupart ; ≤ 6,5 % si diabète récent, espérance de vie > 15 ans et sans maladie cardiovasculaire ; ≤ 8 % en cas de comorbidité grave, d'espérance de vie limitée ou de complication macrovasculaire évoluée ; < 9 % chez le sujet âgé dépendant."
     divergence: true
+    divergences:
+      - sujet: "Le seuil de 6,5 % chez le sujet jeune sans maladie cardiovasculaire"
+        position_officielle: >-
+          La HAS recommande une cible ≤ 6,5 % pour ce profil : diabète récent, espérance de vie longue,
+          pas de maladie cardiovasculaire.
+        position_outil: >-
+          L'outil vise plutôt ~7 % pour le même patient, et propose d'alléger le traitement en dessous de
+          6,5 % sous agent hypoglycémiant.
+        appui: >-
+          Le risque d'hypoglycémie sévère double à triple sous contrôle intensif (Boussageon 2011,
+          méta-analyse BMJ, RR ~2,3) sans bénéfice de mortalité démontré chez le diabète installé, et
+          ACCORD a montré une surmortalité inexpliquée au serrage agressif (HR 1,22 pour 6,4 % contre
+          7,5 %) là où ADVANCE atteignait 6,5 % sans surmortalité. Aucun essai n'ayant comparé des bandes
+          de cible étroites, la différence entre 6,5 et 7 % relève d'une extrapolation des deux côtés —
+          l'outil choisit celle qui expose le moins.
     explication: >-
-      Convergence forte sur les principes (HbA1c = critère intermédiaire, individualisation,
-      anti-sur-traitement — la HAS reconnaît l'absence de lien démontré entre baisse de l'HbA1c et
-      morbi-mortalité). Divergence sur le seuil ~6,5 % : recommandé par la HAS pour le profil jeune
-      sans MCV ; une lecture plus prudente (Boussageon, méta-analyse BMJ 2011, RR d'hypoglycémie
-      sévère ~2,3 sous contrôle intensif ; ACCORD, surmortalité inexpliquée HR 1,22) vise plutôt ~7 %,
-      voire une déprescription sous 6,5 %.
+      Les deux lectures s'accordent sur l'essentiel : l'HbA1c est un critère intermédiaire et non une fin,
+      la cible s'individualise, et le sur-traitement est le risque principal. La HAS elle-même reconnaît
+      l'absence de lien démontré entre la baisse de l'HbA1c et la morbi-mortalité. L'écart ne porte donc
+      pas sur la logique, mais sur un seul chiffre, dans un seul profil.
 incertitudes:
   - "Cible optimale exacte (aucune bande étroite testée en ECR)."
   - "Mécanisme de la surmortalité d'ACCORD (inexpliqué)."
@@ -226,8 +256,22 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude Code"
   statut: valide
-  version: "2.12"
+  version: "2.13"
   changelog:
+    - date: "2026-08-04"
+      auteur: "Claude Code — en attente de relecture référent"
+      resume: >-
+        REFONTE DE L'ARGUMENTAIRE (D48), propagation depuis le nœud `prescription`. (1) La divergence sur
+        le seuil de 6,5 % passe en forme comparable (`divergences[]`) : ce que dit la HAS, ce que fait
+        l'outil, sur quelles données. `explication` ne porte plus que les points d'accord. (2)
+        `reco_officielle.source` resserré à un titre de bloc, son détail vérifiable descendu dans
+        `references[]`. (3) `synthese_critique.appuis` cite les cinq essais qui portent la lecture, à la
+        place des revues secondaires (Prescrire, Médicalement Geek), dont le canal d'affichage est
+        supprimé — elles restent tracées en commentaire. (4) L'argumentaire exhaustif perd sa section
+        « Révision » (arbitrages datés, attributions de décision) au profit d'un exposé du PÉRIMÈTRE du
+        nœud : ce qu'il fait de la preuve et où il s'arrête, en trois points. Aucun fait clinique perdu,
+        aucune condition touchée : `argumentaire` et `incertitudes` étaient déjà rédigés sur la donnée et
+        n'ont pas bougé.
     - date: "2026-08-02"
       auteur: "Claude Code (P12/S5, T-125) — en attente de relecture référent"
       resume: >-

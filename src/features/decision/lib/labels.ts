@@ -191,6 +191,12 @@ const CRITERE_LABELS: Record<string, string> = {
   aglp1_indisponible: "AR GLP-1 inutilisable (déjà en cours, dénutrition ou IMC < 22)",
   metformine_deprescriptible:
     "Metformine déprescriptible (fragilité, en dessous de l'objectif, sans sulfamide, glinide, gliptine ni insuline)",
+  // Ajouté le 2026-08-04 (demande utilisateur, correctif « 3 cartes distinctes ») — lu par
+  // `describeReasons` pour humaniser le motif d'une carte ÉCARTÉE (R4) : sans libellé, le repli
+  // mécanique (`humanize`) afficherait le nom de variable brut. Le fait « dose à réduire » lui-même reste
+  // une expression EN CLAIR dans le contenu (jamais un critère `derive`, cf. `prescription.yaml` pour le
+  // pourquoi) : rien à cataloguer ici pour lui, `describeReasons` l'humanise terme par terme.
+  metformine_seule_en_cours: 'Metformine seule en cours (aucun autre agent glycémique)',
   // Écarts à la cible (K6) : lus par le SEUL `preremplissage`, jamais par une règle de décision. Ils ne
   // peuvent donc pas apparaître dans un « Proposé parce que » — mais ils sont catalogués comme les autres,
   // parce qu'une exception nominative dans l'invariant de couverture coûterait plus cher que ces lignes.
@@ -487,6 +493,23 @@ const ENUM_VALUE_TONES: Record<string, TonValeur> = {
   // `risque_hypoglycemie_schema` (partagé prescription/insuline)
   faible: 'succes',
   eleve: 'danger',
+  // `esperance_vie` (partagé cible-glycémique/prescription/insuline, 2026-08-04, demande utilisateur :
+  // chips plus lisibles au premier coup d'œil) : longue → cible stricte envisageable (succès), limitée →
+  // facteur d'assouplissement de la cible (danger, même registre que `risque_hypoglycemie_schema`
+  // ci-dessus — un signal à considérer, pas un jugement sur le patient), intermédiaire entre les deux.
+  longue: 'succes',
+  intermediaire: 'attention',
+  limitee: 'danger',
+  // `preference_injection` (partagé prescription/insuline, 2026-08-04, demande utilisateur) — ARBITRAGE
+  // EXPLICITE DU RÉFÉRENT (2026-07-29, cf. `prescription.yaml`, commentaire de `classes_a_benefice_indisponibles`
+  // retiré) : un refus d'injectable est une PRÉFÉRENCE du patient, jamais un jugement clinique. Le ton
+  // reste donc PUREMENT visuel (repère de lecture), et surtout PAS le même mécanisme que les tons
+  // cliniques ci-dessus qui pilotent une hiérarchie de gravité — demandé explicitement par l'utilisateur
+  // malgré cette réserve, en connaissance du registre (gris neutre/vert/rouge, pas succès/danger au sens
+  // clinique).
+  indifferent: 'neutre',
+  accepte: 'succes',
+  refuse: 'danger',
 }
 
 export function toneForEnumValue(valeur: string): TonValeur | undefined {

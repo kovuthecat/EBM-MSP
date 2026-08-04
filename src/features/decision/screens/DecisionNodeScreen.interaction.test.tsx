@@ -108,7 +108,7 @@ const {
       argumentaire: 'x',
       sources: {
         references_primaires: [],
-        synthese_critique: { donnee: '', references: [] },
+        synthese_critique: { donnee: '' },
         reco_officielle: { source: '', position: '', divergence: false, explication: '' },
       },
       incertitudes: [],
@@ -153,7 +153,7 @@ const {
       argumentaire: 'x',
       sources: {
         references_primaires: [],
-        synthese_critique: { donnee: '', references: [] },
+        synthese_critique: { donnee: '' },
         reco_officielle: { source: '', position: '', divergence: false, explication: '' },
       },
       incertitudes: [],

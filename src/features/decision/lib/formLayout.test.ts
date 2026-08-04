@@ -293,18 +293,23 @@ describe('decisifsAConfirmer — le contenu réel du nœud `prescription`', () =
     // « Traitement » (ce qui est déjà prescrit) puis « Équilibre » (l'état de contrôle glycémique) —
     // deux questions distinctes, désormais deux sections. Ordre de saisie inchangé (même position dans
     // `criteres_entree`), seul le regroupement visuel bouge.
+    // « Tolérance et préférences » AJOUTÉE le 2026-08-04 (demande utilisateur) : regroupe la tolérance au
+    // traitement en cours (ex-« Signaux d'alerte et tolérance ») et la préférence injectable (ex-
+    // « Terrain et préférences »), juste après « Traitement » dont elle discute la tolérance — cf.
+    // `prescription.yaml`, commentaire du bloc `intolerance_traitement`.
     const groupes = grouperChamps(node.criteres_entree, profil({ intention: 'intensifier' }))
     expect(groupes.map((g) => g.libelle)).toEqual([
       'Je souhaite',
       'Traitement',
+      'Tolérance et préférences',
       'Équilibre',
       'Ce qui oriente le choix',
-      "Signaux d'alerte et tolérance",
-      'Terrain et préférences',
+      "Signaux d'alerte",
+      'Terrain',
     ])
     // Le traitement actuel est le 2e élément à renseigner, plus le dernier de la page.
     expect(groupes[1].champs[0].nom).toBe('traitements_en_cours')
-    expect(groupes[2].champs[0].nom).toBe('HbA1c_actuelle')
+    expect(groupes[3].champs[0].nom).toBe('HbA1c_actuelle')
   })
 })
 

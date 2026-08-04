@@ -2,7 +2,7 @@ import { useEffect, useId, useState } from 'react'
 import { Icon } from '../../shared/icons/Icon'
 import { EvidenceBadge } from '../../shared/badges/EvidenceBadge'
 import { PastilleInfo } from '../../shared/ui/PastilleInfo'
-import type { ActionOption, Alerte, Option } from '../content/node.types'
+import type { ActionOption, Alerte, Option, ReferencePrimaire } from '../content/node.types'
 import type { ContreIndicationEvaluee } from '../engine/evaluateNode'
 import { describeReasons } from '../lib/conditionText'
 import { labelForCritere, toSharedNiveauPreuve } from '../lib/labels'
@@ -88,9 +88,11 @@ interface OptionCardProps {
    * entier : une carte reléguée derrière « Autres pistes possibles (N) » ne compte pas comme visible) et
    * transmet le résultat de cette comparaison, jamais un nom de nœud (invariant CLAUDE.md 5).
    *
-   * EFFET : le panneau `--argumentaire` (effet attendu, délai, avantages/inconvénients — c'est là que
-   * vit la phrase EBM que P11 a mise derrière le chevron, cf. `panneauOuvert` ci-dessous) s'ouvre PAR
-   * DÉFAUT au lieu de `null`. Le chevron reste utilisable pour le replier : ceci ne change que l'ÉTAT
+   * EFFET : le panneau `--preuves` (effet chiffré, délai, essais qui les portent — c'est là que vit,
+   * depuis le 2026-08-04, la phrase EBM que P11 avait mise derrière le chevron ; elle était jusque-là
+   * dans `--argumentaire`, cf. `panneauOuvert` ci-dessous) s'ouvre PAR DÉFAUT au lieu de `null`. Ce qui
+   * est rouvert d'office est la DONNÉE EBM, pas un nom de panneau : l'état initial a suivi le
+   * déménagement. Le chevron reste utilisable pour le replier : ceci ne change que l'ÉTAT
    * INITIAL d'un `useState`, jamais le mécanisme d'un seul panneau ouvert à la fois (D45, non révoqué).
    * UN `useEffect` RESYNCHRONISE cet état à CHAQUE CHANGEMENT de valeur de cette prop (pas seulement au
    * montage) : un formulaire qui se remplit progressivement peut faire passer la même carte (même
@@ -98,9 +100,70 @@ interface OptionCardProps {
    * moment « seule » restait ouvert pour toujours, même après que d'autres cartes soient apparues.
    *
    * Défaut `false` : tout appelant qui ne transmet pas cette prop (les bancs de test, un futur
-   * consommateur) obtient exactement le comportement d'avant cette session — quatre panneaux fermés.
+   * consommateur) obtient exactement le comportement d'avant cette session — tous panneaux fermés.
    */
   carteUnique?: boolean
+  /**
+   * MASQUE LE CHIP DE BADGE (« Recommandée »/« Recommandation officielle (France) »/« Mesure de
+   * sécurité ») SUR CETTE CARTE (bug/demande égalité, 2026-08-04) — l'appelant (`DecisionNodeScreen.tsx`)
+   * le passe à `true` quand TOUTES les cartes d'un même groupe d'égalité (`.decision-node__egalite-grid`)
+   * partagent le même `badge`, pour l'afficher UNE SEULE FOIS au-dessus de la paire plutôt que de le
+   * répéter carte par carte. N'affecte QUE le chip textuel : la bordure `--primary` pilotée par `badge`
+   * reste posée sur chaque carte (chaque carte individuelle reste visuellement mise en avant). Défaut
+   * `false` : tout appelant qui ne transmet pas cette prop obtient le rendu historique (chip sur chaque
+   * carte).
+   */
+  badgeMasque?: boolean
+  /**
+   * MASQUE LE CHIP « bas rang » (voir `option.bas_rang`, `node.types.ts`) SUR CETTE CARTE, même logique
+   * et même appelant que `badgeMasque` ci-dessus — hoisté au-dessus du groupe d'égalité quand toutes ses
+   * cartes sont `bas_rang` à l'identique. N'affecte que le chip : l'atténuation visuelle de la carte
+   * (`option-card--bas-rang`) reste posée sur chaque carte individuellement.
+   */
+  basRangMasque?: boolean
+  /**
+   * BADGE D'ACTION EFFECTIF (2026-08-04, demande utilisateur) — remplace `option.action` pour la
+   * bordure/la pastille QUAND FOURNI, sinon repli sur `option.action` (comportement historique). Permet
+   * à une MÊME option de porter un verbe différent selon le patient (ex. metformine : « Ajouter » vs
+   * « Maintenir » — cf. `option.action_si`, résolu par `lib/vueDecision.ts` `resoudreActionEffective`,
+   * jamais recalculé ici : la carte ne connaît toujours pas les critères du patient, seulement le
+   * résultat déjà résolu, même frontière que `calculs`/`badge`).
+   */
+  actionEffective?: ActionOption
+  /**
+   * BIBLIOGRAPHIE DU NŒUD (`node.sources.references_primaires`), pour résoudre `option.sources_ids` en
+   * titres et liens dans le panneau « État des preuves » (2026-08-04). La carte reçoit la liste ENTIÈRE
+   * et filtre elle-même : c'est un simple `Map.get` par id, aucune règle métier — la faire faire à
+   * l'appelant l'obligerait à connaître la structure du panneau.
+   *
+   * Défaut `[]` : un appelant qui ne la transmet pas (bancs de rendu, futur consommateur) obtient un
+   * panneau sans la ligne « D'après », jamais une erreur ni une liste d'ids bruts affichée.
+   */
+  bibliographie?: ReferencePrimaire[]
+}
+
+/**
+ * Chip de badge de mise en avant (« Recommandée »/« Recommandation officielle (France) »/« Mesure de
+ * sécurité ») — extrait de la rangée de badges d'`OptionCard` (2026-08-04) pour être réutilisable
+ * TEL QUEL au-dessus d'un groupe d'égalité entier (`DecisionNodeScreen.tsx`, `badgeMasque`) quand toutes
+ * ses cartes partagent le même badge : même texte, mêmes classes CSS, un seul et même composant — jamais
+ * une deuxième version du libellé à maintenir en synchronisation.
+ */
+export function OptionBadgeChip({ badge }: { badge: 'recommandee' | 'reco-officielle' | 'securite' }) {
+  if (badge === 'recommandee') return <span className="option-card__recommended-badge">Recommandée</span>
+  if (badge === 'reco-officielle') {
+    return <span className="option-card__official-badge">Recommandation officielle (France)</span>
+  }
+  return <span className="option-card__securite-badge">Mesure de sécurité</span>
+}
+
+/**
+ * Chip « bas rang » — même principe de réutilisation qu'`OptionBadgeChip` ci-dessus, pour le hoister
+ * au-dessus d'un groupe d'égalité dont toutes les cartes sont `bas_rang` (`DecisionNodeScreen.tsx`,
+ * `basRangMasque`).
+ */
+export function BasRangChip() {
+  return <span className="option-card__bas-rang-badge">Option de repli — à défaut de mieux</span>
 }
 
 /**
@@ -137,8 +200,11 @@ const ACTION_LABEL: Record<ActionOption, string> = {
   maintenir: 'Maintenir',
 }
 
-/** Les quatre panneaux de la carte (P11/S6) — un seul ouvert à la fois, `null` = tous fermés. */
-type PanneauNom = 'pourquoi' | 'posologie' | 'ci' | 'argumentaire'
+/**
+ * Les CINQ panneaux de la carte (P11/S6, `preuves` ajouté le 2026-08-04) — un seul ouvert à la fois,
+ * `null` = tous fermés.
+ */
+type PanneauNom = 'pourquoi' | 'posologie' | 'ci' | 'preuves' | 'argumentaire'
 
 /**
  * Carte d'option applicable (T-006 étape 2), REFONDUE EN LIGNE UNIQUE le 2026-08-01 (P11/S6, T-111) —
@@ -163,10 +229,22 @@ type PanneauNom = 'pourquoi' | 'posologie' | 'ci' | 'argumentaire'
  * 3. `<AlertList variant="option">` — INCHANGÉ depuis A5, HORS de tout panneau. Un fait de sécurité
  *    s'affiche avec son motif (D21) ; aucun arbitrage de cette session n'a porté dessus, et ça reste
  *    vrai après elle.
- * 4. Quatre panneaux, DANS CET ORDRE, chacun `hidden` quand fermé : `--pourquoi` (justification + motif
+ * 4. Cinq panneaux, DANS CET ORDRE, chacun `hidden` quand fermé : `--pourquoi` (justification + motif
  *    de rang), `--posologie` (aperçu, doses calculées, doses en attente — défaut J, cf. plus bas),
- *    `--ci` (contre-indications actives/indéterminées puis levées, T-068, inchangé), `--argumentaire`
- *    (effet attendu, délai, avantages/inconvénients).
+ *    `--ci` (contre-indications actives/indéterminées puis levées, T-068, inchangé), `--preuves`
+ *    (état des preuves : effet chiffré, délai, essais qui les portent), `--argumentaire`
+ *    (avantages/inconvénients).
+ *
+ * LE BADGE DE NIVEAU DE PREUVE EST UNE COMMANDE (2026-08-04, demande utilisateur). Il ouvre le panneau
+ * `--preuves`, qui porte `effet_attendu` + `delai_benefice` + LES ESSAIS de `option.sources_ids`. Trois
+ * raisons, dans l'ordre de poids : (a) `sources_ids` — les essais qu'une option déclare comme portant
+ * SES chiffres, obligatoires par l'invariant I8 dès `niveau_preuve` modéré ou élevé — n'était affiché
+ * NULLE PART dans l'application, vérifié par recherche : le contenu portait une traçabilité que le
+ * praticien ne pouvait pas lire ; (b) le badge était le seul élément de la rangée sans action, alors
+ * qu'il pose exactement la question à laquelle ce panneau répond (« modérée d'après quoi ? ») ; (c) ça
+ * dégage du panneau `--argumentaire` la donnée chiffrée, qui y cohabitait avec les avantages/
+ * inconvénients — deux registres différents (ce que les essais ont mesuré / ce que ça change en
+ * pratique).
  *
  * TOUJOURS RENDUS, JAMAIS EN MONTAGE CONDITIONNEL — et ce n'est pas cosmétique, deux raisons précises :
  * (a) `aria-controls` d'une pastille doit pointer vers un élément qui EXISTE dans le DOM, ouvert ou non
@@ -182,12 +260,15 @@ type PanneauNom = 'pourquoi' | 'posologie' | 'ci' | 'argumentaire'
  *
  * EXCEPTION D'ÉTAT INITIAL (P12/S10, T-136, arbitrage référent du 2026-08-02, point 4) : quand la prop
  * `carteUnique` est vraie — cette carte est la SEULE rendue sur l'écran de son nœud — `panneauOuvert`
- * démarre sur `'argumentaire'` au lieu de `null`. Ça ne révoque ni D45 ni la règle ci-dessus (toujours un
+ * démarre sur `'preuves'` au lieu de `null`. Ça ne révoque ni D45 ni la règle ci-dessus (toujours un
  * seul panneau ouvert, le chevron replie toujours) : seul l'état de DÉPART change, pour un cas où il n'y
  * a aucune concurrence de place entre cartes (il n'y en a qu'une). C'est la régression P11 signalée en
  * recette (N2, « Fixer la cible ») : l'argument EBM (`effet_attendu`) vivait avant la refonte directement
  * sur la carte, la refonte l'a mis derrière le même chevron que sur un écran à cinq cartes — là où le
- * budget d'espace qui justifiait le repli n'existe pas, puisqu'il n'y a qu'une carte à montrer.
+ * budget d'espace qui justifiait le repli n'existe pas, puisqu'il n'y a qu'une carte à montrer. LE
+ * PANNEAU VISÉ A CHANGÉ LE 2026-08-04, l'intention non : `effet_attendu` a déménagé d'`--argumentaire`
+ * vers `--preuves`, l'état initial le suit. Ce qui est rouvert d'office est la donnée EBM, pas un nom
+ * de panneau.
  *
  * `PastilleInfo` (P11/S3) NE CONNAÎT QUE `ton="neutre"|"danger"` — suffisant pour la pastille CI
  * (`danger` ssi une contre-indication n'est pas levée). La pastille POSOLOGIE a besoin d'un registre
@@ -247,11 +328,19 @@ export function OptionCard({
   alertes,
   contreIndications,
   carteUnique = false,
+  badgeMasque = false,
+  basRangMasque = false,
+  actionEffective,
+  bibliographie = [],
 }: OptionCardProps) {
+  // Repli sur `option.action` (statique) quand l'appelant ne transmet pas `actionEffective` — comportement
+  // historique inchangé pour tout consommateur qui ignore encore cette prop (bancs de test compris).
+  const actionAffichee = actionEffective ?? option.action
   const classeCarte = [
     'option-card',
     badge && 'option-card--primary',
-    option.action && ACTION_BORDER_CLASS[option.action],
+    option.bas_rang && 'option-card--bas-rang',
+    actionAffichee && ACTION_BORDER_CLASS[actionAffichee],
   ]
     .filter(Boolean)
     .join(' ')
@@ -292,15 +381,25 @@ export function OptionCard({
   // Un seul panneau ouvert à la fois (Décision clé n°2 de `PastilleInfo`, S3 ; même registre que
   // `CriteriaForm.tsx` `detailOuvert`). `idBase` (React 19 `useId`) évite toute collision d'`id` entre
   // plusieurs cartes montées sur le même écran.
+  // Essais qui portent les chiffres de CETTE option (`option.sources_ids`, exigés par l'invariant I8 dès
+  // `niveau_preuve` modéré/élevé) — résolus contre la bibliographie du nœud. Un id inconnu est ignoré
+  // ICI : le signaler est le travail d'un invariant de contenu, pas d'un composant de rendu au milieu
+  // d'une consultation.
+  const parId = new Map(bibliographie.map((reference) => [reference.id, reference]))
+  const essais = (option.references ?? [])
+    .map((id) => parId.get(id))
+    .filter((reference): reference is ReferencePrimaire => Boolean(reference))
+
   const idBase = useId()
   const idPourquoi = `${idBase}-pourquoi`
   const idPosologie = `${idBase}-posologie`
   const idCi = `${idBase}-ci`
+  const idPreuves = `${idBase}-preuves`
   const idArgumentaire = `${idBase}-argumentaire`
   // ÉTAT INITIAL (P12/S10, T-136) : `'argumentaire'` quand cette carte est seule sur son écran
   // (`carteUnique`, cf. docstring de la prop) — c'est là que vit la phrase EBM que P11 avait mise
   // derrière le chevron. `null` dans tous les autres cas, comportement inchangé depuis P11/S6.
-  const [panneauOuvert, setPanneauOuvert] = useState<PanneauNom | null>(carteUnique ? 'argumentaire' : null)
+  const [panneauOuvert, setPanneauOuvert] = useState<PanneauNom | null>(carteUnique ? 'preuves' : null)
   const togglePanneau = (nom: PanneauNom) => setPanneauOuvert((actuel) => (actuel === nom ? null : nom))
 
   // RESYNCHRONISATION SUR CHANGEMENT DE `carteUnique` (P12/S10, T-136 — bug trouvé au navigateur, pas
@@ -314,35 +413,41 @@ export function OptionCard({
   // — jamais sur un simple re-rendu à `carteUnique` inchangé, donc jamais sur un repli manuel de
   // l'utilisateur (clic sur le chevron) pendant que la carte reste seule.
   useEffect(() => {
-    setPanneauOuvert(carteUnique ? 'argumentaire' : null)
+    setPanneauOuvert(carteUnique ? 'preuves' : null)
   }, [carteUnique])
 
   return (
     <div className={classeCarte}>
-      {badge && (
+      {((badge && !badgeMasque) || (option.bas_rang && !basRangMasque)) && (
         <div className="option-card__badges">
-          {badge === 'recommandee' && <span className="option-card__recommended-badge">Recommandée</span>}
-          {badge === 'reco-officielle' && (
-            <span className="option-card__official-badge">Recommandation officielle (France)</span>
-          )}
-          {/* Arbitrage référent 2026-07-29 (cf. docstring de la prop `badge`) : une carte mise en avant
-              PARCE QU'ELLE EST UNE MESURE DE SÉCURITÉ, et non parce qu'elle serait le meilleur choix
-              parmi plusieurs. */}
-          {badge === 'securite' && <span className="option-card__securite-badge">Mesure de sécurité</span>}
+          {badge && !badgeMasque && <OptionBadgeChip badge={badge} />}
+          {option.bas_rang && !basRangMasque && <BasRangChip />}
         </div>
       )}
 
       {/* LA RANGÉE — toujours visible, une ligne (P11/S6). */}
       <div className="option-card__rangee">
-        {option.action && (
+        {actionAffichee && (
           <span
-            className={`option-card__action-pastille option-card__action-pastille--${option.action}`}
+            className={`option-card__action-pastille option-card__action-pastille--${actionAffichee}`}
           >
-            {ACTION_LABEL[option.action]}
+            {ACTION_LABEL[actionAffichee]}
           </span>
         )}
         <span className="option-card__title">{option.intitule}</span>
-        <EvidenceBadge niveau={toSharedNiveauPreuve(option.niveau_preuve)} />
+        {/* LE BADGE EST UNE COMMANDE (2026-08-04) — cf. docstring de tête. `EvidenceBadge` reste un
+            composant PARTAGÉ et PUREMENT visuel (module Veille compris) : c'est le bouton qui porte
+            l'interaction et l'accessibilité (`aria-expanded`/`aria-controls`), pas le badge. */}
+        <button
+          type="button"
+          className="option-card__preuves-toggle"
+          aria-label={`État des preuves — ${option.intitule}`}
+          aria-expanded={panneauOuvert === 'preuves'}
+          aria-controls={idPreuves}
+          onClick={() => togglePanneau('preuves')}
+        >
+          <EvidenceBadge niveau={toSharedNiveauPreuve(option.niveau_preuve)} />
+        </button>
         <PastilleInfo
           icone="info"
           libelle="Proposé parce que"
@@ -425,6 +530,14 @@ export function OptionCard({
             {option.apercu}
           </div>
         )}
+        {/* Texte détaillé (2026-08-04, demande utilisateur) : schéma de titration/observance, sorti de
+            l'argumentaire avantages/inconvénients pour vivre ici, là où un praticien qui cherche « comment
+            je prescris » le cherche réellement — cf. docstring `Option.posologie_detail`. */}
+        {option.posologie_detail?.map((paragraphe, index) => (
+          <div key={`${index}-${paragraphe.slice(0, 30)}`} className="option-card__apercu">
+            {paragraphe}
+          </div>
+        ))}
         {calculs.length > 0 && (
           <div className="option-card__calculs">
             <span className="option-card__calculs-label">Doses indicatives : </span>
@@ -471,13 +584,13 @@ export function OptionCard({
         )}
       </div>
 
-      {/* PANNEAU « ARGUMENTAIRE » — effet attendu, délai, avantages/inconvénients. Ex-contenu du dépli
-          unique d'A5, amputé de « Proposé parce que »/« Ce rang tient compte de » (partis dans le
-          panneau `--pourquoi` ci-dessus) et des contre-indications (parties dans `--ci`). */}
+      {/* PANNEAU « ÉTAT DES PREUVES » (2026-08-04) — ouvert par le badge de niveau de preuve. CE QUE LES
+          ESSAIS ONT MESURÉ : l'effet chiffré, son délai d'apparition, et les essais qui les portent. À
+          distinguer du panneau `--argumentaire` ci-dessous, qui dit ce que ça change EN PRATIQUE. */}
       <div
-        id={idArgumentaire}
-        className="option-card__panneau option-card__panneau--argumentaire"
-        hidden={panneauOuvert !== 'argumentaire'}
+        id={idPreuves}
+        className="option-card__panneau option-card__panneau--preuves"
+        hidden={panneauOuvert !== 'preuves'}
       >
         <div className="option-card__effet">{option.effet_attendu}</div>
 
@@ -489,6 +602,34 @@ export function OptionCard({
           <div className="option-card__delai">Délai du bénéfice : {option.delai_benefice}</div>
         )}
 
+        {essais.length > 0 && (
+          <div className="option-card__essais">
+            <span className="option-card__essais-label">D'après : </span>
+            {essais.map((reference, index) => (
+              <span key={reference.id}>
+                {index > 0 && ' · '}
+                {reference.lien ? (
+                  <a href={reference.lien} target="_blank" rel="noreferrer">
+                    {reference.titre} ({reference.annee})
+                  </a>
+                ) : (
+                  `${reference.titre} (${reference.annee})`
+                )}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* PANNEAU « ARGUMENTAIRE » — avantages/inconvénients. Ex-contenu du dépli unique d'A5, amputé de
+          « Proposé parce que »/« Ce rang tient compte de » (partis dans le panneau `--pourquoi`), des
+          contre-indications (parties dans `--ci`), et depuis le 2026-08-04 de l'effet chiffré et de son
+          délai (partis dans `--preuves` ci-dessus). */}
+      <div
+        id={idArgumentaire}
+        className="option-card__panneau option-card__panneau--argumentaire"
+        hidden={panneauOuvert !== 'argumentaire'}
+      >
         <div className="option-card__lists">
           <div>
             <div className="option-card__list-title">Avantages</div>

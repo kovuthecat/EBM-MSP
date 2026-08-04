@@ -220,6 +220,34 @@
   margin-right: 4px;
 }
 
+/* ICÔNES D'INTENTION COLORÉES (2026-08-04, demande utilisateur : « compréhensible au premier coup
+   d'œil ») — 4 teintes CATÉGORIELLES, visibles EN PERMANENCE (pas seulement au clic, contrairement au
+   `data-ton` clinique ci-dessous) : ce ne sont pas des tons de gravité, juste un repère de couleur par
+   verbe pour les distinguer d'un regard, avant même d'avoir choisi. AUCUNE hiérarchie entre elles —
+   Initier/Intensifier/Optimiser/Déprescrire restent quatre actes légitimes, aucun n'est « meilleur »
+   qu'un autre (cf. `lib/labels.ts`, docstring `ENUM_VALUE_ICONS`) : c'est pour ça qu'elles n'empruntent
+   AUCUN des tons cliniques (succès/attention/danger) ni des couleurs d'action des cartes de résultat
+   (`--c-action-*`, `OptionCard.css`) — 4 teintes NEUVES, pour qu'aucune lecture croisée involontaire
+   (« vert = bon », « rouge = à éviter ») ne s'installe. `data-valeur` scope ces règles aux 4 verbes
+   d'`intention` par leur nom exact (ci-dessus, `CriteriaForm.tsx`) : une valeur d'un AUTRE critère qui
+   porterait accidentellement le même nom n'existe pas dans le catalogue actuel (`ENUM_VALUE_ICONS`
+   réserve déjà ces 4 clés à `intention` seule). */
+.criteria-form__segment[data-valeur='initier'] .criteria-form__segment-icon {
+  color: oklch(52% 0.13 254);
+}
+
+.criteria-form__segment[data-valeur='intensifier'] .criteria-form__segment-icon {
+  color: oklch(52% 0.11 175);
+}
+
+.criteria-form__segment[data-valeur='optimiser'] .criteria-form__segment-icon {
+  color: oklch(52% 0.14 300);
+}
+
+.criteria-form__segment[data-valeur='deprescrire'] .criteria-form__segment-icon {
+  color: oklch(52% 0.13 80);
+}
+
 .criteria-form__segment[data-on] {
   background: var(--c-accent-decision-soft);
   border-color: var(--c-accent-decision-soft);
@@ -233,12 +261,23 @@
    repos — sinon les options d'un même champ s'allumeraient toutes en couleur et plus rien ne
    distinguerait la réponse retenue.
 
-   `succes`/`attention`/`danger` seulement. PAS DE RÈGLE POUR `info` (`sous_objectif`) : `tokens.css` ne
-   porte pas de triplet `--c-ton-info-*` (seule une pastille `--c-pastille-info` existe pour lui, cf.
-   plus bas) — sa couleur EST déjà celle du bleu de sélection par défaut ci-dessus
+   `succes`/`attention`/`danger` seulement à l'origine. PAS DE RÈGLE POUR `info` (`sous_objectif`) :
+   `tokens.css` ne porte pas de triplet `--c-ton-info-*` (seule une pastille `--c-pastille-info` existe
+   pour lui, cf. plus bas) — sa couleur EST déjà celle du bleu de sélection par défaut ci-dessus
    (`--c-accent-decision`/`--c-accent-decision-soft`, le même bleu que la maquette lui donne, l.119), une
-   règle dédiée serait redondante. PAS DE RÈGLE POUR `neutre` non plus : aucune valeur du catalogue actuel
-   ne le produit (`toneForEnumValue` ne renvoie jamais `'neutre'` aujourd'hui). */
+   règle dédiée serait redondante.
+
+   `neutre` AJOUTÉ le 2026-08-04 (demande utilisateur, `preference_injection == indifferent`) : premier
+   consommateur de ce ton. Registre GRIS, distinct des trois tons cliniques ci-dessous — réutilise les
+   mêmes tokens que le badge « Recommandation officielle » d'`OptionCard.css` (`--c-pill-track`/
+   `--c-text-secondary`), déjà LE gris neutre de cet écran, plutôt qu'une nouvelle couleur. */
+.criteria-form__segment[data-on][data-ton='neutre'],
+.criteria-form__chip[data-on][data-ton='neutre'] {
+  background: var(--c-pill-track);
+  border-color: var(--c-border);
+  color: var(--c-text-secondary);
+}
+
 .criteria-form__segment[data-on][data-ton='succes'],
 .criteria-form__chip[data-on][data-ton='succes'] {
   background: var(--c-ton-succes-bg);
@@ -303,11 +342,58 @@
   background: var(--c-surface);
 }
 
+/* Ancre `.criteria-form__flag-input` (position: absolute) à CE conteneur, pas à un ancêtre plus large. */
+.criteria-form__field--flag {
+  position: relative;
+}
+
 .criteria-form__field--flag input,
 .criteria-form__chip input {
   width: 16px;
   height: 16px;
   flex: none;
+}
+
+/* Drapeau (2026-08-04, demande utilisateur) — la case native de `.criteria-form__field--flag` reste dans
+   le DOM pour le clavier/lecteur d'écran (`:checked`, `:focus-visible` pilotent l'icône ci-dessous en CSS
+   pur, aucun état dupliqué côté JS) mais perd son apparence par défaut : `position: absolute` + `opacity:
+   0` plutôt que `display: none`/`visibility: hidden`, qui la sortiraient de l'arbre d'accessibilité. Ne
+   s'applique QU'À `.criteria-form__field--flag` (les bool) : `.criteria-form__chip` (valeurs de `liste`,
+   ex. traitements en cours) garde sa case native inchangée — un médicament coché n'est pas un drapeau. */
+.criteria-form__flag-input {
+  position: absolute;
+  opacity: 0;
+  width: 16px;
+  height: 16px;
+  flex: none;
+  margin: 0;
+}
+
+/* Contour au repos, rempli une fois coché — même tracé (`Icon` nom="drapeau"), seul `fill`/`stroke` du
+   `<path>` change : la CSS l'emporte toujours sur les attributs de présentation posés dans `paths.ts`
+   (`fill="currentColor"` par défaut sur ce tracé précis, cf. son commentaire). Rouge (`--c-ton-danger-text`,
+   même registre que les alertes de sécurité ailleurs dans l'écran) : ces critères sont par construction
+   des signaux à noter en consultation. */
+.criteria-form__flag-icon {
+  flex: none;
+  color: var(--c-ton-danger-text);
+}
+
+.criteria-form__flag-icon path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+
+.criteria-form__flag-input:checked ~ .criteria-form__flag-icon path {
+  fill: currentColor;
+  stroke: none;
+}
+
+.criteria-form__flag-input:focus-visible ~ .criteria-form__flag-icon {
+  outline: 2px solid var(--c-accent-decision);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
 
 .criteria-form__chip[data-on] {

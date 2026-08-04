@@ -16,6 +16,9 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - intention = initier
   ○ - traitements_en_cours = []
   ○ - dose_metformine = 0
+  ○ - intolerance_traitement = false
+  ○ - nature_intolerance = []
+  ○ - preference_injection = indifferent
   ○ - HbA1c_actuelle = 0
   ○ - position_vs_cible = a_l_objectif
   ○ - ASCVD_etablie = false
@@ -29,54 +32,54 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - hypoglycemie_recente = false
   ○ - denutrition = false
   ○ - infections_uro_genitales_recidivantes = false
-  ○ - intolerance_traitement = false
-  ○ - nature_intolerance = []
   ○ - age = 0
   ○ - fragilite = false
   ○ - esperance_vie = longue
   ○ - risque_hypoglycemie_schema = faible
-  ○ - preference_injection = indifferent
 
 Sortie :
   (aucune option applicable — sortie vide)
   Options EN ATTENTE (indétermination, R7/D20) :
-    - Metformine — instaurer ou poursuivre :: à renseigner : intention, traitements_en_cours, position_vs_cible, DFG, fragilite
-    - Arrêter la metformine (DFG < 30) :: à renseigner : intention, traitements_en_cours, DFG
-    - Réduire la posologie de la metformine :: à renseigner : intention, traitements_en_cours, dose_metformine, DFG, intolerance_traitement, nature_intolerance
-    - Arrêter le sulfamide (DFG < 30) :: à renseigner : intention, traitements_en_cours, DFG
-    - Suspendre l'iSGLT2 :: à renseigner : intention, traitements_en_cours, cetonemie
+    - Metformine :: à renseigner : intention, traitements_en_cours, dose_metformine, intolerance_traitement, nature_intolerance, position_vs_cible, DFG, fragilite
+    - Metformine (DFG < 30) :: à renseigner : intention, traitements_en_cours, DFG
+    - Metformine :: à renseigner : intention, traitements_en_cours, dose_metformine, intolerance_traitement, nature_intolerance, DFG
+    - Sulfamide (DFG < 30) :: à renseigner : intention, traitements_en_cours, DFG
+    - iSGLT2 :: à renseigner : intention, traitements_en_cours, cetonemie
     - Insuline d'initiation :: à renseigner : traitements_en_cours, HbA1c_actuelle, symptomes_glucotoxicite, cetonemie
-    - Introduire un iSGLT2 :: à renseigner : intention, traitements_en_cours, position_vs_cible, DFG, albuminurie, poids, taille, denutrition
-    - Introduire un AR GLP‑1 :: à renseigner : intention, traitements_en_cours, position_vs_cible, DFG, poids, taille, denutrition
-    - Introduire le tirzépatide :: à renseigner : intention, traitements_en_cours, DFG, poids, taille, denutrition
+    - iSGLT2 :: à renseigner : intention, traitements_en_cours, position_vs_cible, DFG, albuminurie, poids, taille, denutrition
+    - AR GLP‑1 :: à renseigner : intention, traitements_en_cours, position_vs_cible, DFG, poids, taille, denutrition
+    - Tirzépatide :: à renseigner : intention, traitements_en_cours, DFG, poids, taille, denutrition
     - Association iSGLT2 + AR GLP‑1 :: à renseigner : intention, traitements_en_cours, DFG, albuminurie, poids, taille, denutrition
     - Envisager l'insuline :: à renseigner : intention, traitements_en_cours, position_vs_cible, DFG, poids, taille, denutrition
-    - Remplacer la gliptine :: à renseigner : intention, traitements_en_cours
-    - Arrêter la gliptine redondante :: à renseigner : intention, traitements_en_cours
-    - Remplacer le sulfamide :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, DFG
-    - Remplacer le glinide :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, DFG
+    - Gliptine :: à renseigner : intention, traitements_en_cours
+    - Gliptine (redondante) :: à renseigner : intention, traitements_en_cours
+    - Sulfamide :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, DFG
+    - Glinide :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, DFG
     - Optimiser l'agent mal toléré :: à renseigner : intention, traitements_en_cours, intolerance_traitement
     - Désintensifier : alléger la charge thérapeutique :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, position_vs_cible, DFG
-    - Réduire la posologie de l'insuline :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, position_vs_cible, DFG, intolerance_traitement
-    - Réduire la posologie de l'AR GLP‑1 :: à renseigner : intention, traitements_en_cours, denutrition, intolerance_traitement, nature_intolerance
-    - Réduire la posologie du tirzépatide :: à renseigner : intention, traitements_en_cours, denutrition, intolerance_traitement, nature_intolerance
-    - Réduire la posologie du sulfamide :: à renseigner : intention, traitements_en_cours, position_vs_cible, intolerance_traitement
-    - Réduire la posologie du glinide :: à renseigner : intention, traitements_en_cours, position_vs_cible, intolerance_traitement
-    - Déprescrire la metformine :: à renseigner : intention, traitements_en_cours, position_vs_cible, fragilite
-    - Gliptine — option glycémique orale de bas rang :: à renseigner : intention, traitements_en_cours, position_vs_cible, DFG, poids, taille, denutrition
-    - Sulfamide — option glycémique de bas rang :: à renseigner : intention, traitements_en_cours, position_vs_cible, DFG, poids, taille, denutrition
+    - Insuline :: à renseigner : intention, traitements_en_cours, intolerance_traitement, HbA1c_actuelle, position_vs_cible, DFG
+    - AR GLP‑1 :: à renseigner : intention, traitements_en_cours, intolerance_traitement, nature_intolerance, denutrition
+    - Tirzépatide :: à renseigner : intention, traitements_en_cours, intolerance_traitement, nature_intolerance, denutrition
+    - Sulfamide :: à renseigner : intention, traitements_en_cours, intolerance_traitement, position_vs_cible
+    - Glinide :: à renseigner : intention, traitements_en_cours, intolerance_traitement, position_vs_cible
+    - Metformine (désintensification) :: à renseigner : intention, traitements_en_cours, position_vs_cible, fragilite
+    - Gliptine :: à renseigner : intention, traitements_en_cours, position_vs_cible, DFG, poids, taille, denutrition
+    - Sulfamide :: à renseigner : intention, traitements_en_cours, position_vs_cible, DFG, poids, taille, denutrition
 
-### Profil #1 — 1 critère masqué (ciblé — cité par une `exclusions` du nœud) : DFG
+### Profil #1 — 1 critère masqué (ciblé — cité par une `exclusions` du nœud) : intention
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - intention = deprescrire
+  ○ - intention = deprescrire
   ■ - traitements_en_cours = [gliptine]
   ■ - dose_metformine = 45
+  ■ - intolerance_traitement = false
+  ■ - nature_intolerance = [perte_poids]
+  ■ - preference_injection = accepte
   ■ - HbA1c_actuelle = 5.5
   ■ - position_vs_cible = a_l_objectif
   ■ - ASCVD_etablie = true
   ■ - insuffisance_cardiaque = true
-  ○ - DFG = 5.5
+  ■ - DFG = 5.5
   ■ - albuminurie = macro
   ■ - poids = 21
   ■ - taille = 1
@@ -85,201 +88,197 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - hypoglycemie_recente = true
   ■ - denutrition = false
   ■ - infections_uro_genitales_recidivantes = true
-  ■ - intolerance_traitement = false
-  ■ - nature_intolerance = [perte_poids]
   ■ - age = 74
   ■ - fragilite = false
   ■ - esperance_vie = longue
   ■ - risque_hypoglycemie_schema = faible
-  ■ - preference_injection = accepte
-
-Sortie :
-  Famille « Traitement à corriger ou remplacer » (exclusive: false) :
-  - [recommandee] Remplacer la gliptine
-      proposé parce que : intention != initier AND traitements_en_cours contient gliptine
-  Alertes de nœud :
-    - iSGLT2 (en cours ou indiqué par la comorbidité) + infections génito‑urinaires récidivantes : réévaluer l'indication (ne pas initier / envisager l'arrêt) ; risque de gangrène de Fournier. Préférer une autre classe si une protection est requise. [attention]
-    - Intention déclarée : déprescrire. Si un geste d'ajout s'affiche malgré tout ci‑dessous, il reflète une indication transverse (protection cardio‑rénale ou athéromateuse, valable quel que soit le motif de la consultation) ou le remplacement d'un agent sans bénéfice déjà en cours — jamais une contradiction avec l'intention saisie. Si aucun geste de désintensification ne s'affiche, c'est qu'aucun critère saisi ne le déclenche à ce jour (agent hypoglycémiant en cours, sur‑contrôle, hypoglycémie récente chez le fragile) : consultez « Pourquoi pas d'autres options ? » pour le détail des options non retenues sur ce patient. [info]
-    - Non-association incrétine : si un AR GLP‑1 ou le tirzépatide est introduit, la gliptine doit être ARRÊTÉE — même voie incrétine, aucun bénéfice additif (Nauck 2017 ; ADA §9 ; KDIGO PP4.2.3 ; HAS R.80). Ne jamais les associer. [attention]
-  Options EN ATTENTE (indétermination, R7/D20) :
-    - Metformine — instaurer ou poursuivre :: à renseigner : DFG
-    - Sulfamide — option glycémique de bas rang :: à renseigner : DFG
-
-### Profil #2 — 15 critère(s) masqué(s) (masque stratifié) : taille, intolerance_traitement, position_vs_cible, albuminurie, fragilite, infections_uro_genitales_recidivantes, insuffisance_cardiaque, nature_intolerance, intention, dose_metformine, ASCVD_etablie, DFG, esperance_vie, hypoglycemie_recente, risque_hypoglycemie_schema
-
-Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ○ - intention = deprescrire
-  ■ - traitements_en_cours = [aGLP1, sulfamide, gliptine, insuline]
-  ○ - dose_metformine = 45
-  ■ - HbA1c_actuelle = 18
-  ○ - position_vs_cible = a_l_objectif
-  ○ - ASCVD_etablie = true
-  ○ - insuffisance_cardiaque = true
-  ○ - DFG = 59
-  ○ - albuminurie = macro
-  ■ - poids = 21
-  ○ - taille = 1
-  ■ - symptomes_glucotoxicite = false
-  ■ - cetonemie = false
-  ○ - hypoglycemie_recente = true
-  ■ - denutrition = false
-  ○ - infections_uro_genitales_recidivantes = true
-  ○ - intolerance_traitement = false
-  ○ - nature_intolerance = [perte_poids]
-  ■ - age = 74
-  ○ - fragilite = false
-  ○ - esperance_vie = longue
-  ○ - risque_hypoglycemie_schema = faible
-  ■ - preference_injection = accepte
 
 Sortie :
   (aucune option applicable — sortie vide)
   Alertes de nœud :
-    - Contrôler la cétonémie capillaire (β‑hydroxybutyrate) : décompensation catabolique possible malgré une HbA1c non franchement élevée. ≥ 0,6 mmol/L → insuline d'initiation ; ≥ 3 mmol/L → urgence (insuline + hospitalisation). [attention]
+    - Metformine CONTRE‑INDIQUÉE si DFG < 30 (RCP ANSM) : arrêter ; sulfamide aussi. Un iSGLT2 reste initiable jusqu'à DFG ≥ 20 (indication rénale). Ces limites portent sur l'ÉLIMINATION RÉNALE des agents, pas sur leur efficacité glycémique : l'AR GLP‑1 et l'insuline n'ont pas de contre‑indication liée au DFG et restent utilisables en dessous de 20. [attention]
     - iSGLT2 (en cours ou indiqué par la comorbidité) + infections génito‑urinaires récidivantes : réévaluer l'indication (ne pas initier / envisager l'arrêt) ; risque de gangrène de Fournier. Préférer une autre classe si une protection est requise. [attention]
-  Options EN ATTENTE (indétermination, R7/D20) :
-    - Metformine — instaurer ou poursuivre :: à renseigner : DFG
-    - Arrêter le sulfamide (DFG < 30) :: à renseigner : intention, DFG
-    - Introduire un iSGLT2 :: à renseigner : intention, taille
-    - Envisager l'insuline :: à renseigner : intention, position_vs_cible, taille
-    - Arrêter la gliptine redondante :: à renseigner : intention
-    - Remplacer le sulfamide :: à renseigner : intention
-    - Optimiser l'agent mal toléré :: à renseigner : intention, intolerance_traitement
-    - Désintensifier : alléger la charge thérapeutique :: à renseigner : intention, position_vs_cible, fragilite, esperance_vie, risque_hypoglycemie_schema
-    - Réduire la posologie de l'AR GLP‑1 :: à renseigner : intention, intolerance_traitement, nature_intolerance
-    - Réduire la posologie du sulfamide :: à renseigner : intention
-
-### Profil #3 — 11 critère(s) masqué(s) (masque stratifié) : position_vs_cible, risque_hypoglycemie_schema, denutrition, albuminurie, preference_injection, symptomes_glucotoxicite, esperance_vie, taille, HbA1c_actuelle, dose_metformine, insuffisance_cardiaque
-
-Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ■ - intention = intensifier
-  ■ - traitements_en_cours = [insuline]
-  ○ - dose_metformine = 44
-  ○ - HbA1c_actuelle = 5.5
-  ○ - position_vs_cible = nettement_au_dessus
-  ■ - ASCVD_etablie = true
-  ○ - insuffisance_cardiaque = false
-  ■ - DFG = 60
-  ○ - albuminurie = micro
-  ■ - poids = 31
-  ○ - taille = 1
-  ○ - symptomes_glucotoxicite = false
-  ■ - cetonemie = true
-  ■ - hypoglycemie_recente = true
-  ○ - denutrition = true
-  ■ - infections_uro_genitales_recidivantes = false
-  ■ - intolerance_traitement = true
-  ■ - nature_intolerance = [uro_genitale]
-  ■ - age = 18
-  ■ - fragilite = true
-  ○ - esperance_vie = limitee
-  ○ - risque_hypoglycemie_schema = eleve
-  ○ - preference_injection = indifferent
-
-Sortie :
-  Famille « À faire d'emblée — sécurité » (exclusive: false) :
-  - [securite] Insuline d'initiation
-      proposé parce que : cetonemie == true
-  Famille « Socle du traitement » (exclusive: false) :
-  - [reco-officielle] Metformine — instaurer ou poursuivre
-      proposé parce que : toujours
-  Alertes de nœud :
-    - Contrôler la cétonémie capillaire (β‑hydroxybutyrate) : décompensation catabolique possible malgré une HbA1c non franchement élevée. ≥ 0,6 mmol/L → insuline d'initiation ; ≥ 3 mmol/L → urgence (insuline + hospitalisation). [attention]
+    - Place résiduelle en insuffisance rénale : sitagliptine à dose réduite (50 mg si DFG 30‑44). En dessous de 30 (dialyse incluse), la SFD 2025 nomme la vildagliptine 50 mg/j — la forme sitagliptine 25 mg n'est pas commercialisée en France. Sulfamide gliclazide/glimépiride à dose réduite mais CONTRE‑INDIQUÉ < 30 ; jamais de glibenclamide. [attention]
   Options écartées (sécurité, R4) :
-    - Introduire un iSGLT2 :: cetonemie == true
-    - Introduire un AR GLP‑1 :: cetonemie == true
+    - Metformine :: DFG < 30
+    - Sulfamide :: DFG < 30
   Options EN ATTENTE (indétermination, R7/D20) :
-    - Introduire le tirzépatide :: à renseigner : taille
-    - Association iSGLT2 + AR GLP‑1 :: à renseigner : albuminurie
-    - Gliptine — option glycémique orale de bas rang :: à renseigner : position_vs_cible
-    - Sulfamide — option glycémique de bas rang :: à renseigner : position_vs_cible
+    - Gliptine :: à renseigner : intention
 
-### Profil #4 — 11 critère(s) masqué(s) (masque stratifié) : cetonemie, denutrition, poids, hypoglycemie_recente, taille, infections_uro_genitales_recidivantes, insuffisance_cardiaque, esperance_vie, fragilite, intention, age
+### Profil #2 — 1 critère masqué (ciblé — cité par une `exclusions` du nœud) : dose_metformine
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
-  ○ - intention = optimiser
-  ■ - traitements_en_cours = [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, glinide]
-  ■ - dose_metformine = 1000
-  ■ - HbA1c_actuelle = 11
-  ■ - position_vs_cible = sous_objectif
-  ■ - ASCVD_etablie = false
-  ○ - insuffisance_cardiaque = true
-  ■ - DFG = 45
-  ■ - albuminurie = normo
-  ○ - poids = 23
-  ○ - taille = 1
-  ■ - symptomes_glucotoxicite = true
-  ○ - cetonemie = false
-  ○ - hypoglycemie_recente = false
-  ○ - denutrition = false
-  ○ - infections_uro_genitales_recidivantes = true
+  ■ - intention = deprescrire
+  ■ - traitements_en_cours = [aGLP1, sulfamide, gliptine, insuline]
+  ○ - dose_metformine = 45
   ■ - intolerance_traitement = false
-  ■ - nature_intolerance = []
-  ○ - age = 76
-  ○ - fragilite = false
-  ○ - esperance_vie = limitee
+  ■ - nature_intolerance = [perte_poids]
+  ■ - preference_injection = accepte
+  ■ - HbA1c_actuelle = 18
+  ■ - position_vs_cible = a_l_objectif
+  ■ - ASCVD_etablie = true
+  ■ - insuffisance_cardiaque = true
+  ■ - DFG = 59
+  ■ - albuminurie = macro
+  ■ - poids = 21
+  ■ - taille = 1
+  ■ - symptomes_glucotoxicite = false
+  ■ - cetonemie = false
+  ■ - hypoglycemie_recente = true
+  ■ - denutrition = false
+  ■ - infections_uro_genitales_recidivantes = true
+  ■ - age = 74
+  ■ - fragilite = false
+  ■ - esperance_vie = longue
   ■ - risque_hypoglycemie_schema = faible
-  ■ - preference_injection = refuse
 
 Sortie :
-  Famille « À faire d'emblée — sécurité » (exclusive: false) :
-  - [securite] Insuline d'initiation
-      proposé parce que : HbA1c_actuelle >= 10 AND symptomes_glucotoxicite == true
+  Famille « Traitement à alléger » (exclusive: false) :
+  - [recommandee] Sulfamide
+      proposé parce que : intention != initier AND traitements_en_cours contient sulfamide ; hypoglycemie_recente == true
   Famille « Socle du traitement » (exclusive: false) :
-  - [reco-officielle] Metformine — instaurer ou poursuivre
+  - [reco-officielle] Metformine
       proposé parce que : toujours
+  Famille « Traitement à corriger ou remplacer » (exclusive: false) :
+    -- groupe d'égalité #0 --
+  - [recommandee] Gliptine (redondante)
+      proposé parce que : intention != initier AND traitements_en_cours contient gliptine ; intention != initier AND traitements_en_cours contient aGLP1
+    -- groupe d'égalité #1 --
+  - [recommandee] Sulfamide
+      proposé parce que : intention != initier AND traitements_en_cours contient sulfamide ; hba1c_sous_cible == false
   Alertes de nœud :
     - Contrôler la cétonémie capillaire (β‑hydroxybutyrate) : décompensation catabolique possible malgré une HbA1c non franchement élevée. ≥ 0,6 mmol/L → insuline d'initiation ; ≥ 3 mmol/L → urgence (insuline + hospitalisation). [attention]
     - Metformine : dose maximale 2 000 mg/j si DFG 45‑59 (RCP ANSM) ; revoir au préalable les facteurs de risque d'acidose lactique. [attention]
     - iSGLT2 (en cours ou indiqué par la comorbidité) + infections génito‑urinaires récidivantes : réévaluer l'indication (ne pas initier / envisager l'arrêt) ; risque de gangrène de Fournier. Préférer une autre classe si une protection est requise. [attention]
     - Cohérence : HbA1c ≥ 9 % alors que le patient est déclaré à l'objectif ou en dessous. Aucune cible individualisée ne dépasse 9 % (la bande la plus large est « < 9 % », réservée au sujet âgé dépendant) — vérifier l'objectif retenu : une INTENSIFICATION est probablement indiquée. [attention]
-  Options EN ATTENTE (indétermination, R7/D20) :
-    - Suspendre l'iSGLT2 :: à renseigner : intention, cetonemie
-    - Arrêter la gliptine redondante :: à renseigner : intention
-    - Remplacer le sulfamide :: à renseigner : intention
-    - Remplacer le glinide :: à renseigner : intention
-    - Désintensifier : alléger la charge thérapeutique :: à renseigner : intention
-    - Réduire la posologie de l'AR GLP‑1 :: à renseigner : intention, denutrition
-    - Réduire la posologie du tirzépatide :: à renseigner : intention, denutrition
-    - Réduire la posologie du sulfamide :: à renseigner : intention
-    - Réduire la posologie du glinide :: à renseigner : intention
+    - Intention déclarée : déprescrire. Si un geste d'ajout s'affiche malgré tout ci‑dessous, il reflète une indication transverse (protection cardio‑rénale ou athéromateuse, valable quel que soit le motif de la consultation) ou le remplacement d'un agent sans bénéfice déjà en cours — jamais une contradiction avec l'intention saisie. Si aucun geste de désintensification ne s'affiche, c'est qu'aucun critère saisi ne le déclenche à ce jour (agent hypoglycémiant en cours, sur‑contrôle, hypoglycémie récente chez le fragile) : consultez « Pourquoi pas d'autres options ? » pour le détail des options non retenues sur ce patient. [info]
+    - Non-association incrétine : si un AR GLP‑1 ou le tirzépatide est introduit, la gliptine doit être ARRÊTÉE — même voie incrétine, aucun bénéfice additif (Nauck 2017 ; ADA §9 ; KDIGO PP4.2.3 ; HAS R.80). Ne jamais les associer. [attention]
 
-### Profil #5 — 5 critère(s) masqué(s) (masque stratifié) : albuminurie, hypoglycemie_recente, fragilite, denutrition, preference_injection
+### Profil #3 — 1 critère masqué (ciblé — cité par une `exclusions` du nœud) : DFG
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ■ - intention = intensifier
+  ■ - traitements_en_cours = [insuline]
+  ■ - dose_metformine = 44
+  ■ - intolerance_traitement = true
+  ■ - nature_intolerance = [uro_genitale]
+  ■ - preference_injection = indifferent
+  ■ - HbA1c_actuelle = 5.5
+  ■ - position_vs_cible = nettement_au_dessus
+  ■ - ASCVD_etablie = true
+  ■ - insuffisance_cardiaque = false
+  ○ - DFG = 60
+  ■ - albuminurie = micro
+  ■ - poids = 31
+  ■ - taille = 1
+  ■ - symptomes_glucotoxicite = false
+  ■ - cetonemie = true
+  ■ - hypoglycemie_recente = true
+  ■ - denutrition = true
+  ■ - infections_uro_genitales_recidivantes = false
+  ■ - age = 18
+  ■ - fragilite = true
+  ■ - esperance_vie = limitee
+  ■ - risque_hypoglycemie_schema = eleve
+
+Sortie :
+  Famille « À faire d'emblée — sécurité » (exclusive: false) :
+  - [securite] Insuline d'initiation
+      proposé parce que : cetonemie == true
+  Alertes de nœud :
+    - Contrôler la cétonémie capillaire (β‑hydroxybutyrate) : décompensation catabolique possible malgré une HbA1c non franchement élevée. ≥ 0,6 mmol/L → insuline d'initiation ; ≥ 3 mmol/L → urgence (insuline + hospitalisation). [attention]
+    - Cohérence : HbA1c < 6,5 % alors que l'intention saisie est « intensifier ». L'objectif est déjà dépassé sous agent hypoglycémiant — envisager plutôt une DÉPRESCRIPTION (rebasculer l'intention sur « déprescrire »). [attention]
+  Options écartées (sécurité, R4) :
+    - Gliptine :: cetonemie == true
+    - Sulfamide :: cetonemie == true ; fragilite == true
+  Options EN ATTENTE (indétermination, R7/D20) :
+    - Metformine :: à renseigner : DFG
+    - iSGLT2 :: à renseigner : DFG
+    - AR GLP‑1 :: à renseigner : DFG
+    - Tirzépatide :: à renseigner : DFG
+    - Association iSGLT2 + AR GLP‑1 :: à renseigner : DFG
+    - Envisager l'insuline :: à renseigner : DFG
+
+### Profil #4 — 11 critère(s) masqué(s) (masque stratifié) : poids, symptomes_glucotoxicite, insuffisance_cardiaque, taille, DFG, cetonemie, HbA1c_actuelle, fragilite, age, intention, infections_uro_genitales_recidivantes
+
+Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
+  ○ - intention = optimiser
+  ■ - traitements_en_cours = [metformine, iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, glinide]
+  ■ - dose_metformine = 1000
+  ■ - intolerance_traitement = false
+  ■ - nature_intolerance = []
+  ■ - preference_injection = refuse
+  ○ - HbA1c_actuelle = 11
+  ■ - position_vs_cible = sous_objectif
+  ■ - ASCVD_etablie = false
+  ○ - insuffisance_cardiaque = true
+  ○ - DFG = 45
+  ■ - albuminurie = normo
+  ○ - poids = 23
+  ○ - taille = 1
+  ○ - symptomes_glucotoxicite = true
+  ○ - cetonemie = false
+  ■ - hypoglycemie_recente = false
+  ■ - denutrition = false
+  ○ - infections_uro_genitales_recidivantes = true
+  ○ - age = 76
+  ○ - fragilite = false
+  ■ - esperance_vie = limitee
+  ■ - risque_hypoglycemie_schema = faible
+
+Sortie :
+  (aucune option applicable — sortie vide)
+  Alertes de nœud :
+    - iSGLT2 (en cours ou indiqué par la comorbidité) + infections génito‑urinaires récidivantes : réévaluer l'indication (ne pas initier / envisager l'arrêt) ; risque de gangrène de Fournier. Préférer une autre classe si une protection est requise. [attention]
+  Options EN ATTENTE (indétermination, R7/D20) :
+    - Metformine :: à renseigner : DFG
+    - Metformine (DFG < 30) :: à renseigner : intention, DFG
+    - Sulfamide (DFG < 30) :: à renseigner : intention, DFG
+    - iSGLT2 :: à renseigner : intention, cetonemie
+    - Insuline d'initiation :: à renseigner : HbA1c_actuelle, symptomes_glucotoxicite, cetonemie
+    - Gliptine (redondante) :: à renseigner : intention
+    - Sulfamide :: à renseigner : intention, HbA1c_actuelle, DFG
+    - Glinide :: à renseigner : intention, HbA1c_actuelle, DFG
+    - Désintensifier : alléger la charge thérapeutique :: à renseigner : intention
+    - Sulfamide :: à renseigner : intention
+    - Glinide :: à renseigner : intention
+
+### Profil #5 — 5 critère(s) masqué(s) (masque stratifié) : ASCVD_etablie, taille, age, symptomes_glucotoxicite, risque_hypoglycemie_schema
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - intention = intensifier
   ■ - traitements_en_cours = [metformine, sulfamide]
   ■ - dose_metformine = 61
-  ■ - HbA1c_actuelle = 8
-  ■ - position_vs_cible = sous_objectif
-  ■ - ASCVD_etablie = true
-  ■ - insuffisance_cardiaque = true
-  ■ - DFG = 44
-  ○ - albuminurie = micro
-  ■ - poids = 24
-  ■ - taille = 1
-  ■ - symptomes_glucotoxicite = true
-  ■ - cetonemie = true
-  ○ - hypoglycemie_recente = true
-  ○ - denutrition = true
-  ■ - infections_uro_genitales_recidivantes = false
   ■ - intolerance_traitement = true
   ■ - nature_intolerance = [autre]
-  ■ - age = 75
-  ○ - fragilite = false
+  ■ - preference_injection = indifferent
+  ■ - HbA1c_actuelle = 8
+  ■ - position_vs_cible = sous_objectif
+  ○ - ASCVD_etablie = true
+  ■ - insuffisance_cardiaque = true
+  ■ - DFG = 44
+  ■ - albuminurie = micro
+  ■ - poids = 24
+  ○ - taille = 1
+  ○ - symptomes_glucotoxicite = true
+  ■ - cetonemie = true
+  ■ - hypoglycemie_recente = true
+  ■ - denutrition = true
+  ■ - infections_uro_genitales_recidivantes = false
+  ○ - age = 75
+  ■ - fragilite = false
   ■ - esperance_vie = longue
-  ■ - risque_hypoglycemie_schema = faible
-  ○ - preference_injection = indifferent
+  ○ - risque_hypoglycemie_schema = faible
 
 Sortie :
   Famille « À faire d'emblée — sécurité » (exclusive: false) :
   - [securite] Insuline d'initiation
       proposé parce que : cetonemie == true
   Famille « Socle du traitement » (exclusive: false) :
-  - [reco-officielle] Metformine — instaurer ou poursuivre
+  - [reco-officielle] Metformine
       proposé parce que : toujours
   Famille « Traitement à corriger ou remplacer » (exclusive: false) :
-  - [recommandee] Remplacer le sulfamide
+  - [recommandee] Sulfamide
       proposé parce que : intention != initier AND traitements_en_cours contient sulfamide ; hba1c_sous_cible == false
   Famille « Traitement à alléger » (exclusive: false) :
     -- groupe d'égalité #0 --
@@ -288,121 +287,132 @@ Sortie :
     -- groupe d'égalité #1 --
   - [recommandee] Optimiser l'agent mal toléré
       proposé parce que : intention != initier AND intolerance_traitement == true
-  - [recommandee] Réduire la posologie du sulfamide
+  - [recommandee] Sulfamide
       proposé parce que : intention != initier AND traitements_en_cours contient sulfamide ; intention != initier AND intolerance_traitement == true ; hypoglycemie_recente == true ; position_vs_cible == sous_objectif
   Alertes de nœud :
     - Contrôler la cétonémie capillaire (β‑hydroxybutyrate) : décompensation catabolique possible malgré une HbA1c non franchement élevée. ≥ 0,6 mmol/L → insuline d'initiation ; ≥ 3 mmol/L → urgence (insuline + hospitalisation). [attention]
     - Metformine : dose maximale 1 000 mg/j, initiation ≤ 500 mg si DFG 30‑44 (RCP ANSM). [attention]
   Options écartées (sécurité, R4) :
-    - Introduire un iSGLT2 :: symptomes_glucotoxicite == true ; cetonemie == true
-    - Introduire un AR GLP‑1 :: symptomes_glucotoxicite == true ; cetonemie == true
-    - Association iSGLT2 + AR GLP‑1 :: symptomes_glucotoxicite == true ; cetonemie == true
+    - iSGLT2 :: cetonemie == true
+    - AR GLP‑1 :: denutrition == true ; cetonemie == true
+    - Association iSGLT2 + AR GLP‑1 :: cetonemie == true ; denutrition == true
+  Options EN ATTENTE (indétermination, R7/D20) :
+    - Tirzépatide :: à renseigner : taille
 
-### Profil #6 — 13 critère(s) masqué(s) (masque stratifié) : age, symptomes_glucotoxicite, HbA1c_actuelle, fragilite, poids, hypoglycemie_recente, preference_injection, position_vs_cible, ASCVD_etablie, denutrition, intolerance_traitement, infections_uro_genitales_recidivantes, nature_intolerance
+### Profil #6 — 13 critère(s) masqué(s) (masque stratifié) : infections_uro_genitales_recidivantes, albuminurie, intolerance_traitement, age, insuffisance_cardiaque, taille, risque_hypoglycemie_schema, nature_intolerance, preference_injection, symptomes_glucotoxicite, hypoglycemie_recente, cetonemie, denutrition
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - intention = deprescrire
   ■ - traitements_en_cours = [iSGLT2, aGLP1, tirzepatide, gliptine, insuline, glinide]
   ■ - dose_metformine = 1999
-  ○ - HbA1c_actuelle = 9
-  ○ - position_vs_cible = au_dessus
-  ○ - ASCVD_etablie = false
-  ■ - insuffisance_cardiaque = false
+  ○ - intolerance_traitement = false
+  ○ - nature_intolerance = [cutanee]
+  ○ - preference_injection = accepte
+  ■ - HbA1c_actuelle = 9
+  ■ - position_vs_cible = au_dessus
+  ■ - ASCVD_etablie = false
+  ○ - insuffisance_cardiaque = false
   ■ - DFG = 61
-  ■ - albuminurie = macro
-  ○ - poids = 26
-  ■ - taille = 1
+  ○ - albuminurie = macro
+  ■ - poids = 26
+  ○ - taille = 1
   ○ - symptomes_glucotoxicite = false
-  ■ - cetonemie = false
+  ○ - cetonemie = false
   ○ - hypoglycemie_recente = false
   ○ - denutrition = false
   ○ - infections_uro_genitales_recidivantes = true
-  ○ - intolerance_traitement = false
-  ○ - nature_intolerance = [cutanee]
   ○ - age = 76
-  ○ - fragilite = true
+  ■ - fragilite = true
   ■ - esperance_vie = intermediaire
-  ■ - risque_hypoglycemie_schema = eleve
-  ○ - preference_injection = accepte
+  ○ - risque_hypoglycemie_schema = eleve
 
 Sortie :
   Famille « Socle du traitement » (exclusive: false) :
-  - [reco-officielle] Metformine — instaurer ou poursuivre
+  - [reco-officielle] Metformine
       proposé parce que : toujours
   Famille « Traitement à corriger ou remplacer » (exclusive: false) :
-  - [recommandee] Arrêter la gliptine redondante
+  - [recommandee] Gliptine (redondante)
       proposé parce que : intention != initier AND traitements_en_cours contient gliptine ; intention != initier AND traitements_en_cours contient aGLP1 ; intention != initier AND traitements_en_cours contient tirzepatide
+  Famille « Le choix de l'agent » (exclusive: true) :
+  - [recommandee] Envisager l'insuline
+      proposé parce que : cible_atteinte == false ; isglt2_indisponible == true AND aglp1_indisponible == true
   Alertes de nœud :
+    - Sujet fragile déjà sous incrétine (AR GLP‑1 / tirzépatide) : surveiller le poids et l'état nutritionnel (risque de sarcopénie / anorexie). En cas de dénutrition ou d'IMC bas, réévaluer l'indication — réduire la posologie ou arrêter. [attention]
     - iSGLT2 (en cours ou indiqué par la comorbidité) + infections génito‑urinaires récidivantes : réévaluer l'indication (ne pas initier / envisager l'arrêt) ; risque de gangrène de Fournier. Préférer une autre classe si une protection est requise. [attention]
-    - Risque d'hypoglycémie élevé + place résiduelle : DÉCONSEILLER le sulfamide, préférer la gliptine (sitagliptine, sans hypoglycémie). Si un SU est retenu : gliclazide MR à dose basse, jamais le glibenclamide, avec éducation à l'hypoglycémie. [attention]
     - Intention déclarée : déprescrire. Si un geste d'ajout s'affiche malgré tout ci‑dessous, il reflète une indication transverse (protection cardio‑rénale ou athéromateuse, valable quel que soit le motif de la consultation) ou le remplacement d'un agent sans bénéfice déjà en cours — jamais une contradiction avec l'intention saisie. Si aucun geste de désintensification ne s'affiche, c'est qu'aucun critère saisi ne le déclenche à ce jour (agent hypoglycémiant en cours, sur‑contrôle, hypoglycémie récente chez le fragile) : consultez « Pourquoi pas d'autres options ? » pour le détail des options non retenues sur ce patient. [info]
     - Non-association incrétine : si un AR GLP‑1 ou le tirzépatide est introduit, la gliptine doit être ARRÊTÉE — même voie incrétine, aucun bénéfice additif (Nauck 2017 ; ADA §9 ; KDIGO PP4.2.3 ; HAS R.80). Ne jamais les associer. [attention]
+  Options écartées (sécurité, R4) :
+    - Glinide :: isglt2_indisponible == true AND aglp1_indisponible == true
+    - Sulfamide :: fragilite == true
   Options EN ATTENTE (indétermination, R7/D20) :
-    - Insuline d'initiation :: à renseigner : HbA1c_actuelle, symptomes_glucotoxicite
-    - Envisager l'insuline :: à renseigner : position_vs_cible
-    - Remplacer le glinide :: à renseigner : HbA1c_actuelle
+    - iSGLT2 :: à renseigner : cetonemie
+    - Insuline d'initiation :: à renseigner : cetonemie
     - Optimiser l'agent mal toléré :: à renseigner : intolerance_traitement
-    - Désintensifier : alléger la charge thérapeutique :: à renseigner : HbA1c_actuelle, position_vs_cible
-    - Réduire la posologie de l'AR GLP‑1 :: à renseigner : denutrition, intolerance_traitement, nature_intolerance
-    - Réduire la posologie du tirzépatide :: à renseigner : denutrition, intolerance_traitement, nature_intolerance
-    - Réduire la posologie du glinide :: à renseigner : position_vs_cible, intolerance_traitement
-    - Sulfamide — option glycémique de bas rang :: à renseigner : position_vs_cible
+    - AR GLP‑1 :: à renseigner : intolerance_traitement, nature_intolerance, denutrition
+    - Tirzépatide :: à renseigner : intolerance_traitement, nature_intolerance, denutrition
+    - Glinide :: à renseigner : intolerance_traitement
+    - Reconsidérer un agent protecteur hors indication :: à renseigner : albuminurie
 
-### Profil #7 — 12 critère(s) masqué(s) (masque stratifié) : hypoglycemie_recente, insuffisance_cardiaque, DFG, ASCVD_etablie, intention, dose_metformine, poids, age, HbA1c_actuelle, infections_uro_genitales_recidivantes, position_vs_cible, symptomes_glucotoxicite
+### Profil #7 — 12 critère(s) masqué(s) (masque stratifié) : taille, HbA1c_actuelle, position_vs_cible, preference_injection, intention, dose_metformine, insuffisance_cardiaque, infections_uro_genitales_recidivantes, intolerance_traitement, cetonemie, nature_intolerance, albuminurie
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - intention = optimiser
   ■ - traitements_en_cours = [metformine, iSGLT2, tirzepatide, sulfamide, insuline, glinide]
   ○ - dose_metformine = 46
+  ○ - intolerance_traitement = true
+  ○ - nature_intolerance = [cutanee]
+  ○ - preference_injection = accepte
   ○ - HbA1c_actuelle = 7.5
   ○ - position_vs_cible = nettement_au_dessus
-  ○ - ASCVD_etablie = false
+  ■ - ASCVD_etablie = false
   ○ - insuffisance_cardiaque = true
-  ○ - DFG = 19
-  ■ - albuminurie = micro
-  ○ - poids = 70
-  ■ - taille = 1
-  ○ - symptomes_glucotoxicite = true
-  ■ - cetonemie = true
-  ○ - hypoglycemie_recente = false
+  ■ - DFG = 19
+  ○ - albuminurie = micro
+  ■ - poids = 70
+  ○ - taille = 1
+  ■ - symptomes_glucotoxicite = true
+  ○ - cetonemie = true
+  ■ - hypoglycemie_recente = false
   ■ - denutrition = true
   ○ - infections_uro_genitales_recidivantes = true
-  ■ - intolerance_traitement = true
-  ■ - nature_intolerance = [cutanee]
-  ○ - age = 74
+  ■ - age = 74
   ■ - fragilite = false
   ■ - esperance_vie = longue
   ■ - risque_hypoglycemie_schema = faible
-  ■ - preference_injection = accepte
 
 Sortie :
-  Famille « À faire d'emblée — sécurité » (exclusive: false) :
-  - [securite] Insuline d'initiation
-      proposé parce que : cetonemie == true
+  (aucune option applicable — sortie vide)
   Alertes de nœud :
     - Contrôler la cétonémie capillaire (β‑hydroxybutyrate) : décompensation catabolique possible malgré une HbA1c non franchement élevée. ≥ 0,6 mmol/L → insuline d'initiation ; ≥ 3 mmol/L → urgence (insuline + hospitalisation). [attention]
+    - Metformine CONTRE‑INDIQUÉE si DFG < 30 (RCP ANSM) : arrêter ; sulfamide aussi. Un iSGLT2 reste initiable jusqu'à DFG ≥ 20 (indication rénale). Ces limites portent sur l'ÉLIMINATION RÉNALE des agents, pas sur leur efficacité glycémique : l'AR GLP‑1 et l'insuline n'ont pas de contre‑indication liée au DFG et restent utilisables en dessous de 20. [attention]
     - iSGLT2 (en cours ou indiqué par la comorbidité) + infections génito‑urinaires récidivantes : réévaluer l'indication (ne pas initier / envisager l'arrêt) ; risque de gangrène de Fournier. Préférer une autre classe si une protection est requise. [attention]
+    - Place résiduelle en insuffisance rénale : sitagliptine à dose réduite (50 mg si DFG 30‑44). En dessous de 30 (dialyse incluse), la SFD 2025 nomme la vildagliptine 50 mg/j — la forme sitagliptine 25 mg n'est pas commercialisée en France. Sulfamide gliclazide/glimépiride à dose réduite mais CONTRE‑INDIQUÉ < 30 ; jamais de glibenclamide. [attention]
+  Options écartées (sécurité, R4) :
+    - Metformine :: DFG < 30
   Options EN ATTENTE (indétermination, R7/D20) :
-    - Metformine — instaurer ou poursuivre :: à renseigner : DFG
-    - Arrêter la metformine (DFG < 30) :: à renseigner : intention, DFG
-    - Réduire la posologie de la metformine :: à renseigner : intention, dose_metformine, DFG
-    - Arrêter le sulfamide (DFG < 30) :: à renseigner : intention, DFG
-    - Suspendre l'iSGLT2 :: à renseigner : intention
+    - Metformine (DFG < 30) :: à renseigner : intention
+    - Metformine :: à renseigner : intention, intolerance_traitement, nature_intolerance
+    - Sulfamide (DFG < 30) :: à renseigner : intention
+    - iSGLT2 :: à renseigner : intention, cetonemie
+    - Insuline d'initiation :: à renseigner : HbA1c_actuelle, cetonemie
     - Envisager l'insuline :: à renseigner : position_vs_cible
-    - Remplacer le sulfamide :: à renseigner : intention, HbA1c_actuelle, DFG
-    - Remplacer le glinide :: à renseigner : intention, HbA1c_actuelle, DFG
-    - Optimiser l'agent mal toléré :: à renseigner : intention
-    - Désintensifier : alléger la charge thérapeutique :: à renseigner : intention, HbA1c_actuelle, position_vs_cible, DFG
-    - Réduire la posologie du tirzépatide :: à renseigner : intention
-    - Réduire la posologie du sulfamide :: à renseigner : intention, position_vs_cible
-    - Réduire la posologie du glinide :: à renseigner : intention, position_vs_cible
+    - Sulfamide :: à renseigner : intention, HbA1c_actuelle
+    - Glinide :: à renseigner : intention, HbA1c_actuelle
+    - Optimiser l'agent mal toléré :: à renseigner : intention, intolerance_traitement
+    - Désintensifier : alléger la charge thérapeutique :: à renseigner : intention, HbA1c_actuelle, position_vs_cible
+    - Tirzépatide :: à renseigner : intention
+    - Sulfamide :: à renseigner : intention, intolerance_traitement, position_vs_cible
+    - Glinide :: à renseigner : intention, intolerance_traitement, position_vs_cible
 
-### Profil #8 — 7 critère(s) masqué(s) (masque stratifié) : nature_intolerance, age, hypoglycemie_recente, poids, cetonemie, insuffisance_cardiaque, HbA1c_actuelle
+### Profil #8 — 7 critère(s) masqué(s) (masque stratifié) : denutrition, infections_uro_genitales_recidivantes, taille, insuffisance_cardiaque, poids, HbA1c_actuelle, intolerance_traitement
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - intention = intensifier
   ■ - traitements_en_cours = []
   ■ - dose_metformine = 44
+  ○ - intolerance_traitement = true
+  ■ - nature_intolerance = [uro_genitale]
+  ■ - preference_injection = indifferent
   ○ - HbA1c_actuelle = 11
   ■ - position_vs_cible = nettement_au_dessus
   ■ - ASCVD_etablie = true
@@ -410,342 +420,343 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - DFG = 7.5
   ■ - albuminurie = micro
   ○ - poids = 31
-  ■ - taille = 1
+  ○ - taille = 1
   ■ - symptomes_glucotoxicite = false
-  ○ - cetonemie = true
-  ○ - hypoglycemie_recente = true
-  ■ - denutrition = true
-  ■ - infections_uro_genitales_recidivantes = false
-  ■ - intolerance_traitement = true
-  ○ - nature_intolerance = [uro_genitale]
-  ○ - age = 18
+  ■ - cetonemie = true
+  ■ - hypoglycemie_recente = true
+  ○ - denutrition = true
+  ○ - infections_uro_genitales_recidivantes = false
+  ■ - age = 18
   ■ - fragilite = true
   ■ - esperance_vie = limitee
   ■ - risque_hypoglycemie_schema = eleve
-  ■ - preference_injection = indifferent
 
 Sortie :
-  Famille « Le choix de l'agent » (exclusive: true) :
-  - [recommandee] Envisager l'insuline
-      proposé parce que : cible_atteinte == false ; isglt2_indisponible == true AND aglp1_indisponible == true
+  Famille « À faire d'emblée — sécurité » (exclusive: false) :
+  - [securite] Insuline d'initiation
+      proposé parce que : cetonemie == true
   Alertes de nœud :
+    - Contrôler la cétonémie capillaire (β‑hydroxybutyrate) : décompensation catabolique possible malgré une HbA1c non franchement élevée. ≥ 0,6 mmol/L → insuline d'initiation ; ≥ 3 mmol/L → urgence (insuline + hospitalisation). [attention]
     - Metformine CONTRE‑INDIQUÉE si DFG < 30 (RCP ANSM) : arrêter ; sulfamide aussi. Un iSGLT2 reste initiable jusqu'à DFG ≥ 20 (indication rénale). Ces limites portent sur l'ÉLIMINATION RÉNALE des agents, pas sur leur efficacité glycémique : l'AR GLP‑1 et l'insuline n'ont pas de contre‑indication liée au DFG et restent utilisables en dessous de 20. [attention]
-    - Risque d'hypoglycémie élevé + place résiduelle : DÉCONSEILLER le sulfamide, préférer la gliptine (sitagliptine, sans hypoglycémie). Si un SU est retenu : gliclazide MR à dose basse, jamais le glibenclamide, avec éducation à l'hypoglycémie. [attention]
-    - Place résiduelle en insuffisance rénale : sitagliptine à dose réduite (50 mg si DFG 30‑44). En dessous de 30 (dialyse incluse), la SFD 2025 nomme la vildagliptine 50 mg/j — la forme sitagliptine 25 mg n'est pas commercialisée en France. Sulfamide gliclazide/glimépiride à dose réduite mais CONTRE‑INDIQUÉ < 30 ; jamais de glibenclamide. [attention]
   Options écartées (sécurité, R4) :
-    - Metformine — instaurer ou poursuivre :: DFG < 30
-    - Sulfamide — option glycémique de bas rang :: DFG < 30 ; fragilite == true
+    - Metformine :: DFG < 30
+    - Gliptine :: cetonemie == true
+    - Sulfamide :: DFG < 30 ; cetonemie == true ; fragilite == true
   Options EN ATTENTE (indétermination, R7/D20) :
-    - Insuline d'initiation :: à renseigner : cetonemie
-    - Gliptine — option glycémique orale de bas rang :: à renseigner : cetonemie
+    - iSGLT2 :: à renseigner : poids, taille, denutrition
+    - AR GLP‑1 :: à renseigner : poids, taille, denutrition
+    - Tirzépatide :: à renseigner : poids, taille, denutrition
+    - Association iSGLT2 + AR GLP‑1 :: à renseigner : poids, taille, denutrition
+    - Envisager l'insuline :: à renseigner : poids, taille, denutrition
 
-### Profil #9 — 8 critère(s) masqué(s) (masque stratifié) : poids, insuffisance_cardiaque, hypoglycemie_recente, infections_uro_genitales_recidivantes, nature_intolerance, denutrition, traitements_en_cours, cetonemie
+### Profil #9 — 8 critère(s) masqué(s) (masque stratifié) : insuffisance_cardiaque, HbA1c_actuelle, taille, cetonemie, denutrition, symptomes_glucotoxicite, traitements_en_cours, poids
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - intention = intensifier
   ○ - traitements_en_cours = [metformine, aGLP1, gliptine, glinide]
   ■ - dose_metformine = 2001
-  ■ - HbA1c_actuelle = 10
+  ■ - intolerance_traitement = true
+  ■ - nature_intolerance = []
+  ■ - preference_injection = refuse
+  ○ - HbA1c_actuelle = 10
   ■ - position_vs_cible = a_l_objectif
   ■ - ASCVD_etablie = true
   ○ - insuffisance_cardiaque = true
   ■ - DFG = 20
   ■ - albuminurie = normo
   ○ - poids = 14
-  ■ - taille = 1
-  ■ - symptomes_glucotoxicite = false
+  ○ - taille = 1
+  ○ - symptomes_glucotoxicite = false
   ○ - cetonemie = true
-  ○ - hypoglycemie_recente = true
+  ■ - hypoglycemie_recente = true
   ○ - denutrition = true
-  ○ - infections_uro_genitales_recidivantes = true
-  ■ - intolerance_traitement = true
-  ○ - nature_intolerance = []
+  ■ - infections_uro_genitales_recidivantes = true
   ■ - age = 75
   ■ - fragilite = true
   ■ - esperance_vie = intermediaire
   ■ - risque_hypoglycemie_schema = faible
-  ■ - preference_injection = refuse
 
 Sortie :
   (aucune option applicable — sortie vide)
   Alertes de nœud :
-    - Contrôler la cétonémie capillaire (β‑hydroxybutyrate) : décompensation catabolique possible malgré une HbA1c non franchement élevée. ≥ 0,6 mmol/L → insuline d'initiation ; ≥ 3 mmol/L → urgence (insuline + hospitalisation). [attention]
     - Metformine CONTRE‑INDIQUÉE si DFG < 30 (RCP ANSM) : arrêter ; sulfamide aussi. Un iSGLT2 reste initiable jusqu'à DFG ≥ 20 (indication rénale). Ces limites portent sur l'ÉLIMINATION RÉNALE des agents, pas sur leur efficacité glycémique : l'AR GLP‑1 et l'insuline n'ont pas de contre‑indication liée au DFG et restent utilisables en dessous de 20. [attention]
     - iSGLT2 (en cours ou indiqué par la comorbidité) + infections génito‑urinaires récidivantes : réévaluer l'indication (ne pas initier / envisager l'arrêt) ; risque de gangrène de Fournier. Préférer une autre classe si une protection est requise. [attention]
     - Refus des injections : privilégier une alternative ORALE (sémaglutide oral, iSGLT2, iDPP4) — les options injectables (AR GLP‑1 injectable, tirzépatide, association) sont reléguées en dernier. Si aucune alternative non injectable adaptée n'existe alors qu'un bénéfice cardio‑rénal prouvé est requis, un injectable reste à discuter avec le patient (le refus ne doit pas priver d'un traitement à bénéfice démontré). [attention]
-    - Cohérence : HbA1c ≥ 9 % alors que le patient est déclaré à l'objectif ou en dessous. Aucune cible individualisée ne dépasse 9 % (la bande la plus large est « < 9 % », réservée au sujet âgé dépendant) — vérifier l'objectif retenu : une INTENSIFICATION est probablement indiquée. [attention]
   Options écartées (sécurité, R4) :
-    - Metformine — instaurer ou poursuivre :: DFG < 30
+    - Metformine :: DFG < 30
   Options EN ATTENTE (indétermination, R7/D20) :
-    - Arrêter la metformine (DFG < 30) :: à renseigner : traitements_en_cours
-    - Réduire la posologie de la metformine :: à renseigner : traitements_en_cours, nature_intolerance
-    - Arrêter le sulfamide (DFG < 30) :: à renseigner : traitements_en_cours
-    - Suspendre l'iSGLT2 :: à renseigner : traitements_en_cours, cetonemie
-    - Insuline d'initiation :: à renseigner : traitements_en_cours, cetonemie
-    - Introduire un iSGLT2 :: à renseigner : traitements_en_cours, poids, denutrition
-    - Introduire un AR GLP‑1 :: à renseigner : traitements_en_cours, poids, denutrition
-    - Introduire le tirzépatide :: à renseigner : traitements_en_cours, poids, denutrition
-    - Association iSGLT2 + AR GLP‑1 :: à renseigner : traitements_en_cours, poids, denutrition
-    - Remplacer la gliptine :: à renseigner : traitements_en_cours
-    - Arrêter la gliptine redondante :: à renseigner : traitements_en_cours
-    - Remplacer le sulfamide :: à renseigner : traitements_en_cours
+    - Metformine (DFG < 30) :: à renseigner : traitements_en_cours
+    - Sulfamide (DFG < 30) :: à renseigner : traitements_en_cours
+    - iSGLT2 :: à renseigner : traitements_en_cours, cetonemie
+    - Insuline d'initiation :: à renseigner : traitements_en_cours, HbA1c_actuelle, symptomes_glucotoxicite, cetonemie
+    - iSGLT2 :: à renseigner : traitements_en_cours, poids, taille, denutrition
+    - AR GLP‑1 :: à renseigner : traitements_en_cours, poids, taille, denutrition
+    - Tirzépatide :: à renseigner : traitements_en_cours, poids, taille, denutrition
+    - Association iSGLT2 + AR GLP‑1 :: à renseigner : traitements_en_cours, poids, taille, denutrition
+    - Gliptine :: à renseigner : traitements_en_cours
+    - Gliptine (redondante) :: à renseigner : traitements_en_cours
+    - Sulfamide :: à renseigner : traitements_en_cours, HbA1c_actuelle
     - Optimiser l'agent mal toléré :: à renseigner : traitements_en_cours
     - Désintensifier : alléger la charge thérapeutique :: à renseigner : traitements_en_cours
-    - Réduire la posologie de l'insuline :: à renseigner : traitements_en_cours
-    - Réduire la posologie de l'AR GLP‑1 :: à renseigner : traitements_en_cours, denutrition, nature_intolerance
-    - Réduire la posologie du tirzépatide :: à renseigner : traitements_en_cours, denutrition, nature_intolerance
-    - Réduire la posologie du sulfamide :: à renseigner : traitements_en_cours
-    - Réduire la posologie du glinide :: à renseigner : traitements_en_cours
-    - Gliptine — option glycémique orale de bas rang :: à renseigner : traitements_en_cours, poids, denutrition
-    - Sulfamide — option glycémique de bas rang :: à renseigner : traitements_en_cours, poids, denutrition
+    - Insuline :: à renseigner : traitements_en_cours
+    - AR GLP‑1 :: à renseigner : traitements_en_cours, denutrition
+    - Tirzépatide :: à renseigner : traitements_en_cours, denutrition
+    - Sulfamide :: à renseigner : traitements_en_cours
+    - Glinide :: à renseigner : traitements_en_cours
+    - Gliptine :: à renseigner : traitements_en_cours, poids, taille, denutrition
+    - Sulfamide :: à renseigner : traitements_en_cours, poids, taille, denutrition
 
-### Profil #10 — 8 critère(s) masqué(s) (masque stratifié) : intention, fragilite, preference_injection, denutrition, DFG, albuminurie, esperance_vie, symptomes_glucotoxicite
+### Profil #10 — 8 critère(s) masqué(s) (masque stratifié) : intention, age, risque_hypoglycemie_schema, symptomes_glucotoxicite, position_vs_cible, ASCVD_etablie, fragilite, albuminurie
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - intention = optimiser
   ■ - traitements_en_cours = [iSGLT2, tirzepatide, sulfamide, insuline]
   ■ - dose_metformine = 30
+  ■ - intolerance_traitement = false
+  ■ - nature_intolerance = [perte_poids]
+  ■ - preference_injection = accepte
   ■ - HbA1c_actuelle = 7.5
-  ■ - position_vs_cible = nettement_au_dessus
-  ■ - ASCVD_etablie = false
+  ○ - position_vs_cible = nettement_au_dessus
+  ○ - ASCVD_etablie = false
   ■ - insuffisance_cardiaque = false
-  ○ - DFG = 21
+  ■ - DFG = 21
   ○ - albuminurie = micro
   ■ - poids = 22
   ■ - taille = 1
   ○ - symptomes_glucotoxicite = true
   ■ - cetonemie = false
   ■ - hypoglycemie_recente = false
-  ○ - denutrition = false
+  ■ - denutrition = false
   ■ - infections_uro_genitales_recidivantes = false
-  ■ - intolerance_traitement = false
-  ■ - nature_intolerance = [perte_poids]
-  ■ - age = 105
+  ○ - age = 105
   ○ - fragilite = false
-  ○ - esperance_vie = longue
-  ■ - risque_hypoglycemie_schema = eleve
-  ○ - preference_injection = accepte
+  ■ - esperance_vie = longue
+  ○ - risque_hypoglycemie_schema = eleve
 
 Sortie :
   (aucune option applicable — sortie vide)
+  Alertes de nœud :
+    - Metformine CONTRE‑INDIQUÉE si DFG < 30 (RCP ANSM) : arrêter ; sulfamide aussi. Un iSGLT2 reste initiable jusqu'à DFG ≥ 20 (indication rénale). Ces limites portent sur l'ÉLIMINATION RÉNALE des agents, pas sur leur efficacité glycémique : l'AR GLP‑1 et l'insuline n'ont pas de contre‑indication liée au DFG et restent utilisables en dessous de 20. [attention]
+  Options écartées (sécurité, R4) :
+    - Metformine :: DFG < 30
   Options EN ATTENTE (indétermination, R7/D20) :
-    - Metformine — instaurer ou poursuivre :: à renseigner : DFG
-    - Arrêter le sulfamide (DFG < 30) :: à renseigner : intention, DFG
-    - Envisager l'insuline :: à renseigner : intention, DFG, denutrition
-    - Remplacer le sulfamide :: à renseigner : intention
-    - Réduire la posologie du tirzépatide :: à renseigner : intention, denutrition
+    - Sulfamide (DFG < 30) :: à renseigner : intention
+    - Sulfamide :: à renseigner : intention
+    - Désintensifier : alléger la charge thérapeutique :: à renseigner : intention, position_vs_cible
+    - Sulfamide :: à renseigner : intention, position_vs_cible
 
-### Profil #11 — 16 critère(s) masqué(s) (masque stratifié) : nature_intolerance, albuminurie, traitements_en_cours, dose_metformine, cetonemie, position_vs_cible, age, risque_hypoglycemie_schema, ASCVD_etablie, taille, esperance_vie, insuffisance_cardiaque, HbA1c_actuelle, preference_injection, intention, symptomes_glucotoxicite
+### Profil #11 — 16 critère(s) masqué(s) (masque stratifié) : denutrition, ASCVD_etablie, traitements_en_cours, dose_metformine, poids, nature_intolerance, infections_uro_genitales_recidivantes, esperance_vie, preference_injection, DFG, fragilite, HbA1c_actuelle, intolerance_traitement, risque_hypoglycemie_schema, intention, albuminurie
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - intention = deprescrire
   ○ - traitements_en_cours = [metformine, iSGLT2, tirzepatide, gliptine, glinide]
   ○ - dose_metformine = 59
-  ○ - HbA1c_actuelle = 18
-  ○ - position_vs_cible = au_dessus
-  ○ - ASCVD_etablie = false
-  ○ - insuffisance_cardiaque = false
-  ■ - DFG = 31
-  ○ - albuminurie = macro
-  ■ - poids = 25
-  ○ - taille = 1
-  ○ - symptomes_glucotoxicite = true
-  ○ - cetonemie = false
-  ■ - hypoglycemie_recente = false
-  ■ - denutrition = false
-  ■ - infections_uro_genitales_recidivantes = true
-  ■ - intolerance_traitement = true
+  ○ - intolerance_traitement = true
   ○ - nature_intolerance = [digestive]
-  ○ - age = 75
-  ■ - fragilite = false
+  ○ - preference_injection = refuse
+  ○ - HbA1c_actuelle = 18
+  ■ - position_vs_cible = au_dessus
+  ○ - ASCVD_etablie = false
+  ■ - insuffisance_cardiaque = false
+  ○ - DFG = 31
+  ○ - albuminurie = macro
+  ○ - poids = 25
+  ■ - taille = 1
+  ■ - symptomes_glucotoxicite = true
+  ■ - cetonemie = false
+  ■ - hypoglycemie_recente = false
+  ○ - denutrition = false
+  ○ - infections_uro_genitales_recidivantes = true
+  ■ - age = 75
+  ○ - fragilite = false
   ○ - esperance_vie = intermediaire
   ○ - risque_hypoglycemie_schema = eleve
-  ○ - preference_injection = refuse
 
 Sortie :
-  Famille « Socle du traitement » (exclusive: false) :
-  - [reco-officielle] Metformine — instaurer ou poursuivre
-      proposé parce que : toujours
+  (aucune option applicable — sortie vide)
   Alertes de nœud :
-    - Metformine : dose maximale 1 000 mg/j, initiation ≤ 500 mg si DFG 30‑44 (RCP ANSM). [attention]
-    - iSGLT2 (en cours ou indiqué par la comorbidité) + infections génito‑urinaires récidivantes : réévaluer l'indication (ne pas initier / envisager l'arrêt) ; risque de gangrène de Fournier. Préférer une autre classe si une protection est requise. [attention]
+    - Contrôler la cétonémie capillaire (β‑hydroxybutyrate) : décompensation catabolique possible malgré une HbA1c non franchement élevée. ≥ 0,6 mmol/L → insuline d'initiation ; ≥ 3 mmol/L → urgence (insuline + hospitalisation). [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
-    - Réduire la posologie de la metformine :: à renseigner : intention, traitements_en_cours, dose_metformine, nature_intolerance
-    - Suspendre l'iSGLT2 :: à renseigner : intention, traitements_en_cours, cetonemie
-    - Insuline d'initiation :: à renseigner : traitements_en_cours, HbA1c_actuelle, symptomes_glucotoxicite, cetonemie
-    - Introduire un iSGLT2 :: à renseigner : intention, traitements_en_cours, taille
-    - Introduire un AR GLP‑1 :: à renseigner : intention, traitements_en_cours, position_vs_cible, taille
-    - Introduire le tirzépatide :: à renseigner : intention, traitements_en_cours, taille
-    - Association iSGLT2 + AR GLP‑1 :: à renseigner : intention, traitements_en_cours, taille
-    - Envisager l'insuline :: à renseigner : intention, traitements_en_cours, position_vs_cible, taille
-    - Remplacer la gliptine :: à renseigner : intention, traitements_en_cours
-    - Arrêter la gliptine redondante :: à renseigner : intention, traitements_en_cours
-    - Remplacer le sulfamide :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle
-    - Remplacer le glinide :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle
-    - Optimiser l'agent mal toléré :: à renseigner : intention, traitements_en_cours
-    - Désintensifier : alléger la charge thérapeutique :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, position_vs_cible
-    - Réduire la posologie de l'insuline :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, position_vs_cible
-    - Réduire la posologie de l'AR GLP‑1 :: à renseigner : intention, traitements_en_cours, nature_intolerance
-    - Réduire la posologie du tirzépatide :: à renseigner : intention, traitements_en_cours, nature_intolerance
-    - Réduire la posologie du sulfamide :: à renseigner : intention, traitements_en_cours, position_vs_cible
-    - Réduire la posologie du glinide :: à renseigner : intention, traitements_en_cours, position_vs_cible
-    - Gliptine — option glycémique orale de bas rang :: à renseigner : intention, traitements_en_cours, position_vs_cible, taille
-    - Sulfamide — option glycémique de bas rang :: à renseigner : intention, traitements_en_cours, position_vs_cible, taille
+    - Metformine :: à renseigner : intention, traitements_en_cours, dose_metformine, intolerance_traitement, nature_intolerance, DFG
+    - Metformine (DFG < 30) :: à renseigner : intention, traitements_en_cours, DFG
+    - Metformine :: à renseigner : intention, traitements_en_cours, dose_metformine, intolerance_traitement, nature_intolerance, DFG
+    - Sulfamide (DFG < 30) :: à renseigner : intention, traitements_en_cours, DFG
+    - Insuline d'initiation :: à renseigner : traitements_en_cours, HbA1c_actuelle
+    - iSGLT2 :: à renseigner : intention, traitements_en_cours, DFG, albuminurie, poids, denutrition
+    - AR GLP‑1 :: à renseigner : intention, traitements_en_cours, DFG, poids, denutrition
+    - Tirzépatide :: à renseigner : intention, traitements_en_cours, poids, denutrition
+    - Association iSGLT2 + AR GLP‑1 :: à renseigner : intention, traitements_en_cours, DFG, albuminurie, poids, denutrition
+    - Envisager l'insuline :: à renseigner : intention, traitements_en_cours, poids, denutrition
+    - Gliptine :: à renseigner : intention, traitements_en_cours
+    - Gliptine (redondante) :: à renseigner : intention, traitements_en_cours
+    - Sulfamide :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, DFG
+    - Glinide :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, DFG
+    - Optimiser l'agent mal toléré :: à renseigner : intention, traitements_en_cours, intolerance_traitement
+    - Désintensifier : alléger la charge thérapeutique :: à renseigner : intention, traitements_en_cours, HbA1c_actuelle, DFG
+    - Insuline :: à renseigner : intention, traitements_en_cours, intolerance_traitement, HbA1c_actuelle, DFG
+    - AR GLP‑1 :: à renseigner : intention, traitements_en_cours, intolerance_traitement, nature_intolerance, denutrition
+    - Tirzépatide :: à renseigner : intention, traitements_en_cours, intolerance_traitement, nature_intolerance, denutrition
+    - Sulfamide :: à renseigner : intention, traitements_en_cours, intolerance_traitement
+    - Glinide :: à renseigner : intention, traitements_en_cours, intolerance_traitement
+    - Reconsidérer un agent protecteur hors indication :: à renseigner : intention, traitements_en_cours, DFG, albuminurie
+    - Gliptine :: à renseigner : intention, traitements_en_cours, poids, denutrition
+    - Sulfamide :: à renseigner : intention, traitements_en_cours, poids, denutrition
 
-### Profil #12 — 14 critère(s) masqué(s) (masque stratifié) : risque_hypoglycemie_schema, preference_injection, intolerance_traitement, ASCVD_etablie, traitements_en_cours, poids, denutrition, DFG, dose_metformine, age, taille, intention, hypoglycemie_recente, esperance_vie
+### Profil #12 — 14 critère(s) masqué(s) (masque stratifié) : esperance_vie, risque_hypoglycemie_schema, hypoglycemie_recente, preference_injection, traitements_en_cours, insuffisance_cardiaque, symptomes_glucotoxicite, position_vs_cible, dose_metformine, infections_uro_genitales_recidivantes, DFG, intention, taille, fragilite
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - intention = optimiser
   ○ - traitements_en_cours = [iSGLT2, aGLP1, sulfamide, gliptine, insuline_basale]
   ○ - dose_metformine = 1000
+  ■ - intolerance_traitement = false
+  ■ - nature_intolerance = []
+  ○ - preference_injection = refuse
   ■ - HbA1c_actuelle = 18
-  ■ - position_vs_cible = sous_objectif
-  ○ - ASCVD_etablie = false
-  ■ - insuffisance_cardiaque = true
+  ○ - position_vs_cible = sous_objectif
+  ■ - ASCVD_etablie = false
+  ○ - insuffisance_cardiaque = true
   ○ - DFG = 3
   ■ - albuminurie = normo
-  ○ - poids = 23
+  ■ - poids = 23
   ○ - taille = 1
-  ■ - symptomes_glucotoxicite = true
+  ○ - symptomes_glucotoxicite = true
   ■ - cetonemie = false
   ○ - hypoglycemie_recente = false
-  ○ - denutrition = false
-  ■ - infections_uro_genitales_recidivantes = true
-  ○ - intolerance_traitement = false
-  ■ - nature_intolerance = []
-  ○ - age = 76
-  ■ - fragilite = false
+  ■ - denutrition = false
+  ○ - infections_uro_genitales_recidivantes = true
+  ■ - age = 76
+  ○ - fragilite = false
   ○ - esperance_vie = limitee
   ○ - risque_hypoglycemie_schema = faible
-  ○ - preference_injection = refuse
 
 Sortie :
   (aucune option applicable — sortie vide)
   Alertes de nœud :
     - Contrôler la cétonémie capillaire (β‑hydroxybutyrate) : décompensation catabolique possible malgré une HbA1c non franchement élevée. ≥ 0,6 mmol/L → insuline d'initiation ; ≥ 3 mmol/L → urgence (insuline + hospitalisation). [attention]
     - iSGLT2 (en cours ou indiqué par la comorbidité) + infections génito‑urinaires récidivantes : réévaluer l'indication (ne pas initier / envisager l'arrêt) ; risque de gangrène de Fournier. Préférer une autre classe si une protection est requise. [attention]
-    - Cohérence : HbA1c ≥ 9 % alors que le patient est déclaré à l'objectif ou en dessous. Aucune cible individualisée ne dépasse 9 % (la bande la plus large est « < 9 % », réservée au sujet âgé dépendant) — vérifier l'objectif retenu : une INTENSIFICATION est probablement indiquée. [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
-    - Metformine — instaurer ou poursuivre :: à renseigner : DFG
-    - Arrêter la metformine (DFG < 30) :: à renseigner : intention, traitements_en_cours, DFG
-    - Réduire la posologie de la metformine :: à renseigner : intention, traitements_en_cours, dose_metformine, DFG
-    - Arrêter le sulfamide (DFG < 30) :: à renseigner : intention, traitements_en_cours, DFG
-    - Insuline d'initiation :: à renseigner : traitements_en_cours
-    - Introduire un iSGLT2 :: à renseigner : intention, traitements_en_cours, poids, taille, denutrition
-    - Introduire un AR GLP‑1 :: à renseigner : intention, traitements_en_cours, poids, taille, denutrition
-    - Introduire le tirzépatide :: à renseigner : intention, traitements_en_cours, poids, taille, denutrition
-    - Association iSGLT2 + AR GLP‑1 :: à renseigner : intention, traitements_en_cours, poids, taille, denutrition
-    - Remplacer la gliptine :: à renseigner : intention, traitements_en_cours
-    - Arrêter la gliptine redondante :: à renseigner : intention, traitements_en_cours
-    - Remplacer le sulfamide :: à renseigner : intention, traitements_en_cours
-    - Remplacer le glinide :: à renseigner : intention, traitements_en_cours
-    - Optimiser l'agent mal toléré :: à renseigner : intention, traitements_en_cours, intolerance_traitement
-    - Désintensifier : alléger la charge thérapeutique :: à renseigner : intention, traitements_en_cours
-    - Réduire la posologie de l'insuline :: à renseigner : intention, traitements_en_cours
-    - Réduire la posologie de l'AR GLP‑1 :: à renseigner : intention, traitements_en_cours, denutrition
-    - Réduire la posologie du tirzépatide :: à renseigner : intention, traitements_en_cours, denutrition
-    - Réduire la posologie du sulfamide :: à renseigner : intention, traitements_en_cours
-    - Réduire la posologie du glinide :: à renseigner : intention, traitements_en_cours
+    - Metformine :: à renseigner : intention, traitements_en_cours, dose_metformine, position_vs_cible, DFG, fragilite
+    - Metformine (DFG < 30) :: à renseigner : intention, traitements_en_cours, DFG
+    - Metformine :: à renseigner : intention, traitements_en_cours, dose_metformine, DFG
+    - Sulfamide (DFG < 30) :: à renseigner : intention, traitements_en_cours, DFG
+    - Insuline d'initiation :: à renseigner : traitements_en_cours, symptomes_glucotoxicite
+    - iSGLT2 :: à renseigner : intention, traitements_en_cours, taille
+    - AR GLP‑1 :: à renseigner : intention, traitements_en_cours, position_vs_cible, DFG, taille
+    - Tirzépatide :: à renseigner : intention, traitements_en_cours, taille
+    - Association iSGLT2 + AR GLP‑1 :: à renseigner : intention, traitements_en_cours, taille
+    - Envisager l'insuline :: à renseigner : intention, traitements_en_cours, position_vs_cible, taille
+    - Gliptine :: à renseigner : intention, traitements_en_cours
+    - Gliptine (redondante) :: à renseigner : intention, traitements_en_cours
+    - Sulfamide :: à renseigner : intention, traitements_en_cours
+    - Glinide :: à renseigner : intention, traitements_en_cours
+    - Désintensifier : alléger la charge thérapeutique :: à renseigner : intention, traitements_en_cours, position_vs_cible
+    - Insuline :: à renseigner : intention, traitements_en_cours, position_vs_cible
+    - Sulfamide :: à renseigner : intention, traitements_en_cours, position_vs_cible
+    - Glinide :: à renseigner : intention, traitements_en_cours, position_vs_cible
+    - Metformine (désintensification) :: à renseigner : intention, traitements_en_cours, position_vs_cible, fragilite
+    - Gliptine :: à renseigner : intention, traitements_en_cours, position_vs_cible, taille
+    - Sulfamide :: à renseigner : intention, traitements_en_cours, position_vs_cible, taille
 
-### Profil #13 — 11 critère(s) masqué(s) (masque stratifié) : poids, intention, hypoglycemie_recente, esperance_vie, cetonemie, albuminurie, ASCVD_etablie, position_vs_cible, age, nature_intolerance, intolerance_traitement
+### Profil #13 — 11 critère(s) masqué(s) (masque stratifié) : insuffisance_cardiaque, intention, taille, fragilite, poids, ASCVD_etablie, preference_injection, nature_intolerance, infections_uro_genitales_recidivantes, denutrition, hypoglycemie_recente
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ○ - intention = optimiser
   ■ - traitements_en_cours = [metformine, aGLP1, tirzepatide, sulfamide, glinide]
   ■ - dose_metformine = 31
-  ■ - HbA1c_actuelle = 10
-  ○ - position_vs_cible = a_l_objectif
-  ○ - ASCVD_etablie = false
-  ■ - insuffisance_cardiaque = true
-  ■ - DFG = 46
-  ○ - albuminurie = normo
-  ○ - poids = 25
-  ■ - taille = 1
-  ■ - symptomes_glucotoxicite = true
-  ○ - cetonemie = true
-  ○ - hypoglycemie_recente = true
-  ■ - denutrition = true
-  ■ - infections_uro_genitales_recidivantes = false
-  ○ - intolerance_traitement = false
+  ■ - intolerance_traitement = false
   ○ - nature_intolerance = [perte_poids]
-  ○ - age = 18
-  ■ - fragilite = false
-  ○ - esperance_vie = intermediaire
+  ○ - preference_injection = accepte
+  ■ - HbA1c_actuelle = 10
+  ■ - position_vs_cible = a_l_objectif
+  ○ - ASCVD_etablie = false
+  ○ - insuffisance_cardiaque = true
+  ■ - DFG = 46
+  ■ - albuminurie = normo
+  ○ - poids = 25
+  ○ - taille = 1
+  ■ - symptomes_glucotoxicite = true
+  ■ - cetonemie = true
+  ○ - hypoglycemie_recente = true
+  ○ - denutrition = true
+  ○ - infections_uro_genitales_recidivantes = false
+  ■ - age = 18
+  ○ - fragilite = false
+  ■ - esperance_vie = intermediaire
   ■ - risque_hypoglycemie_schema = eleve
-  ■ - preference_injection = accepte
 
 Sortie :
   Famille « À faire d'emblée — sécurité » (exclusive: false) :
   - [securite] Insuline d'initiation
       proposé parce que : HbA1c_actuelle >= 10 AND symptomes_glucotoxicite == true ; cetonemie == true
   Famille « Socle du traitement » (exclusive: false) :
-  - [reco-officielle] Metformine — instaurer ou poursuivre
+  - [reco-officielle] Metformine
       proposé parce que : toujours
   Alertes de nœud :
     - Contrôler la cétonémie capillaire (β‑hydroxybutyrate) : décompensation catabolique possible malgré une HbA1c non franchement élevée. ≥ 0,6 mmol/L → insuline d'initiation ; ≥ 3 mmol/L → urgence (insuline + hospitalisation). [attention]
     - Metformine : dose maximale 2 000 mg/j si DFG 45‑59 (RCP ANSM) ; revoir au préalable les facteurs de risque d'acidose lactique. [attention]
+    - Cohérence : HbA1c ≥ 9 % alors que le patient est déclaré à l'objectif ou en dessous. Aucune cible individualisée ne dépasse 9 % (la bande la plus large est « < 9 % », réservée au sujet âgé dépendant) — vérifier l'objectif retenu : une INTENSIFICATION est probablement indiquée. [attention]
   Options écartées (sécurité, R4) :
-    - Introduire un iSGLT2 :: symptomes_glucotoxicite == true
+    - iSGLT2 :: symptomes_glucotoxicite == true ; cetonemie == true
   Options EN ATTENTE (indétermination, R7/D20) :
-    - Réduire la posologie de la metformine :: à renseigner : intention, intolerance_traitement, nature_intolerance
-    - Remplacer le sulfamide :: à renseigner : intention
-    - Optimiser l'agent mal toléré :: à renseigner : intention, intolerance_traitement
+    - Sulfamide :: à renseigner : intention
     - Désintensifier : alléger la charge thérapeutique :: à renseigner : intention
-    - Réduire la posologie de l'AR GLP‑1 :: à renseigner : intention
-    - Réduire la posologie du tirzépatide :: à renseigner : intention
-    - Réduire la posologie du sulfamide :: à renseigner : intention
-    - Réduire la posologie du glinide :: à renseigner : intention
+    - AR GLP‑1 :: à renseigner : intention, denutrition
+    - Tirzépatide :: à renseigner : intention, denutrition
+    - Sulfamide :: à renseigner : intention
+    - Glinide :: à renseigner : intention
 
-### Profil #14 — 10 critère(s) masqué(s) (masque stratifié) : insuffisance_cardiaque, dose_metformine, intolerance_traitement, esperance_vie, DFG, denutrition, fragilite, risque_hypoglycemie_schema, traitements_en_cours, ASCVD_etablie
+### Profil #14 — 10 critère(s) masqué(s) (masque stratifié) : HbA1c_actuelle, dose_metformine, hypoglycemie_recente, fragilite, position_vs_cible, symptomes_glucotoxicite, age, esperance_vie, traitements_en_cours, preference_injection
 
 Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - intention = intensifier
   ○ - traitements_en_cours = [iSGLT2, aGLP1, tirzepatide, sulfamide, gliptine, insuline_basale]
   ○ - dose_metformine = 61
-  ■ - HbA1c_actuelle = 8
-  ■ - position_vs_cible = sous_objectif
-  ○ - ASCVD_etablie = true
-  ○ - insuffisance_cardiaque = true
-  ○ - DFG = 45
+  ■ - intolerance_traitement = true
+  ■ - nature_intolerance = [autre]
+  ○ - preference_injection = indifferent
+  ○ - HbA1c_actuelle = 8
+  ○ - position_vs_cible = sous_objectif
+  ■ - ASCVD_etablie = true
+  ■ - insuffisance_cardiaque = true
+  ■ - DFG = 45
   ■ - albuminurie = micro
   ■ - poids = 24
   ■ - taille = 1
-  ■ - symptomes_glucotoxicite = true
+  ○ - symptomes_glucotoxicite = true
   ■ - cetonemie = true
-  ■ - hypoglycemie_recente = true
-  ○ - denutrition = true
+  ○ - hypoglycemie_recente = true
+  ■ - denutrition = true
   ■ - infections_uro_genitales_recidivantes = false
-  ○ - intolerance_traitement = true
-  ■ - nature_intolerance = [autre]
-  ■ - age = 75
+  ○ - age = 75
   ○ - fragilite = false
   ○ - esperance_vie = longue
-  ○ - risque_hypoglycemie_schema = faible
-  ■ - preference_injection = indifferent
+  ■ - risque_hypoglycemie_schema = faible
 
 Sortie :
   (aucune option applicable — sortie vide)
   Alertes de nœud :
     - Contrôler la cétonémie capillaire (β‑hydroxybutyrate) : décompensation catabolique possible malgré une HbA1c non franchement élevée. ≥ 0,6 mmol/L → insuline d'initiation ; ≥ 3 mmol/L → urgence (insuline + hospitalisation). [attention]
+    - Metformine : dose maximale 2 000 mg/j si DFG 45‑59 (RCP ANSM) ; revoir au préalable les facteurs de risque d'acidose lactique. [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
-    - Metformine — instaurer ou poursuivre :: à renseigner : traitements_en_cours, DFG, fragilite
-    - Arrêter la metformine (DFG < 30) :: à renseigner : traitements_en_cours, DFG
-    - Réduire la posologie de la metformine :: à renseigner : traitements_en_cours, dose_metformine, DFG
-    - Arrêter le sulfamide (DFG < 30) :: à renseigner : traitements_en_cours, DFG
-    - Suspendre l'iSGLT2 :: à renseigner : traitements_en_cours
+    - Metformine :: à renseigner : traitements_en_cours, dose_metformine, position_vs_cible, fragilite
+    - Metformine :: à renseigner : traitements_en_cours, dose_metformine
+    - iSGLT2 :: à renseigner : traitements_en_cours
     - Insuline d'initiation :: à renseigner : traitements_en_cours
-    - Introduire un iSGLT2 :: à renseigner : traitements_en_cours, DFG, denutrition
-    - Introduire un AR GLP‑1 :: à renseigner : traitements_en_cours, DFG, denutrition
-    - Association iSGLT2 + AR GLP‑1 :: à renseigner : traitements_en_cours, DFG, denutrition
-    - Remplacer la gliptine :: à renseigner : traitements_en_cours
-    - Arrêter la gliptine redondante :: à renseigner : traitements_en_cours
-    - Remplacer le sulfamide :: à renseigner : traitements_en_cours
-    - Optimiser l'agent mal toléré :: à renseigner : traitements_en_cours, intolerance_traitement
-    - Désintensifier : alléger la charge thérapeutique :: à renseigner : traitements_en_cours
-    - Réduire la posologie de l'insuline :: à renseigner : traitements_en_cours
-    - Réduire la posologie de l'AR GLP‑1 :: à renseigner : traitements_en_cours, denutrition
-    - Réduire la posologie du tirzépatide :: à renseigner : traitements_en_cours, denutrition
-    - Réduire la posologie du sulfamide :: à renseigner : traitements_en_cours
-    - Réduire la posologie du glinide :: à renseigner : traitements_en_cours
-    - Déprescrire la metformine :: à renseigner : traitements_en_cours, fragilite
+    - iSGLT2 :: à renseigner : traitements_en_cours
+    - AR GLP‑1 :: à renseigner : traitements_en_cours
+    - Association iSGLT2 + AR GLP‑1 :: à renseigner : traitements_en_cours
+    - Envisager l'insuline :: à renseigner : traitements_en_cours, position_vs_cible
+    - Gliptine :: à renseigner : traitements_en_cours
+    - Gliptine (redondante) :: à renseigner : traitements_en_cours
+    - Sulfamide :: à renseigner : traitements_en_cours, HbA1c_actuelle
+    - Optimiser l'agent mal toléré :: à renseigner : traitements_en_cours
+    - Désintensifier : alléger la charge thérapeutique :: à renseigner : traitements_en_cours, HbA1c_actuelle, position_vs_cible, age, fragilite, esperance_vie
+    - Insuline :: à renseigner : traitements_en_cours
+    - AR GLP‑1 :: à renseigner : traitements_en_cours
+    - Tirzépatide :: à renseigner : traitements_en_cours
+    - Sulfamide :: à renseigner : traitements_en_cours
+    - Glinide :: à renseigner : traitements_en_cours
+    - Metformine (désintensification) :: à renseigner : traitements_en_cours, position_vs_cible, fragilite
+    - Gliptine :: à renseigner : traitements_en_cours, position_vs_cible
+    - Sulfamide :: à renseigner : traitements_en_cours, position_vs_cible
 

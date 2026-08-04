@@ -59,6 +59,8 @@ Format du détail : cf. `Templates/DECISIONS.md`. Les décisions caduques descen
 - 2026-08-02 — **D46 · La mise en page occupe la largeur de l'écran** — `.decision-node` 900→1600px, arbitrage référent (pas une mesure), plafond soumis au jugement N2 (`VALIDATION.md`) → [détail](docs/commun/decisions/2026-08-02-d46-mise-en-page-occupe-la-largeur-de-l-ecran.md)
 - 2026-08-02 — **D47 · Seuil deux colonnes remonté à 1200px (amende D45/D46, D46 confirmé)** — `LARGEUR_ETROITE_MAX` 959→1199 et `@media` 960→1200 ; remesure post-S2 : l'empilé bat la grille sur toute la zone 1000-1100px ; pas de rééquilibrage de colonnes (aucun effet mesurable au-dessus du seuil) → [détail](docs/commun/decisions/2026-08-02-d47-seuil-deux-colonnes-remonte-a-1200px.md)
 
+- 2026-08-04 — **D48 · L'écran ne cite que des sources primaires, et une divergence se présente en trois faces (amende D23)** — `synthese_critique.references` (revues secondaires) supprimé du modèle au profit d'`appuis` vers les essais ; `divergences[]` en « reco / outil / sur quelles données » ; une incertitude se fonde sur la donnée ou son absence, jamais sur qui a tranché ; deux champs morts rendus (`Noeud.argumentaire`, `Option.references` via un panneau « État des preuves » ouvert par le badge) ; dette I25 sous cliquet sur les 5 autres nœuds → [détail](docs/commun/decisions/2026-08-04-d48-l-ecran-ne-cite-que-des-sources-primaires.md)
+
 ## Décisions ouvertes (à trancher avec le comité MSP)
 
 - **Méthode d'authentification veille** : magic link vs e-mail+mot de passe (reco : magic link + liste

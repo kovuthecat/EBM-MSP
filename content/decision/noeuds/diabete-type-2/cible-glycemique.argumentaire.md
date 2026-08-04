@@ -140,51 +140,31 @@ prudente** que le ≤ 7 % officiel. *(Prescrire, « Diabète de type 2 chez un a
 févr 2026, et « Quand la metformine ne suffit pas », Stratégies, août 2023 ; Médicalement Geek/DragiWebdo,
 pages « diabétologie » — cf. § Sources.)*
 
-## Révision 2026-07-26 — périmètre du nœud (risque hypoglycémique, antécédent CV, ancienneté)
+## Périmètre du nœud — trois choix d'encodage, et leurs raisons
 
-Trois arbitrages référent ont fait évoluer l'encodage (`cible-glycemique.yaml`, meta v2.1) sans
-toucher à l'argumentaire clinique ci-dessus (ACCORD/ADVANCE/VADT restent la même base de preuve) :
+Ces trois points ne touchent pas la base de preuve exposée ci-dessus (ACCORD, ADVANCE, VADT restent la
+même) : ils disent ce que le nœud fait de cette preuve, et où il s'arrête.
 
-1. **`antecedent_cv` ouvre désormais une route vers ≤ 8 %.** Jusqu'ici le critère ne servait qu'à
-   **exclure** la cible stricte (~6,5 %, condition `antecedent_cv == false`) ; aucune option ne le
-   testait en position positive, alors même que l'argumentaire ci-dessus cite l'antécédent
-   cardiovasculaire comme profil à risque de sur-traitement (ACCORD : ~35 % de maladie CV, surmortalité
-   sous contrôle intensif). Corrigé : `antecedent_cv == true` est un déclencheur supplémentaire de
-   « Cible ≤ 8 % » (union avec fragilité, comorbidité grave, espérance de vie limitée).
+**1. L'antécédent cardiovasculaire ouvre une route vers ≤ 8 %.** Le critère ne servait auparavant qu'à
+*exclure* la cible stricte (~6,5 %), alors même que l'argumentaire ci-dessus cite l'antécédent
+cardiovasculaire comme profil à risque de sur-traitement — ACCORD comptait ~35 % de maladie
+cardiovasculaire et a montré une surmortalité sous contrôle intensif. Il est désormais un déclencheur à
+part entière de « Cible ≤ 8 % », en union avec la fragilité, la comorbidité grave et l'espérance de vie
+limitée.
 
-2. **`risque_hypoglycemie_schema` SORT du nœud.** Décision référent : le risque hypoglycémique est une
-   propriété du **schéma thérapeutique** (quelle molécule, quelle dose), pas du patient lui-même — un
-   sujet jeune à diabète récent est typiquement sous metformine ou iSGLT2, aucun des deux n'expose à
-   l'hypoglycémie ; un risque hypo élevé chez lui signifie qu'il faut **changer le traitement**, pas
-   **relâcher l'objectif**. Ce nœud « cible glycémique » ne collecte aucun traitement en cours et ne
-   peut donc pas trancher entre les deux lectures — cette distinction relève d'un nœud de
-   **prescription**, hors périmètre ici. Le critère est retiré de `criteres_entree` et des deux options
-   qui le référençaient : le prérequis `risque_hypoglycemie_schema == faible` de « Cible ~6,5 % », et la
-   branche `anciennete_diabete_annees > 10 AND risque_hypoglycemie_schema == eleve` de « Cible ≤ 8 % ».
-   (Le champ reste mentionné comme **contre-indication informative**, texte libre non gatant, sur
-   l'option ~6,5 % — un rappel clinique pour le praticien, distinct du critère algorithmique retiré.)
+**2. Le risque hypoglycémique du schéma ne fait pas partie de ce nœud.** Le risque d'hypoglycémie est une
+propriété du **traitement** — quelle molécule, quelle dose — pas du patient. Un sujet jeune à diabète
+récent est typiquement sous metformine ou iSGLT2, dont aucun n'expose à l'hypoglycémie ; si le risque
+hypoglycémique est élevé chez lui, c'est le **traitement** qu'il faut changer, pas l'objectif qu'il faut
+relâcher. Ce nœud ne demande aucun traitement en cours et ne peut donc pas trancher entre les deux
+lectures : la question relève du nœud de prescription. Le risque reste mentionné comme rappel clinique sur
+l'option ~6,5 %, sans effet sur la sélection.
 
-   **Sort de la branche « ancienneté > 10 ans », NON tranché par le référent** (il a arbitré le critère
-   `risque_hypoglycemie_schema`, pas cette branche qui le co-gardait) : trois lectures étaient possibles
-   — elle disparaît avec le risque hypo ; elle devient un déclencheur autonome (`anciennete > 10` seul
-   ouvre ≤ 8 %) ; elle se recombine autrement (ex. avec `comorbidite_grave`, déjà couvert ailleurs).
-   **Choix appliqué, le plus conservateur : la branche disparaît.** Raisons : (a) la table HAS citée
-   plus haut n'associe « durée > 10 ans » à ≤ 8 % **qu'« avec hypos »**, jamais seule — en retirer le
-   volet hypo sans preuve d'un effet propre de la durée seule aurait outrepassé la source citée ;
-   (b) sur le nœud voisin `statine`, le référent a explicitement rejeté un gate mono-facteur analogue
-   (F-statine §9.4 : « tout dépend de l'ancienneté du diabète ET des atteintes d'organe. On colle à la
-   grille. ») — un principe qui, appliqué ici, désapprouve tout autant l'ancienneté SEULE comme
-   déclencheur. `anciennete_diabete_annees` reste un critère actif du nœud : il continue de verrouiller
-   la borne stricte ~6,5 % (`< 5` ans). **Ce choix est un arbitrage clinique de l'implémentation, pas une
-   décision référent actée : à confirmer ou corriger explicitement.**
-
-   **Conséquence sur les vignettes** : A-18 (« jeune sous sulfamide », `it.fails`) exerçait précisément
-   `risque_hypoglycemie_schema` — critère qui n'existe plus. Retirée de `evaluateNode.test.ts` (aucun cas
-   équivalent trouvé qui garde du sens dans CE nœud : la question qu'elle posait — adapter le traitement
-   plutôt que la cible — relève désormais explicitement d'un nœud de prescription, pas de celui-ci).
-
-3. **A-01c confirmé.** Le patient fragile ET à espérance de vie limitée (troisième cran, < 9 %) n'est
-   plus « en attente de confirmation » : validé par le référent le 2026-07-26.
+**3. L'ancienneté du diabète seule ne déclenche rien.** Une ancienneté supérieure à 10 ans n'ouvre pas la
+cible ≤ 8 % à elle seule. La table HAS citée plus haut n'associe « durée > 10 ans » à ≤ 8 % **qu'en
+présence d'hypoglycémies** — jamais seule. Lui prêter un effet propre, sans donnée qui l'établisse,
+dépasserait la source. L'ancienneté reste un critère actif du nœud : elle verrouille la borne stricte
+~6,5 % en dessous de 5 ans. Ce point reste ouvert, cf. « Incertitudes ».
 
 ## Incertitudes
 
@@ -192,8 +172,9 @@ toucher à l'argumentaire clinique ci-dessus (ACCORD/ADVANCE/VADT restent la mê
 - Mécanisme de la surmortalité ACCORD.
 - Transposabilité à l'ère GLP-1/SGLT2.
 - Valeur du *time-in-range* sur critères durs.
-- Sort définitif de la branche « ancienneté > 10 ans seule » (cf. section « Révision 2026-07-26 »
-  ci-dessus) : retirée par choix conservateur, non explicitement validée par le référent.
+- Effet propre de l'ancienneté du diabète, indépendamment des hypoglycémies : aucune donnée ne
+  l'établit. La table HAS n'associe « durée > 10 ans » à ≤ 8 % qu'en présence d'hypoglycémies ; le nœud
+  s'en tient là (cf. « Périmètre du nœud », point 3).
 
 ## Sources (liste complète)
 
@@ -222,6 +203,6 @@ toucher à l'argumentaire clinique ci-dessus (ACCORD/ADVANCE/VADT restent la mê
 
 ---
 
-*Un chiffre marqué `[À VÉRIFIER]` n'a pas encore été confirmé sur la source primaire ou par le référent ;
-les NNT/NNH sont des ordres de grandeur, à consolider avant publication validée. Dossier de méthode et de
-réconciliation : `docs/decision/noeuds/A-cible-glycemique.md`.*
+*Un chiffre marqué `[À VÉRIFIER]` n'a pas encore été confirmé sur sa source primaire ; les NNT/NNH sont
+des ordres de grandeur, à consolider avant publication validée. Dossier de méthode et de réconciliation :
+`docs/decision/noeuds/A-cible-glycemique.md`.*

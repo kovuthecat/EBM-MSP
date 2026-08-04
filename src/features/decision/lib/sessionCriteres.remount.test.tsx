@@ -49,7 +49,7 @@ const { NOEUD_A, NOEUD_B } = vi.hoisted(() => {
       argumentaire: 'x',
       sources: {
         references_primaires: [],
-        synthese_critique: { donnee: '', references: [] },
+        synthese_critique: { donnee: '' },
         reco_officielle: { source: '', position: '', divergence: false, explication: '' },
       },
       incertitudes: [],

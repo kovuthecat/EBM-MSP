@@ -18,18 +18,27 @@
  * `noeuds`/`modules` charge réellement et qu'un composant React rend à l'écran.
  *
  * PORTÉE — TOUT CE QUI EST AFFICHÉ, pas seulement les `*.argumentaire.md` (la 3ᵉ passe n'avait balayé
- * qu'eux) : `titre`, `population_cible`, `cadrage`, `alertes[].message`, `incertitudes`, les colonnes
- * `sources.*` de l'écran « Reco officielle vs position critique » (`ArgumentPanel.tsx`), et, par option,
- * `intitule`, `avantages`, `inconvenients`, `effet_attendu`, `delai_benefice`, `apercu`,
- * `contre_indications`, `motifs`, `alertes[].message` — la liste exacte que rend `OptionCard.tsx`/
- * `ArgumentPanel.tsx`, croisée avec `content/node.types.ts`. PLUS les fichiers `*.argumentaire.md`,
- * l'argumentaire exhaustif (niveau de lecture 3, `MiniMarkdown`) : rendus À 100 % tels quels, sans aucun
- * tri de section — une phrase de méthode n'importe où dans ce fichier s'affiche.
+ * qu'eux) : `titre`, `population_cible`, `cadrage`, `alertes[].message`, `incertitudes`, les blocs
+ * `sources.*` du panneau d'argumentaire (`ArgumentPanel.tsx`), et, par option, `intitule`, `avantages`,
+ * `inconvenients`, `effet_attendu`, `delai_benefice`, `apercu`, `contre_indications`, `motifs`,
+ * `alertes[].message` — la liste exacte que rend `OptionCard.tsx`/`ArgumentPanel.tsx`, croisée avec
+ * `content/node.types.ts`. PLUS les fichiers `*.argumentaire.md`, l'argumentaire exhaustif (niveau de
+ * lecture 3, `MiniMarkdown`) : rendus À 100 % tels quels, sans aucun tri de section — une phrase de
+ * méthode n'importe où dans ce fichier s'affiche.
+ *
+ * ÉLARGISSEMENT DU 2026-08-04 — DEUX ENTRÉES DE PLUS DANS LA PORTÉE, parce que l'écran a changé :
+ *   - `Noeud.argumentaire` (le champ COURT). Il était explicitement HORS PORTÉE avec pour motif
+ *     « `ArgumentPanel.tsx` ne le lit nulle part » — c'était exact, et c'était un DÉFAUT : un champ
+ *     obligatoire au schéma, rempli avec soin dans les six nœuds, et jamais rendu. La refonte du panneau
+ *     l'affiche (section « Comment ce nœud raisonne »), il entre donc dans la portée par la même règle
+ *     qui l'en excluait. Rien n'a été assoupli ; c'est la prémisse « jamais rendu » qui est tombée.
+ *   - `sources.reco_officielle.references[].nom`/`.detail` et `sources.reco_officielle.divergences[].*`
+ *     (nouveaux canaux du même jour). `synthese_critique.references` sort de la portée : le champ
+ *     n'existe plus.
  *
  * CE QUI N'EST PAS DANS CETTE PORTÉE, et pourquoi. `meta`/`changelog` (jamais rendu, vérifié dans
  * `ArgumentPanel.tsx` — aucune trace de `.changelog` ni `.meta.` côté affichage) ; les commentaires `#`
- * (jamais chargés, cf. ci-dessus) ; `Noeud.argumentaire` (le champ COURT, requis par le schéma mais que
- * `ArgumentPanel.tsx` ne lit nulle part — seul `argumentaire_exhaustif` l'est, vérifié par recherche).
+ * (jamais chargés, cf. ci-dessus).
  *
  * LES MARQUEURS — calibrés sur les 4 défauts RÉELLEMENT relevés en recette (cf. citation ci-dessus), pas
  * une liste au jugé. Chacun a été vérifié à la main contre le corpus affiché réel avant d'entrer ici, pour
@@ -51,11 +60,34 @@
  *   - `ne pas afficher` : une INSTRUCTION AU RÉDACTEUR ne peut, par construction, être un fait clinique —
  *     un praticien ne lit jamais une consigne de rédaction sur *lui-même*.
  *
- * DETTE — VOLONTAIREMENT AUCUNE. Contrairement à I6/I7/I9 (qui protègent un contenu déjà validé
- * cliniquement, où une correction peut attendre un arbitrage référent), une trace de jargon de projet n'a
- * JAMAIS de justification clinique à attendre : c'est un défaut de FORME pur, toujours corrigible sans
- * toucher une seule `condition`. Une entrée de dette ici serait la case vide que ce fichier existe
- * justement pour empêcher de rouvrir.
+ * QUATRE MARQUEURS AJOUTÉS LE 2026-08-04 (demande utilisateur, recette navigateur) : « les incertitudes
+ * doivent se baser sur les données ou leur absence, pas sur les choix référent (il ne doit pas être
+ * cité) ». C'est une règle de FOND, pas seulement de forme, et elle vaut au-delà des `incertitudes` :
+ *   - `qui-a-tranché` (`référent`) — LE MARQUEUR CENTRAL de cette demande. Une incertitude clinique se
+ *     fonde sur une donnée ou sur son absence ; « le référent a tranché » n'est ni l'une ni l'autre, et
+ *     ne dit RIEN au praticien qui lit — il ne connaît pas ce référent, et le citer transforme un
+ *     argument vérifiable en argument d'autorité. Le fait clinique sous-jacent reste, bien sûr : c'est
+ *     l'attribution qui part. Corollaire pour `divergenceReco.appui` (`node.types.ts`) : une divergence
+ *     appuyée sur « le référent a tranché » n'est pas une divergence argumentée, c'est une préférence.
+ *   - `date-de-chantier` (`2026-07-27`…) — une date ISO dans une phrase affichée est, sans exception
+ *     constatée sur le corpus, une date d'ARBITRAGE ou de CORRECTION, c'est-à-dire du changelog qui a
+ *     fui dans un champ de valeur. Les dates cliniquement utiles s'écrivent autrement (« SFD 2025 »,
+ *     « ADA Standards of Care 2026 ») : ce marqueur ne les touche pas. VÉRIFIÉ à la main sur les six
+ *     nœuds avant d'entrer ici — 41 occurrences, toutes de la première espèce, zéro faux positif.
+ *   - `statut-de-chantier` (`RÉSOLU`, `TRANCHÉ`, `CLOS`, `PRÉMISSE FAUSSE`…) en capitales — le vocabulaire
+ *     du suivi de tâche. Restreint aux CAPITALES à dessein : « la question reste tranchée par les
+ *     données » est une phrase clinique légitime, « TRANCHÉ le 2026-07-27 » est une ligne de journal.
+ *   - `étape-de-projet` (`recette`, `passe A`, `capture 6`, `T-063`, `P12/S6`) — les identifiants de
+ *     tâche et d'étape, qui ne désignent rien hors du dépôt.
+ *
+ * DETTE — VOLONTAIREMENT AUCUNE, pour les neuf marqueurs. Une trace de jargon de projet n'a JAMAIS de
+ * justification clinique à attendre : c'est un défaut de FORME pur, toujours corrigible sans toucher une
+ * seule `condition`. Une entrée de dette ici serait la case vide que ce fichier existe justement pour
+ * empêcher de rouvrir.
+ *
+ * Les quatre marqueurs du 2026-08-04 sont arrivés sur un corpus existant, ce qui a justifié une dette
+ * NOMMÉE et sous cliquet le temps de reprendre les six nœuds — quelques heures. Elle est vidée, et son
+ * échafaudage retiré avec elle : le régime est de nouveau le même pour tous les marqueurs.
  */
 import { describe, expect, it } from 'vitest'
 import { getArgumentaireExhaustif } from '../../content/loadArgumentaires.ts'
@@ -120,9 +152,26 @@ function fragmentsNoeud(node: Noeud): Fragment[] {
   if (node.sources.synthese_critique.donnee) {
     fragments.push({ chemin: 'sources.synthese_critique.donnee', texte: node.sources.synthese_critique.donnee })
   }
-  ;(node.sources.synthese_critique.references ?? []).forEach((reference, i) =>
-    fragments.push({ chemin: `sources.synthese_critique.references[${i}].nom`, texte: reference.nom }),
-  )
+  // Rendu depuis la refonte du 2026-08-04 (« Comment ce nœud raisonne ») — cf. docstring de tête, § portée.
+  if (node.argumentaire) fragments.push({ chemin: 'argumentaire', texte: node.argumentaire })
+  ;(node.sources.reco_officielle.references ?? []).forEach((reference, i) => {
+    fragments.push({ chemin: `sources.reco_officielle.references[${i}].nom`, texte: reference.nom })
+    if (reference.detail) {
+      fragments.push({ chemin: `sources.reco_officielle.references[${i}].detail`, texte: reference.detail })
+    }
+  })
+  ;(node.sources.reco_officielle.divergences ?? []).forEach((divergence, i) => {
+    fragments.push({ chemin: `sources.reco_officielle.divergences[${i}].sujet`, texte: divergence.sujet })
+    fragments.push({
+      chemin: `sources.reco_officielle.divergences[${i}].position_officielle`,
+      texte: divergence.position_officielle,
+    })
+    fragments.push({
+      chemin: `sources.reco_officielle.divergences[${i}].position_outil`,
+      texte: divergence.position_outil,
+    })
+    fragments.push({ chemin: `sources.reco_officielle.divergences[${i}].appui`, texte: divergence.appui })
+  })
   ;(node.sources.references_primaires ?? []).forEach((reference, i) =>
     fragments.push({ chemin: `sources.references_primaires[${i}].titre`, texte: reference.titre }),
   )
@@ -163,11 +212,35 @@ const MARQUEURS_JARGON: { motif: RegExp; nom: string }[] = [
   { motif: /\bchantier\b/i, nom: 'chantier' },
 ]
 
+/**
+ * Les QUATRE marqueurs ajoutés le 2026-08-04 (cf. docstring de tête) — tenus à part parce qu'eux seuls
+ * sont arrivés sur un corpus existant plutôt qu'avec lui, et pour que le message d'échec dise lequel des
+ * deux lots s'applique.
+ */
+const MARQUEURS_ARGUMENT: { motif: RegExp; nom: string }[] = [
+  { motif: /\bréférents?\b/i, nom: 'qui-a-tranché (« référent »)' },
+  { motif: /\b20\d{2}-\d{2}-\d{2}\b/, nom: 'date-de-chantier (AAAA-MM-JJ)' },
+  {
+    motif: /\b(?:RÉSOLU|TRANCHÉ|CLOS|MAINTENU|PRÉMISSE FAUSSE|RESTE NON ENCODÉ|NON TRANCHÉ)\b/,
+    nom: 'statut-de-chantier (capitales)',
+  },
+  { motif: /\b(?:recette|passes? [A-Z]\b|capture \d|T-\d{2,3}|P\d+\/S\d+)/i, nom: 'étape-de-projet' },
+]
+
+/**
+ * Nœuds NON ENCORE REPRIS pour les quatre marqueurs du 2026-08-04. Sous cliquet (cf. docstring de tête et
+ * le second test) : une entrée doit encore correspondre à un défaut RÉEL, sinon le banc tombe. Peut
+ * seulement rétrécir.
+ *
 /** Fragments qui contiennent AU MOINS UN marqueur — chaque violation nomme le marqueur ET la chaîne. */
-function violationsDeFragments(fragments: Fragment[], origine: string): string[] {
+function violationsDeFragments(
+  fragments: Fragment[],
+  origine: string,
+  marqueurs: { motif: RegExp; nom: string }[] = MARQUEURS_JARGON,
+): string[] {
   const violations: string[] = []
   for (const { chemin, texte } of fragments) {
-    for (const { motif, nom } of MARQUEURS_JARGON) {
+    for (const { motif, nom } of marqueurs) {
       if (motif.test(texte)) {
         const aPlat = texte.replace(/\s+/g, ' ').trim()
         const extrait = aPlat.length > 140 ? `${aPlat.slice(0, 140)}…` : aPlat
@@ -191,6 +264,25 @@ describe('I25 — aucun jargon de projet dans un champ affiché au praticien', (
     'module %s — aucun champ de contenu affiché ne porte un marqueur de jargon de projet',
     (_id, module) => {
       const violations = violationsDeFragments(fragmentsModule(module), `module "${module.id}"`)
+      expect(violations).toEqual([])
+    },
+  )
+
+  /**
+   * MARQUEURS DU 2026-08-04 — « une incertitude se fonde sur une donnée ou sur son absence, jamais sur
+   * qui a tranché ». Régime à dette, cf. docstring de tête : les nœuds de
+   * Aucun nœud n'y échappe.
+   */
+  it.each(
+    noeuds.map((node) => [node.id, node] as const),
+  )(
+    'nœud %s — aucun champ affiché ne cite qui a tranché, ni une date/étape de chantier',
+    (_id, node) => {
+      const violations = violationsDeFragments(
+        fragmentsNoeud(node),
+        `nœud "${node.id}"`,
+        MARQUEURS_ARGUMENT,
+      )
       expect(violations).toEqual([])
     },
   )
@@ -223,4 +315,26 @@ describe('I25 — aucun jargon de projet dans un champ affiché au praticien', (
     })
     expect(violations.length === 0 ? [] : occurrences, `occurrences détaillées dans ${node.argumentaire_exhaustif}`).toEqual([])
   })
+
+  /**
+   * MÊME FICHIER, MARQUEURS DU 2026-08-04 : un argumentaire exhaustif est un texte de fond, pas un
+   * journal de travail, et la règle « la donnée ou son absence, jamais qui a tranché » y vaut autant
+   * qu'ailleurs.
+   */
+  it.each(
+    noeuds
+      .filter((node) => node.argumentaire_exhaustif)
+      .map((node) => [node.id, node] as const),
+  )(
+    'nœud %s — son argumentaire exhaustif ne cite pas qui a tranché, ni une date/étape de chantier',
+    (_id, node) => {
+      const markdown = getArgumentaireExhaustif(node.argumentaire_exhaustif)
+      expect(markdown, `argumentaire_exhaustif="${node.argumentaire_exhaustif}" introuvable`).toBeTruthy()
+      const occurrences = MARQUEURS_ARGUMENT.flatMap(({ motif, nom }) => {
+        const global = new RegExp(motif.source, motif.flags.includes('g') ? motif.flags : `${motif.flags}g`)
+        return [...markdown!.matchAll(global)].map((m) => `${nom} :: "${m[0]}" (position ${m.index})`)
+      })
+      expect(occurrences, `occurrences détaillées dans ${node.argumentaire_exhaustif}`).toEqual([])
+    },
+  )
 })

@@ -1,225 +1,136 @@
-# Prescription non‑insulinique du DT2 — Argumentaire exhaustif (fusion B+C+D)
+# Prescription non insulinique du DT2 — argumentaire exhaustif
 
-> **Niveau 3 — lecture exhaustive.** Nœud unique issu de la fusion de **B (1re intention)**, **C
-> (intensification/optimisation)** et **D (sulfamides/gliptines)** — plan P3, gel S1. Le **détail
-> essai‑par‑essai** (matrices CVOT, tête‑à‑tête, méta) reste dans les **dossiers de méthode historiques**
-> (les nœuds de contenu B/C/D ont été fusionnés puis retirés ; leurs dossiers de preuve persistent) :
+> **Niveau 3 — lecture exhaustive.** Ce document expose le raisonnement complet du nœud : ce qu'il
+> propose, sur quelles données, et où passent les limites de ce qu'on sait. Le détail **essai par essai**
+> (matrices de CVOT, comparaisons directes, méta-analyses) vit dans les dossiers de preuve
 > [`B-premiere-intention.md`](../../../docs/decision/noeuds/B-premiere-intention.md),
 > [`C-intensification.md`](../../../docs/decision/noeuds/C-intensification.md) et
-> [`D-sulfamides-gliptines.md`](../../../docs/decision/noeuds/D-sulfamides-gliptines.md) : on ne le reproduit pas ici.
-> Ce document donne la **logique du nœud fusionné** et les **règles nouvelles** du gel. Dossier de méthode :
-> [`../../docs/decision/noeuds/prescription.md`](../../../docs/decision/noeuds/prescription.md). **Statut :
-> brouillon v0.1 — à valider par le référent (P3·S6).**
+> [`D-sulfamides-gliptines.md`](../../../docs/decision/noeuds/D-sulfamides-gliptines.md) ; il n'est pas
+> reproduit ici. L'historique des corrections apportées au nœud vit dans son changelog, pas dans ce
+> document : ce qu'on lit ci-dessous est l'état actuel du raisonnement, pas son parcours.
 
-## En bref
+## Les cinq principes
 
-Un seul nœud pilote toute la prescription non‑insulinique. **Refonte S8 (2026‑07‑25)** : l'interrogation
-part de **l'intention du praticien** — `initier / intensifier / optimiser / déprescrire` — qui **organise** le
-flux de saisie et l'affichage et **déduit** la position vs objectif (`cible_atteinte`), l'HbA1c seule ne
-donnant pas le « vs cible » sans le nœud A. **Principe non‑étanche** : l'intention n'est jamais un filtre dur —
-les gestes transverses (un switch révélé pendant une intensification, un switch issu d'une déprescription pour
-risque…) restent affichés. Les gestes se combinent — **ajouter / switcher / réduire / arrêter** — sur un socle
-metformine, avec une **palette glycémique** (cf. ci‑dessous), une place résiduelle SU/gliptine et un **gate
-insuline d'initiation** (catabolisme).
+1. **Hiérarchie de valeur.** Les iSGLT2 et les AR GLP‑1 ont un bénéfice d'organe démontré contre placebo,
+   sur critères durs. Les sulfamides et les gliptines n'en ont aucun : leurs essais de sécurité
+   cardiovasculaire sont neutres.
+2. **L'ajout est piloté par la comorbidité, pas par l'HbA1c** — iSGLT2 en cas d'insuffisance cardiaque ou
+   de maladie rénale, AR GLP‑1 en cas d'athérome ou d'obésité. En **athérome pur** (ni insuffisance
+   cardiaque ni atteinte rénale), l'AR GLP‑1 passe DEVANT l'iSGLT2, qui n'a pas d'effet démontré sur
+   l'infarctus ni sur l'AVC.
+3. **Une gliptine et un AR GLP‑1 ne s'associent jamais** : même voie incrétine, aucun bénéfice additif
+   (Nauck 2017 ; ADA §9 ; KDIGO PP4.2.3 ; HAS R.80). C'est un remplacement, jamais un ajout.
+4. **Le sur-traitement se corrige à tout âge.** Une HbA1c sous 6,5 % sous agent hypoglycémiant est une
+   iatrogénie ; une hypoglycémie ou une chute récente déclenche aussi l'allègement chez le sujet fragile
+   (HYPOAGE). On n'allège **jamais** un agent protecteur (ADA 13.14d).
+5. **Des garde-fous de terrain écartent les erreurs du sujet fragile** — voir la section dédiée.
 
-**Ajout 2026‑07‑26 (prérequis/I7/intention, non clinique)** : les deux options d'insuline
-(« Insuline d'initiation », « Envisager l'insuline ») excluent désormais explicitement le patient déjà
-sous insuline (alignées sur les 6 autres options d'ajout du nœud). Une nouvelle alerte informative
-(`intention == deprescrire`) explique qu'un ajout affiché malgré une intention de déprescription reflète
-une indication transverse ou un switch, jamais une contradiction — le primer reste **non filtrant**
-(aucune option supprimée). L'élargissement de la désintensification au socle (metformine, iSGLT2 sans
-indication d'organe) reste, pour l'iSGLT2, un **arbitrage clinique non tranché**, volontairement non
-encodé (cf. `incertitudes` du YAML) — pour la **metformine**, voir le lot suivant.
+## Molécules et doses
 
-**Ajout 2026‑07‑26 (arbitrages référent)** : deux décisions cliniques.
+Les RCP ont été lus séparément (procédure centralisée EMA, identique en France) : **aucune dose n'est
+déduite par analogie** d'une molécule à l'autre.
 
-1. **Déprescription de la metformine sous 3 conditions cumulatives** — arbitrage resté ouvert depuis la
-   capture 6, tranché par le référent : *« on peut la déprescrire si sur-traitement chez une personne
-   fragile et que les autres agents sont tous des agents à bénéfice dur. »* Encodé via le critère dérivé
-   `metformine_deprescriptible` : (1) sur-traitement = état **déclaré** `position_vs_cible ==
-   sous_objectif` (R1 — jamais l'intention) ; (2) fragilité = drapeau saisi `fragilite == true` ; (3)
-   absence de tout agent sans bénéfice dur en cours (sulfamide, gliptine, glinide **et insuline**).
-   **Lecture stricte sur l'insuline** (interprétation de l'orchestrateur, à confirmer par le référent) :
-   l'insuline n'a pas de bénéfice démontré sur critère dur (ORIGIN neutre) — un patient sur-traité fragile
-   *sous insuline* ne remplit donc pas la 3ᵉ condition et la metformine n'est **pas** déprescrite dans ce
-   cas ; c'est cliniquement cohérent, c'est l'**insuline** qu'on allège d'abord chez ce patient (options
-   « Désintensifier » / « Réduire la posologie de l'insuline », déjà applicables sur ce même profil).
-   ⚠ **Divergence déclarée avec la reco officielle** : la HAS maintient la metformine en socle quelles que
-   soient les comorbidités (badge « Recommandation officielle (France) » sur l'option socle). Proposer sa
-   déprescription s'appuie sur l'**absence de bénéfice démontré vs placebo** (Griffin 2017, Boussageon 2012
-   NS) et un `niveau_preuve` **faible** — c'est une position raisonnée de l'outil sous conditions strictes,
-   **pas** un alignement HAS/SFD/ADA ; déclaré comme tel dans l'option (`inconvenients`) et dans
-   `sources.reco_officielle.explication` du YAML. Garde-fou en miroir : l'option socle « Metformine —
-   instaurer ou poursuivre » exclut désormais `metformine_deprescriptible == true` (même mécanique que son
-   exclusion `DFG < 30`), pour ne jamais afficher « poursuivre » et « déprescrire » côte à côte sur le même
-   agent.
-2. **Alerte cétonémie sous insuline précisée** — le référent valide l'alerte ajoutée le même jour (message
-   d'urgence qui vivait dans les `contre_indications` d'une option depuis exclue du patient déjà sous
-   insuline) avec une précision clinique : *« en pratique, une cétose chez un patient sous insuline est
-   très rare, sauf en cas de rupture thérapeutique. »* Le message désigne désormais la **rupture
-   thérapeutique** (arrêt, oubli, défaut d'administration, panne de pompe) comme la **première chose à
-   rechercher**, avant d'orienter vers un ajustement de schéma (nœud E) ; seuil 3 mmol/L, suspicion de DT1
-   et renvoi au nœud E inchangés.
+### iSGLT2
 
-**Ajout 2026‑07‑26 (deux audits de sécurité indépendants, sécurité + silences)** : quatre défauts
-GRAVES corrigés.
+| Molécule | Dose | Particularité |
+| --- | --- | --- |
+| Dapagliflozine (Forxiga) | 10 mg/j | dose unique, sans titration |
+| Empagliflozine (Jardiance) | 10 mg/j, puis 25 mg/j si DFG ≥ 60 | 25 mg = dose maximale |
 
-1. **Sulfamide et metformine sous DFG < 30 : deux gestes contradictoires affichés ensemble.** « Arrêter »
-   et « Réduire la posologie » se déclenchaient tous les deux — le premier parce que l'agent est
-   **contre-indiqué** sous ce seuil, le second parce qu'une de ses branches (intolérance digestive pour la
-   metformine ; l'option entière pour le sulfamide/glinide) n'était **pas bornée au DFG**. Corrigé par une
-   `exclusions: ["DFG < 30"]` sur les deux options « Réduire », symétrique de celle déjà en place sur le
-   socle metformine. **44 %** du sous-groupe sulfamide + DFG < 30 sévère était concerné (3,5 % pour la
-   metformine, branche intolérance).
-2. **iSGLT2 en place + cétonémie confirmée : aucune option ne le suspendait (25 % du sous-groupe, priorité
-   absolue du lot).** Une cétonémie positive sous iSGLT2 est le tableau typique de l'**acidocétose
-   euglycémique sous gliflozine** (FDA/EMA), d'autant plus piégeuse que la glycémie peut rester proche de
-   la normale. Le seul rappel du dépôt vivait dans `insuline.yaml`, inatteignable depuis ce nœud, et
-   l'alerte cétonémie de CE nœud ne testait même pas `cetonemie` directement (deux proxys seulement : HbA1c
-   ≥ 10, symptômes de glucotoxicité). Corrigé par une nouvelle option « Suspendre l'iSGLT2 (cétonémie
-   confirmée) », famille sécurité, déclenchée par la seule conjonction iSGLT2-en-cours + cétonémie —
-   structurelle, indépendante de l'objectif glycémique (les garde-fous d'urgence sont orthogonaux à la
-   position vs cible) — et par l'élargissement du `quand` de l'alerte cétonémie à `cetonemie == true`.
-3. **Le sur-traitement DÉCLARÉ (`position_vs_cible == sous_objectif`) ne pilotait aucun allègement de
-   l'insuline, du sulfamide ou du glinide seuls.** Ce critère, introduit par R1 précisément pour capter le
-   sur-traitement relatif à l'objectif du patient (au-delà du seuil absolu `hba1c_sous_cible`), n'était
-   référencé QUE par `metformine_deprescriptible`. Généralisé aux trois options d'allègement restantes
-   (« Désintensifier », « Réduire la posologie de l'insuline », « Réduire la posologie du sulfamide / du
-   glinide »), **sans** exiger la fragilité — celle-ci ne conditionne que la déprescription de la
-   metformine, dernier agent réputé « sûr » à garder.
+Aucune hiérarchie n'est posée entre les molécules : la protection cardio-rénale est un effet de classe.
 
-Limite signalée, non corrigée faute de source : aucune option
-« Arrêter le glinide » dédiée n'existe dans ce nœud (contrairement au sulfamide) — un patient sous glinide
-**seul** à DFG < 30 perd donc son geste de réduction sans verdict de remplacement (cf. `incertitudes` du
-YAML).
+**Nuance de terrain**, distincte de l'exclusion générale sous DFG 20 : le plancher de DFG en dessous
+duquel le RCP déconseille d'INITIER diffère par molécule — empagliflozine sous 20, dapagliflozine sous 25.
+Entre 20 et 24 mL/min/1,73 m², seule l'empagliflozine est donc soutenue par son propre RCP pour une
+instauration.
 
-**Ajout 2026‑07‑26 (arbitrage référent, recette capture 1, problème 2)** :
-« Réduire la posologie de la metformine » se déclenchait sur la seule fourchette de DFG, sans connaître la
-dose **ACTUELLE** du patient — impossible de savoir si une réduction s'impose sans elle. Le référent :
-*« Metformine présente devrait peut-être demander de renseigner la dose. »* Nouveau critère
-`dose_metformine` (nombre, mg/j), visible seulement si la metformine est en cours ; l'option n'est
-applicable que si cette dose dépasse le **maximum ajusté au DFG** — seuils repris tels quels des alertes
-rénales déjà présentes (RCP ANSM : 45‑59 → max 2 g/j ; 30‑44 → max 1 g/j). La branche intolérance digestive
-reste indépendante de la dose. Tant que la dose n'est pas renseignée alors que le DFG situe le patient dans
-l'une des deux bandes, l'option passe **en attente** (D20 : « à renseigner : dose de metformine ») plutôt
-que d'affirmer une réduction à l'aveugle. L'alerte rénale (paliers DFG) est inchangée — elle reste vraie
-quel que soit le geste retenu.
+*La canagliflozine (Invokana) a été retirée de ce nœud : elle n'est pas disponible en France. L'essai
+CREDENCE, qu'elle porte, reste cité en source — il établit l'effet de classe, indépendamment de la
+commercialisation d'une molécule.*
 
-**Ajout 2026‑07‑30 (P9/S8, T-075) — la carte metformine porte enfin un protocole de titration.** Motif :
-rapport de recette N1 sur la vignette la plus simple du nœud — *« Aucune dose, aucune titration.
-"Instaurer ou poursuivre" n'est pas une prescription. »* Source **unique**, fournie par le référent :
-Assurance Maladie (ameli), mémo médecin *« Prescription de metformine chez le patient diabétique de type
-2 »* (fichier `memometformine-medecin.pdf`, hors dépôt ; aucune date d'édition visible sur le document
-lui-même — les seules dates lisibles sont celles de rapports cités en référence, 2018‑2020). Le mémo
-couvre : la place de la metformine (1re intention, maintenue en intensification), son efficacité/sécurité
-vs placebo (HbA1c −0,97 %, neutralité pondérale, pas d'hypoglycémie, sécurité CV — HAS 2013), une table
-posologie/DFG (≥60 → 3 g/j, 45‑59 → 2 g/j, 30‑44 → 1 g/j, <30 → contre‑indiquée), les cas d'arrêt
-momentané (contraste iodé, décompensation cardiaque, chirurgie sous anesthésie, déshydratation aiguë), les
-contre‑indications (IRénale/IRespiratoire/IHépatique sévères), et surtout des **mesures de tolérance et un
-protocole de titration** : prescrire en 2‑3 prises en milieu/fin de repas, augmenter progressivement à
-partir d'une dose d'initiation par paliers d'1 semaine à 15 jours selon la tolérance digestive jusqu'à la
-dose cible, avec un exemple concret (cible 2 g/j, Glucophage 1000 mg : ½ cp matin+soir 15 j → ½ cp
-matin/1 cp soir 15 j → 1 cp matin+soir 1 mois, retour au palier précédent 15 jours si intolérance),
-répartition des prises selon les préférences du patient en gardant la prise au repas, comprimés sécables
-en cas de trouble de déglutition, Stagid® (embonate de metformine, moins de metformine base) utile pour
-l'instauration.
+### AR GLP‑1
 
-**Vérification de non‑contradiction (étape 2 de la tâche)** : la table DFG du mémo (≥60 → 3 g/j, 45‑59 →
-2 g/j, 30‑44 → 1 g/j, <30 → CI) reproduit **exactement** les seuils déjà encodés dans ce nœud (T-070, S3 :
-contre‑indication DFG < 30 de l'option socle ; option « Réduire la posologie de la metformine », seuils
-45‑59 → 2 g/j / 30‑44 → 1 g/j). Aucune valeur clinique modifiée, aucune contre‑indication touchée.
+| Molécule | Titration | Dose maximale |
+| --- | --- | --- |
+| Liraglutide (Victoza) | 0,6 mg/j → 1,2 mg/j (≥ 1 sem) → 1,8 mg/j (≥ 1 sem) | 1,8 mg/j |
+| Sémaglutide injectable (Ozempic) | 0,25 mg/sem pendant 4 sem — **ce n'est PAS une dose d'entretien** → 0,5 mg/sem → 1 mg/sem (≥ 4 sem à 0,5) | 1 mg/sem en France |
+| Dulaglutide (Trulicity) | 0,75 mg/sem en monothérapie, ou 1,5 mg/sem d'emblée en association → 3 mg/sem (≥ 4 sem) → 4,5 mg/sem (≥ 4 sem) | 4,5 mg/sem |
 
-**Portée volontairement limitée à l'INSTAURATION** (étape 3) : l'option reste « Metformine (socle du
-traitement) — instaurer ou poursuivre » (les deux cas coexistent, aucun critère du nœud ne les distingue
-pour cette option). Le protocole de titration n'a de sens que pour un patient naïf ; les deux puces
-ajoutées aux `avantages` sont donc explicitement préfixées « En INSTAURATION » / « Observance » plutôt que
-formulées comme une instruction générale, pour ne jamais laisser croire qu'un patient déjà stabilisé doit
-reprendre une titration.
+La dose initiale du liraglutide comme celle du sémaglutide existent **pour la tolérance digestive**, pas
+pour l'efficacité : les annoncer comme des doses d'entretien serait une erreur de prescription.
 
-**Rendu** (décision clé de S8.md) : prose sourcée dans `avantages` — le nœud n'a pas de mécanisme
-`calculs` capable de porter une **séquence** de paliers dans le temps (`calculs` évalue une formule unique
-depuis les critères du patient, ex. `poids * 0.15` ; le protocole d'instauration est une séquence fixe de
-3 paliers de durée fixe, indépendante des critères saisis pour ce nœud) — aucun nouveau mécanisme créé,
-conformément à la décision clé. Pour que ces chiffres restent lisibles **sans ouvrir le dépli**
-(exigence de S8.md, directement issue de la vignette N1 lue « en 2 minutes de consultation ») : ajout d'un
-`apercu` sur l'option — mécanisme générique déjà livré par T-076 (P9/S9) pour la carte statine, réutilisé
-tel quel sans modification de schéma ni de composant, reprenant sans recalcul les chiffres déjà écrits
-dans les `avantages` ajoutés.
+### Disponibilité en France — trois pièges vérifiés
 
-**Ce que le mémo ne couvre pas** : aucun protocole alternatif pour une cible autre que 2 g/j (l'exemple du
-mémo est unique), aucune indication de dose maximale au-delà de la table DFG déjà encodée, aucune
-précision sur la conduite en cas d'intolérance persistante malgré le retour au palier précédent (déjà
-couvert ailleurs dans ce nœud par l'option « Réduire la posologie » et son alerte). Rien de tout cela
-n'était demandé par T-075 ; signalé pour mémoire, non comblé par une autre source.
+Le domaine a été pris en défaut plusieurs fois sur ce point ; chaque molécule est désormais vérifiée
+contre la base publique des médicaments (ANSM) avant d'être nommée.
 
-**Ajout 2026-08-01 (P10/S7, T-084) — les deux cartes d'agent à bénéfice d'organe descendent à la molécule
-et à la dose.** Motif : rapport de recette, quatre vignettes (N3-N6), la lacune la plus réclamée du
-domaine — « je n'ai retenu aucune dose — l'outil ne m'a pas économisé la seule chose qui coûtait ».
-Inventaire préalable : les molécules de l'AR GLP‑1 étaient déjà nommées dans l'**intitulé** de la carte
-(liraglutide, sémaglutide, dulaglutide) et les CVOT déjà cités dans `references` des deux options — mais
-aucune dose n'était encodée nulle part, et l'iSGLT2 ne nommait même pas ses trois molécules dans le corps
-de la carte (seulement en garde-fou amputation, « signal canagliflozine », dans les `contre_indications`).
+- **Sémaglutide 2 mg/semaine** : le RCP européen autorise ce palier après 4 semaines à 1 mg, mais seules
+  les présentations 0,25 / 0,5 / 1 mg d'Ozempic sont commercialisées en France. **Dose maximale
+  utilisable : 1 mg/semaine.**
+- **Sémaglutide oral (Rybelsus)** : avis HAS défavorable au remboursement (SMR insuffisant, 21/07/2021 —
+  « n'a pas de place dans la stratégie thérapeutique du diabète de type 2 »), de fait quasiment
+  indisponible en pharmacie française. Le proposer comme alternative au patient qui refuse les injections
+  est trompeur en pratique.
+- **Gliptines** : la linagliptine et l'alogliptine n'ont jamais été commercialisées en France ; la
+  sitagliptine 25 mg — le dosage de l'insuffisance rénale sévère — non plus, d'où la vildagliptine
+  50 mg/j comme seule gliptine nommée sous DFG 30.
 
-Six RCP lus séparément (procédure centralisée EMA — RCP identique en France, ANSM), **aucune dose déduite
-par analogie d'une molécule à l'autre** (D23) :
+### Metformine — instauration, titration, adaptation au DFG
 
-- **iSGLT2** : dapagliflozine (Forxiga) 10 mg/j, dose unique sans titration ; empagliflozine (Jardiance)
-  10 mg/j puis 25 mg/j (dose max) si DFG ≥ 60 et besoin d'un contrôle renforcé ; canagliflozine (Invokana)
-  100 mg/j puis 300 mg/j (dose max), mêmes conditions de DFG. Pas de hiérarchie ajoutée entre les trois :
-  la protection cardio-rénale reste un effet de classe (D12) — cohérent avec le premier `avantages` déjà
-  présent, qui ne l'attribuait à aucune molécule. **Nuance de terrain ajoutée** (sans toucher l'exclusion
-  `DFG < 20`, plus large et inchangée) : le plancher de DFG en dessous duquel le RCP déconseille
-  D'INITIER diffère par molécule — empagliflozine < 20, dapagliflozine < 25, canagliflozine < 30 (déjà en
-  cours : poursuite à 100 mg/j jusqu'à la dialyse). Entre 20 et 24 mL/min/1,73 m², seule l'empagliflozine
-  est donc soutenue par son propre RCP pour une instauration.
-- **AR GLP‑1** : liraglutide (Victoza) 0,6 mg/j (tolérance digestive) → 1,2 mg/j (≥ 1 sem) → 1,8 mg/j
-  (dose max, ≥ 1 sem supplémentaire si besoin) ; sémaglutide injectable (Ozempic) 0,25 mg/sem (4 sem,
-  PAS une dose d'entretien) → 0,5 mg/sem → 1 mg/sem (≥ 4 sem à 0,5 mg si besoin) ; dulaglutide
-  (Trulicity) 0,75 mg/sem en monothérapie ou 1,5 mg/sem d'emblée en association → 3 mg/sem (≥ 4 sem) →
-  4,5 mg/sem (dose max, ≥ 4 sem supplémentaires).
+La table posologie/DFG est identique dans toutes les sources consultées, et identique à ce que le nœud
+encode : **DFG ≥ 60 → 3 g/j · 45-59 → 2 g/j · 30-44 → 1 g/j · sous 30 → contre-indiquée.**
 
-**Disponibilité française vérifiée molécule par molécule** (le domaine a déjà été mordu deux fois par ce
-piège — linagliptine et alogliptine jamais commercialisées en France, saxagliptine en retrait) : les six
-molécules encodées sont commercialisées ET remboursées en France (base de données publique des
-médicaments, ANSM — canagliflozine : déclaration de commercialisation 2024, troisième gliflozine
-disponible). **Une seule restriction trouvée** : le RCP européen du sémaglutide autorise un palier
-supplémentaire à 2 mg/semaine (après ≥ 4 sem à 1 mg), mais **seules les présentations 0,25/0,5/1 mg
-d'Ozempic sont commercialisées en France** (Vidal, gamme Ozempic ; absence du dosage 2 mg confirmée sur
-la base ANSM) — dose maximale utilisable en France : 1 mg/semaine. Ni encodé ni supposé pour les doses
-déjà en place : aucun changement d'`exclusions`, de `conditions`, de `priorite` ni de `contre_indications`
-sur les deux options ; suite complète relancée après coup, aucune option n'a changé de statut (diff de
-snapshots relu ligne à ligne).
+**Protocole d'instauration** — patient naïf uniquement : un patient déjà stabilisé ne reprend pas une
+titration. Prescrire en 2 à 3 prises, en milieu ou en fin de repas, et augmenter par paliers d'une semaine
+à quinze jours selon la tolérance digestive, jusqu'à la dose cible. Exemple pour une cible de 2 g/j avec
+des comprimés à 1000 mg : ½ cp matin et soir pendant 15 jours, puis ½ cp le matin et 1 cp le soir pendant
+15 jours, puis 1 cp matin et soir pendant un mois. **En cas d'intolérance, revenir au palier précédent
+pendant 15 jours.** La répartition des prises suit les préférences du patient, en gardant la prise au
+repas ; des comprimés sécables existent en cas de trouble de la déglutition, et l'embonate de metformine
+(Stagid®), qui apporte moins de metformine base, peut aider à l'instauration.
 
-**Deux résiduels rencontrés, signalés au référent, non corrigés (hors périmètre de cette tâche)** :
+Efficacité et sécurité contre placebo : HbA1c −0,97 %, neutralité pondérale, pas d'hypoglycémie. Arrêt
+momentané en cas de produit de contraste iodé, de décompensation cardiaque, de chirurgie sous anesthésie
+ou de déshydratation aiguë. Contre-indications : insuffisance rénale, respiratoire ou hépatique sévère.
 
-1. La `contre_indications` existante de l'option AR GLP‑1 dit : « Refus des injections : préférer le
-   sémaglutide oral [Rybelsus] ou une autre classe. » Or Rybelsus a reçu un avis HAS défavorable au
-   remboursement en France (SMR insuffisant, 21/07/2021 : « en l'absence de données cliniques robustes
-   nouvelles, RYBELSUS... n'a pas de place dans la stratégie thérapeutique du diabète de type 2 ») et
-   n'est de fait quasiment pas disponible en pharmacie française. La phrase existante est donc trompeuse
-   en pratique — mais corriger un `contre_indications` était explicitement hors périmètre de T-084
-   (« Ne touche à aucune condition, exclusion, priorité ou contre-indication »). À trancher par le
-   référent : retirer la mention, la nuancer, ou l'assumer comme une option non remboursée mais licite.
-2. La séquence des gestes (ordre d'arrêt/instauration) et la surveillance à l'introduction (créatinine
-   J15, mycose génitale, jours de maladie) n'apparaissent dans aucune des sources lues pour cette tâche —
-   confirmé hors périmètre P10 (`plans/P10/index.md`), non encodé, conforme à la consigne de S7.md.
+*Ce que la source ne couvre pas, et qui n'est donc pas encodé :* aucun protocole alternatif pour une cible
+autre que 2 g/j, aucune dose maximale au-delà de la table DFG, et aucune conduite en cas d'intolérance
+persistante malgré le retour au palier précédent — ce dernier cas relève de l'option de réduction de dose,
+traitée ailleurs dans ce nœud.
 
-Points‑clés :
+## Garde-fous structurels de sécurité
 
-1. **Hiérarchie de valeur** (importée de B/C) : iSGLT2 et AR GLP‑1 ont un bénéfice d'organe démontré (CVOT vs
-   placebo, critères durs) ; **sulfamides et gliptines n'en ont aucun** (essais de sécurité CV neutres).
-2. **Ajout piloté par la comorbidité** — iSGLT2 si IC / maladie rénale ; AR GLP‑1 si athérome / obésité —
-   **indépendamment de l'HbA1c**. **Fix de préférence (bug 9)** : en **athérome pur** (ni IC ni rénal), le
-   **GLP‑1 passe devant l'iSGLT2** (qui n'a pas d'effet démontré sur l'IDM/l'AVC), via des priorités
-   conditionnelles (D14).
-3. **Non‑association gliptine + AR GLP‑1** par construction (même voie incrétine) : c'est un **switch**, jamais
-   un ajout (Nauck 2017 ; ADA §9 ; KDIGO PP4.2.3 ; HAS R.80).
-4. **Désintensification** chez le sur‑traité : un **HbA1c < 6,5 % sous agent hypoglycémiant** est une
-   iatrogénie à corriger **à tout âge** ; l'hypoglycémie/chute récente déclenche aussi chez le sujet fragile
-   (HYPOAGE). **Jamais** un agent protecteur (ADA 13.14d).
-5. **Gating négatif de terrain** (nouveauté de la fusion) : voir ci‑dessous.
+**Cétonémie sous iSGLT2.** Une cétonémie positive chez un patient sous gliflozine est le tableau typique
+de l'**acidocétose euglycémique**, d'autant plus piégeuse que la glycémie peut rester proche de la
+normale. Une option de suspension dédiée se déclenche sur la seule conjonction « iSGLT2 en cours +
+cétonémie », indépendamment de l'objectif glycémique : un garde-fou d'urgence est orthogonal à la position
+vis-à-vis de la cible. Chez un patient sous insuline, une cétose est en revanche rare — la **rupture
+thérapeutique** (arrêt, oubli, défaut d'administration, panne de pompe) est la première chose à
+rechercher, avant tout ajustement de schéma.
 
-## Les 4 intentions — la logique de décision (S8)
+**Jamais deux gestes contradictoires sur le même agent.** Sous DFG 30, « arrêter » et « réduire la
+posologie » pouvaient s'afficher ensemble pour le sulfamide comme pour la metformine — le premier parce
+que l'agent est contre-indiqué, le second parce qu'une branche de l'option n'était pas bornée au DFG. Les
+options de réduction excluent désormais cette bande. Même principe pour la metformine : la carte socle
+s'efface quand la carte de sécurité qui commande sa réduction est indiquée, de sorte qu'une seule conduite
+s'affiche.
+
+**Une réduction de dose suppose de connaître la dose.** L'option de réduction de la metformine ne se
+déclenche pas sur la seule fourchette de DFG : elle exige la dose actuelle, et n'est applicable que si
+celle-ci dépasse le maximum ajusté au DFG. Tant que la dose n'est pas renseignée alors que le DFG situe le
+patient dans une bande concernée, l'option reste **en attente** plutôt que d'affirmer une réduction à
+l'aveugle. La branche « intolérance digestive » est, elle, indépendante de la dose.
+
+**Le sur-traitement déclaré pilote tous les allègements**, pas seulement la déprescription de la
+metformine : réduction de l'insuline, du sulfamide, du glinide, et désintensification générale. La
+fragilité n'est exigée que pour la metformine, dernier agent qu'on retire.
+
+*Limite connue, non comblée faute de source :* il n'existe pas d'option « arrêter le glinide » en miroir de
+celle du sulfamide. Un patient sous glinide **seul** à DFG sous 30 perd donc son geste de réduction sans
+conduite de remplacement. Le fondement manque : le RCP du répaglinide ne pose aucune contre-indication
+rénale, et un arrêt est un geste qui demande une indication.
+
+## Les quatre intentions — la logique de décision
 
 Le clinicien renseigne d'abord **l'intention** (« je souhaite… »), puis — pour les 3 situations avec
 traitement — les **traitements en cours**, les **drapeaux**, les **critères positifs** (ASCVD, IC, rein…)
@@ -244,7 +155,7 @@ Intolérance **digestive** : metformine **et** AR GLP‑1 en sont deux sources �
 (bénéfice le plus faible ; l'intolérance/CI à la metformine ouvre le **remboursement FR** d'une monothérapie
 AR GLP‑1 — formulaire Assurance Maladie, Art. 61 conv. médicale, arrêté du 10/01/2025).
 
-## Palette glycémique (S8) — quel levier quand l'objectif n'est pas atteint
+## Palette glycémique — quel levier quand l'objectif n'est pas atteint
 
 iSGLT2 et AR GLP‑1 sont des leviers **glycémiques à part entière**, disponibles **même sans comorbidité** ; la
 comorbidité (IC/rein → iSGLT2 ; athérome/obésité → GLP‑1) **priorise** le versant protecteur, elle ne
@@ -263,7 +174,7 @@ terrain chez un patient déjà sous iSGLT2 — en rénal sévère, AR GLP‑1 et
 utilisables). *(L'ancienne option « intensifier le contrôle glycémique » a été supprimée — absorbée par la
 palette.)*
 
-## Gating négatif de terrain (règles NOUVELLES du gel S1)
+## Garde-fous négatifs de terrain
 
 Le nœud sait désormais **ne pas** proposer un agent malgré une indication positive, quand le terrain le
 contre‑indique — la lacune la plus visible des nœuds B/C historiques :
@@ -277,13 +188,14 @@ contre‑indique — la lacune la plus visible des nœuds B/C historiques :
 - **iSGLT2** : **rétrogradé** (rang 6) et **alerté** si `infections génito‑urinaires récidivantes` (risque de
   gangrène de Fournier) ; `DFG < 20` = exclusion dure (KDIGO).
 
-Ces garde‑fous sont des **décisions référent** (seuils pragmatiques) : la preuve borne la *direction*
-(prudence incrétine chez le fragile/dénutri — ADA « Older Adults », SFD Avis 3/5, RCP), pas le chiffre exact.
+Ces garde‑fous sont des **seuils pragmatiques** : la preuve borne la *direction* — prudence avec les
+incrétines chez le sujet fragile ou dénutri (ADA « Older Adults », SFD Avis 3/5, RCP) — jamais le chiffre
+exact. Aucun essai n'a testé un seuil d'IMC de 22 ni de 30.
 
 ## Insuffisance rénale — les seuils, et ce qui les porte réellement
 
-*Section ajoutée le 2026-07-27, après une revue de preuve dédiée qui a rouvert chaque source primaire. Elle
-corrige une attribution que le nœud portait depuis l'origine.*
+*Chaque seuil de cette section a été rouvert sur sa source primaire : ce qui suit dit qui porte quoi, et
+ce que personne ne porte.*
 
 ### Le seuil de 30 des sulfamides n'est pas une convention — c'est une citation
 
@@ -315,8 +227,8 @@ seconde formulation, qui est fausse.
 ### Le glinide n'est pas un sulfamide, et son RCP le dit
 
 L'option unique « réduire le sulfamide ou le glinide » portait une exclusion `DFG < 30` héritée du sulfamide.
-Elle retirait donc au patient sous répaglinide **le geste que son propre RCP recommande**. Scindée en deux le
-2026-07-26 :
+Elle retirait donc au patient sous répaglinide **le geste que son propre RCP recommande**. Les deux agents
+sont désormais traités séparément :
 
 - **Aucune contre-indication rénale** au RCP (rubrique 4.3, cinq contre-indications, aucune rénale — vérifié
   jusque sur le RCP centralisé EMA de Novonorm) ; élimination hépatobiliaire à plus de 90 %.
@@ -347,7 +259,7 @@ chez les sujets âgés "fragiles" et de **ne JAMAIS les utiliser** chez les suje
 
 La prohibition n'existait dans le nœud qu'en prose (« déconseillé chez le sujet à risque d'hypoglycémie
 élevé »), c'est-à-dire à un cran plus faible que « ne jamais ». Une **exclusion** a été posée sur l'option
-sulfamide. **Sur-blocage assumé** (décision référent) : le nœud n'a pas de catégorie « dépendant » —
+sulfamide. **Sur-blocage assumé** : le nœud n'a pas de catégorie « dépendant » —
 `fragilite` est un booléen — de sorte que l'exclusion retire aussi le sulfamide au sujet **fragile**, que la
 source dit seulement d'éviter. Choix délibéré, du côté sûr d'un garde-fou d'hypoglycémie. Le glinide, visé par
 la même phrase, n'a pas d'option d'ajout dans ce nœud : rien à exclure de ce côté, et les options qui le
@@ -372,10 +284,9 @@ lecture clinique.
 ### Quelle gliptine sous DFG 30
 
 Le nœud proposait « sitagliptine 25 mg, dialyse incluse », en trois endroits. La SFD 2025 écrit **deux fois**
-que cette forme **n'est pas commercialisée en France** et désigne à sa place la **vildagliptine 50 mg/j**. Une
-première vérification n'avait pas pu ouvrir la base de données publique des médicaments, et le point avait
-alors été explicitement laissé au référent plutôt que deviné — la bonne conduite, et elle a payé : **le référent a vérifié, la
-sitagliptine 25 mg n'est effectivement pas disponible en France**. Les trois libellés nomment donc désormais
+que cette forme **n'est pas commercialisée en France** et désigne à sa place la **vildagliptine 50 mg/j**. Vérification
+faite sur la base de données publique des médicaments : **la sitagliptine 25 mg n'est effectivement pas
+commercialisée en France**. Les trois libellés nomment donc désormais
 la vildagliptine. Le rang et les conditions de l'option gliptine sont **inchangés** : seule la molécule
 nommée change, aucune exclusion rénale n'a été ajoutée, aucune source n'en porte.
 
@@ -384,19 +295,16 @@ celle-là porte sur la **classe disponible** en France, celle-ci sur le **dosage
 
 ## Le glinide rejoint les agents sans bénéfice sur critère dur
 
-*Section ajoutée le 2026-07-30 (T-063, plan P8·S5). Une première tentative s'était arrêtée bloquée : le nœud
-traitait déjà le glinide comme un agent sans bénéfice dur à plusieurs endroits (désintensification, alerte de
-cohérence, `metformine_deprescriptible`), mais **aucune source déjà présente ne documentait cette absence de
-bénéfice spécifiquement pour le répaglinide** — les trois sources rénales du nœud (Schumacher, Marbury,
-Hasslacher) portent la pharmacocinétique, pas le bénéfice/risque sur critère dur. Écrire un argumentaire par
-analogie avec le sulfamide aurait été inventer une preuve (invariant 6, CLAUDE.md). La tâche a donc été
-rendue en l'état, puis relancée après une revue de preuve dédiée, **vérifiée source par source contre
-PubMed/le texte intégral** — plusieurs PMID renvoyés par la recherche automatisée initiale (OpenEvidence) étaient faux,
-corrigés ci-dessous.*
+*Le nœud traitait le glinide comme un agent sans bénéfice dur à plusieurs endroits — désintensification,
+alerte de cohérence, `metformine_deprescriptible` — sans qu'aucune source ne documente cette absence
+**spécifiquement pour le répaglinide** : les trois sources rénales du nœud (Schumacher, Marbury, Hasslacher)
+portent la pharmacocinétique, pas le bénéfice ni le risque sur critère dur. Argumenter par analogie avec le
+sulfamide aurait été inventer une preuve. Les sources ci-dessous ont donc été rassemblées pour ce point
+précis, et vérifiées une à une contre PubMed et le texte intégral.*
 
-**Ce que le fond du nœud a déjà tranché ailleurs (rappel) : le sens de la décision référent ne change pas.**
-Le signal rassemblé ici **renforce** la justification clinique de vouloir remplacer le répaglinide quand une
-alternative existe — il ne la contredit pas. Ce qui change, c'est l'honnêteté épistémique du texte : ne
+**Le sens de la décision ne change pas.** Le signal rassemblé ici **renforce** la justification clinique de
+vouloir remplacer le répaglinide quand une alternative existe — il ne la contredit pas. Ce qui change, c'est
+l'honnêteté épistémique du texte : ne
 jamais écrire « le répaglinide n'a pas de bénéfice dur » comme un fait neutre et clos. Trois preuves
 distinctes, de nature et de force différentes, portent la carte « Remplacer le glinide » — et doivent être
 lues séparément, pas condensées.
@@ -512,5 +420,5 @@ ajustement fin de l'insuline (ce nœud recommande l'insuline d'*initiation* ou o
 
 ## Sources
 
-Union dédupliquée des sources B/C/D (cf. YAML `sources`) ; détail dans les trois argumentaires historiques.
-Sources FR nouvelles (garde‑fous de terrain, remboursement) à annexer après lecture directe (P3·S2/S6).
+Union dédupliquée des sources des trois nœuds fusionnés (cf. `sources` du YAML) ; le détail vit dans les
+trois dossiers de preuve cités en tête.

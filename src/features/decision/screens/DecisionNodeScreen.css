@@ -282,6 +282,19 @@
   margin-bottom: 16px;
 }
 
+/* Badges PARTAGÉS d'un groupe d'égalité (2026-08-04, demande utilisateur) — quand toutes les cartes de
+   la paire portent le même badge (« Recommandée »... ) et/ou le même `bas_rang`, le(s) chip(s)
+   correspondant(s) vivent ICI, une seule fois, plutôt que sur chaque `.option-card__badges` (cf.
+   `DecisionNodeScreen.tsx`, `badgeCommun`/`basRangCommun`) — mêmes composants de chip qu'`OptionCard`
+   (`OptionBadgeChip`/`BasRangChip`), donc mêmes classes CSS, aucun style dupliqué ici. */
+.decision-node__egalite-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  margin-bottom: 10px;
+}
+
 .decision-node__egalite-mention {
   font-size: 12px;
   font-weight: 700;
@@ -293,7 +306,14 @@
 
 .decision-node__egalite-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  /* 280px → 340px (bug égalité, 2026-08-04) : 280px formait systématiquement 2 colonnes dès que la
+     grille dépassait ~576px, sans jamais laisser assez de place à la rangée d'`OptionCard` (badge de
+     preuve + pastilles + chevron, cf. `OptionCard.css`) — la carte « planquait » alors son intitulé.
+     340px n'élimine pas le besoin du filet de sécurité côté carte (un intitulé long peut réclamer
+     600px+ sur une ligne, aucun palier de grille raisonnable ne l'absorbe), mais réduit la fréquence
+     du repli à 2 lignes sur les intitulés courts et fait retomber la grille en pile plus tôt sur une
+     colonne de résultats étroite plutôt que de former 2 colonnes trop serrées. */
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: 16px;
   align-items: start;
 }

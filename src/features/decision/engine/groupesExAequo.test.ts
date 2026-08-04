@@ -48,7 +48,7 @@ function makeNode(options: Option[], criteresEntree: Noeud['criteres_entree'] = 
     argumentaire: 'x',
     sources: {
       references_primaires: [],
-      synthese_critique: { donnee: '', references: [] },
+      synthese_critique: { donnee: '' },
       reco_officielle: { source: '', position: '', divergence: false, explication: '' },
     },
     incertitudes: [],
@@ -409,8 +409,11 @@ describe('groupesParFamille — cas réel (nœud `prescription`, correctif « pr
         classes_a_benefice_indisponibles: false,
       }
       const res = evaluer(criteria)
-      const isglt2 = res.applicable.find((o) => o.intitule.includes('iSGLT2'))
-      const reduireSU = res.applicable.find((o) => o.intitule.includes('Réduire la posologie du sulfamide'))
+      // Depuis la simplification des intitulés (2026-08-04, le verbe est porté par le badge d'action et
+      // non plus par le titre), un intitulé nu ne suffit plus à désigner une option : « Sulfamide » vaut
+      // pour l'ajout, la réduction ET l'arrêt. Le couple (action, intitulé) est le seul discriminant.
+      const isglt2 = res.applicable.find((o) => o.action === 'ajouter' && o.intitule === 'iSGLT2')
+      const reduireSU = res.applicable.find((o) => o.action === 'reduire' && o.intitule === 'Sulfamide')
       expect(isglt2).toBeDefined()
       expect(reduireSU).toBeDefined()
       expect(res.rangs.get(isglt2!)).toBe(2)

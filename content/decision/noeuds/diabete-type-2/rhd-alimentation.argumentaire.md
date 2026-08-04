@@ -2,7 +2,7 @@
 
 > Niveau de lecture 3 (preuve complète). Document autonome distillé du dossier de preuve — sources croisées
 > et vérifiées (MEDAS en source primaire, `docs/decision/noeuds/H-rhd.md` §3, sous-dossier H3,
-> PREDIMED/CORDIOPREV). **BROUILLON en attente de validation référent.**
+> PREDIMED/CORDIOPREV). **Brouillon, en attente de relecture clinique.**
 
 ## En bref
 
@@ -13,9 +13,8 @@ alimentaire à bénéfice cardiovasculaire **dur** démontré. Trois points stru
 - **Le bénéfice dur appartient au motif dans son ensemble, jamais à un geste isolé.** PREDIMED et
   CORDIOPREV randomisent un régime méditerranéen supplémenté (huile d'olive ou fruits à coque), pas un
   changement isolé d'huile ou l'ajout de quelques noix. Aucune piste de ce nœud ne revendique donc
-  l'étiquette « bénéfice EBM sur critère dur » — cette étiquette est portée par ce document et par le champ
-  `argumentaire` du YAML (le « cap » du module), décision du référent qui va au-delà de ce qu'une première
-  analyse du contenu avait elle-même tranché.
+  l'étiquette « bénéfice EBM sur critère dur » — elle appartient au cap d'ensemble, porté par ce document
+  et par le champ `argumentaire` du nœud, jamais à une carte prise séparément.
 - **Aucun score.** Le score MEDAS (14 items, l'instrument qui mesure l'adhérence dans PREDIMED) sert
   uniquement à choisir QUELS axes recueillir (fruits à coque, légumineuses, poisson, viande rouge, vin) —
   jamais à calculer un score administré au patient.
@@ -134,7 +133,7 @@ plus proches de la preuve randomisée) et documenté comme limite dans `incertit
 
 **Note sur « Continuer ce qui fonctionne déjà »** : ce n'est volontairement pas un sentinel `["default"]`
 (le repli technique du DSL). Le cas réellement muet — les 13 axes de recueil simultanément favorables —
-existe cliniquement (c'est le profil « B » de la recette : patient déjà proche du motif méditerranéen) mais
+existe cliniquement — un patient déjà proche du motif méditerranéen — mais
 sa conjonction complète échappe à l'échantillonnage stratifié indépendant du banc mécanique (vérifié : 0/1520
 profils générés l'atteignent). La condition retenue (huile d'olive **et** fruits à coque réguliers — les deux
 composantes réellement randomisées de PREDIMED) est un SOUS-ENSEMBLE NÉCESSAIRE du cas muet complet — elle le
@@ -145,7 +144,7 @@ aucune fragilité), seule cette piste s'affiche.
 
 \* Piste ancrée sur le composant réellement randomisé de PREDIMED (huile d'olive, fruits à coque) — la plus
 proche du bras testé, mais l'étiquette reste « savoir-faire diététique » car AUCUNE piste isolée ne porte
-l'étiquette « bénéfice EBM sur critère dur » (décision référent, §1 ci-dessus). La proximité au bras
+l'étiquette « bénéfice EBM sur critère dur » (cf. §1 ci-dessus). La proximité au bras
 randomisé justifie leur RANG (priorité d'affichage 1), pas leur étiquette de preuve.
 
 **Note sur B1/U1/M2 (correction A-1) :** la citation SFD 2025 initialement attachée à ces trois
@@ -175,11 +174,11 @@ parcours surpoids-obésité (p.43) :
 3. Antécédent de demande de régime amaigrissant ou habitudes alimentaires très restrictives — seul signe
    appartenant littéralement à la liste DSM-5 de la source.
 
-**CE VERROU NE BLOQUE PLUS RIEN DEPUIS LE 2026-07-27 — il ORIENTE.** Décision référent, prise sur un
-principe qui recadre tout le nœud : « dans le cadre des RHD en médecine générale on ne propose pas de
-restriction calorique, en tout cas pas chiffrée ; on propose des modifications d'habitudes alimentaires,
-jamais de régime. » Un verrou anti-restriction n'a alors plus d'objet, et l'inventaire de ce qu'il bloquait
-réellement le confirme — aucune des trois exclusions n'était à sa place :
+**CE VERROU NE BLOQUE RIEN — il ORIENTE.** Le principe qui recadre tout le nœud l'explique : en médecine
+générale on ne propose pas de restriction calorique, en tout cas pas chiffrée ; on propose des
+modifications d'habitudes alimentaires, jamais de régime. Un verrou anti-restriction n'a alors plus
+d'objet, et l'inventaire de ce qu'il bloquait réellement le confirme — aucune des trois exclusions n'était
+à sa place :
 
 | ce que le verrou bloquait | ce que c'était vraiment |
 |---|---|
@@ -215,8 +214,8 @@ effectivement ni la RBP anorexie 2010 ni la fiche boulimie 2019, mais non inform
 **Une divergence de recommandations, portée et non arbitrée.** La HAS 2019 écrit « rechercher
 SYSTÉMATIQUEMENT une hyperphagie boulimique en cas de surpoids ou d'obésité » ; l'USPSTF 2022 conclut que
 « les preuves actuelles sont insuffisantes » pour dépister l'adulte asymptomatique (*I statement*). Le nœud se
-tient entre les deux — trois signes d'appel, pas de dépistage systématique — et le lot du 2026-07-27 en réduit
-l'enjeu, puisque le repérage ne ferme plus aucune piste. Réserve de périmètre à connaître : le patient de ce
+tient entre les deux — trois signes d'appel, pas de dépistage systématique — et l'enjeu en est réduit,
+puisque le repérage ne ferme aucune piste. Réserve de périmètre à connaître : le patient de ce
 nœud, adulte DT2 d'âge moyen ou avancé en surpoids, n'appartient à la population cible **déclarée** d'aucun
 des deux documents HAS invoqués.
 
@@ -238,7 +237,7 @@ Toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport caloriqu
 d'hypoglycémie chez un patient sous insuline, sulfamide ou glinide — alerte de nœud, cohérente avec
 l'arbitrage déjà tranché côté nœud `rhd` (§8-5 du dossier de preuve H) : alerte conservée, pas d'exclusion.
 
-**Ce qui est demandé au praticien pour la déclencher (2026-07-29).** Un booléen,
+**Ce qui est demandé au praticien pour la déclencher.** Un booléen,
 `insuline_ou_insulinosecreteur`, et non plus la liste `traitements_en_cours` à neuf classes réutilisée du
 reste du domaine. Motif : cette alerte est la SEULE règle de ce nœud qui lisait ce critère, et elle n'y
 lisait que quatre valeurs (insuline basale, insuline rapide, sulfamide, glinide), toujours ensemble. Les
@@ -262,8 +261,8 @@ conduite — à patient identique, l'alerte se déclenche exactement dans les m�
   d'un nœud sans état ni historique.
 - **T3 (repas-type illustré)** — le support concret (photo, repas-type) n'existe pas dans le dépôt ; la
   source le signale elle-même comme « à produire ».
-- **Traditions culinaires** — le référent l'a lui-même désignée comme la question qui conditionne tout le
-  reste (quelles traditions, sur quelle base, fournies par qui — le diététicien de la MSP). Aucune source
+- **Traditions culinaires** — la question qui conditionne tout le reste : quelles traditions, sur quelle
+  base, fournies par qui. Aucune source
   du dépôt ne couvre ce corpus : rien n'a été inventé. La question « quelle est votre cuisine habituelle ? »
   garde son intérêt pour la conversation, mais n'entre pas dans ce nœud comme critère décisif (R5) : les
   pistes se déclenchent sur l'habitude mesurée, jamais sur une tradition déclarée — deux patients de la
