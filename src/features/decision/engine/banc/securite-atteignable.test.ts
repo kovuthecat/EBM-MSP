@@ -1,5 +1,6 @@
 /**
- * Banc d'un nœud — COUCHE 3 « invariants » — I22 et I23 (P4/S2, T-021, 2026-07-28).
+ * Banc d'un nœud — COUCHE 3 « invariants » — I22 et I23 (P4/S2, T-021, 2026-07-28), I27 (P13/S2, T-141,
+ * 2026-08-04, à la fin de ce fichier — même famille R10, motivation propre en tête de son propre bloc).
  *
  * MOTIVATION COMMUNE (D-03, `docs/decision/validation/recette-navigateur-2026-07-28.md`) : un patient en
  * prévention secondaire (ASCVD établie) avec une intolérance avérée à la statine n'obtenait STRICTEMENT
@@ -190,6 +191,60 @@ describe.each(noeuds.map((node) => [node.id, node] as const))(
                   `"applicable" et "enAttente" vides simultanément (le patient n'obtient ni recommandation ` +
                   `ni indication de ce qui manque)`,
               )
+            }
+          })
+          if (violations.length > 0) break // un cas suffit à documenter le défaut ; pas la peine d'énumérer tout le banc
+        }
+        expect(violations).toEqual([])
+      },
+      DELAI_BANC_MS,
+    )
+  },
+)
+
+// =======================================================================================================
+// I27 (R10, T-141, P13/S2, 2026-08-04) — toute option du registre `enAttente` porte un `intitule` non vide
+// et une liste `manquants` DÉFINIE, sur tout profil du banc.
+//
+// POURQUOI CET INVARIANT EXISTE ALORS QU'IL EST TRIVIALEMENT VRAI AUJOURD'HUI (dit dans le bilan de
+// session, comme demandé) : le schéma impose déjà `intitule` non vide (`minLength: 1`,
+// `schema/decision/noeud.schema.json`) et `criteresManquants` (`engine/evaluateNode.ts`) renvoie toujours
+// un `string[]`, jamais `undefined`. Rien ne peut donc le faire échouer AUJOURD'HUI. Ce qu'il protège est
+// en AVAL, côté affichage : T-139 (`screens/DecisionNodeScreen.tsx`) rend désormais le dépli « option par
+// option » dans LES TROIS branches du panneau EN ATTENTE, jamais seulement au-delà de 3 critères — un
+// futur contenu (ou une future évolution du moteur) qui laisserait passer une option `enAttente` sans
+// `intitule` ou sans `manquants` produirait exactement le défaut T-060 (« un encadré coloré vide se lit
+// comme un bug »), dans le bloc même où T-060 s'est déjà produit une fois. Même famille qu'I22/I23
+// ci-dessus (R10 : tout patient repart avec quelque chose de nommé, jamais un silence).
+//
+// GÉNÉRIQUE (CLAUDE.md invariant 5) : aucun id de nœud ni nom de critère codé en dur.
+// =======================================================================================================
+describe.each(noeuds.map((node) => [node.id, node] as const))(
+  'banc — I27 (R10, T-141) — toute option `enAttente` porte un intitulé et des manquants définis · nœud %s',
+  (_id, node) => {
+    it(
+      'sur tout profil du banc et tout critère masqué seul, chaque entrée `enAttente` a un `intitule` non ' +
+        'vide et une liste `manquants` définie',
+      () => {
+        const profils = genererProfils(node, tailleBanc(node))
+        const criteres = criteresIndeterminables(node)
+        if (criteres.length === 0) return // rien à masquer : aucune indétermination possible sur ce nœud
+        const noms = tousLesNoms(node)
+
+        const violations: string[] = []
+        for (const critere of criteres) {
+          const renseignes = new Set([...noms].filter((n) => n !== critere.nom))
+          profils.forEach((profil, i) => {
+            const { enAttente } = evaluateNode(node, profil, renseignes)
+            for (const [option, manquants] of enAttente) {
+              const intituleValide = typeof option.intitule === 'string' && option.intitule.trim().length > 0
+              const manquantsValides = Array.isArray(manquants)
+              if (!intituleValide || !manquantsValides) {
+                violations.push(
+                  `nœud "${node.id}" :: critère masqué "${critere.nom}" :: profil #${i} :: option ` +
+                    `"${option.intitule}" en attente sans intitulé valide ou sans liste "manquants" définie`,
+                )
+              }
             }
           })
           if (violations.length > 0) break // un cas suffit à documenter le défaut ; pas la peine d'énumérer tout le banc
