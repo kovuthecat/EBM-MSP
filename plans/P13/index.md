@@ -84,14 +84,14 @@ diagnostic de la revue** — et deux d'entre eux changent la nature de la tâche
 
 | Session | Tâches | Titre | Modèle | Effort | Env. | Dépend de | Zone modifiée | Statut |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [S1](S1.md) | T-137, T-138 | Le patient de N25 repart avec sa carte : l'intention déclare l'absence de traitement | Sonnet | xhigh | Desktop | — | `schema/decision/noeud.schema.json`, `src/features/decision/lib/formLayout.ts`, `content/decision/noeuds/diabete-type-2/prescription.yaml`, `engine/banc/` | [ ] |
-| [S2](S2.md) | T-139, T-140, T-141 | Une option en attente se nomme, et la sécurité passe devant | Sonnet | high | Desktop | — | `src/features/decision/lib/prioritesSaisie.ts`, `src/features/decision/screens/DecisionNodeScreen.tsx`, `engine/banc/securite-atteignable.test.ts` | [ ] |
-| [S3](S3.md) | T-142, T-143 | Une bascule d'intention ne détruit plus de saisie | Sonnet | xhigh | Desktop | S1 | `src/features/decision/lib/formLayout.ts`, `src/features/decision/screens/DecisionNodeScreen.tsx`, `src/features/decision/components/CriteriaForm.tsx` | [ ] |
-| [S4](S4.md) | T-144, T-145, T-146 | Un seul chemin de rendu pour les conditions, et des invariants qui le tiennent | Sonnet | high | — | — | `src/features/decision/lib/conditionText.ts`, `src/features/decision/lib/vueDecision.ts`, `src/features/decision/screens/DecisionNodeScreen.tsx`, `engine/banc/invariants-contenu.test.ts` | [ ] |
-| [S5](S5.md) | T-147, T-148 | La session transmet ce qu'elle sait : le poids, et les réponses globales | Sonnet | high | Desktop | — | `content/decision/noeuds/diabete-type-2/*.yaml`, `src/features/decision/components/CriteriaForm.tsx`, `src/features/decision/lib/sessionCriteres.ts` | [ ] |
-| [S6](S6.md) | T-149, T-150 | Un nœud publie sa conclusion (`exports`) | Sonnet | xhigh | Desktop | S5 | `schema/decision/noeud.schema.json`, `src/features/decision/lib/sessionCriteres.ts`, `src/features/decision/screens/DecisionNodeScreen.tsx`, `content/decision/noeuds/diabete-type-2/cible-glycemique.yaml` | [ ] |
-| [S7](S7.md) | T-151→T-155 | Contenu : ce que les nœuds disent d'eux-mêmes et ce qu'ils taisent | Sonnet | high | — | S4 | `content/decision/noeuds/diabete-type-2/{statine,insuline,rhd-activite-physique,prescription}.yaml`, `*.argumentaire.md` | [ ] |
-| [S8](S8.md) | T-156→T-159 | Finitions : un clic de moins, une preuve repliée, un accord de verbe | Sonnet | medium | Desktop | S2, S4 | `src/features/decision/components/CriteriaForm.tsx`, `src/features/decision/screens/DecisionNodeScreen.tsx`, `.css`, `src/features/shared/` | [ ] |
+| [S1](S1.md) | T-137, T-138 | Le patient de N25 repart avec sa carte : l'intention déclare l'absence de traitement | Sonnet | xhigh | Desktop | — | `schema/decision/noeud.schema.json`, `src/features/decision/lib/formLayout.ts`, `content/decision/noeuds/diabete-type-2/prescription.yaml`, `engine/banc/` | [x] |
+| [S2](S2.md) | T-139, T-140, T-141 | Une option en attente se nomme, et la sécurité passe devant | Sonnet | high | Desktop | — | `src/features/decision/lib/prioritesSaisie.ts`, `src/features/decision/screens/DecisionNodeScreen.tsx`, `engine/banc/securite-atteignable.test.ts` | [x] |
+| [S3](S3.md) | T-142, T-143 | Une bascule d'intention ne détruit plus de saisie | Sonnet | xhigh | Desktop | S1 | `src/features/decision/lib/formLayout.ts`, `src/features/decision/screens/DecisionNodeScreen.tsx`, `src/features/decision/components/CriteriaForm.tsx` | [x] |
+| [S4](S4.md) | T-144, T-145, T-146 | Un seul chemin de rendu pour les conditions, et des invariants qui le tiennent | Sonnet | high | — | — | `src/features/decision/lib/conditionText.ts`, `src/features/decision/lib/vueDecision.ts`, `src/features/decision/screens/DecisionNodeScreen.tsx`, `engine/banc/invariants-contenu.test.ts` | [x] |
+| [S5](S5.md) | T-147, T-148 | La session transmet ce qu'elle sait : le poids, et les réponses globales | Sonnet | high | Desktop | — | `content/decision/noeuds/diabete-type-2/*.yaml`, `src/features/decision/components/CriteriaForm.tsx`, `src/features/decision/lib/sessionCriteres.ts` | [x] |
+| [S6](S6.md) | T-149, T-150 | Un nœud publie sa conclusion (`exports`) | Sonnet | xhigh | Desktop | S5 | `schema/decision/noeud.schema.json`, `src/features/decision/lib/sessionCriteres.ts`, `src/features/decision/screens/DecisionNodeScreen.tsx`, `content/decision/noeuds/diabete-type-2/cible-glycemique.yaml` | [~] STOP |
+| [S7](S7.md) | T-151→T-155 | Contenu : ce que les nœuds disent d'eux-mêmes et ce qu'ils taisent | Sonnet | high | — | S4 | `content/decision/noeuds/diabete-type-2/{statine,insuline,rhd-activite-physique,prescription}.yaml`, `*.argumentaire.md` | [x] |
+| [S8](S8.md) | T-156→T-159 | Finitions : un clic de moins, une preuve repliée, un accord de verbe | Sonnet | medium | Desktop | S2, S4 | `src/features/decision/components/CriteriaForm.tsx`, `src/features/decision/screens/DecisionNodeScreen.tsx`, `.css`, `src/features/shared/` | [x] |
 
 ## Ordonnancement
 
@@ -160,5 +160,61 @@ T-140 l'implémente ; c'est un choix d'ergonomie, pas de clinique, et il est ré
 - **La bascule silencieuse de deux cartes vers « Autres pistes possibles »** sur
   `rhd-alimentation` : observée par l'audit, **non reproduite** par la revue sur son profil. Le
   profil exact reste à trouver — tant qu'il ne l'est pas, il n'y a rien à corriger.
+
+## Bilan de clôture — 2026-08-05
+
+**19 tâches livrées sur 23, une partielle, trois non livrées.** N0 final : 1155 tests passés, 11 skip,
+0 échec (départ du plan : 1061), typecheck et build verts, mesuré machine libre. Exécution séquentielle
+(S1 → S2 → S4 → S3 → S5 → S7 → S8), pas la vague parallèle esquissée par l'index : le banc de sécurité
+rend des verdicts au hasard sous charge, et S2/S4 partagent `DecisionNodeScreen.tsx`.
+
+**Trois tâches n'ont pas été livrées, deux STOP légitimes et un manque de source** : T-149/T-150
+(`exports`, S6) — ajouter `exports` au schéma déclenche mécaniquement l'invariant G1
+(`engine/expressionsNoeud.ts`), donc « ne touche pas à `engine/` » et « mandat exact : exports à la
+racine » sont réellement incompatibles ; vérifié indépendamment par l'orchestrateur, confirmé. T-154
+(alerte rétinopathie proliférante, S7) — aucune source du nœud ne porte de conduite à tenir, seulement
+un tag de mécanisme ; écrire l'alerte aurait exigé d'inventer. **T-152 partielle** : les 18 violations
+I28 sur `insuline` sont levées, les 8 sur `statine` restent bloquées — le drapeau ne vit que dans
+`exclusions`, qu'I24 ne scrute pas encore (extension de logique hors mandat contenu). Les trois sont au
+backlog avec leur piste de correction.
+
+**Corrections de l'orchestrateur après revue** : une phrase du changelog de S1 affirmait l'inverse de
+ce que sa propre session avait constaté (« le golden master bougera » alors que S1 venait de prouver
+qu'il ne peut structurellement pas bouger) — corrigée avant que S2 ne parte du même arbre. Le reste des
+divergences constatées (garde-fou 3 de T-137 implémenté par référence plutôt que par contenu, S3 ; le
+retrait de deux entrées de dette I14 par S7, hors périmètre littéral d'un fichier `src/`) venaient de
+l'**exécution**, pas du plan — vérifiées et acceptées, chacune documentée dans le code avec son
+pourquoi. **La consolidation elle-même a dû s'écarter de « un commit par tâche »** : plusieurs sessions
+dépendantes (S1→S3, S1→S5, S1→S7, S4→S7, S5→S7, S2+S3+S4+S8 sur `DecisionNodeScreen.tsx`) ont édité les
+mêmes fichiers sans qu'aucun commit intermédiaire ne soit pris entre elles — la règle du plan suppose
+des sessions dépendantes commitées avant que la suivante ne démarre, ce que le mode vague choisi ici
+n'a pas fait. Les 8 commits finaux groupent donc les tâches par fichiers réellement imbriqués, chacun
+nommant toutes les sessions contributrices. **À corriger pour le prochain plan en mode vague avec
+dépendances déclarées** : soit committer à la fin de chaque session même en vague, soit accepter d'emblée
+la granularité par grappe de fichiers.
+
+**Ce qui a marché** : les deux STOP (S6, T-154) se sont arrêtés exactement au bon endroit, sans
+bricoler et sans réduire eux-mêmes le périmètre du plan — la porte de sortie que l'index leur avait
+explicitement ouverte a servi. La mesure différentielle de S3 (rejouer le même parcours avec une valeur
+**qui ne coïncide pas** avec le défaut, en plus du cas demandé) a débusqué un bug de sûreté réel là où
+une mesure littérale du plan aurait pu conclure à tort à un simple défaut d'affichage. Plusieurs
+sessions ont trouvé et signalé, sans les corriger elles-mêmes, des éléments hors mandat (partage abusif
+de `risque_hypoglycemie_schema`, S5 ; 5 titres de référence voisins non corrigés, S7) — la discipline
+« signale, ne résous pas » a tenu sur toute l'exécution. **À surveiller la prochaine fois** : plusieurs
+sessions ont lancé `npm test` en arrière-plan malgré la consigne contraire et perdu des runs de 10-12
+minutes à la reprise — la consigne devrait citer l'exemple concret (« lance au premier plan, timeout
+600000 ms ») dans le corps du `S<k>.md`, pas seulement dans le message de lancement de l'orchestrateur.
+
+**Le N1 (navigateur in-app) a été indisponible sur la quasi-totalité de l'exécution** (coupure de
+connexion MCP survenue avant S5, jamais rétablie) — compensé par des tests d'intégration RTL/jsdom qui
+simulent le geste réel plutôt que le rendu statique, un précédent que S3 a posé et que S5/S6/S7/S8 ont
+repris sans qu'on le leur redemande. **Cette compensation ne remplace pas le N1** : `TASKS.md` porte la
+liste des parcours à rejouer au navigateur avant de considérer P13 visuellement clos.
+
+Le fil rouge tient : aucune session n'a ajouté de connaissance clinique, chacune a réparé une
+transmission — d'une intention à un critère (S1), d'une bascule à une saisie qui survit (S3), d'un
+nœud à l'autre (S5), d'une exclusion à son texte (S4/S7). Le seul concept nouveau que le plan proposait
+(`exports`, une conclusion qui devient une donnée de session) est resté à l'état de conception — signe,
+peut-être, que P13 avait raison de le déclarer droppable dès le départ.
 </content>
 </invoke>

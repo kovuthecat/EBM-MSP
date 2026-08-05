@@ -76,6 +76,32 @@ HAS 2024 R.87 porte la règle dans les deux sens, la source existait — cf. P12
       renommée « Tolérance de la statine » (option a, arbitrée). L'ajouter permettrait à l'outil de
       dire « il y est déjà, ne touchez à rien » — au prix de deux champs et d'un cadrage à réécrire.
 
+## Plan P13 (2026-08-05) — arbitrages référent rendus le 04/08, N2 accumulés en mode vague
+
+- [ ] **T-140 — le classement par sécurité (« Commencez par… ») est-il le bon défaut ?** Un critère qui
+      débloque une seule option de sécurité passe désormais devant un critère qui en débloque huit
+      (ex. DFG relégué derrière HbA1c/glucotoxicité/cétonémie). Voulu par le plan, réversible.
+      **Non tranché aussi** : la phrase enrichie (« … il débloque une mesure de sécurité ») n'a pas été
+      écrite — deux choix de conception non résolus par le plan (quelle branche l'annoncer, comment
+      traiter plusieurs critères sécurité simultanés).
+- [ ] **T-143 — faut-il signaler qu'une saisie masquée a été restaurée** après une bascule d'intention
+      (A→B→A) ? Livré **silencieux** (aucune mention, cohérent avec « rien n'a été perdu ») — alternative
+      « · restauré après bascule », jamais tranchée.
+- [ ] **T-147 — `risque_hypoglycemie_schema` est `partage: true` entre `prescription` et `insuline` alors
+      qu'il cumule deux lectures irréductibles selon le nœud qui le pose** (investigation P9/S7). Signalé,
+      non retiré (hors mandat de la tâche) — à arbitrer : retirer le partage, ou assumer la valeur reprise.
+      **Résumé compact « N drapeaux : non »** (T-148) retenu par défaut, jamais soumis à comparaison avec
+      nommer chaque drapeau.
+- [ ] **T-153 — l'intitulé créé pour CK > 50 N** : « Arrêter la statine — suspicion de rhabdomyolyse, avis
+      spécialisé urgent ». Seul texte clinique réellement écrit par S7 (T-154, l'alerte rétinopathie,
+      s'est arrêtée faute de source — cf. `TASKS.md`).
+- [ ] **T-156 — l'auto-avance après un choix segmenté unique est-elle agréable ou brusque ?** Jugement
+      d'usage réservé à une consultation réelle.
+- [ ] **T-159 — le panneau du compteur de session affiche les NOMS des critères mémorisés (jamais leurs
+      valeurs) et leur origine (saisi/repris).** Compatible avec l'invariant « zéro donnée patient » ?
+      Position par défaut retenue (un nom de critère n'est pas une donnée patient) ; si la réponse est
+      négative, revenir à un compteur muet est un retrait simple (`Header.tsx`).
+
 ## Reste ouvert des plans antérieurs (non tranché par la recette du 02/08)
 
 - [ ] **T-063** — « Remplacer le glinide » chez un patient sous répaglinide à DFG 28 (scénario jamais
