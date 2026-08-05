@@ -69,11 +69,29 @@ function humanizeAtomic(text: string): string {
   return `${labelForCritere(variable)} ${operatorLabel} ${valueLabel}`
 }
 
+/**
+ * Une conjonction (`AND`), humanisée SANS RÉPÉTITION (P13/S4, T-145, R6 volet rendu — D19 : « … et MCG
+ * disponible et TBR > 4 **et MCG disponible** et CV > 36 », chaque sous-condition apportant son propre
+ * préfixe). Déduplique sur le LITTÉRAL RENDU (après traduction), en conservant l'ordre de première
+ * apparition — jamais sur l'expression SOURCE : deux écritures différentes du même fait resteraient deux
+ * littéraux, et c'est correct (ce n'est pas à l'affichage de deviner qu'elles disent la même chose).
+ *
+ * NE DÉBORDE JAMAIS SUR LE `OR` : `term` est ici TOUJOURS un terme `OR` déjà isolé par `branches()`
+ * (aucun `OR` ne peut plus y figurer, la grammaire n'ayant pas de parenthèses) — la déduplication ne
+ * porte donc que sur LA MÊME conjonction, jamais entre deux branches `OR` distinctes (deux branches qui
+ * partagent un littéral sont deux cas cliniques distincts ; T-144 fait par ailleurs qu'une seule branche
+ * est rendue à la fois).
+ */
 function humanizeAndTerm(term: string): string {
-  return term
-    .split(/\s+AND\s+/)
-    .map((atomic) => humanizeAtomic(atomic))
-    .join(' et ')
+  const vus = new Set<string>()
+  const rendus: string[] = []
+  for (const atomic of term.split(/\s+AND\s+/)) {
+    const rendu = humanizeAtomic(atomic)
+    if (vus.has(rendu)) continue
+    vus.add(rendu)
+    rendus.push(rendu)
+  }
+  return rendus.join(' et ')
 }
 
 /**

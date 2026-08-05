@@ -192,7 +192,21 @@ export interface FamilleVue {
  */
 export interface OptionEcarteeVue {
   option: Option
-  /** Expressions `exclusions` déclenchées (`EvaluateNodeResult.excluded`) ; jamais vide. */
+  /**
+   * Branches SITUATIONNELLES des `exclusions` déclenchées (P13/S4, T-144) : les termes `OR` réellement
+   * VRAIS pour CE patient, PAS l'expression `exclusions` complète (`EvaluateNodeResult.excluded`, qui
+   * reste la liste littérale des expressions déclenchées, disjonctions comprises). Même traitement que
+   * `OptionVue.reasons` (R6, `raisonsSituationnelles` ci-dessous) — MÊME défaut, MÊME correctif, jamais
+   * réinventé : `describeReasons` (`lib/conditionText.ts`) recevait auparavant l'expression entière et la
+   * rendait telle quelle (« Metformine écarté : Traitements en cours comprend Metformine et DFG ≥ 45 et
+   * DFG < 60 et Dose > 2000 ou … ou … »), alors qu'une `exclusions` déclenchée est PAR CONSTRUCTION une
+   * disjonction dont au moins une branche est vraie (`engine/evaluateNode.ts` `triggeredExclusions` :
+   * `statutUne === true`) — R6, volet rendu du 2026-08-04, `docs/decision/GRAMMAIRE-NOEUD.md`. Jamais
+   * vide : chaque expression triée dans `excluded` s'est évaluée `true` (jamais `INDETERMINE`,
+   * `classerOption`), elle a donc au moins un terme `OR` vrai, cf. `exclusionsSituationnelles` ci-dessous.
+   * Peut porter PLUSIEURS expressions déclenchées à la fois (une option peut violer plusieurs
+   * `exclusions` simultanément) — chacune contribue ses propres branches vraies, dans l'ordre.
+   */
   motifs: string[]
 }
 
@@ -312,6 +326,28 @@ function estSentinelle(conditions: string[]): boolean {
 function raisonsSituationnelles(conditions: string[], criteria: Criteria): string[] {
   if (estSentinelle(conditions)) return conditions
   return conditions.flatMap((condition) => termesVrais(condition, criteria))
+}
+
+/**
+ * Branches SITUATIONNELLES d'une ou plusieurs `exclusions` déclenchées (P13/S4, T-144, R6 volet rendu) —
+ * MÊME correctif que `raisonsSituationnelles` ci-dessus, appliqué à `EvaluateNodeResult.excluded` plutôt
+ * qu'à `reasons` : `motifsDeclenches` porte la ou les expressions `exclusions` COMPLÈTES qui se sont
+ * évaluées vraies (`engine/evaluateNode.ts` `triggeredExclusions`), disjonctions comprises — on n'y
+ * applique `termesVrais` à CHACUNE et on concatène, plutôt que de recopier les expressions littéralement.
+ *
+ * PAS DE GARDE `estSentinelle` ICI, contrairement à `raisonsSituationnelles` : une `exclusions` n'est
+ * jamais un sentinel `["default"]`/`["toujours"]` (ces jetons n'existent que sur `Option.conditions`) —
+ * chaque expression reçue ici est une expression DSL réelle, évaluable par `termesVrais` sans exception à
+ * traiter en amont.
+ *
+ * SÛR SANS `renseignes`, pour la MÊME raison que `raisonsSituationnelles` : `termesVrais` n'accepte pas
+ * cet argument et présume tout renseigné, mais `classerOption` (`engine/evaluateNode.ts`) ne range une
+ * option dans `excluded` QUE lorsque `statutUne(exclusions, …)` a tranché STRICTEMENT `true` (jamais
+ * `INDETERMINE`, D20) — la même garantie qui couvre déjà `reasons` pour les options `applicable` couvre
+ * ici `excluded`, appliquée au même évaluateur du moteur.
+ */
+function exclusionsSituationnelles(motifsDeclenches: string[], criteria: Criteria): string[] {
+  return motifsDeclenches.flatMap((motif) => termesVrais(motif, criteria))
 }
 
 /**
@@ -477,7 +513,12 @@ export function construireVueDecision(node: Noeud, criteria: Criteria, renseigne
   // R4 : ordre de `EvaluateNodeResult.excluded`/`nonRetenues`, lui-même l'ordre d'itération de
   // `node.options` dans `evaluateNode` (les deux Map sont peuplées dans cet ordre) — déterministe,
   // stable d'un appel à l'autre pour un même contenu.
-  const ecartees: OptionEcarteeVue[] = [...excluded].map(([option, motifs]) => ({ option, motifs }))
+  // T-144 : `motifs` porte désormais les branches SITUATIONNELLES (`exclusionsSituationnelles`), pas les
+  // expressions `exclusions` littérales — même traitement que `reasons` ci-dessus (R6).
+  const ecartees: OptionEcarteeVue[] = [...excluded].map(([option, motifsDeclenches]) => ({
+    option,
+    motifs: exclusionsSituationnelles(motifsDeclenches, derived),
+  }))
   const nonRetenuesVue = nettoyerNonRetenues(node, nonRetenues, derived)
   // D20 : même ordre déterministe que ci-dessus (ordre d'itération de `node.options` dans `evaluateNode`).
   const enAttenteVue: OptionEnAttenteVue[] = [...enAttente].map(([option, manquants]) => ({ option, manquants }))

@@ -160,3 +160,41 @@ describe('describeNonApplicable — le « pourquoi pas d’autres options ? »',
     expect(texte).toBe("ne s'applique pas : ni Maladie cardiovasculaire établie, ni IMC (kg/m²) ≥ 30")
   })
 })
+
+/**
+ * P13/S4 (T-145, R6 volet rendu) — UN LITTÉRAL N'EST CITÉ QU'UNE FOIS dans une conjonction rendue (D19 :
+ * « … et MCG disponible et TBR > 4 **et MCG disponible** et CV > 36 »). `humanizeAndTerm` est interne
+ * (non exportée) : ces tests passent par les deux fonctions publiques qui la consomment, exactement comme
+ * la « Décision clé » l'exige (« s'applique aux DEUX fonctions d'un seul geste »).
+ */
+describe('déduplication des littéraux dans une conjonction (T-145) — `describeReasons`', () => {
+  it('un littéral répété dans une conjonction n’est rendu qu’une fois, ordre de première apparition préservé', () => {
+    // Variables SYNTHÉTIQUES, non cataloguées (`labels.ts`) — le repli mécanique `humanize()` (capitale
+    // initiale, `_`→espace) suffit à observer la déduplication sans dépendre d'un libellé rédigé qui
+    // pourrait changer. Reproduit la forme exacte du défaut D19 (« … et MCG disponible et TBR > 4 **et
+    // MCG disponible** et CV > 36 »), à noms de critère près.
+    expect(
+      describeReasons(['champ_teste == true AND valeur > 4 AND champ_teste == true AND autre_champ > 36']),
+    ).toBe('Champ teste et Valeur > 4 et Autre champ > 36')
+  })
+
+  it('une conjonction SANS doublon reste inchangée', () => {
+    expect(describeReasons(['age >= 75 AND fragilite == true'])).toBe('Âge ≥ 75 et Fragilité')
+  })
+
+  it('deux branches `OR` qui partagent un littéral gardent CHACUNE le sien — pas de déduplication ENTRE branches', () => {
+    // Chaque branche `OR` est un cas clinique distinct (T-144 fait qu'une seule est rendue de toute
+    // façon pour un patient donné) : la déduplication de T-145 ne doit jamais déborder sur le `OR`.
+    expect(describeReasons(['age >= 75 AND fragilite == true OR fragilite == true'])).toBe(
+      'Âge ≥ 75 et Fragilité ou Fragilité',
+    )
+  })
+})
+
+describe('déduplication des littéraux dans une conjonction (T-145) — `describeNonApplicable`', () => {
+  it('un littéral répété dans une conjonction non retenue n’est rendu qu’une fois', () => {
+    expect(describeNonApplicable('champ_teste == true AND champ_teste == true AND valeur > 4')).toBe(
+      "ne s'applique pas : il faudrait champ teste et Valeur > 4",
+    )
+  })
+})

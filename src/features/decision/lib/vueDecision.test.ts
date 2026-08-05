@@ -10,6 +10,7 @@ import { describe, expect, it } from 'vitest'
 import type { Alerte, CritereEntree, Noeud, Option } from '../content/node.types.ts'
 import { evaluateNode } from '../engine/evaluateNode.ts'
 import { criteresPertinents } from '../engine/relevance.ts'
+import { describeReasons } from './conditionText.ts'
 import { construireVueDecision, signatureVue } from './vueDecision.ts'
 
 /** Fabrique une option minimale (comme `groupesExAequo.test.ts`/`optionBadges.test.ts`). */
@@ -202,6 +203,73 @@ describe('construireVueDecision — R4 : écartées (sécurité) vs non retenues
     const vue = construireVueDecision(node, { flag: false, interdit: true })
     expect(vue.ecartees).toEqual([{ option: def, motifs: ['interdit == true'] }])
     expect(vue.nonRetenues).toEqual([{ option: a, condition: 'flag == true' }])
+  })
+})
+
+/**
+ * P13/S4 (T-144) — `ecartees[].motifs` porte les branches SITUATIONNELLES d'une `exclusions`
+ * déclenchée, jamais l'expression complète (R6 volet rendu, `docs/decision/GRAMMAIRE-NOEUD.md`). Même
+ * défaut, même correctif que `raisonsSituationnelles` pour `reasons` (P10/S1) — ces tests en sont le
+ * pendant côté écartées : une exclusion à plusieurs branches ne rend que celle(s) vraie(s) pour ce
+ * patient, une exclusion à branche unique n'est pas affectée (non-régression).
+ */
+describe('construireVueDecision — R4/T-144 : `ecartees[].motifs` ne cite que les branches VRAIES d’une exclusion', () => {
+  it('une exclusion à trois branches dont une seule est vraie ne rend QUE celle-là', () => {
+    const a = opt('A', ['flag == true'], {
+      exclusions: ['danger1 == true OR danger2 == true OR danger3 == true'],
+    })
+    const node = makeNode([a], [
+      { nom: 'flag', type: 'bool' },
+      { nom: 'danger1', type: 'bool' },
+      { nom: 'danger2', type: 'bool' },
+      { nom: 'danger3', type: 'bool' },
+    ])
+    const vue = construireVueDecision(node, { flag: true, danger1: false, danger2: true, danger3: false })
+    expect(vue.ecartees).toEqual([{ option: a, motifs: ['danger2 == true'] }])
+  })
+
+  it('une exclusion à BRANCHE UNIQUE est rendue comme avant (non-régression)', () => {
+    const a = opt('A', ['flag == true'], { exclusions: ['danger == true'] })
+    const node = makeNode([a], [
+      { nom: 'flag', type: 'bool' },
+      { nom: 'danger', type: 'bool' },
+    ])
+    const vue = construireVueDecision(node, { flag: true, danger: true })
+    expect(vue.ecartees).toEqual([{ option: a, motifs: ['danger == true'] }])
+  })
+
+  it('deux branches vraies simultanément sont TOUTES DEUX citées (information clinique, pas du bruit)', () => {
+    const a = opt('A', ['flag == true'], {
+      exclusions: ['danger1 == true OR danger2 == true'],
+    })
+    const node = makeNode([a], [
+      { nom: 'flag', type: 'bool' },
+      { nom: 'danger1', type: 'bool' },
+      { nom: 'danger2', type: 'bool' },
+    ])
+    const vue = construireVueDecision(node, { flag: true, danger1: true, danger2: true })
+    expect(vue.ecartees).toEqual([{ option: a, motifs: ['danger1 == true', 'danger2 == true'] }])
+  })
+
+  it('un motif rédigé (`Option.motifs`) sur la branche vraie remplace la traduction mécanique, une fois consommé par l’écran (`describeReasons`)', () => {
+    // `construireVueDecision` ne consomme pas `Option.motifs` lui-même (P10/S2 : c'est une affaire de
+    // PRÉSENTATION, cf. `lib/conditionText.ts`) — ce test vérifie donc le couple {branche situationnelle
+    // exposée ici, motif rédigé porté par l'option} exactement comme l'écran les compose
+    // (`DecisionNodeScreen.tsx` : `describeReasons(ecartee.motifs, ecartee.option.motifs)`).
+    const a = opt('A', ['flag == true'], {
+      exclusions: ['danger1 == true OR danger2 == true'],
+      motifs: { 'danger2 == true': 'Risque hémorragique documenté' },
+    })
+    const node = makeNode([a], [
+      { nom: 'flag', type: 'bool' },
+      { nom: 'danger1', type: 'bool' },
+      { nom: 'danger2', type: 'bool' },
+    ])
+    const vue = construireVueDecision(node, { flag: true, danger1: false, danger2: true })
+    expect(vue.ecartees).toEqual([{ option: a, motifs: ['danger2 == true'] }])
+    expect(describeReasons(vue.ecartees[0].motifs, vue.ecartees[0].option.motifs)).toBe(
+      'Risque hémorragique documenté',
+    )
   })
 })
 
