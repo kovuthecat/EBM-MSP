@@ -36,11 +36,20 @@ import type { CritereEntree } from '../content/node.types.ts'
 import type { Criteria, CriteriaValue } from '../engine/conditions.ts'
 
 /**
- * Valeurs mémorisées pour la session en cours, par NOM de critère. Vit à la portée du module : elle
- * disparaît au rechargement de la page, jamais avant — c'est la définition même de « persistance par
- * session » retenue par le référent.
+ * T-159 (P13/S8) — d'où vient une valeur mémorisée : `saisi` (tapée par le praticien SUR CET écran, ou
+ * une valeur reprise qu'il n'a pas touchée — cf. la docstring de `memoriserCriteres`, ci-dessous, pour
+ * pourquoi les deux se confondent ici) ou `repris` (reprise TELLE QUELLE d'un AUTRE nœud de la même
+ * consultation, jamais éditée depuis). PURE PROVENANCE, jamais une valeur : exposer cette distinction ne
+ * viole en rien l'invariant CLAUDE.md 1, contrairement à la valeur elle-même.
  */
-const memoire = new Map<string, CriteriaValue>()
+export type OrigineCritereSession = 'saisi' | 'repris'
+
+/**
+ * Valeurs mémorisées pour la session en cours, par NOM de critère, avec leur ORIGINE (T-159, P13/S8 —
+ * cf. `OrigineCritereSession`). Vit à la portée du module : elle disparaît au rechargement de la page,
+ * jamais avant — c'est la définition même de « persistance par session » retenue par le référent.
+ */
+const memoire = new Map<string, { valeur: CriteriaValue; origine: OrigineCritereSession }>()
 
 /**
  * Vide la mémoire — deux appelants légitimes, jamais un troisième :
@@ -76,16 +85,32 @@ export function tailleSession(): number {
  *
  * Ne mémorise QUE ce qui est `touched` : une valeur par défaut n'est pas une réponse (D20/R7), et la
  * propager d'un nœud à l'autre reviendrait à faire circuler un silence comme s'il était une donnée.
+ *
+ * `reprisIds` (T-159, P13/S8, optionnel — RÉTRO-COMPATIBLE, repli `undefined` → tout est `saisi`, comme
+ * avant cette tâche) : noms encore marqués `repris` par L'APPELANT au moment de CET appel (`repris`,
+ * `DecisionNodeScreen.tsx` — une valeur reprise d'un AUTRE nœud, jamais éditée depuis SUR CET écran).
+ * `touched` INITIALISE avec les noms repris (« une valeur reprise compte comme saisie », cf. la docstring
+ * de `DecisionNodeScreen.tsx`) : sans ce second ensemble, ce module ne pourrait pas distinguer une
+ * reprise intacte d'une vraie saisie — les deux passeraient par `touched` de façon indiscernable.
+ *
+ * CE QUI N'ARRIVE JAMAIS ICI : une valeur `preremplis` (K6, calculée depuis d'autres réponses) NON
+ * ÉDITÉE — elle n'est PAS dans `touched` tant qu'elle reste telle quelle (`DecisionNodeScreen.tsx` la
+ * retire de `preremplis` dès qu'elle est éditée, AVANT d'appeler cette fonction), donc jamais mémorisée
+ * comme `partage`. Une valeur `preremplis` puis ÉDITÉE devient une saisie ordinaire (`origine: 'saisi'`)
+ * — même sémantique que D20 : une réponse confirmée par le praticien efface la distinction de sa suggestion
+ * d'origine. `OrigineCritereSession` n'a donc que deux valeurs, jamais trois : ce n'est pas un oubli.
  */
 export function memoriserCriteres(
   criteresEntree: readonly CritereEntree[],
   criteria: Criteria,
   touched: ReadonlySet<string>,
+  reprisIds?: ReadonlySet<string>,
 ): void {
   for (const critere of criteresEntree) {
     if (critere.partage !== true || critere.derive != null) continue
     if (!touched.has(critere.nom)) continue
-    memoire.set(critere.nom, criteria[critere.nom])
+    const origine: OrigineCritereSession = reprisIds?.has(critere.nom) === true ? 'repris' : 'saisi'
+    memoire.set(critere.nom, { valeur: criteria[critere.nom], origine })
   }
 }
 
@@ -112,11 +137,30 @@ export function valeursReprises(criteresEntree: readonly CritereEntree[]): Valeu
   for (const critere of criteresEntree) {
     if (critere.partage !== true || critere.derive != null) continue
     if (!memoire.has(critere.nom)) continue
-    const valeur = memoire.get(critere.nom)!
+    const { valeur } = memoire.get(critere.nom)!
     if (!valeurCompatible(critere, valeur)) continue
     reprises.push({ nom: critere.nom, valeur })
   }
   return reprises
+}
+
+/**
+ * T-159 (P13/S8) — le compteur « Session : N valeurs » devient un objet de première classe (revue de
+ * conception du 2026-08-04, §8 : « le seul témoin fiable de l'état de la session ») : cliquable, il doit
+ * pouvoir LISTER ce qu'il porte. Cette fonction est le SEUL point d'entrée en lecture prévu à cet effet.
+ *
+ * ⚠ INVARIANT CLAUDE.md 1 — AUCUNE DONNÉE PATIENT HORS DU FORMULAIRE. Le type de retour n'a NI champ
+ * `valeur` NI aucun moyen d'y accéder : `{ nom, origine }` seulement — un NOM de critère n'est pas une
+ * donnée patient (c'est un intitulé de question, identique pour tout patient), une VALEUR l'est. C'est un
+ * choix DÉLIBÉRÉ et NON NÉGOCIABLE (cf. `docs/decision/CONSTRUIRE-UN-MODULE.md`, invariant CLAUDE.md 1) —
+ * si un futur appelant a besoin d'une valeur, ce N'EST PAS À CETTE FONCTION de l'exposer. Testé
+ * nommément : `sessionCriteres.test.ts`, describe « invariant CLAUDE.md 1 ».
+ *
+ * Ordre : insertion dans `memoire` (premier mémorisé, premier listé) — stable, sans prétention clinique
+ * (aucune hiérarchie de critères n'est affirmée ici, seulement un ordre d'apparition).
+ */
+export function criteresSession(): Array<{ nom: string; origine: OrigineCritereSession }> {
+  return [...memoire.entries()].map(([nom, { origine }]) => ({ nom, origine }))
 }
 
 /** La valeur mémorisée est-elle représentable par CE critère, tel que CE nœud le déclare ? */

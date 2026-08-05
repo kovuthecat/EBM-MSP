@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import type { Navigation } from '../navigation'
 import { AccountMenu } from './AccountMenu'
-import { tailleSession } from '../../decision/lib/sessionCriteres'
+import { criteresSession, tailleSession } from '../../decision/lib/sessionCriteres'
+import { labelForCritere } from '../../decision/lib/labels'
 import './Header.css'
 
 // T-034/P5 — durée d'affichage du retour transitoire après la purge « Nouveau patient ». Assez long pour
@@ -118,6 +119,17 @@ export function Header({ nav, onNouveauPatient }: HeaderProps) {
   // du formulaire — fabriquer un mécanisme de rafraîchissement pour combler ça est explicitement exclu.
   const sessionSize = tailleSession()
 
+  // T-159 (P13/S8) — LE COMPTEUR DEVIENT CLIQUABLE (revue de conception du 2026-08-04, §8 : « le seul
+  // témoin fiable de l'état de la session » doit être « cliquable, listant les valeurs portées, avec leur
+  // origine »). ⚠ INVARIANT CLAUDE.md 1 : `criteresSession()` n'expose QUE des `{ nom, origine }` — ni
+  // cette fonction ni ce composant ne lisent, ni ne peuvent lire, la moindre VALEUR de critère (cf. sa
+  // docstring dans `sessionCriteres.ts`, et le test nommé sur l'invariant, `sessionCriteres.test.ts`).
+  // Lu AU RENDU comme `sessionSize` ci-dessus, même limite assumée (pas de rafraîchissement en cours de
+  // frappe sur un autre écran).
+  const [sessionDetailOuvert, setSessionDetailOuvert] = useState(false)
+  const idBase = useId()
+  const sessionDetailId = `${idBase}-session-detail`
+
   return (
     <header className="header">
       <button
@@ -156,13 +168,50 @@ export function Header({ nav, onNouveauPatient }: HeaderProps) {
 
       <div className="header__spacer" />
 
-      {/* T-056/P8 — un COMPTEUR, jamais un contenu (aucun nom de critère, aucune valeur, invariant
-          CLAUDE.md 1). À 0, n'affiche rien plutôt qu'un « Session : 0 » qui ajouterait du bruit
-          permanent (S1.md T-056 étape 3). */}
+      {/* T-056/P8 — un COMPTEUR, jamais un contenu, à l'origine (aucun nom de critère, aucune valeur,
+          invariant CLAUDE.md 1). À 0, n'affiche rien plutôt qu'un « Session : 0 » qui ajouterait du bruit
+          permanent (S1.md T-056 étape 3).
+
+          T-159 (P13/S8) — DEVENU CLIQUABLE : un `button` (il ouvre un panneau, ce n'est pas un lien),
+          `aria-expanded`/`aria-controls` comme le reste de ce header (`PastilleInfo`, même registre). Le
+          panneau liste des NOMS DE CRITÈRES ET LEUR ORIGINE, JAMAIS DE VALEUR (cf. `criteresSession()`,
+          `sessionCriteres.ts`, et son test d'invariant nommé) — le compteur reste, à ce titre, l'endroit
+          où l'invariant CLAUDE.md 1 se joue le plus près du texte affiché : un nom de critère informe
+          SANS rien dire du patient (« Espérance de vie » n'est pas une donnée patient, sa valeur l'est).
+          `header__nouveau-patient` reste juste à côté, dans le flux normal du header — « à portée »
+          (Décision clé, S8.md) sans dupliquer le bouton à l'intérieur du panneau. */}
       {sessionSize > 0 && (
-        <span className="header__session-compteur">
-          Session : {sessionSize} valeur{sessionSize > 1 ? 's' : ''}
-        </span>
+        <div className="header__session-zone">
+          <button
+            type="button"
+            className="header__session-compteur"
+            aria-expanded={sessionDetailOuvert}
+            aria-controls={sessionDetailId}
+            onClick={() => setSessionDetailOuvert((ouvert) => !ouvert)}
+          >
+            Session : {sessionSize} valeur{sessionSize > 1 ? 's' : ''}
+          </button>
+          {sessionDetailOuvert && (
+            <div
+              id={sessionDetailId}
+              className="header__session-detail"
+              role="region"
+              aria-label="Critères mémorisés dans la session"
+            >
+              <ul className="header__session-detail-liste">
+                {criteresSession().map(({ nom, origine }) => (
+                  <li key={nom} className="header__session-detail-item">
+                    {labelForCritere(nom)}
+                    <span className="header__session-detail-origine">
+                      {' '}
+                      · {origine === 'repris' ? "repris d'un autre écran" : 'saisi'}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
       )}
 
       {/* T-026/D33 · T-055/P8 — à droite, hors du chemin de lecture du contenu clinique (jamais dans le

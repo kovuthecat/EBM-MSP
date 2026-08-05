@@ -8,7 +8,7 @@
  */
 import { beforeEach, describe, expect, it } from 'vitest'
 import type { CritereEntree } from '../content/node.types.ts'
-import { memoriserCriteres, reinitialiserSession, tailleSession, valeursReprises } from './sessionCriteres.ts'
+import { criteresSession, memoriserCriteres, reinitialiserSession, tailleSession, valeursReprises } from './sessionCriteres.ts'
 
 const EMETTEUR: CritereEntree[] = [
   { nom: 'HbA1c_actuelle', type: 'nombre', min: 4, max: 18, partage: true },
@@ -92,5 +92,100 @@ describe('sessionCriteres — tailleSession (T-056, compteur sans contenu)', () 
 
     reinitialiserSession()
     expect(tailleSession()).toBe(0)
+  })
+})
+
+/**
+ * T-159 (P13/S8) — le compteur « Session : N valeurs » devient cliquable, `criteresSession()` en est le
+ * SEUL point d'entrée en lecture. Deux familles de test : le CONTENU renvoyé (noms + origine, ordre
+ * d'insertion), et — nommé comme l'invariant qu'il protège — la PREUVE qu'aucune valeur ne peut fuiter
+ * par ce chemin (CLAUDE.md invariant 1, « zéro donnée patient »).
+ */
+describe('sessionCriteres — criteresSession (T-159, compteur cliquable)', () => {
+  it('vide sur une session vierge', () => {
+    expect(criteresSession()).toEqual([])
+  })
+
+  it('liste les noms mémorisés, dans l’ORDRE DE `criteresEntree` (pas celui de `criteria`/`touched`), avec origine `saisi` par défaut (repli rétro-compatible, `reprisIds` absent)', () => {
+    // `memoriserCriteres` ITÈRE `criteresEntree` (EMETTEUR : `HbA1c_actuelle` déclaré avant `HbA1c_cible`,
+    // tête de ce fichier) — c'est CET ordre qui gouverne l'insertion dans `memoire`, jamais celui des clés
+    // de l'objet `criteria` passé en argument (ici volontairement inversé pour ne pas les confondre).
+    memoriserCriteres(EMETTEUR, { HbA1c_cible: 7, HbA1c_actuelle: 9 }, new Set(['HbA1c_cible', 'HbA1c_actuelle']))
+    expect(criteresSession()).toEqual([
+      { nom: 'HbA1c_actuelle', origine: 'saisi' },
+      { nom: 'HbA1c_cible', origine: 'saisi' },
+    ])
+  })
+
+  it('distingue `repris` (4ᵉ argument de `memoriserCriteres`) de `saisi`, critère par critère', () => {
+    // `HbA1c_cible` encore marqué repris au moment de l'appel (une valeur reprise d'un AUTRE nœud, non
+    // éditée sur celui-ci) ; `HbA1c_actuelle` ne l'est pas (saisie directe SUR cet écran) — même appel,
+    // deux origines, exactement le cas réel (`DecisionNodeScreen.tsx` `reprisApres`).
+    memoriserCriteres(
+      EMETTEUR,
+      { HbA1c_cible: 7, HbA1c_actuelle: 9 },
+      new Set(['HbA1c_cible', 'HbA1c_actuelle']),
+      new Set(['HbA1c_cible']),
+    )
+    // Ordre de `criteresEntree` encore (`HbA1c_actuelle` avant `HbA1c_cible`) — inchangé par `reprisIds`,
+    // qui ne pilote que l'ORIGINE, jamais l'ordre.
+    expect(criteresSession()).toEqual([
+      { nom: 'HbA1c_actuelle', origine: 'saisi' },
+      { nom: 'HbA1c_cible', origine: 'repris' },
+    ])
+  })
+
+  it('une saisie ultérieure sur un critère `repris` fait basculer son origine à `saisi` (édité = confirmé, D20)', () => {
+    memoriserCriteres(EMETTEUR, { HbA1c_cible: 7 }, new Set(['HbA1c_cible']), new Set(['HbA1c_cible']))
+    expect(criteresSession()).toEqual([{ nom: 'HbA1c_cible', origine: 'repris' }])
+
+    // Le praticien édite la valeur SUR CET écran : l'appelant ne le passe plus dans `reprisIds`.
+    memoriserCriteres(EMETTEUR, { HbA1c_cible: 7.5 }, new Set(['HbA1c_cible']))
+    expect(criteresSession()).toEqual([{ nom: 'HbA1c_cible', origine: 'saisi' }])
+  })
+
+  it('vide après `reinitialiserSession`', () => {
+    memoriserCriteres(EMETTEUR, { HbA1c_cible: 7 }, new Set(['HbA1c_cible']))
+    expect(criteresSession()).toHaveLength(1)
+    reinitialiserSession()
+    expect(criteresSession()).toEqual([])
+  })
+})
+
+/**
+ * INVARIANT CLAUDE.md 1 — LA MÉMOIRE DE SESSION N'EXPOSE AUCUNE VALEUR PATIENT PAR `criteresSession()`.
+ * Nommé comme l'invariant qu'il protège (consigne du plan, S8.md) : ce test doit rougir si `criteresSession`
+ * se met un jour à renvoyer une `valeur`, quel que soit le chemin par lequel elle y arriverait.
+ */
+describe('sessionCriteres — invariant CLAUDE.md 1 : criteresSession() n’expose jamais de valeur', () => {
+  it('mémorise des valeurs DISTINCTIVES (un nombre improbable, une chaîne, un tableau) et vérifie qu’AUCUNE ne réapparaît, sous aucune forme, dans `criteresSession()`', () => {
+    const CRITERES_SENSIBLES: CritereEntree[] = [
+      { nom: 'HbA1c_actuelle', type: 'nombre', min: 0, max: 999, partage: true },
+      { nom: 'x', type: 'enum', valeurs: ['valeur_secrete_xyz'], partage: true },
+      { nom: 'l', type: 'liste', valeurs: ['item_secret_123'], partage: true },
+    ]
+    memoriserCriteres(
+      CRITERES_SENSIBLES,
+      { HbA1c_actuelle: 123.456, x: 'valeur_secrete_xyz', l: ['item_secret_123'] },
+      new Set(['HbA1c_actuelle', 'x', 'l']),
+    )
+
+    const resultat = criteresSession()
+
+    // (1) Chaque entrée a EXACTEMENT deux clés — `nom` et `origine` — jamais `valeur` ni aucune autre.
+    for (const entree of resultat) {
+      expect(Object.keys(entree).sort()).toEqual(['nom', 'origine'])
+    }
+
+    // (2) Aucune trace des valeurs, même sous forme de sous-chaîne, dans le JSON du résultat entier —
+    // filet qui couvre aussi un futur champ mal nommé qui réintroduirait la valeur ailleurs que `valeur`.
+    const serialise = JSON.stringify(resultat)
+    expect(serialise).not.toContain('123.456')
+    expect(serialise).not.toContain('valeur_secrete_xyz')
+    expect(serialise).not.toContain('item_secret_123')
+
+    // (3) Les NOMS, eux, sont bien là (c'est le service rendu) — le test ne serait pas honnête s'il
+    // passait aussi sur un résultat vide.
+    expect(resultat.map((e) => e.nom).sort()).toEqual(['HbA1c_actuelle', 'l', 'x'])
   })
 })

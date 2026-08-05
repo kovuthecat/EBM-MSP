@@ -161,3 +161,79 @@ describe("Header — compteur d'état de la mémoire de session (T-056)", () => 
     expect(screen.getByText('Session : 1 valeur')).toBeTruthy()
   })
 })
+
+/**
+ * T-159 (P13/S8) — le compteur devient cliquable : un clic ouvre un panneau listant les NOMS des
+ * critères mémorisés et leur origine, jamais leur valeur (invariant CLAUDE.md 1 — `criteresSession()` en
+ * est la seule source, testée nommément dans `sessionCriteres.test.ts`). Ce fichier vérifie le CÂBLAGE
+ * côté `Header` : le clic ouvre/ferme le panneau, le texte affiché est bien les LIBELLÉS (pas les noms
+ * bruts de critère), et — répétition volontaire du garde-fou, à ce niveau d'intégration — aucune valeur
+ * saisie n'apparaît nulle part dans le DOM rendu.
+ */
+describe("Header — compteur cliquable, noms de critères sans valeur (T-159)", () => {
+  it('fermé par défaut ; un clic ouvre le panneau et liste les critères mémorisés (libellé + origine)', () => {
+    const criteres: CritereEntree[] = [
+      { nom: 'HbA1c_actuelle', type: 'nombre', min: 0, max: 20, partage: true },
+      { nom: 'HbA1c_cible', type: 'nombre', min: 0, max: 20, partage: true },
+    ]
+    // Une valeur RECONNAISSABLE (improbable) pour prouver, au test suivant, qu'elle ne fuite nulle part.
+    memoriserCriteres(criteres, { HbA1c_actuelle: 12.34, HbA1c_cible: 6.5 }, new Set(['HbA1c_actuelle', 'HbA1c_cible']))
+
+    render(<Header nav={NAV} onNouveauPatient={vi.fn()} />)
+    const bouton = screen.getByRole('button', { name: /Session : 2 valeurs/ })
+    expect(bouton.getAttribute('aria-expanded')).toBe('false')
+    expect(screen.queryByRole('region', { name: /Critères mémorisés/i })).toBeNull()
+
+    fireEvent.click(bouton)
+
+    expect(bouton.getAttribute('aria-expanded')).toBe('true')
+    const panneau = screen.getByRole('region', { name: /Critères mémorisés/i })
+    // Libellés RÉDIGÉS (`labelForCritere`), pas les identifiants bruts de contenu.
+    expect(panneau.textContent).toContain('HbA1c actuelle')
+    expect(panneau.textContent).toContain('HbA1c cible')
+
+    fireEvent.click(bouton)
+    expect(bouton.getAttribute('aria-expanded')).toBe('false')
+    expect(screen.queryByRole('region', { name: /Critères mémorisés/i })).toBeNull()
+  })
+
+  it("invariant CLAUDE.md 1 : aucune VALEUR saisie n'apparaît dans le DOM rendu, panneau ouvert", () => {
+    const criteres: CritereEntree[] = [
+      { nom: 'HbA1c_actuelle', type: 'nombre', min: 0, max: 999, partage: true },
+    ]
+    memoriserCriteres(criteres, { HbA1c_actuelle: 987.654 }, new Set(['HbA1c_actuelle']))
+
+    const { container } = render(<Header nav={NAV} onNouveauPatient={vi.fn()} />)
+    fireEvent.click(screen.getByRole('button', { name: /Session : 1 valeur/ }))
+
+    expect(container.innerHTML).not.toContain('987.654')
+    expect(container.innerHTML).not.toContain('987,654')
+  })
+
+  it("distingue « saisi » et « repris d'un autre écran » selon l'origine mémorisée", () => {
+    const criteres: CritereEntree[] = [
+      { nom: 'HbA1c_actuelle', type: 'nombre', min: 0, max: 20, partage: true },
+      { nom: 'HbA1c_cible', type: 'nombre', min: 0, max: 20, partage: true },
+    ]
+    memoriserCriteres(
+      criteres,
+      { HbA1c_actuelle: 9, HbA1c_cible: 7 },
+      new Set(['HbA1c_actuelle', 'HbA1c_cible']),
+      new Set(['HbA1c_cible']), // seul HbA1c_cible est encore `repris` au moment de l'appel.
+    )
+
+    const { container } = render(<Header nav={NAV} onNouveauPatient={vi.fn()} />)
+    fireEvent.click(screen.getByRole('button', { name: /Session : 2 valeurs/ }))
+
+    // Un item par critère, dans l'ORDRE D'INSERTION (`HbA1c_actuelle` puis `HbA1c_cible`, cf.
+    // `sessionCriteres.test.ts`) : chaque `<li>` isolé plutôt qu'un `textContent` global, pour vérifier
+    // l'APPARIEMENT nom↔origine, pas seulement la présence des deux textes quelque part dans le panneau.
+    const items = [...container.querySelectorAll('.header__session-detail-item')]
+    expect(items).toHaveLength(2)
+    expect(items[0].textContent).toContain('HbA1c actuelle')
+    expect(items[0].textContent).toContain('saisi')
+    expect(items[0].textContent).not.toContain('repris')
+    expect(items[1].textContent).toContain('HbA1c cible')
+    expect(items[1].textContent).toContain("repris d'un autre écran")
+  })
+})
