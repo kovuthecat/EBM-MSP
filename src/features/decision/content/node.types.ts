@@ -17,10 +17,23 @@ export type NiveauPreuve = 'eleve' | 'modere' | 'faible' | 'tres_faible'
 /** Nature du critère évalué par une référence primaire (brief §4 : dur vs substitution). */
 export type TypeCritere = 'dur' | 'mixte' | 'substitution'
 
-/** Une règle de pré-remplissage (`CritereEntree.preremplissage`, K6). Première vraie = retenue. */
+/**
+ * Une règle de pré-remplissage (`CritereEntree.preremplissage`, K6). Première vraie = retenue.
+ *
+ * `valeur` — DEUX FORMES depuis T-137 (2026-08-04) : une **chaîne** non vide (forme historique, critère
+ * `enum`/`nombre`/`bool`) ou un **tableau de chaînes**, réservé aux critères `type: liste` (`[]` compris
+ * — l'usage visé : rendre exprimable « ce critère de type liste vaut *aucun élément* », ex. `intention ==
+ * initier` ⇒ `traitements_en_cours = []`). Le pré-remplissage porte déjà les trois propriétés qu'il faut
+ * (proposé et non imposé, signalé « · calculé, à vérifier », effacé dès que le praticien répond) ;
+ * étendre `valeur` évite de dupliquer le concept dans un second mécanisme `derive`-pour-listes.
+ *
+ * VÉRIFIÉ PAR `appliquerPreremplissage` (`lib/formLayout.ts`), pas seulement par le schéma : une valeur
+ * tableau posée sur un critère non-`liste`, ou une valeur chaîne posée sur un critère `liste`, est
+ * REFUSÉE au runtime (garde-fou de code, en miroir de celui déjà en place pour les `enum`).
+ */
 export interface ReglePreremplissage {
   quand: string
-  valeur: string
+  valeur: string | string[]
 }
 
 export interface CritereEntree {

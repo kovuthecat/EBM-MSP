@@ -145,14 +145,40 @@ export function valeursProposeesDepuisSaisie(
  * praticien n'a PAS encore renseigné, la première règle dont le `quand` est vrai AU SENS STRICT fournit
  * une valeur de départ.
  *
- * TROIS GARDE-FOUS, et chacun répond à un travers précis :
+ * CINQ GARDE-FOUS, et chacun répond à un travers précis :
  *  - `!== true` ne suffit pas, on exige `=== true` : une expression INDÉTERMINÉE (opérande non renseigné)
  *    ne pré-remplit RIEN. Deviner sur une donnée manquante serait exactement ce que R7/D20 proscrit ;
  *  - un critère DÉJÀ RENSEIGNÉ n'est jamais touché — « sinon c'est la position déclarée qui fait foi »
  *    (référent). C'est ce qui garde le critère DÉCLARÉ au sens de R1 : le mécanisme propose un point de
  *    départ, il ne transforme pas un critère saisi en critère `derive` ;
  *  - la valeur pré-remplie doit appartenir aux `valeurs` déclarées pour un `enum` — un contenu qui se
- *    tromperait de libellé injecterait sinon une valeur que le formulaire ne sait pas rendre.
+ *    tromperait de libellé injecterait sinon une valeur que le formulaire ne sait pas rendre ;
+ *  - (T-137, garde-fou 1) une `valeur` TABLEAU n'est acceptée que sur un critère `type: liste` ; une
+ *    `valeur` CHAÎNE n'est en miroir jamais posée sur un critère `liste` — sans ce garde, elle le serait
+ *    aujourd'hui sans aucun contrôle, et le critère recevrait une chaîne là où le moteur (`contient`/
+ *    `ne_contient_pas`, `conditions.ts`) attend un tableau ;
+ *  - (T-137, garde-fou 2) chaque ÉLÉMENT d'une `valeur` tableau doit appartenir aux `valeurs` déclarées du
+ *    critère `liste` — même esprit que le garde-fou `enum` ci-dessus, à la maille de l'élément.
+ *
+ * (T-137, garde-fou 3 — « déjà à cette valeur, ne rien faire ») La ligne `suivant[critere.nom] ===
+ * regle.valeur` n'est PAS spécialisée pour les tableaux, et c'est DÉLIBÉRÉ, pas un oubli. `tableau` est
+ * assigné TEL QUEL ci-dessous (`suivant[critere.nom] = tableau`, jamais un `[...tableau]` cloné) — sûr,
+ * parce qu'aucun code d'écran ne mute une liste en place (`toggleListeValeur`, `CriteriaForm.tsx`,
+ * reconstruit toujours un tableau NEUF par `spread`/`filter`). Une fois posée, `criteria[nom]` EST
+ * `regle.valeur`, littéralement le même objet : une comparaison PAR RÉFÉRENCE suffit donc à reconnaître un
+ * rejeu sans rien changer (elle empêche « · calculé, à vérifier » de clignoter à chaque frappe ailleurs
+ * dans le formulaire).
+ *
+ * ⚠ UNE COMPARAISON DE CONTENU SERAIT UN PIÈGE ICI, PAS UNE AMÉLIORATION — vérifié en écrivant le test de
+ * contrat T-138 (`formLayout.test.ts`), qui a rougi sur cette version avant d'être corrigé.
+ * `reinitialiserChampsMasques` (R8) remet elle aussi un critère masqué à `[]`, par un AUTRE chemin
+ * (`valeurParDefaut`, une NOUVELLE liste vide à chaque appel) : ce `[]` fraîchement défauté n'a JAMAIS été
+ * marqué dans `preremplis`. Une comparaison de CONTENU le confondrait avec un `[]` déjà posé par ce
+ * mécanisme (même contenu, deux objets distincts) et empêcherait pour toujours le critère d'entrer dans
+ * `preremplis` dès que la valeur ciblée égale la valeur par défaut — exactement le cas visé par T-138
+ * (« aucun traitement » = la valeur par défaut d'une liste vide). La comparaison PAR RÉFÉRENCE, elle, ne
+ * confond jamais les deux : seul un `[]` posé PAR CETTE FONCTION (donc littéralement `regle.valeur`) est
+ * reconnu comme « déjà fait ».
  *
  * Renvoie les critères effectivement pré-remplis, pour que l'appelant les SIGNALE à l'écran : un champ
  * qui paraît répondu alors que personne n'a répondu sur cet écran est le défaut A du lot 1.
@@ -177,7 +203,20 @@ export function appliquerPreremplissage(
       (r) => evaluateCondition(r.quand, derives, effectifs) === true,
     )
     if (regle == null) continue
-    if (critere.type === 'enum' && !(critere.valeurs ?? []).includes(regle.valeur)) continue
+    const valeurEstTableau = Array.isArray(regle.valeur)
+    // Garde-fou 1 : une forme tableau et un critère `liste` vont toujours ensemble, dans les deux sens.
+    if (valeurEstTableau !== (critere.type === 'liste')) continue
+    if (valeurEstTableau) {
+      const tableau = regle.valeur as string[]
+      // Garde-fou 2.
+      if (!tableau.every((v) => (critere.valeurs ?? []).includes(v))) continue
+      // Garde-fou 3 (cf. docstring ci-dessus : référence, pas contenu — volontaire).
+      if (suivant[critere.nom] === tableau) continue
+      suivant[critere.nom] = tableau
+      preremplis.push(critere.nom)
+      continue
+    }
+    if (critere.type === 'enum' && !(critere.valeurs ?? []).includes(regle.valeur as string)) continue
     if (suivant[critere.nom] === regle.valeur) continue
     suivant[critere.nom] = regle.valeur
     preremplis.push(critere.nom)
@@ -222,23 +261,82 @@ export function grouperChamps(
  * ainsi que les noms remis à zéro (pour que l'appelant les retire aussi de `touched`).
  *
  * Itère jusqu'à stabilité : réinitialiser un champ peut en masquer un autre (visibilités en cascade).
+ *
+ * CORRECTIF DE SÛRETÉ (T-142/T-143, P13/S3, 2026-08-05) — BUG DE CASCADE DÉCOUVERT AU DIAGNOSTIC DU
+ * PROFIL NOCTURNE. `reinitialises` (donc `valeursEffacees` ci-dessous) doit signaler TOUT champ MASQUÉ,
+ * PAS SEULEMENT ceux dont la valeur COURANTE diffère encore de la valeur par défaut du type. L'ancienne
+ * version confondait deux questions distinctes : « courant[nom] a-t-il besoin d'être MUTÉ ? » (oui
+ * seulement si la valeur diffère du défaut) et « nom doit-il sortir de `touched` chez l'appelant ? » (oui
+ * DÈS QUE le champ est masqué, quelle que soit sa valeur). Un critère `enum` dont la 1re valeur déclarée
+ * est justement celle choisie par le praticien (ex. `profil_nocturne` = « Baisse continue », qui est
+ * `valeurs[0]`) a une valeur qui coïncide avec son défaut : il ne remplissait donc JAMAIS la première
+ * condition, et ne sortait donc JAMAIS de `touched` chez l'appelant (`DecisionNodeScreen.tsx`,
+ * `touchedApres.delete(efface)` ne le voyait jamais) — R8 cessait alors de le protéger, en silence, dès
+ * que ce hasard de valeur se produisait : masqué puis démasqué, le champ réapparaissait « confirmé » sans
+ * que le praticien ait jamais reconfirmé quoi que ce soit pour CETTE réapparition. Mesuré au navigateur en
+ * isolant la coïncidence (`profil_nocturne` = « Hausse continue », qui n'est PAS le défaut, se
+ * réinitialisait déjà correctement AVANT ce correctif — seule la coïncidence valeur=défaut était touchée).
+ * Le calcul de la valeur elle-même (ci-dessous, `aMuter`) N'EST PAS TOUCHÉ : un champ masqué vaut TOUJOURS
+ * sa valeur par défaut pour le moteur, exactement comme avant (R8 intact, golden master inchangé — ce
+ * correctif ne bouge que le REGISTRE `touched`, jamais `evaluateNode`).
  */
 export function reinitialiserChampsMasques(
   criteresEntree: CritereEntree[],
   criteria: Criteria,
   renseignes?: ReadonlySet<string>,
-): { criteria: Criteria; reinitialises: string[] } {
+): {
+  criteria: Criteria
+  reinitialises: string[]
+  /**
+   * T-143 (P13/S3) — extension PURE (les appelants existants ignorent ce champ) : les couples
+   * `{nom, valeur}` des critères SIGNALÉS ci-dessus, avec la valeur qu'ils portaient juste avant
+   * d'être masqués (pas nécessairement mutée : un champ déjà à sa valeur par défaut au moment où il
+   * se masque est signalé — cf. le correctif de sûreté ci-dessus — mais `suivant[nom]` n'est réécrit
+   * que si `valeurParDefaut` diffère réellement). Sert UNIQUEMENT à alimenter la mémoire de
+   * restauration de l'écran (`DecisionNodeScreen.tsx`) — ce module ne sait pas lui-même quels noms
+   * étaient `touched` : c'est à l'appelant de filtrer (un champ jamais `touched` n'a rien à
+   * mémoriser, cf. `DecisionNodeScreen.tsx`).
+   */
+  valeursEffacees: Array<{ nom: string; valeur: CriteriaValue }>
+  /**
+   * T-143 (P13/S3) — A4/F, à la maille de la VALEUR : chaque valeur individuellement retirée d'une
+   * `liste` (par la boucle `valeursARetirer` ci-dessous), avec le nom du critère qui la portait.
+   * DÉLIBÉRÉMENT SÉPARÉ de `valeursEffacees` : une liste dont UNE valeur est retirée reste `touched`
+   * (cf. le commentaire d'origine sur `valeursARetirer`, inchangé) — ce n'est donc jamais un champ
+   * ENTIER qui disparaît ici, seulement une entrée. Restaurer par ce canal doit RÉ-AJOUTER la valeur
+   * à la liste courante, jamais remplacer toute la liste (sinon un praticien qui aurait entre-temps
+   * coché autre chose se verrait écrasé — cf. `DecisionNodeScreen.tsx`).
+   */
+  valeursListeRetirees: Array<{ nom: string; valeur: string }>
+} {
   let courant = criteria
   const reinitialises: string[] = []
+  const valeursEffacees: Array<{ nom: string; valeur: CriteriaValue }> = []
+  const valeursListeRetirees: Array<{ nom: string; valeur: string }> = []
+  const dejaSignales = new Set<string>()
 
   // Borne de sécurité : au pire un champ réinitialisé par tour, jamais de boucle infinie sur un contenu
   // dont les `visible_si` s'entre-déclencheraient.
   for (let tour = 0; tour <= criteresEntree.length; tour += 1) {
     const derives = calculerCriteresDerives(criteresEntree, courant)
     const effectifs = determinesEffectifs(criteresEntree, derives, renseignes)
-    const aReinitialiser = criteresEntree.filter((critere) => {
-      if (critere.derive != null) return false
-      if (champEstVisible(critere, derives, effectifs)) return false
+
+    // TOUS les champs saisissables actuellement MASQUÉS (cf. correctif de sûreté ci-dessus) — signalés
+    // une seule fois (`dejaSignales`), qu'ils appellent ou non une mutation de `courant`.
+    const masques = criteresEntree.filter(
+      (critere) => critere.derive == null && !champEstVisible(critere, derives, effectifs),
+    )
+    for (const critere of masques) {
+      if (dejaSignales.has(critere.nom)) continue
+      dejaSignales.add(critere.nom)
+      reinitialises.push(critere.nom)
+      valeursEffacees.push({ nom: critere.nom, valeur: courant[critere.nom] })
+    }
+
+    // Sous-ensemble de `masques` dont la valeur COURANTE diffère encore de la valeur par défaut du
+    // type — seul celui-ci a besoin d'une mutation de `courant` (inchangé par rapport à avant ce
+    // correctif : la VALEUR envoyée au moteur pendant le masquage ne bouge pas).
+    const aMuter = masques.filter((critere) => {
       const defaut = valeurParDefaut(critere)
       const actuel = courant[critere.nom]
       return Array.isArray(defaut) || Array.isArray(actuel)
@@ -259,15 +357,20 @@ export function reinitialiserChampsMasques(
       return actuel.some((valeur) => !proposees.has(valeur))
     })
 
-    if (aReinitialiser.length === 0 && valeursARetirer.length === 0) break
+    if (aMuter.length === 0 && valeursARetirer.length === 0) break
     const suivant = { ...courant }
-    for (const critere of aReinitialiser) {
+    for (const critere of aMuter) {
       suivant[critere.nom] = valeurParDefaut(critere)
-      reinitialises.push(critere.nom)
     }
     for (const critere of valeursARetirer) {
       const proposees = new Set(valeursProposees(critere, derives, effectifs))
-      suivant[critere.nom] = (courant[critere.nom] as string[]).filter((valeur) => proposees.has(valeur))
+      const avant = courant[critere.nom] as string[]
+      suivant[critere.nom] = avant.filter((valeur) => proposees.has(valeur))
+      // T-143 : chaque valeur RETIRÉE (pas celles qui subsistent) va dans `valeursListeRetirees`, à la
+      // maille de la valeur — cf. la docstring du champ de retour.
+      for (const valeur of avant) {
+        if (!proposees.has(valeur)) valeursListeRetirees.push({ nom: critere.nom, valeur })
+      }
       // PAS ajouté à `reinitialises` : l'appelant s'en sert pour retirer le champ de `touched`, or le
       // champ reste répondu — le praticien a bien coché les valeurs qui subsistent. Le vider de `touched`
       // ferait réapparaître le marqueur « à confirmer » sur un champ auquel il vient de répondre.
@@ -275,7 +378,7 @@ export function reinitialiserChampsMasques(
     courant = suivant
   }
 
-  return { criteria: courant, reinitialises }
+  return { criteria: courant, reinitialises, valeursEffacees, valeursListeRetirees }
 }
 
 /**

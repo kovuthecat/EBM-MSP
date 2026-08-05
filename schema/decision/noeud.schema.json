@@ -812,9 +812,20 @@
           "description": "Expression DSL. La PREMIERE regle vraie l'emporte (meme idiome que `priorite` conditionnelle D14)."
         },
         "valeur": {
-          "type": "string",
-          "minLength": 1,
-          "description": "Valeur a pre-remplir. Doit appartenir a `valeurs` pour un critere `enum` (verifie par un invariant du banc)."
+          "description": "Valeur a pre-remplir. Deux formes (T-137, 2026-08-04) : une CHAINE non vide (forme historique, critere `enum`/`nombre`/`bool` — doit appartenir a `valeurs` pour un `enum`, verifie par un invariant du banc) ; ou un TABLEAU de chaines, RESERVE aux criteres `type: liste` (`[]` autorise et meme l'usage vise : poser \"aucun element\" comme valeur de depart, ex. `intention == initier` => `traitements_en_cours = []`). Une valeur tableau sur un critere non-`liste`, ou une valeur chaine sur un critere `liste`, est REFUSEE par `appliquerPreremplissage` (garde-fou de code, pas seulement de schema) : ce n'est pas au contenu de savoir laquelle des deux formes son propre critere accepte.",
+          "oneOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "uniqueItems": true
+            }
+          ]
         }
       }
     }

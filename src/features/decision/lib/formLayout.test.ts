@@ -125,11 +125,22 @@ describe('reinitialiserChampsMasques', () => {
   })
 
   it('laisse intacts les champs visibles', () => {
+    // `intolerance` reste à son défaut (false, non surchargé ci-dessous) : `nature` (visible_si
+    // 'intolerance == true') est donc MASQUÉ dans ce fixture, indépendamment de ce que ce test exerce
+    // (`traitements`/`HbA1c_actuelle`, VISIBLES ici). T-142/T-143 (P13/S3, 2026-08-05) : depuis le
+    // correctif de sûreté ci-dessus (`reinitialiserChampsMasques`, cf. sa docstring), TOUT champ masqué
+    // est désormais signalé dans `reinitialises` — y compris `nature`, dont la valeur ('aucune') coïncide
+    // avec son défaut et qui n'apparaissait donc JAMAIS dans `reinitialises` avant ce correctif (c'est
+    // exactement le bug de cascade découvert sur `profil_nocturne`, T-142). Ce test ne portait, avant
+    // aujourd'hui, que sur les champs VISIBLES : son assertion `toEqual([])` était accidentellement plus
+    // large qu'annoncé par son titre — elle vérifie ici ce que son nom promet, plus précisément.
     const avant: Criteria = { ...base(), intention: 'intensifier', traitements: ['sulfamide'], HbA1c_actuelle: 9 }
     const { criteria, reinitialises } = reinitialiserChampsMasques(CRITERES, avant)
     expect(criteria.traitements).toEqual(['sulfamide'])
     expect(criteria.HbA1c_actuelle).toBe(9)
-    expect(reinitialises).toEqual([])
+    expect(reinitialises).not.toContain('traitements')
+    expect(reinitialises).not.toContain('HbA1c_actuelle')
+    expect(reinitialises).toEqual(['nature'])
   })
 
   it('traite les masquages en cascade', () => {
@@ -146,6 +157,49 @@ describe('reinitialiserChampsMasques', () => {
     })
     expect(criteria).toEqual({ actif: false, intolerance: false, nature: 'aucune' })
     expect(reinitialises).toEqual(expect.arrayContaining(['intolerance', 'nature']))
+  })
+
+  /**
+   * T-142 (P13/S3, 2026-08-05) — DIAGNOSTIC DU PROFIL NOCTURNE, réduit à son cas minimal. Un `enum` dont
+   * la RÉPONSE choisie par le praticien coïncide avec sa 1re valeur déclarée (`valeurParDefaut` : « la 1re
+   * valeur déclarée » pour un `enum`) doit sortir de `reinitialises` — donc de `touched` chez l'appelant —
+   * exactement comme un `enum` répondu par sa 2ᵉ ou 3ᵉ valeur. AVANT le correctif de sûreté ci-dessus,
+   * `reinitialises` ne contenait JAMAIS ce nom dans ce cas précis (`actuel !== defaut` était faux dès le
+   * départ) : le champ restait `touched` malgré le masquage, en silence — mesuré au navigateur sur le nœud
+   * réel `insuline` (`profil_nocturne` = « Baisse continue », `valeurs[0]` du contenu).
+   */
+  it('un `enum` dont la valeur COÏNCIDE avec son défaut sort quand même de `reinitialises` une fois masqué (T-142, coïncidence de valeur)', () => {
+    const champCible: CritereEntree[] = [
+      { nom: 'porte', type: 'bool' },
+      // `cible` : 1re valeur déclarée = 'a', et c'est justement celle choisie ci-dessous — la coïncidence
+      // qui masquait le bug avant ce correctif.
+      { nom: 'cible', type: 'enum', valeurs: ['a', 'b', 'c'], visible_si: 'porte == true' },
+    ]
+    const { reinitialises, valeursEffacees } = reinitialiserChampsMasques(champCible, { porte: false, cible: 'a' })
+    expect(reinitialises).toContain('cible')
+    expect(valeursEffacees).toEqual(expect.arrayContaining([{ nom: 'cible', valeur: 'a' }]))
+  })
+
+  /**
+   * T-143 Étape 5 (P13/S3) — COMPAGNON DE `formLayout.test.ts:4/116` (le garde-fou R8 tenu par ce fichier
+   * depuis l'origine) : PENDANT le masquage, `criteria[nom]` vaut le défaut ET le nom est hors de
+   * l'ensemble « renseigné » côté moteur. La mémoire de restauration introduite par T-143
+   * (`DecisionNodeScreen.tsx`, hors de ce module) ne doit JAMAIS être observable par `evaluateNode` — ce
+   * test verrouille la partie de ce contrat que `formLayout.ts` peut vérifier seul, sans l'écran : la
+   * VALEUR reste le défaut, quel que soit ce que `reinitialises`/`valeursEffacees` signalent désormais en
+   * plus (l'extension de cette session n'change rien à `aMuter`, cf. sa docstring).
+   */
+  it('R8 tient toujours : pendant le masquage, la valeur reste le défaut et le nom est hors de `criteresRenseignes` (compagnon T-143)', () => {
+    const avant: Criteria = { ...base(), intention: 'intensifier', traitements: ['metformine'] }
+    const touchedAvant = new Set(['intention', 'traitements'])
+    const { criteria, reinitialises } = reinitialiserChampsMasques(CRITERES, { ...avant, intention: 'initier' }, touchedAvant)
+    // La valeur : le défaut d'un `liste`, une liste vide — jamais 'metformine' qui vient de disparaître.
+    expect(criteria.traitements).toEqual([])
+    // Le nom : simule `DecisionNodeScreen.tsx` (`touchedApres.delete(efface)`, l.508) — `criteresRenseignes`
+    // (touched ∪ preremplis côté écran) ne doit plus le contenir, ce fixture n'a pas de préremplissage.
+    const touchedApres = new Set(touchedAvant)
+    for (const efface of reinitialises) touchedApres.delete(efface)
+    expect(touchedApres.has('traitements')).toBe(false)
   })
 })
 
@@ -604,5 +658,184 @@ describe('appliquerPreremplissage — K6', () => {
     ]
     const r = appliquerPreremplissage(faux, { x: 'a', y: true }, new Set(['y']))
     expect(r.preremplis).toEqual([])
+  })
+})
+
+/**
+ * T-137 (P13/S1) — le pré-remplissage peut désormais poser une LISTE, et « aucun élément » (`[]`) en est
+ * une valeur comme une autre. Fixture inspirée de `prescription.yaml` (T-138) : `intention == initier`
+ * pré-remplit `traitements` à `[]` — exactement le mécanisme qui rend « Insuline d'initiation ».
+ */
+describe('appliquerPreremplissage — T-137 (préremplissage de liste, « aucun » compris)', () => {
+  const CRITERES_LISTE: CritereEntree[] = [
+    { nom: 'intention', type: 'enum', valeurs: ['initier', 'intensifier'] },
+    {
+      nom: 'traitements',
+      type: 'liste',
+      valeurs: ['metformine', 'sulfamide'],
+      visible_si: 'intention != initier',
+      preremplissage: [{ quand: 'intention == initier', valeur: [] }],
+    },
+  ]
+
+  it('une règle `valeur: []` sur un critère `liste` pose la liste vide et cite le critère dans `preremplis`', () => {
+    // Le critère part d'une valeur RÉELLE (comme un patient déclaré sous `optimiser` avant de basculer
+    // sur `initier`) : le point sous test ici est que la règle s'applique et pose `[]`, pas la
+    // ré-application sur un champ déjà à `[]` (couverte par le test « anti-clignotement » ci-dessous).
+    const r = appliquerPreremplissage(
+      CRITERES_LISTE,
+      { intention: 'initier', traitements: ['metformine'] },
+      new Set(['intention']),
+    )
+    expect(r.criteria.traitements).toEqual([])
+    expect(r.preremplis).toEqual(['traitements'])
+  })
+
+  it('la même règle sur un critère `enum`/`nombre` ne pose rien (garde-fou 1 : forme tableau réservée aux `liste`)', () => {
+    const criteres: CritereEntree[] = [
+      { nom: 'intention', type: 'enum', valeurs: ['initier', 'intensifier'] },
+      {
+        nom: 'cible',
+        type: 'enum',
+        valeurs: ['a', 'b'],
+        preremplissage: [{ quand: 'intention == initier', valeur: [] as unknown as string }],
+      },
+    ]
+    const r = appliquerPreremplissage(criteres, { intention: 'initier', cible: 'a' }, new Set(['intention']))
+    expect(r.preremplis).toEqual([])
+    expect(r.criteria.cible).toBe('a')
+  })
+
+  it('une `valeur: ["metformine", "inconnu"]` dont un élément n’est pas déclaré ne pose rien (garde-fou 2)', () => {
+    const criteres: CritereEntree[] = [
+      { nom: 'intention', type: 'enum', valeurs: ['initier', 'intensifier'] },
+      {
+        nom: 'traitements',
+        type: 'liste',
+        valeurs: ['metformine', 'sulfamide'],
+        preremplissage: [{ quand: 'intention == initier', valeur: ['metformine', 'inconnu'] }],
+      },
+    ]
+    const r = appliquerPreremplissage(criteres, { intention: 'initier', traitements: [] }, new Set(['intention']))
+    expect(r.preremplis).toEqual([])
+  })
+
+  it('rejouer le pré-remplissage sur un critère déjà à `[]` ne le remet PAS dans `preremplis` (garde-fou 3, anti-clignotement)', () => {
+    const premier = appliquerPreremplissage(
+      CRITERES_LISTE,
+      { intention: 'initier', traitements: ['metformine'] },
+      new Set(['intention']),
+    )
+    expect(premier.preremplis).toEqual(['traitements'])
+
+    // REJOUE avec la SORTIE du premier appel (le critère est maintenant à `[]`, exactement comme le
+    // ferait `DecisionNodeScreen` en rappelant `appliquerPreremplissage` après un autre champ édité) :
+    // sans le garde-fou de contenu, `[] !== []` (deux tableaux distincts) referait entrer le critère dans
+    // `preremplis` à chaque appel, et la mention « · calculé » clignoterait.
+    const second = appliquerPreremplissage(CRITERES_LISTE, premier.criteria, new Set(['intention']))
+    expect(second.preremplis).toEqual([])
+  })
+
+  it('un critère déjà `touched` n’est jamais pré-rempli (non-régression R1)', () => {
+    const r = appliquerPreremplissage(
+      CRITERES_LISTE,
+      { intention: 'initier', traitements: ['metformine'] },
+      new Set(['intention', 'traitements']),
+    )
+    expect(r.preremplis).toEqual([])
+    expect(r.criteria.traitements).toEqual(['metformine'])
+  })
+
+  it('un `quand` indéterminé ne pré-remplit rien (non-régression R7) — `intention` non renseignée', () => {
+    const r = appliquerPreremplissage(CRITERES_LISTE, { intention: 'initier', traitements: ['metformine'] }, new Set())
+    expect(r.preremplis).toEqual([])
+  })
+})
+
+/**
+ * CONTRAT T-138 (P13/S1) : un pré-remplissage masqué reste déterminé pour le moteur.
+ *
+ * POURQUOI CE TEST EXISTE, ET POURQUOI SON ASSERTION NE SE DEVINE PAS DE SA SEULE LECTURE. `preremplis`
+ * n'est PAS purgé quand un champ devient masqué, alors que `touched` l'est (`DecisionNodeScreen.tsx:508`,
+ * `reinitialiserChampsMasques` ne renvoie que `reinitialises`, jamais consommé pour vider `preremplis`).
+ * Conséquence : un critère masqué mais pré-rempli reste « déterminé » pour le moteur
+ * (`criteresRenseignes = touched ∪ preremplis`) — exactement l'effet dont T-138 a besoin pour que
+ * « Insuline d'initiation » se rende quand l'intention est *Initier*. Ce test rejoue la SÉQUENCE EXACTE
+ * de `DecisionNodeScreen.handleAnswer` (l.497-557 : `reinitialiserChampsMasques` PUIS
+ * `appliquerPreremplissage`, dans cet ordre) pour vérifier que le pipeline complet — pas seulement
+ * `appliquerPreremplissage` isolée — pose bien la liste vide ET la cite dans `preremplis`, MÊME QUAND la
+ * valeur posée est identique à la valeur par défaut (`[]` = `[]`, le cas exact de T-138 : rien à
+ * distinguer d'un champ jamais touché sinon la présence dans `preremplis`).
+ *
+ * Un refactoring innocent de `reinitialiserChampsMasques` qui purgerait aussi `preremplis` rouvrirait
+ * N25 sans qu'aucun autre test ne rougisse — c'est ce contrat qui le ferait rougir.
+ */
+describe('contrat T-138 — un critère pré-rempli puis masqué reste dans `preremplis`, donc dans `criteresRenseignes`', () => {
+  it('bascule intention → initier, sur un formulaire jamais touché : `traitements` masqué entre dans `preremplis`', () => {
+    const criteresEntree: CritereEntree[] = [
+      { nom: 'intention', type: 'enum', valeurs: ['initier', 'intensifier'] },
+      {
+        nom: 'traitements',
+        type: 'liste',
+        valeurs: ['metformine', 'sulfamide'],
+        visible_si: 'intention != initier',
+        preremplissage: [{ quand: 'intention == initier', valeur: [] }],
+      },
+    ]
+    const criteria = buildDefaultCriteria(criteresEntree)
+    const touched = new Set<string>()
+
+    // Reproduit `DecisionNodeScreen.handleAnswer('intention', 'initier')`, l.497-557 : l'ordre exact
+    // compte (`reinitialiserChampsMasques` AVANT `appliquerPreremplissage`).
+    const next = { ...criteria, intention: 'initier' }
+    const renseignesApres = new Set(touched).add('intention')
+    const { criteria: nettoye, reinitialises } = reinitialiserChampsMasques(criteresEntree, next, renseignesApres)
+    const touchedApres = new Set(touched).add('intention')
+    for (const efface of reinitialises) touchedApres.delete(efface)
+    const { criteria: avecPrerempli, preremplis } = appliquerPreremplissage(criteresEntree, nettoye, touchedApres)
+
+    expect(avecPrerempli.traitements).toEqual([])
+    expect(preremplis).toEqual(['traitements'])
+
+    // `criteresRenseignes` (DecisionNodeScreen.tsx:287) = `touched` ∪ `preremplis` : `traitements` y
+    // entre bien qu'il ne soit jamais dans `touched` (le champ est masqué, le praticien n'y touche pas).
+    const criteresRenseignes = new Set([...touchedApres, ...preremplis])
+    expect(criteresRenseignes.has('traitements')).toBe(true)
+    expect(touchedApres.has('traitements')).toBe(false)
+  })
+
+  it('un critère pré-rempli VISIBLE puis masqué par un changement ultérieur reste dans `preremplis` (reinitialiserChampsMasques ne le purge pas)', () => {
+    // Deuxième forme du contrat, plus proche de sa formulation littérale : le critère est D’ABORD
+    // pré-rempli alors qu'il est VISIBLE, PUIS un autre champ le masque. `reinitialiserChampsMasques`
+    // remet sa VALEUR à son défaut (sûreté R8) mais ne renvoie que `reinitialises` — jamais consommé pour
+    // vider un ensemble `preremplis`, qui vit entièrement côté appelant (React state, hors de ce module).
+    const criteresEntree: CritereEntree[] = [
+      { nom: 'porte', type: 'bool' },
+      {
+        nom: 'cible',
+        type: 'liste',
+        valeurs: ['x', 'y'],
+        visible_si: 'porte == true',
+        preremplissage: [{ quand: 'porte == true', valeur: ['x'] }],
+      },
+    ]
+    // État simulé : `cible` a déjà été pré-remplie à `['x']` pendant que `porte` était vraie.
+    const criteriaVisible = { porte: true, cible: ['x'] }
+    const preremplisAvant = new Set(['cible'])
+
+    // Le praticien répond « non » à `porte` : `cible` devient masquée.
+    const renseignes = new Set(['porte'])
+    const { criteria: nettoye, reinitialises } = reinitialiserChampsMasques(
+      criteresEntree,
+      { ...criteriaVisible, porte: false },
+      renseignes,
+    )
+    expect(nettoye.cible).toEqual([]) // remis au défaut (R8 : une valeur masquée ne pilote pas le moteur)
+    expect(reinitialises).toEqual(['cible'])
+
+    // `reinitialiserChampsMasques` ne connaît PAS `preremplis` : c'est à l'appelant de décider quoi en
+    // faire. `DecisionNodeScreen` ne le purge que de `touched` (l.508), jamais de `preremplis` — le
+    // contrat est donc que RIEN ici ne retire spontanément 'cible' de l'ensemble `preremplisAvant`.
+    expect(preremplisAvant.has('cible')).toBe(true)
   })
 })
