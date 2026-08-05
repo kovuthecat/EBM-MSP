@@ -155,6 +155,62 @@ describe('S7 — un critère partagé entre nœuds a un encodage unique', () => 
 })
 
 // ---------------------------------------------------------------------------------------------------
+// I32 (P13/S5, T-147) — un critère `partage: true` a le même encodage partout où il est partagé
+// ---------------------------------------------------------------------------------------------------
+
+/**
+ * PORTÉE DISTINCTE DE S7 CI-DESSUS, MÊME SI LE RECOUVREMENT EST LARGE AUJOURD'HUI. S7 vérifie la
+ * signature COMPLÈTE (`type`, `valeurs`, `derive`, `min`, `max`, `presomption_non`) de TOUT nom porté
+ * par plus d'un nœud, `partage` ou non — un filet de sûreté sur le CONTENU en général, qui existait
+ * déjà avant cette tâche. I32 vérifie une propriété plus étroite, mais avec une conséquence RUNTIME
+ * précise et DIFFÉRENTE : c'est exactement ce que lit `valeurCompatible` (`lib/sessionCriteres.ts`) pour
+ * décider si une valeur MÉMORISÉE peut être REPRISE par l'autre nœud — `type` et, pour un `enum`/
+ * `liste`, les `valeurs` déclarées. Ni `min`/`max` (qui bornent une VALEUR à l'instant de la reprise,
+ * pas la définition du critère — une valeur hors bornes du nœud lecteur est refusée au cas par cas,
+ * silencieusement, sans que l'encodage soit fautif pour autant) ni `presomption_non` (qui ne régit que
+ * le cas NON touché, jamais mémorisé — cf. l'entrée `traitements_en_cours` de
+ * `CRITERES_DIVERGENTS_CONNUS` ci-dessus, où c'est exactement le raisonnement qui autorise `partage`
+ * malgré une divergence de `presomption_non`) n'entrent dans cette signature réduite. Un critère qui
+ * échoue I32 promet un partage que `valeurCompatible` refusera TOUJOURS en silence (`type` différent) ou
+ * PARFOIS en silence (`valeurs` d'un `enum`/`liste` qui ne se recouvrent pas totalement) — c'est
+ * exactement le piège nommé par `plans/P13/S5.md` (« le partage sera refusé en silence »).
+ */
+function signaturePartage(critere: CritereEntree): string {
+  return JSON.stringify({ type: critere.type, valeurs: critere.valeurs })
+}
+
+describe('I32 — un critère `partage: true` a le même type (et les mêmes `valeurs`) dans tous les nœuds qui le partagent', () => {
+  const parNom = new Map<string, { noeud: string; signature: string }[]>()
+  for (const node of noeuds) {
+    for (const critere of node.criteres_entree) {
+      if (critere.partage !== true) continue
+      if (!parNom.has(critere.nom)) parNom.set(critere.nom, [])
+      parNom.get(critere.nom)!.push({ noeud: node.id, signature: signaturePartage(critere) })
+    }
+  }
+  const partages = [...parNom.entries()].filter(([, occurrences]) => occurrences.length > 1).sort()
+
+  it('au moins un critère `partage: true` est déclaré par plus d’un nœud (sinon ce test ne teste rien)', () => {
+    // Même garde-fou de vacuité que S7 ci-dessus. `poids` (T-147) suffit déjà à lui seul à le tenir vrai.
+    expect(partages.length).toBeGreaterThan(0)
+  })
+
+  it.each(partages.map(([nom, occurrences]) => [nom, occurrences] as const))(
+    'critère `partage: true` "%s" — même `type`, mêmes `valeurs` partout où il est partagé',
+    (nom, occurrences) => {
+      const signatures = new Set(occurrences.map((o) => o.signature))
+      expect(
+        signatures.size === 1,
+        `Le critère "${nom}" est déclaré \`partage: true\` avec un encodage différent selon les nœuds :\n` +
+          occurrences.map((o) => `  ${o.noeud} → ${o.signature}`).join('\n') +
+          `\nLe partage est alors promis et refusé en silence (\`valeurCompatible\`, ` +
+          `\`lib/sessionCriteres.ts\`) : aligner l'encodage, ou retirer \`partage\` d'un des deux côtés.`,
+      ).toBe(true)
+    },
+  )
+})
+
+// ---------------------------------------------------------------------------------------------------
 // S8 — tout nœud publié a des vignettes exécutables
 // ---------------------------------------------------------------------------------------------------
 

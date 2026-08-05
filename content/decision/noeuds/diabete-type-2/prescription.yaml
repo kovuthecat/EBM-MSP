@@ -79,6 +79,32 @@ criteres_entree:
     # INITIER = patient naïf par définition : la question n'a pas d'objet, le champ est masqué (et remis à
     # vide s'il avait été rempli sous une autre intention — cf. lib/formLayout.ts).
     visible_si: "intention != initier"
+    # PRÉ-REMPLISSAGE (T-137/T-138, P13/S1, 2026-08-04) — DÉFAUT N25 (glucotoxicité + cétonémie, HbA1c
+    # 11,4) : l'intention *Initier* masquait cette section SANS répondre le critère, et « Insuline
+    # d'initiation » (option de sécurité, bien écrite) restait « en attente » sans issue possible. Ce que
+    # la règle ci-dessous DIT : « à l'initiation, la valeur de départ de ce critère est aucun traitement ».
+    # Ce qu'elle ne dit PAS : que le moteur déduit un ÉTAT d'une INTENTION au sens interdit par R1
+    # (GRAMMAIRE-NOEUD.md) — la nuance tient à trois propriétés, à vérifier ensemble :
+    #  1. le critère reste `saisi`, jamais `derive` : `type`/`visible_si` ne bougent pas, il redevient
+    #     pleinement saisissable dès que l'intention change (bascule vers Intensifier, par ex.) ;
+    #  2. la valeur est SIGNALÉE (« · calculé, à vérifier ») partout où le champ est visible — propriété
+    #     NON OBSERVABLE ici puisque le champ est précisément masqué à l'initiation ; acceptable
+    #     seulement parce que (a) la valeur posée est l'ABSENCE, (b) elle est identique à la valeur PAR
+    #     DÉFAUT que `reinitialiserChampsMasques` impose de toute façon à tout critère masqué, et (c) le
+    #     cartouche cesse de réclamer ce critère — rien n'est donc affirmé en silence (R8). Ce n'est PAS
+    #     un précédent pour pré-remplir un champ masqué avec une valeur DIFFÉRENTE du défaut — l'invariant
+    #     I26 (`engine/banc/invariants-contenu.test.ts`) l'interdit ;
+    #  3. le praticien peut la CONTREDIRE — en changeant d'intention, le geste clinique juste : un patient
+    #     qui prend déjà quelque chose n'est pas dans une intention *Initier*.
+    # R11 (proposition, GRAMMAIRE-NOEUD.md, 2026-08-04) : un critère décisif ne peut pas vivre dans une
+    # section masquée sans issue — soit sa section reste accessible, soit il est DÉRIVÉ (même statut que
+    # la suggestion d'espérance de vie). C'est la seconde branche qui s'applique ici, dans sa forme
+    # PRÉ-REMPLISSAGE (proposé, modifiable), pas `derive` (imposé) — cf. la décision clé de T-137.
+    # ARBITRAGE RÉFÉRENT n° 1 (2026-08-04, `plans/P13/index.md` §Arbitrages, réponse OUI) : « Intention =
+    # Initier » vaut bien « aucun traitement antidiabétique en cours ».
+    preremplissage:
+      - quand: "intention == initier"
+        valeur: []
     # RÉORDONNANCEMENT TENTÉ PUIS ANNULÉ (2026-08-01) — regrouper sulfamide/gliptine/glinide dans la
     # grille de cases à cocher semblait purement présentationnel, mais `engine/banc/profils.ts`
     # (`sousEnsemblesStratifies`) tire les sous-ensembles du banc par un mélange de Fisher-Yates appliqué
@@ -266,16 +292,30 @@ criteres_entree:
   # `engine/banc/coherence-inter-noeuds.test.ts` exige un encodage identique pour un même nom partagé entre
   # nœuds, INDÉPENDAMMENT de `partage` (qui reste hors périmètre de cette tâche — aucune reprise de
   # session entre nœuds n'est demandée ici, seulement la conversion de la saisie).
+  # `partage` ajouté le 2026-08-05 (P13/S5, T-147, I3 de la revue de conception du 2026-08-04) : un
+  # poids mesuré est un fait OBJECTIF et STABLE à l'échelle d'une consultation — le cas d'école du
+  # critère d'inclusion de la tâche (`plans/P13/S5.md`). Il pilote les DOSES CALCULÉES sur `insuline`
+  # (0,1/0,2 U/kg) : le ressaisir y était le défaut mesuré par la revue (I3). MÊME ENCODAGE que
+  # `insuline.yaml` (nombre, min 35, max 250, aucun `derive`, aucune `valeurs`) — vérifié avant d'ajouter
+  # `partage` des deux côtés (I32, `engine/banc/coherence-inter-noeuds.test.ts`) : un partage promis sur
+  # un encodage divergent serait refusé en silence (`valeurCompatible`, `lib/sessionCriteres.ts`).
   - nom: poids
     type: nombre
     min: 35
     max: 250
     groupe: Ce qui oriente le choix
     debut_de_ligne: true
+    partage: true
   # `taille` EN MÈTRES (ex. 1,75) — choix explicite (S8.md, « choisis, et dis lequel dans le libellé » ;
   # cf. `lib/labels.ts`) : permet d'écrire l'IMC comme une simple CHAÎNE de deux divisions
   # (`poids / taille / taille`, cf. `IMC` ci-dessous), sans conversion cm → m à coder à part dans le
   # moteur — l'unité est portée par le libellé du champ, jamais par un nom de variable technique.
+  # `partage` ajouté le 2026-08-05 (P13/S5, T-147, I3) — même motif que `poids` ci-dessus : mesure
+  # objective, stable en consultation. AUCUN AUTRE NŒUD NE DÉCLARE `taille` AUJOURD'HUI (`insuline.yaml`
+  # n'a que `poids`, sans IMC) : ce partage est donc SANS EFFET tant qu'aucun second nœud ne le reprend —
+  # posé par cohérence avec `poids` et pour un futur nœud qui en aurait besoin, jamais retiré pour cette
+  # raison (un critère `partage` inerte aujourd'hui n'est pas un critère mal partagé, cf. tableau du
+  # bilan de session).
   - nom: taille
     type: nombre
     min: 1.4
@@ -285,6 +325,7 @@ criteres_entree:
     # `CritereEntree.unite_flexible`, `node.types.ts`.
     unite_flexible: true
     groupe: Ce qui oriente le choix
+    partage: true
   - nom: IMC
     type: nombre
     min: 14
@@ -2701,8 +2742,59 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.60"
+  version: "0.62"
   changelog:
+    - date: "2026-08-05"
+      auteur: "Claude Code — en attente de relecture référent (P13/S5, T-147)"
+      resume: >-
+        LE POIDS ET LA TAILLE CIRCULENT DANS LA CONSULTATION (T-147, I3 de la revue de conception du
+        2026-08-04) : `poids` et `taille` reçoivent `partage: true`. DÉFAUT CORRIGÉ : le poids, ressaisi
+        sur `insuline` alors qu'il vient d'être saisi ici, pilote pourtant les doses calculées de ce
+        nœud (0,1/0,2 U/kg) — c'est la valeur qui fait la valeur du nœud cible. `insuline.yaml` reçoit
+        le même ajout sur son propre `poids` dans la même session (les deux côtés doivent déclarer
+        `partage: true` pour qu'une valeur circule, cf. `lib/sessionCriteres.ts` `valeursReprises`) ;
+        encodage vérifié IDENTIQUE avant l'ajout (nombre, min 35, max 250, aucun `derive`) — invariant
+        I32 ajouté (`engine/banc/coherence-inter-noeuds.test.ts`) pour le garantir mécaniquement.
+        `taille` n'a aujourd'hui aucun second nœud consommateur (`insuline` n'a pas d'IMC) : partagée
+        par cohérence avec `poids` et pour un futur nœud, sans effet observable à ce jour.
+        REVUE COMPLÈTE DE LA LISTE `partage` (34 → 36 critères, les 6 nœuds du domaine, cf. le tableau
+        du bilan de session `plans/P13/S5.md`) : aucun autre AJOUT retenu (les candidats objectifs
+        restants — `insuffisance_cardiaque`, `cetonemie`, `denutrition`, `albuminurie`,
+        `hypoglycemie_recente`, `infections_uro_genitales_recidivantes` — ne sont déclarés par AUCUN
+        second nœud aujourd'hui : les marquer `partage` serait sans effet, non fait pour ne pas gonfler
+        le contenu sans bénéfice mesurable). UN PARTAGE EXISTANT SIGNALÉ, NON RETIRÉ (hors mandat de
+        cette tâche) : `risque_hypoglycemie_schema` (`partage: true` ici et sur `insuline.yaml`) est,
+        par sa PROPRE docstring (investigation P9/S7), un jugement qui « cumule deux lectures
+        irréductibles » selon le nœud qui le pose — c'est exactement le second cas disqualifiant du
+        critère d'inclusion de T-147 (« un fait dont la définition dépend du nœud qui le pose »). Signalé
+        au référent, cf. le bilan de session ; ne pas défaire d'autorité (ce n'était pas décidé par cette
+        tâche).
+    - date: "2026-08-04"
+      auteur: "Claude Code — en attente de relecture référent (P13/S1, T-138)"
+      resume: >-
+        L'INTENTION *INITIER* DÉCLARE L'ABSENCE DE TRAITEMENT — « INSULINE D'INITIATION » SE REND (T-137 +
+        T-138, plan P13, arbitrage référent n° 1 du 2026-08-04 : « Intention = Initier » vaut bien « aucun
+        traitement antidiabétique en cours »). DÉFAUT CORRIGÉ (N25 de la revue de conception Fable du
+        2026-08-04, D1+D2 de l'audit précédent) : un patient à HbA1c 11,4 %, glucotoxicité et cétonémie
+        recevait ZÉRO carte — l'intention *Initier* masque la section « Traitements en cours » sans
+        répondre le critère, et l'option « Insuline d'initiation » (sécurité, déjà bien écrite) restait
+        « en attente » sans issue. CORRECTIF : `traitements_en_cours` reçoit une règle
+        `preremplissage` (`quand: "intention == initier"`, `valeur: []`) — la valeur de départ à
+        l'initiation est « aucun traitement », proposée et non imposée, identique à la valeur par défaut
+        qu'un critère masqué reçoit de toute façon (R8), modifiable en changeant d'intention. Rendu
+        possible par T-137 (moteur, session parallèle du même plan) : `reglePreremplissage.valeur` accepte
+        désormais un tableau (dont `[]`) en plus d'une chaîne — jusqu'ici réservé aux critères
+        `enum`/`nombre`/`bool`. AUCUN CHANGEMENT DE `visible_si` : la section reste masquée à
+        l'initiation, comportement voulu (arbitrage référent confirmé). EFFET NUL SUR LE GOLDEN MASTER,
+        ET C'EST STRUCTUREL — le plan l'attendait mouvant, il ne bouge pas : `appliquerPreremplissage`
+        appartient à la seule couche formulaire (`DecisionNodeScreen.handleAnswer`) et n'est jamais
+        invoquée par `construireVueDecision`/`evaluateNode`, donc le banc, qui part de profils déjà
+        complets, ne peut par construction voir aucun effet de cette règle. La preuve de fonctionnement
+        vient du test de contrat unitaire et de la vérification navigateur, pas du banc — à savoir pour
+        toute session future qui toucherait au pré-remplissage. Invariant de banc ajouté (I26,
+        `engine/banc/invariants-contenu.test.ts`) : aucune règle `preremplissage` ne pose, sur un critère
+        masqué dans le même état, une valeur différente de sa valeur par défaut — empêche qu'un contenu
+        futur invoque ce même raisonnement de tolérance pour un cas où il ne vaudrait plus.
     - date: "2026-08-04"
       auteur: "Claude Code — en attente de relecture référent"
       resume: >-
