@@ -1,4 +1,4 @@
-# CARACTÉRISATION — INDÉTERMINATION (R7, DECISIONS.md D20) — nœud « prescription » (Traiter : initier, optimiser, intensifier)
+# CARACTÉRISATION — INDÉTERMINATION (R7, DECISIONS.md D20) — nœud « prescription » (Traiter : initier, intensifier, optimiser, déprescrire)
 #
 # Fichier SÉPARÉ de caracterisation.<id>.txt (profils COMPLETS, ligne de base stable, jamais
 # modifiée par ce lot) : tout profil ci-dessous a un `renseignes` PARTIEL, voire vide — c'est
@@ -45,7 +45,7 @@ Sortie :
     - Metformine :: à renseigner : intention, traitements_en_cours, dose_metformine, intolerance_traitement, nature_intolerance, DFG
     - Sulfamide (DFG < 30) :: à renseigner : intention, traitements_en_cours, DFG
     - iSGLT2 :: à renseigner : intention, traitements_en_cours, cetonemie
-    - Insuline d'initiation :: à renseigner : traitements_en_cours, HbA1c_actuelle, symptomes_glucotoxicite, cetonemie
+    - Insuline d'initiation :: à renseigner : traitements_en_cours, symptomes_glucotoxicite, cetonemie
     - iSGLT2 :: à renseigner : intention, traitements_en_cours, position_vs_cible, DFG, albuminurie, poids, taille, denutrition
     - AR GLP‑1 :: à renseigner : intention, traitements_en_cours, position_vs_cible, DFG, poids, taille, denutrition
     - Tirzépatide :: à renseigner : intention, traitements_en_cours, DFG, poids, taille, denutrition
@@ -235,7 +235,7 @@ Sortie :
     - Metformine (DFG < 30) :: à renseigner : intention, DFG
     - Sulfamide (DFG < 30) :: à renseigner : intention, DFG
     - iSGLT2 :: à renseigner : intention, cetonemie
-    - Insuline d'initiation :: à renseigner : HbA1c_actuelle, symptomes_glucotoxicite, cetonemie
+    - Insuline d'initiation :: à renseigner : symptomes_glucotoxicite, cetonemie
     - Gliptine (redondante) :: à renseigner : intention
     - Sulfamide :: à renseigner : intention, HbA1c_actuelle, DFG
     - Glinide :: à renseigner : intention, HbA1c_actuelle, DFG
@@ -273,7 +273,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
 Sortie :
   Famille « À faire d'emblée — sécurité » (exclusive: false) :
   - [securite] Insuline d'initiation
-      proposé parce que : cetonemie == true
+      proposé parce que : symptomes_glucotoxicite == true ; cetonemie == true
   Famille « Socle du traitement » (exclusive: false) :
   - [reco-officielle] Metformine
       proposé parce que : toujours
@@ -346,7 +346,7 @@ Sortie :
     - Sulfamide :: fragilite == true
   Options EN ATTENTE (indétermination, R7/D20) :
     - iSGLT2 :: à renseigner : cetonemie
-    - Insuline d'initiation :: à renseigner : cetonemie
+    - Insuline d'initiation :: à renseigner : symptomes_glucotoxicite, cetonemie
     - Optimiser l'agent mal toléré :: à renseigner : intolerance_traitement
     - AR GLP‑1 :: à renseigner : intolerance_traitement, nature_intolerance, denutrition
     - Tirzépatide :: à renseigner : intolerance_traitement, nature_intolerance, denutrition
@@ -381,7 +381,9 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
   ■ - risque_hypoglycemie_schema = faible
 
 Sortie :
-  (aucune option applicable — sortie vide)
+  Famille « À faire d'emblée — sécurité » (exclusive: false) :
+  - [securite] Insuline d'initiation
+      proposé parce que : symptomes_glucotoxicite == true ; cetonemie == true
   Alertes de nœud :
     - Contrôler la cétonémie capillaire (β‑hydroxybutyrate) : décompensation catabolique possible malgré une HbA1c non franchement élevée. ≥ 0,6 mmol/L → insuline d'initiation ; ≥ 3 mmol/L → urgence (insuline + hospitalisation). [attention]
     - Metformine CONTRE‑INDIQUÉE si DFG < 30 (RCP ANSM) : arrêter ; sulfamide aussi. Un iSGLT2 reste initiable jusqu'à DFG ≥ 20 (indication rénale). Ces limites portent sur l'ÉLIMINATION RÉNALE des agents, pas sur leur efficacité glycémique : l'AR GLP‑1 et l'insuline n'ont pas de contre‑indication liée au DFG et restent utilisables en dessous de 20. [attention]
@@ -394,7 +396,6 @@ Sortie :
     - Metformine :: à renseigner : intention, intolerance_traitement, nature_intolerance
     - Sulfamide (DFG < 30) :: à renseigner : intention
     - iSGLT2 :: à renseigner : intention, cetonemie
-    - Insuline d'initiation :: à renseigner : HbA1c_actuelle, cetonemie
     - Envisager l'insuline :: à renseigner : position_vs_cible
     - Sulfamide :: à renseigner : intention, HbA1c_actuelle
     - Glinide :: à renseigner : intention, HbA1c_actuelle
@@ -481,14 +482,14 @@ Sortie :
   Alertes de nœud :
     - Metformine CONTRE‑INDIQUÉE si DFG < 30 (RCP ANSM) : arrêter ; sulfamide aussi. Un iSGLT2 reste initiable jusqu'à DFG ≥ 20 (indication rénale). Ces limites portent sur l'ÉLIMINATION RÉNALE des agents, pas sur leur efficacité glycémique : l'AR GLP‑1 et l'insuline n'ont pas de contre‑indication liée au DFG et restent utilisables en dessous de 20. [attention]
     - iSGLT2 (en cours ou indiqué par la comorbidité) + infections génito‑urinaires récidivantes : réévaluer l'indication (ne pas initier / envisager l'arrêt) ; risque de gangrène de Fournier. Préférer une autre classe si une protection est requise. [attention]
-    - Refus des injections : privilégier une alternative ORALE (sémaglutide oral, iSGLT2, iDPP4) — les options injectables (AR GLP‑1 injectable, tirzépatide, association) sont reléguées en dernier. Si aucune alternative non injectable adaptée n'existe alors qu'un bénéfice cardio‑rénal prouvé est requis, un injectable reste à discuter avec le patient (le refus ne doit pas priver d'un traitement à bénéfice démontré). [attention]
+    - Refus des injections : privilégier une alternative ORALE réellement dispensée en France — un iSGLT2 d'abord, une gliptine à défaut. Le sémaglutide oral n'en est pas une : l'avis de la HAS lui est défavorable au remboursement, et il n'est de fait pas disponible en officine. Les options injectables (AR GLP‑1, tirzépatide, association des deux) passent en dernier. Si aucune alternative orale adaptée n'existe alors qu'un bénéfice cardio‑rénal prouvé est requis, un injectable reste à discuter avec le patient : le refus ne doit pas le priver d'un traitement à bénéfice démontré. [attention]
   Options écartées (sécurité, R4) :
     - Metformine :: DFG < 30
   Options EN ATTENTE (indétermination, R7/D20) :
     - Metformine (DFG < 30) :: à renseigner : traitements_en_cours
     - Sulfamide (DFG < 30) :: à renseigner : traitements_en_cours
     - iSGLT2 :: à renseigner : traitements_en_cours, cetonemie
-    - Insuline d'initiation :: à renseigner : traitements_en_cours, HbA1c_actuelle, symptomes_glucotoxicite, cetonemie
+    - Insuline d'initiation :: à renseigner : traitements_en_cours, symptomes_glucotoxicite, cetonemie
     - iSGLT2 :: à renseigner : traitements_en_cours, poids, taille, denutrition
     - AR GLP‑1 :: à renseigner : traitements_en_cours, poids, taille, denutrition
     - Tirzépatide :: à renseigner : traitements_en_cours, poids, taille, denutrition
@@ -541,6 +542,7 @@ Sortie :
     - Metformine :: DFG < 30
   Options EN ATTENTE (indétermination, R7/D20) :
     - Sulfamide (DFG < 30) :: à renseigner : intention
+    - Insuline d'initiation :: à renseigner : symptomes_glucotoxicite
     - Sulfamide :: à renseigner : intention
     - Désintensifier : alléger la charge thérapeutique :: à renseigner : intention, position_vs_cible
     - Sulfamide :: à renseigner : intention, position_vs_cible
@@ -581,7 +583,7 @@ Sortie :
     - Metformine (DFG < 30) :: à renseigner : intention, traitements_en_cours, DFG
     - Metformine :: à renseigner : intention, traitements_en_cours, dose_metformine, intolerance_traitement, nature_intolerance, DFG
     - Sulfamide (DFG < 30) :: à renseigner : intention, traitements_en_cours, DFG
-    - Insuline d'initiation :: à renseigner : traitements_en_cours, HbA1c_actuelle
+    - Insuline d'initiation :: à renseigner : traitements_en_cours
     - iSGLT2 :: à renseigner : intention, traitements_en_cours, DFG, albuminurie, poids, denutrition
     - AR GLP‑1 :: à renseigner : intention, traitements_en_cours, DFG, poids, denutrition
     - Tirzépatide :: à renseigner : intention, traitements_en_cours, poids, denutrition
@@ -687,7 +689,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
 Sortie :
   Famille « À faire d'emblée — sécurité » (exclusive: false) :
   - [securite] Insuline d'initiation
-      proposé parce que : HbA1c_actuelle >= 10 AND symptomes_glucotoxicite == true ; cetonemie == true
+      proposé parce que : symptomes_glucotoxicite == true ; cetonemie == true
   Famille « Socle du traitement » (exclusive: false) :
   - [reco-officielle] Metformine
       proposé parce que : toujours
@@ -696,7 +698,7 @@ Sortie :
     - Metformine : dose maximale 2 000 mg/j si DFG 45‑59 (RCP ANSM) ; revoir au préalable les facteurs de risque d'acidose lactique. [attention]
     - Cohérence : HbA1c ≥ 9 % alors que le patient est déclaré à l'objectif ou en dessous. Aucune cible individualisée ne dépasse 9 % (la bande la plus large est « < 9 % », réservée au sujet âgé dépendant) — vérifier l'objectif retenu : une INTENSIFICATION est probablement indiquée. [attention]
   Options écartées (sécurité, R4) :
-    - iSGLT2 :: symptomes_glucotoxicite == true ; cetonemie == true
+    - iSGLT2 :: cetonemie == true
   Options EN ATTENTE (indétermination, R7/D20) :
     - Sulfamide :: à renseigner : intention
     - Désintensifier : alléger la charge thérapeutique :: à renseigner : intention

@@ -7,7 +7,10 @@
 id: cible-glycemique
 domaine: diabete-type-2
 titre: "Fixer la cible d'HbA1c"
-population_cible: "Adulte DT2, hors grossesse, hors DT1, hors décompensation aiguë."
+# `icone` ajouté 2026-08-05 (T-149, amélioration esthétique de l'écran de sélection des nœuds) — cible :
+# ce nœud fixe un objectif chiffré, cf. `shared/icons/paths.ts`.
+icone: cible
+population_cible: "Adulte DT2 (hors DT1, grossesse, décompensation aiguë)."
 selection: ordered-first-match
 argumentaire_exhaustif: "cible-glycemique.argumentaire.md"
 criteres_entree:
@@ -53,21 +56,43 @@ options:
       - "esperance_vie == limitee"
       - "fragilite == true OR comorbidite_grave == true"
     avantages:
-      - "Évite l'hyperglycémie symptomatique et le sur-traitement en fin de vie ; priorité à la qualité de vie."
+      - "Évite l'hyperglycémie symptomatique tout en écartant le sur-traitement."
+      - "Donne la priorité à la qualité de vie."
     inconvenients:
       - "Vise le confort, pas la prévention des complications (bénéfice non attendu à cet horizon)."
-    effet_attendu: "non chiffrable"
+    effet_attendu: >-
+      Non chiffrable : aucun essai n'a testé une cible aussi haute. Ce que les essais mesurent, c'est le
+      coût du serrage inverse — l'hypoglycémie sévère est multipliée par 2 à 2,5 sous contrôle intensif
+      (Boussageon : risque relatif 2,33 ; Turnbull/CONTROL : 2,48), sans réduction de la mortalité
+      toutes causes (1,04, non significatif). C'est ce coût qu'une cible haute évite.
+    delai_benefice: "immédiat pour le confort ; non établi pour toute prévention de complication"
     niveau_preuve: tres_faible
+    references:
+      - boussageon
+      - turnbull-control
   - intitule: "Cible ≤ 8 %"
     role: geste
     conditions:
       - "fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true"
     avantages:
-      - "Réduit le risque d'hypoglycémie sévère ; adapté au sujet fragile, à comorbidité grave (maladie cardiovasculaire évoluée, IRC sévère) ou à antécédent cardiovasculaire établi."
+      - "Réduit le risque d'hypoglycémie sévère."
+      - "Écarte le sur-traitement, dont le risque dépasse ici le bénéfice attendu."
     inconvenients:
       - "Moindre bénéfice microvasculaire à très long terme."
-    effet_attendu: "Pas de bénéfice dur démontré à cet horizon ; bénéfice principal = réduction du risque hypoglycémique (fragile, comorbidité grave) et prudence chez l'antécédent cardiovasculaire établi (ACCORD : surmortalité sous contrôle intensif dans une population à ~35 % de maladie CV)."
+    effet_attendu: >-
+      Chez le diabète installé, le serrage glycémique n'a démontré aucun bénéfice sur critère dur : la
+      mortalité toutes causes n'est pas réduite (méta-analyses sur données individuelles : 1,04, non
+      significatif). Ce qui est mesuré, c'est son coût — l'hypoglycémie sévère est multipliée par 2 à
+      2,5 (Boussageon : risque relatif 2,33 ; Turnbull/CONTROL : 2,48). Dans ACCORD, mené chez des
+      patients dont 35 % avaient une maladie cardiovasculaire, viser moins de 6 % (6,4 % atteint) a
+      produit une surmortalité : rapport de risque 1,22, soit environ un décès supplémentaire pour
+      100 patients en trois ans et demi.
+    delai_benefice: "non établi — aucun essai n'a testé cette bande de cible, et aucun bénéfice sur critère dur n'est démontré chez le diabète installé"
     niveau_preuve: faible
+    references:
+      - accord
+      - boussageon
+      - turnbull-control
   - intitule: "Cible ~6,5 % (6,5–7 %)"
     role: geste
     conditions:
@@ -86,15 +111,29 @@ options:
       "comorbidite_grave == false": "Aucune comorbidité grave"
       "fragilite == false": "Patient non fragile"
     avantages:
-      - "Bénéfice microvasculaire et effet legacy (IDM/mortalité différés, profil UKPDS du sujet jeune) si atteint sans hypoglycémie."
+      - "Bénéfice microvasculaire, à condition que la cible soit atteinte sans hypoglycémie."
+      - "Seule situation où un bénéfice différé sur l'infarctus et la mortalité a été observé, dans le suivi prolongé d'UKPDS."
     inconvenients:
-      - "Aucun bénéfice de mortalité prouvé à court terme ; risque si atteint par sulfamide/insuline."
-    effet_attendu: "Gain surtout microvasculaire (substitution) ; bénéfice dur différé (legacy) chez le sujet jeune récemment diagnostiqué."
+      - "Aucun bénéfice de mortalité démontré à court terme."
+      - "Ne vaut que si la cible est atteinte sans hypoglycémie : sous sulfamide ou sous insuline, c'est le traitement qu'il faut revoir avant l'objectif."
+    effet_attendu: >-
+      Gain surtout microvasculaire, et sur des critères de substitution : dans ADVANCE, 6,5 % contre
+      7,3 % réduit le composite macrovasculaire et microvasculaire (rapport de risque 0,90), un gain
+      porté par la néphropathie, sans effet sur la mortalité. Bénéfice différé sur critère dur : dans
+      UKPDS, chez des patients nouvellement diagnostiqués, le suivi prolongé au-delà de l'essai montre
+      13 % de mortalité toutes causes en moins et 15 % d'infarctus du myocarde en moins — non retrouvés
+      chez le diabète ancien (VADT à 15 ans, ADVANCE-ON). Contrepartie mesurée : hypoglycémie sévère
+      plus fréquente sous contrôle intensif (ADVANCE : rapport de risque 1,86).
+    delai_benefice: "10 ans d'essai pour le bénéfice microvasculaire (UKPDS) ; au-delà pour la mortalité et l'infarctus, apparus seulement dans le suivi prolongé"
     niveau_preuve: faible
+    references:
+      - advance
+      - ukpds-80
+      - vadt
     contre_indications:
       - texte: "Antécédent cardiovasculaire établi"
         condition: "antecedent_cv == true"
-      - "Schéma à risque d'hypoglycémie"
+      - "Traitement exposant à l'hypoglycémie (sulfamide, insuline)"
       - "Rétinopathie préexistante : éviter une baisse rapide de l'HbA1c (risque d'aggravation)"
   - intitule: "Cible ≤ 7 %"
     role: repli
@@ -109,11 +148,20 @@ options:
     motifs:
       "default": "ni fragilité, ni comorbidité grave, ni antécédent cardiovasculaire, ni espérance de vie limitée : situation intermédiaire, en dehors des critères qui feraient basculer vers une cible plus prudente (< 9 % ou ≤ 8 %) ou plus stricte (~6,5 %)"
     avantages:
-      - "Compromis pour la majorité des patients."
+      - "Compromis pour la majorité des patients : c'est la cible par défaut des recommandations françaises comme internationales."
     inconvenients:
-      - "Bénéfice macrovasculaire/mortalité non démontré par le seul serrage glycémique."
-    effet_attendu: "Réduction de l'IDM non fatal (méta-analyses), pas de la mortalité ; bénéfice absolu modeste."
+      - "Ni la mortalité ni les événements macrovasculaires durs ne sont réduits par le seul serrage glycémique."
+    effet_attendu: >-
+      Sur l'ensemble des essais de contrôle intensif, le seul gain est l'infarctus du myocarde non
+      fatal, réduit d'environ 15 % en relatif (Turnbull/CONTROL et Boussageon donnent 0,85 l'un et
+      l'autre) ; le bénéfice absolu reste modeste. La mortalité toutes causes n'est pas réduite (1,04,
+      non significatif) et l'accident vasculaire cérébral non plus. En regard, l'hypoglycémie sévère est
+      multipliée par 2 à 2,5.
+    delai_benefice: "3 ans et demi à 10 ans — durée des grands essais de contrôle glycémique (ACCORD arrêté à trois ans et demi, UKPDS suivi 10 ans)"
     niveau_preuve: faible
+    references:
+      - turnbull-control
+      - boussageon
 # P10/S5 (T-082) : premier `cadrage` de ce nœud, patron `statine`/`insuline`. Périmètre relevé par la
 # recette référent — un périmètre ASSUMÉ, pas un défaut : ce nœud répond à « quelle cible viser », jamais
 # à « où en est ce patient par rapport à elle » (c'est `prescription`, via `position_vs_cible`/
@@ -121,23 +169,27 @@ options:
 # LISTE À VALIDER PAR LE RÉFÉRENT (cf. bilan de session).
 cadrage:
   - >-
-    Ce nœud fixe la cible d'HbA1c à viser ; il ne confronte jamais cette cible à l'HbA1c réelle du patient
+    Cet écran fixe la cible d'HbA1c à viser ; il ne confronte jamais cette cible à l'HbA1c réelle du patient
     (l'écart à l'objectif, le constat d'échec ou de réussite du traitement en cours) — cette lecture relève
-    du nœud « Traiter ». Il ne dit rien non plus du délai auquel réévaluer la cible fixée.
+    de « Traiter ». Il ne dit rien non plus du délai auquel réévaluer la cible fixée.
+  # Volet « choix de l'outil » de l'incertitude sur l'ancienneté du diabète : l'entrée `incertitudes`
+  # correspondante ne porte plus que ce que la DONNÉE ne tranche pas, ce qui relève de la conduite de
+  # l'outil est ici.
+  - >-
+    Une ancienneté de diabète élevée ne suffit pas, à elle seule, à relâcher la cible proposée : elle
+    n'agit ici qu'en réservant la cible la plus stricte aux diabètes qui évoluent depuis moins de cinq
+    ans. Un relâchement à ≤ 8 % demande un autre motif — fragilité, comorbidité grave, antécédent
+    cardiovasculaire ou espérance de vie limitée.
 argumentaire: >
-  Aucun ECR n'a comparé des bandes de cible étroites : les seuils sont extrapolés. Chez le diabète
-  établi (ACCORD, ADVANCE, VADT), le contrôle intensif n'apporte pas de bénéfice de mortalité ni
-  macrovasculaire dur ; seul l'IDM non fatal est modestement réduit, au prix d'un risque
-  d'hypoglycémie sévère multiplié par ~2 à 2,5. ACCORD (6,4 vs 7,5 %) a montré une surmortalité
-  (HR 1,22) dont le mécanisme reste inexpliqué ; ADVANCE a atteint 6,5 % sans surmortalité, ce qui
-  suggère — sans le démontrer, comparaison indirecte — que le danger tient à une stratégie de serrage
-  agressive plutôt qu'au niveau atteint. Le bénéfice microvasculaire est robuste mais surtout de
-  substitution ; l'effet legacy (mortalité/IDM différés) n'est établi que dans le profil UKPDS (sujet
-  jeune, diabète récent), non répliqué chez le diabète installé (VADT à 15 ans, ADVANCE-ON). D'où une
-  cible individualisée : ~6,5 % réservée au sujet jeune récemment diagnostiqué, sans maladie
-  cardiovasculaire et sans risque hypoglycémique ; ≤7 % par défaut ; relâchement (≤8 %, voire <9 %)
-  chez le fragile, la comorbidité grave ou l'espérance de vie limitée. Garde-fou : une baisse rapide
-  de l'HbA1c peut aggraver une rétinopathie préexistante.
+  Aucun essai n'a comparé des bandes de cible étroites : les seuils affichés sont extrapolés. C'est cela
+  que gradue le badge de preuve — la certitude sur le chiffre visé, non la solidité de l'individualisation,
+  qui ne fait pas débat. Chez le diabète installé, serrer la glycémie n'apporte ni bénéfice de mortalité ni
+  bénéfice macrovasculaire dur ; seul l'infarctus non fatal baisse, au prix d'une hypoglycémie sévère
+  multipliée par 2 à 2,5. Le bénéfice microvasculaire est réel, mais surtout de substitution. Le bénéfice
+  différé sur la mortalité n'a été observé que chez le sujet jeune récemment diagnostiqué, jamais chez le
+  diabète ancien. D'où quatre bandes, du plus strict au plus prudent : ~6,5 % quand ce bénéfice différé est
+  plausible et le risque hypoglycémique faible ; ≤ 7 % par défaut ; ≤ 8 %, puis < 9 %, quand la fragilité,
+  la comorbidité grave, l'antécédent cardiovasculaire ou l'espérance de vie limitée prennent le pas. Garde-fou : une baisse rapide de l'HbA1c peut aggraver une rétinopathie préexistante.
 sources:
   references_primaires:
     - id: accord
@@ -176,22 +228,23 @@ sources:
       type_critere: dur
       lien: "https://doi.org/10.1136/bmj.d4169"
     - id: cochrane-hemmingsen
-      titre: "Cochrane (Hemmingsen) — RETIRÉE 2015 (COI non déclaré) ; résultats non invalidés"
+      titre: "Cochrane (Hemmingsen) — revue retirée en 2015 pour conflit d'intérêts non déclaré, résultats non invalidés"
       annee: 2013
       type_critere: dur
       lien: "https://doi.org/10.1002/14651858.CD008143.pub3"
   synthese_critique:
     donnee: >-
-      Aucun essai n'a comparé de bandes de cible étroites (extrapolation) : le risque d'hypoglycémie
-      sévère double à triple sous contrôle intensif (Boussageon, méta-analyse BMJ 2011, RR ~2,3) sans
-      bénéfice de mortalité démontré chez le diabète installé, et ACCORD a montré une surmortalité
-      inexpliquée au serrage agressif (HR 1,22, 6,4 vs 7,5 %) quand ADVANCE a atteint 6,5 % sans
-      surmortalité — d'où une cible plus prudente : viser ≈ 7 % les premières années puis ≈ 7,5 %,
-      avec relâchement (7,5-8,5 %, voire 8-9 %) chez l'âgé/fragile, la complication vasculaire majeure,
-      l'affection grave associée ou l'espérance de vie < 5 ans, et une déprescription envisagée si
-      HbA1c < 6,5 % sous agent hypoglycémiant — hors du profil UKPDS (sujet jeune, diabète récent,
-      sans maladie cardiovasculaire). Individualiser plutôt qu'appliquer une bande unique ; éviter le
-      sur-traitement reste l'objectif, pas la baisse d'HbA1c en soi.
+      Aucun essai n'a comparé de bandes de cible étroites : les seuils fins sont extrapolés. Sous contrôle
+      intensif, le risque d'hypoglycémie sévère double à triple (Boussageon 2011 : risque relatif 2,33),
+      sans bénéfice de mortalité démontré chez le diabète installé. ACCORD a montré une surmortalité
+      inexpliquée au serrage agressif (rapport de risque 1,22, pour 6,4 % contre 7,5 %) là où ADVANCE
+      atteignait 6,5 % sans surmortalité. D'où une cible plus prudente : viser environ 7 % les premières
+      années, puis environ 7,5 % ; relâcher entre 7,5 et 8,5 %, voire entre 8 et 9 %, chez le sujet âgé ou
+      fragile, en cas de complication vasculaire majeure, d'affection grave associée ou d'espérance de vie
+      inférieure à 5 ans ; envisager d'alléger le traitement si l'HbA1c descend sous 6,5 % sous agent
+      hypoglycémiant. Le sujet jeune, récemment diagnostiqué et sans maladie cardiovasculaire fait
+      exception. Individualiser plutôt qu'appliquer une bande unique : l'objectif est d'éviter le
+      sur-traitement, pas de faire baisser l'HbA1c en soi.
     appuis:
       - accord
       - advance
@@ -227,37 +280,75 @@ sources:
           L'outil vise plutôt ~7 % pour le même patient, et propose d'alléger le traitement en dessous de
           6,5 % sous agent hypoglycémiant.
         appui: >-
-          Le risque d'hypoglycémie sévère double à triple sous contrôle intensif (Boussageon 2011,
-          méta-analyse BMJ, RR ~2,3) sans bénéfice de mortalité démontré chez le diabète installé, et
-          ACCORD a montré une surmortalité inexpliquée au serrage agressif (HR 1,22 pour 6,4 % contre
-          7,5 %) là où ADVANCE atteignait 6,5 % sans surmortalité. Aucun essai n'ayant comparé des bandes
-          de cible étroites, la différence entre 6,5 et 7 % relève d'une extrapolation des deux côtés —
-          l'outil choisit celle qui expose le moins.
+          Sous contrôle intensif, le risque d'hypoglycémie sévère double à triple (Boussageon 2011 :
+          risque relatif 2,33), sans bénéfice de mortalité démontré chez le diabète installé. ACCORD a
+          montré une surmortalité inexpliquée au serrage agressif (rapport de risque 1,22, pour 6,4 %
+          contre 7,5 %) là où ADVANCE atteignait 6,5 % sans surmortalité. Aucun essai n'ayant comparé des
+          bandes de cible étroites, la différence entre 6,5 et 7 % relève d'une extrapolation des deux
+          côtés — l'outil choisit celle qui expose le moins.
     explication: >-
       Les deux lectures s'accordent sur l'essentiel : l'HbA1c est un critère intermédiaire et non une fin,
       la cible s'individualise, et le sur-traitement est le risque principal. La HAS elle-même reconnaît
       l'absence de lien démontré entre la baisse de l'HbA1c et la morbi-mortalité. L'écart ne porte donc
       pas sur la logique, mais sur un seul chiffre, dans un seul profil.
 incertitudes:
-  - "Cible optimale exacte (aucune bande étroite testée en ECR)."
-  - "Mécanisme de la surmortalité d'ACCORD (inexpliqué)."
-  - "Transposabilité à l'ère des GLP-1 RA / iSGLT2 (essais pré-2015)."
+  - "Cible optimale exacte : aucune bande étroite n'a été testée en essai randomisé."
+  - "Mécanisme de la surmortalité d'ACCORD : inexpliqué, l'hypoglycémie ayant été écartée par les analyses."
   - >-
-    Le rôle de l'ancienneté du diabète prise ISOLÉMENT (> 10 ans, sans autre facteur) sur l'assouplissement
-    de la cible reste incertain : cet outil ne l'utilise pas seule pour relâcher la cible à ≤ 8 % — position
-    prudente, cohérente avec la HAS, qui elle non plus n'associe l'ancienneté à un relâchement de cible qu'en
-    présence d'hypoglycémies, jamais isolément (cf. `argumentaire`, tableau HAS), et avec la même exigence
-    retenue pour la statine (l'ancienneté seule n'y suffit pas non plus, il faut aussi une atteinte d'organe).
-    `anciennete_diabete_annees` continue d'agir ailleurs dans ce nœud (borne stricte ~6,5 % via `< 5 ans`).
-    Aucun essai ne teste directement l'ancienneté isolée comme critère de relâchement de cible : le choix
-    reste donc prudent plutôt que définitivement validé par la preuve.
+    Transposabilité aux traitements d'aujourd'hui : les essais de contrôle glycémique sont antérieurs à la
+    diffusion des agonistes du récepteur du GLP-1 et des inhibiteurs de SGLT2, qui réduisent la mortalité
+    cardiovasculaire et rénale indépendamment de l'HbA1c.
+  - "Valeur du temps passé dans la cible glycémique, mesuré en continu, sur les critères durs."
+  - >-
+    Effet propre de l'ancienneté du diabète, indépendamment des hypoglycémies : aucun essai ne l'a testée
+    seule comme critère de relâchement de la cible, et la table officielle ne l'associe à une cible plus
+    haute qu'en présence d'hypoglycémies.
 veille_liee: []
 meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude Code"
   statut: valide
-  version: "2.13"
+  version: "2.15"
   changelog:
+    - date: "2026-08-05"
+      auteur: "Claude Code (T-149)"
+      resume: >-
+        Ajout de `icone: cible` — purement esthétique (écran de sélection des nœuds), aucune
+        `conditions`/`prerequis`/`exclusions`/`priorite`/critère touchés. Ne remet pas en cause le
+        `statut: valide` du nœud.
+    - date: "2026-08-05"
+      auteur: "Claude Code — en attente de relecture clinique"
+      resume: >-
+        PASSE DE RÉDACTION SUR LES QUATRE NIVEAUX DE LECTURE (aucune `conditions`/`prerequis`/
+        `exclusions`/`priorite`/`role`/`famille`/`niveau_preuve` touchée, aucune clé de `motifs`
+        modifiée, aucun critère d'entrée touché). (1) PANNEAU « ÉTAT DES PREUVES » : les quatre options
+        reçoivent enfin des `references` (ids déjà présents dans `sources.references_primaires`) — la
+        ligne « D'après : » était vide sur les quatre cartes. « Cible < 9 % » et « Cible ≤ 7 % » citent
+        Boussageon et Turnbull/CONTROL ; « Cible ≤ 8 % » y ajoute ACCORD ; « Cible ~6,5 % » cite ADVANCE,
+        UKPDS 80 et VADT. (2) Les quatre `effet_attendu` sont réécrits sur ce que les essais ont MESURÉ
+        (chiffre, population, comparateur) : « non chiffrable » nu sur « < 9 % » devenait un panneau
+        vide, et celui de « ≤ 8 % » mélangeait la mesure et la justification du déclencheur, déjà rendue
+        par « Proposé parce que ». Aucun chiffre nouveau : tous proviennent de l'argumentaire exhaustif.
+        (3) Les quatre options reçoivent un `delai_benefice`, absent jusqu'ici (R2). (4) `avantages` de
+        « ≤ 8 % » : l'énumération « fragile, comorbidité grave, antécédent cardiovasculaire » recopiait
+        les quatre branches de sa condition — retirée (R6). Une idée par puce sur les quatre cartes.
+        (5) `argumentaire` resserré de 191 à ~150 mots : il porte la LOGIQUE de hiérarchisation, le
+        détail d'essai (rapport de risque 1,22, 6,4 contre 7,5 %, ADVANCE à 6,5 %) restant à l'argumentaire
+        exhaustif, où il figure déjà. Une phrase y dit ce que gradue le badge de preuve : la certitude sur
+        le chiffre visé, non la solidité de la démarche d'individualisation. (6) `incertitudes` : la
+        dernière entrée parlait de l'outil et citait un nom de champ et une expression de règle — réécrite
+        sur la donnée seule ; ce qui relève de la conduite de l'outil descend en `cadrage` (2ᵉ position de
+        lecture ajoutée). Ajout de l'incertitude sur le temps passé dans la cible, qui figurait à l'exhaustif
+        et manquait ici ; sigles développés. (7) `synthese_critique.donnee` et `divergences[0].appui` :
+        phrases de plus de 100 mots scindées, sigles remplacés par leur forme française. (8) Titre de la
+        référence Cochrane : capitales d'emphase et sigle non développé remplacés par une phrase lisible.
+        (9) Argumentaire exhaustif : mention de statut de travail retirée en tête ; les deux marqueurs de
+        vérification en attente et le renvoi à un chemin de dépôt retirés (chiffres jamais présents, donc
+        aucune perte) ; la note finale ne conserve que la réserve utile au lecteur (les nombres de patients
+        à traiter sont des ordres de grandeur) ; le paragraphe de position critique s'appuie désormais sur
+        les essais et non sur le nom des revues de synthèse, conformément au retrait de leur canal
+        d'affichage ; « Convergence forte (divergence faible) » harmonisé avec le YAML, qui déclare une
+        divergence ; sigles développés à leur première apparition.
     - date: "2026-08-04"
       auteur: "Claude Code — en attente de relecture référent"
       resume: >-

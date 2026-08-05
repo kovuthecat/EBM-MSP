@@ -473,6 +473,31 @@ function construireSequences(
  * saisissables), moins pour un petit nœud (ex. `statine`, 6 critères). Purement mécanique (ne lit que
  * `.length`, ne connaît aucun nom de nœud ni de critère) : un futur domaine en hérite sans réglage.
  *
+ * TENTATIVE ×4 (320) ABANDONNÉE le 2026-08-05 (T-148) — DIAGNOSTIC LAISSÉ ICI POUR LA PROCHAINE TÂCHE.
+ * La stratégie 2 (séquences stratifiées INDÉPENDANTES par critère, cf. docstring module) garantit la
+ * couverture marginale de chaque critère PRIS SÉPARÉMENT, jamais la coïncidence JOINTE d'une dizaine de
+ * critères sur leur valeur « bénigne » au même indice de profil — sur `prescription` (~10 critères
+ * pertinents pour un patient naïf sans aucune indication ni signe de gravité), la probabilité jointe est
+ * de l'ordre de 1/10 000, largement sous les 1 840 profils actuels. Symptôme observé : la carte de repli
+ * « Mesures hygiéno‑diététiques seules — réévaluer » (patient naïf, déjà à l'objectif, aucune
+ * comorbidité) devenue injoignable sur le banc APRÈS la levée de l'exclusion glucotoxicité sur
+ * iSGLT2/AR GLP‑1/insuline (même tâche) — les deux seuls profils qui la couvraient jusque-là combinaient
+ * glucotoxicité + objectif atteint, exactement le trou que ce correctif ferme autrement. VÉRIFIÉ À LA
+ * MAIN (profil construit hors banc, hors régression) : la carte reste sémantiquement correcte — c'est un
+ * angle mort de l'ÉCHANTILLONNAGE, pas un défaut de contenu (cf. `docs/decision/...` si un correctif de
+ * contenu était suspecté, ce n'est pas le cas ici).
+ * ×4 (320) retrouvait bien un profil joint bénin sur `prescription` (7 360 profils, coverage OK,
+ * ~16 s pour ce seul fichier) — mais CE PARAMÈTRE EST GÉNÉRIQUE (invariant CLAUDE.md 5, aucun nom de
+ * nœud) : il s'applique à TOUS les nœuds, et a fait TIMEOUT deux tests indépendants du banc
+ * (`invariants-contenu.test.ts`, I16 sur `insuline`/`prescription` et I26 sur `prescription`) qui portent
+ * un délai codé EN DUR à 5000 ms au lieu de `DELAI_BANC_MS` (300 000 ms) utilisé ailleurs dans le banc.
+ * Élargir le banc de TOUS les nœuds pour fermer UN SEUL trou de couverture, au prix de casser des tests
+ * non liés à cette tâche, dépasse le mandat d'un correctif de contenu clinique — repoussé à une tâche
+ * dédiée (candidats : harmoniser les timeouts sur `DELAI_BANC_MS` avant de relever ce multiplicateur, ou
+ * une stratégie de génération qui FORCE quelques profils « bénins » canoniques plutôt que de compter sur
+ * la coïncidence statistique). Le test de couverture `prescription` reste donc en échec connu pour
+ * l'option « Mesures hygiéno‑diététiques seules — réévaluer » jusqu'à cette tâche.
+ *
  * `genererProfils`/`genererPairesBooleennes` peuvent renvoyer PLUS que cette taille : si le produit
  * cartésien des critères énumérables du nœud (petit nœud, conjonction étroite) le dépasse, il sert de
  * plancher pour garantir une couverture exhaustive plutôt que de sous-échantillonner une conjonction

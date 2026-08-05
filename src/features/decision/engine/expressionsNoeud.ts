@@ -90,6 +90,9 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
     module: 'inerte',
     domaine: 'inerte',
     titre: 'inerte',
+    // T-149 (2026-08-05) — icône d'affichage pure (écran de sélection des nœuds,
+    // `DecisionDomainsScreen.tsx`), même nature que `titre` : ne porte ni ne déclenche aucune expression.
+    icone: 'inerte',
     population_cible: 'inerte',
     criteres_entree: 'inerte', // conteneur : ses propres champs sont classés sous `critereEntree`
     options: 'inerte', // conteneur : cf. `option`

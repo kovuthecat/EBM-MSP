@@ -1,9 +1,20 @@
 import { useMemo, useState } from 'react'
 import type { Navigation } from '../../shared/navigation'
+import { Icon } from '../../shared/icons/Icon'
+import type { NomIcone } from '../../shared/icons/paths'
 import { entreesListe } from '../content/loadModules'
 import { noeudsParDomaine } from '../content/loadNodes'
 import { labelForDomaine, sortNodesForDomaine, UPCOMING_DOMAINS } from '../lib/labels'
 import './DecisionDomainsScreen.css'
+
+/**
+ * Icône de repli (T-149) quand un module/nœud ne déclare pas `icone` dans son contenu — jamais une
+ * erreur, jamais un vide : `lecture` (existe déjà dans le kit, cf. `shared/icons/paths.ts`) se lit
+ * comme un neutre générique « ouvrir/consulter ». Le composant reste générique (aucun nom de nœud
+ * connu ici, invariant CLAUDE.md 5) : c'est le CONTENU qui choisit l'icône, cet écran se contente
+ * d'un repli quand il n'en déclare pas.
+ */
+const ICONE_REPLI: NomIcone = 'lecture'
 
 interface DecisionDomainsScreenProps {
   go: Navigation['go']
@@ -71,18 +82,20 @@ export function DecisionDomainsScreen({ go }: DecisionDomainsScreenProps) {
             // Un MODULE (D22) compte pour UNE entrée : ses nœuds ne sont pas listés ici, ils s'ouvrent
             // depuis l'écran de module après son cadrage partagé. Lister les deux à la fois annulerait
             // l'intérêt du module — le praticien entrerait dans un nœud sans avoir vu le cadrage.
+            // SOUS-TITRE (liste des nœuds du module) RETIRÉ (T-149, demande utilisateur) : l'écran de
+            // module affiche déjà ce détail après clic, ici il alourdissait la carte sans ajouter
+            // d'information utile à la décision « quel algorithme ouvrir ».
             <button
               key={`module-${entree.module.id}`}
               type="button"
               className="decision-domains__node"
               onClick={() => go('decisionModule', { moduleId: entree.module.id })}
             >
-              <span className="decision-domains__node-info">
-                <span className="decision-domains__node-title">{entree.module.titre}</span>
-                <span className="decision-domains__node-sub">
-                  {entree.noeuds.map((noeud) => noeud.titre).join(' · ')}
-                </span>
+              <span className="decision-domains__node-icon" aria-hidden="true">
+                <Icon nom={entree.module.icone ?? ICONE_REPLI} taille={20} />
               </span>
+              <span className="decision-domains__node-title">{entree.module.titre}</span>
+              <Icon nom="chevron-droite" taille={16} className="decision-domains__node-chevron" />
             </button>
           ) : (
             <button
@@ -91,12 +104,14 @@ export function DecisionDomainsScreen({ go }: DecisionDomainsScreenProps) {
               className="decision-domains__node"
               onClick={() => go('decisionNode', { nodeId: entree.noeud.id })}
             >
-              <span className="decision-domains__node-info">
-                <span className="decision-domains__node-title">{entree.noeud.titre}</span>
+              <span className="decision-domains__node-icon" aria-hidden="true">
+                <Icon nom={entree.noeud.icone ?? ICONE_REPLI} taille={20} />
               </span>
+              <span className="decision-domains__node-title">{entree.noeud.titre}</span>
               {entree.noeud.veille_liee.length > 0 && (
                 <span className="decision-domains__node-badge">Mis à jour par la veille</span>
               )}
+              <Icon nom="chevron-droite" taille={16} className="decision-domains__node-chevron" />
             </button>
           ),
         )}

@@ -11,6 +11,7 @@
  * nœud reste évaluable seul. Le moteur ignore totalement ce type — il n'apparaît dans aucune évaluation.
  */
 import type { Meta } from './node.types.ts'
+import type { NomIcone } from '../../shared/icons/paths.ts'
 
 /** Une voie du primer : vers quel nœud orienter, et ce qui, en consultation, y oriente. */
 export interface Orientation {
@@ -36,6 +37,8 @@ export interface ModuleDecision {
   /** Valeur de jointure : égale au champ `module` des nœuds du module (ex. `RHD`). */
   libelle: string
   titre: string
+  /** OPTIONNEL — même champ, même rôle que `Noeud.icone` (T-149) : icône de l'écran de sélection. */
+  icone?: NomIcone
   population_cible?: string
   /**
    * Préambule PARTAGÉ — mêmes règles que `Noeud.cadrage` (D24) : énoncés vrais pour tous les patients du

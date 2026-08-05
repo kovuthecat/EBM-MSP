@@ -5,15 +5,17 @@
 }
 
 .decision-domains__title {
-  font-size: 26px;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   margin: 0 0 6px;
   color: var(--c-text);
 }
 
 .decision-domains__subtitle {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--c-text-muted);
-  margin: 0 0 24px;
+  margin: 0 0 28px;
 }
 
 .decision-domains__chips {
@@ -32,6 +34,15 @@
   color: var(--c-text-faible);
   cursor: pointer;
   font: inherit;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.decision-domains__chip:hover {
+  border-color: var(--c-accent-decision-soft);
+  color: var(--c-text);
 }
 
 .decision-domains__chip--active {
@@ -41,9 +52,18 @@
   border-color: var(--c-accent-decision-soft);
 }
 
+.decision-domains__chip--active:hover {
+  color: var(--c-accent-decision);
+}
+
 .decision-domains__chip--upcoming {
   border-style: dashed;
   cursor: default;
+}
+
+.decision-domains__chip--upcoming:hover {
+  border-color: var(--c-border);
+  color: var(--c-text-faible);
 }
 
 .decision-domains__empty {
@@ -53,42 +73,62 @@
 
 .decision-domains__group {
   margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
+/* Carte d'entrée (nœud ou module) — badge d'icône coloré + titre + chevron, sur le même gabarit que
+   `home__card` (écran d'accueil) pour rester cohérent avec le reste de l'app (T-149). */
 .decision-domains__node {
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 16px;
   background: var(--c-surface);
   border: 1px solid var(--c-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   padding: 16px 20px;
-  margin-bottom: 10px;
   cursor: pointer;
   text-align: left;
   font: inherit;
   color: inherit;
+  box-shadow: 0 1px 2px oklch(24% 0.02 245 / 4%);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
 }
 
-.decision-domains__node-info {
+.decision-domains__node:hover {
+  border-color: var(--c-accent-decision-soft);
+  box-shadow: 0 6px 16px oklch(46% 0.09 254 / 10%);
+  transform: translateY(-1px);
+}
+
+.decision-domains__node:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px oklch(24% 0.02 245 / 4%);
+}
+
+.decision-domains__node-icon {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--c-accent-decision-soft);
+  color: var(--c-accent-decision);
+  flex-shrink: 0;
 }
 
 .decision-domains__node-title {
-  font-size: 15px;
+  flex: 1;
+  font-size: 16px;
   font-weight: 600;
+  line-height: 1.35;
   color: var(--c-text);
-}
-
-/* Entrée de MODULE (D22) : la ligne secondaire nomme les nœuds qu'il contient, pour qu'on sache où l'on
-   entre avant de cliquer — un module dont on ignore le contenu se lit comme un dossier fermé. */
-.decision-domains__node-sub {
-  font-size: 13px;
-  color: var(--c-text-muted);
 }
 
 .decision-domains__node-badge {
@@ -99,10 +139,16 @@
   padding: 4px 10px;
   border-radius: 20px;
   white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.decision-domains__node-chevron {
+  color: var(--c-text-faible);
+  flex-shrink: 0;
 }
 
 @media (max-width: 640px) {
-  .decision-domains__node {
-    flex-wrap: wrap;
+  .decision-domains__node-title {
+    font-size: 15px;
   }
 }

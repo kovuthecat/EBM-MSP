@@ -11,6 +11,8 @@
  * câblage des écrans (S4), probablement par une fonction de mapping plutôt qu'en unifiant les deux.
  */
 
+import type { NomIcone } from '../../shared/icons/paths.ts'
+
 /** Échelle GRADE simplifiée telle qu'exprimée dans le contenu YAML des nœuds (brief §4/§5.1). */
 export type NiveauPreuve = 'eleve' | 'modere' | 'faible' | 'tres_faible'
 
@@ -758,6 +760,14 @@ export interface Noeud {
   module?: string
   domaine: string
   titre: string
+  /**
+   * OPTIONNEL — icône affichée à côté du titre sur l'écran de sélection des nœuds
+   * (`screens/DecisionDomainsScreen.tsx`). Même principe que `module`/`groupe`/`famille` : un nom porté
+   * par le contenu, le composant reste générique (aucun nœud connu par son nom, invariant CLAUDE.md 5).
+   * Un nœud sans `icone` reçoit un repli visuel générique côté écran, jamais une erreur. Ajouté 2026-08-05
+   * (T-149, amélioration esthétique de l'écran d'accueil du module).
+   */
+  icone?: NomIcone
   population_cible: string
   criteres_entree: CritereEntree[]
   options: Option[]

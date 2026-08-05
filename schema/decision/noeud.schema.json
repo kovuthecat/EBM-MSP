@@ -38,6 +38,32 @@
       "type": "string",
       "minLength": 1
     },
+    "icone": {
+      "type": "string",
+      "enum": [
+        "chevron-bas",
+        "chevron-gauche",
+        "chevron-droite",
+        "fleche-bas",
+        "fleche-droite",
+        "fleche-haut",
+        "fleche-bas-pleine",
+        "lecture",
+        "reglages",
+        "plus",
+        "moins",
+        "echange",
+        "interdit",
+        "triangle-alerte",
+        "info",
+        "gelule",
+        "drapeau",
+        "coeur",
+        "cible",
+        "seringue"
+      ],
+      "description": "OPTIONNEL — icone affichee a cote du titre sur l'ecran de selection des noeuds (T-149). Doit correspondre a un nom du kit `shared/icons/paths.ts` (NomIcone)."
+    },
     "population_cible": {
       "type": "string",
       "minLength": 1

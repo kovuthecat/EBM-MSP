@@ -32,6 +32,9 @@ export type NomIcone =
   | 'info'
   | 'gelule'
   | 'drapeau'
+  | 'coeur'
+  | 'cible'
+  | 'seringue'
 
 /**
  * Tracés : le contenu interne du `<svg>` (les enfants), jamais l'élément `<svg>` lui-même — `Icon.tsx`
@@ -163,4 +166,48 @@ export const ICON_PATHS: Record<NomIcone, ReactNode> = {
     fill: 'currentColor',
     stroke: 'none',
   }),
+
+  // à tracer (aucun équivalent maquette) — pictogramme cœur classique, même gabarit que les tracés
+  // pleins ci-dessus (lecture, drapeau) : deux lobes + pointe basse, `fill: currentColor`, stroke annulé.
+  // Ajouté 2026-08-05 (T-149, écran de sélection des nœuds) pour l'entrée « Règles hygiéno-diététiques ».
+  coeur: createElement('path', {
+    d: 'M12 21s-7.5-4.6-10-9.1C.5 8.2 2.4 4.5 6 4.5c2 0 3.6 1.1 6 3.5 2.4-2.4 4-3.5 6-3.5 3.6 0 5.5 3.7 4 7.4C19.5 16.4 12 21 12 21z',
+    fill: 'currentColor',
+    stroke: 'none',
+  }),
+
+  // à tracer — cible/objectif (trois cercles concentriques), même rayon extérieur que info/interdit.
+  // Ajouté 2026-08-05 (T-149) pour l'entrée « Fixer la cible d'HbA1c ».
+  cible: createElement(
+    Fragment,
+    null,
+    createElement('circle', { cx: '12', cy: '12', r: '9' }),
+    createElement('circle', { cx: '12', cy: '12', r: '5' }),
+    createElement('circle', { cx: '12', cy: '12', r: '1', fill: 'currentColor', stroke: 'none' }),
+  ),
+
+  // à tracer — seringue stylisée (corps + piston + aiguille), même gabarit trait que gelule ci-dessus.
+  // Ajouté 2026-08-05 (T-149) pour l'entrée « Insulinothérapie du DT2 ».
+  seringue: createElement(
+    Fragment,
+    null,
+    createElement('line', { x1: '3', y1: '21', x2: '9', y2: '15' }),
+    createElement('rect', {
+      x: '8.5',
+      y: '7.5',
+      width: '11',
+      height: '4.2',
+      rx: '0.6',
+      transform: 'rotate(-45 14 9.6)',
+    }),
+    createElement('line', {
+      x1: '17.5',
+      y1: '4.5',
+      x2: '20',
+      y2: '7',
+      transform: 'rotate(0 0 0)',
+    }),
+    createElement('line', { x1: '16', y1: '3', x2: '18.5', y2: '5.5' }),
+    createElement('line', { x1: '18', y1: '1', x2: '20.5', y2: '3.5' }),
+  ),
 }

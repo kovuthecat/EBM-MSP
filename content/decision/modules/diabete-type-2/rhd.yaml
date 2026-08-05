@@ -14,6 +14,9 @@ id: rhd
 domaine: diabete-type-2
 libelle: RHD
 titre: "Règles hygiéno-diététiques"
+# `icone` ajouté 2026-08-05 (T-149, amélioration esthétique de l'écran de sélection des nœuds) — coeur :
+# lisibilité immédiate (hygiène de vie), cf. `shared/icons/paths.ts`.
+icone: coeur
 population_cible: >-
   Adulte DT2, en consultation de médecine générale. Deux axes travaillés séparément — alimentation et
   activité physique — parce que les traiter d'un bloc porterait le recueil au-delà de ce qu'une
@@ -51,8 +54,13 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude Code"
   statut: brouillon
-  version: "0.2"
+  version: "0.3"
   changelog:
+    - date: "2026-08-05"
+      auteur: "Claude Code (T-149)"
+      resume: >-
+        Ajout de `icone: coeur` — purement esthétique (écran de sélection des nœuds), aucun effet sur le
+        cadrage, le primer ni le moteur.
     - date: "2026-08-02"
       auteur: "référent DT2 + Claude Code"
       resume: >-

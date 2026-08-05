@@ -27,6 +27,32 @@
       "minLength": 1,
       "description": "Titre affiche de l'ecran de module."
     },
+    "icone": {
+      "type": "string",
+      "enum": [
+        "chevron-bas",
+        "chevron-gauche",
+        "chevron-droite",
+        "fleche-bas",
+        "fleche-droite",
+        "fleche-haut",
+        "fleche-bas-pleine",
+        "lecture",
+        "reglages",
+        "plus",
+        "moins",
+        "echange",
+        "interdit",
+        "triangle-alerte",
+        "info",
+        "gelule",
+        "drapeau",
+        "coeur",
+        "cible",
+        "seringue"
+      ],
+      "description": "OPTIONNEL — meme champ, meme role que `Noeud.icone` (T-149) : icone de l'ecran de selection des noeuds."
+    },
     "population_cible": {
       "type": "string",
       "minLength": 1,
