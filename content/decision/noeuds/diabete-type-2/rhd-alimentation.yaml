@@ -148,6 +148,14 @@ criteres_entree:
     # compterait comme « décisif à confirmer » sur formulaire vierge) : hors périmètre de ce lot, qui
     # ne veut aucun changement de comportement au-delà de la réduction de saisie.
     presomption_non: true
+    # `partage` ajouté le 2026-08-05 (P13/S5, T-147) — revue COMPLÈTE de la liste `partage` : fait
+    # OBJECTIF (classe de traitement en cours) et STABLE en consultation, déclaré à L'IDENTIQUE
+    # (`type: bool`, `presomption_non: true`) sur `rhd-activite-physique.yaml`, où le même ajout est fait
+    # dans la même session — les deux nœuds RHD sont typiquement ouverts l'un après l'autre chez le même
+    # patient. Encodage identique vérifié par I32 (`engine/banc/coherence-inter-noeuds.test.ts`) avant
+    # l'ajout ; les deux côtés doivent déclarer `partage: true` pour qu'une valeur circule
+    # (`lib/sessionCriteres.ts` `valeursReprises`).
+    partage: true
   # ── Socle — habitudes du quotidien (S1-S7 de la collecte) ──
   - nom: frequence_boissons_sucrees
     type: enum
@@ -794,8 +802,18 @@ meta:
   date_revue: "2026-07-26"
   auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
   statut: brouillon
-  version: "0.13"
+  version: "0.14"
   changelog:
+    - date: "2026-08-05"
+      auteur: "Claude Code — en attente de relecture référent (P13/S5, T-147)"
+      resume: >-
+        `insuline_ou_insulinosecreteur` REÇOIT `partage: true` (revue complète de la liste `partage`,
+        au-delà du seul poids/taille demandé par I3) — même ajout, même session, sur
+        `rhd-activite-physique.yaml`, qui déclare ce critère à l'identique (`bool`,
+        `presomption_non: true`). Fait objectif et stable, jusqu'ici ressaisi d'un nœud RHD à l'autre
+        sans raison. Invariant I32 ajouté (`engine/banc/coherence-inter-noeuds.test.ts`) pour garantir
+        mécaniquement que tout critère `partage: true` garde le même encodage dans tous les nœuds qui
+        le déclarent ainsi.
     - date: "2026-08-04"
       auteur: "Claude Code — en attente de relecture référent"
       resume: >-

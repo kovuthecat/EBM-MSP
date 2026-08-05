@@ -783,6 +783,73 @@ describe('CriteriaForm — accordéon par groupe (P6 · SB2)', () => {
 })
 
 /**
+ * T-148 (P13/S5, P6) — le résumé d'une section repliée rend une déclaration « Rien à signaler »
+ * vérifiable : les drapeaux (`bool`) répondus « non » se regroupent en une forme COMPACTE mais
+ * EXHAUSTIVE (« N drapeaux : non »), jamais énumérés un par un ni omis. Un drapeau répondu « Oui » reste
+ * nommé individuellement — c'est un constat positif, distinct d'un « non » de série.
+ */
+describe('CriteriaForm — résumé compact et exhaustif des drapeaux répondus « non » (T-148)', () => {
+  const CRITERES: CritereEntree[] = [
+    { nom: 'intention', type: 'enum', valeurs: ['initier', 'optimiser'], groupe: 'Intention' },
+    { nom: 'HbA1c_actuelle', type: 'nombre', groupe: 'Terrain' },
+    { nom: 'ASCVD_etablie', type: 'bool', groupe: 'Terrain' },
+    { nom: 'denutrition', type: 'bool', groupe: 'Terrain' },
+    { nom: 'chute_recente', type: 'bool', groupe: 'Terrain' },
+  ]
+
+  it('« N drapeaux : non » — forme compacte, jamais énumérés un par un', () => {
+    const criteria = {
+      ...buildDefaultCriteria(CRITERES),
+      HbA1c_actuelle: 8,
+      ASCVD_etablie: false,
+      denutrition: false,
+      chute_recente: false,
+    }
+    const html = renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={CRITERES}
+        criteria={criteria}
+        touched={new Set(['HbA1c_actuelle', 'ASCVD_etablie', 'denutrition', 'chute_recente'])}
+        onChange={() => {}}
+      />,
+    )
+    // « Terrain » est le groupe replié (« Intention » est premier, ouvert par défaut).
+    expect(html).toContain('3 drapeaux : non')
+    expect(html).toContain('HbA1c actuelle (%) : 8')
+    // Forme compacte : aucune énumération individuelle des trois drapeaux répondus « non ».
+    expect(html).not.toContain('Maladie cardiovasculaire athéromateuse établie : Non')
+  })
+
+  it('un drapeau répondu « Oui » reste nommé individuellement, distinct du regroupement des « non »', () => {
+    const criteria = { ...buildDefaultCriteria(CRITERES), ASCVD_etablie: true, denutrition: false, chute_recente: false }
+    const html = renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={CRITERES}
+        criteria={criteria}
+        touched={new Set(['ASCVD_etablie', 'denutrition', 'chute_recente'])}
+        onChange={() => {}}
+      />,
+    )
+    expect(html).toContain('Maladie cardiovasculaire athéromateuse établie : Oui')
+    expect(html).toContain('2 drapeaux : non')
+  })
+
+  it('un seul drapeau répondu « non » : singulier, pas « 1 drapeaux »', () => {
+    const criteria = { ...buildDefaultCriteria(CRITERES), ASCVD_etablie: false }
+    const html = renderToStaticMarkup(
+      <CriteriaForm
+        criteresEntree={CRITERES}
+        criteria={criteria}
+        touched={new Set(['ASCVD_etablie'])}
+        onChange={() => {}}
+      />,
+    )
+    expect(html).toContain('1 drapeau : non')
+    expect(html).not.toContain('1 drapeaux')
+  })
+})
+
+/**
  * T-107 (P11/S4) — tons sémantiques par valeur d'énumération. `albuminurie` (nœud RÉEL `prescription`,
  * `content/decision/noeuds/diabete-type-2/prescription.yaml` l.208-211, valeurs `normo`/`micro`/`macro`)
  * cataloguée dans `lib/labels.ts` `ENUM_VALUE_TONES` (`normo` → succès, `micro` → attention, `macro` →

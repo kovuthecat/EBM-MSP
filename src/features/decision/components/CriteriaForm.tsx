@@ -1,7 +1,8 @@
-import { useId, useMemo, useRef, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import type { Contrainte, CritereEntree } from '../content/node.types'
 import type { Criteria, CriteriaValue } from '../engine/conditions'
 import { determinesEffectifs, evaluerNombre } from '../engine/deriveCritere'
+import type { GroupeChamps } from '../lib/formLayout'
 import { champEstVisible, criteresPilotes, grouperChamps, valeursProposeesDepuisSaisie } from '../lib/formLayout'
 import {
   describeEnumValue,
@@ -135,6 +136,25 @@ interface CriteriaFormProps {
    * réponse, et un praticien qui vérifie a besoin de la bonne.
    */
   preremplis?: ReadonlySet<string>
+  /**
+   * T-157 (P13/S8, P5) — OUVERTURE CIBLÉE DEPUIS L'EXTÉRIEUR DU FORMULAIRE. Décision clé (S8.md) : « le
+   * plus simple qui marche : pas de contexte global, pas d'événement custom — une prop. » L'appelant (le
+   * cartouche « en attente » de `DecisionNodeScreen.tsx`) pose ici le NOM d'un critère à atteindre ; ce
+   * composant en déduit sa section (`groupes`, déjà calculé), l'ouvre si besoin, puis porte le focus
+   * clavier sur le champ (cf. les `ref` posées par `renderChamp` dans `champsMontes`, plus bas).
+   *
+   * Objet plutôt que chaîne nue, et un NOUVEL OBJET à CHAQUE demande (l'appelant ne doit jamais réutiliser
+   * la même référence) : un `useEffect` clé sur l'IDENTITÉ de cette prop (`[champCible]`) redéclenche
+   * l'ouverture même si le practicien reclique sur EXACTEMENT le même critère sans qu'aucun autre état
+   * n'ait changé entre-temps — une chaîne nue identique n'aurait pas relancé l'effet une seconde fois.
+   * `null`/absent : aucune demande en cours, comportement rigoureusement inchangé (rétro-compatible).
+   *
+   * Un nom qui ne correspond à AUCUN champ actuellement dans `groupes` (section masquée, faute de frappe
+   * de l'appelant) est silencieusement ignoré : ce composant ne connaît aucun nom de critère à l'avance
+   * (invariant 5) et ne peut pas savoir si un nom absent est une erreur ou un champ redevenu masqué entre
+   * le clic et ce rendu — mieux vaut ne rien faire qu'échouer bruyamment sur une course entre deux états.
+   */
+  champCible?: { nom: string } | null
   onChange: (nom: string, value: CriteriaValue) => void
 }
 
@@ -177,6 +197,7 @@ export function CriteriaForm({
   contraintesViolees,
   repris,
   preremplis,
+  champCible,
   onChange,
 }: CriteriaFormProps) {
   // `touched` fait aussi office de `renseignes` (D20 R7) pour la VISIBILITÉ (`visible_si`) : un champ dont
@@ -211,6 +232,57 @@ export function CriteriaForm({
     setGroupeOuvertManuel(cle)
     sectionsMontees.current.get(cle)?.scrollIntoView?.({ behavior: 'smooth', block: 'start' })
   }
+
+  /**
+   * T-157 (P13/S8, P5) — OUVERTURE CIBLÉE + FOCUS, pilotées par `champCible` (cf. sa docstring dans
+   * `CriteriaFormProps`). Deux registres, comme `sectionsMontees` ci-dessus pour les sections :
+   *  - `champsMontes` : l'élément focalisable PRINCIPAL de chaque champ actuellement RENDU (posé par
+   *    `renderChamp`, un seul par nom de critère — la case à cocher d'un `bool`, l'`<input>`/`<select>`
+   *    d'un `nombre`, LE PREMIER bouton d'un `enum` segmenté, LE PREMIER `<input>` coché d'une `liste`) ;
+   *  - `champAFocaliser` : le nom du critère qu'une demande EXTERNE (`champCible`) vise, tant que le focus
+   *    n'a pas encore pu être posé. `useRef`, jamais `useState` : sa mutation ne doit PAS provoquer un
+   *    second rendu, seulement être relue par l'effet ci-dessous au rendu SUIVANT (déjà déclenché par
+   *    `setGroupeOuvertManuel` s'il a fallu changer de section).
+   */
+  const champsMontes = useRef(new Map<string, HTMLElement>())
+  const champAFocaliser = useRef<string | null>(null)
+  const registrerChamp = (nom: string) => (el: HTMLElement | null) => {
+    if (el) champsMontes.current.set(nom, el)
+    else champsMontes.current.delete(nom)
+  }
+
+  // EFFET A — réagit à une NOUVELLE demande externe (identité de `champCible`, cf. sa docstring : un objet
+  // frais à chaque clic, même nom relance quand même l'effet). Ouvre la section porteuse si elle n'est pas
+  // déjà la section ouverte ; sinon (nœud à un seul groupe, ou section déjà ouverte) ne fait qu'armer
+  // `champAFocaliser` — l'EFFET B ci-dessous s'occupe du focus, qu'il y ait eu ouverture ou non.
+  useEffect(() => {
+    if (!champCible) return
+    const groupe = groupes.find((g) => g.champs.some((c) => c.nom === champCible.nom))
+    if (!groupe) return // nom introuvable dans les champs actuels : silencieusement ignoré, cf. docstring.
+    champAFocaliser.current = champCible.nom
+    if (accordeon) {
+      const cle = clesGroupes[groupes.indexOf(groupe)]
+      if (cle !== groupeOuvert) ouvrirGroupe(cle)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- ne réagit QU'À une nouvelle demande externe
+    // (`champCible`), jamais à l'ouverture de section qui peut en découler (gérée par l'EFFET B) : inclure
+    // `groupes`/`groupeOuvert` (recalculés à CHAQUE rendu, jamais mémoïsés) redéclencherait cet effet en
+    // boucle sur un rendu qui n'a rien à voir avec une demande.
+  }, [champCible])
+
+  // EFFET B — sans tableau de dépendances : tourne après CHAQUE rendu (sortie immédiate si rien n'est en
+  // attente, coût négligeable), pour attraper le PREMIER rendu où le champ visé est enfin monté (soit tout
+  // de suite si sa section était déjà ouverte, soit un rendu plus tard si l'EFFET A vient de basculer
+  // `groupeOuvertManuel`). Le focus déclenche lui-même un défilement navigateur si le champ est hors
+  // viewport (comportement natif de `HTMLElement.focus()`), en plus du `scrollIntoView` déjà posé par
+  // `ouvrirGroupe` — les deux visent le même endroit, jamais en conflit.
+  useEffect(() => {
+    if (champAFocaliser.current == null) return
+    const el = champsMontes.current.get(champAFocaliser.current)
+    if (!el) return // section pas encore ouverte à CE rendu : retente au rendu suivant.
+    el.focus()
+    champAFocaliser.current = null
+  })
 
   // T-108 — description des valeurs atteignable au clic. Un seul panneau ouvert à la fois (nom du
   // critère concerné, `null` si aucun) : même registre que `groupeOuvertManuel` ci-dessus, à une échelle
@@ -306,15 +378,33 @@ export function CriteriaForm({
     return valeur ? labelForEnumValue(String(valeur)) : null
   }
 
-  /** Résumé d'une ligne pour une section repliée : `Libellé : valeur` par champ renseigné, séparés par
-   *  « · ». Texte fixe si aucun champ du groupe n'est renseigné — le même quel que soit le nœud. */
+  /**
+   * Résumé d'une ligne pour une section repliée : `Libellé : valeur` par champ renseigné, séparés par
+   * « · ». Texte fixe si aucun champ du groupe n'est renseigné — le même quel que soit le nœud.
+   *
+   * T-148 (P13/S5, P6) — LES DRAPEAUX RÉPONDUS « NON » SE REGROUPENT, forme COMPACTE mais EXHAUSTIVE
+   * (« 5 drapeaux : non », jamais un sous-ensemble) : c'est le seul contrôle dont dispose le praticien
+   * sur ce qu'une déclaration « Rien à signaler » a réellement couvert — les nommer un par un ferait
+   * revenir la même longueur de résumé qu'avant le geste global, ce qui n'aide personne à vérifier qu'il
+   * a bien été exhaustif. Un `bool` répondu « Oui », lui, reste nommé INDIVIDUELLEMENT : c'est un constat
+   * positif, jamais anodin, à la différence d'un « non » de série (même distinction que le marqueur
+   * « · à confirmer », qui ne s'affiche jamais sur une case cochée).
+   */
   const resumeGroupe = (champs: CritereEntree[]): string => {
+    const boolsNonRepondus = champs.filter(
+      (c) => c.type === 'bool' && touched.has(c.nom) && !criteria[c.nom],
+    )
+    const nomsBoolsNon = new Set(boolsNonRepondus.map((c) => c.nom))
     const parties = champs
       .map((c) => {
+        if (nomsBoolsNon.has(c.nom)) return null // regroupés ci-dessous, jamais énumérés un par un.
         const v = valeurResumeChamp(c)
         return v == null ? null : `${labelForCritere(c.nom)} : ${v}`
       })
       .filter((partie): partie is string => partie != null)
+    if (boolsNonRepondus.length > 0) {
+      parties.push(`${boolsNonRepondus.length} drapeau${boolsNonRepondus.length > 1 ? 'x' : ''} : non`)
+    }
     return parties.length > 0 ? parties.join(' · ') : 'Aucun champ renseigné'
   }
 
@@ -493,7 +583,27 @@ export function CriteriaForm({
     return null
   }
 
-  const renderChamp = (critere: CritereEntree) => {
+  /**
+   * T-156 (P13/S8, P4) — AUTO-AVANCE APRÈS UN CHOIX SEGMENTÉ UNIQUE. Décision clé (S8.md) : « une section
+   * qui ne contient qu'UN SEUL champ, de type `enum` rendu en boutons segmentés, ouvre la section suivante
+   * dès qu'une valeur est choisie ». Condition EXACTE, calculée ici pour être passée à `renderChamp`
+   * (lui-même appelé PAR CHAMP, sans savoir combien de champs porte sa section) : `groupe.champs.length
+   * === 1` (jamais une section à cases à cocher, où « fini » n'a pas de signal, cf. Décision clé) et ce
+   * champ unique est un `enum` segmenté au SENS DU RENDU (même seuil `MAX_VALEURS_SEGMENTE` que la
+   * branche `segmente` de `renderChamp`, pas une seconde définition qui pourrait diverger).
+   *
+   * `autoAvanceVersGroupe` (deuxième argument de `renderChamp` ci-dessous) ne porte donc de valeur QUE
+   * pour ce champ précis, et seulement s'il existe une section suivante à ouvrir (dernière section : rien
+   * n'avance, cf. Étape 2 "pas sur la dernière section").
+   */
+  const champUniqueDeLaSection = (groupe: GroupeChamps): CritereEntree | null =>
+    groupe.champs.length === 1 ? groupe.champs[0] : null
+  const estAutoAvancable = (critere: CritereEntree): boolean =>
+    critere.type === 'enum' &&
+    (critere.valeurs?.length ?? 0) > 0 &&
+    (critere.valeurs?.length ?? 0) <= MAX_VALEURS_SEGMENTE
+
+  const renderChamp = (critere: CritereEntree, autoAvanceVersGroupe: string | null = null) => {
     const dim = estDim(critere.nom)
     const confirmer = estAConfirmer(critere)
     const pilote = estPilote(critere)
@@ -526,6 +636,7 @@ export function CriteriaForm({
             className="criteria-form__flag-input"
             checked={Boolean(criteria[critere.nom])}
             onChange={(event) => onChange(critere.nom, event.target.checked)}
+            ref={registrerChamp(critere.nom)}
           />
           <Icon nom="drapeau" taille={16} className="criteria-form__flag-icon" />
           {!libelleMasque && (
@@ -592,7 +703,7 @@ export function CriteriaForm({
           {renderAide(critere)}
           {renderDetailPanneau(critere)}
           <div className="criteria-form__chips">
-            {valeursListe.map((valeur) => {
+            {valeursListe.map((valeur, index) => {
               const cochee = cochees.includes(valeur)
               return (
                 <label
@@ -610,6 +721,10 @@ export function CriteriaForm({
                     type="checkbox"
                     checked={cochee}
                     onChange={(event) => toggleListeValeur(critere.nom, valeur, event.target.checked)}
+                    // T-157 — une `liste` n'a pas UN champ focalisable mais plusieurs cases : la PREMIÈRE
+                    // sert de point d'entrée (cf. docstring de `champsMontes`), cohérent avec la lecture au
+                    // clavier (Tab depuis là parcourt les suivantes).
+                    ref={index === 0 ? registrerChamp(critere.nom) : undefined}
                   />
                   <span className="criteria-form__checkbox-label">{labelForEnumValue(valeur)}</span>
                 </label>
@@ -667,6 +782,7 @@ export function CriteriaForm({
             className="criteria-form__input"
             value={touched.has(critere.nom) ? String(criteria[critere.nom] ?? '') : ''}
             onChange={(event) => onChange(critere.nom, Number(event.target.value))}
+            ref={registrerChamp(critere.nom)}
           >
             <option value="" disabled>
               —
@@ -739,12 +855,14 @@ export function CriteriaForm({
               // de session, pré-remplissage).
               retirerTexteFlexible(critere.nom)
             }}
+            ref={registrerChamp(critere.nom)}
           />
         ) : critere.type === 'nombre' ? (
           <input
             type="number"
             className="criteria-form__input"
             placeholder="—"
+            ref={registrerChamp(critere.nom)}
             // Bornes du domaine clinique (docs/decision/GRAMMAIRE-NOEUD.md, schema/noeud.schema.json) :
             // répercutées telles quelles sur l'attribut HTML natif, générique — aucun nom de critère en
             // dur (invariant 5). Absentes du contenu → `undefined`, input non borné (comportement
@@ -770,7 +888,7 @@ export function CriteriaForm({
           />
         ) : segmente ? (
           <div className="criteria-form__segmented" role="group" aria-label={labelForCritere(critere.nom)}>
-            {valeurs.map((valeur) => {
+            {valeurs.map((valeur, index) => {
               // `touched` EXIGÉ (correctif du 2026-07-27, défaut A de la recette référent — le plus
               // rentable du rapport : une condition, quatre symptômes en cascade).
               //
@@ -798,6 +916,10 @@ export function CriteriaForm({
                   key={valeur}
                   type="button"
                   className="criteria-form__segment"
+                  // T-157 — point d'entrée clavier du champ : LE PREMIER bouton du groupe (jamais celui
+                  // sélectionné — cf. docstring de `champsMontes` : un critère réclamé par le cartouche
+                  // « en attente » est par construction NON RÉPONDU, aucun segment n'est sélectionné).
+                  ref={index === 0 ? registrerChamp(critere.nom) : undefined}
                   // GÉNÉRIQUE, indexé par la VALEUR d'énumération (2026-08-04, demande utilisateur :
                   // icônes plus lisibles au premier coup d'œil) — même mécanisme que `data-on`/`data-ton`
                   // ci-dessous, jamais un nom de critère en dur. Pilote UNIQUEMENT la couleur de l'icône
@@ -830,8 +952,19 @@ export function CriteriaForm({
                   // appelant existant qui ne le passerait pas. Un clic sur un segment NON sélectionné
                   // n'est pas concerné : comportement inchangé dans tous les cas.
                   onClick={() => {
-                    if (selectionne && onEffacer) onEffacer(critere.nom)
-                    else onChange(critere.nom, valeur)
+                    if (selectionne && onEffacer) {
+                      onEffacer(critere.nom)
+                      return
+                    }
+                    // T-156 — PREMIER CHOIX SEULEMENT : `touched` lu AVANT cet `onChange`, donc encore
+                    // fidèle à l'état d'AVANT ce clic (garde-fou 1, S8.md — « si le praticien revient en
+                    // arrière et change son choix, on n'auto-avance pas une seconde fois »). Un champ
+                    // REPRIS de session arrive déjà `touched` (`sessionCriteres.ts`) : le premier clic du
+                    // praticien sur un tel champ est donc une CORRECTION, pas une première saisie — même
+                    // garde-fou, aucun cas particulier à écrire.
+                    const premierChoix = !touched.has(critere.nom)
+                    onChange(critere.nom, valeur)
+                    if (premierChoix && autoAvanceVersGroupe) ouvrirGroupe(autoAvanceVersGroupe)
                   }}
                 >
                   {/* Icône (2026-08-01, amélioration de lisibilité ; convertie en <Icon> SVG le
@@ -871,6 +1004,7 @@ export function CriteriaForm({
             // REPRÉSENTABLE — sans elle, il n'existe aucune valeur à donner au champ pour ne rien dire.
             value={touched.has(critere.nom) ? String(criteria[critere.nom] ?? '') : ''}
             onChange={(event) => onChange(critere.nom, event.target.value)}
+            ref={registrerChamp(critere.nom)}
           >
             <option value="" disabled>
               —
@@ -927,10 +1061,30 @@ export function CriteriaForm({
         const nombresARenseigner = aConfirmer
           ? groupe.champs.filter((c) => c.type === 'nombre' && aConfirmer.has(c.nom))
           : []
-        const boolsAConfirmer = aConfirmer
+        // T-148 (P13/S5) — DEUX NOTIONS DISTINCTES, qui vivaient confondues sous un seul nom
+        // (`boolsAConfirmer`) et c'était précisément le défaut (D13, revue de conception du 2026-08-04,
+        // T5/P6) : « Rien à signaler » ne répondait qu'aux `bool` DÉCISIFS À L'INSTANT DU CLIC — un
+        // drapeau devenu décisif ENSUITE (ex. « Dénutrition », une fois poids/taille connus) redevenait
+        // « à confirmer » dans une section que le praticien croyait soldée.
+        //
+        //  - CE QUI DÉCLENCHE L'AFFICHAGE du bouton (inchangé, seuil >= 1, cf. le commentaire l.9xx
+        //    ci-dessus sur la raison du seuil) : les `bool` DÉCISIFS non confirmés de la section.
+        //  - CE À QUOI IL RÉPOND, une fois cliqué : TOUS les `bool` VISIBLES non renseignés de la
+        //    section, décisifs ou non — répondre à tous d'un coup couvre par construction un drapeau qui
+        //    deviendrait décisif plus tard, puisqu'il a déjà reçu sa réponse « non ».
+        //
+        // LE CAS RÉSIDUEL — un `bool` MASQUÉ (`visible_si` faux) au moment du clic — est réglé par
+        // CONSTRUCTION, pas par un filtre ajouté ici : `groupe.champs` est déjà la liste des champs
+        // VISIBLES à cet instant (`grouperChamps`, lib/formLayout.ts) ; un champ masqué n'y figure pas,
+        // donc n'est jamais répondu. C'est un ARBITRAGE RENDU par le référent (2026-08-04,
+        // `plans/P13/index.md` §Arbitrages n° 2, réponse OUI À UNE CONDITION) : seuls les drapeaux
+        // EFFECTIVEMENT AFFICHÉS au moment du clic sont couverts, peu importe leur décisivité à cet
+        // instant — un drapeau masqué ne l'est pas. Ce n'est plus une préférence d'implémentation.
+        const boolsDecisifsNonConfirmes = aConfirmer
           ? groupe.champs.filter((c) => c.type === 'bool' && aConfirmer.has(c.nom))
           : []
-        const confirmerBools = boolsAConfirmer.length >= 1 ? onConfirmerChamps : undefined
+        const boolsVisiblesNonRenseignes = groupe.champs.filter((c) => c.type === 'bool' && !touched.has(c.nom))
+        const confirmerBools = boolsDecisifsNonConfirmes.length >= 1 ? onConfirmerChamps : undefined
         const afficherPiedDeSection = nombresARenseigner.length > 0 || confirmerBools != null
 
         const cle = clesGroupes[index]
@@ -942,6 +1096,14 @@ export function CriteriaForm({
         // Sans accordéon (un seul groupe) : TOUJOURS ouvert, comportement historique inchangé.
         const estOuvert = !accordeon || cle === groupeOuvert
         const groupeSuivant = accordeon && index < groupes.length - 1 ? groupes[index + 1] : null
+        // T-156 — cf. la docstring de `champUniqueDeLaSection`/`estAutoAvancable` ci-dessus : `null` sauf
+        // pour LE champ unique d'une section auto-avançable QUI A une section suivante (jamais la
+        // dernière, Étape 2).
+        const champUnique = champUniqueDeLaSection(groupe)
+        const autoAvanceVersGroupe =
+          champUnique != null && estAutoAvancable(champUnique) && groupeSuivant != null
+            ? clesGroupes[index + 1]
+            : null
 
         return (
           <section
@@ -983,7 +1145,9 @@ export function CriteriaForm({
 
             {estOuvert ? (
               <>
-                <div className="criteria-form__grid">{groupe.champs.map(renderChamp)}</div>
+                <div className="criteria-form__grid">
+                  {groupe.champs.map((c) => renderChamp(c, autoAvanceVersGroupe))}
+                </div>
 
                 {/* T-133 (P12/S8) : valeur(s) calculée(s) des critères DÉRIVÉS numériques de CETTE section
                     (même `groupe` que leurs opérandes, cf. docstring de `derivesNumeriques`) — rendues
@@ -1003,7 +1167,9 @@ export function CriteriaForm({
                       <button
                         type="button"
                         className="criteria-form__group-rien"
-                        onClick={() => confirmerBools(boolsAConfirmer.map((c) => c.nom))}
+                        // T-148 : répond à TOUS les `bool` visibles non renseignés, pas seulement aux
+                        // décisifs qui ont déclenché l'affichage du bouton — cf. le commentaire ci-dessus.
+                        onClick={() => confirmerBools(boolsVisiblesNonRenseignes.map((c) => c.nom))}
                       >
                         Rien à signaler
                       </button>
