@@ -18,9 +18,11 @@ import { hasEsperanceVieCritere, suggestionEsperanceVieSiApplicable } from '../l
 import {
   appliquerPreremplissage,
   buildDefaultCriteria,
+  champsVisibles,
   decisifsAConfirmer,
   reinitialiserChampsMasques,
   valeurParDefaut,
+  valeursProposeesDepuisSaisie,
 } from '../lib/formLayout'
 import { prioritesDeSaisie } from '../lib/prioritesSaisie'
 import { memoriserCriteres, reinitialiserSession, valeursReprises } from '../lib/sessionCriteres'
@@ -110,6 +112,48 @@ function texteIndisponibles(labels: readonly string[]): string | undefined {
   return labels.length === 1
     ? `Recommandation rendue sans le critère ${liste} : vous avez indiqué ne pas l'avoir. Il n'a pas été évalué, c'est au praticien de le faire.`
     : `Recommandation rendue sans les critères ${liste} : vous avez indiqué ne pas les avoir. Ils n'ont pas été évalués, c'est au praticien de le faire.`
+}
+
+/**
+ * T-157 (P13/S8, P5) — CRITÈRES DU CARTOUCHE « EN ATTENTE », CLIQUABLES QUAND ATTEIGNABLES. Le fait qui
+ * justifie la tâche : 2 207 px mesurés entre « À renseigner pour trancher : Espérance de vie » et son
+ * champ, aucun renvoi cliquable (`docs/decision/CONSTRUIRE-UN-MODULE.md` §4, « la réponse arrive hors de
+ * portée du regard »). Un clic sur un nom appelle `onOuvrir(nom)` — l'écran pose alors `champCible` sur
+ * `CriteriaForm`, qui ouvre la section et focalise le champ (cf. sa docstring, `CriteriaForm.tsx`).
+ *
+ * ⚠ UN CRITÈRE PEUT ÊTRE DANS UNE SECTION MASQUÉE (R11, `CONSTRUIRE-UN-MODULE.md` §4 : « critère décisif
+ * dans une section masquée ») — S1 ferme le cas connu (T1, `intention = initier` ⇒ `traitements = ∅`),
+ * mais rien ne garantit qu'il n'en reste aucun autre. « Si le champ ciblé n'est pas atteignable, le lien
+ * ne doit pas exister » (Décision clé, S8.md) : `atteignables` (calculé par l'appelant avec EXACTEMENT la
+ * même source que `CriteriaForm` utilise pour grouper ses champs, `champsVisibles` sur `criteriaDiffere`/
+ * `criteresRenseignes`) décide, nom par nom, du rendu — bouton si atteignable, texte simple sinon. Un lien
+ * mort serait pire que pas de lien du tout (Décision clé).
+ *
+ * GÉNÉRIQUE (D8) : aucun nom de critère connu d'avance, `labelForCritere` comme partout ailleurs dans cet
+ * écran. Fonction pure, testable sans monter l'écran entier.
+ */
+function rendreCriteresCliquables(
+  noms: readonly string[],
+  atteignables: ReadonlySet<string>,
+  onOuvrir: (nom: string) => void,
+) {
+  return noms.map((nom, index) => (
+    <span key={nom}>
+      {index > 0 ? ', ' : ''}
+      {atteignables.has(nom) ? (
+        <button
+          type="button"
+          className="decision-node__en-attente-lien"
+          onClick={() => onOuvrir(nom)}
+          aria-label={`Aller au champ « ${labelForCritere(nom)} »`}
+        >
+          {labelForCritere(nom)}
+        </button>
+      ) : (
+        labelForCritere(nom)
+      )}
+    </span>
+  ))
 }
 
 /** Ordre fixe de la légende (T-112) — celui de l'énumération `ActionOption` (`content/node.types.ts`),
@@ -247,6 +291,34 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   // change pas suite à ce clic). Local à ce composant, jamais dans `sessionCriteres.ts` (« Si bloqué »
   // T-057 : aucun nouvel état global).
   const [frontiereLevee, setFrontiereLevee] = useState(false)
+
+  // T-143 (P13/S3, 2026-08-05) — MÉMOIRE DE RESTAURATION : une bascule d'intention ou de situation ne
+  // détruit plus les saisies masquées. `useRef`, PAS `useState` — sa mutation ne doit rien re-rendre
+  // (elle est lue puis appliquée AU SEIN d'un même appel de handler, jamais après coup) ; à la portée du
+  // composant, jamais un module : elle « meurt avec l'écran ». Le remontage par `key` (« Nouveau patient »,
+  // D33) recrée le composant, donc un nouveau `useRef` vide — VÉRIFIÉ au navigateur (S3.md "Décision
+  // clé" point 3 : « vérifie-le, ne le suppose pas »), pas seulement supposé.
+  //
+  // TROIS PROPRIÉTÉS NON NÉGOCIABLES (S3.md) :
+  //  1. le moteur ne la voit JAMAIS — elle n'entre ni dans `criteria`, ni `touched`, ni `preremplis`, ni
+  //     `criteresRenseignes` ; tant qu'un champ est masqué, il vaut son défaut pour `evaluateNode`,
+  //     exactement comme avant cette session (R8 intact, cf. `reinitialiserChampsMasques`) ;
+  //  2. elle est restaurée quand le champ redevient visible, AVEC sa marque `touched` d'origine — une
+  //     valeur restaurée est une valeur RÉPONDUE, pas une valeur suggérée (à ne pas confondre avec
+  //     `preremplis`, mention différente à l'écran : « · calculé, à vérifier » n'est jamais posée par la
+  //     restauration) ;
+  //  3. elle meurt avec l'écran (cf. `useRef` ci-dessus).
+  //
+  // Deux formes, cf. `reinitialiserChampsMasques` (`lib/formLayout.ts`) :
+  //  - `champs` : un critère ENTIER masqué, avec la valeur SAISIE PAR LE PRATICIEN (`touched`, jamais
+  //    `preremplis`) qu'il portait juste avant (`valeursEffacees`) ;
+  //  - `valeursListe` : UNE valeur retirée d'une `liste` restée visible par ailleurs (A4/F,
+  //    `valeursListeRetirees`) — restaurée par RÉ-AJOUT dans la liste courante, jamais en écrasant toute
+  //    la liste (un praticien qui aurait entre-temps coché autre chose ne doit pas être écrasé).
+  const memoireRestauration = useRef<{
+    champs: Map<string, CriteriaValue>
+    valeursListe: Map<string, Set<string>>
+  }>({ champs: new Map(), valeursListe: new Map() })
 
   // Les critères dérivés (ex. cible_atteinte = HbA1c_actuelle <= HbA1c_cible ; over_basalisation =
   // dose_basale_actuelle / poids > 0,5) sont recalculés depuis les primitives saisies AVANT l'évaluation
@@ -388,6 +460,22 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
     [vue, indisponibles],
   )
 
+  // T-157 (P13/S8, P5) — demande d'ouverture ciblée posée sur `CriteriaForm` (cf. sa docstring `champCible`
+  // et `rendreCriteresCliquables` en tête de fichier). Un NOUVEL OBJET à chaque clic, MÊME sur le même nom
+  // (`{ nom }` littéral, jamais réutilisé) : `CriteriaForm` clé son effet sur l'IDENTITÉ de cette prop pour
+  // relancer l'ouverture+focus même si le practicien reclique deux fois de suite sur le même critère.
+  const [champCible, setChampCible] = useState<{ nom: string } | null>(null)
+
+  // Ensemble des critères ATTEIGNABLES (visibles à l'écran) — MÊME SOURCE que `CriteriaForm` utilise pour
+  // grouper ses champs (`criteriaGroupement`/`touched` transmis plus bas : `criteriaDiffere`/
+  // `criteresRenseignes`), pour que « cliquable ici » et « ouvrable là-bas » ne puissent jamais diverger.
+  // Un nom absent de cet ensemble reste du TEXTE SIMPLE dans le cartouche (Décision clé : un lien mort est
+  // pire que pas de lien) — cf. R11, `CONSTRUIRE-UN-MODULE.md` §4.
+  const champsAtteignables = useMemo(
+    () => (node ? champsVisibles(node.criteres_entree, criteriaDiffere, criteresRenseignes) : new Set<string>()),
+    [node, criteriaDiffere, criteresRenseignes],
+  )
+
   // P6/SB1 — DEUX COLONNES (formulaire à gauche, résultats sticky à droite sur écran large, empilés en
   // dessous de 1200px, cf. D47). `isNarrow` PILOTE UNIQUEMENT LA MISE EN PAGE (bouton flottant, cf. plus bas) —
   // aucune des règles D30/D31/D32/D25/T-024 ne lit cet état : elles restent décidées par `vue`/
@@ -453,6 +541,138 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
     )
   }
 
+  /**
+   * T-143 (P13/S3) — applique la mémoire de restauration (`memoireRestauration`, déclarée plus haut) à
+   * un couple `(criteria, touched)` PAS ENCORE COMMIS À L'ÉTAT REACT : tout champ mémorisé qui est
+   * REDEVENU VISIBLE récupère sa valeur et sa marque `touched`, puis SORT de la mémoire (jamais restauré
+   * deux fois — le praticien a pu changer d'avis entre-temps, cf. S3.md Étape 3).
+   *
+   * NE MUTE JAMAIS `criteria`/`touched` EN PLACE : `nettoye`/`avecPrerempli` peuvent être LA MÊME
+   * RÉFÉRENCE que l'état React précédent quand rien d'autre n'a changé (`reinitialiserChampsMasques`/
+   * `appliquerPreremplissage` renvoient le même objet si rien ne bouge) — les muter directement romprait
+   * l'immutabilité React et ferait manquer le `setState` qui suit (`Object.is` verrait la même
+   * référence). Copie donc PARESSEUSEMENT (seulement si quelque chose est effectivement restauré) et
+   * renvoie la paire, inchangée par référence si rien n'est restauré.
+   *
+   * `champsVisibles` (pas une nouvelle notion : la même fonction que celle qui décide déjà ce qui se
+   * rend à l'écran, `lib/formLayout.ts`) — un champ n'est restauré QUE s'il est visible avec CE couple
+   * `(criteria, touched)`, jamais en avance ni en silence.
+   *
+   * ITÈRE JUSQU'À STABILITÉ, comme `reinitialiserChampsMasques` : restaurer un champ peut en rendre un
+   * AUTRE visible dans la MÊME passe (ex. `traitements_en_cours` restauré à `['metformine']` rend
+   * aussitôt restaurable `dose_metformine`, dont le `visible_si` dépend de CETTE valeur — les deux
+   * doivent réapparaître ENSEMBLE, pas au prochain geste du praticien). Recalculer `champsVisibles`
+   * UNE SEULE FOIS, avant la boucle, aurait manqué cette cascade.
+   *
+   * `nomsRestaures` (T-142/T-143) : les noms restaurés PAR LE CAS 1 (champ entier), pour que l'appelant
+   * les retire aussi de `preremplis` — UNE VALEUR RESTAURÉE N'EST JAMAIS UNE VALEUR PRÉ-REMPLIE
+   * (propriété 2 de la mémoire, cf. la docstring de `memoireRestauration`). Sans ce retrait, un champ
+   * masqué PENDANT qu'un `preremplissage` de contenu le vise (K6) peut ressortir marqué « · calculé, à
+   * vérifier » alors qu'il vient d'être restauré avec une réponse RÉELLE du praticien — constaté au test
+   * d'écran sur `traitements_en_cours` (nœud `prescription`, aller-retour Optimiser→Initier→Intensifier) :
+   * masqué à l'initiation, K6 le pré-remplit à `[]` PENDANT le masquage (T-137/T-138, S1) ; démasqué à
+   * l'intensification, `appliquerPreremplissage` ne le retouche plus (son `quand` ne matche plus) mais
+   * `preremplis` (registre d'écran, jamais purgé par un masquage — CONTRAT T-138, `formLayout.test.ts`)
+   * garde le nom. La restauration doit trancher en faveur de la réponse RÉELLE, pas du pré-remplissage
+   * périmé. NE TOUCHE PAS au CAS 2 (valeurs de liste) : une `liste` avec `valeurs_visible_si` ne passe
+   * jamais par `preremplis` dans ce mécanisme.
+   */
+  const restaurerDepuisMemoire = (
+    criteriaAvant: Criteria,
+    touchedAvant: Set<string>,
+  ): { criteria: Criteria; touched: Set<string>; nomsRestaures: string[] } => {
+    const memoire = memoireRestauration.current
+    if (memoire.champs.size === 0 && memoire.valeursListe.size === 0) {
+      return { criteria: criteriaAvant, touched: touchedAvant, nomsRestaures: [] }
+    }
+    let criteriaSuivant = criteriaAvant
+    let touchedSuivant = touchedAvant
+    let rienRestaure = true
+    const nomsRestaures: string[] = []
+
+    // Borne de sécurité, même esprit que `reinitialiserChampsMasques` : au pire un champ restauré par
+    // tour, jamais de boucle infinie.
+    for (let tour = 0; tour <= node.criteres_entree.length; tour += 1) {
+      const visibles = champsVisibles(node.criteres_entree, criteriaSuivant, touchedSuivant)
+      let changeCeTour = false
+      const assurerCopie = () => {
+        if (changeCeTour) return
+        criteriaSuivant = { ...criteriaSuivant }
+        touchedSuivant = new Set(touchedSuivant)
+      }
+
+      // Cas 1 — champ ENTIER masqué puis redevenu visible.
+      for (const [nomMemo, valeur] of memoire.champs) {
+        if (!visibles.has(nomMemo)) continue
+        assurerCopie()
+        criteriaSuivant[nomMemo] = valeur
+        touchedSuivant.add(nomMemo)
+        memoire.champs.delete(nomMemo)
+        nomsRestaures.push(nomMemo)
+        changeCeTour = true
+        rienRestaure = false
+      }
+
+      // Cas 2 — A4/F : UNE valeur d'une `liste` restée visible redevient proposable. Ré-ajoutée à la
+      // liste COURANTE (jamais en écrasant tout le champ) ; les valeurs encore indisponibles restent en
+      // mémoire pour un tour (ou un appel) ultérieur.
+      for (const [nomMemo, valeurs] of memoire.valeursListe) {
+        if (!visibles.has(nomMemo)) continue
+        const critere = node.criteres_entree.find((c) => c.nom === nomMemo)
+        if (!critere) continue
+        const proposees = new Set(
+          valeursProposeesDepuisSaisie(node.criteres_entree, critere, criteriaSuivant, touchedSuivant),
+        )
+        const actuel = new Set((criteriaSuivant[nomMemo] as string[] | undefined) ?? [])
+        let listeChangee = false
+        for (const valeur of [...valeurs]) {
+          if (!proposees.has(valeur)) continue
+          if (!actuel.has(valeur)) {
+            actuel.add(valeur)
+            listeChangee = true
+          }
+          valeurs.delete(valeur)
+        }
+        if (listeChangee) {
+          assurerCopie()
+          criteriaSuivant[nomMemo] = [...actuel]
+          changeCeTour = true
+          rienRestaure = false
+        }
+        if (valeurs.size === 0) memoire.valeursListe.delete(nomMemo)
+      }
+
+      if (!changeCeTour) break
+    }
+
+    return rienRestaure
+      ? { criteria: criteriaAvant, touched: touchedAvant, nomsRestaures: [] }
+      : { criteria: criteriaSuivant, touched: touchedSuivant, nomsRestaures }
+  }
+
+  /**
+   * T-143 — mémorise, pour un lot de champs/valeurs effacés par `reinitialiserChampsMasques` (issus de
+   * CE changement), UNIQUEMENT ceux SAISIS PAR LE PRATICIEN (`touchedAvant`, le `touched` D'AVANT ce
+   * changement — jamais `preremplis` : « Le sens de la restauration compte », S3.md). Un champ jamais
+   * `touched` (donc à son défaut) n'a rien à mémoriser.
+   */
+  const memoriserEffacements = (
+    touchedAvant: ReadonlySet<string>,
+    valeursEffacees: Array<{ nom: string; valeur: CriteriaValue }>,
+    valeursListeRetirees: Array<{ nom: string; valeur: string }>,
+  ): void => {
+    const memoire = memoireRestauration.current
+    for (const { nom: nomEfface, valeur } of valeursEffacees) {
+      if (touchedAvant.has(nomEfface)) memoire.champs.set(nomEfface, valeur)
+    }
+    for (const { nom: nomListe, valeur } of valeursListeRetirees) {
+      if (!touchedAvant.has(nomListe)) continue
+      const ensemble = memoire.valeursListe.get(nomListe) ?? new Set<string>()
+      ensemble.add(valeur)
+      memoire.valeursListe.set(nomListe, ensemble)
+    }
+  }
+
   // Calculé en synchrone (pas via les updaters de `setState`) : la mise à jour de `touched` dépend du
   // résultat de celle de `criteria`, et faire transiter cette information par une variable mutée entre
   // deux updaters dépendrait de leur ordre d'exécution et casserait en StrictMode (double invocation).
@@ -503,9 +723,19 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
     // Un champ que ce changement vient de MASQUER (`visible_si`) est remis à sa valeur par défaut : une
     // valeur invisible ne doit jamais continuer à piloter la reco (cf. `formLayout.ts`). Il redevient
     // aussi « non renseigné », sinon il passerait pour confirmé s'il réapparaissait plus tard.
-    const { criteria: nettoye, reinitialises } = reinitialiserChampsMasques(node.criteres_entree, next, renseignesApres)
+    const {
+      criteria: nettoye,
+      reinitialises,
+      valeursEffacees,
+      valeursListeRetirees,
+    } = reinitialiserChampsMasques(node.criteres_entree, next, renseignesApres)
     const touchedApres = new Set(touched).add(nom)
     for (const efface of reinitialises) touchedApres.delete(efface)
+
+    // T-143 — mémorise (AVANT tout autre calcul, sur `touched` D'AVANT ce changement, cf. sa docstring)
+    // ce que le masquage ci-dessus vient d'effacer, pour une restauration future si le champ redevient
+    // visible. N'entre dans AUCUN état React : le moteur ne voit jamais cette mémoire (S3.md).
+    memoriserEffacements(touched, valeursEffacees, valeursListeRetirees)
 
     // K6 — le pré-remplissage se REJOUE à chaque saisie, tant que le champ visé n'a pas été répondu :
     // saisir l'HbA1c après avoir saisi la cible doit proposer la position, pas attendre un remontage.
@@ -516,8 +746,16 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
       nettoye,
       touchedApres,
     )
-    setCriteria(avecPrerempli)
-    setTouched(touchedApres)
+    // T-143 — restaure ce qui redevient visible à l'instant (mémorisé ci-dessus ou lors d'un appel
+    // précédent) : dernière étape avant de commettre l'état, pour que la restauration voie la visibilité
+    // À JOUR (après masquage ET pré-remplissage de CE changement).
+    const {
+      criteria: avecRestauration,
+      touched: touchedAvecRestauration,
+      nomsRestaures,
+    } = restaurerDepuisMemoire(avecPrerempli, touchedApres)
+    setCriteria(avecRestauration)
+    setTouched(touchedAvecRestauration)
     // T-061 : fusion des DEUX sources de pré-remplissage — celui du CONTENU (`nouveaux`, ci-dessus) et
     // la suggestion d'ÉCRAN (`nomsAPreremplirEsp`, calculée en tête de fonction) — dans un seul appel :
     // `preremplis` ne distingue pas leur origine, seule la mention affichée le fait déjà (identique pour
@@ -525,6 +763,19 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
     const aPreremplir = [...nouveaux, ...nomsAPreremplirEsp]
     if (aPreremplir.length > 0) {
       setPreremplis((previous) => new Set([...previous, ...aPreremplir]))
+    }
+    // T-142/T-143 — un champ RESTAURÉ n'est jamais « pré-rempli » (propriété 2 de la mémoire de
+    // restauration, cf. `restaurerDepuisMemoire`) : sans ce retrait, un champ masqué PENDANT qu'une règle
+    // `preremplissage` (K6) le vise ressort marqué « · calculé, à vérifier » après restauration alors
+    // qu'il porte une réponse RÉELLE du praticien — défaut relevé par S1 sur `traitements_en_cours`
+    // (nœud `prescription`), confirmé ici au test d'écran.
+    if (nomsRestaures.length > 0) {
+      setPreremplis((previous) => {
+        if (!nomsRestaures.some((n) => previous.has(n))) return previous
+        const suivant = new Set(previous)
+        for (const n of nomsRestaures) suivant.delete(n)
+        return suivant
+      })
     }
     // Le champ que le praticien vient de saisir cesse d'être « pré-rempli ».
     if (preremplis.has(nom)) {
@@ -535,12 +786,14 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
       })
     }
     // K6 : la mention « repris » cesse dès que le praticien touche au champ — elle deviendrait fausse.
+    // T-159 — `reprisApres` calculé EN SYNCHRONE (comme `touchedApres`/`touchedAvecRestauration` plus
+    // haut, cf. leur commentaire de tête sur `setState` vs variable mutée) : c'est CET ensemble, pas
+    // `repris` (l'état d'AVANT ce changement, encore valable dans cette fermeture), qui doit nourrir
+    // `memoriserCriteres` ci-dessous pour que l'ORIGINE mémorisée reflète l'état APRÈS ce clic — sinon un
+    // champ tout juste édité (donc sorti de `repris`) serait mémorisé UNE DERNIÈRE FOIS comme `repris`.
+    const reprisApres = repris.has(nom) ? new Set([...repris].filter((n) => n !== nom)) : repris
     if (repris.has(nom)) {
-      setRepris((previous) => {
-        const suivant = new Set(previous)
-        suivant.delete(nom)
-        return suivant
-      })
+      setRepris(reprisApres)
     }
     // T-134 : une déclaration « je ne l'aurai pas » cesse d'avoir un objet dès qu'une VRAIE valeur est
     // saisie sur ce même champ — sans ce retrait, la mention « · indisponible » resterait affichée à côté
@@ -554,7 +807,12 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
     }
     // K6 : mémoriser APRÈS coup, sur l'état déjà nettoyé — un champ que ce changement vient de masquer
     // ne doit pas partir en session avec la valeur qu'il avait juste avant d'être remis à zéro.
-    memoriserCriteres(node.criteres_entree, avecPrerempli, touchedApres)
+    // T-143 : `avecRestauration`/`touchedAvecRestauration` (pas `avecPrerempli`/`touchedApres`) — une
+    // valeur RESTAURÉE est une valeur répondue (propriété 2, cf. docstring de `memoireRestauration`),
+    // aussi digne de circuler vers un autre nœud `partage` qu'une saisie directe.
+    // T-159 — `reprisApres` en 4ᵉ argument : origine `repris` pour tout critère ENCORE marqué repris à cet
+    // instant, `saisi` pour tout le reste (cf. `memoriserCriteres`, `sessionCriteres.ts`).
+    memoriserCriteres(node.criteres_entree, avecRestauration, touchedAvecRestauration, reprisApres)
   }
 
   /**
@@ -574,14 +832,39 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
     const renseignesApres = new Set(touched)
     renseignesApres.delete(nom)
 
-    const { criteria: nettoye, reinitialises } = reinitialiserChampsMasques(node.criteres_entree, next, renseignesApres)
-    setCriteria(nettoye)
-    setTouched((previous) => {
-      const suivant = new Set(previous)
-      suivant.delete(nom)
-      for (const efface of reinitialises) suivant.delete(efface)
-      return suivant
-    })
+    const {
+      criteria: nettoye,
+      reinitialises,
+      valeursEffacees,
+      valeursListeRetirees,
+    } = reinitialiserChampsMasques(node.criteres_entree, next, renseignesApres)
+
+    // T-143 — même mémorisation que `handleCriteriaChange` (sur `touched` D'AVANT ce changement) : le
+    // champ qu'on efface ICI (`nom`) n'entre jamais dans cette mémoire — effacer est un geste EXPLICITE
+    // de « non-réponse », pas un masquage, il ne doit rien laisser à restaurer plus tard pour CE champ.
+    // Seuls les AUTRES champs, masqués en CASCADE par cet effacement, peuvent l'être.
+    memoriserEffacements(touched, valeursEffacees, valeursListeRetirees)
+
+    const touchedApres = new Set(touched)
+    touchedApres.delete(nom)
+    for (const efface of reinitialises) touchedApres.delete(efface)
+
+    const {
+      criteria: avecRestauration,
+      touched: touchedAvecRestauration,
+      nomsRestaures,
+    } = restaurerDepuisMemoire(nettoye, touchedApres)
+    setCriteria(avecRestauration)
+    setTouched(touchedAvecRestauration)
+    // T-142/T-143 — même retrait que `handleCriteriaChange` : un champ RESTAURÉ n'est jamais « pré-rempli ».
+    if (nomsRestaures.length > 0) {
+      setPreremplis((previous) => {
+        if (!nomsRestaures.some((n) => previous.has(n))) return previous
+        const suivant = new Set(previous)
+        for (const n of nomsRestaures) suivant.delete(n)
+        return suivant
+      })
+    }
   }
 
   // « Rien à signaler » (tâche 4) : confirme d'un coup les drapeaux (`bool`) décisifs non renseignés
@@ -793,6 +1076,9 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                 // double avec le bloc de suspension ci-dessous (« un bloc unique », Étape 1). Une contrainte
                 // violée est désormais rendue UNE SEULE fois, à la place du panneau de résultats.
                 onChange={handleCriteriaChange}
+                // T-157 — ouverture ciblée depuis le cartouche « en attente » (cf. `champCible` en tête de
+                // composant et `rendreCriteresCliquables`, tête de fichier).
+                champCible={champCible}
               />
             </div>
 
@@ -1137,23 +1423,59 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                 // par `vue.enAttente.length` ci-dessus (titre, compte du dépli) restent inchangées : c'est
                 // la liste de ce qu'on demande qui se réduit, jamais le fait qu'une option reste en attente.
                 const priorites = prioritesDeSaisie(enAttenteAffichable)
+                // T-139 (P13/S2) — le détail option par option est désormais COMMUN aux trois branches
+                // ci-dessous (avant : rendu SEULEMENT dans la branche `> 3`, cf. l'historique T-060/T-134
+                // au-dessus). Sous ce seuil, la phrase de tête ne nomme QUE des critères — jamais l'option
+                // qu'ils débloquent : sur un formulaire où il ne reste qu'un ou deux critères, aucune ligne
+                // ne nommait l'option en attente nulle part (le trou par lequel N25 est passé, cf. le
+                // défaut en tête de `plans/P13/S2.md`). La hiérarchie ne change pas (une phrase courte en
+                // avant, le détail d'un clic) : c'est son exhaustivité qui manquait. Le compte du `summary`
+                // reste `vue.enAttente.length` (le brut, T-134) ; la liste rendue reste `enAttenteAffichable`
+                // (le filtré des indisponibles).
+                const detailOptionParOption = (
+                  <details className="decision-node__en-attente-detail">
+                    <summary>Voir le détail, option par option ({vue.enAttente.length})</summary>
+                    {enAttenteAffichable.map((enAttente, index) => (
+                      <p key={`${index}-${enAttente.option.intitule}`} className="decision-node__en-attente-item">
+                        {enAttente.option.intitule} —{' '}
+                        {enAttente.manquants.length > 0
+                          ? `à renseigner : ${enAttente.manquants.map(labelForCritere).join(', ')}`
+                          : 'en attente sans les critères déclarés indisponibles ci-dessus'}
+                      </p>
+                    ))}
+                  </details>
+                )
                 if (priorites.length === 0) {
                   // TOUT ce qui manquait encore a été déclaré indisponible : le T-060 cité ci-dessus a déjà
                   // montré qu'un encadré coloré sans corps se lit comme un bug — la mention de loyauté
                   // ci-dessus (`mentionIndisponibles`) explique le POURQUOI, celle-ci dit que ces options
                   // précises restent malgré tout en attente (R7 : le moteur ne peut toujours pas trancher).
+                  // T-139 : le détail reste utile ici — il NOMME les options qui restent suspendues, ce que
+                  // la phrase seule ne fait pas.
                   return (
-                    <p className="decision-node__en-attente-item">
-                      Ces options restent en attente : le seul critère qui les distingue encore a été
-                      déclaré indisponible ci-dessus.
-                    </p>
+                    <>
+                      <p className="decision-node__en-attente-item">
+                        Ces options restent en attente : le seul critère qui les distingue encore a été
+                        déclaré indisponible ci-dessus.
+                      </p>
+                      {detailOptionParOption}
+                    </>
                   )
                 }
                 if (priorites.length <= 3) {
                   return (
-                    <p className="decision-node__en-attente-item">
-                      À renseigner pour trancher : {priorites.map((p) => labelForCritere(p.nom)).join(', ')}.
-                    </p>
+                    <>
+                      <p className="decision-node__en-attente-item">
+                        À renseigner pour trancher :{' '}
+                        {rendreCriteresCliquables(
+                          priorites.map((p) => p.nom),
+                          champsAtteignables,
+                          (nom) => setChampCible({ nom }),
+                        )}
+                        .
+                      </p>
+                      {detailOptionParOption}
+                    </>
                   )
                 }
                 // Trois questions de tête : assez pour amorcer une reco provisoire, assez peu pour être
@@ -1163,24 +1485,23 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                 return (
                   <>
                     <p className="decision-node__en-attente-item">
-                      Commencez par : {tete.map((p) => labelForCritere(p.nom)).join(', ')}.
+                      Commencez par :{' '}
+                      {rendreCriteresCliquables(
+                        tete.map((p) => p.nom),
+                        champsAtteignables,
+                        (nom) => setChampCible({ nom }),
+                      )}
+                      .
                       {' '}
                       <span className="decision-node__en-attente-note">
                         Ce sont les critères qui débloquent le plus d'options
-                        {reste > 0 ? ` ; ${reste} autre${reste > 1 ? 's' : ''} restent à renseigner ensuite` : ''}.
+                        {/* T-141 (P13/S2) — accord fautif corrigé : « 1 autre restent » (le verbe suivait
+                            le pluriel FIXE de la phrase, jamais celui, variable, de `reste`). Le verbe
+                            s'accorde désormais comme le nom qui le précède, sur le MÊME test que lui. */}
+                        {reste > 0 ? ` ; ${reste} autre${reste > 1 ? 's' : ''} rest${reste > 1 ? 'ent' : 'e'} à renseigner ensuite` : ''}.
                       </span>
                     </p>
-                    <details className="decision-node__en-attente-detail">
-                      <summary>Voir le détail, option par option ({vue.enAttente.length})</summary>
-                      {enAttenteAffichable.map((enAttente, index) => (
-                        <p key={`${index}-${enAttente.option.intitule}`} className="decision-node__en-attente-item">
-                          {enAttente.option.intitule} —{' '}
-                          {enAttente.manquants.length > 0
-                            ? `à renseigner : ${enAttente.manquants.map(labelForCritere).join(', ')}`
-                            : 'en attente sans les critères déclarés indisponibles ci-dessus'}
-                        </p>
-                      ))}
-                    </details>
+                    {detailOptionParOption}
                   </>
                 )
               })()}
@@ -1193,7 +1514,12 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
             <div className="decision-node__ecartees">
               {vue.ecartees.map((ecartee, index) => (
                 <p key={`${index}-${ecartee.option.intitule}`} className="decision-node__ecartee">
-                  {ecartee.option.intitule} écarté : {describeReasons(ecartee.motifs)}
+                  {/* T-144 (P13/S4) — `ecartee.motifs` porte désormais les BRANCHES SITUATIONNELLES
+                      (`lib/vueDecision.ts` `exclusionsSituationnelles`, même mécanisme que R6 pour
+                      `reasons`) : la disjonction complète n'est plus rendue, seule la branche vraie pour
+                      CE patient l'est. `ecartee.option.motifs` (motifs rédigés, P10/S2) était jusqu'ici
+                      omis ici — jamais consommé sur les écartées alors qu'il l'est partout ailleurs. */}
+                  {ecartee.option.intitule} écarté : {describeReasons(ecartee.motifs, ecartee.option.motifs)}
                 </p>
               ))}
             </div>

@@ -492,7 +492,14 @@ describe('DecisionNodeScreen — comportement 3 : « Rien à signaler » appara�
     // ouverte à la fois, « Bilan » par défaut. Ouvrir « Sécurité » avant d'y chercher un champ — ses
     // champs ne sont pas dans le DOM tant que la section reste repliée.
     ouvrirGroupeFormulaire(container, 'Sécurité')
-    const checkbox = screen.getByLabelText('Evenement grave', { exact: false }) as HTMLInputElement
+    // T-157 (P13/S8) — `within(formulaire)` plutôt qu'une recherche PLEINE PAGE : le cartouche « en
+    // attente » porte désormais, dans la colonne RÉSULTATS, un `button` cliquable portant LE MÊME texte
+    // (« Aller au champ « Evenement grave » ») — `getByLabelText` SANS portée les confondait (les deux
+    // « contiennent » le texte cherché). Le formulaire (`.criteria-form`) et les résultats sont deux
+    // sous-arbres disjoints (cf. `DecisionNodeScreen.tsx`, colonnes `form-col`/`results-col`) : y borner
+    // la recherche lève l'ambiguïté sans changer la façon de chercher UN CHAMP DE FORMULAIRE.
+    const formulaire = within(container.querySelector('.criteria-form') as HTMLElement)
+    const checkbox = formulaire.getByLabelText('Evenement grave', { exact: false }) as HTMLInputElement
     const section = checkbox.closest('section')
     if (!section) throw new Error('section introuvable')
 
@@ -542,7 +549,12 @@ describe('DecisionNodeScreen — comportement 4 : le marqueur « à confirmer »
     const { container } = renderNode()
     // P6 · SB2 (accordéon) : ouvrir « Sécurité » (repliée par défaut, seule « Bilan » l'est).
     ouvrirGroupeFormulaire(container, 'Sécurité')
-    const checkbox = screen.getByLabelText('Evenement grave', { exact: false })
+    // T-157 — `within(formulaire)`, cf. le commentaire du même correctif un peu plus haut dans ce fichier
+    // (collision avec le lien cliquable du cartouche « en attente »).
+    const checkbox = within(container.querySelector('.criteria-form') as HTMLElement).getByLabelText(
+      'Evenement grave',
+      { exact: false },
+    )
     const label = checkbox.closest('label')
     if (!label) throw new Error('label introuvable')
     expect(label.textContent).toContain('à confirmer')
@@ -552,7 +564,11 @@ describe('DecisionNodeScreen — comportement 4 : le marqueur « à confirmer »
     const { container } = renderNode()
     // P6 · SB2 (accordéon) : ouvrir « Antécédents » (repliée par défaut, seule « Bilan » l'est).
     ouvrirGroupeFormulaire(container, 'Antécédents')
-    const checkbox = screen.getByLabelText('Ascvd etablie', { exact: false })
+    // T-157 — `within(formulaire)`, même raison.
+    const checkbox = within(container.querySelector('.criteria-form') as HTMLElement).getByLabelText(
+      'Ascvd etablie',
+      { exact: false },
+    )
     const label = checkbox.closest('label')
     if (!label) throw new Error('label introuvable')
     const section = checkbox.closest('section')
@@ -790,6 +806,73 @@ describe('DecisionNodeScreen — B2 : sur formulaire vierge, le panneau « en at
       el.classList.contains('decision-node__en-attente-item'),
     )
     expect(auPremierNiveau).toHaveLength(1)
+  })
+})
+
+/**
+ * T-141 (P13/S2) — ACCORD DU VERBE AU SINGULIER (« 1 autre reste », pas « 1 autre restent »).
+ *
+ * Réutilise `NODE_PRIORITES` (B2 ci-dessus) : 4 critères distincts en attente sur formulaire vierge,
+ * donc `priorites.length === 4` → branche `> 3`, tête de 3 critères, `reste === 1`. C'est exactement le
+ * cas que l'ancien code accordait mal (le pluriel de la phrase environnante, jamais celui de `reste`).
+ */
+describe('DecisionNodeScreen — T-141 : accord du verbe au singulier dans le compte des critères restants', () => {
+  it('reste === 1 : « 1 autre reste à renseigner ensuite », jamais « restent »', () => {
+    const { container } = render(<DecisionNodeScreen nodeId={NODE_PRIORITES.id} go={() => {}} />)
+    const note = container.querySelector('.decision-node__en-attente-note')
+    expect(note?.textContent).toMatch(/1 autre reste à renseigner ensuite/)
+    expect(note?.textContent).not.toMatch(/1 autre restent/)
+  })
+})
+
+/**
+ * T-139 (P13/S2) — LE DÉTAIL OPTION PAR OPTION EST ACCESSIBLE QUEL QUE SOIT LE NOMBRE DE CRITÈRES
+ * MANQUANTS, PAS SEULEMENT AU-DELÀ DE 3 (§4.3 T4 / §7 P7 de la revue de conception, opacité N25).
+ *
+ * Avant ce correctif, le dépli « Voir le détail, option par option » n'était rendu QUE dans la branche
+ * `priorites.length > 3` : dès qu'il ne restait qu'un ou deux critères distincts à saisir, l'écran disait
+ * « À renseigner pour trancher : … » et AUCUNE option n'était nommée nulle part, dépli compris — c'était
+ * littéralement N25 (Initier, un seul critère manquant, l'option de sécurité « Insuline d'initiation »
+ * disparue de l'écran). Réutilise `NODE` (comportement 1/2/3/4 ci-dessus) : deux des trois critères
+ * décisifs confirmés, un seul (`nb_facteurs_risque`) laissé vide — `priorites.length === 1`, la branche
+ * QUI NE RENDAIT RIEN avant ce correctif. « Renfort » (l'option dont ce critère est le seul manquant)
+ * doit être trouvable dans le DOM, dans le dépli.
+ */
+describe('DecisionNodeScreen — T-139 : le détail option par option est accessible même sous le seuil de 3 critères', () => {
+  it('un seul critère manquant, une option en attente : son intitulé est présent dans le DOM (dépli)', () => {
+    const { container } = renderNode()
+
+    // Confirme les deux AUTRES critères décisifs (evenement_grave, ascvd_etablie), ne laisse QUE
+    // nb_facteurs_risque non renseigné.
+    ouvrirGroupeFormulaire(container, 'Sécurité')
+    // T-157 — `within(formulaire)`, même raison que les deux correctifs plus haut dans ce fichier.
+    const formulaire = within(container.querySelector('.criteria-form') as HTMLElement)
+    const evenementGrave = formulaire.getByLabelText('Evenement grave', { exact: false }) as HTMLInputElement
+    fireEvent.click(evenementGrave)
+    expect(evenementGrave.checked).toBe(true)
+
+    ouvrirGroupeFormulaire(container, 'Antécédents')
+    const ascvdEtablie = within(container.querySelector('.criteria-form') as HTMLElement).getByLabelText(
+      'Ascvd etablie',
+      { exact: false },
+    ) as HTMLInputElement
+    fireEvent.click(ascvdEtablie)
+    expect(ascvdEtablie.checked).toBe(true)
+
+    // Les deux options qui dépendaient de ces critères sont désormais proposées ; seule « Renfort » reste
+    // en attente, bloquée par le seul critère encore manquant.
+    expect(titresOptionsProposees(container)).toContain('Suivi renforcé')
+    expect(titresOptionsProposees(container)).toContain('Alerte cardio')
+    expect(titresOptionsProposees(container)).not.toContain('Renfort')
+
+    // AVANT T-139 : la phrase de tête (« À renseigner pour trancher : Nb facteurs risque. ») était la
+    // SEULE chose rendue dans ce bloc — aucun dépli, donc aucun endroit où lire « Renfort ». C'est cette
+    // absence que ce test rend rouge en premier.
+    const panneau = container.querySelector('.decision-node__en-attente')
+    expect(panneau).toBeTruthy()
+    const detail = panneau?.querySelector('.decision-node__en-attente-detail')
+    expect(detail).toBeTruthy()
+    expect(detail?.textContent).toMatch(/Renfort/)
   })
 })
 
