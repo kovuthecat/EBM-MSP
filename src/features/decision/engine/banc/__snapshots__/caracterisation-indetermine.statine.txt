@@ -28,6 +28,7 @@ Sortie :
   (aucune option applicable — sortie vide)
   Options EN ATTENTE (indétermination, R7/D20) :
     - Interrompre la statine 4 à 6 semaines et réévaluer :: à renseigner : statine_deja_en_place, intolerance_statine, CK_UI_L, CK_normale_sup
+    - Arrêter la statine — suspicion de rhabdomyolyse, avis spécialisé urgent :: à renseigner : statine_deja_en_place, intolerance_statine, CK_UI_L, CK_normale_sup
     - Interrompre la statine — la classe reste indisponible :: à renseigner : statine_deja_en_place, intolerance_statine, CK_UI_L, CK_normale_sup
     - Statine indisponible :: à renseigner : statine_deja_en_place, intolerance_statine, CK_UI_L, CK_normale_sup
 
@@ -72,6 +73,7 @@ Sortie :
   (aucune option applicable — sortie vide)
   Options EN ATTENTE (indétermination, R7/D20) :
     - Interrompre la statine 4 à 6 semaines et réévaluer :: à renseigner : statine_deja_en_place, intolerance_statine, CK_UI_L
+    - Arrêter la statine — suspicion de rhabdomyolyse, avis spécialisé urgent :: à renseigner : statine_deja_en_place, intolerance_statine, CK_UI_L
     - Interrompre la statine — la classe reste indisponible :: à renseigner : statine_deja_en_place, intolerance_statine, CK_UI_L
     - Statine indisponible :: à renseigner : statine_deja_en_place, intolerance_statine, CK_UI_L
 
@@ -118,6 +120,7 @@ Sortie :
     - Patient en dialyse : le bénéfice d'une statine n'est pas démontré sur les critères durs dans cette population (4D chez le DT2 hémodialysé : critère principal RR 0,92 NS, avec un signal d'AVC fatal ; AURORA : neutre malgré −43 % de LDL). Chez un patient dialysé SANS statine en cours, l'option de haute intensité (prévention secondaire) n'est plus proposée par cet outil — retrait structurel, pas seulement un rappel. Si une statine est DÉJÀ en place, sa poursuite reste raisonnable et les options ci-dessus s'appliquent normalement. En maladie rénale chronique NON dialysée, la statine reste indiquée. [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Interrompre la statine 4 à 6 semaines et réévaluer :: à renseigner : statine_deja_en_place, intolerance_statine, CK_normale_sup
+    - Arrêter la statine — suspicion de rhabdomyolyse, avis spécialisé urgent :: à renseigner : statine_deja_en_place, intolerance_statine, CK_normale_sup
     - Interrompre la statine — la classe reste indisponible :: à renseigner : statine_deja_en_place, intolerance_statine, CK_normale_sup
     - Statine indisponible :: à renseigner : statine_deja_en_place, intolerance_statine, CK_normale_sup
 
@@ -203,6 +206,7 @@ Sortie :
     - Patient en dialyse : le bénéfice d'une statine n'est pas démontré sur les critères durs dans cette population (4D chez le DT2 hémodialysé : critère principal RR 0,92 NS, avec un signal d'AVC fatal ; AURORA : neutre malgré −43 % de LDL). Chez un patient dialysé SANS statine en cours, l'option de haute intensité (prévention secondaire) n'est plus proposée par cet outil — retrait structurel, pas seulement un rappel. Si une statine est DÉJÀ en place, sa poursuite reste raisonnable et les options ci-dessus s'appliquent normalement. En maladie rénale chronique NON dialysée, la statine reste indiquée. [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Interrompre la statine 4 à 6 semaines et réévaluer :: à renseigner : intolerance_statine, CK_UI_L
+    - Arrêter la statine — suspicion de rhabdomyolyse, avis spécialisé urgent :: à renseigner : intolerance_statine, CK_UI_L
     - Interrompre la statine — la classe reste indisponible :: à renseigner : intolerance_statine, CK_UI_L
     - Statine indisponible :: à renseigner : intolerance_statine
 
@@ -287,6 +291,7 @@ Sortie :
   (aucune option applicable — sortie vide)
   Options EN ATTENTE (indétermination, R7/D20) :
     - Interrompre la statine 4 à 6 semaines et réévaluer :: à renseigner : intolerance_statine, CK_normale_sup
+    - Arrêter la statine — suspicion de rhabdomyolyse, avis spécialisé urgent :: à renseigner : intolerance_statine, CK_normale_sup
     - Interrompre la statine — la classe reste indisponible :: à renseigner : intolerance_statine, CK_normale_sup
     - Statine indisponible :: à renseigner : intolerance_statine
 

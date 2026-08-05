@@ -450,6 +450,11 @@ describe('statine — F-13/F-19 : intolérance avérée et garde-fou CK (D21, lo
  */
 const OPT_INTERRUPTION = node.options.find((o) => o.intitule.includes('Interrompre la statine'))
 if (!OPT_INTERRUPTION) throw new Error('Option « Interrompre la statine » introuvable.')
+// T-153 (P13/S7, D6) : la bande CK > 50 N a sa PROPRE carte depuis ce lot — l'ex-alerte de bande haute
+// de `OPT_INTERRUPTION`, qui démentait le titre « … 4 à 6 semaines et réévaluer » sous lequel elle
+// s'affichait, est devenue une option à part entière avec son propre titre.
+const OPT_ARRET_URGENCE = node.options.find((o) => o.intitule.includes('suspicion de rhabdomyolyse'))
+if (!OPT_ARRET_URGENCE) throw new Error('Option « Arrêter la statine — suspicion de rhabdomyolyse » introuvable.')
 
 describe('statine — F-21/F-25 : conduite CK sous traitement (parcours NHS, lot du soir)', () => {
   it('F-21 — CK à 6 N sous statine : l’interruption 4-6 semaines PREND LA MAIN sur le tier de risque', () => {
@@ -481,13 +486,32 @@ describe('statine — F-21/F-25 : conduite CK sous traitement (parcours NHS, lot
     expect(msgs.some((m) => m.includes('RHABDOMYOLYSE'))).toBe(false)
   })
 
-  it('F-25 — CK à 60 N : bande > 50, l’alerte bascule sur l’urgence — les deux bandes sont EXCLUSIVES', () => {
-    // Les bornes des deux `quand` doivent se toucher sans se recouvrir : à 60 N, afficher AUSSI l'alerte
-    // « vérifier la fonction rénale » enverrait un message de temporisation dans une situation urgente.
+  it('F-25 — CK à 60 N : bande > 50, carte DÉDIÉE « Arrêter — suspicion de rhabdomyolyse » (T-153, D6) — les deux bandes sont EXCLUSIVES', () => {
+    // RÉÉCRIT (T-153, P13/S7) : avant ce lot, la bande > 50 N restait sur `OPT_INTERRUPTION` et se
+    // signalait par une simple alerte, qui démentait le titre de la carte sous laquelle elle
+    // s'affichait (« … 4 à 6 semaines et réévaluer », alors que le message disait l'inverse). La carte
+    // change désormais de TITRE avec la conduite (P3, GRAMMAIRE-NOEUD.md §7) : ce test vérifie que la
+    // carte affichée est bien la nouvelle, jamais `OPT_INTERRUPTION`, et que les deux cartes restent
+    // mutuellement exclusives (bornes `<= 50` / `> 50`, sans recouvrement).
     const o = { statine_deja_en_place: true, intolerance_statine: 'rapportee', CK_UI_L: 60, CK_normale_sup: 1 } as Partial<Criteria>
-    const msgs = alertesDeCetteOption(o, OPT_INTERRUPTION).map((a) => a.message)
-    expect(msgs.some((m) => m.includes('RHABDOMYOLYSE'))).toBe(true)
-    expect(msgs.some((m) => m.includes('FONCTION RÉNALE'))).toBe(false)
+    const result = evalProfile(o)
+    expect(result.applicable).toEqual([OPT_ARRET_URGENCE])
+    expect(result.applicable).not.toContain(OPT_INTERRUPTION)
+    expect((OPT_ARRET_URGENCE.avantages ?? []).join(' ')).toContain('RHABDOMYOLYSE')
+    // La carte < 50 N ne doit plus jamais afficher l'ex-alerte d'urgence, ni être atteignable à 60 N.
+    const msgsInterruption = alertesDeCetteOption(o, OPT_INTERRUPTION).map((a) => a.message)
+    expect(msgsInterruption.some((m) => m.includes('RHABDOMYOLYSE'))).toBe(false)
+    expect(msgsInterruption.some((m) => m.includes('FONCTION RÉNALE'))).toBe(false)
+  })
+
+  it('F-25b — CK à 50 N pile (borne) : reste sur la carte « Interrompre… » (`<= 50`), pas sur l’urgence', () => {
+    // Contre-épreuve de la borne exacte : `CK_x_normale > 50` exclut 50 lui-même, `<= 50` l'inclut côté
+    // « Interrompre… ». Sans ce test, un décalage de borne (`>=`/`>`) entre les deux cartes passerait
+    // inaperçu alors qu'il ouvrirait soit un trou de couverture, soit un recouvrement.
+    const o = { statine_deja_en_place: true, intolerance_statine: 'rapportee', CK_UI_L: 50, CK_normale_sup: 1 } as Partial<Criteria>
+    const result = evalProfile(o)
+    expect(result.applicable).toEqual([OPT_INTERRUPTION])
+    expect(result.applicable).not.toContain(OPT_ARRET_URGENCE)
   })
 
   it('F-26 — CK à 6 N SANS statine en place : c’est l’initiation qui est bloquée, pas une interruption', () => {

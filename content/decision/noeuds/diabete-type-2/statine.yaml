@@ -337,15 +337,34 @@ options:
   # `CK_x_normale`). Les bandes 5-10 N et 10-50 N y convergent vers UNE SEULE case, « Stop statin for 4-6
   # weeks » : c'est pourquoi ces options n'ont qu'un seuil d'entrée et deux alertes qui les qualifient
   # au-delà, plutôt que des options empilées.
+  # T-153 (P13/S7, D6) : SCINDÉE EN DEUX OPTIONS le 2026-08-05. Une seule carte portait jusqu'ici les
+  # trois bandes CK > 5 N (« Interrompre… 4 à 6 semaines et réévaluer ») alors que son ALERTE à CK > 50 N
+  # démentait son propre titre (« Ce n'est plus la séquence d'interruption-réintroduction décrite
+  # ci-dessus »). P3 (GRAMMAIRE-NOEUD.md §7) : un état qui change la conduite change le TITRE, jamais un
+  # encart qui dément un titre resté fixe. Les deux conduites SONT cliniquement distinctes (suspension
+  # réévaluable vs urgence hospitalière suspectant une rhabdomyolyse) : ce sont donc deux options, avec des
+  # `conditions` MUTUELLEMENT EXCLUSIVES sur `CK_x_normale` (`<= 50` / `> 50`) — aucun ordre entre elles
+  # deux ne protège quoi que ce soit, puisqu'AUCUN profil ne peut satisfaire les deux à la fois ; leur
+  # union reste exactement la condition d'origine, donc rien en amont (options « Débuter à dose plus
+  # faible », « Statine de haute intensité », etc.) ni en aval (« Interrompre — la classe reste
+  # indisponible », ci-dessous) ne change d'atteignabilité. Seuils, textes cliniques, avis spécialisé et
+  # réhydratation DÉPLACÉS tels quels depuis l'ex-alerte CK > 50 N — rien réécrit, seul l'intitulé de la
+  # seconde carte est neuf.
   - intitule: "Interrompre la statine 4 à 6 semaines et réévaluer"
     role: securite
     conditions:
-      - "intolerance_statine == rapportee AND CK_x_normale > 5 AND statine_deja_en_place == true"
-    # P10/S5 (T-082) : la branche brute conjugue 3 comparaisons techniques (« Intolérance aux statines
+      # BORNE HAUTE `<= 50` AJOUTÉE (T-153) : sans elle, cette carte redeviendrait aussi atteignable par un
+      # patient CK > 50 N, qui doit relever de la carte « Arrêter… suspicion de rhabdomyolyse » ci-dessous,
+      # et d'elle seule. C'est cette borne, pas l'ordre de déclaration, qui protège la carte suivante de
+      # toute préemption — les deux conditions étant disjointes, aucune des deux ne peut jamais préempter
+      # l'autre, dans quelque ordre que ce soit.
+      - "intolerance_statine == rapportee AND CK_x_normale > 5 AND CK_x_normale <= 50 AND statine_deja_en_place == true"
+    # P10/S5 (T-082) : la branche brute conjugue 4 comparaisons techniques (« Intolérance aux statines
     # (non / rapportée / avérée) = Rapportée et CK, en multiples de la normale (0 = non dosé) > 5 et
-    # Statine déjà en place ») — famille 3 de S3 (conjonction qui décrit UNE seule situation clinique).
+    # CK ... <= 50 et Statine déjà en place ») — famille 3 de S3 (conjonction qui décrit UNE seule
+    # situation clinique). Clé mise à jour (T-153) pour matcher la nouvelle condition, texte inchangé.
     motifs:
-      "intolerance_statine == rapportee AND CK_x_normale > 5 AND statine_deja_en_place == true": "intolérance rapportée avec CK au-dessus de 5 fois la normale, sous statine en cours"
+      "intolerance_statine == rapportee AND CK_x_normale > 5 AND CK_x_normale <= 50 AND statine_deja_en_place == true": "intolérance rapportée avec CK au-dessus de 5 fois la normale, sous statine en cours"
     avantages:
       - "Conduite du parcours NHS England / AAC : interrompre la statine 4 à 6 SEMAINES, en documentant le délai d'apparition des symptômes et celui de leur résolution. C'est une interruption d'épreuve, pas un renoncement — elle sert à établir si la statine est bien en cause."
       - "Re-doser les CK à 7 JOURS (NG238 §1.5.7) : c'est ce contrôle qui distingue une élévation transitoire — effort physique, geste récent, cause non médicamenteuse — d'une élévation persistante attribuable au traitement."
@@ -371,10 +390,13 @@ options:
       - gauss-3
       - ctt-symptomes-musculaires
     alertes:
-      # Les deux bandes hautes du parcours. D21 : ces faits QUALIFIENT le geste proposé (l'interruption)
-      # sans le remplacer — c'est la même interruption, avec un examen de plus ou une urgence en plus.
-      # DUPLIQUÉES sur la carte « la classe reste indisponible » ci-dessous : les deux cartes couvrent le
-      # même geste d'arrêt, un patient à 20 N peut atterrir sur l'une ou l'autre selon son intolérance.
+      # UNE SEULE bande haute désormais (T-153) : la bande > 50 N a sa propre carte ci-dessous, elle ne
+      # peut plus atteindre CETTE carte (borne `<= 50` dans `conditions`) — cette alerte ne peut donc plus
+      # jamais être contredite par son propre encart. DUPLIQUÉE sur la carte « la classe reste
+      # indisponible » ci-dessous (branche jumelle intolérance avérée) : les deux cartes couvrent le même
+      # geste d'arrêt, un patient à 20 N peut atterrir sur l'une ou l'autre selon son intolérance — cette
+      # duplication-là, hors périmètre de T-153 (qui porte sur D6, la seule contradiction titre/encart
+      # relevée par la revue, propre à CETTE carte).
       - quand: "CK_x_normale > 10 AND CK_x_normale <= 50"
         niveau: attention
         message: >-
@@ -384,12 +406,44 @@ options:
           Si les CK ne se normalisent pas malgré l'arrêt et que la faiblesse musculaire progresse, penser
           à la myosite nécrosante auto-immune induite par les statines — c'est la seule situation où le
           parcours proscrit définitivement toute réexposition à la classe.
-      - quand: "CK_x_normale > 50"
-        niveau: attention
-        message: >-
-          CK au-dessus de 50 fois la normale : arrêter la statine et évoquer une RHABDOMYOLYSE. Avis
-          spécialisé URGENT et évaluation hospitalière — ne pas attendre le dosage de la myoglobinurie
-          pour réhydrater. Ce n'est plus la séquence d'interruption-réintroduction décrite ci-dessus.
+  # T-153 (P13/S7, D6) : NOUVELLE OPTION — ex-alerte CK > 50 N de la carte précédente, devenue sa propre
+  # carte parce que le geste qu'elle décrit n'est PLUS le même (urgence hospitalière, pas une suspension
+  # réévaluable en ambulatoire) : cf. le commentaire de tête ci-dessus. Seuils/texte clinique/avis
+  # spécialisé/réhydratation repris VERBATIM de l'ex-alerte (seule la phrase qui démentait le titre voisin,
+  # devenue sans objet, n'est pas reprise). `inconvenients` reprend la même mise en garde sur la
+  # divergence FR/NHS que la carte précédente (elle s'applique a fortiori ici, CK > 50 N étant au-delà des
+  # deux seuils en désaccord). `effet_attendu` NE PEUT PAS reprendre celui de la carte précédente : il
+  # décrit le devenir de la séquence interruption-réintroduction, et cette carte affirme précisément que ce
+  # n'est plus cette séquence — seul point de rédaction neuve de cette tâche, avec l'intitulé (N2, cf.
+  # bilan de session).
+  - intitule: "Arrêter la statine — suspicion de rhabdomyolyse, avis spécialisé urgent"
+    role: securite
+    conditions:
+      # BANDE DISJOINTE de la carte précédente par construction (`> 50` vs `<= 50`) : aucun profil ne peut
+      # jamais satisfaire les deux, donc aucun ordre entre les deux cartes ne protège l'une de l'autre — ce
+      # qui protège la carte précédente, c'est sa propre borne haute (commentée là-bas), pas la position de
+      # celle-ci dans le fichier.
+      - "intolerance_statine == rapportee AND CK_x_normale > 50 AND statine_deja_en_place == true"
+    motifs:
+      "intolerance_statine == rapportee AND CK_x_normale > 50 AND statine_deja_en_place == true": "intolérance rapportée avec CK au-dessus de 50 fois la normale, sous statine en cours — suspicion de rhabdomyolyse"
+    avantages:
+      - "CK au-dessus de 50 fois la normale : arrêter la statine et évoquer une RHABDOMYOLYSE. Avis spécialisé URGENT et évaluation hospitalière — ne pas attendre le dosage de la myoglobinurie pour réhydrater (parcours NHS England / AAC — texte repris de l'ex-alerte de la carte « Interrompre… », déplacé, pas réécrit)."
+    inconvenients:
+      - "DIVERGENCE DE SOURCES sur ce point précis, et elle porte sur une règle de sécurité : la recommandation française 2026 écrit qu'au-delà de 10 fois la normale la statine est arrêtée DÉFINITIVEMENT. Le parcours NHS ne réserve l'arrêt définitif qu'à la myosite nécrosante auto-immune. Le nœud suit le parcours NHS — pour ne pas fermer définitivement la classe à un patient à haut risque cardiovasculaire qui pourrait la tolérer autrement — mais la position française est ici, et elle est défendable ; a fortiori à ce niveau de CK, au-delà des deux seuils en désaccord."
+    effet_attendu: >-
+      Non chiffrable : aucune étude ne mesure le devenir cardiovasculaire de cette situation d'urgence.
+      Ce que documente le parcours NHS/AAC à ce niveau de CK, c'est la conduite (arrêt, avis spécialisé,
+      réhydratation), pas un pronostic chiffré. La donnée de reprise après réintroduction, citée par la
+      carte « Interrompre… » ci-dessus pour la bande 5-50 N, ne s'applique PAS ici — ce n'est plus cette
+      séquence.
+    niveau_preuve: faible
+    references:
+      - kraut-2023
+      - aebi-2025
+      - samson
+      - statinwise
+      - gauss-3
+      - ctt-symptomes-musculaires
   # ------------------------------------------------------------------------------------------------------
   # A2, second volet. MÊME GESTE, SUITE DIFFÉRENTE : on interrompt aussi, mais on ne réintroduit pas — la
   # classe est fermée pour ce patient. Q3 : cette carte PORTE l'orientation vers les alternatives, qu'elle
@@ -502,6 +556,14 @@ options:
     role: geste
     conditions:
       - "ASCVD_etablie == true"
+    # T-152 (P13/S7, I28/D18) — TENTÉ PUIS REVERTÉ (2026-08-05). `statine_deja_en_place == false`
+    # n'apparaît QUE dans les `exclusions` de cette option, jamais dans `conditions`/`prerequis` : un
+    # motif ici satisferait le rendu (`describeReasons` lit `exclusions` via `option.motifs`, T-144) mais
+    # PAS l'invariant I24 (`engine/banc/invariants-contenu.test.ts`), dont `branchesDeclarees` ne scanne
+    # QUE `conditions`/`prerequis` — jamais `exclusions`. Fixer I24 exigerait de modifier sa logique
+    # (ajouter `exclusions` à `branchesDeclarees`), hors mandat de cette session (contenu seul, aucun
+    # fichier `src/` sauf la levée d'exemption nommément autorisée dans `rendu-textuel.test.ts`). Dette
+    # laissée en l'état, exemption I28 restaurée dans `rendu-textuel.test.ts` — cf. bilan P13/S7.
     avantages:
       - "Bénéfice sur critères DURS (mortalité, IDM, AVC, revascularisation), à NNT bas car le risque de base est élevé : événements vasculaires majeurs RR ~0,79 par 1 mmol/L de LDL abaissé chez le diabétique (méta CTT 2008, effet identique aux non-diabétiques) ; NNT ~12-20 sur 5-6 ans dans les sous-groupes de prévention secondaire (CARE, HPS, LIPID)."
       - "Haute intensité justifiée : gain incrémental démontré sur les événements CV non fatals (CTT more-vs-less 2010 : −15 % ; TNT sous-groupe diabète HR 0,75, NNT ~24 sur 4,9 ans)."
@@ -566,6 +628,10 @@ options:
     # s'affiche « = 0 » (comparaison arithmétique, pas une phrase clinique) ; `diabete_complique == false`
     # traîne le libellé long du critère (définition entière de la complication) dans une tournure « : non »
     # — famille 1/2 de S3 (garde exposée en comparaison technique / libellé verbeux).
+    # T-152 (P13/S7, I28/D18) — même tentative REVERTÉE que sur « Statine de haute intensité » ci-dessus :
+    # `statine_deja_en_place == false` n'apparaît que dans `exclusions`, hors de portée de l'invariant I24
+    # (qui ne scanne que `conditions`/`prerequis`) sans modifier sa logique — hors mandat de cette
+    # session. Cf. le commentaire complet plus haut et le bilan P13/S7.
     motifs:
       "autres_FDRCV == 0": "aucun autre facteur de risque cardiovasculaire"
       "diabete_complique == false": "diabète non compliqué (pas d'atteinte d'organe)"
@@ -895,42 +961,42 @@ argumentaire: >
 sources:
   references_primaires:
     - id: cards
-      titre: ", DT2 prévention primaire) — composite HR 0,63 ; mortalité NS (p=0,059)"
+      titre: "CARDS, DT2 prévention primaire) — composite HR 0,63 ; mortalité NS (p=0,059)"
       annee: 2004
       type_critere: dur
       lien: "https://doi.org/10.1016/S0140-6736(04)16895-5"
     - id: hps
-      titre: " (simvastatine 40 mg) : −22 % ; sous-groupe prévention primaire −33 %"
+      titre: "HPS (simvastatine 40 mg) : −22 % ; sous-groupe prévention primaire −33 %"
       annee: 2003
       type_critere: dur
       lien: "https://doi.org/10.1016/S0140-6736(03)13636-7"
     - id: ctt-diabete
-      titre: ", sous-groupe diabète (18 686 diabétiques) : RR 0,79 par mmol/L"
+      titre: "CTT, sous-groupe diabète (18 686 diabétiques) : RR 0,79 par mmol/L"
       annee: 2008
       type_critere: dur
       lien: "https://doi.org/10.1016/S0140-6736(08)60104-X"
     - id: ctt-more-vs-less
-      titre: " (méta) : −15 % d'événements vasculaires majeurs supplémentaires"
+      titre: "CTT (méta) : −15 % d'événements vasculaires majeurs supplémentaires"
       annee: 2010
       type_critere: dur
       lien: "https://doi.org/10.1016/S0140-6736(10)61350-5"
     - id: care
-      titre: " (pravastatine 40 mg, post-IDM) : −25 %, NNT ~12/5 ans"
+      titre: "CARE (pravastatine 40 mg, post-IDM) : −25 %, NNT ~12/5 ans"
       annee: 1998
       type_critere: dur
       lien: "https://doi.org/10.1161/01.CIR.98.23.2513"
     - id: lipid
-      titre: " (pravastatine 40 mg) : NNT 18/6 ans ; critère 1aire du sous-groupe NS (p=0,11)"
+      titre: "LIPID (pravastatine 40 mg) : NNT 18/6 ans ; critère 1aire du sous-groupe NS (p=0,11)"
       annee: 2003
       type_critere: dur
       lien: "https://pubmed.ncbi.nlm.nih.gov/14514569/"
     - id: quatre-s
-      titre: " (simvastatine, n=202) : événements coronaires RR 0,45"
+      titre: "4S (simvastatine, n=202) : événements coronaires RR 0,45"
       annee: 1997
       type_critere: dur
       lien: "https://doi.org/10.2337/diacare.20.4.614"
     - id: tnt
-      titre: " (atorvastatine 80 vs 10) : HR 0,75, NNT ~24/4,9 ans (intensité)"
+      titre: "TNT (atorvastatine 80 vs 10) : HR 0,75, NNT ~24/4,9 ans (intensité)"
       annee: 2006
       type_critere: dur
       lien: "https://doi.org/10.2337/dc05-2465"
@@ -940,7 +1006,7 @@ sources:
       type_critere: dur
       lien: "https://doi.org/10.1093/eurheartj/ehl220"
     - id: aspen
-      titre: ", DT2) — composite HR 0,90 NS ; prévention primaire HR 0,97 (nul)"
+      titre: "ASPEN, DT2) — composite HR 0,90 NS ; prévention primaire HR 0,97 (nul)"
       annee: 2006
       type_critere: mixte
       lien: "https://doi.org/10.2337/dc05-2415"
@@ -955,12 +1021,12 @@ sources:
       type_critere: dur
       lien: "https://pubmed.ncbi.nlm.nih.gov/24380090/"
     - id: lodestar
-      titre: " (treat-to-target vs dose fixe haute intensité) : NON-INFÉRIORITÉ — pas de supériorité d'une cible"
+      titre: "LODESTAR (treat-to-target vs dose fixe haute intensité) : NON-INFÉRIORITÉ — pas de supériorité d'une cible"
       annee: 2023
       type_critere: dur
       lien: "https://doi.org/10.1001/jama.2023.2487"
     - id: ctt-age
-      titre: " (méta par âge) : bénéfice atténué et incertain > 75 ans en primaire"
+      titre: "CTT (méta par âge) : bénéfice atténué et incertain > 75 ans en primaire"
       annee: 2019
       type_critere: dur
       lien: "https://pubmed.ncbi.nlm.nih.gov/30712900/"
@@ -970,7 +1036,7 @@ sources:
       type_critere: dur
       lien: "https://pubmed.ncbi.nlm.nih.gov/22607822/"
     - id: prosper
-      titre: " (pravastatine, 70-82 ans) — bénéfice porté par la prévention secondaire ; sous-groupe primaire NS"
+      titre: "PROSPER (pravastatine, 70-82 ans) — bénéfice porté par la prévention secondaire ; sous-groupe primaire NS"
       annee: 2002
       type_critere: dur
       lien: "https://pubmed.ncbi.nlm.nih.gov/12457784/"
@@ -980,12 +1046,12 @@ sources:
       type_critere: dur
       lien: "https://pubmed.ncbi.nlm.nih.gov/16034009/"
     - id: aurora
-      titre: " (rosuvastatine, hémodialyse) : critère principal HR 0,96 NS malgré −43 % de LDL"
+      titre: "AURORA (rosuvastatine, hémodialyse) : critère principal HR 0,96 NS malgré −43 % de LDL"
       annee: 2009
       type_critere: dur
       lien: "https://pubmed.ncbi.nlm.nih.gov/19332456/"
     - id: ctt-symptomes-musculaires
-      titre: " (méta sur données individuelles) : > 90 % non attribuables à la statine"
+      titre: "CTT (méta sur données individuelles) : > 90 % non attribuables à la statine"
       annee: 2022
       type_critere: substitution
       lien: "https://pubmed.ncbi.nlm.nih.gov/36049498/"
@@ -1202,8 +1268,35 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Claude Code"
   statut: brouillon
-  version: "1.24"
+  version: "1.25"
   changelog:
+    - date: "2026-08-05"
+      auteur: "Claude Code — en attente de relecture référent (P13/S7, T-151/T-152/T-153)"
+      resume: >-
+        TROIS CORRECTIFS DE FORME, AUCUN CHANGEMENT DE CONDUITE. (1) T-151/I34 : les 14 titres de
+        référence amputés du nom d'essai en tête (`sources.references_primaires[].titre` commençant par
+        une virgule ou un espace suivi de « ( ») sont corrigés — CARDS, HPS, CTT (×5), CARE, LIPID, 4S,
+        TNT, ASPEN, LODESTAR, PROSPER, AURORA restaurés en tête de leur titre respectif, provenance
+        croisée avec `statine.argumentaire.md` (texte + PMID/DOI identiques). Rien d'autre ne bouge dans
+        ces chaînes. (2) T-152/I28 — TENTÉ PUIS REVERTÉ : `statine_deja_en_place == false` (8 violations
+        I28, options « Statine de haute intensité — prévention secondaire » et « Discuter la statine »)
+        n'apparaît que dans des `exclusions`, jamais dans `conditions`/`prerequis` — l'invariant I24 ne
+        scanne que ces deux derniers champs, donc un motif ajouté ici serait fonctionnellement consommé
+        au rendu (T-144) mais toujours signalé « orphelin » par I24, dont la logique n'est pas du ressort
+        de cette session (contenu seul). Aucun motif ajouté ; les 8 exemptions I28 restent posées dans
+        `rendu-textuel.test.ts`, dette non résorbée — cf. bilan P13/S7 pour le détail et la piste de
+        correction (étendre `branchesDeclarees` d'I24 aux `exclusions`, hors mandat contenu). (3) T-153/D6 : la carte « Interrompre la
+        statine 4 à 6 semaines et réévaluer » ne couvre plus la bande CK > 50 N, dont l'alerte démentait
+        le titre (« Ce n'est plus la séquence d'interruption-réintroduction décrite ci-dessus ») — bande
+        scindée en une nouvelle option, « Arrêter la statine — suspicion de rhabdomyolyse, avis
+        spécialisé urgent » (seul texte clinique créé par ce lot, N2). Seuils, texte clinique, avis
+        spécialisé et réhydratation déplacés tels quels depuis l'ex-alerte ; `effet_attendu` de la
+        nouvelle carte est la seule prose neuve au-delà de l'intitulé (la carte précédente ne pouvait pas
+        être réutilisée telle quelle : elle décrit le devenir de la séquence réintroduction, qui ne
+        s'applique justement plus ici). Conditions mutuellement exclusives (`<= 50` / `> 50`), vérifiées
+        vignette par vignette (`evaluateNode.statine.test.ts`, F-25/F-25b). Golden master : décisions
+        inchangées sur les 26 profils touchés — seuls des titres de référence, un libellé de branche
+        négative et l'intitulé/le regroupement d'une carte à CK > 50 N bougent.
     - date: "2026-08-04"
       auteur: "Claude Code — en attente de relecture référent"
       resume: >-

@@ -123,6 +123,16 @@ criteres_entree:
     # conditionne qu'une `alerte` de nœud (canal distinct, R8). Le retirer changerait le comportement
     # (indéterminé, donc « décisif à confirmer » sur formulaire vierge) : hors périmètre de ce lot.
     presomption_non: true
+    # `partage` ajouté le 2026-08-05 (P13/S5, T-147) — revue COMPLÈTE de la liste `partage` (pas
+    # seulement poids/taille) : ce drapeau est un fait OBJECTIF (une classe de traitement en cours) et
+    # STABLE en consultation, déclaré à L'IDENTIQUE (`type: bool`, même `presomption_non: true`) sur
+    # `rhd-alimentation.yaml` — les deux nœuds RHD sont typiquement ouverts l'un après l'autre dans la
+    # même consultation (cf. `docs/decision/validation/revue-conception-fable-2026-08-04.md`, § Complément
+    # sur la mémoire de session, où la circulation RAS entre les deux nœuds RHD est déjà vérifiée). Ajouté
+    # SUR LES DEUX NŒUDS dans la même session (`lib/sessionCriteres.ts` exige `partage: true` du côté
+    # émetteur ET du côté lecteur) ; encodage identique vérifié par I32
+    # (`engine/banc/coherence-inter-noeuds.test.ts`) avant l'ajout.
+    partage: true
   # ── Socle — habitudes d'activité physique (S1-S5) ──
   - nom: frequence_activite_structuree
     type: enum
@@ -345,8 +355,23 @@ options:
     role: geste
     conditions:
       - "frequence_activite_structuree == jamais OR frequence_activite_structuree == une_fois_semaine"
+    # T-155 (P13/S7, D7) : `verrou_effort == true` REMPLACÉ par sa DÉCOMPOSITION en 4 drapeaux (voie a,
+    # GRAMMAIRE-NOEUD.md §R6 volet rendu — « un dérivé agrégatif se rend par ses composants vrais, jamais
+    # par son libellé générique »). Le correctif de rendu de S4 (branches vraies, T-144) ne suffisait pas
+    # ici : c'est l'AGRÉGAT lui-même qui effaçait l'information avant le rendu — un dérivé n'a qu'une
+    # valeur booléenne à montrer, quel que soit le nombre de composants vrais chez le patient. Ligne
+    # d'écartement AVANT ce lot, chez un patient dont seuls la rétinopathie et le pied sont déclarés :
+    # « écarté : Signe imposant un avis avant la pratique structurée (limitation, ischémie d'effort,
+    # rétinopathie, pied) » — énumère les QUATRE composants possibles, sans dire lesquels sont vrais.
+    # ÉQUIVALENCE TERME À TERME avec `verrou_effort` (`criteres_entree` ci-dessus, section « Sécurité à
+    # l'effort ») : copie exacte du corps de son `derive`, aucun seuil ni critère ajouté ou retiré — la
+    # décision ne change pas, seul le texte affiché change (branches vraies, déjà correct depuis T-144).
+    # SEUL USAGE DE `verrou_effort` DANS CE NŒUD (vérifié, un seul `grep` avant ce lot) : aucune autre
+    # expression n'est donc affectée par cette décomposition. Le dérivé `verrou_effort` reste déclaré dans
+    # `criteres_entree` (utilisable ailleurs s'il sert un jour — rien n'oblige à le supprimer pour que ce
+    # correctif de rendu tienne).
     exclusions:
-      - "verrou_effort == true"
+      - "limitation_physique_connue == true OR symptomes_ischemie_effort == true OR retinopathie_non_stabilisee_ou_proliferante == true OR neuropathie_ou_mal_perforant_plantaire == true"
     priorite: 4
     famille: "Pratique structurée"
     alertes:
@@ -662,8 +687,38 @@ meta:
   date_revue: "2026-07-26"
   auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
   statut: brouillon
-  version: "0.14"
+  version: "0.16"
   changelog:
+    - date: "2026-08-05"
+      auteur: "Claude Code — en attente de relecture référent (P13/S7, T-155)"
+      resume: >-
+        L'EXCLUSION DE « Envisager un programme d'activité physique adaptée… » NE CITE PLUS LE DÉRIVÉ
+        AGRÉGATIF `verrou_effort == true` : décomposée en ses QUATRE composants réels, en disjonction
+        (`limitation_physique_connue`, `symptomes_ischemie_effort`,
+        `retinopathie_non_stabilisee_ou_proliferante`, `neuropathie_ou_mal_perforant_plantaire`), copie
+        exacte du corps du `derive` de `verrou_effort` — aucune condition, aucun seuil changé. Le
+        correctif de rendu « branches vraies » de P13/S4 (T-144) ne suffisait pas à lui seul : c'est
+        l'AGRÉGAT qui effaçait l'information avant le rendu (D7 de la revue de conception du 2026-08-04),
+        pas le chemin d'affichage. Un patient dont seuls la rétinopathie et le pied sont déclarés voit
+        désormais une ligne d'écartement qui ne nomme que ces deux-là, plus jamais les quatre composants
+        possibles. `verrou_effort` reste déclaré dans `criteres_entree` (seul usage trouvé dans ce nœud,
+        vérifié avant la décomposition) — rien n'empêche de le réutiliser un jour. EFFET DE BORD SUR I14
+        (`invariants-contenu.test.ts`) : `symptomes_ischemie_effort` et
+        `retinopathie_non_stabilisee_ou_proliferante` n'étaient jusqu'ici cités que dans ce `derive` (dette
+        connue K8, recette navigateur du 2026-07-27) ; la décomposition leur donne, de fait, une citation
+        hors `derive` — les deux entrées de dette I14 pour ce nœud sont retirées (question au référent sur
+        une conduite distincte non tranchée pour autant, cf. le commentaire du fichier de test). Golden
+        master : décisions inchangées, seul le texte de la ligne d'écartement bouge sur les profils qui la
+        déclenchent.
+    - date: "2026-08-05"
+      auteur: "Claude Code — en attente de relecture référent (P13/S5, T-147)"
+      resume: >-
+        `insuline_ou_insulinosecreteur` REÇOIT `partage: true` (revue complète de la liste `partage`,
+        au-delà du seul poids/taille demandé par I3) — même ajout, même session, sur
+        `rhd-alimentation.yaml`, qui déclare ce critère à l'identique (`bool`, `presomption_non: true`).
+        Fait objectif et stable, jusqu'ici ressaisi d'un nœud RHD à l'autre sans raison. Invariant I32
+        ajouté (`engine/banc/coherence-inter-noeuds.test.ts`) pour garantir mécaniquement que tout
+        critère `partage: true` garde le même encodage dans tous les nœuds qui le déclarent ainsi.
     - date: "2026-08-04"
       auteur: "Claude Code — en attente de relecture référent"
       resume: >-

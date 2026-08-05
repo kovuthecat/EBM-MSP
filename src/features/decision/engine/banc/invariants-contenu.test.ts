@@ -25,9 +25,12 @@ import { describe, expect, it } from 'vitest'
 import { noeuds } from '../../content/loadNodes.ts'
 import { fragmentsDuNoeud } from '../expressionsNoeud.ts'
 import { contraintesViolees } from '../contraintes.ts'
-import { calculerCriteresDerives } from '../deriveCritere.ts'
+import { calculerCriteresDerives, determinesEffectifs } from '../deriveCritere.ts'
+import { evaluateCondition } from '../conditions.ts'
+import { champEstVisible, valeurParDefaut } from '../../lib/formLayout.ts'
 import { genererProfils, genererProfilsBruts, tailleBanc } from './profils.ts'
-import type { CritereEntree, Option } from '../../content/node.types.ts'
+import type { CritereEntree, Noeud, Option } from '../../content/node.types.ts'
+import type { Criteria, CriteriaValue } from '../conditions.ts'
 
 // ---------------------------------------------------------------------------------------------------
 // Tokenizer local, minimal : extrait les noms de VARIABLES cités dans une expression `quand`/`exclusions`
@@ -792,18 +795,24 @@ describe('I8 — adossement bibliographique des options (générique, tous nœud
  * autres. Aucun tirage, donc un verdict exact et non une fréquence.
  */
 const DRAPEAUX_SANS_VOIX_PROPRE_CONNUS: Record<string, Record<string, string>> = {
-  'rhd-activite-physique': {
-    symptomes_ischemie_effort:
-      "K8 (recette navigateur 2026-07-27). QUESTION AU RÉFÉRENT : des symptômes d'ischémie à l'effort " +
-      "appellent-ils une conduite propre — avis cardiologique avant toute prescription d'activité — " +
-      "plutôt que le seul retrait de la famille « pratique structurée » ? C'est le plus grave des quatre " +
-      "drapeaux du verrou, et le seul, avec la rétinopathie, à n'avoir aucun canal.",
-    retinopathie_non_stabilisee_ou_proliferante:
-      "K8 (recette navigateur 2026-07-27). QUESTION AU RÉFÉRENT : une rétinopathie non stabilisée ou " +
-      "proliférante appelle-t-elle une restriction propre (manœuvre de Valsalva, efforts en résistance, " +
-      "intensité élevée) plutôt que le retrait global ? La dissymétrie avec les deux autres drapeaux du " +
-      "même verrou, qui ont leur canal, est dans le contenu et non dans le moteur.",
-  },
+  // `rhd-activite-physique` A ÉTÉ RETIRÉ le 2026-08-05 (P13/S7, T-155) — DETTE RÉSORBÉE, ses deux entrées
+  // avec (`symptomes_ischemie_effort`, `retinopathie_non_stabilisee_ou_proliferante`).
+  //
+  // CE QUI A CHANGÉ, ET POURQUOI ÇA SUFFIT. La question posée par cet invariant n'était pas « ce drapeau
+  // agit-il ? » (il agissait déjà, via `verrou_effort`) mais « a-t-il une voix qui LUI est propre, lisible
+  // dans le contenu sans dérive ? ». T-155 (D7 de la revue de conception du 2026-08-04, indépendant de K8)
+  // a décomposé l'unique usage de `verrou_effort` — l'exclusion de « Envisager un programme d'activité
+  // physique adaptée… » — en ses quatre composants cités EN CLAIR, en disjonction, à la place du dérivé
+  // agrégatif. Conséquence mécanique, non recherchée mais vérifiée : les deux drapeaux qui ne vivaient
+  // QUE dans le `derive` de `verrou_effort` ont désormais, eux aussi, une citation hors `derive` — la même
+  // expression d'exclusion qui donne son canal aux deux autres composants. Les QUESTIONS AU RÉFÉRENT que
+  // portaient ces deux entrées (une conduite PROPRE et distincte pour l'ischémie d'effort / la
+  // rétinopathie, au-delà du simple retrait de la famille « pratique structurée ») restent OUVERTES — ce
+  // correctif ne les tranche pas, il répare seulement l'asymétrie de canal qu'I14 mesure. Si le référent
+  // veut une conduite distincte pour l'un ou l'autre, c'est un chantier de contenu séparé (et, pour la
+  // rétinopathie, T-154/P13/S7 a cherché une source pour cette conduite précise et n'en a trouvé aucune
+  // dans ce nœud — cf. bilan P13/S7).
+  //
   // `rhd-alimentation` A ÉTÉ RETIRÉ le 2026-07-27 — DETTE RÉSORBÉE, ses trois entrées avec.
   //
   // La question posée par cet invariant était : « les trois signes de trouble du comportement alimentaire
@@ -1221,5 +1230,108 @@ describe('I24 — chaque clé de `motifs` désigne une branche réellement prés
 
     // Une option sans `motifs` (100 % du contenu au jour de T-079) n'a évidemment rien à violer.
     expect(clesDeMotifsOrphelines(option)).toEqual([])
+  })
+})
+
+/**
+ * I26 (R11, T-138, P13/S1) — **aucune règle `preremplissage` ne pose, sur un critère dont le `visible_si`
+ * est FAUX dans le même état, une valeur différente de `valeurParDefaut(critere)`.**
+ *
+ * POURQUOI CET INVARIANT EXISTE. `prescription.yaml` pré-remplit désormais `traitements_en_cours` à `[]`
+ * quand `intention == initier` — exactement la valeur que `reinitialiserChampsMasques` (R8) impose de
+ * toute façon à ce critère masqué. C'est ce qui rend le mécanisme compatible avec R1/R8 (cf. le
+ * commentaire YAML du critère) : rien n'est affirmé en silence, puisque la valeur posée EST le défaut.
+ * Cette tolérance NE VAUT QUE parce que la valeur posée est triviale — le jour où un contenu poserait,
+ * sur un critère masqué, une valeur DIFFÉRENTE du défaut (une vraie affirmation sur un état invisible à
+ * l'écran), ce raisonnement ne tiendrait plus : ce serait un état affirmé sans être observable, l'exact
+ * défaut que R8 existe pour interdire. Cet invariant mécanise cette limite, pour qu'un futur contenu ne
+ * puisse pas invoquer par erreur le même raisonnement de tolérance dans un cas où il ne vaut plus.
+ *
+ * MÉTHODE. Rejoue, sur chaque profil du banc de chaque nœud, EXACTEMENT ce que fait
+ * `appliquerPreremplissage` (`lib/formLayout.ts`) : première règle dont le `quand` est vrai AU SENS
+ * STRICT (mêmes fonctions, `calculerCriteresDerives`/`determinesEffectifs`/`evaluateCondition` — aucune
+ * réimplémentation susceptible de diverger du moteur réel). Pour chaque règle qui matcherait, vérifie que
+ * SI le critère porteur est alors MASQUÉ (`champEstVisible` faux), la valeur qu'elle poserait égale
+ * `valeurParDefaut(critere)` — comparaison DE CONTENU pour les tableaux (`[]` égale `[]`), puisqu'ici on
+ * juge la VALEUR déclarée par le contenu, pas l'identité d'objet qui protège `appliquerPreremplissage`
+ * contre le rejeu (cf. sa docstring — un souci différent).
+ *
+ * GÉNÉRIQUE (CLAUDE.md invariant 5) : aucun nom de critère ni de nœud dans la logique — un futur domaine
+ * obtient la protection sans modification de ce fichier.
+ */
+function valeurEgaleAuDefaut(valeur: string | string[], defaut: CriteriaValue): boolean {
+  if (Array.isArray(valeur) || Array.isArray(defaut)) {
+    return (
+      Array.isArray(valeur) &&
+      Array.isArray(defaut) &&
+      valeur.length === defaut.length &&
+      valeur.every((v) => (defaut as string[]).includes(v))
+    )
+  }
+  return valeur === defaut
+}
+
+/** Violations d'I26 sur UN profil (complet — `renseignes` non transmis, repli « tout est renseigné »,
+ * cf. `profils.ts`) : un pré-remplissage qui matche sur un critère masqué doit poser sa valeur par défaut. */
+function violationsPreremplissageMasque(node: Noeud, profil: Criteria): string[] {
+  const violations: string[] = []
+  const derives = calculerCriteresDerives(node.criteres_entree, profil)
+  const effectifs = determinesEffectifs(node.criteres_entree, derives, undefined)
+  for (const critere of node.criteres_entree) {
+    const regles = critere.preremplissage ?? []
+    if (regles.length === 0) continue
+    const regle = regles.find((r) => evaluateCondition(r.quand, derives, effectifs) === true)
+    if (regle == null) continue
+    if (champEstVisible(critere, derives, effectifs)) continue // visible : la propriété ne parle pas de ce cas
+    const defaut = valeurParDefaut(critere)
+    if (!valeurEgaleAuDefaut(regle.valeur, defaut)) {
+      violations.push(
+        `"${critere.nom}" masqué (visible_si faux) mais la règle "${regle.quand}" pose ` +
+          `${JSON.stringify(regle.valeur)} — attendu la valeur par défaut ${JSON.stringify(defaut)}`,
+      )
+    }
+  }
+  return violations
+}
+
+describe('I26 — un pré-remplissage sur un critère masqué ne pose jamais que sa valeur par défaut (R11, T-138)', () => {
+  it.each(noeuds.map((node) => [node.id, node] as const))('nœud %s', (_id, node) => {
+    // Vacuité : aucun critère à examiner sur un nœud qui ne déclare `preremplissage` nulle part.
+    if (node.criteres_entree.every((c) => (c.preremplissage ?? []).length === 0)) return
+    const violations = genererProfils(node, tailleBanc(node)).flatMap((profil) =>
+      violationsPreremplissageMasque(node, profil),
+    )
+    expect([...new Set(violations)]).toEqual([])
+  })
+
+  it('mord sur une valeur non triviale posée en silence sur un champ masqué, laisse passer la valeur par défaut', () => {
+    const criteresOk: CritereEntree[] = [
+      { nom: 'declencheur', type: 'bool' },
+      { nom: 'porte', type: 'bool' },
+      {
+        nom: 'champ',
+        type: 'liste',
+        valeurs: ['x', 'y'],
+        visible_si: 'declencheur == true',
+        preremplissage: [{ quand: 'porte == true', valeur: [] }],
+      },
+    ]
+    // État synthétique : `declencheur` FAUX ⇒ « champ » masqué ; `porte` VRAI ⇒ la règle matche.
+    const profil = { declencheur: false, porte: true, champ: [] }
+
+    // Valeur par défaut posée (`[]`) : aucune violation.
+    expect(violationsPreremplissageMasque({ criteres_entree: criteresOk } as Noeud, profil)).toEqual([])
+
+    // Même situation, mais la règle pose une valeur NON TRIVIALE sur le champ masqué : mord.
+    const criteresFautifs: CritereEntree[] = criteresOk.map((c) =>
+      c.nom === 'champ' ? { ...c, preremplissage: [{ quand: 'porte == true', valeur: ['x'] }] } : c,
+    )
+    const violations = violationsPreremplissageMasque({ criteres_entree: criteresFautifs } as Noeud, profil)
+    expect(violations).toHaveLength(1)
+    expect(violations[0]).toContain('"champ" masqué')
+
+    // Le même critère VISIBLE (declencheur vrai) échappe à la propriété — elle ne parle que du masqué.
+    const profilVisible = { declencheur: true, porte: true, champ: [] }
+    expect(violationsPreremplissageMasque({ criteres_entree: criteresFautifs } as Noeud, profilVisible)).toEqual([])
   })
 })

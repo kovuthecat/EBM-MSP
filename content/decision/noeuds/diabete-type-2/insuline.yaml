@@ -447,11 +447,19 @@ criteres_entree:
     # Le bolus du repas précédent est trop fort. Équivalent capillaire de `profil_entre_repas ==
     # baisse_entre_repas` (ex-`hypo_interprandiale`) : les deux ouvrent le même geste (réduire ce bolus).
     derive: "mcg_disponible == false AND situation_insuline == basale_plus_bolus AND glycemie_pre_repas > 0 AND glycemie_pre_repas < 0.7 OR mcg_disponible == false AND situation_insuline == basal_bolus AND glycemie_pre_repas > 0 AND glycemie_pre_repas < 0.7"
+  # `partage` ajouté le 2026-08-05 (P13/S5, T-147, I3 de la revue de conception du 2026-08-04) : le
+  # poids saisi sur `prescription` pilote directement les doses calculées ici (0,1/0,2 U/kg à
+  # l'initiation) — le ressaisir était le défaut mesuré par la revue. MÊME ENCODAGE que
+  # `prescription.yaml` (nombre, min 35, max 250, aucun `derive`) — condition de l'invariant I32
+  # (`engine/banc/coherence-inter-noeuds.test.ts`) ; les DEUX nœuds doivent déclarer `partage: true`
+  # pour qu'une valeur circule (`lib/sessionCriteres.ts` `valeursReprises` filtre sur le critère du nœud
+  # LECTEUR, pas seulement de l'émetteur).
   - nom: poids
     type: nombre
     groupe: Profil et objectif glycémique
     min: 35
     max: 250
+    partage: true
   - nom: dose_basale_actuelle
     type: nombre
     groupe: Traitement actuel
@@ -848,6 +856,13 @@ options:
       # CETTE OPTION garde ses trois déclencheurs de SEUIL inchangés, et reste donc applicable en
       # `basale_seule`/`basale_plus_bolus` sur ces trois signaux, y compris SANS baisse continue nocturne.
       - "mcg_disponible == true AND TBR > 4 OR mcg_disponible == true AND CV_glycemique > 36 OR mcg_disponible == false AND gaj_basse == true"
+    # T-152 (P13/S7, I28/D18) : motif négatif ajouté pour la branche `mcg_disponible == false AND
+    # gaj_basse == true` — CLÉ = LA BRANCHE OR ENTIÈRE (`lib/conditionText.ts` `texteDeBranche`/I24
+    # n'indexent jamais un atome isolé au sein d'une conjonction, seulement le terme `OR` complet, déjà
+    # réduit à la branche vraie par T-144). Sans ce motif, rendu mécanique « … et MCG disponible : non et
+    # Glycémie à jeun sous la cible (< 0,70 g/L) », lisible comme du code sur son premier atome seulement.
+    motifs:
+      "mcg_disponible == false AND gaj_basse == true": "absence de MCG, glycémie à jeun sous la cible (< 0,70 g/L)"
     priorite: 1
     # D2 CORRIGÉ ICI AUSSI le 2026-07-29 (consignation de la passe A), et c'est la face la plus visible du
     # défaut : le `calculs` ci-dessous affichait une dose calculée à −20 %, c'est-à-dire le chiffre
@@ -913,8 +928,13 @@ options:
       - "mcg_disponible == false AND gaj_a_cible == true OR mcg_disponible == true AND profil_nocturne_a_cible == true OR over_basalisation == true"
     # T-125 (P12/S5) : motif sur la branche booléenne négative isolée — sans lui, rendu mécanique en
     # « HbA1c à la cible : non », lisible comme du code.
+    # T-152 (P13/S7, I28/D18) : motif négatif ajouté pour la branche `mcg_disponible == false AND
+    # gaj_a_cible == true` (clé = la branche `OR` entière, cf. commentaire détaillé sur « Corriger
+    # l'hypoglycémie ou la variabilité » ci-dessus) — sans lui, rendu mécanique en « … et MCG disponible :
+    # non et Glycémie à jeun à la cible », lisible comme du code sur son premier atome.
     motifs:
       "cible_atteinte == false": "Cible glycémique non atteinte"
+      "mcg_disponible == false AND gaj_a_cible == true": "absence de MCG, glycémie à jeun à la cible"
     priorite: 2
     avantages:
       # 2026-07-29 (consignation passe A, suite de D4) : la mention de la SFD est AJOUTÉE ici. Le red-team
@@ -965,8 +985,14 @@ options:
       - "mcg_disponible == false AND gaj_haute == true OR mcg_disponible == true AND profil_nocturne_permet_titration == true"
     # T-125 (P12/S5) : motif sur la branche booléenne négative isolée — sans lui, rendu mécanique en
     # « HbA1c à la cible : non », lisible comme du code.
+    # T-152 (P13/S7, I28/D18) : motif négatif ajouté pour la branche `mcg_disponible == false AND
+    # gaj_haute == true` (clé = la branche `OR` entière, cf. commentaire détaillé sur « Corriger
+    # l'hypoglycémie ou la variabilité » plus haut) — sans lui, rendu mécanique en « … et MCG disponible :
+    # non et Glycémie à jeun au-dessus de la cible (> 1,30 g/L) », lisible comme du code sur son premier
+    # atome.
     motifs:
       "cible_atteinte == false": "Cible glycémique non atteinte"
+      "mcg_disponible == false AND gaj_haute == true": "absence de MCG, glycémie à jeun au-dessus de la cible (> 1,30 g/L)"
     priorite: 3
     # D2 + D3 CORRIGÉS le 2026-07-29 (consignation de la passe A). Les deux défauts portaient sur CE texte.
     #
@@ -1202,8 +1228,13 @@ options:
       - "situation_insuline == basale_plus_bolus OR mcg_disponible == true AND TBR > 4 OR mcg_disponible == true AND CV_glycemique > 36 OR mcg_disponible == true AND profil_nocturne == baisse_continue OR over_basalisation == true OR gaj_a_cible == true OR mcg_disponible == false AND gaj_basse == true OR mcg_disponible == true AND profil_nocturne_a_cible == true"
     # T-125 (P12/S5) : motif sur la branche booléenne négative isolée (2ᵉ item `conditions` ci-dessus) —
     # sans lui, rendu mécanique en « HbA1c à la cible : non », lisible comme du code.
+    # T-152 (P13/S7, I28/D18) : motif négatif ajouté pour la branche `mcg_disponible == false AND
+    # gaj_basse == true` (clé = la branche `OR` entière, cf. commentaire détaillé sur « Corriger
+    # l'hypoglycémie ou la variabilité » plus haut) — sans lui, rendu mécanique en « … et MCG disponible :
+    # non et Glycémie à jeun sous la cible (< 0,70 g/L) », lisible comme du code sur son premier atome.
     motifs:
       "cible_atteinte == false": "Cible glycémique non atteinte"
+      "mcg_disponible == false AND gaj_basse == true": "absence de MCG, glycémie à jeun sous la cible (< 0,70 g/L)"
     # R6 : garde-fou de cohérence (ne pas déjà prendre l'une des classes visées) — jamais montré comme
     # justification.
     prerequis:
@@ -1283,8 +1314,13 @@ options:
       - "situation_insuline == basale_plus_bolus OR mcg_disponible == true AND TBR > 4 OR mcg_disponible == true AND CV_glycemique > 36 OR mcg_disponible == true AND profil_nocturne == baisse_continue OR over_basalisation == true OR gaj_a_cible == true OR mcg_disponible == false AND gaj_basse == true OR mcg_disponible == true AND profil_nocturne_a_cible == true"
     # T-125 (P12/S5) : motif sur la branche booléenne négative isolée (2ᵉ item `conditions` ci-dessus) —
     # sans lui, rendu mécanique en « HbA1c à la cible : non », lisible comme du code.
+    # T-152 (P13/S7, I28/D18) : motif négatif ajouté pour la branche `mcg_disponible == false AND
+    # gaj_basse == true` (clé = la branche `OR` entière, cf. commentaire détaillé sur « Corriger
+    # l'hypoglycémie ou la variabilité » plus haut) — sans lui, rendu mécanique en « … et MCG disponible :
+    # non et Glycémie à jeun sous la cible (< 0,70 g/L) », lisible comme du code sur son premier atome.
     motifs:
       "cible_atteinte == false": "Cible glycémique non atteinte"
+      "mcg_disponible == false AND gaj_basse == true": "absence de MCG, glycémie à jeun sous la cible (< 0,70 g/L)"
     # R6 : garde-fou de cohérence — même faille que « Initier une insuline basale » (12.10) : sans ce
     # prérequis, un bolus déjà en place pouvait être re-« ajouté ».
     prerequis:
@@ -1884,7 +1920,7 @@ sources:
       type_critere: substitution
       lien: ""
     - id: has-2024-r87
-      titre: "HAS 2024 (RBP « Stratégie thérapeutique du DT2 »), R.87 p. 25, grade AE — règle d'adaptation SYMÉTRIQUE : « adaptation des doses tous les 3 jours […] augmentée OU RÉDUITE de 1 ou 2 UI ». Le nœud n'avait encodé que la montée"
+      titre: "HAS 2024 (RBP « Stratégie thérapeutique du DT2 »), R.87 p. 25, grade AE — règle d'adaptation SYMÉTRIQUE : « adaptation des doses tous les 3 jours […] augmentée OU RÉDUITE de 1 ou 2 UI »."
       annee: 2024
       type_critere: substitution
       lien: ""
@@ -1894,7 +1930,7 @@ sources:
       type_critere: substitution
       lien: "https://doi.org/10.1016/j.mmm.2025.10.002"
     - id: ebmfrance-insuline
-      titre: "ebmfrance/Duodecim, « Insulinothérapie dans le diabète de type 2 » (ebm00491) — porte VERBATIM le « 3 matins de suite » de l'algorithme de titration affiché par ce nœud. Règle de descente graduée, mais EN DEUX MORCEAUX : le −4 U dépend de l'hypoglycémie SYMPTOMATIQUE, pas d'une glycémie à jeun basse ; la fiche imprime deux bornes basses différentes (4,0 et 5,0 mmol/L)"
+      titre: "ebmfrance/Duodecim, « Insulinothérapie dans le diabète de type 2 » (ebm00491) — cite textuellement « 3 matins de suite » dans son algorithme de titration. Règle de descente graduée, mais EN DEUX MORCEAUX : le −4 U dépend de l'hypoglycémie SYMPTOMATIQUE, pas d'une glycémie à jeun basse ; la fiche imprime deux bornes basses différentes (4,0 et 5,0 mmol/L)"
       annee: 2024
       type_critere: substitution
       lien: "https://www.ebmfrance.net/Guidelines/Details/ebm00491"
@@ -2073,8 +2109,40 @@ meta:
   date_revue: "2026-07-31"
   auteur: "référent DT2 (Thibault) + Opus + Claude Code"
   statut: valide
-  version: "0.45"
+  version: "0.47"
   changelog:
+    - date: "2026-08-05"
+      auteur: "Claude Code — en attente de relecture référent (P13/S7, T-152)"
+      resume: >-
+        UNE RÉFÉRENCE DIT CE QUE DIT LA SOURCE, PAS CE QUE FAIT LE NŒUD (I31, I5 de la revue de
+        conception du 2026-08-04) : les deux titres de référence qui parlaient encore d'eux-mêmes
+        (« Le nœud n'avait encodé que la montée » sur HAS 2024 R.87 ; « porte VERBATIM… affiché par ce
+        nœud » sur ebmfrance-insuline) sont réécrits, sujet changé pour la source, information clinique
+        conservée à l'identique (règle symétrique HAS ; citation textuelle ebmfrance). UN MOTIF RÉDIGÉ
+        NÉGATIF PAR BRANCHE `OR` ENTIÈRE (I28, D18) : sur 5 options du bloc MCG (« Corriger
+        l'hypoglycémie ou la variabilité », « Ne pas sur-titrer la basale… », « Titrer la basale… »,
+        « Ajouter un GLP-1… », « Ajouter un bolus… »), la branche conjonctive `mcg_disponible == false
+        AND gaj_*` retombait sur un rendu mécanique atome par atome (« … et MCG disponible : non et
+        Glycémie à jeun … »), faute de motif rédigé pour CETTE branche précise — la clé de `Option.motifs`
+        indexe la branche `OR` COMPLÈTE, jamais un atome isolé au sein d'une conjonction (I24,
+        `lib/conditionText.ts` `texteDeBranche`) : un motif atomique aurait été silencieusement ignoré.
+        Chaque branche reçoit désormais une prose dédiée (« absence de MCG, glycémie à jeun … »,
+        déclinée sur les trois seuils gaj_basse/gaj_a_cible/gaj_haute). 18 violations I28 + 2 violations
+        I31 levées côté contenu (S4/T-146 avait posé les exemptions et corrigé le mécanisme de rendu —
+        cette session ne touche aucun fichier `src/`, sauf le retrait des exemptions résorbées dans
+        `rendu-textuel.test.ts`). Aucun changement de décision : si le golden master bouge, c'est
+        uniquement le texte de ces branches négatives et de ces deux titres — aucune option ne change de
+        camp.
+    - date: "2026-08-05"
+      auteur: "Claude Code — en attente de relecture référent (P13/S5, T-147)"
+      resume: >-
+        LE POIDS CIRCULE DEPUIS `prescription` (T-147, I3 de la revue de conception du 2026-08-04) :
+        `poids` reçoit `partage: true`, en miroir du même ajout sur `prescription.yaml` dans la même
+        session (encodage déjà identique des deux côtés — nombre, min 35, max 250 — vérifié avant
+        l'ajout, invariant I32 ajouté pour le garantir mécaniquement). Le poids arrive désormais marqué
+        « · repris de votre saisie » à l'ouverture de ce nœud depuis `prescription`, et les doses
+        calculées (0,1/0,2 U/kg) s'affichent sans ressaisie. Aucun autre changement de comportement :
+        le partage agit entre nœuds, jamais à l'intérieur d'un même nœud (golden master inchangé).
     - date: "2026-08-04"
       auteur: "Claude Code — en attente de relecture référent"
       resume: >-
