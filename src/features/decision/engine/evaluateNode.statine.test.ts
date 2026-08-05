@@ -292,7 +292,10 @@ describe('statine — F-10/F-11 : alerte ASCVD restaurée sur le tier atteint ap
     expect(result.applicable).toEqual([OPT_DISCUTER]) // routage rigoureusement identique à F-02
     const alertes = alertesDeLOption(o, OPT_DISCUTER)
     expect(alertes.some((a) => a.message.includes('PRÉVENTION') && a.message.includes('SECONDAIRE'))).toBe(true)
-    expect(alertes.some((a) => a.message.includes('TRANCHE PAS'))).toBe(true)
+    // Le sujet de la phrase est passé du « dossier de preuve » (un artefact du dépôt, que le praticien
+    // ne peut pas ouvrir) aux « données disponibles » — d'où l'accord au pluriel. Ce qui est vérifié
+    // reste que l'alerte DIT explicitement ce qui n'est pas tranché.
+    expect(alertes.some((a) => /TRANCHE(?:NT)? PAS/.test(a.message))).toBe(true)
   })
 
   it('F-11 — dialysé + ASCVD établie, AVEC statine en place (profil F-03) : haute intensité MAINTENUE (routage inchangé), et cette option ne porte PAS l’alerte de requalification — elle n’a pas d’objet, le tier est déjà le bon', () => {
@@ -318,7 +321,10 @@ describe('statine — F-10/F-11 : alerte ASCVD restaurée sur le tier atteint ap
     expect(result.applicable).toEqual([OPT_MODEREE])
     const alertes = alertesDeLOption(o, OPT_MODEREE)
     expect(alertes.some((a) => a.message.includes('PRÉVENTION') && a.message.includes('SECONDAIRE'))).toBe(true)
-    expect(alertes.some((a) => a.message.includes('TRANCHE PAS'))).toBe(true)
+    // Le sujet de la phrase est passé du « dossier de preuve » (un artefact du dépôt, que le praticien
+    // ne peut pas ouvrir) aux « données disponibles » — d'où l'accord au pluriel. Ce qui est vérifié
+    // reste que l'alerte DIT explicitement ce qui n'est pas tranché.
+    expect(alertes.some((a) => /TRANCHE(?:NT)? PAS/.test(a.message))).toBe(true)
   })
 })
 
@@ -431,8 +437,10 @@ describe('statine — F-13/F-19 : intolérance avérée et garde-fou CK (D21, lo
     // critère mortalité lui-même dans la colonne des bénéfices.
     const bénéfices = (OPT_TERMINALE.avantages ?? []).join(' ').replace(/morbi-mortalité/gi, '')
     expect(/mortalit[ée]/i.test(bénéfices)).toBe(false)
-    // L'`effet_attendu` doit la mentionner, mais UNIQUEMENT pour la nier.
-    expect(OPT_TERMINALE.effet_attendu ?? '').toMatch(/Mortalité\s*:\s*NON démontrée/)
+    // L'`effet_attendu` doit la mentionner, mais UNIQUEMENT pour la nier. Insensible à la CASSE depuis
+    // la passe de lisibilité du 2026-08-05, qui réserve les capitales d'emphase aux faits de sécurité :
+    // ce qui est vérifié est la NÉGATION du bénéfice de mortalité, pas la typographie qui la porte.
+    expect(OPT_TERMINALE.effet_attendu ?? '').toMatch(/Mortalité\s*:\s*non démontrée/i)
     // Et les chiffres défavorables doivent être écrits, pas seulement résumés en « neutre ».
     const contre = (OPT_TERMINALE.inconvenients ?? []).join(' ')
     expect(contre).toContain('HR 1,04')

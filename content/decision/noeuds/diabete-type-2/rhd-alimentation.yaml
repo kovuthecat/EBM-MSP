@@ -83,11 +83,11 @@ population_cible: >-
   Adulte DT2, en consultation de médecine générale. Nœud du module RHD (axe alimentation) : recueil bref
   des habitudes alimentaires (socle ~2-3 minutes) puis pistes concrètes et négociables de rapprochement du
   motif alimentaire méditerranéen — jamais un objectif chiffré à atteindre, jamais un score d'adhérence.
-  Autonome : évaluable seul, sans prérequis d'un autre nœud (R1). Hors périmètre : objectif de perte de
-  poids et rémission (aucun nœud ne les porte à ce jour) ; prescription diététique détaillée
+  Autonome : évaluable seul, sans qu'un autre nœud ait à être rempli d'abord. Hors périmètre : objectif de
+  perte de poids et rémission (aucun nœud ne les porte à ce jour) ; prescription diététique détaillée
   (orientation vers le diététicien de la structure) ; instrument validé de repérage des troubles du
   comportement alimentaire (le repérage ci-dessous reformule des signes d'appel, ce n'est pas un score — il
-  ORIENTE, il ne bloque aucune piste). AUCUNE RESTRICTION, chiffrée ou non : ce nœud modifie des habitudes,
+  oriente, il ne bloque aucune piste). Aucune restriction, chiffrée ou non : ce nœud modifie des habitudes,
   il ne prescrit pas de régime. Les repères sont ceux de Santé publique France /
   Manger-Bouger — trois directions, « Augmenter », « Aller vers », « Réduire », jamais une quantité.
 selection: multi-options
@@ -265,14 +265,16 @@ options:
     priorite: 3
     famille: "Boissons"
     avantages:
-      - "Provenance : recommandation officielle. Réduit l'apport en sucres rapides et rapproche du repère « eau » du motif méditerranéen — objectif concret repris par un guide EBM européen (« arrêter les boissons sucrées et les boissons énergisantes »), au même titre que le repère Santé publique France de réduction des boissons sucrées."
+      - "Réduit l'apport en sucres rapides et rapproche du repère « eau » du motif méditerranéen."
+      - "Objectif concret repris par un guide de recommandations européen (« arrêter les boissons sucrées et les boissons énergisantes ») et par le repère de Santé publique France sur les boissons sucrées."
       - "Geste léger, négociable un repas sur deux pour commencer (eau plate ou pétillante, éventuellement aromatisée maison)."
     inconvenients:
-      - "Pas de bénéfice cardiovasculaire dur démontré pour ce geste isolé : c'est le motif alimentaire méditerranéen pris dans son ensemble qui porte la preuve dure (voir l'argumentaire du module)."
+      - "Pas de bénéfice cardiovasculaire dur démontré pour ce geste isolé : c'est le motif alimentaire méditerranéen pris dans son ensemble qui porte la preuve dure (voir « Comment ce nœud raisonne »)."
     effet_attendu: >-
-      Réduction de l'apport en sucres rapides ; effet cardiovasculaire propre à ce geste isolé non
-      chiffrable — le repère méditerranéen testé (motif entier, pas la boisson seule) est décrit dans
-      l'en-tête du module.
+      Ce qui a été mesuré porte sur le motif alimentaire méditerranéen entier, jamais sur la boisson prise
+      à part : aucun essai n'a chiffré l'effet cardiovasculaire du seul remplacement d'une boisson sucrée
+      par de l'eau. Ce que ce geste change à coup sûr, c'est l'apport en sucres rapides, et une
+      recommandation officielle en fait un objectif concret.
     niveau_preuve: modere
     references:
       - spf-50-astuces
@@ -285,10 +287,13 @@ options:
     priorite: 5
     famille: "Boissons"
     avantages:
-      - "Provenance : savoir-faire diététique (non EBM). Évite de substituer à un risque signalé (sucres rapides) un autre signal de prudence (édulcorants intenses), sans reproduire l'appétence pour le goût sucré."
+      - "Évite d'échanger un risque signalé, les sucres rapides, contre un autre signal de prudence, les édulcorants intenses."
+      - "Ne reproduit pas l'appétence pour le goût sucré, que la boisson édulcorée entretient."
     inconvenients:
       - "Le signal sur les édulcorants intenses est un repère de prudence, pas un essai contrôlé dédié — à présenter comme tel, sans plus de force que la source elle-même ne l'affirme."
-    effet_attendu: "Non chiffrable — argument de prudence, pas un effet mesuré pour ce geste."
+    effet_attendu: >-
+      Rien n'a été mesuré sur ce geste : aucun essai ne l'a testé. Le signal sur les édulcorants intenses
+      est un repère de prudence issu d'une synthèse critique, et la source qui le porte ne le grade pas.
     niveau_preuve: faible
   # ═══════════ FAMILLE ULTRATRANSFORMÉS ═══════════
   - intitule: "Un repas simple fait maison de plus par semaine"
@@ -298,11 +303,17 @@ options:
     priorite: 4
     famille: "Ultratransformés"
     avantages:
-      - "Provenance : savoir-faire diététique (non EBM). Réduit la part d'aliments ultratransformés au profit d'aliments peu ou pas transformés (même basique : œufs, féculent, légume) — repère partagé par la HAS (repérage des habitudes alimentaires) et par Santé publique France (« doucement sur les produits ultra-transformés »)."
+      - "Réduit la part d'aliments ultratransformés au profit d'aliments peu ou pas transformés — même basique : œufs, féculent, légume."
+      - "Repère partagé par la HAS, qui en fait un point de repérage des habitudes alimentaires, et par Santé publique France (« doucement sur les produits ultra-transformés »)."
     inconvenients:
       - "Demande un peu plus de temps ou d'organisation qu'un plat préparé — à négocier selon les contraintes réelles du patient (accès, budget, temps)."
-    effet_attendu: "Non chiffrable pour ce geste isolé ; réduit la part d'aliments ultratransformés (repère de composition, pas un essai contrôlé dédié)."
+    effet_attendu: >-
+      Aucun essai n'a testé ce geste : ce qui est établi, c'est un repère de composition, pas un effet
+      chiffré. Il relève du savoir-faire diététique et rejoint deux repères officiels non gradés.
     niveau_preuve: faible
+    references:
+      - has-obesite-alim
+      - spf-50-astuces
   # ═══════════ FAMILLE RESTAURATION RAPIDE ═══════════
   - intitule: "En restauration rapide, choisir mieux plutôt que s'interdire d'y aller"
     role: geste
@@ -311,11 +322,15 @@ options:
     priorite: 4
     famille: "Restauration rapide"
     avantages:
-      - "Provenance : recommandation officielle. Réduit la densité énergétique du repas sans viser l'éviction complète (préférer une formule avec crudités/salade, éviter d'associer systématiquement boisson sucrée et dessert sucré) — objectif concret d'un guide EBM européen (grade A/B, mention explicite des repas de type hamburger/pizza)."
+      - "Réduit la densité énergétique du repas sans viser l'éviction complète : préférer une formule avec crudités ou salade, éviter d'associer systématiquement boisson sucrée et dessert sucré."
+      - "Objectif concret d'un guide de recommandations européen, qui nomme explicitement les repas de type hamburger ou pizza."
       - "Cohérent avec la mise en garde contre les régimes trop restrictifs et rigides."
     inconvenients:
       - "N'agit pas sur la fréquence elle-même : si la restauration rapide est liée à une contrainte de temps ou de travail plutôt qu'à un choix, en parler avant de proposer une piste alimentaire évite une piste mal ajustée."
-    effet_attendu: "Réduit la densité énergétique du repas ; non chiffrable pour ce geste isolé."
+    effet_attendu: >-
+      Ce qui a été mesuré porte sur le motif alimentaire d'ensemble, jamais sur le choix du menu pris à
+      part. Ce geste réduit la densité énergétique du repas, et un guide de recommandations européen le
+      formule comme objectif concret (gradé A/B selon la section).
     niveau_preuve: modere
     references:
       - duodecim-alim
@@ -328,14 +343,20 @@ options:
     priorite: 1
     famille: "Matières grasses"
     avantages:
-      - "Provenance : savoir-faire diététique (non EBM) — la plus proche du bras réellement randomisé de PREDIMED (rang d'affichage prioritaire), mais l'étiquette EBM-dur reste portée par l'en-tête du module, pas par cette piste. Se rapproche du motif alimentaire méditerranéen testé par PREDIMED, dont l'un des deux bras supplémentait l'huile d'olive vierge extra (voir l'en-tête du module pour le résultat cardiovasculaire dur du motif entier — cette piste isolée ne le revendique pas)."
-      - "Convergent avec le repère de Santé publique France (« aller vers l'huile de colza, de noix et d'olive ») — le colza reste un choix légitime de matière grasse, recommandé pour d'autres raisons (profil en oméga-3), même s'il n'est pas le bras randomisé de PREDIMED."
+      - "Le geste le plus proche de ce que l'essai a réellement testé : l'un des deux bras de PREDIMED supplémentait le régime méditerranéen en huile d'olive vierge extra."
+      - "Le résultat cardiovasculaire dur appartient au motif alimentaire entier, pas à ce seul changement de matière grasse — cette piste ne le revendique pas pour elle-même (voir « Comment ce nœud raisonne »)."
+      - "L'huile de colza reste un choix légitime, recommandé par Santé publique France pour son profil en oméga-3 (« aller vers l'huile de colza, de noix et d'olive »), même si le bras randomisé portait sur l'huile d'olive."
     inconvenients:
       - "Aucun essai n'a testé ce geste isolément hors du motif alimentaire méditerranéen complet : l'effet propre de ce seul changement de matière grasse n'est pas mesurable séparément."
     effet_attendu: >-
-      Rapproche du motif méditerranéen testé dans son ensemble par PREDIMED et CORDIOPREV (voir l'en-tête
-      du module) ; effet propre de ce geste isolé non chiffrable.
+      Ce qui a été mesuré, c'est le motif méditerranéen supplémenté dans son ensemble — PREDIMED et
+      CORDIOPREV, sur un critère cardiovasculaire dur. L'effet propre du seul changement de matière grasse
+      n'a jamais été isolé ; le repère de matière grasse est par ailleurs porté, sans grade, par une
+      recommandation officielle française.
     niveau_preuve: faible
+    references:
+      - predimed
+      - spf-50-astuces
   # RÉÉCRITE le 2026-07-27 (décision référent, 7e série) — sur objection clinique directe : « préférer la
   # volaille à la charcuterie et au fromage me semble mélanger des choses bien différentes. Peut-être
   # peut-on baser les recommandations sur celles de Manger-Bouger. »
@@ -371,12 +392,16 @@ options:
     exclusions:
       - "fragilite == true"
     avantages:
-      - "Provenance : recommandation officielle. Santé publique France / Manger-Bouger range la charcuterie et la viande (porc, bœuf, veau, mouton, agneau, abats) dans la colonne « Réduire », et le motif méditerranéen va dans le même sens : peu de viande rouge, peu de viande transformée."
-      - "Une DIRECTION, pas une quantité : aucune portion à peser, aucune fraction à respecter — « chaque petit pas compte » est le cadre même de l'affiche dont ce repère est tiré."
+      - "Santé publique France / Manger-Bouger range la charcuterie et la viande (porc, bœuf, veau, mouton, agneau, abats) dans la colonne « Réduire »."
+      - "Le motif méditerranéen va dans le même sens : peu de viande rouge, peu de viande transformée."
+      - "Une direction, pas une quantité : aucune portion à peser, aucune fraction à respecter — « chaque petit pas compte » est le cadre même de l'affiche dont ce repère est tiré."
     inconvenients:
       - "Effet propre de ce geste isolé non démontré séparément du motif alimentaire complet."
-      - "Écarté en cas de fragilité ou de dénutrition : la viande reste alors un apport protéique à préserver (voir l'écarté correspondant)."
-    effet_attendu: "Réduit la viande transformée et les graisses saturées ; non chiffrable pour ce geste isolé."
+      - "Écarté en cas de fragilité ou de dénutrition : la viande reste alors un apport protéique à préserver."
+    effet_attendu: >-
+      Aucun essai n'a isolé ce geste : ce qui est mesuré porte sur le motif alimentaire d'ensemble. La
+      direction, elle, est portée sans grade par une recommandation officielle française — réduire la
+      viande transformée et la viande rouge.
     niveau_preuve: faible
     references:
       - manger-bouger-affiche
@@ -389,14 +414,19 @@ options:
     priorite: 1
     famille: "Fruits à coque, légumineuses, poisson"
     avantages:
-      - "Provenance : savoir-faire diététique (non EBM) — la plus proche du second bras réellement randomisé de PREDIMED (rang d'affichage prioritaire), mais l'étiquette EBM-dur reste portée par l'en-tête du module, pas par cette piste. Se rapproche du second bras réellement randomisé de PREDIMED (fruits à coque en plus du régime méditerranéen) — voir l'en-tête du module pour le résultat cardiovasculaire dur du motif entier ; cette piste isolée ne le revendique pas pour elle seule."
-      - "Convergent avec le repère de Santé publique France (« une petite poignée par jour »), cité ici comme ce qui a été recommandé — pas comme un objectif à atteindre pour ce patient."
+      - "Le geste le plus proche de ce que l'essai a réellement testé : le second bras de PREDIMED supplémentait le régime méditerranéen en fruits à coque."
+      - "Le résultat cardiovasculaire dur appartient au motif alimentaire entier, pas à cet ajout pris à part — cette piste ne le revendique pas pour elle seule (voir « Comment ce nœud raisonne »)."
+      - "Santé publique France recommande une petite poignée par jour — cité ici comme ce qui a été recommandé, pas comme un objectif à atteindre pour ce patient."
     inconvenients:
       - "Aucun essai n'a testé ce geste isolément hors du motif alimentaire méditerranéen complet."
     effet_attendu: >-
-      Rapproche du motif méditerranéen testé dans son ensemble par PREDIMED (voir l'en-tête du module) ;
-      effet propre de ce geste isolé non chiffrable.
+      Ce qui a été mesuré, c'est le motif méditerranéen supplémenté dans son ensemble — PREDIMED, sur un
+      critère cardiovasculaire dur. L'effet propre du seul ajout de fruits à coque n'a jamais été isolé ;
+      le repère est par ailleurs porté, sans grade, par une recommandation officielle française.
     niveau_preuve: faible
+    references:
+      - predimed
+      - spf-50-astuces
   - intitule: "Ajouter un plat de légumineuses de plus par semaine"
     role: geste
     conditions:
@@ -404,12 +434,17 @@ options:
     priorite: 3
     famille: "Fruits à coque, légumineuses, poisson"
     avantages:
-      - "Provenance : recommandation officielle. Composante du motif méditerranéen — riche en fibres et en protéines végétales (repère de Santé publique France), non randomisée isolément dans PREDIMED mais faisant partie du motif testé."
+      - "Composante du motif méditerranéen, riche en fibres et en protéines végétales : elle faisait partie du motif testé, sans avoir été randomisée isolément dans PREDIMED."
       - "Geste léger : même en accompagnement, même à partir de conserves ou de surgelés."
     inconvenients:
       - "Effet propre de ce geste isolé non démontré séparément du motif alimentaire complet."
-    effet_attendu: "Rapproche du motif méditerranéen ; non chiffrable pour ce geste isolé."
+    effet_attendu: >-
+      Ce qui a été mesuré porte sur le motif méditerranéen d'ensemble, dont les légumineuses font partie ;
+      elles n'ont jamais été testées seules. Le repère est porté, sans grade, par une recommandation
+      officielle française.
     niveau_preuve: faible
+    references:
+      - spf-50-astuces
   - intitule: "Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre"
     role: geste
     conditions:
@@ -417,12 +452,17 @@ options:
     priorite: 3
     famille: "Fruits à coque, légumineuses, poisson"
     avantages:
-      - "Provenance : recommandation officielle. Composante du motif méditerranéen — poissons gras riches en oméga-3 (repère de Santé publique France), non randomisée isolément dans PREDIMED."
+      - "Composante du motif méditerranéen, les poissons gras étant riches en oméga-3 : elle n'a pas été randomisée isolément dans PREDIMED."
       - "Frais, surgelé ou en conserve : plusieurs formes accessibles selon le budget et l'accès."
     inconvenients:
-      - "Effet propre de ce geste isolé non démontré séparément du motif alimentaire complet ; accès/coût variables selon les patients (voir l'accès à l'alimentation)."
-    effet_attendu: "Rapproche du motif méditerranéen ; non chiffrable pour ce geste isolé."
+      - "Effet propre de ce geste isolé non démontré séparément du motif alimentaire complet."
+      - "Accès et coût très variables d'un patient à l'autre : à croiser avec ce qui a été dit des difficultés d'accès à l'alimentation."
+    effet_attendu: >-
+      Ce qui a été mesuré porte sur le motif méditerranéen d'ensemble, dont le poisson fait partie ; il n'a
+      jamais été testé seul. Le repère est porté, sans grade, par une recommandation officielle française.
     niveau_preuve: faible
+    references:
+      - spf-50-astuces
   # ═══════════ FAMILLE STRUCTURE DES REPAS ═══════════
   - intitule: "Se fixer des repas à des horaires à peu près réguliers"
     role: geste
@@ -431,12 +471,18 @@ options:
     priorite: 4
     famille: "Structure des repas"
     avantages:
-      - "Provenance : savoir-faire diététique (non EBM). Prévient le grignotage compensatoire lié à la faim et les prises alimentaires non planifiées — objectif concret d'un guide EBM européen, à négocier selon les contraintes réelles du patient."
-      - "Reste pertinent même en cas de repérage positif de trouble du comportement alimentaire : la HAS cite elle-même l'instauration d'un rythme et d'un cadre alimentaire comme mesure d'accompagnement — cette piste n'est donc PAS bloquée par le verrou de repérage."
+      - "Prévient le grignotage compensatoire lié à la faim et les prises alimentaires non planifiées — objectif concret d'un guide de recommandations européen, à négocier selon les contraintes réelles du patient."
+      - "Reste pertinent quand un signe d'appel de trouble du comportement alimentaire est repéré : la HAS cite elle-même l'instauration d'un rythme et d'un cadre alimentaires parmi les mesures d'accompagnement."
     inconvenients:
       - "Ne se substitue pas à un accompagnement spécialisé si un trouble du comportement alimentaire est repéré : à articuler avec l'orientation, pas à proposer seule dans ce cas."
-    effet_attendu: "Prévient le grignotage compensatoire ; non chiffrable pour ce geste isolé."
+    effet_attendu: >-
+      Aucun essai n'a chiffré ce geste. Ce qui est établi, c'est qu'un rythme de repas prévient le
+      grignotage compensatoire — repère de savoir-faire diététique, repris sans grade par un guide de
+      recommandations européen et par la HAS.
     niveau_preuve: faible
+    references:
+      - duodecim-alim
+      - has-obesite-alim
   - intitule: "Manger sans se presser"
     role: geste
     conditions:
@@ -444,11 +490,17 @@ options:
     priorite: 5
     famille: "Structure des repas"
     avantages:
-      - "Provenance : savoir-faire diététique (non EBM). Aide à mieux percevoir les signaux de satiété — repère cité par un guide EBM européen et par la HAS (« manger lentement »)."
+      - "Aide à mieux percevoir les signaux de satiété — repère cité par un guide de recommandations européen et par la HAS (« manger lentement »)."
     inconvenients:
-      - "La prise alimentaire rapide est aussi un signe d'appel possible de trouble du comportement alimentaire : si le repérage est positif par ailleurs, articuler ce conseil avec l'orientation plutôt que le proposer isolément (source HAS elle-même : la lenteur du repas reste pertinente, ne pas le retirer)."
-    effet_attendu: "Aide à la perception de la satiété ; non chiffrable pour ce geste isolé."
+      - "La prise alimentaire rapide est aussi un signe d'appel possible de trouble du comportement alimentaire : si un signe est repéré par ailleurs, articuler ce conseil avec l'orientation plutôt que le proposer seul."
+      - "La HAS garde « manger lentement » parmi ses mesures d'accompagnement : le conseil reste pertinent dans ce cas, il ne se suffit simplement pas à lui-même."
+    effet_attendu: >-
+      Aucun essai n'a chiffré ce geste. Ce qui est établi, c'est un repère de savoir-faire diététique sur
+      la perception de la satiété, repris sans grade par un guide de recommandations européen et par la HAS.
     niveau_preuve: faible
+    references:
+      - duodecim-alim
+      - has-obesite-alim
   - intitule: "Repérer un moment de grignotage récurrent et lui trouver une alternative"
     role: geste
     conditions:
@@ -460,12 +512,18 @@ options:
     # bloquait ici un geste qui n'entre pas dans ce qu'il existe pour empêcher.
     exclusions: []
     avantages:
-      - "Provenance : savoir-faire diététique (non EBM). Rejoint la structuration des repas visée par le motif méditerranéen (repas réguliers plutôt que prises dispersées) — repère partagé par la HAS et par un guide EBM européen."
-      - "Propose une alternative (fruit, eau, activité) ou un repas structuré à l'heure du grignotage, plutôt qu'une interdiction."
+      - "Rejoint la structuration des repas visée par le motif méditerranéen — des repas réguliers plutôt que des prises dispersées, repère partagé par la HAS et par un guide de recommandations européen."
+      - "Propose une alternative (fruit, eau, activité) ou un repas structuré à l'heure du grignotage, plutôt qu'une interdiction : rien n'est retiré ni chiffré."
     inconvenients:
-      - "C'est un geste de réduction : le grignotage peut être le seul espace de spontanéité alimentaire d'un patient déjà très contrôlant — à ne jamais proposer isolément en cas de repérage positif de trouble du comportement alimentaire (voir l'écarté correspondant)."
-    effet_attendu: "Non chiffrable pour ce geste isolé."
+      - "Le grignotage peut être le seul espace de spontanéité alimentaire d'un patient déjà très contrôlant : proposer une alternative, jamais un retrait."
+      - "Si un signe d'appel de trouble du comportement alimentaire est repéré, ne pas s'en tenir à cette piste : elle s'articule avec l'orientation, elle ne la remplace pas."
+    effet_attendu: >-
+      Aucun essai n'a chiffré ce geste. Ce qui est établi, c'est un repère de savoir-faire diététique sur
+      la structuration des repas, repris sans grade par la HAS et par un guide de recommandations européen.
     niveau_preuve: faible
+    references:
+      - has-obesite-alim
+      - duodecim-alim
   # ═══════════ FAMILLE PORTIONS (savoir-faire, gating dur TCA/fragilité) ═══════════
   # DÉCISION RÉFÉRENT 2026-07-27 : la piste de PESÉE (« peser deux ou trois fois les féculents ») est
   # SUPPRIMÉE — « trop contraignant et difficile en consultation de médecine générale ». Elle tranche du
@@ -488,13 +546,18 @@ options:
     exclusions:
       - "fragilite == true"
     avantages:
-      - "Provenance : savoir-faire diététique (non EBM). Raisonner en PART RELATIVE de l'assiette — la place des légumes par rapport à celle des féculents et de l'aliment protidique — plutôt qu'en grammes : praticable à chaque repas, sans matériel, sans calcul, et transposable au restaurant comme à la cantine."
+      - "Raisonner en part relative de l'assiette — la place des légumes par rapport à celle des féculents et de l'aliment protidique — plutôt qu'en grammes."
+      - "Praticable à chaque repas, sans matériel ni calcul, et transposable au restaurant comme à la cantine."
       - "Se négocie en une phrase et se vérifie d'un coup d'œil à la consultation suivante, ce qu'une consigne de pesée ne permet pas."
     inconvenients:
       - "Écarté en cas de fragilité ou de dénutrition : déplacer la part relative de l'assiette vers les légumes réduit l'apport énergétique, ce qui n'est pas souhaitable sur ce terrain."
-      - "Aucune proportion CHIFFRÉE n'est affirmée ici : le dossier de preuve de ce nœud ne source aucun ratio précis (cf. incertitudes). Le repère est qualitatif — la place respective des composantes, pas une fraction à respecter."
-    effet_attendu: "Non chiffrable — aide à l'estimation des quantités, pas un effet métabolique direct."
+      - "Aucune proportion chiffrée n'est affirmée ici : aucune source ne chiffre ce ratio, ni moitié de légumes, ni quart de féculents. Le repère est qualitatif — la place respective des composantes, pas une fraction à respecter."
+    effet_attendu: >-
+      Rien n'a été mesuré sur ce geste : il aide à estimer des quantités, il n'a pas d'effet métabolique
+      propre. Repère de savoir-faire diététique, non gradé.
     niveau_preuve: faible
+    references:
+      - sfd-glucides
   # ═══════════ FAMILLE ORIENTATION ═══════════
   - intitule: "Orienter vers le diététicien de la structure"
     role: geste
@@ -509,12 +572,16 @@ options:
         rang: 6
     famille: "Orientation"
     avantages:
-      - "Provenance : ressource locale. Passe le relais quand le levier dépasse ce qu'une consultation de médecine générale peut négocier seule — repérage positif de trouble du comportement alimentaire, fragilité/dénutrition ou difficultés d'accès importantes à une alimentation variée."
-      - "Le rôle du médecin généraliste s'arrête au repérage et à l'orientation, pas au diagnostic ni au traitement d'un trouble du comportement alimentaire."
+      - "Passe le relais quand le levier dépasse ce qu'une consultation de médecine générale peut négocier seule."
+      - "Le diététicien de la structure peut travailler ce qu'une consultation n'a pas le temps de reprendre : les habitudes en détail, les contraintes d'accès, l'équilibre des apports."
     inconvenients:
       - "Dépend de la disponibilité réelle de la ressource dans la structure ; le contenu précis de l'accompagnement diététique n'est pas détaillé par ce nœud."
-    effet_attendu: "Non chiffrable — orientation, pas un geste alimentaire en soi."
+    effet_attendu: >-
+      Rien n'a été mesuré : c'est une orientation, pas un geste alimentaire. La HAS nomme les situations
+      qui appellent l'expertise diététique ; le relais lui-même repose sur une ressource de la structure.
     niveau_preuve: faible
+    references:
+      - has-obesite-alim
   # AJOUTÉE le 2026-07-27 (décision référent, 6e série). Le red-team du dossier « repérage TCA » a relevé,
   # dans un PDF que la collecte avait pourtant ouvert (`docs/decision/sources/guide HAS._parcours_
   # surpoids-obesite_de_ladulte.pdf`, §3.6 p. 43), une phrase qui n'avait pas été reprise :
@@ -532,13 +599,19 @@ options:
     priorite: 1
     famille: "Orientation"
     avantages:
-      - "La HAS écrit que l'orientation vers un psychologue ou un psychiatre spécialiste des TCA peut être nécessaire, EN COMPLÉMENT de l'accompagnement diététique et non à sa place (guide parcours surpoids-obésité de l'adulte, §3.6) — le repérage d'un signe d'appel n'appelle pas seulement un travail sur le contenu de l'assiette."
-      - "Le rôle du médecin généraliste s'arrête au repérage et à l'orientation : ni le diagnostic ni le traitement d'un trouble du comportement alimentaire ne se posent en consultation de médecine générale."
+      - "La HAS écrit que l'orientation vers un psychologue ou un psychiatre spécialiste des troubles du comportement alimentaire peut être nécessaire, en complément de l'accompagnement diététique et non à sa place (guide parcours surpoids-obésité de l'adulte, §3.6)."
+      - "Un signe d'appel n'appelle pas seulement un travail sur le contenu de l'assiette : c'est le rapport à l'alimentation lui-même qui est en cause."
     inconvenients:
-      - "Le verrou qui déclenche cette orientation reformule 3 signes d'appel HAS ; sa sensibilité et sa spécificité sont INCONNUES, aucune étude ne l'ayant évalué. Un signe positif ouvre une orientation, il ne pose aucun diagnostic — et son absence ne garantit rien."
-      - "Dépend entièrement de la disponibilité d'un professionnel formé aux TCA, ressource rare et souvent éloignée ; à proposer sans en faire une condition de la suite de la prise en charge alimentaire."
-    effet_attendu: "Non chiffrable — orientation, pas un geste alimentaire en soi."
+      - "Le repérage qui déclenche cette orientation reformule trois signes d'appel de la HAS ; sa sensibilité et sa spécificité sont inconnues, aucune étude ne l'ayant évalué."
+      - "Un signe positif ouvre une orientation, il ne pose aucun diagnostic — et son absence ne garantit rien."
+      - "Dépend entièrement de la disponibilité d'un professionnel formé à ces troubles, ressource rare et souvent éloignée ; à proposer sans en faire une condition de la suite de la prise en charge alimentaire."
+    effet_attendu: >-
+      Rien n'a été mesuré : c'est une orientation, pas un geste alimentaire. Elle est écrite telle quelle
+      dans une recommandation officielle française, comme complément et non comme substitut de
+      l'accompagnement diététique.
     niveau_preuve: faible
+    references:
+      - has-obesite-alim
   # ═══════════ FAMILLE MAINTIEN ═══════════
   # Volontairement PAS un sentinel `["default"]` : un repli n'aurait de chance réelle de se déclencher
   # que si les 13 autres axes de recueil sont TOUS simultanément favorables — une conjonction si étroite
@@ -564,11 +637,20 @@ options:
       "matiere_grasse_cuisson == huile_olive_ou_colza AND frequence_fruits_a_coque == regulier": "huile d'olive ou de colza déjà utilisée pour cuisiner, fruits à coque déjà réguliers"
     famille: "Maintien"
     avantages:
-      - "Provenance : recommandation officielle. Vous utilisez déjà l'huile d'olive et mangez déjà des fruits à coque régulièrement — les deux composantes réellement randomisées de PREDIMED : renforcer une pratique déjà favorable est un message conforme à la non-culpabilisation portée par la HAS (« la stabilisation d'une bonne habitude est déjà un résultat »)."
+      - "Deux repères favorables sont déjà en place chez ce patient : la matière grasse de cuisson (huile d'olive ou de colza) et des fruits à coque réguliers."
+      - "Les fruits à coque sont l'un des deux bras supplémentés de PREDIMED, l'huile d'olive est l'autre ; l'huile de colza n'a pas été randomisée, mais Santé publique France la recommande pour son profil en oméga-3."
+      - "Renforcer une pratique déjà favorable relève de la non-culpabilisation sur laquelle la HAS insiste : valoriser un changement obtenu plutôt que pointer ce qui manque."
     inconvenients:
       - "Ne signifie pas qu'aucun progrès n'est possible sur d'autres axes : cette piste peut s'afficher en même temps que d'autres suggestions, elle ne les remplace pas."
-    effet_attendu: "Non chiffrable — renforcement positif d'une situation déjà favorable sur ces deux axes."
+    effet_attendu: >-
+      Rien n'a été mesuré : c'est un renforcement positif sur deux axes déjà favorables, pas un geste
+      nouveau. Le principe de non-culpabilisation qui le porte est écrit dans une recommandation officielle
+      française.
     niveau_preuve: faible
+    references:
+      - predimed
+      - spf-50-astuces
+      - has-obesite-alim
 alertes:
   - quand: "insuline_ou_insulinosecreteur == true"
     niveau: attention
@@ -579,10 +661,9 @@ alertes:
   - quand: "consommation_vin == sept_verres_ou_plus_semaine"
     niveau: attention
     message: >-
-      Consommation de vin au niveau ou au-delà du seuil d'adhérence méditerranéenne (≥ 7 verres/semaine,
-      score MEDAS) : ce nœud ne propose jamais l'alcool comme piste — orienter vers le repérage d'un
-      mésusage plutôt que d'encourager cette consommation. Interactions à garder en tête : foie,
-      triglycérides, hypoglycémie sous insulinosécréteur.
+      Consommation de vin déclarée à 7 verres par semaine ou plus : ce nœud ne propose jamais l'alcool
+      comme piste — orienter vers le repérage d'un mésusage plutôt que d'encourager cette consommation.
+      Interactions à garder en tête : foie, triglycérides, hypoglycémie sous insulinosécréteur.
 # `cadrage` créé (P10/S6, T-083 ; second énoncé retravaillé P10 post-arbitrage référent 2026-07-31).
 # Registre du primer RHD (`content/decision/modules/diabete-type-2/rhd.yaml`), seul endroit de l'app cité
 # comme réussi sur ce terrain par le praticien — concret, court, orienté consultation. Le premier énoncé
@@ -608,13 +689,16 @@ cadrage:
     alimentaires généraux, sans le dire. Il ne prend pas non plus en compte le tour de taille, la tension
     artérielle, ni le repérage d'un syndrome d'apnées du sommeil (l'objectif de perte de poids et la
     rémission sont hors périmètre du module RHD dans son ensemble — voir l'écran d'aiguillage).
+  - >-
+    Ce nœud ne recueille que des critères alimentaires : tout ce qui touche à l'effort — contre-indications
+    comprises — relève du nœud d'activité physique du même module.
 argumentaire: >
-  Le seul bénéfice démontré sur un critère cardiovasculaire DUR, parmi les mesures alimentaires, est celui
-  du régime de type méditerranéen PRIS DANS SON ENSEMBLE : PREDIMED (critère cardiovasculaire majeur
+  Le seul bénéfice démontré sur un critère cardiovasculaire dur, parmi les mesures alimentaires, est celui
+  du régime de type méditerranéen pris dans son ensemble : PREDIMED (critère cardiovasculaire majeur
   composite, HR 0,69 pour le bras huile d'olive vierge extra et 0,72 pour le bras fruits à coque — essai
   rétracté puis republié après correction méthodologique en 2018) et CORDIOPREV (HR 0,72, prévention
-  secondaire, environ la moitié de diabétiques). Ce qui a été randomisé, c'est un MOTIF ALIMENTAIRE
-  SUPPLÉMENTÉ, jamais un geste isolé de changement d'huile ou d'ajout de fruits à coque. Aucune piste de ce
+  secondaire, environ la moitié de diabétiques). Ce qui a été randomisé, c'est un motif alimentaire
+  supplémenté, jamais un geste isolé de changement d'huile ou d'ajout de fruits à coque. Aucune piste de ce
   nœud ne revendique donc ce bénéfice pour elle-même : l'étiquette de preuve dure appartient au cap
   d'ensemble, pas à une carte prise séparément.
 
@@ -626,20 +710,37 @@ argumentaire: >
   seuil.
 
 
+  Toutes les pistes ne sont donc pas à la même distance de la preuve, et c'est ce qui décide de leur ordre
+  d'affichage. Viennent d'abord les deux gestes les plus proches de ce que l'essai a réellement testé —
+  l'huile d'olive et les fruits à coque, les deux suppléments randomisés de PREDIMED. Viennent ensuite les
+  composantes du motif méditerranéen qu'une recommandation officielle française reprend à son compte, sans
+  qu'aucun essai les ait jamais isolées. Viennent enfin les gestes qui relèvent du savoir-faire diététique,
+  utiles en consultation mais qu'aucune recommandation ne grade. Ce classement dit une proximité à la
+  preuve, pas une importance clinique : une piste de dernier rang peut être la seule que ce patient
+  accepte, et c'est alors la bonne.
+
+
+  Une précision sur le niveau de preuve affiché par chaque carte : il qualifie la force de la
+  recommandation qui porte le geste, pas l'ampleur de l'effet de ce geste pris isolément. Une carte peut
+  donc afficher « preuve modérée » — parce qu'un texte officiel la recommande clairement — et dire dans le
+  même panneau que son effet propre n'est pas chiffrable, parce qu'aucun essai ne l'a testée seule. Les
+  deux énoncés ne portent pas sur la même chose.
+
+
   Les pistes proposées sont concrètes, négociables, et plutôt petites que grandes. Un outil qui demanderait
   la fréquence de restauration rapide puis répondrait « réduisez la restauration rapide » tomberait
   exactement dans le registre culpabilisant contre lequel les recommandations mettent en garde — « la
-  stabilisation du poids est déjà un succès ». Chaque piste porte son étiquette de provenance,
-  recommandation officielle française ou savoir-faire diététique non gradé : aucune n'est présentée avec
-  plus de force que sa source n'en affirme.
+  stabilisation du poids est déjà un succès ». Aucune piste n'est présentée avec plus de force que sa
+  source n'en affirme.
 
 
-  Le repérage d'un trouble du comportement alimentaire NE BLOQUE aucune piste : il ORIENTE, vers un
+  Le repérage d'un trouble du comportement alimentaire ne bloque aucune piste : il oriente, vers un
   diététicien et vers un avis spécialisé. Le principe qui gouverne le nœud entier l'explique — en médecine
   générale on modifie des habitudes alimentaires, on ne prescrit pas de régime et on ne propose pas de
-  restriction chiffrée. Un verrou anti-restriction n'a donc pas d'objet dans un nœud qui ne propose aucune
-  restriction. La fragilité et la dénutrition, en revanche — qu'un IMC élevé n'exclut pas — bloquent bien
-  les pistes restrictives, indépendamment du repérage.
+  restriction chiffrée. Un garde-fou anti-restriction n'a donc pas d'objet dans un nœud qui ne propose
+  aucune restriction. La fragilité et la dénutrition, en revanche — qu'un IMC élevé n'exclut pas —
+  écartent bien les pistes qui réduisent l'apport protéique ou énergétique : c'est le seul garde-fou
+  bloquant du nœud.
 
 
   Le vin est recueilli, parce qu'il est un item du score MEDAS et qu'il appartient au tableau clinique
@@ -698,23 +799,30 @@ sources:
     # Source de la réécriture de la piste viande/charcuterie (décision référent du 2026-07-27). C'est elle
     # qui établit que la charcuterie et la viande relèvent de « Réduire » tandis que le fromage, produit
     # laitier, relève d'« Aller vers » — deux DIRECTIONS différentes, que l'ancien intitulé fusionnait.
+    # CONTENU DÉTAILLÉ DE L'AFFICHE, gardé ici (commentaire non affiché) après le raccourcissement du
+    # `titre` : trois colonnes de directions, sans aucune quantité —
+    #   Augmenter : fruits et légumes, légumes secs, fruits à coque, fait maison, activité physique ;
+    #   Aller vers : céréales complètes, poissons gras et maigres, huiles de colza/noix/olive, produits
+    #     laitiers en consommation suffisante mais limitée, saison et local, bio ;
+    #   Réduire : produits sucrés et boissons sucrées, produits salés, CHARCUTERIE, VIANDE (porc, bœuf,
+    #     veau, mouton, agneau, abats), Nutri-Score D et E, temps assis.
+    # `lien` vidé : le seul chemin connu est celui du PDF versé au dépôt, qui n'est pas une URL et ne
+    # mène nulle part s'il est rendu cliquable. Aucune URL publique n'a été retrouvée dans le dossier.
     - id: manger-bouger-affiche
-      titre: "Santé publique France / Manger-Bouger — « Pour un mode de vie plus équilibré, chaque petit pas compte » (DT05-177-24A). Trois colonnes de DIRECTIONS, sans aucune quantité : Augmenter (fruits et légumes, légumes secs, fruits à coque, fait maison, activité physique) · Aller vers (céréales complètes, poissons gras et maigres, huiles de colza/noix/olive, produits laitiers en consommation suffisante mais limitée, saison et local, bio) · Réduire (produits sucrés et boissons sucrées, produits salés, CHARCUTERIE, VIANDE — porc, bœuf, veau, mouton, agneau, abats —, Nutri-Score D et E, temps assis)"
+      titre: "Santé publique France / Manger-Bouger — affiche « Pour un mode de vie plus équilibré, chaque petit pas compte » (réf. DT05-177-24A) : trois colonnes de directions — Augmenter, Aller vers, Réduire — sans aucune quantité"
       annee: 2024
       type_critere: substitution
-      lien: "docs/decision/sources/4DDK001_400x600_50PC_AFF_reco chaque petit pas compte_E2_VDEF.pdf"
+      lien: ""
   synthese_critique:
     donnee: >-
-      Le repère huile d'olive/eau comme éléments du motif méditerranéen, et un signal de prudence
+      Aucune synthèse critique indépendante ne porte spécifiquement sur ces pistes alimentaires : il n'en
+      existe pas dans le corpus rassemblé pour ce nœud, et rien n'a été écrit pour combler ce vide. Deux
+      éléments seulement ont été retrouvés, cités ici comme repères et jamais comme l'argument lui-même :
+      l'huile d'olive et l'eau comme éléments du motif méditerranéen, et un signal de prudence
       épidémiologique sur les édulcorants intenses (association à un risque accru de diabète de type 2,
-      sans référence bibliographique précise pour ce point dans la revue qui le rapporte) sont les seuls
-      éléments de synthèse critique indépendante identifiés pour les gestes alimentaires de ce nœud —
-      cités comme repères ou signaux de prudence, jamais comme l'argument lui-même, qui reste la donnée
-      publiée (D23). Aucune synthèse dédiée spécifiquement à cette bibliothèque de pistes n'a été
-      identifiée dans le corpus rassemblé pour ce nœud (signalé plutôt qu'inventé) ; la couverture la
-      plus proche disponible dans le domaine porte sur l'intervention de perte de poids en soins primaires
-      (DiRECT, régime méditerranéen) au niveau du nœud `rhd`, dont le périmètre est plus large que les
-      pistes alimentaires ci-dessus.
+      sans référence bibliographique précise dans la revue qui le rapporte). La couverture indépendante la
+      plus proche porte sur l'intervention de perte de poids en soins primaires (DiRECT, régime
+      méditerranéen), un périmètre plus large que les pistes ci-dessus.
     appuis:
       - predimed
       - cordioprev
@@ -743,7 +851,7 @@ sources:
       - nom: "Santé publique France / PNNS"
         detail: "« 50 petites astuces… », guides Manger-Bouger — repères de population générale."
       - nom: "USPSTF 2022"
-        detail: "Dépistage des troubles du comportement alimentaire chez l'adolescent et l'adulte sans signe ni symptôme : preuves INSUFFISANTES pour évaluer la balance bénéfices-risques (I statement)."
+        detail: "Dépistage des troubles du comportement alimentaire chez l'adolescent et l'adulte sans signe ni symptôme : preuves insuffisantes pour évaluer la balance bénéfices-risques (I statement)."
       - nom: "EBM Guidelines / Duodecim"
         detail: "Lifestyle education in type 2 diabetes, gradé selon la section."
     position: >-
@@ -789,21 +897,71 @@ sources:
       officielle qui le formule le plus nettement. Les deux écarts ci-dessus portent sur la manière de
       délivrer le conseil et sur ce qu'on fait d'un repérage, pas sur leur bien-fondé.
 incertitudes:
-  - "Le bénéfice sur critère dur du régime méditerranéen porte sur le motif alimentaire SUPPLÉMENTÉ dans son ensemble (PREDIMED, CORDIOPREV), jamais sur une piste isolée — y compris l'huile d'olive et les fruits à coque, pourtant les deux composants réellement randomisés. Aucun essai n'a testé un geste seul."
+  - "Le bénéfice sur critère dur du régime méditerranéen porte sur le motif alimentaire supplémenté dans son ensemble (PREDIMED, CORDIOPREV), jamais sur une piste isolée — y compris l'huile d'olive et les fruits à coque, pourtant les deux composants réellement randomisés. Aucun essai n'a testé un geste seul."
   - "Aucune version française validée du MEDAS n'a été identifiée. Sans conséquence pour cet usage : l'instrument sert de cadre pour choisir les axes recueillis, il n'est jamais administré ni scoré."
   - "Les trois signes d'appel de trouble du comportement alimentaire reformulent des signes issus d'une recommandation ; ce n'est pas un instrument validé. Aucune étude n'a évalué la performance de cette combinaison : un résultat négatif ne garantit rien, un positif ne confirme rien. Depuis que le repérage n'ouvre qu'une orientation et ne ferme plus aucune piste, un faux positif coûte une proposition de plus — il ne retire plus rien au patient."
   - "Ne pas se servir d'un dépistage négatif pour lever la prudence : la valeur prédictive négative élevée du SCOFF-F (~99 %) reflète surtout la faible prévalence. À 5 % de prévalence, la probabilité pré-test d'absence de trouble est déjà de 95 % — un test négatif ne fait gagner que 4 points."
-  - "Aucune proportion chiffrée n'est affirmée pour la piste « se repérer aux proportions dans l'assiette » — ni moitié de légumes, ni quart de féculents. Aucune source du dossier ne chiffre ce ratio ; le repère reste qualitatif, la place RELATIVE des composantes. La piste de pesée des aliments a été retirée : elle relève des patients pratiquant un comptage précis en insulinothérapie fonctionnelle, et sa généralisation au diabète de type 2 tout-venant n'est soutenue par aucune source."
-  - "Les contre-indications à l'EFFORT — mal perforant plantaire, rétinopathie — n'ont aucune portée ici : ce nœud ne recueille que des critères alimentaires."
-  - "La piste « continuer ce qui fonctionne déjà » n'est pas un repli par défaut : sa condition (huile d'olive ET fruits à coque réguliers) peut être vraie chez un patient favorable sur ces deux axes sans l'être sur les onze autres. Elle s'affiche alors avec d'autres pistes, ce qui est voulu."
+  - "Aucune proportion chiffrée n'est affirmée pour la piste « se repérer aux proportions dans l'assiette » — ni moitié de légumes, ni quart de féculents. Aucune source du dossier ne chiffre ce ratio ; le repère reste qualitatif, la place relative des composantes. La piste de pesée des aliments a été retirée : elle relève des patients pratiquant un comptage précis en insulinothérapie fonctionnelle, et sa généralisation au diabète de type 2 tout-venant n'est soutenue par aucune source."
   - "Rapprocher l'alimentation émotionnelle de la tachyphagie, que la source cite pour la piste « manger sans se presser », est une extrapolation raisonnée : les deux notions sont voisines sans être identiques dans le corpus."
 veille_liee: []
 meta:
   date_revue: "2026-07-26"
   auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
   statut: brouillon
-  version: "0.14"
+  version: "0.15"
   changelog:
+    - date: "2026-08-05"
+      auteur: "Claude Code — en attente de relecture clinique"
+      resume: >-
+        PASSE RÉDACTIONNELLE SUR LES QUATRE NIVEAUX DE LECTURE. Aucune `conditions`, `prerequis`,
+        `exclusions`, `priorite`, `role`, `famille`, `calculs`, aucun `criteres_entree` structurel, aucune
+        clé de `motifs` ni aucun `quand` d'alerte n'est touché — seuls des textes affichés, les
+        `option.references` et l'argumentaire exhaustif changent.
+        (1) NIVEAU 3 REMIS À JOUR. L'argumentaire exhaustif décrivait encore deux garde-fous bloquants ; il
+        n'y en a qu'un (fragilité/dénutrition), le repérage d'un trouble du comportement alimentaire
+        n'écartant plus aucune piste mais déclenchant deux orientations. Le tableau de provenance des
+        pistes est régénéré depuis le contenu (la piste de pesée disparaît, la piste « proportions » et la
+        piste « grignotage » reprennent leur intitulé réel, l'avis spécialisé entre dans le tableau). La
+        description du repérage en trois cases à cocher et d'un champ de schéma disparu est réécrite en
+        français clinique.
+        (2) RENVOIS FAUX OU MORTS. « Voir l'en-tête du module » (5 occurrences) devient « Comment ce nœud
+        raisonne », le nom réel de la section. Le renvoi « voir l'écarté correspondant » de la piste
+        grignotage disparaît : cette option n'a aucune exclusion, l'écarté visé ne peut pas exister — et
+        la même puce cesse de la décrire comme « un geste de réduction » quand c'est une substitution. Le
+        renvoi de la piste « repas réguliers » à un blocage qui n'existe plus est réécrit sur le fond
+        clinique. Les mentions de règle interne (R1) et de mécanisme (« verrou ») sortent des champs
+        affichés.
+        (3) FOND. La carte « Continuer ce qui fonctionne déjà » ne s'adresse plus au patient à la deuxième
+        personne et devient exacte pour l'huile de colza, qui n'est pas un bras randomisé de PREDIMED. La
+        citation HAS « la stabilisation d'une bonne habitude est déjà un résultat », qui n'est pas
+        littérale, est remplacée par le principe que le dossier soutient (valoriser un changement obtenu) ;
+        la seule citation entre guillemets reste « la stabilisation du poids est déjà un succès ».
+        (4) PANNEAU DES PREUVES. Les deux pistes de rang 1 (huile d'olive, fruits à coque) s'adossent à
+        PREDIMED, jusqu'ici cité dans leur texte sans figurer dans leur panneau. Onze options gagnent la ou
+        les références déjà présentes dans la bibliographie du nœud (Santé publique France, HAS, guide de
+        recommandations européen, rapport SFD/AFDN). Les `effet_attendu` disent désormais ce qui a été
+        mesuré et sur quoi, et l'argumentaire du nœud explique en une phrase que le niveau de preuve
+        qualifie la force de la recommandation, pas l'effet du geste isolé — ce qui rendait illisible un
+        badge « preuve modérée » au-dessus d'un « non chiffrable ».
+        (5) COLONNE AVANTAGES. Les 15 préfixes « Provenance : … » sortent des avantages (métadonnée de
+        preuve, pas un bénéfice) et l'information est versée dans les `effet_attendu` et dans la logique de
+        hiérarchisation ajoutée à l'argumentaire du nœud (rang 1 = proximité au bras réellement randomisé,
+        puis composantes officielles, puis savoir-faire diététique). Les deux avantages qui parlaient des
+        étiquettes de l'outil sont réécrits côté clinique.
+        (6) LISIBILITÉ. Phrases-fleuves découpées (une idée par puce) sur les pistes huile d'olive, fruits à
+        coque, édulcorants, proportions, boissons sucrées, restauration rapide, avis spécialisé. Le titre
+        de la référence Manger-Bouger revient au gabarit des autres (son détail passe en commentaire) et
+        son `lien`, un chemin de fichier local, est vidé faute d'URL publique au dossier. Majuscules
+        d'emphase uniformisées. La phrase « le rôle du médecin généraliste s'arrête au repérage et à
+        l'orientation », répétée à trois endroits affichés, ne subsiste que dans l'aide du critère de
+        repérage. L'alerte vin annonce son seuil en clair (7 verres par semaine ou plus) au lieu d'un
+        « seuil d'adhérence méditerranéenne » qui déclenchait une alerte de mésusage.
+        (7) CHAMPS REMIS DANS LEUR RÔLE. Deux entrées d'`incertitudes` qui n'en étaient pas (contre-
+        indications à l'effort, mécanique d'affichage de « Continuer ce qui fonctionne déjà ») sortent : la
+        première devient un énoncé de `cadrage` renvoyant au nœud d'activité physique, la seconde était
+        déjà dite par l'option elle-même. `synthese_critique.donnee` est réécrit en français clinique.
+        SNAPSHOTS : le message de l'alerte vin figure dans les deux captures de caractérisation de ce nœud,
+        à régénérer.
     - date: "2026-08-05"
       auteur: "Claude Code — en attente de relecture référent (P13/S5, T-147)"
       resume: >-

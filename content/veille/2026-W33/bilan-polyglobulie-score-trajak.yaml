@@ -1,0 +1,25 @@
+id: 2026-W33-bilan-polyglobulie-score-trajak
+date_semaine: "2026-W33"
+titre: "Conduite à tenir devant une polyglobulie en médecine générale, et score TRAJAK"
+source:
+  nom: "La Revue de Médecine Interne"
+  lien: https://www.sciencedirect.com/science/article/pii/S0248866326006296
+type_publication: autre
+themes: [soins-premiers]
+professions_concernees: [MG]
+route: breve
+niveau_impact: informatif
+population: "Adultes présentant une hémoglobine élevée."
+resultat_resume: "Causes à rechercher en priorité : prurit aquagénique, tabagisme, syndrome d'apnées du sommeil, iatrogénie (diurétiques, iSGLT2, androgènes). Bilan de débrouillage : ionogramme et protidémie, dosage d'EPO, gaz du sang, échographie abdominale, bilan martial et d'hémolyse. Si tout est normal, adresser à l'hématologue. Le score TRAJAK affiche de bonnes performances mais a été validé en milieu hospitalier."
+appreciation_critique: null
+niveau_preuve: null
+pertinence_pratique: null
+impact_algorithme:
+  concerne_decision: false
+  noeuds_impactes: []
+  proposition_maj: aucune
+temps_lecture_min: 3
+meta:
+  date_publication: "2026-08-05"
+  auteur: "référent veille"
+  statut: brouillon

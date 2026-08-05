@@ -1,0 +1,26 @@
+id: 2026-W33-definition-insuffisance-cardiaque-aha-acc
+date_semaine: "2026-W33"
+titre: "L'AHA et l'ACC redéfinissent l'insuffisance cardiaque et créent une catégorie de fraction d'éjection restaurée"
+source:
+  nom: "Circulation"
+  lien: https://www.ahajournals.org/doi/10.1161/CIR.0000000000001455
+  doi: 10.1161/CIR.0000000000001455
+type_publication: reco
+themes: [cardiovasculaire-prevention]
+professions_concernees: [MG, IPA]
+route: breve
+niveau_impact: informatif
+population: "Recommandation américaine, tous patients insuffisants cardiaques."
+resultat_resume: "La définition reste clinique, associant des symptômes à des anomalies biologiques ou d'imagerie. Les catégories sont regroupées en fraction d'éjection préservée (au-delà de 50 %) et altérée (en deçà), avec une nouvelle catégorie de fraction restaurée. Recommandation américaine non transposée en France, où le cadre de l'ESC fait référence."
+appreciation_critique: null
+niveau_preuve: null
+pertinence_pratique: null
+impact_algorithme:
+  concerne_decision: false
+  noeuds_impactes: []
+  proposition_maj: aucune
+temps_lecture_min: 3
+meta:
+  date_publication: "2026-08-05"
+  auteur: "référent veille"
+  statut: brouillon

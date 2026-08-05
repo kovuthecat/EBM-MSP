@@ -41,8 +41,8 @@ plan** (statut dans son `index.md`) : `- T-ID — titre · → plans/…/S<k>.md
 
 - [ ] **Passe B — sécurité à l'effort** (`rhd-activite-physique`) · modèle: Opus, effort: high
 - [ ] Motif du repli statine : ASCVD peut l'atteindre via l'exclusion dialyse (HAUTE-4) — arbitrage référent avant d'écrire un texte (P10, non traité).
-- [ ] `prescription.yaml` AR GLP-1 : « préférer le sémaglutide oral » (Rybelsus, avis HAS défavorable 2021, quasi indisponible) — phrase trompeuse (P10/S7), non corrigée.
-- [ ] Alerte rétinopathie proliférante (`rhd-activite-physique`, P13/S7/T-154) : aucune source du nœud ne porte de conduite à tenir, collecte nécessaire · + 5 titres de référence voisins non corrigés sur `statine.yaml` (T-151, hors périmètre littéral).
+- [ ] Alerte rétinopathie proliférante (`rhd-activite-physique`, P13/S7/T-154) : aucune source du nœud ne porte de conduite à tenir, collecte nécessaire. *(Les titres de référence de `statine.yaml` sont, eux, réparés — passe du 2026-08-05.)*
+- [ ] **13 arbitrages de la passe de rédaction du 2026-08-05** — 2 points de fond (garde-fou d'hypoglycémie sans capteur sur `insuline` ; CK très élevées avant initiation sur `statine`), 5 données manquantes qui bloquent un affichage, 6 choix de rédaction à confirmer · `docs/decision/validation/passe-redaction-2026-08-05.md`.
 
 ## Backlog — validation clinique finale (D5, passage à `statut: valide`)
 

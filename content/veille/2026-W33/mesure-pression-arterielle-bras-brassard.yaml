@@ -1,0 +1,25 @@
+id: 2026-W33-mesure-pression-arterielle-bras-brassard
+date_semaine: "2026-W33"
+titre: "Éviter les erreurs de diagnostic d'hypertension : position du bras et taille du brassard"
+source:
+  nom: "Golden Nuggets (Society for Evidence-Based Family Medicine)"
+  lien: https://family-medicine.org
+type_publication: autre
+themes: [cardiovasculaire-prevention, soins-premiers]
+professions_concernees: [MG, IPA, IDEL]
+route: breve
+niveau_impact: informatif
+population: "Tout patient chez qui une pression artérielle est mesurée."
+resultat_resume: "Synthèse pratique sur la technique de mesure : position du bras et adéquation de la taille du brassard sont deux sources majeures de surestimation, donc de diagnostic par excès. Source de repérage uniquement, à confronter aux références primaires avant tout usage."
+appreciation_critique: null
+niveau_preuve: null
+pertinence_pratique: null
+impact_algorithme:
+  concerne_decision: false
+  noeuds_impactes: []
+  proposition_maj: aucune
+temps_lecture_min: 2
+meta:
+  date_publication: "2026-08-05"
+  auteur: "référent veille"
+  statut: brouillon

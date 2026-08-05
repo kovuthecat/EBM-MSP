@@ -7,6 +7,7 @@ import { MethodeScreen } from './features/shared/screens/MethodeScreen'
 import { DecisionDomainsScreen } from './features/decision/screens/DecisionDomainsScreen'
 import { DecisionModuleScreen } from './features/decision/screens/DecisionModuleScreen'
 import { DecisionNodeScreen } from './features/decision/screens/DecisionNodeScreen'
+import { VeilleListScreen } from './features/veille/screens/VeilleListScreen'
 import { reinitialiserSession } from './features/decision/lib/sessionCriteres'
 
 function App() {
@@ -52,6 +53,10 @@ function renderScreen(screen: Screen, params: NavigationParams, go: Navigation['
       // ET quand `resetEpoch` avance (« Nouveau patient », T-026/D33) — y compris SANS changer de nœud :
       // rouvrir le MÊME écran doit repartir vierge, pas seulement le suivant (cf. D-13).
       return <DecisionNodeScreen key={`${resetEpoch}:${params.nodeId}`} nodeId={params.nodeId} go={go} />
+    case 'veilleList':
+      // V1 (PV1/S6). `veilleDetail` reste au placeholder : le détail est déplié dans la carte, le
+      // temps d'arbitrer le format et les options de tri.
+      return <VeilleListScreen key={resetEpoch} />
     default:
       return <PlaceholderScreen key={resetEpoch} go={go} />
   }

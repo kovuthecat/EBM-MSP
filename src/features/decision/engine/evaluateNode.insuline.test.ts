@@ -713,8 +713,14 @@ describe('insuline — arbitrages référent du 2026-07-27', () => {
         mcg_disponible: true,
       } as Partial<Criteria>
       const messages = alertMsgs(o)
-      expect(messages.some((m) => m.includes('Cibles de MCG standard'))).toBe(true)
-      expect(messages.some((m) => m.includes('ASSOUPLIES'))).toBe(false)
+      // Le sigle « MCG » est développé à sa première apparition dans les textes affichés (passe de
+      // lisibilité du 2026-08-05) : ce garde-fou porte sur la CONDUITE — cibles standard, jamais
+      // assouplies — et ne doit pas se casser parce que le contenu a gagné en lisibilité. D'où une
+      // assertion qui accepte les deux formes du sigle plutôt qu'une chaîne littérale.
+      expect(
+        messages.some((m) => /Cibles de (?:MCG|mesure continue du glucose) standard/i.test(m)),
+      ).toBe(true)
+      expect(messages.some((m) => /assouplies/i.test(m))).toBe(false)
     },
   )
 

@@ -1,0 +1,268 @@
+/**
+ * V1 — liste de veille. S'appuie sur les tokens déjà prévus pour le module
+ * (`--c-accent-veille`, `--c-badge-impact-*`) : rien de nouveau n'est introduit ici.
+ */
+
+.veille-list {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-4) var(--space-8);
+}
+
+.veille-list__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  color: var(--c-text);
+}
+
+.veille-list__subtitle {
+  margin: var(--space-1) 0 var(--space-5);
+  color: var(--c-text-muted);
+  font-size: var(--text-sm);
+}
+
+/* --- Filtres --- */
+
+.veille-list__filtres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: flex-end;
+  padding: var(--space-4);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+}
+
+.veille-list__filtre {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+}
+
+.veille-list__filtre-label {
+  color: var(--c-text-muted);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.veille-list__filtre select {
+  font: inherit;
+  font-size: var(--text-sm);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm);
+  background: var(--c-bg);
+  color: var(--c-text);
+  min-width: 12rem;
+}
+
+.veille-list__check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--c-text);
+  padding-bottom: var(--space-2);
+}
+
+/* --- Tris --- */
+
+.veille-list__tris {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-4) 0 var(--space-5);
+}
+
+.veille-list__tris-label {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--c-text-muted);
+  margin-right: var(--space-1);
+}
+
+.veille-list__tri {
+  font: inherit;
+  font-size: var(--text-sm);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--c-border);
+  border-radius: 999px;
+  background: var(--c-bg);
+  color: var(--c-text-secondary);
+  cursor: pointer;
+}
+
+.veille-list__tri--actif {
+  background: var(--c-accent-veille-soft);
+  border-color: var(--c-accent-veille);
+  color: var(--c-text);
+  font-weight: 600;
+}
+
+.veille-list__vide {
+  padding: var(--space-6);
+  text-align: center;
+  color: var(--c-text-muted);
+}
+
+/* --- Cartes --- */
+
+.veille-list__cartes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.veille-carte {
+  padding: var(--space-4);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-left: 4px solid var(--c-border);
+  border-radius: var(--radius-md);
+}
+
+/* L'accent latéral porte l'information la plus décisive au balayage : ce qui change la pratique. */
+.veille-carte--pratique {
+  border-left-color: var(--c-accent-veille);
+}
+
+.veille-carte__bandeau {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.veille-carte__route,
+.veille-carte__impact,
+.veille-carte__algo,
+.veille-carte__brouillon {
+  font-size: var(--text-xs);
+  padding: 0.15rem var(--space-2);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.veille-carte__route {
+  border: 1px solid var(--c-border);
+  color: var(--c-text-secondary);
+}
+
+.veille-carte__route--analyse {
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+.veille-carte__impact--pratique {
+  background: var(--c-badge-impact-pratique-bg);
+  color: var(--c-badge-impact-pratique-text);
+  font-weight: 600;
+}
+
+.veille-carte__impact--informatif {
+  background: var(--c-badge-impact-informatif-bg);
+  color: var(--c-badge-impact-informatif-text);
+}
+
+.veille-carte__algo {
+  background: var(--c-accent-decision-soft);
+  color: var(--c-text);
+}
+
+.veille-carte__brouillon {
+  background: var(--c-attention-soft);
+  border: 1px solid var(--c-attention-border);
+  color: var(--c-text);
+}
+
+.veille-carte__temps {
+  margin-left: auto;
+  font-size: var(--text-xs);
+  color: var(--c-text-muted);
+}
+
+.veille-carte__titre {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-lg);
+  line-height: var(--leading-normal);
+  color: var(--c-text);
+}
+
+.veille-carte__meta {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--c-text-muted);
+}
+
+.veille-carte__resume {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--c-text-secondary);
+}
+
+.veille-carte__detail {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--c-border);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--c-text-secondary);
+}
+
+.veille-carte__detail p {
+  margin: 0 0 var(--space-3);
+}
+
+.veille-carte__sous-titre {
+  margin: var(--space-3) 0 var(--space-2);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--c-text-muted);
+}
+
+.veille-carte__sans-appreciation {
+  font-style: italic;
+  color: var(--c-text-faible);
+}
+
+.veille-carte__source a {
+  color: var(--c-accent-veille);
+}
+
+.veille-carte__toggle {
+  margin-top: var(--space-3);
+  font: inherit;
+  font-size: var(--text-sm);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm);
+  background: var(--c-bg);
+  color: var(--c-text-secondary);
+  cursor: pointer;
+}
+
+.veille-carte__toggle:hover {
+  border-color: var(--c-accent-veille);
+  color: var(--c-text);
+}
+
+@media (max-width: 640px) {
+  .veille-list__filtre select {
+    min-width: 100%;
+  }
+
+  .veille-list__filtre {
+    flex: 1 1 100%;
+  }
+}

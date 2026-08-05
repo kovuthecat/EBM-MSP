@@ -228,10 +228,69 @@ const MARQUEURS_ARGUMENT: { motif: RegExp; nom: string }[] = [
 ]
 
 /**
- * Nœuds NON ENCORE REPRIS pour les quatre marqueurs du 2026-08-04. Sous cliquet (cf. docstring de tête et
- * le second test) : une entrée doit encore correspondre à un défaut RÉEL, sinon le banc tombe. Peut
- * seulement rétrécir.
+ * SEPT MARQUEURS AJOUTÉS LE 2026-08-05 — LA TUYAUTERIE NE S'AFFICHE JAMAIS, ET LE NIVEAU 3 N'EST PAS UN
+ * JOURNAL DE CHANTIER.
  *
+ * D'OÙ ILS VIENNENT. La relecture des quatre niveaux d'argumentaire des six nœuds DT2 (badge de preuve,
+ * carte dépliée, argumentaire du nœud, argumentaire exhaustif) a trouvé la MÊME famille de défaut dans
+ * les six : le contenu parlait de l'outil, du dépôt et de son propre chantier au lieu de parler du
+ * patient. Les deux lots précédents ne l'attrapaient pas — ils visent le vocabulaire du PROCESS (red-team,
+ * série, recette) et l'ARGUMENT D'AUTORITÉ (qui a tranché, quand). Ce lot-ci vise ce qui reste : les noms
+ * de champs, les chemins de fichiers, les mentions de statut éditorial et le vocabulaire du moteur.
+ *
+ * POURQUOI UN INVARIANT PLUTÔT QU'UN NETTOYAGE. C'est la QUATRIÈME famille de jargon corrigée à la main
+ * sur ce corpus, et la troisième fois qu'un lot de marqueurs est ajouté après coup. Le nettoyage manuel
+ * ne tient pas : chaque passe d'édition en réintroduit, parce que l'auteur d'un nœud a le champ YAML sous
+ * les yeux au moment où il rédige le texte que le praticien lira. Seul un test qui échoue au moment de
+ * l'écriture ferme la boucle.
+ *
+ * CALIBRATION — MESURÉE, PAS SUPPOSÉE, et c'est la condition d'entrée dans ce fichier (cf. le commentaire
+ * d'I9 et celui de « collecte » ci-dessus). Les sept motifs ont été comptés sur le corpus RÉEL après
+ * correction — les 6 nœuds (tous les champs rendus par `OptionCard.tsx`/`ArgumentPanel.tsx`), le module
+ * `rhd`, et les 6 argumentaires exhaustifs : **zéro occurrence pour chacun**. Aucune dette, donc, et
+ * aucune exemption : un marqueur qui part de zéro n'a rien à amnistier.
+ *
+ * LE DÉTAIL DE CHACUN, et pourquoi il ne produit pas de bruit :
+ *   - `backtick` — le motif le plus simple et le plus sûr. Un accent grave n'a AUCUN usage en prose
+ *     clinique française ; sa présence signale toujours un identifiant de code cité tel quel
+ *     (« `statine_deja_en_place` ne demande qu'un oui/non », « le champ `argumentaire` du nœud »). Vaut
+ *     aussi pour les `.md`, qui sont du Markdown mais ne montrent jamais de code à un praticien.
+ *   - `chemin-de-depot` — un chemin `docs/…`, `src/…`, ou un nom de fichier `.md`/`.yaml`/`.ts`/`.json`.
+ *     Le lecteur n'a pas le dépôt : on lui désignait des documents qu'il ne peut pas ouvrir
+ *     (« cf. `docs/decision/noeuds/H-rhd.md` §3 »). Les liens cliniques légitimes sont des URL et des
+ *     DOI, que ce motif ne touche pas.
+ *   - `statut-editorial` — « brouillon », « en attente de relecture ». Le statut de validation vit dans
+ *     `meta.statut`, jamais dans un texte affiché : quatre argumentaires exhaustifs sur six s'ouvraient
+ *     sur « Brouillon, en attente de relecture clinique », qu'un praticien lit comme un avertissement
+ *     sur la fiabilité de ce qu'il consulte.
+ *   - `donnee-manquante` — les marqueurs de rédaction `[À VÉRIFIER]` et « DONNÉE À FOURNIR ». Une
+ *     incertitude réelle s'écrit en français (« ordre de grandeur, non confirmé sur la publication
+ *     d'origine ») ; le marqueur, lui, est une note que l'auteur s'adresse à lui-même.
+ *   - `renvoi-interne` — « dossier de preuve », « cf. changelog ». Deux artefacts du dépôt présentés au
+ *     lecteur comme la source où vérifier, alors qu'ils lui sont inaccessibles.
+ *   - `vocabulaire-moteur` — « sentinelle », « evaluateNode », « DSL », « golden master », « banc de
+ *     test/mécanique/réaliste », « profils du banc ». Constaté : un paragraphe entier de mécanique
+ *     d'échantillonnage (« 0/1120 profils ») au niveau de lecture 3.
+ *   - `identifiant-de-decision` — la forme PARENTHÉSÉE `(D20)`, `(R1)`, `(I12)` seulement. Restreinte à
+ *     dessein : un « (R1) » entre parenthèses est un renvoi au registre de décisions du projet, tandis
+ *     qu'un « D2 » ou « R3 » nu peut être une vertèbre, une racine nerveuse ou un stade clinique.
+ */
+const MARQUEURS_REDACTION: { motif: RegExp; nom: string }[] = [
+  { motif: /`/, nom: 'backtick (identifiant de code cité tel quel)' },
+  {
+    motif: /\b(?:docs|src|content|schema)\/[\w./-]+|\b[\w-]+\.(?:md|yaml|ts|tsx|json)\b/,
+    nom: 'chemin-de-depot',
+  },
+  { motif: /\bbrouillon\b|en attente de relecture/i, nom: 'statut-editorial' },
+  { motif: /\[À VÉRIFIER\]|DONNÉE À FOURNIR/i, nom: 'donnee-manquante' },
+  { motif: /cf\.?\s*changelog|dossier de preuve/i, nom: 'renvoi-interne' },
+  {
+    motif: /\bsentinelles?\b|evaluateNode|\bDSL\b|golden master|\bbanc (?:de test|mécanique|réaliste)\b|profils? du banc/i,
+    nom: 'vocabulaire-moteur',
+  },
+  { motif: /\((?:D|R|I)\d{1,2}\)/, nom: 'identifiant-de-decision' },
+]
+
 /** Fragments qui contiennent AU MOINS UN marqueur — chaque violation nomme le marqueur ET la chaîne. */
 function violationsDeFragments(
   fragments: Fragment[],
@@ -284,6 +343,54 @@ describe('I25 — aucun jargon de projet dans un champ affiché au praticien', (
         MARQUEURS_ARGUMENT,
       )
       expect(violations).toEqual([])
+    },
+  )
+
+  /**
+   * MARQUEURS DU 2026-08-05 — « la tuyauterie ne s'affiche jamais » (cf. docstring de `MARQUEURS_REDACTION`).
+   * Aucune dette : les sept motifs ont été mesurés à zéro sur ce corpus avant d'entrer ici.
+   */
+  it.each(noeuds.map((node) => [node.id, node] as const))(
+    'nœud %s — aucun champ affiché ne montre un nom de champ, un chemin du dépôt, un statut éditorial ni le vocabulaire du moteur',
+    (_id, node) => {
+      const violations = violationsDeFragments(
+        fragmentsNoeud(node),
+        `nœud "${node.id}"`,
+        MARQUEURS_REDACTION,
+      )
+      expect(violations).toEqual([])
+    },
+  )
+
+  it.each(modules.map((module) => [module.id, module] as const))(
+    'module %s — aucun champ affiché ne montre un nom de champ, un chemin du dépôt, un statut éditorial ni le vocabulaire du moteur',
+    (_id, module) => {
+      const violations = violationsDeFragments(
+        fragmentsModule(module),
+        `module "${module.id}"`,
+        MARQUEURS_REDACTION,
+      )
+      expect(violations).toEqual([])
+    },
+  )
+
+  /**
+   * MÊME LOT, SUR L'ARGUMENTAIRE EXHAUSTIF — c'est là qu'il y en avait le plus, et pour une raison de
+   * structure : ce fichier est rendu SANS AUCUN TRI DE SECTION (cf. le bloc suivant), si bien qu'une note
+   * de méthode écrite pour l'équipe se retrouve à l'écran au même titre qu'un résultat d'essai.
+   */
+  it.each(
+    noeuds.filter((node) => node.argumentaire_exhaustif).map((node) => [node.id, node] as const),
+  )(
+    'nœud %s — son argumentaire exhaustif ne montre ni tuyauterie, ni statut éditorial, ni marqueur de rédaction',
+    (_id, node) => {
+      const markdown = getArgumentaireExhaustif(node.argumentaire_exhaustif)
+      expect(markdown, `argumentaire_exhaustif="${node.argumentaire_exhaustif}" introuvable`).toBeTruthy()
+      const occurrences = MARQUEURS_REDACTION.flatMap(({ motif, nom }) => {
+        const global = new RegExp(motif.source, motif.flags.includes('g') ? motif.flags : `${motif.flags}g`)
+        return [...markdown!.matchAll(global)].map((m) => `${nom} :: "${m[0]}" (position ${m.index})`)
+      })
+      expect(occurrences, `occurrences détaillées dans ${node.argumentaire_exhaustif}`).toEqual([])
     },
   )
 

@@ -1,0 +1,26 @@
+id: 2026-W33-pleine-conscience-lombalgie
+date_semaine: "2026-W33"
+titre: "Consultations médicales de groupe fondées sur la pleine conscience dans la lombalgie chronique : effet significatif mais sous le seuil de pertinence clinique"
+source:
+  nom: "JAMA Internal Medicine"
+  lien: https://jamanetwork.com/journals/jamainternalmedicine/fullarticle/2850976
+  doi: 10.1001/jamainternmed.2026.2186
+type_publication: ECR
+themes: [douleur-soins-palliatifs, soins-premiers]
+professions_concernees: [MG, IPA]
+route: breve
+niveau_impact: informatif
+population: "Adultes souffrant de lombalgie chronique, essai randomisé contre soins courants."
+resultat_resume: "À 6 mois, le score PEG est significativement réduit, mais la réduction n'atteint pas le seuil de pertinence clinique. Le format évalué est celui de la consultation médicale de groupe, dispositif organisationnel qui n'existe pas en soins premiers français — et non une pratique de méditation individuelle."
+appreciation_critique: null
+niveau_preuve: null
+pertinence_pratique: null
+impact_algorithme:
+  concerne_decision: false
+  noeuds_impactes: []
+  proposition_maj: aucune
+temps_lecture_min: 3
+meta:
+  date_publication: "2026-08-05"
+  auteur: "référent veille"
+  statut: brouillon

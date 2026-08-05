@@ -130,7 +130,7 @@ Sortie :
       proposé parce que : acces_alimentation == difficultes_importantes ; signes_appel_tca == true
   Alertes de nœud :
     - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
-    - Consommation de vin au niveau ou au-delà du seuil d'adhérence méditerranéenne (≥ 7 verres/semaine, score MEDAS) : ce nœud ne propose jamais l'alcool comme piste — orienter vers le repérage d'un mésusage plutôt que d'encourager cette consommation. Interactions à garder en tête : foie, triglycérides, hypoglycémie sous insulinosécréteur. [attention]
+    - Consommation de vin déclarée à 7 verres par semaine ou plus : ce nœud ne propose jamais l'alcool comme piste — orienter vers le repérage d'un mésusage plutôt que d'encourager cette consommation. Interactions à garder en tête : foie, triglycérides, hypoglycémie sous insulinosécréteur. [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Remplacer une boisson sucrée du quotidien par de l'eau :: à renseigner : frequence_boissons_sucrees
     - Ne pas remplacer une boisson sucrée par des édulcorants intenses :: à renseigner : frequence_boissons_sucrees
@@ -414,7 +414,7 @@ Sortie :
       proposé parce que : fragilite == true
   Alertes de nœud :
     - Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine). [attention]
-    - Consommation de vin au niveau ou au-delà du seuil d'adhérence méditerranéenne (≥ 7 verres/semaine, score MEDAS) : ce nœud ne propose jamais l'alcool comme piste — orienter vers le repérage d'un mésusage plutôt que d'encourager cette consommation. Interactions à garder en tête : foie, triglycérides, hypoglycémie sous insulinosécréteur. [attention]
+    - Consommation de vin déclarée à 7 verres par semaine ou plus : ce nœud ne propose jamais l'alcool comme piste — orienter vers le repérage d'un mésusage plutôt que d'encourager cette consommation. Interactions à garder en tête : foie, triglycérides, hypoglycémie sous insulinosécréteur. [attention]
   Options écartées (sécurité, R4) :
     - Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées :: fragilite == true
   Options EN ATTENTE (indétermination, R7/D20) :
@@ -643,7 +643,7 @@ Sortie :
   - [recommandee] Proposer aussi un avis spécialisé en trouble du comportement alimentaire
       proposé parce que : signes_appel_tca == true
   Alertes de nœud :
-    - Consommation de vin au niveau ou au-delà du seuil d'adhérence méditerranéenne (≥ 7 verres/semaine, score MEDAS) : ce nœud ne propose jamais l'alcool comme piste — orienter vers le repérage d'un mésusage plutôt que d'encourager cette consommation. Interactions à garder en tête : foie, triglycérides, hypoglycémie sous insulinosécréteur. [attention]
+    - Consommation de vin déclarée à 7 verres par semaine ou plus : ce nœud ne propose jamais l'alcool comme piste — orienter vers le repérage d'un mésusage plutôt que d'encourager cette consommation. Interactions à garder en tête : foie, triglycérides, hypoglycémie sous insulinosécréteur. [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - En restauration rapide, choisir mieux plutôt que s'interdire d'y aller :: à renseigner : frequence_restauration_rapide
     - Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre :: à renseigner : matiere_grasse_cuisson

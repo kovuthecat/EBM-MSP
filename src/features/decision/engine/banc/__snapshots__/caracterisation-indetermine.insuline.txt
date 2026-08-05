@@ -129,10 +129,10 @@ Sortie :
   - [recommandee] Choisir un analogue basal de 2ᵉ génération
       proposé parce que : situation_insuline == naif ; risque_hypoglycemique_eleve == true
   Alertes de nœud :
-    - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
+    - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (coefficient de variation élevé), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager un analogue basal de 2ᵉ génération, éduquer, envisager une mesure continue du glucose. [attention]
     - Antécédent d'hypoglycémie sévère récurrente. Il a pu survenir sous un schéma antérieur : il ne préjuge pas du risque sous le schéma actuel et ne doit pas faire renoncer à titrer si la glycémie le justifie. Il invite en revanche à titrer prudemment, à préférer un analogue basal de 2ᵉ génération, et à réévaluer la perception des hypoglycémies. [attention]
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
-    - Cibles de MCG standard (consensus international Battelino 2019 — repères d'interprétation, PAS un critère dur validé sur les complications) : temps dans la cible (TIR) > 70 %, temps en hypoglycémie (TBR) < 4 % et < 1 % (< 54 mg/dL), temps au-dessus (TAR) < 25 % et < 5 % (> 250 mg/dL), coefficient de variation ≤ 36 %. [info]
+    - Cibles de mesure continue du glucose standard (consensus international Battelino 2019 — repères d'interprétation, PAS un critère dur validé sur les complications) : temps dans la cible (TIR) > 70 % ; temps sous la cible (TBR) < 4 % sous 0,70 g/L (70 mg/dL) et < 1 % sous 0,54 g/L (54 mg/dL) ; temps au-dessus de la cible (TAR) < 25 % au-dessus de 1,80 g/L (180 mg/dL) et < 5 % au-dessus de 2,50 g/L (250 mg/dL) ; coefficient de variation ≤ 36 %. [info]
 
 ### Profil #3 — 1 critère masqué (ciblé — cité par une `exclusions` du nœud) : CV_glycemique
 
@@ -175,7 +175,7 @@ Sortie :
   Alertes de nœud :
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
     - Insuffisance rénale : besoins en insuline réduits et risque d'hypoglycémie majoré (adapter les doses, renforcer la surveillance) ; sulfamide (s'il est encore utilisé) : gliclazide/glimépiride à dose réduite et surveillance rapprochée si DFG 30-44, contre-indiqué si DFG < 30 (convention KDIGO/SFD — cf. nœud prescription, place résiduelle SU/gliptine) ; adapter ou arrêter la metformine selon le DFG. [attention]
-    - Sans MCG : titrer la basale sur la glycémie à jeun (cible ~0,70-1,30 g/L) ; utiliser des profils capillaires 6-7 points (avant/après les 3 repas + coucher) pour guider l'intensification prandiale. [info]
+    - Sans mesure continue du glucose : titrer la basale sur la glycémie à jeun (cible ~0,70-1,30 g/L) ; utiliser des profils capillaires 6-7 points (avant/après les 3 repas + coucher) pour guider l'intensification prandiale. [info]
 
 ### Profil #4 — 1 critère masqué (ciblé — cité par une `exclusions` du nœud) : profil_nocturne
 
@@ -216,10 +216,10 @@ Sortie :
   - [recommandee] Choisir un analogue basal de 2ᵉ génération
       proposé parce que : situation_insuline == naif ; risque_hypoglycemique_eleve == true
   Alertes de nœud :
-    - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
+    - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (coefficient de variation élevé), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager un analogue basal de 2ᵉ génération, éduquer, envisager une mesure continue du glucose. [attention]
     - Antécédent d'hypoglycémie sévère récurrente. Il a pu survenir sous un schéma antérieur : il ne préjuge pas du risque sous le schéma actuel et ne doit pas faire renoncer à titrer si la glycémie le justifie. Il invite en revanche à titrer prudemment, à préférer un analogue basal de 2ᵉ génération, et à réévaluer la perception des hypoglycémies. [attention]
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
-    - Cibles de MCG standard (consensus international Battelino 2019 — repères d'interprétation, PAS un critère dur validé sur les complications) : temps dans la cible (TIR) > 70 %, temps en hypoglycémie (TBR) < 4 % et < 1 % (< 54 mg/dL), temps au-dessus (TAR) < 25 % et < 5 % (> 250 mg/dL), coefficient de variation ≤ 36 %. [info]
+    - Cibles de mesure continue du glucose standard (consensus international Battelino 2019 — repères d'interprétation, PAS un critère dur validé sur les complications) : temps dans la cible (TIR) > 70 % ; temps sous la cible (TBR) < 4 % sous 0,70 g/L (70 mg/dL) et < 1 % sous 0,54 g/L (54 mg/dL) ; temps au-dessus de la cible (TAR) < 25 % au-dessus de 1,80 g/L (180 mg/dL) et < 5 % au-dessus de 2,50 g/L (250 mg/dL) ; coefficient de variation ≤ 36 %. [info]
 
 ### Profil #5 — 5 critère(s) masqué(s) (masque stratifié) : GAJ, dose_rapide_actuelle, glycemie_pre_repas, poids, preference_injection
 
@@ -255,10 +255,10 @@ Sortie :
   - [recommandee] Désintensifier / alléger le schéma
       proposé parce que : situation_insuline != naif AND ecart_sous_objectif_cible == true
   Alertes de nœud :
-    - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
+    - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (coefficient de variation élevé), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager un analogue basal de 2ᵉ génération, éduquer, envisager une mesure continue du glucose. [attention]
     - Antécédent d'hypoglycémie sévère récurrente. Il a pu survenir sous un schéma antérieur : il ne préjuge pas du risque sous le schéma actuel et ne doit pas faire renoncer à titrer si la glycémie le justifie. Il invite en revanche à titrer prudemment, à préférer un analogue basal de 2ᵉ génération, et à réévaluer la perception des hypoglycémies. [attention]
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
-    - Sans MCG : titrer la basale sur la glycémie à jeun (cible ~0,70-1,30 g/L) ; utiliser des profils capillaires 6-7 points (avant/après les 3 repas + coucher) pour guider l'intensification prandiale. [info]
+    - Sans mesure continue du glucose : titrer la basale sur la glycémie à jeun (cible ~0,70-1,30 g/L) ; utiliser des profils capillaires 6-7 points (avant/après les 3 repas + coucher) pour guider l'intensification prandiale. [info]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Corriger l'hypoglycémie ou la variabilité :: à renseigner : GAJ
     - Insuline prémélangée — option dégradée, dernier recours :: à renseigner : preference_injection
@@ -294,7 +294,7 @@ Sortie :
   Alertes de nœud :
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
     - iSGLT2 + insuline : maintenir l'iSGLT2 pour le bénéfice cardio-rénal, mais informer du risque d'acidocétose euglycémique — une complication traître car la GLYCÉMIE PEUT RESTER PROCHE DE LA NORMALE, ce qui retarde le diagnostic si l'on ne s'appuie que sur elle. Suspendre en cas de jeûne, d'apports glucidiques manifestement insuffisants, de chirurgie ou de maladie aiguë intercurrente — et par principe au moins 3 jours avant une chirurgie programmée (4 jours pour l'ertugliflozine, ACC 2020). [attention]
-    - Sans MCG : titrer la basale sur la glycémie à jeun (cible ~0,70-1,30 g/L) ; utiliser des profils capillaires 6-7 points (avant/après les 3 repas + coucher) pour guider l'intensification prandiale. [info]
+    - Sans mesure continue du glucose : titrer la basale sur la glycémie à jeun (cible ~0,70-1,30 g/L) ; utiliser des profils capillaires 6-7 points (avant/après les 3 repas + coucher) pour guider l'intensification prandiale. [info]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Envisager d'instaurer une mesure continue du glucose :: à renseigner : HbA1c_cible
     - Corriger l'hypoglycémie ou la variabilité :: à renseigner : GAJ
@@ -331,7 +331,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
 Sortie :
   (aucune option applicable — sortie vide)
   Alertes de nœud :
-    - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
+    - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (coefficient de variation élevé), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager un analogue basal de 2ᵉ génération, éduquer, envisager une mesure continue du glucose. [attention]
     - Antécédent d'hypoglycémie sévère récurrente. Il a pu survenir sous un schéma antérieur : il ne préjuge pas du risque sous le schéma actuel et ne doit pas faire renoncer à titrer si la glycémie le justifie. Il invite en revanche à titrer prudemment, à préférer un analogue basal de 2ᵉ génération, et à réévaluer la perception des hypoglycémies. [attention]
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
     - iSGLT2 + insuline : maintenir l'iSGLT2 pour le bénéfice cardio-rénal, mais informer du risque d'acidocétose euglycémique — une complication traître car la GLYCÉMIE PEUT RESTER PROCHE DE LA NORMALE, ce qui retarde le diagnostic si l'on ne s'appuie que sur elle. Suspendre en cas de jeûne, d'apports glucidiques manifestement insuffisants, de chirurgie ou de maladie aiguë intercurrente — et par principe au moins 3 jours avant une chirurgie programmée (4 jours pour l'ertugliflozine, ACC 2020). [attention]
@@ -379,12 +379,12 @@ Sortie :
   - [recommandee] Désintensifier / alléger le schéma
       proposé parce que : situation_insuline == basal_bolus AND risque_hypoglycemique_eleve == true ; situation_insuline != naif AND ecart_sous_objectif_cible == true
   Alertes de nœud :
-    - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
+    - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (coefficient de variation élevé), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager un analogue basal de 2ᵉ génération, éduquer, envisager une mesure continue du glucose. [attention]
     - Antécédent d'hypoglycémie sévère récurrente. Il a pu survenir sous un schéma antérieur : il ne préjuge pas du risque sous le schéma actuel et ne doit pas faire renoncer à titrer si la glycémie le justifie. Il invite en revanche à titrer prudemment, à préférer un analogue basal de 2ᵉ génération, et à réévaluer la perception des hypoglycémies. [attention]
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
     - iSGLT2 + insuline : maintenir l'iSGLT2 pour le bénéfice cardio-rénal, mais informer du risque d'acidocétose euglycémique — une complication traître car la GLYCÉMIE PEUT RESTER PROCHE DE LA NORMALE, ce qui retarde le diagnostic si l'on ne s'appuie que sur elle. Suspendre en cas de jeûne, d'apports glucidiques manifestement insuffisants, de chirurgie ou de maladie aiguë intercurrente — et par principe au moins 3 jours avant une chirurgie programmée (4 jours pour l'ertugliflozine, ACC 2020). [attention]
     - Insuffisance rénale : besoins en insuline réduits et risque d'hypoglycémie majoré (adapter les doses, renforcer la surveillance) ; sulfamide (s'il est encore utilisé) : gliclazide/glimépiride à dose réduite et surveillance rapprochée si DFG 30-44, contre-indiqué si DFG < 30 (convention KDIGO/SFD — cf. nœud prescription, place résiduelle SU/gliptine) ; adapter ou arrêter la metformine selon le DFG. [attention]
-    - Sans MCG : titrer la basale sur la glycémie à jeun (cible ~0,70-1,30 g/L) ; utiliser des profils capillaires 6-7 points (avant/après les 3 repas + coucher) pour guider l'intensification prandiale. [info]
+    - Sans mesure continue du glucose : titrer la basale sur la glycémie à jeun (cible ~0,70-1,30 g/L) ; utiliser des profils capillaires 6-7 points (avant/après les 3 repas + coucher) pour guider l'intensification prandiale. [info]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Optimiser la répartition du basal-bolus :: à renseigner : profil_entre_repas
 
@@ -418,7 +418,7 @@ Sortie :
   (aucune option applicable — sortie vide)
   Alertes de nœud :
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
-    - Sujet âgé / fragile / à espérance de vie limitée : cibles de MCG ASSOUPLIES — TIR > 50 %, TBR < 1 %, TAR plus permissif (cohérent avec la cible d'HbA1c relâchée issue du nœud A). [info]
+    - Sujet âgé / fragile / à espérance de vie limitée : cibles de mesure continue du glucose ASSOUPLIES — temps dans la cible (TIR) > 50 %, temps sous la cible (TBR) < 1 %, temps au-dessus de la cible (TAR) plus permissif. Cohérent avec l'objectif d'HbA1c retenu pour ce patient, lui aussi relâché. [info]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Corriger l'hypoglycémie ou la variabilité :: à renseigner : TBR
     - Ne pas sur-titrer la basale — intensifier autrement :: à renseigner : HbA1c_actuelle, poids, dose_basale_actuelle
@@ -498,7 +498,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
 Sortie :
   (aucune option applicable — sortie vide)
   Alertes de nœud :
-    - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (CV élevé, temps en hypoglycémie sévère), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager une 2ᵉ génération, éduquer, envisager une MCG. [attention]
+    - Orienter vers le spécialiste (± pompe à insuline / boucle fermée = centres initiateurs) si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière : hypoglycémies sévères récurrentes / non-perception, instabilité marquée (coefficient de variation élevé), grossesse ou projet de grossesse. En attendant : relâcher l'objectif, envisager un analogue basal de 2ᵉ génération, éduquer, envisager une mesure continue du glucose. [attention]
     - Antécédent d'hypoglycémie sévère récurrente. Il a pu survenir sous un schéma antérieur : il ne préjuge pas du risque sous le schéma actuel et ne doit pas faire renoncer à titrer si la glycémie le justifie. Il invite en revanche à titrer prudemment, à préférer un analogue basal de 2ᵉ génération, et à réévaluer la perception des hypoglycémies. [attention]
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
     - iSGLT2 + insuline : maintenir l'iSGLT2 pour le bénéfice cardio-rénal, mais informer du risque d'acidocétose euglycémique — une complication traître car la GLYCÉMIE PEUT RESTER PROCHE DE LA NORMALE, ce qui retarde le diagnostic si l'on ne s'appuie que sur elle. Suspendre en cas de jeûne, d'apports glucidiques manifestement insuffisants, de chirurgie ou de maladie aiguë intercurrente — et par principe au moins 3 jours avant une chirurgie programmée (4 jours pour l'ertugliflozine, ACC 2020). [attention]

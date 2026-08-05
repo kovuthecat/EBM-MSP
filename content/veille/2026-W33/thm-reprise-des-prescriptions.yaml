@@ -1,0 +1,25 @@
+id: 2026-W33-thm-reprise-des-prescriptions
+date_semaine: "2026-W33"
+titre: "Traitement hormonal de la ménopause : les prescriptions repartent à la hausse en France"
+source:
+  nom: "ANSM / Epi-Phare"
+  lien: https://ansm.sante.fr/actualites/traitement-hormonal-de-la-menopause-pres-de-500-000-femmes-traitees-en-2025-une-hausse-des-utilisations-depuis-2022
+type_publication: autre
+themes: [sante-femme-perinatalite, cardiovasculaire-prevention]
+professions_concernees: [MG, sage-femme]
+route: breve
+niveau_impact: informatif
+population: "Femmes de 45 à 60 ans, données nationales de remboursement, France, 2012-2025."
+resultat_resume: "Après une décroissance de 6,6 % à 3,6 % entre 2012 et 2022, l'utilisation remonte à 4,4 %. Voie transdermique dans 87 % des cas, prescription par un gynécologue libéral dans plus de la moitié. Environ 17 % des utilisatrices ont une maladie cardio-métabolique, proportion qui atteint 37 % chez les plus de 60 ans encore traitées."
+appreciation_critique: null
+niveau_preuve: null
+pertinence_pratique: null
+impact_algorithme:
+  concerne_decision: false
+  noeuds_impactes: []
+  proposition_maj: aucune
+temps_lecture_min: 2
+meta:
+  date_publication: "2026-08-05"
+  auteur: "référent veille"
+  statut: brouillon

@@ -1,0 +1,25 @@
+id: 2026-W33-hantavirus-voyageurs-hcsp
+date_semaine: "2026-W33"
+titre: "Le HCSP publie des recommandations pour les voyageurs exposés au hantavirus"
+source:
+  nom: "Haut Conseil de la santé publique"
+  lien: https://www.hcsp.fr/explore.cgi/avisrapportsdomaine?clefr25
+type_publication: reco
+themes: [infectiologie-antibiotherapie, prevention-depistage-vaccination]
+professions_concernees: [MG]
+route: breve
+niveau_impact: informatif
+population: "Voyageurs en zone rurale, notamment Argentine et Chili."
+resultat_resume: "Prévention par évitement du contact avec les rongeurs, aération des locaux et port de protections pour les activités à risque. Une fièvre survenant dans les 6 semaines après une exposition possible doit conduire à l'isolement, au port du masque et à un avis médical via le 15. Situation rare en patientèle de ville, mais actionnable si le cas se présente."
+appreciation_critique: null
+niveau_preuve: null
+pertinence_pratique: null
+impact_algorithme:
+  concerne_decision: false
+  noeuds_impactes: []
+  proposition_maj: aucune
+temps_lecture_min: 2
+meta:
+  date_publication: "2026-08-05"
+  auteur: "référent veille"
+  statut: brouillon

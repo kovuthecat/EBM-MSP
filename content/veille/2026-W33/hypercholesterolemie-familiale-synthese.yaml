@@ -1,0 +1,26 @@
+id: 2026-W33-hypercholesterolemie-familiale-synthese
+date_semaine: "2026-W33"
+titre: "Hypercholestérolémie familiale : synthèse et divergence sur l'âge du dépistage"
+source:
+  nom: "JAMA"
+  lien: https://jamanetwork.com/journals/jama/fullarticle/2850800
+  doi: 10.1001/jama.2026.8822
+type_publication: autre
+themes: [cardiovasculaire-prevention, soins-premiers]
+professions_concernees: [MG, IPA]
+route: breve
+niveau_impact: informatif
+population: "Synthèse narrative, population générale."
+resultat_resume: "Le point de divergence porte sur le dépistage : les recommandations américaines le proposent de façon universelle entre 9 et 11 ans puis tous les 5 ans à partir de 19 ans, alors qu'une étude de coût-efficacité publiée dans la même revue conclut que cette stratégie ne l'est pas. En pratique : y penser devant un LDL supérieur à 1,90 g/L ou des signes cliniques, et dépister les apparentés. Attention, il s'agit d'une synthèse et non d'une étude princeps : elle ne peut pas servir de référence pour un nœud de décision."
+appreciation_critique: null
+niveau_preuve: null
+pertinence_pratique: null
+impact_algorithme:
+  concerne_decision: true
+  noeuds_impactes: [statine]
+  proposition_maj: candidate
+temps_lecture_min: 3
+meta:
+  date_publication: "2026-08-05"
+  auteur: "référent veille"
+  statut: brouillon

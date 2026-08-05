@@ -232,7 +232,10 @@ describe('rhd-activite-physique — R-P-03 : neuropathie périphérique / mal pe
 
   it('ET l’alerte qui EXPLIQUE la sur-restriction est présente', () => {
     const m = alertes(PROFIL)
-    expect(m.some((a) => a.includes('activités en CHARGE'))).toBe(true)
+    // Insensible à la CASSE depuis la passe de lisibilité du 2026-08-05 (les capitales d'emphase sont
+    // réservées aux faits de sécurité) : ce qui est vérifié est que l'alerte NOMME les activités en
+    // charge et DIT ce que l'outil ne recueille pas — pas la façon dont c'est typographié.
+    expect(m.some((a) => /activités en charge/i.test(a))).toBe(true)
     expect(m.some((a) => a.includes('faute de recueillir'))).toBe(true)
   })
 
@@ -252,7 +255,9 @@ describe('rhd-activite-physique — R-P-04 : sous insuline ou insulinosécréteu
   const PROFIL: Partial<Criteria> = { ...SEDENTAIRE, insuline_ou_insulinosecreteur: true }
 
   it('l’alerte d’hypoglycémie à l’effort se déclenche', () => {
-    expect(alertes(PROFIL).some((m) => m.includes("hypoglycémie À L'EFFORT"))).toBe(true)
+    // Insensible à la casse (cf. R-P-03 ci-dessus) : le garde-fou porte sur la PRÉSENCE de l'alerte
+    // d'hypoglycémie à l'effort, jamais sur son emphase typographique.
+    expect(alertes(PROFIL).some((m) => /hypoglycémie à l'effort/i.test(m))).toBe(true)
   })
 
   it('et RIEN n’est retiré — y compris la pratique structurée', () => {

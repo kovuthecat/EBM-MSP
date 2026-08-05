@@ -15,12 +15,12 @@ Veille : **non commencé** (aucun code, `DECISIONS.md` D8 garde la place).
 
 | nœud | statut | dernière version |
 | --- | --- | --- |
-| `cible-glycemique` | `valide` | v2.13 |
-| `statine` | `brouillon` | v1.25 |
-| `prescription` | `brouillon` | v0.62 |
-| `insuline` | `valide` | v0.47 |
-| `rhd-alimentation` | `brouillon` | v0.14 |
-| `rhd-activite-physique` | `brouillon` | v0.16 |
+| `cible-glycemique` | `valide` | v2.15 |
+| `statine` | `brouillon` | v1.27 |
+| `prescription` | `brouillon` | v0.64 |
+| `insuline` | `valide` | v0.49 |
+| `rhd-alimentation` | `brouillon` | v0.15 |
+| `rhd-activite-physique` | `brouillon` | v0.17 |
 
 Passage à `valide` conditionné à la relecture référent finale (`TASKS.md` §validation clinique).
 
@@ -35,24 +35,25 @@ de toucher `engine/expressionsNoeud.ts` (G1), hors mandat — conception prête,
 sur la majorité des tâches (navigateur in-app indisponible pendant l'exécution), compensé par des tests
 RTL/jsdom — à rejouer avant clôture visuelle. Bilan : `plans/P13/index.md` §Bilan. N2 : `VALIDATION.md`.
 
-**Plan P12 — clos le 2026-08-03** (suites de la recette praticien naïf du 2026-08-02) : S1-S10 livrées.
-Une seule tâche non livrée, **T-120**, STOP fondé — cf. `plans/P12/index.md` §Bilan de clôture.
+**Plan P12 — clos le 2026-08-03** : S1-S10 livrées ; seule **T-120** non livrée, STOP fondé (`plans/P12/index.md`).
 
 **Plan PV1 — module Veille, cadré le 2026-07-31, pas démarré** (`plans/PV1/index.md`) : 10 sessions, deux
 éditions hebdomadaires produites **à la main** avant tout code, puis gel du modèle et câblage.
 
 **Plan P7** (cadré 2026-07-29, ouvert) : manquent SA2 (validité HbA1c) et S2. **P8 — clos** (S1-S8).
 
-**Refonte de l'argumentaire (2026-08-04, hors plan, D48)** : l'écran ne cite plus que des sources
-primaires, dans un panneau « État des preuves ». Propagée aux 6 nœuds, aucune dette (I25 sans exemption).
+**Argumentaire — deux passes hors plan.** *2026-08-04 (D48)* : l'écran ne cite plus que des sources
+primaires, dans un panneau « État des preuves ». *2026-08-05* : les 4 niveaux de lecture des 6 nœuds relus
+puis corrigés — cartes sourcées 40 → 65/84, délais de bénéfice 6 → 17, panneaux posologie 16 → 34,
+contradictions entre niveaux levées, I25 gagne 7 marqueurs (**D49**). Aucune dette ni exemption.
+Arbitrages en attente : `docs/decision/validation/passe-redaction-2026-08-05.md`.
 
 ## Ce qui casse / n'est pas testé
 
 - Onglet **« Veille » rend une page blanche** — mécanique, non cadré (appartient à PV1/S6).
-- CTA flottant mobile : depuis **D47** il apparaît jusqu'à 1199 px (contre 959 avant), donc sur des
-  fenêtres de bureau non maximisées. Jugement d'usage en attente, `VALIDATION.md`.
-- **I24 ne scanne que `conditions`/`prerequis`, pas `exclusions`** : 8 motifs négatifs sur `statine.yaml`
-  en attente (P13/S7, T-152), exemptés nommément.
+- CTA flottant mobile : depuis **D47**, visible jusqu'à 1199 px (contre 959) — donc sur des fenêtres de bureau non maximisées. Jugement d'usage en attente, `VALIDATION.md`.
+- **I24 ne scanne que `conditions`/`prerequis`, pas `exclusions`** : 8 motifs négatifs sur `statine.yaml` en attente (P13/S7, T-152), exemptés nommément.
+- **2 tests rouges, aucun lié au contenu** : `couverture.test.ts`/`prescription` (angle mort du banc, diagnostic dans `engine/banc/profils.ts`) et `grammaire.test.ts` (champ `icone` de T-149 non classé).
 
 ## Bugs connus
 
@@ -73,8 +74,7 @@ primaires, dans un panneau « État des preuves ». Propagée aux 6 nœuds, aucu
 ## Comment vérifier l'état réel
 
 ```bash
-npm test          # 1155 tests attendus, 11 skip — mesurer MACHINE LIBRE (aucun serveur de dev en
-                  # cours) : le banc de sécurité rend des verdicts au hasard sous charge
+npm test          # mesurer MACHINE LIBRE : sous charge, le banc de sécurité rend des verdicts au hasard
 npm run typecheck # `npx tsc --noEmit` seul est factice (tsconfig.json en `files: []`, 0 fichier)
 npm run build
 ```

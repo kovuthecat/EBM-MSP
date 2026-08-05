@@ -1,0 +1,37 @@
+id: 2026-W33-depistage-fibrillation-atriale
+date_semaine: "2026-W33"
+titre: "Dépistage systématique de la fibrillation atriale après 70 ans : deux essais randomisés ne montrent aucun bénéfice sur l'AVC"
+source:
+  nom: "J Am Coll Cardiol (GUARD-AF) et Circulation (STROKESTOP II)"
+  lien: https://www.jacc.org/doi/10.1016/j.jacc.2024.08.019
+  doi: 10.1016/j.jacc.2024.08.019
+type_publication: ECR
+themes: [cardiovasculaire-prevention, prevention-depistage-vaccination, geriatrie-deprescription]
+professions_concernees: [MG, IPA]
+route: analyse
+niveau_impact: informatif
+population: "GUARD-AF : 11 905 patients de 70 ans et plus, 149 cabinets de soins primaires américains, patch ECG continu de 14 jours contre soins usuels. STROKESTOP II : 28 712 habitants de 75-76 ans de la région de Stockholm, invitation à un dépistage stratifié sur le NT-proBNP contre absence d'invitation."
+resultat_resume: "Aucun des deux essais ne montre de bénéfice sur son critère principal. GUARD-AF : hospitalisation pour AVC 0,55 contre 0,50 pour 100 personnes-années, HR 1,10 (0,69-1,75). STROKESTOP II : AVC ou embolie systémique HR 0,96 (0,86-1,06) à 5,1 ans, et composite incluant saignements et décès HR 1,00 (0,95-1,05). Le dépistage augmente bien la détection — 4,00 contre 2,63 pour 100 personnes-années dans GUARD-AF — sans que cela se traduise en événements évités."
+appreciation_critique: |
+  Les deux essais ne se valent pas et ne s'additionnent pas.
+
+  GUARD-AF a été arrêté par son promoteur à 11 905 inclus pour 52 000 prévus, soit 23 % de sa cible, avec un suivi médian de 15,3 mois. Son intervalle de confiance contient une réduction de 31 % comme une augmentation de 75 % : l'essai n'est pas négatif, il est non informatif sur son critère principal. À noter aussi que 11,6 % des randomisés sortent de l'analyse faute de couverture Medicare exploitable.
+
+  STROKESTOP II, lui, est concluant. Et c'est là que se trouve l'argument fort : sur 165 fibrillations atriales nouvellement détectées, 94,5 % ont été mises sous anticoagulant après avis cardiologique, avec une compliance de 88 % au dépistage prolongé. La chaîne dépistage vers anticoagulation ne fuit donc pas — et il n'y a quand même aucun bénéfice, sur aucun critère. Ce n'est pas un problème d'exécution. La cinétique le confirme : l'écart de prévalence entre les deux bras est effacé à 6 mois, et à 6 ans les prévalences sont de 17,4 % contre 18,6 %. Le dépistage avance le diagnostic, il ne révèle pas un gisement durable.
+
+  Le sous-groupe à faible NT-proBNP (HR 0,59) circule beaucoup et doit être lu correctement. Ce n'était ni un sous-groupe post-hoc ni une revendication d'efficacité : c'était un second critère principal pré-spécifié, et son objet était la sécurité — peut-on renoncer au dépistage prolongé chez ces patients sans les exposer ? Il reste que la comparaison oppose des participants sélectionnés au bras contrôle entier, sur une variable mesurée après la randomisation : elle ne peut établir ni une efficacité, ni formellement une sécurité. Elle soutient une affirmation plus modeste et légitime, de nature pronostique.
+
+  Repère chiffré le plus honnête, issu d'une méta-analyse à variables instrumentales portant sur six essais : HR 0,93 (0,87-0,99) en intention de traiter, 0,87 (0,77-0,98) chez ceux qui se font effectivement dépister. Un effet modeste. Réserve : deux de ses auteurs sont ceux de STROKESTOP II.
+
+  La position tenable reste celle de l'USPSTF — preuves insuffisantes. L'essai SAFER, plus de 89 000 randomisés, rendra en 2028. Financements : GUARD-AF par l'alliance BMS/Pfizer, fabricants d'anticoagulants, dont l'intérêt commercial allait vers un résultat positif ; STROKESTOP II notamment par Roche Diagnostics, qui commercialise le dosage NT-proBNP utilisé.
+niveau_preuve: modere
+pertinence_pratique: forte
+impact_algorithme:
+  concerne_decision: false
+  noeuds_impactes: []
+  proposition_maj: aucune
+temps_lecture_min: 5
+meta:
+  date_publication: "2026-08-05"
+  auteur: "référent veille"
+  statut: brouillon

@@ -1,28 +1,26 @@
 # Statine chez le diabétique de type 2 — argumentaire exhaustif
 
-> Niveau de lecture 3 (preuve complète). Document autonome distillé du dossier de preuve
-> `docs/decision/noeuds/F-statine.md` (sources croisées et vérifiées, PMID/DOI confirmés contre la source
-> primaire). **Brouillon, en attente de relecture clinique.**
+> Niveau de lecture 3 (preuve complète). Document autonome : sources croisées et vérifiées, PMID/DOI
+> confirmés contre la source primaire.
 
 ## En bref
 
 La statine est le volet lipidique de la prévention cardiovasculaire du diabétique, **à décider indépendamment
-de l'HbA1c** et du traitement antidiabétique. Trois situations :
+de l'HbA1c** et du traitement antidiabétique. Quatre situations :
 
 - **Prévention secondaire (maladie athéromateuse établie)** → statine de **haute intensité**. Bénéfice fort,
   sur critères durs, NNT bas. Consensus total.
-- **Prévention primaire** (le cas standard, diabétique ≥ 40 ans ou plus jeune à risque) → statine d'**intensité
-  modérée**, pilotée par le risque absolu. Bénéfice **réel sur les événements CV**, mais **mortalité totale non
-  démontrée**.
+- **Prévention primaire à risque non négligeable** (au moins un autre facteur de risque cardiovasculaire, ou
+  diabète compliqué, ou diabète évoluant depuis 10 ans ou plus) → statine d'**intensité modérée**, pilotée par
+  le risque absolu. Bénéfice **réel sur les événements CV**, mais **mortalité totale non démontrée**.
 - **Diabète non compliqué à faible risque absolu** (récent, sans autre facteur de risque) → **décision
   partagée** (bénéfice absolu faible).
-- **Statine indisponible** — intolérance **avérée**, ou CK > 4 fois la normale avant initiation → la classe
-  est retirée et une carte terminale oriente vers les alternatives hypolipémiantes. *(L'outil affichait
-  auparavant « atorvastatine 40-80 mg » à un patient dont le dossier déclarait qu'il ne pouvait pas en
-  prendre, avec une simple alerte à côté.)*
+- **Statine indisponible** — intolérance **avérée**, ou créatine kinase (CK) au-dessus de 5 fois la normale
+  avant initiation → la classe est retirée et une carte terminale oriente vers les alternatives
+  hypolipémiantes.
 
-À quoi s'ajoute une conduite qui n'est pas un tier de risque mais un geste de sécurité : **CK > 4 fois la
-normale sous traitement → interrompre 4 à 6 semaines et réévaluer**, avant tout autre raisonnement.
+À quoi s'ajoute une conduite qui n'est pas un niveau de risque mais un geste de sécurité : **CK au-dessus de
+5 fois la normale sous traitement → interrompre 4 à 6 semaines et réévaluer**, avant tout autre raisonnement.
 
 Position assumée : **l'intensité est calée sur le niveau de risque, pas sur une cible LDL chiffrée**.
 
@@ -46,7 +44,7 @@ mortalité**.
 | Essai | Comparaison | Résultat |
 | --- | --- | --- |
 | **CTT more-vs-less 2010** | méta 5 ECR d'intensité | Événements vasculaires majeurs **−15 % (11-18)** ; NNT ~25 / 5 ans |
-| **TNT diabète 2006** | atorva 80 vs 10 | **17,9 % vs 13,8 %**, HR 0,75 (0,58-0,97) ; NNT ~24 / 4,9 ans |
+| **TNT diabète 2006** | atorva 80 vs 10 | **atorva 80 : 13,8 % vs atorva 10 : 17,9 %**, HR 0,75 (0,58-0,97) ; NNT ~24 / 4,9 ans |
 | **PROVE-IT diabète 2006** | atorva 80 vs prava 40 | 21,1 % vs 26,6 %, HR 0,75 (p=0,03) |
 | **IDEAL 2005** | atorva 80 vs simva 20-40 | Critère 1aire **HR 0,89 (0,78-1,01) p=0,07 NS** |
 | **SEARCH 2010** | simva 80 vs 20 | RR 0,94 (0,88-1,01) **NS** ; **myopathie 0,9 % vs 0,03 %** |
@@ -149,16 +147,15 @@ place**, sa poursuite est raisonnable. En maladie rénale chronique **non dialys
 reste indiquée.
 
 *(Le nœud distingue l'initiation de la poursuite : l'option « haute intensité » n'est pas proposée à un
-patient dialysé qui n'a pas déjà de statine en cours, la poursuite reste possible. Le tier « discuter » et
+patient dialysé qui n'a pas déjà de statine en cours, la poursuite reste possible. La situation « discuter » et
 le repli « intensité modérée » restent, eux, hors de cette exclusion — limite documentée dans les
 incertitudes du nœud.)*
 
 **Cas particulier du cas particulier — dialysé ET en prévention secondaire, pas encore sous
-statine** : le nœud est en `ordered-first-match` — retirer
-l'option « haute intensité » par l'exclusion ci-dessus fait continuer la boucle vers l'option suivante, qui
-ne regarde jamais `ASCVD_etablie`. Sans correctif, ce patient (12,5 % du banc réaliste du nœud) atterrissait
-sur « Discuter […] à faible risque absolu » ou sur le repli « prévention primaire, intensité modérée » — un
-patient de prévention **secondaire** présenté comme à faible risque et sous-dosé. Corrigé par une alerte
+statine** : les situations de cet écran sont examinées dans l'ordre, et la première qui correspond
+l'emporte. Retirer l'option « haute intensité » par l'exclusion ci-dessus fait donc passer à la situation
+suivante, qui ne regarde pas la maladie cardiovasculaire établie — un patient de prévention
+**secondaire** risquerait d'être présenté comme à faible risque et sous-dosé. D'où une alerte
 portée par CHACUNE de ces deux options (visible seulement quand l'option est réellement atteinte pour ce
 patient) qui rappelle son statut ASCVD et dit explicitement ce que le dossier NE tranche PAS : ni l'excès
 d'une haute intensité non prouvée en dialyse, ni le sous-traitement d'un risque cardiovasculaire réel ne
@@ -172,16 +169,20 @@ au cas par cas, pas de conduite inventée au-delà de ce que le dossier établit
   le non-diabétique. Chez un patient **déjà diabétique**, cet argument **ne s'applique pas**.
 - **Symptômes musculaires** : la méta CTT sur données individuelles 2022 montre un excès réel **seulement la
   1re année** (RR 1,07), nul ensuite, et **> 90 % des symptômes musculaires rapportés ne sont pas attribuables**
-  à la statine (~1 sur 15). *(Ce constat alimente une alerte du nœud, ciblée sur la seule
-  valeur `rapportee` du critère `intolerance_statine` : adressé à un patient dont l'intolérance est AVÉRÉE, ce
-  message l'inviterait à ignorer son propre dossier. La conduite à tenir, elle, n'est plus un trou du dossier
-  — voir le § 6 bis ci-dessous.)*
-- **Créatine kinase — le seul seuil qui retire réellement une option.** La recommandation française 2026
+  à la statine (~1 sur 15). *(Ce constat vaut pour une intolérance rapportée, non pour une intolérance
+  avérée : adressé à un patient dont l'intolérance est établie, il l'inviterait à ignorer son propre
+  dossier. Ce qu'il faut faire d'une intolérance rapportée est détaillé au § 6 bis ci-dessous.)*
+- **Créatine kinase (CK) — le seul seuil qui retire réellement une option.** La recommandation française 2026
   n'emploie le mot *contre-indication* qu'une seule fois dans tout son chapitre statine, et c'est ici : des CK
-  élevées avant initiation contre-indiquent la classe. Le parcours NHS pose le seuil à **4 fois la normale**
-  (la reco française écrit 5) et, surtout, **ne fait doser les CK qu'en présence d'une douleur musculaire** —
-  « *Do not measure CK if person is asymptomatic* ». Le nœud suit le seuil le plus bas et ne demande le
-  dosage que si une intolérance est rapportée ou avérée.
+  élevées avant initiation contre-indiquent la classe. Deux seuils étaient en présence : le parcours NHS pose
+  **4 fois la normale**, la recommandation française et NICE NG238 (§1.5.7) posent **5**. Le nœud retient
+  **5 fois la normale**. Le seuil le plus bas paraissait le plus prudent, il ne l'est pas : NG238 traite la
+  bande sous 5 fois la normale en **débutant la statine à dose plus faible**, et non par l'abstention.
+  Retenir 4 revenait donc à ne pas traiter un patient que la source veut traiter, dont le risque
+  cardiovasculaire n'a pas bougé — une sous-prescription, pas une précaution. Les deux sources se rejoignent
+  en revanche sur un point que le nœud applique : **ne doser les CK qu'en présence d'une douleur musculaire**
+  — « *Do not measure CK if person is asymptomatic* ». Le dosage n'est donc demandé que si une intolérance
+  est rapportée ou avérée.
 - **Choix de molécule** : simvastatine et atorvastatine sont métabolisées par le **CYP3A4** (interactions :
   macrolides, azolés, amiodarone, vérapamil/diltiazem, inhibiteurs de protéase, pamplemousse). **Pravastatine,
   rosuvastatine, pitavastatine** ont **moins d'interactions** — à préférer en cas de co-prescription à risque.
@@ -204,12 +205,12 @@ intolérants** et réintroduits **en aveugle** :
   Ce qui est en excès sous statine n'est donc pas tant la douleur que la décision d'arrêter.
 - **GAUSS-3** phase A donne l'ordre de grandeur de l'attribution : 42,6 % de symptômes sous atorvastatine
   seule, mais **26,5 % sous placebo seul** — excès net d'environ **16 points**, et non 42,6 %. Deux mises en
-  garde qui ont coûté une correction : chaque traitement n'y est donné **qu'une fois** (rien n'y est
-  « reproductible »), et l'essai est **financé par Amgen**, fabricant de l'anti-PCSK9 comparé.
+  garde de lecture : chaque traitement n'y est donné **qu'une fois** (rien n'y est « reproductible »), et
+  l'essai est **financé par Amgen**, fabricant de l'anti-PCSK9 comparé.
 - **SAMSON** et **StatinWISE**, tous deux **non industriels**, vont dans le même sens : ratio nocebo 0,90 pour
   le premier ; différence de score de douleur non significative pour le second, avec **deux tiers** de reprise.
 
-D'où la distinction encodée dans le nœud : `intolerance_statine` vaut **non / rapportée / avérée**. Une
+D'où la distinction que porte le nœud : l'intolérance y est déclarée **non**, **rapportée** ou **avérée**. Une
 intolérance *rapportée* ne retire rien — la conduite y est la réintroduction. Seule l'intolérance *avérée*
 rend la classe indisponible.
 
@@ -218,15 +219,17 @@ rend la classe indisponible.
 Il vient du *Statin Intolerance Pathway* (NHS England / AAC Clinical Subgroup). **Réserve de provenance à ne
 pas perdre** : document de janvier 2022, avalisé par NICE en décembre 2021, rattaché à **CG181** — remplacée
 par NG238 en décembre 2023 — et portant une date de révision de **janvier 2024, dépassée**. Il n'est **pas**
-dans NG238, contrairement à une première attribution erronée : NICE ne fait que l'héberger. Rien de plus récent ne
-le remplace à ce jour.
+dans NG238 : NICE ne fait que l'héberger. NG238 porte pour sa part son **propre** protocole de réintroduction
+(§1.9.2-1.9.4) et une section entière consacrée au patient qui ne peut pas prendre de statine (§1.10) : les
+deux protocoles coexistent, et c'est le parcours NHS qui est retenu ici, parce que les autres conduites du
+volet CK en découlent.
 
 1. **Interrompre 4 à 6 semaines**, en documentant le délai d'apparition des symptômes et celui de leur
    résolution.
 2. Réintroduire sous **trois conditions cumulatives** : CK normalisées, symptômes résolus, patient
    asymptomatique depuis **au moins 2 semaines**.
 3. Reprendre à dose **basse ou modérée d'une statine de haute intensité** — atorvastatine **10 ou 20 mg**, ou
-   rosuvastatine **5 ou 10 mg**. *(Une première version annonçait « atorvastatine 20 → 40 mg » : c'était faux.)*
+   rosuvastatine **5 ou 10 mg**.
 4. **Titrer à 8 semaines d'intervalle.**
 
 Si la prise quotidienne n'est pas tolérée, un jour sur deux ou deux fois par semaine reste une option — les
@@ -236,12 +239,24 @@ c'est l'abaissement du LDL.
 
 ### Les seuils de CK, et une divergence de sécurité
 
+Dans ce tableau, **N** se lit « fois la limite supérieure de la normale du laboratoire ».
+
 | CK | Sous traitement | Avant initiation |
 |---|---|---|
 | < 4 N | poursuivre si les symptômes sont tolérables | pas d'obstacle |
-| 4-10 N | **interrompre 4 à 6 semaines**, puis réintroduire | **ne pas débuter** — investigation requise |
-| 10-50 N | idem, **après vérification de la fonction rénale** ; si elle est altérée, évoquer une rhabdomyolyse | — |
-| > 50 N | **arrêt et avis spécialisé urgent**, évaluation hospitalière | — |
+| 4-5 N | **ne pas interrompre** : rassurer, chercher une cause non médicamenteuse (NG238 §1.11.4) | **débuter à dose plus faible** — atorvastatine 10 ou 20 mg, ou rosuvastatine 5 ou 10 mg (NG238 §1.5.7) |
+| 5-10 N | **interrompre 4 à 6 semaines**, puis réintroduire | **ne pas débuter** — chercher d'abord la cause de l'élévation |
+| 10-50 N | idem, **après vérification de la fonction rénale** ; si elle est altérée, évoquer une rhabdomyolyse | idem |
+| > 50 N | **arrêt et avis spécialisé urgent**, évaluation hospitalière | idem |
+
+**Règle commune à toutes les élévations : re-doser les CK à 7 jours** (NICE NG238, §1.5.7 avant initiation,
+§1.11.4-1.11.5 sous traitement). C'est ce second dosage qui distingue une élévation transitoire — effort
+physique récent, geste traumatique, cause non médicamenteuse — d'une élévation persistante attribuable au
+traitement, et le nœud l'affiche sur chacune des cartes concernées.
+
+La bande **4-5 N** mérite d'être lue deux fois, parce que la conduite y est l'inverse de celle des bandes
+hautes : sous traitement on ne touche à rien, et avant initiation on traite quand même, à dose plus faible.
+C'est le point où retenir le seuil de 4 aurait produit une sous-prescription (§ 6 ci-dessus).
 
 Le parcours ajoute une consigne que le nœud applique : **ne pas doser les CK chez un patient asymptomatique**.
 Le champ n'apparaît donc qu'à partir du moment où une intolérance est rapportée ou avérée.
@@ -294,9 +309,8 @@ deux positions **sans trancher**.
 Statut réglementaire français, pour mémoire : avis favorable de la Commission de la transparence le
 **12/02/2025**, arrêté du 09/12/2025, **remboursement effectif au 12/12/2025** à 65 %, dans un périmètre
 restreint — intolérance **avérée** et traitement hypolipémiant optimisé « incluant au moins l'ézétimibe ».
-*(Une première version affirmait un remboursement « depuis février 2025 » et en tirait que la reco française, qui
-écrivait le médicament non encore commercialisé, était dépassée. Les deux moitiés étaient fausses : dix mois
-d'écart, et la reco — clôture bibliographique septembre 2025 — disait vrai au moment où elle a été écrite.)*
+La recommandation française, dont la clôture bibliographique est de septembre 2025, écrit que le médicament
+n'est « pas encore commercialisé en France » : c'était exact à la date où elle a été rédigée.
 
 ## 7. Recommandation officielle vs position raisonnée (divergence)
 
@@ -323,12 +337,6 @@ cibles de LDL, et une stratégie de treat-to-target n'est pas supérieure à une
 indépendamment du LDL de base ; en prévention primaire, décider sur le **risque cardiovasculaire global**,
 pas sur les chiffres lipidiques.
 
-*(D23 : l'ancienne mention « molécule préférée = simvastatine » n'était adossée à aucun
-essai comparatif entre statines dans le dossier de preuve, et contredisait le § 6 Sécurité ci-dessous
-— simvastatine/atorvastatine ont PLUS d'interactions CYP3A4 que pravastatine/rosuvastatine/pitavastatine.
-Retirée plutôt que marquée « donnée à fournir », pour ne pas laisser deux positions contradictoires dans le
-même document.)*
-
 **Divergence assumée par l'outil** : convergence totale sur la prévention **secondaire** ; en prévention
 **primaire**, l'outil (1) ne pilote pas par une **cible LDL chiffrée** (aucun ECR de valeur cible ; LODESTAR),
 et (2) affiche honnêtement que le bénéfice porte sur les **événements CV**, pas sur une réduction démontrée de
@@ -338,9 +346,11 @@ tous les diabétiques.
 ## 8. Incertitudes
 
 - Mortalité toutes causes en prévention primaire du DT2 : **non démontrée**.
-- Seuil du tier « bas risque » : pas de seuil d'âge — la bascule suit uniquement
-  `anciennete_diabete_annees < 10`, `autres_FDRCV == 0` et `diabete_complique == false` (grille française
-  2026). Aucune donnée ne soutient un gate d'âge.
+- Frontière du « bas risque » : pas de seuil d'âge — la bascule suit uniquement l'ancienneté du diabète
+  (moins de 10 ans), l'absence de tout autre facteur de risque cardiovasculaire et l'absence de complication
+  (grille française 2026). Aucune donnée ne soutient d'y ajouter un seuil d'âge ; la population où le bénéfice
+  est prouvé reste celle de CARDS, 40-75 ans avec au moins un facteur de risque, et l'extrapolation en deçà
+  comme au-delà relève du jugement clinique.
 - Prévention primaire > 75 ans : preuve faible (essais en cours ; le seuil « ~2,5 ans » de la reco 2026 est
   une extrapolation d'une méta 50-75 ans, pas une mesure directe — § 5).
 - Dialyse + ASCVD établie, pas encore de statine (§ 5) : la conduite optimale

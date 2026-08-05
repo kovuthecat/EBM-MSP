@@ -9,16 +9,11 @@
 ## Purge du 2026-08-03 (clôture de P12)
 
 **La recette praticien naïf du 2026-08-02** (`docs/decision/validation/recette-praticien-naif-2026-08-02.md`)
-a rendu un jugement d'usage sur la majorité des items P8/P9/P10/P11 qui attendaient ici. Résolus et
-retirés : T-055, T-056, T-057, T-058 (confirmation en deux temps, compteur de session, coût du
-garde-fou de ré-entrée, champs estompés) · T-075, T-076 (titration metformine, aperçu de dépli —
-« le correctif d'ergonomie le plus précieux de cette passe ») · T-084, T-086 (molécules/doses,
-aide « risque hypoglycémique » — « le meilleur correctif de contenu ») · T-107 a et b (la couleur se
-lit comme une information ; **ne pas colorer « Refuse »**, décision rendue) · T-112 (légende : à
-garder, mais comme *sommaire de l'écran*, pas comme légende) · T-105 (cible tactile 32 px — arbitré
-« usage tactile très rare, pas la priorité », référent 2026-08-02) · T-118 (plafond 1600 px —
-remplacé par **D47**, mesuré). **T-085** (descente d'insuline sans chiffre) est résolu **en négatif** :
-HAS 2024 R.87 porte la règle dans les deux sens, la source existait — cf. P12/S4.
+a rendu un jugement d'usage sur la majorité des items P8/P9/P10/P11 qui attendaient ici. Résolus et retirés :
+T-055 à T-058 · T-075, T-076 · T-084, T-086 · T-107 a et b (**ne pas colorer « Refuse »**) · T-112 (légende à
+garder, mais comme *sommaire de l'écran*) · T-105 (cible tactile 32 px, non prioritaire) · T-118 (remplacé
+par **D47**). **T-085** (descente d'insuline sans chiffre) est résolu **en négatif** : HAS 2024 R.87 porte la
+règle dans les deux sens, la source existait — cf. P12/S4.
 
 ## Contenu clinique écrit par P12 — la relecture la plus importante
 
@@ -101,6 +96,15 @@ HAS 2024 R.87 porte la règle dans les deux sens, la source existait — cf. P12
       valeurs) et leur origine (saisi/repris).** Compatible avec l'invariant « zéro donnée patient » ?
       Position par défaut retenue (un nom de critère n'est pas une donnée patient) ; si la réponse est
       négative, revenir à un compteur muet est un retrait simple (`Header.tsx`).
+
+## Passe de rédaction des 4 niveaux (2026-08-05) — relecture clinique du texte réécrit
+
+- [ ] **Les textes affichés des 6 nœuds ont été réécrits** (preuves, avantages/inconvénients, posologie,
+      argumentaire, exhaustif). Rien de moteur n'a bougé, mais **ce que lit le praticien a changé partout** :
+      à relire à l'écran, nœud par nœud.
+- [ ] **13 arbitrages en attente**, dont deux points de fond qui ne relèvent pas de la rédaction : garde-fou
+      d'hypoglycémie absent sans capteur (`insuline`), pas de conduite d'urgence pour des CK très élevées
+      avant initiation (`statine`). Détail : `docs/decision/validation/passe-redaction-2026-08-05.md`.
 
 ## Reste ouvert des plans antérieurs (non tranché par la recette du 02/08)
 

@@ -1,0 +1,26 @@
+id: 2026-W33-paracetamol-grossesse-tsa-tdah
+date_semaine: "2026-W33"
+titre: "Paracétamol pendant la grossesse et risque d'autisme ou de TDAH : pas d'association dans une analyse appariée sur fratries"
+source:
+  nom: "JAMA Internal Medicine"
+  lien: https://pubmed.ncbi.nlm.nih.gov/42371637/
+  doi: 10.1001/jamainternmed.2026.2215
+type_publication: cohorte
+themes: [soins-premiers, prevention-depistage-vaccination, sante-femme-perinatalite]
+professions_concernees: [MG, sage-femme]
+route: breve
+niveau_impact: informatif
+population: "124 333 enfants pour l'analyse autisme et 97 285 pour le TDAH, issus de 708 020 couples mère-enfant, Hong Kong 2001-2023, comparés à leurs propres frères et sœurs à exposition discordante."
+resultat_resume: "Aucune association entre paracétamol prescrit pendant la grossesse et autisme (HR 1,00 ; 0,91-1,11) ni TDAH (HR 1,01 ; 0,93-1,08). Les auteurs montrent qu'une exposition située AVANT la grossesse est, elle aussi, associée aux deux issues en analyse conventionnelle, ce qui signe une confusion familiale résiduelle. RÉSERVE : entrée reclassée en brève faute d'avoir pu clore l'analyse (texte intégral inaccessible, effectifs de cas et estimation conventionnelle manquants). La conclusion de sécurité des auteurs porte sur ces deux diagnostics seulement."
+appreciation_critique: null
+niveau_preuve: null
+pertinence_pratique: null
+impact_algorithme:
+  concerne_decision: false
+  noeuds_impactes: []
+  proposition_maj: aucune
+temps_lecture_min: 3
+meta:
+  date_publication: "2026-08-05"
+  auteur: "référent veille"
+  statut: brouillon
