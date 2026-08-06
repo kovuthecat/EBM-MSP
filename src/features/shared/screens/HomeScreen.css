@@ -79,54 +79,9 @@
   line-height: 1.6;
 }
 
-/* Colonne centrée (T-150, 3e passe) : icône au-dessus du texte, tout centré — même motif que
-   `DisclaimerBar.css`. */
-.home__disclaimer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 18px;
-  background: var(--c-disclaimer-bg);
-  border: 1px solid var(--c-disclaimer-border);
-  border-radius: var(--radius-md);
-  margin-bottom: 48px;
-  text-align: center;
-}
-
-/* Badge doux (soft bg + icône couleur accent), même famille que les badges d'icône des cartes plus bas
-   (T-150) — plus « repère chaleureux » que le disque plein d'origine. */
-.home__disclaimer-icon {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: var(--c-accent-decision-soft);
-  color: var(--c-accent-decision);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.home__disclaimer-lead {
-  display: inline-block;
-  margin-bottom: 4px;
-  color: var(--c-text);
-}
-
-.home__disclaimer-text {
-  margin: 0;
-  font-size: 14px;
-  color: var(--c-text-secondary);
-  line-height: 1.6;
-}
-
-/* Points clés (T-150, 3e passe) : couleur foncée/saturée, même valeur et même motif que
-   `disclaimer-bar__highlight` (contraste insuffisant avec `--c-accent-decision` brute sur ce fond). */
-.home__disclaimer-highlight {
-  color: oklch(32% 0.15 254);
-  font-weight: 600;
-}
+/* Bloc `home__disclaimer*` RETIRÉ (2026-08-06, T-151, demande utilisateur) : le disclaimer ne concerne
+   que le module Décision, il n'a plus sa place sur cet accueil générique — cf. `DisclaimerBar.css`
+   (bandeau permanent du module Décision) pour le même texte/motif, toujours en place. */
 
 .home__grid {
   display: grid;
@@ -134,10 +89,13 @@
   gap: 24px;
 }
 
+/* Contenu centré (icône, titre, texte, CTA) — demande utilisateur T-151. */
 .home__card {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
-  text-align: left;
+  text-align: center;
   cursor: pointer;
   background: var(--c-surface);
   border: 1px solid var(--c-border);
@@ -151,11 +109,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   border-radius: 12px;
-  font-size: 20px;
-  font-weight: 700;
   margin-bottom: 20px;
 }
 

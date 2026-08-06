@@ -18,52 +18,111 @@
   margin: 0 0 28px;
 }
 
-.decision-domains__chips {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 32px;
+/* D2a — grille de cartes de domaine (T-152), remplace l'ancienne rangée de chips (ne passait pas à
+   l'échelle face à une liste de domaines amenée à croître, cf. `shared/navigation.ts`). Même gabarit de
+   carte que `home__card` (icône centrée, titre) pour rester cohérent avec le reste de l'app. */
+.decision-domains__domain-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
 }
 
-.decision-domains__chip {
-  padding: 10px 18px;
-  border-radius: var(--radius-md);
-  font-size: 14px;
+.decision-domains__domain-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  background: var(--c-surface);
   border: 1px solid var(--c-border);
-  background: var(--c-pill-track);
-  color: var(--c-text-faible);
+  border-radius: var(--radius-lg);
+  padding: 24px 16px;
   cursor: pointer;
   font: inherit;
+  color: inherit;
+  position: relative;
+  box-shadow: 0 1px 2px oklch(24% 0.02 245 / 4%);
   transition:
-    background 0.15s ease,
     border-color 0.15s ease,
-    color 0.15s ease;
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
 }
 
-.decision-domains__chip:hover {
+.decision-domains__domain-card:hover {
   border-color: var(--c-accent-decision-soft);
+  box-shadow: 0 6px 16px oklch(46% 0.09 254 / 10%);
+  transform: translateY(-1px);
+}
+
+.decision-domains__domain-card:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px oklch(24% 0.02 245 / 4%);
+}
+
+.decision-domains__domain-card--upcoming {
+  cursor: default;
+  border-style: dashed;
+  opacity: 0.6;
+}
+
+.decision-domains__domain-card--upcoming:hover {
+  border-color: var(--c-border);
+  box-shadow: 0 1px 2px oklch(24% 0.02 245 / 4%);
+  transform: none;
+}
+
+.decision-domains__domain-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--c-accent-decision-soft);
+  color: var(--c-accent-decision);
+}
+
+.decision-domains__domain-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--c-text);
+  line-height: 1.3;
+}
+
+.decision-domains__domain-upcoming-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-text-faible);
+  background: var(--c-pill-track);
+  padding: 2px 10px;
+  border-radius: 20px;
+}
+
+/* D2b — fil d'Ariane vers D2a (T-152), remplace le sélecteur de domaine qui vivait en tête de la liste
+   des nœuds. */
+.decision-domains__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  color: var(--c-text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 16px;
+  font: inherit;
+}
+
+.decision-domains__back:hover {
   color: var(--c-text);
 }
 
-.decision-domains__chip--active {
-  background: var(--c-accent-decision-soft);
+.decision-domains__title-icon {
   color: var(--c-accent-decision);
-  font-weight: 600;
-  border-color: var(--c-accent-decision-soft);
-}
-
-.decision-domains__chip--active:hover {
-  color: var(--c-accent-decision);
-}
-
-.decision-domains__chip--upcoming {
-  border-style: dashed;
-  cursor: default;
-}
-
-.decision-domains__chip--upcoming:hover {
-  border-color: var(--c-border);
-  color: var(--c-text-faible);
+  margin-right: 10px;
+  vertical-align: -4px;
 }
 
 .decision-domains__empty {

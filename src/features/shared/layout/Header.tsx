@@ -107,7 +107,11 @@ export function Header({ nav, onNouveauPatient }: HeaderProps) {
     setEtat('repos')
   }
 
-  const isDecisionActive = nav.screen === 'decisionDomains' || nav.screen === 'decisionNode'
+  const isDecisionActive =
+    nav.screen === 'decisionDomains' ||
+    nav.screen === 'decisionDomainNodes' ||
+    nav.screen === 'decisionModule' ||
+    nav.screen === 'decisionNode'
   const isVeilleActive = nav.screen === 'veilleList' || nav.screen === 'veilleDetail'
 
   // T-056/P8 — compteur d'état de la mémoire de session : lu AU RENDU, sans abonnement ni événement

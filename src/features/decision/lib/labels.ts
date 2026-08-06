@@ -26,24 +26,48 @@ const DOMAIN_LABELS: Record<string, string> = {
   'diabete-type-2': 'Diabète de type 2',
 }
 
-/** Un domaine « à venir » : pas de contenu en P1, chip désactivé, libellé fixe (S4.md T-005 "Décision clé"). */
+/**
+ * Icône par domaine ACTIF (2026-08-06, T-152, demande utilisateur — écran D2a, sélection du domaine).
+ * `goutte` (nouvelle, cf. `shared/icons/paths.ts`) : glycémie capillaire, repère visuel immédiat pour le
+ * DT2. Repli générique côté écran si un domaine actif futur n'est pas encore catalogué ici (jamais une
+ * erreur) — cf. `DecisionDomainsScreen.tsx`.
+ */
+const DOMAIN_ICONS: Record<string, NomIcone> = {
+  'diabete-type-2': 'goutte',
+}
+
+/** Icône d'un domaine (slug réel, actif) ; `undefined` si non catalogué — l'écran applique son propre repli. */
+export function iconeForDomaine(domaine: string): NomIcone | undefined {
+  return DOMAIN_ICONS[domaine]
+}
+
+/** Un domaine « à venir » : pas de contenu en P1, carte désactivée, libellé et icône fixes (S4.md T-005 "Décision clé"). */
 export interface UpcomingDomain {
   slug: string
   label: string
+  icone: NomIcone
 }
 
 /**
  * Domaines annoncés par la roadmap mais sans nœud en P1 (ARCHITECTURE.md D2, PROJECT_BRIEF.md).
  * Liste remplacée le 2026-08-06 (T-150, demande utilisateur) — six domaines cliniques concrets plutôt
- * que les trois d'origine ; aucun contenu créé pour eux, chips toujours désactivés (`--upcoming`).
+ * que les trois d'origine ; aucun contenu créé pour eux, cartes toujours désactivées (`--upcoming`).
+ *
+ * `icone` ajoutée le même jour (T-152), PUIS AFFINÉE (même jour, retour utilisateur — « tu peux faire
+ * mieux pour trouver des icônes adaptées ») : le premier jet réutilisait `coeur`/`triangle-alerte`/
+ * `goutte`/`moins` (déjà posées ailleurs, peu spécifiques) ; cinq icônes DÉDIÉES ont été tracées à la
+ * main pour ce lot (`tensiometre`, `coeur-pouls`, `cerveau`, `rein`, `deprescription` — cf.
+ * `shared/icons/paths.ts`), chacune propre à son domaine. Aucune réutilisation ne subsiste dans cette
+ * liste. Sans conséquence pratique sur le fond : ces cartes restent grisées et désactivées tant
+ * qu'aucun contenu n'existe.
  */
 export const UPCOMING_DOMAINS: UpcomingDomain[] = [
-  { slug: 'hypertension-arterielle', label: 'Hypertension artérielle' },
-  { slug: 'risque-cardiovasculaire', label: 'Risque cardiovasculaire' },
-  { slug: 'bpco', label: 'BPCO' },
-  { slug: 'depression', label: 'Dépression' },
-  { slug: 'insuffisance-renale', label: 'Insuffisance rénale' },
-  { slug: 'deprescription-sujet-age', label: 'Déprescrire chez le sujet âgé' },
+  { slug: 'hypertension-arterielle', label: 'Hypertension artérielle', icone: 'tensiometre' },
+  { slug: 'risque-cardiovasculaire', label: 'Risque cardiovasculaire', icone: 'coeur-pouls' },
+  { slug: 'bpco', label: 'BPCO', icone: 'poumons' },
+  { slug: 'depression', label: 'Dépression', icone: 'cerveau' },
+  { slug: 'insuffisance-renale', label: 'Insuffisance rénale', icone: 'rein' },
+  { slug: 'deprescription-sujet-age', label: 'Déprescrire chez le sujet âgé', icone: 'deprescription' },
 ]
 
 /** Libellé d'un domaine (slug réel, ex. `diabete-type-2`) ; repli générique si domaine non catalogué. */

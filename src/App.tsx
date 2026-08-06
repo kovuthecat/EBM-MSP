@@ -5,6 +5,7 @@ import { AppShell } from './features/shared/layout/AppShell'
 import { HomeScreen } from './features/shared/screens/HomeScreen'
 import { MethodeScreen } from './features/shared/screens/MethodeScreen'
 import { DecisionDomainsScreen } from './features/decision/screens/DecisionDomainsScreen'
+import { DecisionDomainNodesScreen } from './features/decision/screens/DecisionDomainNodesScreen'
 import { DecisionModuleScreen } from './features/decision/screens/DecisionModuleScreen'
 import { DecisionNodeScreen } from './features/decision/screens/DecisionNodeScreen'
 import { VeilleListScreen } from './features/veille/screens/VeilleListScreen'
@@ -45,6 +46,13 @@ function renderScreen(screen: Screen, params: NavigationParams, go: Navigation['
       return <MethodeScreen key={resetEpoch} />
     case 'decisionDomains':
       return <DecisionDomainsScreen key={resetEpoch} go={go} />
+    case 'decisionDomainNodes':
+      // D2b (T-152) : `key` inclut le domaine pour remonter la liste (et son état) si on navigue
+      // directement d'un domaine à un autre sans repasser par D2a (pas produit par l'UI aujourd'hui,
+      // même précaution que `decisionNode` ci-dessous).
+      return (
+        <DecisionDomainNodesScreen key={`${resetEpoch}:${params.domaine}`} domaine={params.domaine} go={go} />
+      )
     case 'decisionModule':
       return <DecisionModuleScreen key={resetEpoch} moduleId={params.moduleId} go={go} />
     case 'decisionNode':

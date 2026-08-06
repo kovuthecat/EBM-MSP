@@ -49,7 +49,15 @@
         "drapeau",
         "coeur",
         "cible",
-        "seringue"
+        "seringue",
+        "loupe",
+        "goutte",
+        "poumons",
+        "tensiometre",
+        "coeur-pouls",
+        "cerveau",
+        "rein",
+        "deprescription"
       ],
       "description": "OPTIONNEL — meme champ, meme role que `Noeud.icone` (T-149) : icone de l'ecran de selection des noeuds."
     },

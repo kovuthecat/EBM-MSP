@@ -35,6 +35,14 @@ export type NomIcone =
   | 'coeur'
   | 'cible'
   | 'seringue'
+  | 'loupe'
+  | 'goutte'
+  | 'poumons'
+  | 'tensiometre'
+  | 'coeur-pouls'
+  | 'cerveau'
+  | 'rein'
+  | 'deprescription'
 
 /**
  * Tracés : le contenu interne du `<svg>` (les enfants), jamais l'élément `<svg>` lui-même — `Icon.tsx`
@@ -209,5 +217,101 @@ export const ICON_PATHS: Record<NomIcone, ReactNode> = {
     }),
     createElement('line', { x1: '16', y1: '3', x2: '18.5', y2: '5.5' }),
     createElement('line', { x1: '18', y1: '1', x2: '20.5', y2: '3.5' }),
+  ),
+
+  // à tracer (aucun équivalent maquette) — loupe classique (cercle + manche), pictogramme universel de
+  // recherche/veille. Ajouté 2026-08-06 (T-151) pour la carte « Veille hebdomadaire » de l'accueil,
+  // remplace `lecture` (triangle « lire/ouvrir », moins spécifique à l'idée de veille documentaire).
+  loupe: createElement(
+    Fragment,
+    null,
+    createElement('circle', { cx: '10.5', cy: '10.5', r: '7' }),
+    createElement('line', { x1: '15.8', y1: '15.8', x2: '21', y2: '21' }),
+  ),
+
+  // à tracer (aucun équivalent maquette) — goutte classique (larme inversée, base arrondie, pointe en
+  // haut), pictogramme universel de fluide/mesure capillaire. Ajoutée 2026-08-06 (T-152) pour le domaine
+  // Diabète de type 2 (glycémie capillaire) sur l'écran de sélection des domaines.
+  goutte: createElement('path', {
+    d: 'M12 3 C12 3 6 11 6 15.5 C6 19 8.7 21 12 21 C15.3 21 18 19 18 15.5 C18 11 12 3 12 3 Z',
+  }),
+
+  // à tracer (aucun équivalent maquette) — deux poumons stylisés (deux lobes symétriques + trachée),
+  // pictogramme universel de l'appareil respiratoire. Ajoutée 2026-08-06 (T-152) pour le domaine BPCO.
+  poumons: createElement(
+    Fragment,
+    null,
+    createElement('line', { x1: '12', y1: '3', x2: '12', y2: '10' }),
+    createElement('path', { d: 'M12 8 C9 8 7 10 7 14 C7 18 8 21 6 21 C4.5 21 4 18 4 14 C4 10 6 8 9 8' }),
+    createElement('path', { d: 'M12 8 C15 8 17 10 17 14 C17 18 16 21 18 21 C19.5 21 20 18 20 14 C20 10 18 8 15 8' }),
+  ),
+
+  // à tracer (aucun équivalent maquette) — tensiomètre stylisé (cadran + aiguille), pictogramme de la
+  // mesure de pression artérielle. Ajoutée 2026-08-06 (T-152, retour utilisateur — icônes de domaine
+  // trop génériques dans un premier jet) pour le domaine Hypertension artérielle.
+  tensiometre: createElement(
+    Fragment,
+    null,
+    createElement('path', { d: 'M4 17 A8 8 0 0 1 20 17' }),
+    createElement('line', { x1: '12', y1: '17', x2: '8.5', y2: '10.5' }),
+    createElement('circle', { cx: '12', cy: '17', r: '1.3', fill: 'currentColor', stroke: 'none' }),
+    createElement('line', { x1: '4', y1: '20', x2: '20', y2: '20' }),
+  ),
+
+  // à tracer — cœur EN CONTOUR (pas le tracé plein de `coeur` ci-dessus) traversé d'une ligne de pouls
+  // (ECG), pictogramme du risque cardiovasculaire. Ajoutée 2026-08-06 (T-152, même retour utilisateur)
+  // pour le domaine Risque cardiovasculaire — distinct de `coeur` (RHD, relation praticien-patient :
+  // sens affectif) par la LIGNE DE POULS, qui porte tout le sens clinique ici.
+  'coeur-pouls': createElement(
+    Fragment,
+    null,
+    createElement('path', {
+      d: 'M12 20s-7-4.3-9.4-8.5C1.2 8 2.9 4.7 6.2 4.7c1.9 0 3.4 1 5.8 3.3 2.4-2.3 3.9-3.3 5.8-3.3 3.3 0 5 3.3 3.6 6.8C19 15.7 12 20 12 20z',
+    }),
+    createElement('polyline', { points: '5 13 8.5 13 10 9.5 13 16.5 14.5 13 19 13' }),
+  ),
+
+  // à tracer — cerveau stylisé (ovale + sillon central + deux replis), pictogramme de la santé mentale.
+  // Ajoutée 2026-08-06 (T-152, même retour utilisateur) pour le domaine Dépression — remplace la
+  // réutilisation de `coeur`, jugée trop peu spécifique.
+  cerveau: createElement(
+    Fragment,
+    null,
+    createElement('ellipse', { cx: '12', cy: '12', rx: '9', ry: '7' }),
+    createElement('line', { x1: '12', y1: '5.5', x2: '12', y2: '18.5' }),
+    createElement('path', { d: 'M6.5 9.5 Q8.5 7.5 10.5 9.5' }),
+    createElement('path', { d: 'M13.5 9.5 Q15.5 7.5 17.5 9.5' }),
+  ),
+
+  // à tracer — haricot (rein), pictogramme classique de l'appareil urinaire (silhouette concave côté
+  // hile). Ajoutée 2026-08-06 (T-152, même retour utilisateur) pour le domaine Insuffisance rénale —
+  // remplace la réutilisation de `goutte` (partagée avec le DT2, jugée peu spécifique).
+  rein: createElement('path', {
+    d: 'M8.5 3 C4.5 3 2.5 7 2.5 12 C2.5 17 4.5 21 8.5 21 C11.5 21 11.5 16.5 14 15 C17 13.5 17.5 10 14.5 9 C11.5 8 11.5 3 8.5 3 Z',
+  }),
+
+  // à tracer — gélule scindée en deux moitiés espacées, même gabarit trait que `gelule` (rotation -35°),
+  // pictogramme de la RÉDUCTION d'un traitement (pas son ajout, à la différence de `gelule` pleine).
+  // Ajoutée 2026-08-06 (T-152, même retour utilisateur) pour le domaine Déprescrire chez le sujet âgé —
+  // remplace `moins` seul, jugé trop abstrait sans le contexte du médicament.
+  deprescription: createElement(
+    Fragment,
+    null,
+    createElement('rect', {
+      x: '2.5',
+      y: '9',
+      width: '7',
+      height: '4.2',
+      rx: '1.5',
+      transform: 'rotate(-35 12 12)',
+    }),
+    createElement('rect', {
+      x: '14.5',
+      y: '9',
+      width: '7',
+      height: '4.2',
+      rx: '1.5',
+      transform: 'rotate(-35 12 12)',
+    }),
   ),
 }

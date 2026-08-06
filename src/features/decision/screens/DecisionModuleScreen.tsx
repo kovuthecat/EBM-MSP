@@ -42,7 +42,14 @@ export function DecisionModuleScreen({ moduleId, go }: DecisionModuleScreenProps
 
   return (
     <div className="decision-module">
-      <button type="button" className="decision-module__back" onClick={() => go('decisionDomains')}>
+      {/* CIBLE CORRIGÉE (2026-08-06, T-152) : `decisionDomainNodes` (D2b, liste des nœuds de CE domaine)
+          plutôt que `decisionDomains` (D2a, choix du domaine) — D2 a été scindé en deux écrans, revenir
+          au sélecteur de domaine aurait fait perdre un clic au praticien à chaque retour. */}
+      <button
+        type="button"
+        className="decision-module__back"
+        onClick={() => go('decisionDomainNodes', { domaine: module.domaine })}
+      >
         ← Domaine : {labelForDomaine(module.domaine)}
       </button>
       <h1 className="decision-module__title">{module.titre}</h1>

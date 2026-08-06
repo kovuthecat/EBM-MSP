@@ -1018,7 +1018,13 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
           Module : {moduleDuNoeud.titre}
         </button>
       ) : (
-        <button type="button" className="decision-node__back" onClick={() => go('decisionDomains')}>
+        // CIBLE CORRIGÉE (2026-08-06, T-152) : `decisionDomainNodes` (D2b) plutôt que `decisionDomains`
+        // (D2a) — même motif que `DecisionModuleScreen.tsx`.
+        <button
+          type="button"
+          className="decision-node__back"
+          onClick={() => go('decisionDomainNodes', { domaine: node.domaine })}
+        >
           <Icon nom="chevron-gauche" />
           Domaine : {labelForDomaine(node.domaine)}
         </button>

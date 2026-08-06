@@ -37,15 +37,29 @@ recopié ici ; ne pas renvoyer vers d'autres fichiers.
 
 ### D2 — Décision : choix du domaine puis liste des nœuds
 
-- Rôle : présenter les **domaines de décision** disponibles puis, dans un domaine, les algorithmes
-  (nœuds) et y accéder. **En v1, un seul domaine : Diabète de type 2** (nœuds A→H) — mais l'écran est
-  pensé pour en accueillir d'autres ensuite (CV, BPCO, gériatrie…) : prévoir un sélecteur/en-tête de
-  domaine même s'il n'affiche qu'une entrée au départ.
-- Contenu clés : (si plusieurs domaines) cartes de domaines ; puis liste des nœuds du domaine avec
-  titre, population cible, date de revue, badge « récemment mis à jour par la veille » le cas échéant.
-  Regroupement des nœuds par thème (pour DT2 : cible, 1re intention, intensification, insuline,
-  statine, aspirine, RHD…).
-- Actions : choisir un domaine ; ouvrir un nœud → écran D3.
+SCINDÉ EN DEUX ÉCRANS (2026-08-06, T-152, demande utilisateur) : le prototype et le brief d'origine
+décrivaient un seul écran (chips de domaine + liste combinées). La liste des domaines est amenée à
+croître (six domaines déjà annoncés en « à venir », T-150) et une rangée de chips en tête de la liste
+des nœuds ne passe pas à l'échelle — cf. `shared/navigation.ts` pour le détail. Décrit ci-dessous comme
+D2a/D2b ; les deux restent nommés « D2 » dans ce document quand la distinction n'a pas d'importance.
+
+**D2a — choix du domaine**
+
+- Rôle : présenter les **domaines de décision** disponibles (une carte par domaine, icône + libellé) et
+  orienter vers celui choisi. **En v1, un seul domaine actif : Diabète de type 2** — les six autres
+  (HTA, risque CV, BPCO, dépression, insuffisance rénale, déprescription sujet âgé) sont annoncés en
+  cartes désactivées (« à venir »).
+- Contenu clés : grille de cartes de domaine (icône, libellé), actives ou désactivées.
+- Actions : choisir un domaine actif → écran D2b.
+
+**D2b — liste des nœuds d'un domaine**
+
+- Rôle : dans le domaine choisi, présenter les algorithmes (nœuds/modules) et y accéder.
+- Contenu clés : fil d'Ariane vers D2a ; titre du domaine (icône + libellé) ; liste des nœuds/modules
+  avec icône, titre, badge « récemment mis à jour par la veille » le cas échéant. Regroupement des
+  nœuds par module (pour DT2 : RHD, cible, traitement non insulinique, insuline, statine).
+- Actions : revenir au choix du domaine (D2a) ; ouvrir un nœud → écran D3 ; ouvrir un module → écran de
+  module (cadrage partagé, D22).
 
 ### D3 — Décision : nœud interrogeable (écran central du module)
 
@@ -118,7 +132,8 @@ recopié ici ; ne pas renvoyer vers d'autres fichiers.
 ## Navigation & parcours
 
 - **Écran d'entrée** : D1 (accueil / sélecteur de module).
-- **Flux Décision** : D1 → D2 (liste des nœuds) → D3 (nœud interrogeable). Argumentaire déplié en place.
+- **Flux Décision** : D1 → D2a (choix du domaine) → D2b (liste des nœuds) → D3 (nœud interrogeable).
+  Argumentaire déplié en place.
 - **Flux Veille** : D1 → V1 (liste filtrable) → V2 (détail) ; V3 (profil) et V4 (pour mémoire) via le
   menu du compte ; V5 (auth) pour se connecter.
 - **Pont inter-modules** : depuis V2 (« impacte un algorithme ») → D3 du nœud ; depuis D3 (« veille
@@ -186,10 +201,13 @@ recopié ici ; ne pas renvoyer vers d'autres fichiers.
 
 - Statut : [ ] à dessiner · [x] **dessinée** · [ ] câblée
 - Exports : `design/maquettes/prototype-ebm-msp-neuf-crans/` — handoff Claude Design, prototype
-  **HTML/CSS/JS unique** `project/MSP Menilmontant.dc.html` (les 9 écrans en un fichier), avec
-  `support.js` et le logo. **Référence visuelle et d'interaction** (à recréer, pas à copier structurellement).
-- Les 9 écrans couvrent 1:1 l'architecture : `home` (D1), `decisionDomains` (D2), `decisionNode` (D3),
-  `veilleList` (V1), `veilleDetail` (V2), `profile` (V3), `memory` (V4), `auth` (V5), `methode` (S1).
+  **HTML/CSS/JS unique** `project/MSP Menilmontant.dc.html` (les 9 écrans du prototype d'origine en un
+  fichier), avec `support.js` et le logo. **Référence visuelle et d'interaction** (à recréer, pas à
+  copier structurellement) ; ne couvre pas D2b (`decisionDomainNodes`), ajouté après le prototype
+  (T-152, cf. ci-dessus « D2 scindé en deux écrans »).
+- Écrans applicatifs (`shared/navigation.ts` `Screen`) : `home` (D1), `decisionDomains` (D2a),
+  `decisionDomainNodes` (D2b), `decisionModule` (D22), `decisionNode` (D3), `veilleList` (V1),
+  `veilleDetail` (V2), `profile` (V3), `memory` (V4), `auth` (V5), `methode` (S1).
 
 ### Système visuel (extrait du prototype — valeurs exactes dans le `.dc.html`)
 

@@ -60,7 +60,15 @@
         "drapeau",
         "coeur",
         "cible",
-        "seringue"
+        "seringue",
+        "loupe",
+        "goutte",
+        "poumons",
+        "tensiometre",
+        "coeur-pouls",
+        "cerveau",
+        "rein",
+        "deprescription"
       ],
       "description": "OPTIONNEL — icone affichee a cote du titre sur l'ecran de selection des noeuds (T-149). Doit correspondre a un nom du kit `shared/icons/paths.ts` (NomIcone)."
     },

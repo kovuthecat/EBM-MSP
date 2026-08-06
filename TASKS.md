@@ -12,6 +12,11 @@ plan** (statut dans son `index.md`) : `- T-ID — titre · → plans/…/S<k>.md
 - T-052/T-053 — Validité HbA1c (cadrage) → plans/P7/SA2.md · T-054 — recette locale → S2.md
   **Débloquée** : l'accroche chiffrée des blocs repliés est livrée (P12/S10).
 
+## Plan P14 — ouvert (statut/détail : `plans/P14/index.md`)
+
+- T-160/T-161 → S1.md · T-162→T-165 → S2.md · T-166 → S3.md · T-167 → S4.md · T-168 → S5.md · T-169/T-185 → S6.md · T-170 → S7.md
+- T-171→T-173 + T-175→T-177 → S8.md (T-174 abandonnée, arbitrage 2026-08-06) · T-178 (D50) → S9.md · T-179 → S10.md · T-180/T-181 → S11.md · T-182→T-184 → S12.md · consolidation → S13.md
+
 ## Backlog — né de P12 (2026-08-03), non cadré
 
 - [ ] **T-120** — implication athérome ⇒ antécédent CV : STOP fondé, **abandonner ?** cf. `VALIDATION.md`.
@@ -51,6 +56,7 @@ plan** (statut dans son `index.md`) : `- T-ID — titre · → plans/…/S<k>.md
 
 ## Backlog (Phases suivantes — non cadré)
 
+- [ ] **Annuaire d'outils tiers** (idée Thibault, 2026-08-06) — recenser les outils d'aide à la décision existants (famille « -clic » : Antibioclic, Gestaclic, Pediadoc, Dermatoclic, Sportsanteclic… ; annuaires à dépouiller : ressourcesmg.fr, KitMédical, SFMG, listes des DMG Rouen/Lorraine/Sorbonne) et les exposer en cartes de renvoi, pour centraliser l'accès sans réinventer l'existant. **Éthique tranchée (Thibault, 2026-08-06)** : identifiants communs OK — la finalité du login sur ces outils est de restreindre l'accès aux professionnels de santé, et l'app ne sera accessible qu'aux PS de la MSP ; la finalité est donc respectée. **Reste 2 points durs, techniques** : (1) *où vivent les identifiants* — une app Vite/React statique les exposerait dans le bundle à quiconque atteint l'URL (indépendant de l'éthique) ; il faut soit un relais côté serveur (Supabase existe déjà pour la Veille), soit renoncer à l'auto-login. Recenser d'abord lesquels exigent réellement un compte : si peu le font, un simple annuaire de liens suffit et le sujet disparaît. (2) statut éditorial — un renvoi vaut-il caution EBM ? Cadrer la frontière avec nos propres nœuds · Opus, high.
 - [ ] Veille V3 (profil) / V4 (« pour mémoire ») en `localStorage`, puis comptes Supabase + RGPD (D37).
 - [ ] Première édition **live** `2026-W32` (lundi 03/08), après PV1 — cadence fixée par la SOP.
 - [ ] T-019 (reliquat P3) — catalogue formel des critères `partage` (en grande partie livré par D28).
