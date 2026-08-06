@@ -31,10 +31,12 @@
 # sur une dose inconnue (D20 : dose non renseignée ⇒ option EN ATTENTE, pas affirmée).
 id: prescription
 domaine: diabete-type-2
-titre: "Traiter : initier, intensifier, optimiser, déprescrire"
-# `icone` ajouté 2026-08-05 (T-149, amélioration esthétique de l'écran de sélection des nœuds) —
-# reglages : ce nœud ajuste/optimise le traitement en cours, cf. `shared/icons/paths.ts`.
-icone: reglages
+titre: "Initier ou optimiser un traitement non insulinique"
+# `icone` — gelule : ce nœud décide d'une prescription médicamenteuse (hors insuline),
+# cf. `shared/icons/paths.ts`. Remplace `reglages` (2026-08-06, T-150, demande utilisateur) ; partagée
+# avec `statine.yaml`, qui prescrit aussi une classe de comprimés — assumé (même famille visuelle,
+# titres suffisamment distincts pour rester discernables).
+icone: gelule
 population_cible: >-
   Adulte DT2 (hors DT1, grossesse), à tout stade de la prescription non‑insulinique : naïf sous mesures
   d'hygiène de vie (metformine socle), déjà traité à optimiser, ou candidat à une désintensification. Couvre
@@ -2956,8 +2958,15 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.64"
+  version: "0.65"
   changelog:
+    - date: "2026-08-06"
+      auteur: "Claude Code (T-150, demande utilisateur)"
+      resume: >-
+        `titre` reformulé en « Initier ou optimiser un traitement non insulinique » (verbe d'action,
+        périmètre explicite — distingue ce nœud de `insuline.yaml` sur l'écran de sélection) ; `icone`
+        remplacée par `gelule` (était `reglages`). Purement esthétique, aucune `conditions`/`prerequis`/
+        `exclusions`/critère touchés.
     - date: "2026-08-05"
       auteur: "Claude Code — en attente de relecture clinique"
       resume: >-

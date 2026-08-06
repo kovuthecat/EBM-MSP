@@ -40,7 +40,7 @@
 # Prescrire ne pose PAS la NPH en référence (invention écartée) ; il n'existe pas de position CMG dédiée.
 id: insuline
 domaine: diabete-type-2
-titre: "Insulinothérapie du DT2 : Initier, optimiser, intensifier"
+titre: "Initier ou optimiser une insulinothérapie"
 # `icone` ajouté 2026-08-05 (T-149, amélioration esthétique de l'écran de sélection des nœuds) —
 # seringue : identification immédiate du nœud insuline, cf. `shared/icons/paths.ts`.
 icone: seringue
@@ -2275,8 +2275,14 @@ meta:
   date_revue: "2026-07-31"
   auteur: "référent DT2 (Thibault) + Opus + Claude Code"
   statut: valide
-  version: "0.49"
+  version: "0.50"
   changelog:
+    - date: "2026-08-06"
+      auteur: "Claude Code (T-150, demande utilisateur)"
+      resume: >-
+        `titre` reformulé en « Initier ou optimiser une insulinothérapie » (verbe d'action, cohérent
+        avec les autres titres de l'écran de sélection) — purement esthétique, ne remet pas en cause le
+        `statut: valide`.
     - date: "2026-08-05"
       auteur: "Claude Code (T-149)"
       resume: >-

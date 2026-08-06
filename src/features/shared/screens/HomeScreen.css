@@ -79,28 +79,32 @@
   line-height: 1.6;
 }
 
+/* Colonne centrée (T-150, 3e passe) : icône au-dessus du texte, tout centré — même motif que
+   `DisclaimerBar.css`. */
 .home__disclaimer {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 14px 18px;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 18px;
   background: var(--c-disclaimer-bg);
   border: 1px solid var(--c-disclaimer-border);
   border-radius: var(--radius-md);
   margin-bottom: 48px;
+  text-align: center;
 }
 
+/* Badge doux (soft bg + icône couleur accent), même famille que les badges d'icône des cartes plus bas
+   (T-150) — plus « repère chaleureux » que le disque plein d'origine. */
 .home__disclaimer-icon {
-  width: 20px;
-  height: 20px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  background: var(--c-accent-decision);
-  color: white;
+  background: var(--c-accent-decision-soft);
+  color: var(--c-accent-decision);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  font-weight: 700;
   flex-shrink: 0;
 }
 
@@ -115,6 +119,13 @@
   font-size: 14px;
   color: var(--c-text-secondary);
   line-height: 1.6;
+}
+
+/* Points clés (T-150, 3e passe) : couleur foncée/saturée, même valeur et même motif que
+   `disclaimer-bar__highlight` (contraste insuffisant avec `--c-accent-decision` brute sur ce fond). */
+.home__disclaimer-highlight {
+  color: oklch(32% 0.15 254);
+  font-weight: 600;
 }
 
 .home__grid {

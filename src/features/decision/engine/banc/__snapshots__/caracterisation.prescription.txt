@@ -1,4 +1,4 @@
-# CARACTÉRISATION (golden master) — nœud « prescription » (Traiter : initier, intensifier, optimiser, déprescrire)
+# CARACTÉRISATION (golden master) — nœud « prescription » (Initier ou optimiser un traitement non insulinique)
 #
 # Un diff ICI n'est PAS une régression en soi : il doit être RELU, cf. le docstring de tête de
 # caracterisation.test.ts (référence : docs/decision/validation/recette-2026-07-25-...md,

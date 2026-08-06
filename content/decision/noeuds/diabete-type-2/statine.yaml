@@ -93,7 +93,7 @@
 # française n'est pas graduée — red-team 2026-07-27).
 id: statine
 domaine: diabete-type-2
-titre: "Prescrire une statine dans le DT2"
+titre: "Évaluer l'indication d'une statine dans le DT2"
 # `icone` ajouté 2026-08-05 (T-149, amélioration esthétique de l'écran de sélection des nœuds) — gelule :
 # ce nœud décide d'une prescription médicamenteuse simple (une classe), cf. `shared/icons/paths.ts`.
 icone: gelule
@@ -1319,8 +1319,13 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Claude Code"
   statut: brouillon
-  version: "1.27"
+  version: "1.28"
   changelog:
+    - date: "2026-08-06"
+      auteur: "Claude Code (T-150, demande utilisateur)"
+      resume: >-
+        `titre` reformulé en « Évaluer l'indication d'une statine dans le DT2 » (verbe d'action, cohérent
+        avec les autres titres de l'écran de sélection) — purement esthétique, aucun effet clinique.
     - date: "2026-08-05"
       auteur: "Claude Code (T-149)"
       resume: >-

@@ -1,4 +1,4 @@
-# CARACTÉRISATION — INDÉTERMINATION (R7, DECISIONS.md D20) — nœud « statine » (Prescrire une statine dans le DT2)
+# CARACTÉRISATION — INDÉTERMINATION (R7, DECISIONS.md D20) — nœud « statine » (Évaluer l'indication d'une statine dans le DT2)
 #
 # Fichier SÉPARÉ de caracterisation.<id>.txt (profils COMPLETS, ligne de base stable, jamais
 # modifiée par ce lot) : tout profil ci-dessous a un `renseignes` PARTIEL, voire vide — c'est

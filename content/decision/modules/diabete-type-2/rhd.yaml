@@ -13,7 +13,7 @@
 id: rhd
 domaine: diabete-type-2
 libelle: RHD
-titre: "Règles hygiéno-diététiques"
+titre: "Conseiller des mesures hygiéno-diététiques"
 # `icone` ajouté 2026-08-05 (T-149, amélioration esthétique de l'écran de sélection des nœuds) — coeur :
 # lisibilité immédiate (hygiène de vie), cf. `shared/icons/paths.ts`.
 icone: coeur
@@ -54,8 +54,14 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude Code"
   statut: brouillon
-  version: "0.3"
+  version: "0.4"
   changelog:
+    - date: "2026-08-06"
+      auteur: "Claude Code (T-150, demande utilisateur)"
+      resume: >-
+        `titre` reformulé en « Conseiller des mesures hygiéno-diététiques » (verbe d'action, cohérent
+        avec les autres titres de l'écran de sélection) — purement esthétique, aucun effet sur le
+        cadrage, le primer ni le moteur.
     - date: "2026-08-05"
       auteur: "Claude Code (T-149)"
       resume: >-

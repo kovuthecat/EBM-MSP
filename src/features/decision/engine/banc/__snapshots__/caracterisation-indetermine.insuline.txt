@@ -1,4 +1,4 @@
-# CARACTÉRISATION — INDÉTERMINATION (R7, DECISIONS.md D20) — nœud « insuline » (Insulinothérapie du DT2 : Initier, optimiser, intensifier)
+# CARACTÉRISATION — INDÉTERMINATION (R7, DECISIONS.md D20) — nœud « insuline » (Initier ou optimiser une insulinothérapie)
 #
 # Fichier SÉPARÉ de caracterisation.<id>.txt (profils COMPLETS, ligne de base stable, jamais
 # modifiée par ce lot) : tout profil ci-dessous a un `renseignes` PARTIEL, voire vide — c'est

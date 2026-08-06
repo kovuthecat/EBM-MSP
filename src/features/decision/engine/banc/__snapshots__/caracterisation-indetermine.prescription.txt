@@ -1,4 +1,4 @@
-# CARACTÉRISATION — INDÉTERMINATION (R7, DECISIONS.md D20) — nœud « prescription » (Traiter : initier, intensifier, optimiser, déprescrire)
+# CARACTÉRISATION — INDÉTERMINATION (R7, DECISIONS.md D20) — nœud « prescription » (Initier ou optimiser un traitement non insulinique)
 #
 # Fichier SÉPARÉ de caracterisation.<id>.txt (profils COMPLETS, ligne de base stable, jamais
 # modifiée par ce lot) : tout profil ci-dessous a un `renseignes` PARTIEL, voire vide — c'est

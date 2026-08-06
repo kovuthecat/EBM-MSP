@@ -1,25 +1,28 @@
+/* Colonne centrée (T-150, 3e passe) : icône au-dessus du texte, tout centré — plus lisible d'un coup
+   d'œil qu'une ligne icône+texte à gauche pour ce bloc à deux phrases. */
 .disclaimer-bar {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 10px 24px;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 24px;
   background: var(--c-disclaimer-bg);
   border-bottom: 1px solid var(--c-disclaimer-border);
+  text-align: center;
 }
 
+/* Badge doux (soft bg + icône couleur accent) plutôt que le disque plein d'origine — même famille
+   visuelle que les badges d'icône du reste de l'app (T-150), moins « avertissement », plus « repère ». */
 .disclaimer-bar__icon {
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  background: var(--c-accent-decision);
-  color: white;
+  background: var(--c-accent-decision-soft);
+  color: var(--c-accent-decision);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
-  font-weight: 700;
   flex-shrink: 0;
-  margin-top: 1px;
 }
 
 .disclaimer-bar__lead {
@@ -33,4 +36,14 @@
   font-size: 13px;
   color: var(--c-text-secondary);
   line-height: 1.5;
+}
+
+/* Points clés (T-150, 3e passe) : couleur FONCÉE et saturée (pas `--c-accent-decision` telle quelle,
+   trop proche en luminosité du fond `--c-disclaimer-bg` et du texte courant `--c-text-secondary` pour
+   vraiment se détacher) + poids 600. Valeur construite dans le même espace OKLCH que les tokens du
+   projet, même teinte (254) que l'accent decision, plus sombre (32 % vs 46 %) et plus saturée (0.15 vs
+   0.09) — se détache des deux sans introduire une couleur hors système. */
+.disclaimer-bar__highlight {
+  color: oklch(32% 0.15 254);
+  font-weight: 600;
 }

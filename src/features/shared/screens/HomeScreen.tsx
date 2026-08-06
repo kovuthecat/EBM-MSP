@@ -1,4 +1,5 @@
 import type { Screen } from '../navigation'
+import { Icon } from '../icons/Icon'
 import './HomeScreen.css'
 
 interface HomeScreenProps {
@@ -39,19 +40,30 @@ export function HomeScreen({ go }: HomeScreenProps) {
         </p>
       </div>
 
+      {/* TEXTE REFORMULÉ (2026-08-06, T-150, demande utilisateur) — même texte final que
+          `DisclaimerBar.tsx` (choisi par l'utilisateur en chat) ; icône `coeur` plutôt que `info` (déjà
+          utilisée dans le bandeau permanent juste au-dessus dans l'app) pour incarner la relation
+          praticien-patient, pas seulement signaler une information. `home__disclaimer-highlight` : même
+          motif que `disclaimer-bar__highlight` (couleur foncée/saturée, pas l'accent-decision brut —
+          contraste insuffisant sur le fond bleu pâle, retour utilisateur 3e passe). Mise en page centrée
+          et retour à la ligne avant « et permettent… », même motif que `DisclaimerBar.tsx`. */}
       <div className="home__disclaimer">
         <span className="home__disclaimer-icon" aria-hidden="true">
-          i
+          <Icon nom="coeur" taille={18} />
         </span>
         <p className="home__disclaimer-text">
           <strong className="home__disclaimer-lead">
-            Cet outil est une aide à la décision, fondée exclusivement sur les données de la
-            science (EBM).
+            Outil d'aide à la décision fondé{' '}
+            <span className="home__disclaimer-highlight">exclusivement</span> sur des données
+            probantes.
           </strong>
           <br />
-          Il ne remplace ni le jugement clinique ni la relation de soin : le praticien reste{' '}
-          <strong>le lien avec le patient</strong> et sa situation individuelle — et{' '}
-          <strong>le seul responsable</strong> de la décision médicale.
+          Le praticien, son <span className="home__disclaimer-highlight">jugement clinique</span> et
+          sa <span className="home__disclaimer-highlight">relation avec le patient</span> font le lien
+          avec sa situation individuelle
+          <br />
+          et permettent de construire{' '}
+          <span className="home__disclaimer-highlight">ensemble</span> la décision.
         </p>
       </div>
 

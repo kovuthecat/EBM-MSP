@@ -32,11 +32,18 @@ export interface UpcomingDomain {
   label: string
 }
 
-/** Domaines annoncés par la roadmap mais sans nœud en P1 (ARCHITECTURE.md D2, PROJECT_BRIEF.md). */
+/**
+ * Domaines annoncés par la roadmap mais sans nœud en P1 (ARCHITECTURE.md D2, PROJECT_BRIEF.md).
+ * Liste remplacée le 2026-08-06 (T-150, demande utilisateur) — six domaines cliniques concrets plutôt
+ * que les trois d'origine ; aucun contenu créé pour eux, chips toujours désactivés (`--upcoming`).
+ */
 export const UPCOMING_DOMAINS: UpcomingDomain[] = [
-  { slug: 'cardiovasculaire', label: 'Cardiovasculaire' },
+  { slug: 'hypertension-arterielle', label: 'Hypertension artérielle' },
+  { slug: 'risque-cardiovasculaire', label: 'Risque cardiovasculaire' },
   { slug: 'bpco', label: 'BPCO' },
-  { slug: 'geriatrie', label: 'Gériatrie' },
+  { slug: 'depression', label: 'Dépression' },
+  { slug: 'insuffisance-renale', label: 'Insuffisance rénale' },
+  { slug: 'deprescription-sujet-age', label: 'Déprescrire chez le sujet âgé' },
 ]
 
 /** Libellé d'un domaine (slug réel, ex. `diabete-type-2`) ; repli générique si domaine non catalogué. */

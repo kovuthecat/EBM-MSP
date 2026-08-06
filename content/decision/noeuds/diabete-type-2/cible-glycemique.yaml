@@ -6,7 +6,7 @@
 # cliniques hors workflow veille → algorithme (DECISIONS.md D5) ou revue de fond du comité.
 id: cible-glycemique
 domaine: diabete-type-2
-titre: "Fixer la cible d'HbA1c"
+titre: "Déterminer la cible d'HbA1c"
 # `icone` ajouté 2026-08-05 (T-149, amélioration esthétique de l'écran de sélection des nœuds) — cible :
 # ce nœud fixe un objectif chiffré, cf. `shared/icons/paths.ts`.
 icone: cible
@@ -308,8 +308,13 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude Code"
   statut: valide
-  version: "2.15"
+  version: "2.16"
   changelog:
+    - date: "2026-08-06"
+      auteur: "Claude Code (T-150, demande utilisateur)"
+      resume: >-
+        `titre` reformulé en « Déterminer la cible d'HbA1c » (verbe d'action, cohérent avec les autres
+        titres de l'écran de sélection) — purement esthétique, ne remet pas en cause le `statut: valide`.
     - date: "2026-08-05"
       auteur: "Claude Code (T-149)"
       resume: >-

@@ -1,4 +1,4 @@
-# CARACTÉRISATION (golden master) — nœud « statine » (Prescrire une statine dans le DT2)
+# CARACTÉRISATION (golden master) — nœud « statine » (Évaluer l'indication d'une statine dans le DT2)
 #
 # Un diff ICI n'est PAS une régression en soi : il doit être RELU, cf. le docstring de tête de
 # caracterisation.test.ts (référence : docs/decision/validation/recette-2026-07-25-...md,

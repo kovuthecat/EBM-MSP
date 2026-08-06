@@ -1,4 +1,4 @@
-# CARACTÉRISATION — INDÉTERMINATION (R7, DECISIONS.md D20) — nœud « cible-glycemique » (Fixer la cible d'HbA1c)
+# CARACTÉRISATION — INDÉTERMINATION (R7, DECISIONS.md D20) — nœud « cible-glycemique » (Déterminer la cible d'HbA1c)
 #
 # Fichier SÉPARÉ de caracterisation.<id>.txt (profils COMPLETS, ligne de base stable, jamais
 # modifiée par ce lot) : tout profil ci-dessous a un `renseignes` PARTIEL, voire vide — c'est

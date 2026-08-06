@@ -1585,9 +1585,13 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
         </>
       )}
 
+      {/* TEXTE REFORMULÉ (2026-08-06, T-150, 2e passe) — même texte final que `DisclaimerBar.tsx`,
+          condensé sur une ligne (pied de page discret, 12px) : pas de mise en valeur ajoutée ici, la
+          densité de gras/couleur des versions plus visibles (bandeau, accueil) serait hors de propos sur
+          un texte déjà réduit en taille et en contraste. */}
       <div className="decision-node__footer">
-        Révisé le {formatDateRevue(node.meta.date_revue)} · Aide à la décision fondée sur l'EBM — le
-        praticien reste le lien avec le patient et le seul responsable de la décision.
+        Révisé le {formatDateRevue(node.meta.date_revue)} · Aide fondée exclusivement sur des données
+        probantes (EBM) — jugement clinique et relation avec le patient construisent la décision.
       </div>
     </div>
   )
