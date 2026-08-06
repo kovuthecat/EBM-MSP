@@ -142,6 +142,48 @@
   margin-bottom: var(--space-2);
 }
 
+/* GARDER/MASQUER (D51, 2026-08-06) : rangée dédiée, séparée du bandeau (route/impact/preuve — des
+   FAITS sur l'entrée) pour ne pas mélanger un état PERSONNEL du praticien avec ces faits. */
+.veille-carte__etat {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.veille-carte__etat-bouton {
+  font: inherit;
+  font-size: var(--text-sm);
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm);
+  background: var(--c-bg);
+  color: var(--c-text-secondary);
+  cursor: pointer;
+}
+
+.veille-carte__etat-bouton:hover {
+  border-color: var(--c-accent-veille);
+  color: var(--c-text);
+}
+
+.veille-carte__etat-bouton--actif {
+  background: var(--c-accent-veille-soft);
+  border-color: var(--c-accent-veille);
+  color: var(--c-accent-veille);
+  font-weight: 600;
+}
+
+.veille-carte__etat-connexion {
+  font: inherit;
+  font-size: var(--text-xs);
+  color: var(--c-text-faible);
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 .veille-carte__route,
 .veille-carte__impact,
 .veille-carte__algo,

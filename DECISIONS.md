@@ -61,11 +61,10 @@ Format du détail : cf. `Templates/DECISIONS.md`. Les décisions caduques descen
 
 - 2026-08-04 — **D48 · L'écran ne cite que des sources primaires, et une divergence se présente en trois faces (amende D23)** — `synthese_critique.references` (revues secondaires) supprimé du modèle au profit d'`appuis` vers les essais ; `divergences[]` en « reco / outil / sur quelles données » ; une incertitude se fonde sur la donnée ou son absence, jamais sur qui a tranché ; deux champs morts rendus (`Noeud.argumentaire`, `Option.references` via un panneau « État des preuves » ouvert par le badge) ; dette I25 sous cliquet sur les 5 autres nœuds → [détail](docs/commun/decisions/2026-08-04-d48-l-ecran-ne-cite-que-des-sources-primaires.md)
 - 2026-08-05 — **D49 · Le texte affiché ne montre jamais la tuyauterie, et le badge de preuve dit ce qu'il gradue** — I25 gagne 7 marqueurs (backtick, chemin du dépôt, statut éditorial, `[À VÉRIFIER]`, renvoi interne, vocabulaire du moteur, identifiant de décision), portée étendue aux argumentaires exhaustifs, mesurés à zéro donc sans dette ; le niveau de preuve gradue la certitude de la donnée et non la force de la recommandation, désormais écrit à l'écran ; un badge et un `delai_benefice` qualifient le geste que la carte TITRE, jamais une alternative citée dans son corps → [détail](docs/commun/decisions/2026-08-05-d49-le-texte-affiche-ne-montre-jamais-la-tuyauterie.md)
+- 2026-08-06 — **D51 · Comptes Veille = même instance Supabase et mêmes comptes que `annuaire-msp`** (amende D37) — `@supabase/supabase-js` entre aux dépendances runtime (module Veille uniquement, Décision reste statique) ; connexion par prénom → email (`memberLogins.ts`, copie de l'annuaire) ; garder/masquer une entrée (`veille_article_etats`, RLS perso) et retour utilisateur (`ebm_feedback`, port du widget de l'annuaire, `html2canvas`) ; deux origines web = deux connexions par appareil, acceptée → [détail](docs/commun/decisions/2026-08-06-d51-comptes-veille-meme-instance-supabase-que-annuaire-msp.md)
 
 ## Décisions ouvertes (à trancher avec le comité MSP)
 
-- **Méthode d'authentification veille** : magic link vs e-mail+mot de passe (reco : magic link + liste
-  blanche MSP). — *ouvert, sans objet en V1 (D37 : pas de compte), à trancher avec les comptes.*
 - **Statut MDR (règlement UE 2017/745)** : à faire vérifier **avant mise en ligne**. — *ouvert.*
 - **Composition du comité éditorial** et référents par profession. — *ouvert, gouvernance MSP.*
 - **Liste finale des sources de veille par profil** (Tier 1→4 de la SOP). — *ouvert.*

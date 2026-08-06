@@ -4,6 +4,7 @@ import { isChromeless, isVeilleScreen } from '../navigation'
 import { Header } from './Header'
 import { DisclaimerBar } from './DisclaimerBar'
 import { ScreenErrorBoundary } from './ScreenErrorBoundary'
+import { FeedbackWidget } from '../../feedback/FeedbackWidget'
 import './AppShell.css'
 
 interface AppShellProps {
@@ -48,6 +49,10 @@ export function AppShell({ nav, children, onNouveauPatient }: AppShellProps) {
           {children}
         </ScreenErrorBoundary>
       </main>
+      {/* Retour utilisateur (D51, 2026-08-06) — jamais sur l'écran de connexion lui-même (même
+          principe que `annuaire-msp`) ; se cache aussi tout seul si personne n'est connecté
+          (`FeedbackWidget` retourne `null`, la RLS d'insertion l'exigerait de toute façon). */}
+      {nav.screen !== 'auth' && <FeedbackWidget screen={nav.screen} />}
     </div>
   )
 }

@@ -3,6 +3,7 @@ import type { Navigation, NavigationParams, Screen } from './features/shared/nav
 import { useNavigation } from './features/shared/navigation'
 import { AppShell } from './features/shared/layout/AppShell'
 import { HomeScreen } from './features/shared/screens/HomeScreen'
+import { AuthScreen } from './features/shared/screens/AuthScreen'
 import { MethodeScreen } from './features/shared/screens/MethodeScreen'
 import { DecisionDomainsScreen } from './features/decision/screens/DecisionDomainsScreen'
 import { DecisionDomainNodesScreen } from './features/decision/screens/DecisionDomainNodesScreen'
@@ -44,6 +45,9 @@ function renderScreen(screen: Screen, params: NavigationParams, go: Navigation['
       return <HomeScreen key={resetEpoch} go={go} />
     case 'methode':
       return <MethodeScreen key={resetEpoch} />
+    case 'auth':
+      // S5 (D51, T-153) : connexion email + mot de passe, mêmes comptes que `annuaire-msp`.
+      return <AuthScreen key={resetEpoch} go={go} />
     case 'decisionDomains':
       return <DecisionDomainsScreen key={resetEpoch} go={go} />
     case 'decisionDomainNodes':
@@ -64,7 +68,7 @@ function renderScreen(screen: Screen, params: NavigationParams, go: Navigation['
     case 'veilleList':
       // V1 (PV1/S6). `veilleDetail` reste au placeholder : le détail est déplié dans la carte, le
       // temps d'arbitrer le format et les options de tri.
-      return <VeilleListScreen key={resetEpoch} />
+      return <VeilleListScreen key={resetEpoch} go={go} />
     default:
       return <PlaceholderScreen key={resetEpoch} go={go} />
   }

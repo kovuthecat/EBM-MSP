@@ -1,8 +1,12 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import type { Navigation } from '../../shared/navigation'
 import type { NiveauPreuve } from '../../shared/types'
 import { EvidenceBadge } from '../../shared/badges/EvidenceBadge'
+import { useUtilisateur } from '../../shared/lib/auth'
 import type { EntreeVeille, NiveauPreuveVeille } from '../content/entree.types'
 import { entrees, professionsPresentes, semaines, themesPresents } from '../content/loadEntrees'
+import type { EtatArticle } from '../lib/articleEtats'
+import { chargerEtats, definirEtat, retirerEtat } from '../lib/articleEtats'
 import './VeilleListScreen.css'
 
 /**
@@ -63,7 +67,11 @@ const TRIS: { valeur: Tri; label: string; aide: string }[] = [
 
 const TOUS = '__tous__'
 
-export function VeilleListScreen() {
+interface VeilleListScreenProps {
+  go: Navigation['go']
+}
+
+export function VeilleListScreen({ go }: VeilleListScreenProps) {
   const [semaine, setSemaine] = useState<string>(semaines[0] ?? TOUS)
   const [theme, setTheme] = useState<string>(TOUS)
   const [profession, setProfession] = useState<string>(TOUS)
@@ -73,6 +81,50 @@ export function VeilleListScreen() {
   const [tri, setTri] = useState<Tri>('impact')
   const [deplie, setDeplie] = useState<string | null>(null)
 
+  // GARDER/MASQUER (D51, 2026-08-06) : état personnel par praticien, chargé une fois la session
+  // connue. `etats` reste vide (jamais d'erreur bloquante) si le chargement échoue — un praticien
+  // qui n'a pas encore d'état enregistré doit voir la liste complète, pas un écran cassé.
+  const utilisateur = useUtilisateur()
+  const [etats, setEtats] = useState<Record<string, EtatArticle>>({})
+  const [afficherMasques, setAfficherMasques] = useState(false)
+  const [seulementGardes, setSeulementGardes] = useState(false)
+
+  useEffect(() => {
+    if (!utilisateur) {
+      setEtats({})
+      return
+    }
+    let actif = true
+    chargerEtats()
+      .then((valeurs) => {
+        if (actif) setEtats(valeurs)
+      })
+      .catch(() => {
+        // Best-effort : une erreur de chargement (réseau, RLS) laisse `etats` vide plutôt que de
+        // casser l'écran — cf. commentaire ci-dessus.
+      })
+    return () => {
+      actif = false
+    }
+  }, [utilisateur])
+
+  const marquer = (articleId: string, etat: EtatArticle) => {
+    setEtats((precedent) => ({ ...precedent, [articleId]: etat })) // optimiste
+    void definirEtat(articleId, etat).catch(() => {
+      // Best-effort : en cas d'échec, l'état local reste tel quel jusqu'au prochain chargement —
+      // pas de rollback intrusif pour un geste aussi mineur que « garder »/« masquer ».
+    })
+  }
+
+  const oublier = (articleId: string) => {
+    setEtats((precedent) => {
+      const suite = { ...precedent }
+      delete suite[articleId]
+      return suite
+    })
+    void retirerEtat(articleId).catch(() => {})
+  }
+
   const visibles = useMemo(() => {
     const filtrees = entrees.filter((e) => {
       if (semaine !== TOUS && e.date_semaine !== semaine) return false
@@ -81,6 +133,8 @@ export function VeilleListScreen() {
       if (impact !== TOUS && e.niveau_impact !== impact) return false
       if (route !== TOUS && e.route !== route) return false
       if (seulementDecision && !e.impact_algorithme.concerne_decision) return false
+      if (!afficherMasques && etats[e.id] === 'masque') return false
+      if (seulementGardes && etats[e.id] !== 'garde') return false
       return true
     })
 
@@ -101,7 +155,7 @@ export function VeilleListScreen() {
       const rb = b.route === 'analyse' ? 0 : 1
       return ra - rb || parTitre(a, b)
     })
-  }, [semaine, theme, profession, impact, route, seulementDecision, tri])
+  }, [semaine, theme, profession, impact, route, seulementDecision, tri, afficherMasques, seulementGardes, etats])
 
   const nbAnalyses = visibles.filter((e) => e.route === 'analyse').length
   const nbPratiques = visibles.filter((e) => e.niveau_impact === 'pratique').length
@@ -155,6 +209,28 @@ export function VeilleListScreen() {
           />
           Touche un algorithme
         </label>
+        {/* GARDER/MASQUER (D51) : filtres réservés à un praticien connecté — un visiteur non connecté
+            n'a par construction aucun état enregistré, ces deux cases n'auraient aucun effet pour lui. */}
+        {utilisateur && (
+          <>
+            <label className="veille-list__check">
+              <input
+                type="checkbox"
+                checked={seulementGardes}
+                onChange={(event) => setSeulementGardes(event.target.checked)}
+              />
+              Mes entrées gardées
+            </label>
+            <label className="veille-list__check">
+              <input
+                type="checkbox"
+                checked={afficherMasques}
+                onChange={(event) => setAfficherMasques(event.target.checked)}
+              />
+              Afficher les masquées
+            </label>
+          </>
+        )}
       </section>
 
       <section className="veille-list__tris" aria-label="Tri">
@@ -184,6 +260,11 @@ export function VeilleListScreen() {
               entree={entree}
               ouvert={deplie === entree.id}
               onToggle={() => setDeplie(deplie === entree.id ? null : entree.id)}
+              etat={etats[entree.id]}
+              connecte={Boolean(utilisateur)}
+              onMarquer={(etat) => marquer(entree.id, etat)}
+              onOublier={() => oublier(entree.id)}
+              onDemanderConnexion={() => go('auth')}
             />
           ))}
         </ul>
@@ -221,10 +302,21 @@ function Carte({
   entree,
   ouvert,
   onToggle,
+  etat,
+  connecte,
+  onMarquer,
+  onOublier,
+  onDemanderConnexion,
 }: {
   entree: EntreeVeille
   ouvert: boolean
   onToggle: () => void
+  /** État personnel courant (D51) — `undefined` = ni gardé ni masqué. */
+  etat: EtatArticle | undefined
+  connecte: boolean
+  onMarquer: (etat: EtatArticle) => void
+  onOublier: () => void
+  onDemanderConnexion: () => void
 }) {
   const brouillon = entree.meta.statut === 'brouillon'
 
@@ -245,6 +337,38 @@ function Carte({
         )}
         {brouillon && <span className="veille-carte__brouillon">Brouillon — relecture à faire</span>}
         <span className="veille-carte__temps">{entree.temps_lecture_min} min</span>
+      </div>
+
+      {/* GARDER/MASQUER (D51, 2026-08-06) : état personnel, jamais partagé entre praticiens. Un
+          visiteur non connecté voit une invite plutôt que des boutons inertes — cliquer dessus ouvre
+          directement l'écran de connexion. */}
+      <div className="veille-carte__etat">
+        {connecte ? (
+          <>
+            <button
+              type="button"
+              className={
+                etat === 'garde' ? 'veille-carte__etat-bouton veille-carte__etat-bouton--actif' : 'veille-carte__etat-bouton'
+              }
+              onClick={() => (etat === 'garde' ? onOublier() : onMarquer('garde'))}
+            >
+              {etat === 'garde' ? '★ Gardée' : '☆ Garder'}
+            </button>
+            <button
+              type="button"
+              className={
+                etat === 'masque' ? 'veille-carte__etat-bouton veille-carte__etat-bouton--actif' : 'veille-carte__etat-bouton'
+              }
+              onClick={() => (etat === 'masque' ? onOublier() : onMarquer('masque'))}
+            >
+              {etat === 'masque' ? 'Masquée' : 'Masquer'}
+            </button>
+          </>
+        ) : (
+          <button type="button" className="veille-carte__etat-connexion" onClick={onDemanderConnexion}>
+            Se connecter pour garder/masquer
+          </button>
+        )}
       </div>
 
       <h2 className="veille-carte__titre">{entree.titre}</h2>

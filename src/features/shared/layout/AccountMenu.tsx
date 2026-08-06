@@ -1,4 +1,5 @@
 import type { Screen } from '../navigation'
+import { seDeconnecter, useUtilisateur } from '../lib/auth'
 import './AccountMenu.css'
 
 interface AccountMenuProps {
@@ -8,17 +9,23 @@ interface AccountMenuProps {
 }
 
 /**
- * Menu compte — stub visuel (pas d'auth en P1, cf. Hors périmètre S1) :
- * route vers des écrans placeholder neutres (`profile`, `memory`, `auth`).
+ * Menu compte (D51, 2026-08-06) — état RÉEL désormais (mêmes comptes que `annuaire-msp`, cf.
+ * `shared/lib/auth.ts`) : « Invité » + « Se connecter » redevient l'initiale de l'email connecté +
+ * « Se déconnecter ». `profile`/`memory` restent des écrans placeholder (hors périmètre, cf.
+ * `App.tsx`) — seule la connexion elle-même est réelle.
  */
 export function AccountMenu({ open, onToggle, onNavigate }: AccountMenuProps) {
+  const utilisateur = useUtilisateur()
+  const connecte = Boolean(utilisateur)
+  const initiale = utilisateur?.email?.[0]?.toUpperCase() ?? '?'
+
   return (
     <div className="account-menu">
       <button type="button" className="account-menu__trigger" onClick={onToggle}>
         <span className="account-menu__avatar" aria-hidden="true">
-          ?
+          {initiale}
         </span>
-        Invité
+        {connecte ? utilisateur!.email : 'Invité'}
       </button>
       {open && (
         <div className="account-menu__dropdown">
@@ -28,13 +35,19 @@ export function AccountMenu({ open, onToggle, onNavigate }: AccountMenuProps) {
           <button type="button" onClick={() => onNavigate('memory')}>
             Pour mémoire
           </button>
-          <button
-            type="button"
-            className="account-menu__login"
-            onClick={() => onNavigate('auth')}
-          >
-            Se connecter
-          </button>
+          {connecte ? (
+            <button type="button" className="account-menu__login" onClick={() => void seDeconnecter()}>
+              Se déconnecter
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="account-menu__login"
+              onClick={() => onNavigate('auth')}
+            >
+              Se connecter
+            </button>
+          )}
         </div>
       )}
     </div>
