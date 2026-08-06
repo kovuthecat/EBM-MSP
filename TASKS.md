@@ -15,7 +15,9 @@ plan** (statut dans son `index.md`) : `- T-ID — titre · → plans/…/S<k>.md
 ## Plan P14 — ouvert (statut/détail : `plans/P14/index.md`)
 
 - T-160/T-161 → S1.md · T-162→T-165 → S2.md · T-166 → S3.md · T-167 → S4.md · T-168 → S5.md · T-169/T-185 → S6.md · T-170 → S7.md
-- T-171→T-173 + T-175→T-177 → S8.md (T-174 abandonnée, arbitrage 2026-08-06) · T-178 (D50) → S9.md · T-179 → S10.md · T-180/T-181 → S11.md · T-182→T-184 → S12.md · consolidation → S13.md
+- T-171→T-173 + T-175→T-177 → S8.md (T-174 abandonnée, arbitrage 2026-08-06) · T-178 (D50) → S9.md · T-179 → S10.md · T-180/T-181 → S11.md
+- **Chantier P2** (critères communs de domaine, absorbé de P13) : T-186/T-187 → S14.md · T-188 → S15.md · T-189 → S16.md · T-190 → S17.md · T-191 → S18.md · T-192 → S19.md
+- T-182→T-184 → S12.md · consolidation → S13.md
 
 ## Backlog — né de P12 (2026-08-03), non cadré
 
@@ -32,34 +34,24 @@ plan** (statut dans son `index.md`) : `- T-ID — titre · → plans/…/S<k>.md
 - T-096→T-098 — Gel du modèle, écrans V1/V2, pont veille ↔ nœud · → plans/PV1/S5-S7.md
 - T-099/T-100 — Page Méthode réalignée sur la SOP, consolidation · → plans/PV1/S8-S9.md
 
-## Backlog — mécanique, exécutable sans arbitrage clinique
+## Backlog — mécanique, recherche clinique, validation finale, phases suivantes
 
-- [ ] Vérifier sur le déployé (N1) : T-032/T-033/T-034 (P5, jamais confirmés hors local) · Claude + navigateur, low, env: Desktop
-- [ ] `lib/replierAffichage.ts` (P9/S1) lit le champ brut, pas l'état évalué (sans effet) · `PastilleInfo` : ton `attention` natif, puis retirer la surcharge CSS d'`OptionCard` · Sonnet, low
-- [ ] Nœud `Traiter` : 6 sections, 5 « Suivant », >50 % des actions — re-cadrage (mesurer d'abord les champs visibles/section) · Opus, high
-- [ ] Nœud `Alimentation` : 15 champs, jamais rempli en 2 recettes — re-cadrage · Opus, high
-- [ ] **N1 déféré par P13** (navigateur in-app indisponible pendant l'exécution) : rejouer T-147/T-148, T-153/T-155, T-156/T-157/T-159 au navigateur · Claude + navigateur, low, env: Desktop.
-- [ ] I24 (`invariants-contenu.test.ts`) ne scanne que `conditions`/`prerequis`, pas `exclusions` : bloque 8 motifs négatifs sur `statine.yaml` (P13/S7, T-152). Étendre `branchesDeclarees`, puis ajouter les 2 motifs déjà rédigés en attente · Sonnet, medium.
-- [ ] `exports` (nœud publie sa conclusion en session, P13/S6/T-149) : STOP légitime, jamais implémenté — ajouter `exports` au schéma exige de toucher `engine/expressionsNoeud.ts` (invariant G1), hors mandat de la session. Conception complète prête dans `plans/P13/S6.md`. Sans lui, D12/D17 restent ouverts (confort, pas sécurité) · Sonnet, xhigh, arbitrage d'abord (autoriser le franchissement d'`engine/`).
-
-## Backlog — recherche clinique / arbitrage référent
-
-- [ ] **Passe B — sécurité à l'effort** (`rhd-activite-physique`) · modèle: Opus, effort: high
-- [ ] Motif du repli statine : ASCVD peut l'atteindre via l'exclusion dialyse (HAUTE-4) — arbitrage référent avant d'écrire un texte (P10, non traité).
-- [ ] Alerte rétinopathie proliférante (`rhd-activite-physique`, P13/S7/T-154) : aucune source du nœud ne porte de conduite à tenir, collecte nécessaire. *(Les titres de référence de `statine.yaml` sont, eux, réparés — passe du 2026-08-05.)*
-- [ ] **13 arbitrages de la passe de rédaction du 2026-08-05** — 2 points de fond (garde-fou d'hypoglycémie sans capteur sur `insuline` ; CK très élevées avant initiation sur `statine`), 5 données manquantes qui bloquent un affichage, 6 choix de rédaction à confirmer · `docs/decision/validation/passe-redaction-2026-08-05.md`.
-
-## Backlog — validation clinique finale (D5, passage à `statut: valide`)
-
-- [ ] `prescription`, `insuline`, `rhd-alimentation`, `rhd-activite-physique` : relecture référent de bout
-      en bout sur le déployé. Session dédiée demandée, pas encore calée.
-
-## Backlog (Phases suivantes — non cadré)
-
-- [ ] **Annuaire d'outils tiers** (idée Thibault, 2026-08-06) — recenser les outils d'aide à la décision existants (famille « -clic » : Antibioclic, Gestaclic, Pediadoc, Dermatoclic, Sportsanteclic… ; annuaires à dépouiller : ressourcesmg.fr, KitMédical, SFMG, listes des DMG Rouen/Lorraine/Sorbonne) et les exposer en cartes de renvoi, pour centraliser l'accès sans réinventer l'existant. **Éthique tranchée (Thibault, 2026-08-06)** : identifiants communs OK — la finalité du login sur ces outils est de restreindre l'accès aux professionnels de santé, et l'app ne sera accessible qu'aux PS de la MSP ; la finalité est donc respectée. **Reste 2 points durs, techniques** : (1) *où vivent les identifiants* — une app Vite/React statique les exposerait dans le bundle à quiconque atteint l'URL (indépendant de l'éthique) ; il faut soit un relais côté serveur (Supabase existe déjà pour la Veille), soit renoncer à l'auto-login. Recenser d'abord lesquels exigent réellement un compte : si peu le font, un simple annuaire de liens suffit et le sujet disparaît. (2) statut éditorial — un renvoi vaut-il caution EBM ? Cadrer la frontière avec nos propres nœuds · Opus, high.
-- [ ] Veille V3 (profil) / V4 (« pour mémoire ») en `localStorage`, puis comptes Supabase + RGPD (D37).
-- [ ] Première édition **live** `2026-W32` (lundi 03/08), après PV1 — cadence fixée par la SOP.
-- [ ] T-019 (reliquat P3) — catalogue formel des critères `partage` (en grande partie livré par D28).
+- [ ] **Mécanique.** Vérifier sur le déployé (N1) : T-032/T-033/T-034 (P5, jamais confirmés hors local) · Claude + navigateur, low, env: Desktop
+- [ ] **Mécanique.** `lib/replierAffichage.ts` (P9/S1) lit le champ brut, pas l'état évalué (sans effet) · `PastilleInfo` : ton `attention` natif, puis retirer la surcharge CSS d'`OptionCard` · Sonnet, low
+- [ ] **Mécanique.** Nœud `Traiter` : 6 sections, 5 « Suivant », >50 % des actions — re-cadrage (mesurer d'abord les champs visibles/section) · Opus, high
+- [ ] **Mécanique.** Nœud `Alimentation` : 15 champs, jamais rempli en 2 recettes — re-cadrage · Opus, high
+- [ ] **Mécanique.** N1 déféré par P13 (navigateur in-app indisponible pendant l'exécution) : rejouer T-147/T-148, T-153/T-155, T-156/T-157/T-159 au navigateur · Claude + navigateur, low, env: Desktop.
+- [ ] **Mécanique.** I24 (`invariants-contenu.test.ts`) ne scanne que `conditions`/`prerequis`, pas `exclusions` : bloque 8 motifs négatifs sur `statine.yaml` (P13/S7, T-152). Étendre `branchesDeclarees`, puis ajouter les 2 motifs déjà rédigés en attente · Sonnet, medium.
+- [ ] **Mécanique.** `exports` (nœud publie sa conclusion en session, P13/S6/T-149) : STOP légitime, jamais implémenté — ajouter `exports` au schéma exige de toucher `engine/expressionsNoeud.ts` (invariant G1), hors mandat de la session. Conception complète prête dans `plans/P13/S6.md`. Sans lui, D12/D17 restent ouverts (confort, pas sécurité) · Sonnet, xhigh, arbitrage d'abord (autoriser le franchissement d'`engine/`).
+- [ ] **Clinique.** Passe B — sécurité à l'effort (`rhd-activite-physique`) · modèle: Opus, effort: high
+- [ ] **Clinique.** Motif du repli statine : ASCVD peut l'atteindre via l'exclusion dialyse (HAUTE-4) — arbitrage référent avant d'écrire un texte (P10, non traité).
+- [ ] **Clinique.** Alerte rétinopathie proliférante (`rhd-activite-physique`, P13/S7/T-154) : aucune source du nœud ne porte de conduite à tenir, collecte nécessaire. *(Les titres de référence de `statine.yaml` sont, eux, réparés — passe du 2026-08-05.)*
+- [ ] **Clinique.** 13 arbitrages de la passe de rédaction du 2026-08-05 — 2 points de fond (garde-fou d'hypoglycémie sans capteur sur `insuline` ; CK très élevées avant initiation sur `statine`), 5 données manquantes qui bloquent un affichage, 6 choix de rédaction à confirmer · `docs/decision/validation/passe-redaction-2026-08-05.md`.
+- [ ] **Validation finale (D5, passage à `statut: valide`).** `prescription`, `insuline`, `rhd-alimentation`, `rhd-activite-physique` : relecture référent de bout en bout sur le déployé. Session dédiée demandée, pas encore calée.
+- [ ] **Phase suivante.** Annuaire d'outils tiers (idée Thibault, 2026-08-06) — recenser les outils d'aide à la décision existants (famille « -clic » : Antibioclic, Gestaclic, Pediadoc, Dermatoclic, Sportsanteclic… ; annuaires à dépouiller : ressourcesmg.fr, KitMédical, SFMG, listes des DMG Rouen/Lorraine/Sorbonne) et les exposer en cartes de renvoi, pour centraliser l'accès sans réinventer l'existant. **Éthique tranchée (Thibault, 2026-08-06)** : identifiants communs OK — la finalité du login sur ces outils est de restreindre l'accès aux professionnels de santé, et l'app ne sera accessible qu'aux PS de la MSP ; la finalité est donc respectée. **Reste 2 points durs, techniques** : (1) *où vivent les identifiants* — une app Vite/React statique les exposerait dans le bundle à quiconque atteint l'URL (indépendant de l'éthique) ; il faut soit un relais côté serveur (Supabase existe déjà pour la Veille), soit renoncer à l'auto-login. Recenser d'abord lesquels exigent réellement un compte : si peu le font, un simple annuaire de liens suffit et le sujet disparaît. (2) statut éditorial — un renvoi vaut-il caution EBM ? Cadrer la frontière avec nos propres nœuds · Opus, high.
+- [ ] **Phase suivante.** Veille V3 (profil) / V4 (« pour mémoire ») en `localStorage`, puis comptes Supabase + RGPD (D37).
+- [ ] **Phase suivante.** Première édition **live** `2026-W32` (lundi 03/08), après PV1 — cadence fixée par la SOP.
+- [ ] **Phase suivante.** T-019 (reliquat P3) — catalogue formel des critères `partage` (en grande partie livré par D28).
 
 ## Archivage
 
