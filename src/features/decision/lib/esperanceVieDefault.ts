@@ -13,18 +13,25 @@ const TIERS: EsperanceVieValue[] = ['longue', 'intermediaire', 'limitee']
  * (CLAUDE.md invariant 6, « signaler plutôt qu'inventer »). Logique : `comorbidite_grave` seule
  * suffit (déjà traitée comme équivalente à `esperance_vie == limitee` dans les options du nœud A) ;
  * sinon un palier par âge, dégradé d'un cran par facteur de gravité présent (`fragilite`,
- * `antecedent_cv`).
+ * `ASCVD_etablie`).
+ *
+ * RENOMMÉ le 2026-08-07 (décision référent, arbitrage 1 de `docs/decision/validation/
+ * criteres-communs-2026-08-06.md`) : `antecedent_cv` (nœud A) est remplacé par `ASCVD_etablie`, déjà
+ * partagé (`partage: true`) avec `prescription`/`statine` — contrairement à `antecedent_cv`, qui ne
+ * portait pas ce champ (c'est précisément ce qui causait le risque décrit au point 2 de l'historique
+ * ci-dessous). Ce risque particulier ne peut donc plus se reproduire sous cette forme ; le reste de
+ * l'historique (le remède retenu au point 4) reste la référence à ne pas défaire.
  */
 export function suggestEsperanceVie(criteria: Criteria): EsperanceVieValue {
   const age = Number(criteria.age ?? 0)
   const fragilite = Boolean(criteria.fragilite)
   const comorbiditeGrave = Boolean(criteria.comorbidite_grave)
-  const antecedentCv = Boolean(criteria.antecedent_cv)
+  const ascvdEtablie = Boolean(criteria.ASCVD_etablie)
 
   if (comorbiditeGrave) return 'limitee'
 
   const ageTier: EsperanceVieValue = age >= 90 ? 'limitee' : age >= 75 ? 'intermediaire' : 'longue'
-  const facteursGravite = [fragilite, antecedentCv].filter(Boolean).length
+  const facteursGravite = [fragilite, ascvdEtablie].filter(Boolean).length
   const index = Math.min(TIERS.indexOf(ageTier) + facteursGravite, TIERS.length - 1)
   return TIERS[index]
 }
@@ -37,7 +44,7 @@ export function hasEsperanceVieCritere(criteresEntree: CritereEntree[]): boolean
 }
 
 /** Champs dont dépend la suggestion — sert à savoir quand la recalculer. */
-export const ESPERANCE_VIE_DRIVERS = ['age', 'fragilite', 'comorbidite_grave', 'antecedent_cv'] as const
+export const ESPERANCE_VIE_DRIVERS = ['age', 'fragilite', 'comorbidite_grave', 'ASCVD_etablie'] as const
 
 /**
  * Calcule la valeur à suggérer pour `esperance_vie`, ou `undefined` si rien ne doit changer — MÊME calcul

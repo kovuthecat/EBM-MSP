@@ -25,7 +25,15 @@ import {
   valeursProposeesDepuisSaisie,
 } from '../lib/formLayout'
 import { prioritesDeSaisie } from '../lib/prioritesSaisie'
-import { memoriserCriteres, reinitialiserSession, valeursReprises } from '../lib/sessionCriteres'
+import {
+  memoriserCriteres,
+  publierCritere,
+  reinitialiserSession,
+  valeursPubliees,
+  valeursReprises,
+  type ValeurPubliee,
+  type ValeurReprise,
+} from '../lib/sessionCriteres'
 import { plafonnerPistes, PLAFOND_PISTES, type PartitionAffichage } from '../lib/replierAffichage'
 import type { FamilleVue } from '../lib/vueDecision'
 import { construireVueDecision } from '../lib/vueDecision'
@@ -194,6 +202,43 @@ function verbesActionPresents(familles: readonly FamilleVue[]): ActionOption[] {
 }
 
 /**
+ * D50/T-179 (P14/S10) — socle de `criteria` après REPRISE (K6/D28) et PUBLICATION (D50) : factorisé pour
+ * n'écrire cette logique qu'une fois, réutilisée par les DEUX initialisations `useState` qui en ont besoin
+ * (`criteria`/`preremplis`, cf. plus bas — même duplication assumée qu'avant cette tâche pour `reprises`
+ * seul, jamais unifiée non plus).
+ *
+ * ORDRE DE PRIORITÉ POUR UN MÊME NOM : une REPRISE (une vraie saisie du praticien, sur un autre nœud de
+ * cette consultation) prime TOUJOURS sur une PUBLICATION (une suggestion du moteur, D50) — jamais
+ * l'inverse. En pratique les deux ne ciblent pas le même critère (D50, « après unification, le critère
+ * publié n'a plus de lecteur hors préremplissage » — un critère `partage` a par construction un lecteur
+ * `condition`/`derive` ailleurs), mais la garde coûte une ligne et supprime toute ambiguïté si un contenu
+ * futur les fait un jour coïncider.
+ *
+ * `renseignes` en retour SERT À DEUX CHOSES pour `appliquerPreremplissage` (`lib/formLayout.ts`) : ne plus
+ * reconsidérer ces noms comme candidats à un pré-remplissage de contenu, ET les compter comme DÉTERMINÉS
+ * pour évaluer le `quand` d'un pré-remplissage d'un AUTRE critère (D20) — une valeur reprise ou publiée
+ * peut donc, comme avant cette tâche pour les seules reprises, en pré-remplir une autre EN CASCADE dès
+ * l'ouverture du nœud (ex. la cible PUBLIÉE par « Déterminer la cible » suffit à proposer la position vs
+ * objectif, sans qu'aucune des deux valeurs n'ait été tapée sur CET écran).
+ */
+function baseAvecReprisesEtPublications(
+  criteresEntree: CritereEntree[],
+  reprises: readonly ValeurReprise[],
+  publications: readonly ValeurPubliee[],
+): { base: Criteria; renseignes: Set<string>; nomsPublies: string[] } {
+  const base = buildDefaultCriteria(criteresEntree)
+  for (const { nom, valeur } of reprises) base[nom] = valeur
+  const nomsRepris = new Set(reprises.map((r) => r.nom))
+  const nomsPublies: string[] = []
+  for (const { nom, valeur } of publications) {
+    if (nomsRepris.has(nom)) continue // une reprise (saisie réelle) prime toujours sur une publication.
+    base[nom] = valeur
+    nomsPublies.push(nom)
+  }
+  return { base, renseignes: new Set([...nomsRepris, ...nomsPublies]), nomsPublies }
+}
+
+/**
  * D3 — nœud interrogeable (S4.md T-006) : formulaire de critères → options applicables (moteur S3)
  * → argumentaire dépliable. Recalcule `construireVueDecision` à chaque changement de critère (état
  * éphémère, `criteria`/`argOpen` en `useState` — aucune persistance, CLAUDE.md invariant 1). Tout ce
@@ -227,14 +272,21 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   // Ce qui circule est une valeur SAISIE, jamais une conclusion du moteur — cf. `lib/sessionCriteres.ts`
   // pour le raisonnement complet vis-à-vis du garde-fou R1 et de l'invariant « aucune persistance ».
   const reprises = node ? valeursReprises(node.criteres_entree) : []
+  // D50/T-179 (P14/S10) — REPRISE PAR PUBLICATION. Une valeur qu'un AUTRE nœud `ordered-first-match` a
+  // PUBLIÉE cette session (`Option.publie`, calculée plus bas via `optionRetenueOFM`/l'effet de publication
+  // de CE nœud, s'il en est un) : `lib/sessionCriteres.ts` `valeursPubliees`, symétrique de `valeursReprises`
+  // mais pour une CONCLUSION du moteur plutôt qu'une saisie. Comme `reprises` ci-dessus : recalculée à
+  // chaque rendu mais seulement CONSULTÉE dans des initialiseurs `useState` qui ne s'exécutent qu'au
+  // montage — même discipline, même raison (une suggestion est un point de départ, jamais une source qui
+  // écraserait en continu ce que le praticien tape ensuite).
+  const publications = node ? valeursPubliees(node.criteres_entree) : []
 
   const [criteria, setCriteria] = useState<Criteria>(() => {
     if (!node) return {}
-    const base = buildDefaultCriteria(node.criteres_entree)
-    for (const { nom, valeur } of reprises) base[nom] = valeur
-    // Une valeur reprise peut en pré-remplir une autre : la cible et l'HbA1c reprises de la session
-    // suffisent à proposer la position vs objectif dès l'ouverture du nœud.
-    return appliquerPreremplissage(node.criteres_entree, base, new Set(reprises.map((r) => r.nom))).criteria
+    const { base, renseignes } = baseAvecReprisesEtPublications(node.criteres_entree, reprises, publications)
+    // Une valeur reprise OU publiée peut en pré-remplir une autre : la cible (publiée par « Déterminer la
+    // cible ») et l'HbA1c (reprise) suffisent à proposer la position vs objectif dès l'ouverture du nœud.
+    return appliquerPreremplissage(node.criteres_entree, base, renseignes).criteria
   })
   // Critères déjà modifiés par l'utilisateur (T-009) : distingue une valeur par défaut (0, non
   // fiable cliniquement) d'une valeur réellement saisie, pour ne pas afficher un résultat basé sur
@@ -246,27 +298,43 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
   // « à confirmer » alors qu'elle est affichée remplie, c'est-à-dire exactement le défaut A du lot 1 (un
   // champ qui paraît répondu sans l'être). L'écran la SIGNALE donc comme reprise (`repris`), au lieu de la
   // faire passer pour non répondue.
+  //
+  // UNE VALEUR PUBLIÉE, À L'INVERSE, N'ENTRE PAS DANS `touched` (D50 : « la sémantique de `preremplissage`
+  // est reprise telle quelle ») — ce n'est pas une réponse du praticien SUR CETTE consultation, c'est une
+  // SUGGESTION issue d'une conclusion du moteur sur un autre nœud. Elle rejoint `preremplis` ci-dessous,
+  // exactement comme un pré-remplissage de contenu.
   const [touched, setTouched] = useState<Set<string>>(() => new Set(reprises.map((r) => r.nom)))
   // Noms des champs PRÉ-REMPLIS, pour que le formulaire dise d'où vient la valeur. Figé à l'initialisation
   // et jamais mis à jour : dès que le praticien modifie un de ces champs, la mention devient fausse — d'où
   // le retrait ci-dessous dans `handleCriteriaChange`.
   const [repris, setRepris] = useState<Set<string>>(() => new Set(reprises.map((r) => r.nom)))
-  // Champs remplis par une règle de CONTENU (`preremplissage`, K6) plutôt que par le praticien. Distincts
-  // de `repris` (valeur venue d'un autre nœud) : l'origine n'est pas la même, la mention non plus.
-  const [preremplis, setPreremplis] = useState<Set<string>>(() =>
-    node
-      ? new Set(
-          appliquerPreremplissage(
-            node.criteres_entree,
-            (() => {
-              const base = buildDefaultCriteria(node.criteres_entree)
-              for (const { nom, valeur } of reprises) base[nom] = valeur
-              return base
-            })(),
-            new Set(reprises.map((r) => r.nom)),
-          ).preremplis,
-        )
-      : new Set(),
+  // Champs remplis par une règle de CONTENU (`preremplissage`, K6) OU par une PUBLICATION (D50) plutôt que
+  // par le praticien. Distincts de `repris` (valeur venue d'un autre nœud, mais SAISIE par le praticien) :
+  // une valeur publiée est une CONCLUSION du moteur, jamais une saisie — même mention affichée que le
+  // pré-remplissage de contenu (« · calculé, à vérifier »), enrichie de son origine via
+  // `originesPublication` ci-dessous (`CriteriaForm.tsx` `renderOrigine`).
+  const [preremplis, setPreremplis] = useState<Set<string>>(() => {
+    if (!node) return new Set()
+    const { base, renseignes, nomsPublies } = baseAvecReprisesEtPublications(node.criteres_entree, reprises, publications)
+    const { preremplis: parContenu } = appliquerPreremplissage(node.criteres_entree, base, renseignes)
+    return new Set([...nomsPublies, ...parContenu])
+  })
+  // D50/T-179 — ORIGINE (nœud + option) des noms PUBLIÉS présents dans `preremplis` (étape 5, signalement) :
+  // `preremplis` seul dit QUE le champ est pré-rempli, pas D'OÙ vient la valeur. Résolue en TEXTE ici (le
+  // seul endroit qui importe `getNoeudById` dans ce mécanisme) : `lib/sessionCriteres.ts`/`CriteriaForm.tsx`
+  // restent génériques, sans connaissance de titre de nœud. Figée à l'initialisation comme `preremplis` —
+  // une origine qui changerait sous les yeux du praticien serait plus déroutante qu'utile, et de toute façon
+  // seul un champ ENCORE dans `preremplis` la consulte (`CriteriaForm.tsx` `renderOrigine`), jamais un champ
+  // devenu `touched` : la garder inchangée après coup est donc sans risque.
+  const [originesPublication, setOriginesPublication] = useState<Map<string, { noeudTitre: string; optionIntitule: string }>>(
+    () => {
+      const carte = new Map<string, { noeudTitre: string; optionIntitule: string }>()
+      for (const { nom, origine } of publications) {
+        const noeudOrigine = getNoeudById(origine.noeudId)
+        carte.set(nom, { noeudTitre: noeudOrigine?.titre ?? origine.noeudId, optionIntitule: origine.optionIntitule })
+      }
+      return carte
+    },
   )
   // T-134 (P12/S9) — critères DÉCISIFS que le praticien a déclarés « je ne l'aurai pas » (recette du
   // 02/08, N7 : l'albuminurie manque au dossier de l'EHPAD et n'y sera jamais). ENSEMBLE PUREMENT
@@ -396,6 +464,50 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
     // temporelle — les deux avancent ensemble, jamais l'un en retard sur l'autre.
     return construireVueDecision(node, criteria, criteresRenseignes)
   }, [node, criteria, criteresRenseignes])
+
+  /**
+   * D50/T-179 (P14/S10) — option EFFECTIVEMENT RETENUE d'un nœud à SORTIE UNIQUE (D11), pour la
+   * publication. `undefined` tant que le nœud n'est pas `ordered-first-match`, ou que le moteur ne s'est
+   * pas prononcé pour de bon :
+   *  - `vue.enAttente.length > 0` ⇒ le nœud est EN ATTENTE (R7/D20, une halte quelque part dans l'ordre du
+   *    nœud, cf. `evaluateOrderedFirstMatch`) — « ne rien écrire si le nœud est en attente », étape 4 ;
+   *  - `applicable`/`ecartees`/etc. ne comptant qu'UNE option APPLICABLE ⇒ c'est CETTE option-là qui est la
+   *    sortie du nœud (`evaluateNode` en `ordered-first-match` ne renvoie jamais plus d'une option
+   *    applicable, D11) — extraite depuis `vue.familles` (déjà aplatie par `construireVueDecision`) plutôt
+   *    que rappeler le moteur une seconde fois : ni un second calcul, ni une seconde source de vérité.
+   *
+   * IDENTITÉ STABLE, ET C'EST CE QUI ÉVITE LA BOUCLE DE RENDU (cf. "Si bloqué", `plans/P14/S10.md`) :
+   * `OptionVue.option` est la RÉFÉRENCE `Option` du contenu telle quelle (`construireVueDecision`/
+   * `evaluateNode` ne la clonent jamais) — donc TANT QUE la sortie retenue ne change pas, cette valeur
+   * mémoïsée reste `===` d'un rendu à l'autre malgré la frappe (chaque keystroke recrée `vue`, pas
+   * l'`Option` qu'il contient). L'effet ci-dessous, qui dépend de CETTE valeur, ne redéclenche donc QUE
+   * quand la sortie du nœud change réellement — jamais à chaque rendu.
+   */
+  const optionRetenueOFM = useMemo(() => {
+    if (!node || node.selection !== 'ordered-first-match' || !vue) return undefined
+    if (vue.enAttente.length > 0) return undefined
+    const toutes = vue.familles.flatMap((famille) => famille.groupes.flat())
+    return toutes.length === 1 ? toutes[0].option : undefined
+  }, [node, vue])
+
+  /**
+   * D50/T-179 (P14/S10) — ÉCRITURE DE LA PUBLICATION, étape 4. Hors du corps du composant (donc jamais
+   * dans la boucle de rendu, cf. docstring `optionRetenueOFM` ci-dessus) et hors d'`evaluateNode` (il
+   * tourne des centaines de fois par frappe via `engine/relevance.ts`, cf. "Si bloqué" du plan) : un
+   * `useEffect`, déclenché UNIQUEMENT quand `optionRetenueOFM` change de VALEUR (voir sa docstring pour
+   * pourquoi son identité reste stable tant que la sortie ne change pas réellement).
+   *
+   * Mutation d'un état de MODULE (`lib/sessionCriteres.ts` `publications`), jamais d'un état React : ne
+   * provoque donc AUCUN second rendu de ce composant ni d'aucun autre — pas de risque de boucle par ce
+   * biais non plus.
+   */
+  useEffect(() => {
+    if (!node || !optionRetenueOFM?.publie) return
+    publierCritere(optionRetenueOFM.publie.critere, optionRetenueOFM.publie.valeur, {
+      noeudId: node.id,
+      optionIntitule: optionRetenueOFM.intitule,
+    })
+  }, [node, optionRetenueOFM])
 
   // TEMPORISATION (tâche 6c, recette référent) : `criteresPertinents` perturbe le moteur une fois par
   // critère saisissable (plusieurs évaluations d'`evaluateNode` chacune) — recalculer à CHAQUE frappe sur
@@ -974,6 +1086,10 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
     setTouched(new Set())
     setRepris(new Set())
     setPreremplis(new Set())
+    // D50/T-179 — vidée avec `preremplis` : une origine de publication qui survivrait n'est certes lue par
+    // aucun champ (`preremplis` est vide juste au-dessus), mais la vider EN PLUS évite de garder, dans cet
+    // état local, une trace d'un nom de nœud/option qui ne correspond plus à rien d'affiché.
+    setOriginesPublication(new Map())
     setIndisponibles(new Set())
     setFrontiereLevee(false)
   }
@@ -1070,6 +1186,7 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                 onDeclarerIndisponible={handleDeclarerIndisponible}
                 repris={repris}
                 preremplis={preremplis}
+                originesPubliees={originesPublication}
                 hints={
                   hasEsperanceVieCritere(node.criteres_entree) && !touched.has('esperance_vie')
                     ? { esperance_vie: 'Suggestion auto (âge, fragilité, comorbidité grave, antécédent CV) — à valider' }

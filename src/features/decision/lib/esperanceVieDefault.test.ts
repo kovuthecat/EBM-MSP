@@ -3,37 +3,37 @@ import { hasEsperanceVieCritere, suggestEsperanceVie } from './esperanceVieDefau
 
 describe('suggestEsperanceVie', () => {
   it('suggère "longue" pour un adulte jeune sans facteur de gravité', () => {
-    expect(suggestEsperanceVie({ age: 45, fragilite: false, comorbidite_grave: false, antecedent_cv: false })).toBe(
+    expect(suggestEsperanceVie({ age: 45, fragilite: false, comorbidite_grave: false, ASCVD_etablie: false })).toBe(
       'longue',
     )
   })
 
   it('suggère "limitee" dès que comorbidite_grave est vraie, quel que soit l’âge', () => {
-    expect(suggestEsperanceVie({ age: 40, fragilite: false, comorbidite_grave: true, antecedent_cv: false })).toBe(
+    expect(suggestEsperanceVie({ age: 40, fragilite: false, comorbidite_grave: true, ASCVD_etablie: false })).toBe(
       'limitee',
     )
   })
 
   it('dégrade d’un palier par facteur de gravité (fragilité, antécédent CV)', () => {
-    expect(suggestEsperanceVie({ age: 45, fragilite: true, comorbidite_grave: false, antecedent_cv: false })).toBe(
+    expect(suggestEsperanceVie({ age: 45, fragilite: true, comorbidite_grave: false, ASCVD_etablie: false })).toBe(
       'intermediaire',
     )
-    expect(suggestEsperanceVie({ age: 45, fragilite: true, comorbidite_grave: false, antecedent_cv: true })).toBe(
+    expect(suggestEsperanceVie({ age: 45, fragilite: true, comorbidite_grave: false, ASCVD_etablie: true })).toBe(
       'limitee',
     )
   })
 
   it('utilise des paliers d’âge par défaut (75 ans, 90 ans)', () => {
-    expect(suggestEsperanceVie({ age: 80, fragilite: false, comorbidite_grave: false, antecedent_cv: false })).toBe(
+    expect(suggestEsperanceVie({ age: 80, fragilite: false, comorbidite_grave: false, ASCVD_etablie: false })).toBe(
       'intermediaire',
     )
-    expect(suggestEsperanceVie({ age: 95, fragilite: false, comorbidite_grave: false, antecedent_cv: false })).toBe(
+    expect(suggestEsperanceVie({ age: 95, fragilite: false, comorbidite_grave: false, ASCVD_etablie: false })).toBe(
       'limitee',
     )
   })
 
   it('ne descend jamais sous "limitee"', () => {
-    expect(suggestEsperanceVie({ age: 95, fragilite: true, comorbidite_grave: false, antecedent_cv: true })).toBe(
+    expect(suggestEsperanceVie({ age: 95, fragilite: true, comorbidite_grave: false, ASCVD_etablie: true })).toBe(
       'limitee',
     )
   })

@@ -107,6 +107,10 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
     cadrage: 'inerte', // D24 : prose inconditionnelle, sans `quand` — c'est sa définition même
     familles: 'inerte',
     contraintes: 'inerte', // conteneur : cf. `contrainte`
+    // T-189 (P14/S16) — `criteres_hors_perimetre` : conteneur, cf. `critereHorsPerimetre`. Aucun de ses
+    // deux champs (`nom`, `motif`) n'est une expression DSL — c'est une déclaration lue par un humain et
+    // par l'invariant I33 (recherche de correspondance de NOM, pas une évaluation).
+    criteres_hors_perimetre: 'inerte',
   },
   contrainte: {
     expression: 'saisie', // cf. `NatureChamp` : cohérence de la saisie, jamais lue par `evaluateNode`
@@ -121,6 +125,14 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
     // sous-champ porteur d'expression — `action` (la valeur choisie) est aussi inerte que `priorite[].rang`.
     // Récoltée dans `fragmentsDuNoeud` ci-dessous, même traitement que `priorite[].quand`.
     action_si: 'decision',
+    // D50/T-179 (P14/S10) — `publie` porte `{ critere, valeur }` (cf. définition `publication` plus bas) :
+    // `critere` est un NOM cité, jamais une expression ; `valeur` est un NOMBRE LITTÉRAL, jamais une
+    // expression calculée (D50 l'interdit explicitement — « jamais une expression »). Ni l'un ni l'autre
+    // n'est du DSL évalué par quoi que ce soit : AUCUN EFFET MOTEUR (`evaluateNode` ne lit pas ce champ),
+    // et la publication elle-même a lieu HORS du moteur, après coup (`screens/DecisionNodeScreen.tsx`).
+    // Même nature que `famille`/`role` : une déclaration, pas une expression — `fragmentsDuNoeud` n'a donc
+    // rien à y collecter (G2 ne l'exige que pour `decision`).
+    publie: 'inerte',
     // 2026-08-04 — drapeau de PRÉSENTATION pure (étiquette + atténuement visuel de la carte,
     // `OptionCard.tsx`), même nature que `libelle_masque` : ne porte ni ne déclenche aucune expression.
     bas_rang: 'inerte',
@@ -232,6 +244,38 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
     appui: 'inerte',
   },
   sources: { references_primaires: 'inerte', synthese_critique: 'inerte', reco_officielle: 'inerte' },
+  // D50/T-179 (P14/S10) — `option.publie` (juste au-dessus). `critere` est un NOM, `valeur` un NOMBRE
+  // LITTÉRAL déclaré par le contenu : ni l'un ni l'autre n'est une expression DSL (cf. le commentaire de
+  // `option.publie` pour le raisonnement complet).
+  publication: { critere: 'inerte', valeur: 'inerte' },
+  // T-188 (P14/S15) — `critereEntreeRef`, la FORME COURTE de `criteres_entree` (`{ ref, <mise en scène> }`,
+  // `schema/decision/noeud.schema.json`). TOUT 'inerte', et c'est le point à justifier plutôt qu'à
+  // survoler : cette forme est RÉSOLUE par `loadNodes.ts` (fusionnée en `critereEntree` complet) AVANT
+  // que quoi que ce soit d'autre — `fragmentsDuNoeud` compris — ne voie le nœud (cf. `resoudreCritereEntree`,
+  // appelée à la construction d'`export const noeuds`). `fragmentsDuNoeud(node: Noeud)` est typée sur
+  // `Noeud.criteres_entree: CritereEntree[]` : elle ne peut STRUCTURELLEMENT jamais recevoir cette forme.
+  // Ses champs `visible_si`/`valeurs_visible_si`, bien que sémantiquement des expressions DSL, ne sont
+  // donc pas des angles morts : une fois résolus, ils sont comptés une fois sous
+  // `critereEntree.visible_si`/`critereEntree.valeurs_visible_si` (classés `affichage` ci-dessus). Les
+  // classer À NOUVEAU ici dupliquerait la même expression sous deux classifications, pour un code
+  // (`fragmentsDuNoeud`) qui ne visite jamais cette forme — exactement le bruit que G2 (« chaque champ
+  // classé a un marqueur ») ne pourrait de toute façon pas exercer, `criteres_entree` du nœud synthétique
+  // de G2 étant lui aussi typé `CritereEntree[]`.
+  critereEntreeRef: {
+    ref: 'inerte',
+    groupe: 'inerte',
+    debut_de_ligne: 'inerte',
+    libelle_masque: 'inerte',
+    visible_si: 'inerte',
+    valeurs_visible_si: 'inerte',
+    masque_si_indetermine: 'inerte',
+    preremplissage: 'inerte',
+    presomption_non: 'inerte',
+  },
+  // T-189 (P14/S16) — `critereHorsPerimetre` (une entrée de `Noeud.criteres_hors_perimetre` juste
+  // au-dessus). `nom` cite un fait par son NOM (comme `option.publie.critere`), `motif` est de la prose
+  // lue par un humain — ni l'un ni l'autre n'est du DSL évalué par quoi que ce soit.
+  critereHorsPerimetre: { nom: 'inerte', motif: 'inerte' },
   changelogEntry: { date: 'inerte', auteur: 'inerte', resume: 'inerte', veille_source: 'inerte' },
   meta: { date_revue: 'inerte', auteur: 'inerte', statut: 'inerte', version: 'inerte', changelog: 'inerte' },
 }

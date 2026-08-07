@@ -17,8 +17,9 @@
  * clinique évolue). Ça ne change rien à la fidélité du scénario : le mécanisme testé
  * (`lib/esperanceVieDefault.ts` `hasEsperanceVieCritere`/`suggestEsperanceVie`/`ESPERANCE_VIE_DRIVERS`)
  * est un mécanisme d'ÉCRAN, non piloté par le contenu (D8 ne s'applique pas ici) : il reconnaît les
- * critères `age`/`fragilite`/`comorbidite_grave`/`antecedent_cv`/`esperance_vie` par leur NOM, quel que
+ * critères `age`/`fragilite`/`comorbidite_grave`/`ASCVD_etablie`/`esperance_vie` par leur NOM, quel que
  * soit le nœud qui les déclare — reprendre exactement ces noms suffit à rejouer le cas réel.
+ * `antecedent_cv` renommé `ASCVD_etablie` le 2026-08-07 (décision référent, arbitrage 1 de S14, P14/S17).
  *
  * Une seconde option (`OPTION_FRAGILE`, conditionnée par `fragilite`/`comorbidite_grave`) rend ces deux
  * critères DÉCISIFS pour le moteur (`engine/relevance.ts`) : sans elle, le bouton « Rien à signaler »
@@ -69,7 +70,7 @@ const NODE = vi.hoisted(() => {
       { nom: 'age', type: 'nombre', min: 0, max: 110 },
       { nom: 'fragilite', type: 'bool' },
       { nom: 'comorbidite_grave', type: 'bool' },
-      { nom: 'antecedent_cv', type: 'bool' },
+      { nom: 'ASCVD_etablie', type: 'bool' },
       { nom: 'esperance_vie', type: 'enum', valeurs: ['longue', 'intermediaire', 'limitee'] },
     ],
     options: [SOCLE, OPTION_FRAGILE],

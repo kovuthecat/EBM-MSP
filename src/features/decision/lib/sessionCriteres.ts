@@ -52,6 +52,37 @@ export type OrigineCritereSession = 'saisi' | 'repris'
 const memoire = new Map<string, { valeur: CriteriaValue; origine: OrigineCritereSession }>()
 
 /**
+ * D50/T-179 (P14/S10, amende D28) — origine d'une valeur PUBLIÉE : le nœud et l'option d'où elle vient,
+ * pour que l'écran puisse dire « d'après [option], retenue dans [nœud] » plutôt que se taire sur l'origine
+ * d'un champ qui paraît répondu. `noeudId`/`optionIntitule`, PAS de libellés résolus ici — ce module ne
+ * connaît aucun titre de nœud (`content/loadNodes.ts` est hors de son ressort, et il resterait générique
+ * même s'il l'importait, D8) : c'est à l'appelant (`DecisionNodeScreen.tsx`, qui importe déjà
+ * `getNoeudById`) de résoudre `noeudId` en un texte affichable.
+ */
+export interface OriginePublication {
+  noeudId: string
+  optionIntitule: string
+}
+
+/**
+ * D50/T-179 (P14/S10, amende D28) — valeurs PUBLIÉES par l'option retenue d'un nœud `ordered-first-match`
+ * (`Option.publie`), par NOM de critère cible. **DISTINCTE de `memoire` ci-dessus, à dessein** : `memoire`
+ * porte des valeurs SAISIES par le praticien (`OrigineCritereSession` n'a QUE deux valeurs, jamais trois —
+ * cf. sa docstring, « ce n'est pas un oubli ») ; ce qui atterrit ici est une CONCLUSION du moteur (l'option
+ * qu'`evaluateNode` a retenue), jamais une saisie — les mélanger dans une seule `Map` aurait obligé
+ * `OrigineCritereSession` à porter un troisième cas, précisément ce que sa docstring interdit. Les deux
+ * `Map` partagent néanmoins le même ESPACE DE NOMS DE CRITÈRES (D28 : « la mémoire de session est un
+ * espace de noms unique ») — rien n'empêche en théorie qu'un nom soit à la fois `partage` et publié
+ * ailleurs ; `DecisionNodeScreen.tsx` fait primer une reprise (une vraie saisie) sur une publication (une
+ * suggestion) quand les deux coexistent pour un même nom, jamais l'inverse.
+ *
+ * AUCUN EFFET MOTEUR (D50) : rien ici n'est lu par `evaluateNode`. Cette `Map` n'existe que pour PROPOSER
+ * un point de départ à un champ d'un AUTRE nœud — exactement le rôle de `preremplissage` (K6), sourcé
+ * différemment.
+ */
+const publications = new Map<string, { valeur: number; origine: OriginePublication }>()
+
+/**
  * Vide la mémoire — deux appelants légitimes, jamais un troisième :
  *  - les tests, pour qu'un cas ne contamine pas le suivant ;
  *  - le bouton « Nouveau patient » du header (T-026/D33) : le geste de fin de consultation qui manquait
@@ -62,9 +93,15 @@ const memoire = new Map<string, { valeur: CriteriaValue; origine: OrigineCritere
  * formulaire déjà monté à l'écran — c'est au composant racine (`App.tsx`) de forcer, EN PLUS, le
  * remontage des écrans par `key` (même mécanisme que D28, pas un nouveau) ; cette fonction ne fait que
  * garantir qu'un écran qui (re)monte APRÈS cet appel ne trouvera plus rien à reprendre.
+ *
+ * D50/T-179 — vide AUSSI `publications` (ci-dessous) : MÊME périmètre « mémoire de session, rien d'autre »
+ * (CLAUDE.md invariant 1) que `memoire`, aucune raison de le traiter différemment. Sans ce second `.clear()`,
+ * une valeur PUBLIÉE par le patient précédent pourrait pré-remplir un nœud du patient suivant — exactement
+ * le défaut D-13/F-C que ce bouton corrige déjà pour les reprises, reproduit sous une autre forme.
  */
 export function reinitialiserSession(): void {
   memoire.clear()
+  publications.clear()
 }
 
 /**
@@ -142,6 +179,54 @@ export function valeursReprises(criteresEntree: readonly CritereEntree[]): Valeu
     reprises.push({ nom: critere.nom, valeur })
   }
   return reprises
+}
+
+/**
+ * D50/T-179 (P14/S10, amende D28) — PUBLIE `valeur` sous le nom `critere`, avec son `origine` (nœud +
+ * option). Appelée UNE SEULE FOIS PAR SORTIE d'un nœud `ordered-first-match` dont l'option retenue porte
+ * `Option.publie` (`DecisionNodeScreen.tsx`, jamais depuis `evaluateNode` — cf. la docstring de tête de ce
+ * fichier, § « CE QUE LE RÉFÉRENT A TRANCHÉ » : aucune sortie du moteur n'entre `memoire`, et il en va de
+ * même ici, la publication a lieu APRÈS que le moteur s'est prononcé, jamais depuis lui).
+ *
+ * ÉCRASE SANS CONDITION une publication précédente du MÊME nom : la dernière sortie du nœud publicateur
+ * fait foi (si le praticien rouvre « Déterminer la cible » et change de réponse, la nouvelle cible doit
+ * remplacer l'ancienne partout où elle circule) — AUCUN lien avec « ne jamais écraser une saisie du
+ * praticien » (D50, § « Ce qui reste interdit » point 5) : cette garantie-là protège un champ SAISI sur le
+ * nœud RÉCEPTEUR, elle ne concerne pas la valeur en transit dans cette `Map`. C'est
+ * `DecisionNodeScreen.tsx`/`valeursPubliees` (appliquée seulement à l'initialisation d'un formulaire, comme
+ * `valeursReprises`) qui porte cette seconde garantie côté RÉCEPTION.
+ */
+export function publierCritere(critere: string, valeur: number, origine: OriginePublication): void {
+  publications.set(critere, { valeur, origine })
+}
+
+/** Une valeur PUBLIÉE de la session (D50/T-179), avec le nom du critère qu'elle renseigne et son origine. */
+export interface ValeurPubliee {
+  nom: string
+  valeur: number
+  origine: OriginePublication
+}
+
+/**
+ * D50/T-179 (P14/S10, amende D28) — valeurs que CE nœud peut REPRENDRE de la session PAR PUBLICATION :
+ * symétrique de `valeursReprises` ci-dessus, mais lisant `publications` plutôt que `memoire`. MÊME
+ * GARDE-FOU DE COMPATIBILITÉ (`valeurCompatible`, définie plus bas) : une valeur publiée hors du domaine
+ * `min`/`max` déclaré par CE critère — ou visant un nom que ce nœud ne déclare pas `type: nombre` (`publie`
+ * ne porte QUE des nombres, D50) — n'est simplement jamais proposée. `critere.partage` N'EST PAS un
+ * pré-requis ici, à la différence de `valeursReprises` : une publication n'est pas une reprise, D50 ne
+ * conditionne sa réception à aucune déclaration `partage` (elle a sa propre restriction, portée par
+ * `Option.publie` côté émetteur, et par l'invariant de garde-fou côté récepteur — pas par ce module).
+ */
+export function valeursPubliees(criteresEntree: readonly CritereEntree[]): ValeurPubliee[] {
+  const publiees: ValeurPubliee[] = []
+  for (const critere of criteresEntree) {
+    if (critere.derive != null) continue
+    if (!publications.has(critere.nom)) continue
+    const { valeur, origine } = publications.get(critere.nom)!
+    if (!valeurCompatible(critere, valeur)) continue
+    publiees.push({ nom: critere.nom, valeur, origine })
+  }
+  return publiees
 }
 
 /**

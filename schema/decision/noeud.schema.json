@@ -79,7 +79,11 @@
     "criteres_entree": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/critereEntree"
+        "$comment": "T-188 (P14/S15) : chaque entrée est SOIT la forme complète (`critereEntree`, `nom`+`type`, toute la définition portée par le nœud lui-même), SOIT la forme courte (`critereEntreeRef`, `ref` vers une définition de content/decision/criteres-communs/<domaine>.yaml, augmentée des seuls champs de mise en scène). `oneOf` plutôt que `anyOf` : les deux schémas sont volontairement DISJOINTS (`nom`+`type` requis d'un côté, `ref` requis et exclusif de l'autre, `additionalProperties: false` des deux côtés) pour REFUSER qu'un champ de définition apparaisse à côté d'un `ref` — une entrée qui porterait à la fois `ref` et, par exemple, `type` échouerait aux DEUX branches (ni l'une ni l'autre ne l'admet telle quelle) et serait donc rejetée par le schéma, empêchant la surcharge silencieuse que ce mécanisme existe pour éliminer (cf. plans/P14/S15.md § Décision clé).",
+        "oneOf": [
+          { "$ref": "#/definitions/critereEntree" },
+          { "$ref": "#/definitions/critereEntreeRef" }
+        ]
       }
     },
     "options": {
@@ -152,9 +156,34 @@
         "$ref": "#/definitions/famille"
       },
       "description": "Declaration EXPLICITE des familles d'actes cliniques du noeud (correctif « ordre accidentel / badge multi-natures », 2026-07-25). L'ORDRE DE CE TABLEAU EST L'ORDRE D'AFFICHAGE DES SECTIONS du panneau de resultats : il ne depend plus de l'ordre d'ecriture des options dans `options` (un reordonnancement du fichier ne change plus rien a l'affichage). Chaque entree porte aussi `exclusive` : true = les options de cette famille sont des ALTERNATIVES (on en choisit une, badge « recommandee » reserve au groupe de tete) ; false = des gestes CUMULABLES (tout ce qui est affiche est a faire, badge « recommandee » sur tous). `option.famille` est une REFERENCE a `familles[].libelle` (integrite verifiee par un test dedie, pas par ce schema qui ne peut pas croiser deux champs). Optionnel : un noeud sans `familles` retombe integralement sur le rendu a plat historique (ordre de 1re apparition dans `options`, badge selon la regle D16 d'origine)."
+    },
+    "criteres_hors_perimetre": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/critereHorsPerimetre" },
+      "description": "OPTIONNEL — principe P2 de la revue de conception du 2026-08-04 (T-189, P14/S16) : DÉCLARATION D'INTENTION OPPOSABLE, jamais lue par le moteur (`evaluateNode` l'ignore intégralement — AUCUN effet sur la sélection, le tri, une exclusion ou une alerte). Dit qu'un fait de sécurité du fichier commun de domaine (`content/decision/criteres-communs/<domaine>.yaml`), CONCERNÉ par une classe/geste que ce nœud prescrit (une valeur de `critereCommun.concerne` citée dans une `conditions`/`prerequis`/`exclusions` d'au moins une option de ce nœud), a été délibérément jugé SANS OBJET ici — et pourquoi (`motif`, lu par un HUMAIN, jamais par la machine). SEUL CONSOMMATEUR : l'invariant du banc I33 (`src/features/decision/engine/banc/invariants-contenu.test.ts`), qui mécanise le principe « un fait de sécurité déclarable est évalué, ou explicitement déclaré hors périmètre, par tout nœud qui prescrit une classe concernée » — sans ce champ, un fait qu'un nœud ne voit pas est indiscernable d'un OUBLI ; avec lui, l'absence devient une DÉCISION OPPOSABLE. Absent = aucune exclusion déclarée : l'invariant I33 exige alors que tout fait commun pertinent pour ce nœud soit DÉCLARÉ (forme complète ou `{ ref }`)."
     }
   },
   "definitions": {
+    "publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "$comment": "T-179 (P14/S10), D50 (amende D28) — VALEUR PUBLIEE par l'option RETENUE d'un noeud a sortie unique. `valeur` est un NOMBRE LITTERAL declare par le contenu : jamais une expression calculee, jamais une valeur reprise de la saisie. AUCUN EFFET MOTEUR (`evaluateNode` ne lit jamais ce champ) : la publication a lieu APRES que le moteur a rendu son verdict, hors de lui (screens/DecisionNodeScreen.tsx), et seulement une fois le noeud SORTI (un noeud `enAttente` ne publie rien, R7/D20). Garde-fou opposable (mecanise par un invariant du banc dedie) : le critere cible ne peut avoir AUCUN lecteur hors `preremplissage[].quand` — voir la description de `option.publie` pour la liste complete des canaux interdits.",
+      "required": [
+        "critere",
+        "valeur"
+      ],
+      "properties": {
+        "critere": {
+          "type": "string",
+          "minLength": 1,
+          "description": "NOM du critere qui recoit la valeur publiee — un NOM, jamais connu du socle par avance (invariant CLAUDE.md 5 / D8). Espace de noms UNIQUE avec les autres criteres du domaine (D28) : un critere publie sous ce nom l'est partout ou ce nom est declare, pas seulement sur le noeud qui le lit en premier."
+        },
+        "valeur": {
+          "type": "number",
+          "description": "LA valeur publiee — un NOMBRE LITTERAL uniquement (jamais une expression, jamais une chaine, jamais une valeur reprise de la saisie). Cible necessairement un critere `type: nombre` sur le(s) noeud(s) qui le declarent : une valeur publiee incompatible (type different, hors `min`/`max` declares) n'est simplement jamais proposee (`lib/sessionCriteres.ts`, meme garde-fou que la reprise inter-noeuds K6)."
+        }
+      }
+    },
     "contrainte": {
       "type": "object",
       "additionalProperties": false,
@@ -172,6 +201,27 @@
           "type": "string",
           "minLength": 1,
           "description": "Ce que le praticien lit quand la contrainte est violee. DOIT dire POURQUOI la combinaison est impossible, en langage clinique et sans citer l'expression : l'outil ne peut pas savoir laquelle des deux valeurs est fausse, seul le praticien le sait — le message l'aide a trancher, il ne tranche pas a sa place."
+        }
+      }
+    },
+    "critereHorsPerimetre": {
+      "type": "object",
+      "additionalProperties": false,
+      "$comment": "T-189 (P14/S16), principe P2. UNE ENTRÉE de `Noeud.criteres_hors_perimetre` — voir la description de ce champ pour la doctrine complète. AUCUN EFFET MOTEUR : ni `nom` ni `motif` n'est une expression DSL, ni un identifiant évalué par quoi que ce soit — c'est une déclaration lue par un humain et par un seul test du banc (I33).",
+      "required": [
+        "nom",
+        "motif"
+      ],
+      "properties": {
+        "nom": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Nom du fait commun jugé hors périmètre pour ce nœud — doit correspondre EXACTEMENT au `nom` d'une entrée de `content/decision/criteres-communs/<domaine>.yaml` (le domaine de CE nœud). Un nom qui ne correspond à aucun fait commun n'est pas une erreur pour ce schéma (il ne peut pas croiser les deux fichiers) ; l'invariant I33 ne peut alors rien en dire non plus (rien à mettre en regard)."
+        },
+        "motif": {
+          "type": "string",
+          "minLength": 1,
+          "description": "POURQUOI ce fait, bien que concerné par une classe/geste que ce nœud prescrit, n'a pas d'objet ICI. Lu par un HUMAIN, jamais par la machine — l'invariant I33 vérifie seulement que ce champ existe et n'est pas vide, jamais ce qu'il dit : c'est son EXISTENCE qui transforme un oubli en décision, pas son contenu rédactionnel."
         }
       }
     },
@@ -352,6 +402,58 @@
         }
       }
     },
+    "critereEntreeRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "$comment": "T-188 (P14/S15) — FORME COURTE de `criteres_entree` : référence une DÉFINITION commune de domaine (`content/decision/criteres-communs/<domaine>.yaml`, `schema/decision/criteres-communs.schema.json`) au lieu de la redéclarer. Résolue en `critereEntree` complet au CHARGEMENT (`src/features/decision/content/loadNodes.ts`), avant que quoi que ce soit d'autre voie le nœud — le moteur, le formulaire et le banc ne voient jamais cette forme. N'ADMET QUE `ref` plus les champs de MISE EN SCÈNE (jamais un champ de DÉFINITION : `type`, `valeurs`, `min`, `max`, `paliers`, `derive`, `partage`, `aide` n'apparaissent PAS dans cette liste de `properties`, et `additionalProperties: false` les refuse donc explicitement) — c'est ce qui empêche la surcharge silencieuse qui réintroduirait la divergence que ce mécanisme élimine. `presomption_non` EST admis ici, à la différence des autres champs de définition : il reste délibérément LOCAL au nœud (D30, l'asymétrie voulue de `traitements_en_cours`, invariant S2/T-165) et n'apparaît donc JAMAIS dans `criteres-communs.schema.json`.",
+      "required": ["ref"],
+      "properties": {
+        "ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Nom du critère dans le fichier de critères communs du domaine de ce nœud (`FichierCriteresCommuns.criteres[].nom`). Résolu par `loadNodes.ts` ; un nom introuvable, ou un domaine sans fichier commun, lève une erreur explicite au chargement (jamais un repli silencieux, même politique que `ConditionError` du moteur)."
+        },
+        "groupe": {
+          "type": "string",
+          "minLength": 1,
+          "description": "MISE EN SCÈNE locale au nœud — voir `critereEntree.groupe` pour le rôle complet (section d'affichage du formulaire)."
+        },
+        "debut_de_ligne": {
+          "type": "boolean",
+          "description": "MISE EN SCÈNE locale au nœud — voir `critereEntree.debut_de_ligne`."
+        },
+        "libelle_masque": {
+          "type": "boolean",
+          "description": "MISE EN SCÈNE locale au nœud — voir `critereEntree.libelle_masque`."
+        },
+        "visible_si": {
+          "type": "string",
+          "minLength": 1,
+          "description": "MISE EN SCÈNE locale au nœud — voir `critereEntree.visible_si`. Un même fait commun peut être pertinent sous condition dans un nœud et sans condition dans un autre."
+        },
+        "valeurs_visible_si": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "MISE EN SCÈNE locale au nœud — voir `critereEntree.valeurs_visible_si`. Pertinent seulement si le critère référencé est de type `liste`."
+        },
+        "masque_si_indetermine": {
+          "type": "boolean",
+          "description": "MISE EN SCÈNE locale au nœud — voir `critereEntree.masque_si_indetermine`."
+        },
+        "preremplissage": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/reglePreremplissage" },
+          "description": "MISE EN SCÈNE locale au nœud — voir `critereEntree.preremplissage`. Un pré-remplissage dépend du raisonnement PROPRE à ce nœud (ex. l'intention thérapeutique), pas de la définition du fait."
+        },
+        "presomption_non": {
+          "type": "boolean",
+          "description": "LOCAL au nœud, délibérément (D30) — voir `critereEntree.presomption_non`. L'éligibilité de ce drapeau dépend de l'usage du critère DANS CE NŒUD (participe-t-il ici à une condition d'option `role: securite` ou à une `exclusions` ?), jamais de la définition du fait : deux nœuds qui référencent le même `ref` peuvent légitimement poser ce champ différemment (cf. l'asymétrie voulue de `traitements_en_cours`, invariant S2/T-165)."
+        }
+      }
+    },
     "option": {
       "type": "object",
       "additionalProperties": false,
@@ -413,6 +515,10 @@
             "repli"
           ],
           "description": "CE QUE L'OPTION EST, declare par le contenu (arbitrage A3 du 2026-07-27). Ajoute parce que le contenu n'avait AUCUN moyen de dire la nature d'une option : `priorite` portait trois sens incompatibles a la fois (ordre de tri D13/D14, porte d'affichage pour le repli, marqueur de socle via le rang 0), et le seul indice restant de la nature d'une carte etait un LIBELLE DE FAMILLE en francais — que le moteur a interdiction de lire (invariant CLAUDE.md 5 / D8, aucun nom de domaine ni de noeud). Cinq constats de recette convergeaient sur ce manque : le socle metformine preemptait tout l'ecran, le repli d'affichage a cache une carte de securite, l'option terminale de `statine` n'est protegee que par sa POSITION, le « pourquoi pas d'autres options » est pollue, et deux options `default` coexistent sur `prescription`. VALEURS : `socle` = le geste de fond, propose quel que soit le reste (sentinelle `conditions: [\"toujours\"]`) ; `securite` = a faire d'emblee, jamais replie ni plafonne — un fait de securite ne se negocie pas contre la place a l'ecran ; `geste` = une piste therapeutique ordinaire, le cas courant ; `repli` = ce qu'on propose quand rien d'autre ne s'applique (sentinelle `conditions: [\"default\"]`). La coherence entre `role` et les deux sentinelles est verifiee par un invariant du banc, dans les DEUX sens : une declaration qui derive de la mecanique serait pire que pas de declaration du tout."
+        },
+        "publie": {
+          "$ref": "#/definitions/publication",
+          "description": "OPTIONNEL — PUBLICATION en memoire de session (docs/commun/decisions/2026-08-06-d50-*.md, D50, amende D28). Quand CETTE option est celle que le moteur RETIENT pour un noeud `selection: ordered-first-match` (et SEULEMENT pour ce mode : un noeud `multi-options` a plusieurs options concurrentes, sans regle d'arbitrage pour choisir laquelle publierait), l'ecran ecrit `valeur` en memoire de session sous le nom `critere`. CE QUE CE CHAMP N'EST PAS, et c'est le point de D50 : AUCUN EFFET MOTEUR (`evaluateNode` ne le lit jamais), et surtout PAS un chainage de regles — la valeur publiee ne peut alimenter QU'UN `preremplissage` (garde-fou opposable, mecanise par un invariant du banc dedie, `engine/banc/invariants-contenu.test.ts`) : sur AUCUN noeud, un critere cite par une publication ne peut apparaitre dans une `conditions`/`prerequis`/`exclusions`/`alertes[].quand`/`calculs[].expression`/`derive`/`visible_si`/`valeurs_visible_si`/`contraintes[].expression`/`familles[].prioritaire_si`. Elle n'est JAMAIS IMPOSEE : c'est une SUGGESTION DE SAISIE (meme semantique qu'un `preremplissage` de contenu, K6) — le champ pre-rempli signale son origine (ce noeud + cette option), et le praticien l'ecrase d'un geste ; une valeur publiee n'ecrit jamais par-dessus une valeur deja saisie. Absent = comportement rigoureusement inchange (aucune publication, comme avant ce champ)."
         },
         "action": {
           "type": "string",
@@ -541,10 +647,11 @@
         },
         "exclusions": {
           "type": "array",
+          "minItems": 1,
           "items": {
             "type": "string"
           },
-          "description": "Exclusions dures : expressions DSL (meme grammaire que conditions). Une option applicable est retiree si l'une est vraie, et reportee dans EvaluateNodeResult.excluded (DECISIONS.md D13)."
+          "description": "Exclusions dures : expressions DSL (meme grammaire que conditions). Une option applicable est retiree si l'une est vraie, et reportee dans EvaluateNodeResult.excluded (DECISIONS.md D13). minItems 1 (P14/S8, T-175) : un tableau vide est inerte (statutUne([]) vaut false, aucune option n'est jamais retiree par lui) et masque une intention non ecrite plutot que d'exprimer une absence deliberee d'exclusion — omettre le champ dit la meme chose sans ce piege."
         },
         "calculs": {
           "type": "array",

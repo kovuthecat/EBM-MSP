@@ -137,6 +137,21 @@ interface CriteriaFormProps {
    */
   preremplis?: ReadonlySet<string>
   /**
+   * D50/T-179 (P14/S10) — ORIGINE d'un champ pré-rempli PAR PUBLICATION (`Option.publie`, amende D28) :
+   * nœud + option d'où vient la valeur, pour les seuls noms présents dans `preremplis` ci-dessus qui y
+   * sont entrés PAR CE CANAL plutôt que par une règle de contenu (`CritereEntree.preremplissage`). NE
+   * CRÉE PAS un second registre visuel — `estPrerempli`/`renderOrigine` (ci-dessous) restent le SEUL
+   * chemin de rendu (étape 5, S10.md : « réutiliser le rendu en place, ne pas en créer un second ») :
+   * cette carte n'ajoute que l'origine, en clair, à la mention « · calculé, à vérifier » déjà affichée.
+   *
+   * TEXTE DÉJÀ RÉSOLU par l'appelant (`noeudTitre`, pas un id) : ce composant reste générique, aucun nom
+   * de nœud connu d'avance (D8) — c'est `DecisionNodeScreen.tsx`, qui importe déjà `getNoeudById`, qui
+   * résout `OriginePublication.noeudId` (`lib/sessionCriteres.ts`) en un titre affichable. Optionnel :
+   * absent, ou un nom sans entrée ⇒ mention inchangée (repli sur le pré-remplissage de contenu ordinaire,
+   * sans origine détaillée) — rétro-compatible avec tout appelant qui ne connaît pas encore D50.
+   */
+  originesPubliees?: ReadonlyMap<string, { noeudTitre: string; optionIntitule: string }>
+  /**
    * T-157 (P13/S8, P5) — OUVERTURE CIBLÉE DEPUIS L'EXTÉRIEUR DU FORMULAIRE. Décision clé (S8.md) : « le
    * plus simple qui marche : pas de contexte global, pas d'événement custom — une prop. » L'appelant (le
    * cartouche « en attente » de `DecisionNodeScreen.tsx`) pose ici le NOM d'un critère à atteindre ; ce
@@ -197,6 +212,7 @@ export function CriteriaForm({
   contraintesViolees,
   repris,
   preremplis,
+  originesPubliees,
   champCible,
   onChange,
 }: CriteriaFormProps) {
@@ -572,13 +588,28 @@ export function CriteriaForm({
   const estRepris = (critere: CritereEntree) => repris?.has(critere.nom) === true
   const estPrerempli = (critere: CritereEntree) => preremplis?.has(critere.nom) === true
 
-  /** Mention d'origine d'une valeur que le praticien n'a pas tapée sur CET écran. */
+  /**
+   * Mention d'origine d'une valeur que le praticien n'a pas tapée sur CET écran.
+   *
+   * D50/T-179 — MÊME branche `estPrerempli`, MÊME texte de base (« · calculé, à vérifier ») qu'un
+   * pré-remplissage de contenu ordinaire : une valeur PUBLIÉE (`Option.publie`) suit la sémantique de
+   * `preremplissage` telle quelle (D50), et `originesPubliees` (optionnel) ne fait qu'AJOUTER l'origine en
+   * clair après ce même texte — aucun second registre visuel créé (étape 5, S10.md). Un pré-remplissage de
+   * CONTENU (sans entrée dans `originesPubliees`) garde le rendu HISTORIQUE, byte à byte : `origine` vaut
+   * alors `undefined`, et le fragment ajouté est une chaîne vide.
+   */
   const renderOrigine = (critere: CritereEntree) => {
     if (estRepris(critere)) {
       return <span className="criteria-form__field-repris"> · repris de votre saisie</span>
     }
     if (estPrerempli(critere)) {
-      return <span className="criteria-form__field-repris"> · calculé, à vérifier</span>
+      const origine = originesPubliees?.get(critere.nom)
+      return (
+        <span className="criteria-form__field-repris">
+          {' · calculé, à vérifier'}
+          {origine ? ` — d'après « ${origine.optionIntitule} » (${origine.noeudTitre})` : ''}
+        </span>
+      )
     }
     return null
   }
