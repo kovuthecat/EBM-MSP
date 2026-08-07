@@ -37,7 +37,7 @@ function criteria(overrides: Partial<Criteria> = {}): Criteria {
     anciennete_diabete_annees: 8,
     esperance_vie: 'intermediaire',
     fragilite: false,
-    antecedent_cv: false,
+    ASCVD_etablie: false,
     comorbidite_grave: false,
     ...overrides,
   }
@@ -96,7 +96,7 @@ describe('evaluateNode — "cible-glycemique" (T-007bis · ordered-first-match, 
 
   it('A2 — CV établi grave (comorbidite_grave), non fragile, EV longue → ≤ 8 % (pas ≤ 7)', () => {
     expect(
-      cible(criteria({ age: 64, antecedent_cv: true, comorbidite_grave: true, esperance_vie: 'longue' })),
+      cible(criteria({ age: 64, ASCVD_etablie: true, comorbidite_grave: true, esperance_vie: 'longue' })),
     ).toEqual([SOUPLE])
   })
 
@@ -151,7 +151,7 @@ describe('evaluateNode — "cible-glycemique" (T-007bis · ordered-first-match, 
       age: 52,
       anciennete_diabete_annees: 3,
       fragilite: false,
-      antecedent_cv: false,
+      ASCVD_etablie: false,
       comorbidite_grave: false,
     } as Criteria
     expect(() => evaluateNode(node!, incomplete)).toThrow(ConditionError)
@@ -179,7 +179,7 @@ describe('evaluateNode — "cible-glycemique" (T-007bis · ordered-first-match, 
           age: 78,
           fragilite: true,
           esperance_vie: 'limitee',
-          antecedent_cv: true,
+          ASCVD_etablie: true,
         }),
       ),
     ).toEqual([MOINS_CONTRAIGNANTE])
@@ -202,7 +202,7 @@ describe('evaluateNode — "cible-glycemique" (T-007bis · ordered-first-match, 
         criteria({
           age: 68,
           anciennete_diabete_annees: 15,
-          antecedent_cv: true,
+          ASCVD_etablie: true,
           esperance_vie: 'intermediaire',
         }),
       ),
@@ -266,11 +266,11 @@ describe('evaluateNode — "cible-glycemique" (T-007bis · ordered-first-match, 
   // le traitement plutôt que relâcher la cible", relève d'un nœud de PRESCRIPTION, hors périmètre ici ;
   // cf. `cible-glycemique.argumentaire.md`, section « Révision 2026-07-26 »).
 
-  // Couverture — effet propre d'`antecedent_cv` (signalé par l'audit, section « Couverture » de
-  // `vignettes-existantes-a-valider.md` : seule A-05 le manipule, toujours combiné à
-  // `comorbidite_grave`, qui suffit seul à expliquer son résultat — l'effet propre n'était démontré
-  // nulle part). Paire d'isolement : MÊME PROFIL qu'A-02 (52 ans, diabète 3 ans, EV longue, non
-  // fragile, sans comorbidité grave), `antecedent_cv` seul bascule vrai/faux.
+  // Couverture — effet propre du critère « maladie cardiovasculaire établie » (signalé par l'audit,
+  // section « Couverture » de `vignettes-existantes-a-valider.md` : seule A-05 le manipule, toujours
+  // combiné à `comorbidite_grave`, qui suffit seul à expliquer son résultat — l'effet propre n'était
+  // démontré nulle part). Paire d'isolement : MÊME PROFIL qu'A-02 (52 ans, diabète 3 ans, EV longue,
+  // non fragile, sans comorbidité grave), le critère seul bascule vrai/faux.
   // - Bras FAUX = A-02 elle-même (ci-dessus, → ~6,5 %) : pas redupliqué ici.
   // - Bras VRAI = A-19 ci-dessous : → ≤ 8 %, PAS ~6,5 % ni ≤ 7 %.
   //
@@ -281,15 +281,20 @@ describe('evaluateNode — "cible-glycemique" (T-007bis · ordered-first-match, 
   // basculer à vrai sur ce même profil ne se contente plus d'EXCLURE ~6,5 % : il OUVRE directement
   // ≤ 8 % (et non plus le repli ≤ 7 %). Cette vignette verrouille donc désormais l'effet POSITIF
   // isolé du critère, pas seulement son effet d'exclusion.
-  it('A-19 — même profil qu’A-02 mais antecedent_cv = TRUE (isolé, sans comorbidite_grave) → ' +
-    '≤ 8 %, pas ~6,5 % ni ≤ 7 % — antecedent_cv ouvre bien une route positive à lui seul', () => {
+  //
+  // RENOMMÉ le 2026-08-07 (décision référent, arbitrage 1 de S14, P14/S17) : `antecedent_cv` →
+  // `ASCVD_etablie` (définition STRICTE désormais, cf. changelog `cible-glycemique.yaml`) — même valeur
+  // `true`, même profil clinique visé (l'isolement démontré ci-dessus n'est pas affecté par le
+  // renommage, seule la définition de ce que « vrai » signifie clinique change).
+  it('A-19 — même profil qu’A-02 mais ASCVD_etablie = TRUE (isolé, sans comorbidite_grave) → ' +
+    '≤ 8 %, pas ~6,5 % ni ≤ 7 % — ASCVD_etablie ouvre bien une route positive à lui seul', () => {
     expect(
       cible(
         criteria({
           age: 52,
           anciennete_diabete_annees: 3,
           esperance_vie: 'longue',
-          antecedent_cv: true,
+          ASCVD_etablie: true,
         }),
       ),
     ).toEqual([SOUPLE])

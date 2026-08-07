@@ -39,12 +39,34 @@ criteres_entree:
     # sur tous les nœuds qui le déclarent (type, valeurs, bornes, presomption_non) — condition I19.
     partage: true
     type: bool
-  - nom: antecedent_cv
+  - nom: ASCVD_etablie
+    # REMPLACE `antecedent_cv` — décision référent du 2026-08-07 (arbitrage 1 posé par S14,
+    # docs/decision/validation/criteres-communs-2026-08-06.md §6) : ce nœud adopte désormais la
+    # définition STRICTE déjà partagée par `prescription`/`statine` — maladie cardiovasculaire ÉTABLIE,
+    # au sens des essais CTT/HPS (infarctus, AVC, artériopathie symptomatique, revascularisation) —
+    # plutôt que la définition plus large d'« antécédent cardiovasculaire » retenue à l'ajout initial du
+    # critère (P14/S8, T-176, 2026-08-06). CHANGEMENT DE COMPORTEMENT RÉEL ET ASSUMÉ : un antécédent
+    # cardiovasculaire ancien ou stabilisé qui ne répond pas au sens strict d'« établie » n'ouvre plus
+    # seul la route vers « Cible ≤ 8 % » — ces patients restent éligibles via `fragilite`/
+    # `comorbidite_grave`/`esperance_vie == limitee`, les trois autres branches de cette option,
+    # inchangées. Cf. changelog pour le détail complet.
+    # `partage: true` : encodage IDENTIQUE à `prescription.yaml`/`statine.yaml` (même `type`, même
+    # `presomption_non`) — condition de l'invariant I19/I32, un même nom partagé exige un même encodage.
+    partage: true
     type: bool
+    # Ni `prescription.yaml` ni `statine.yaml` ne portent d'`aide` sur leur propre `ASCVD_etablie` :
+    # celle-ci, écrite ici pour la première fois, reprend le texte posé sur `antecedent_cv` par T-176
+    # (déjà proche de la définition stricte : IDM/AVC-AIT/revascularisation) et l'aligne sur la
+    # définition complète de F-statine.md (« maladie athéromateuse établie … = prévention secondaire »),
+    # en y ajoutant l'artériopathie périphérique symptomatique, absente du texte précédent.
+    aide: >-
+      Cocher en cas de maladie cardiovasculaire athéromateuse établie (prévention secondaire) :
+      infarctus du myocarde, AVC ischémique ou AIT, artériopathie périphérique symptomatique, ou
+      revascularisation coronaire ou périphérique. Cocher cette case assouplit la cible d'HbA1c
+      proposée, vers « Cible ≤ 8 % ».
     # T-018 (P4/S1, D30) : éligible mécaniquement à presomption_non (ne participe à aucune condition
-    # d'option `role: securite` ni à aucune `exclusions` de ce nœud). `fragilite`, partagé avec 4 autres
-    # nœuds DT2 où il EST disqualifié (`prescription`, `rhd-alimentation`), n'en reçoit pas — un critère
-    # partagé garde un encodage unique (I4/S7).
+    # d'option `role: securite` ni à aucune `exclusions` de ce nœud) — même conclusion que sur
+    # `prescription`/`statine`, où `ASCVD_etablie` est ÉGALEMENT éligible (pas de divergence I4/S7).
     presomption_non: true
   - nom: comorbidite_grave
     type: bool
@@ -52,6 +74,13 @@ criteres_entree:
 options:
   - intitule: "Cible < 9 %"
     role: geste
+    # PUBLICATION (D50/T-181, P14/S11) : valeur = le PLAFOND de la carte (arbitré 2026-08-06). Écrite en
+    # mémoire de session UNE FOIS cette option retenue (`selection: ordered-first-match` du nœud, seul mode
+    # où « l'option retenue » a un sens univoque) ; reçue par `HbA1c_cible` (`prescription`, `insuline`),
+    # dont le SEUL lecteur autorisé est le `preremplissage` de `position_vs_cible` — jamais une règle de
+    # décision (garde-fou D50, mécanisé par l'invariant dédié du banc). AUCUN EFFET MOTEUR : `evaluateNode`
+    # ignore ce champ.
+    publie: { critere: HbA1c_cible, valeur: 9 }
     conditions:
       - "esperance_vie == limitee"
       - "fragilite == true OR comorbidite_grave == true"
@@ -72,8 +101,10 @@ options:
       - turnbull-control
   - intitule: "Cible ≤ 8 %"
     role: geste
+    # PUBLICATION (D50/T-181) — cf. commentaire de « Cible < 9 % » ci-dessus pour le mécanisme complet.
+    publie: { critere: HbA1c_cible, valeur: 8 }
     conditions:
-      - "fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR antecedent_cv == true"
+      - "fragilite == true OR comorbidite_grave == true OR esperance_vie == limitee OR ASCVD_etablie == true"
     avantages:
       - "Réduit le risque d'hypoglycémie sévère."
       - "Écarte le sur-traitement, dont le risque dépasse ici le bénéfice attendu."
@@ -95,11 +126,16 @@ options:
       - turnbull-control
   - intitule: "Cible ~6,5 % (6,5–7 %)"
     role: geste
+    # PUBLICATION (D50/T-181) — cf. commentaire de « Cible < 9 % » ci-dessus. Valeur 7, PAS 6,5 : le plafond
+    # de cette carte est 7 % (bande 6,5-7 %) — le PLANCHER (6,5) n'est pas représentable par ce mécanisme
+    # (une seule valeur publiée par carte). Conséquence assumée (D50) : un patient à 6,2 % pour cette cible
+    # ne sera PAS signalé « sous l'objectif » par la position pré-remplie — seule une saisie manuelle le dira.
+    publie: { critere: HbA1c_cible, valeur: 7 }
     conditions:
       - "age < 70"
       - "anciennete_diabete_annees < 5"
       - "esperance_vie == longue"
-      - "antecedent_cv == false"
+      - "ASCVD_etablie == false"
       - "comorbidite_grave == false"
       - "fragilite == false"
     # T-125 (P12/S5) : trois motifs sur les gardes booléens négatifs, non couverts jusqu'ici — sans eux
@@ -107,7 +143,7 @@ options:
     # etc.), un « : non » de fin de phrase qui trahit la sérialisation plutôt qu'une raison clinique
     # (même défaut que celui relevé en recette sur `prescription.yaml`, cf. son changelog).
     motifs:
-      "antecedent_cv == false": "Aucun antécédent cardiovasculaire"
+      "ASCVD_etablie == false": "Aucune maladie cardiovasculaire établie"
       "comorbidite_grave == false": "Aucune comorbidité grave"
       "fragilite == false": "Patient non fragile"
     avantages:
@@ -131,22 +167,27 @@ options:
       - ukpds-80
       - vadt
     contre_indications:
-      - texte: "Antécédent cardiovasculaire établi"
-        condition: "antecedent_cv == true"
+      - texte: "Maladie cardiovasculaire établie"
+        condition: "ASCVD_etablie == true"
       - "Traitement exposant à l'hypoglycémie (sulfamide, insuline)"
       - "Rétinopathie préexistante : éviter une baisse rapide de l'HbA1c (risque d'aggravation)"
   - intitule: "Cible ≤ 7 %"
     role: repli
+    # PUBLICATION (D50/T-181) — cf. commentaire de « Cible < 9 % » ci-dessus. Valeur 7 : IDENTIQUE à celle
+    # de « Cible ~6,5 % » ci-dessus — les deux cartes diffèrent d'INTENTION (repli par défaut vs cible
+    # volontairement plus stricte), pas de PLAFOND (7 % dans les deux cas). Assumé (D50, arbitré 2026-08-06).
+    publie: { critere: HbA1c_cible, valeur: 7 }
     conditions:
       - "default"
     # Motif du repli (clé sentinelle réservée `default`, P10 post-S5) : SEULE la partie universellement
     # vraie pour quiconque atteint ce repli est affirmée — ni fragilité, ni comorbidité grave, ni
-    # antécédent CV, ni espérance de vie limitée (sinon une des trois options ci-dessus aurait mordu).
+    # maladie cardiovasculaire établie, ni espérance de vie limitée (sinon une des trois options
+    # ci-dessus aurait mordu).
     # « espérance de vie longue » n'y figure PAS : un patient à espérance de vie « intermédiaire »
     # atteint aussi ce repli, tout comme un patient à espérance de vie longue mais ancienneté ≥ 5 ans ou
     # âge ≥ 70 ans (cas réel de la vignette N2, Mme Lantier) — l'affirmer aurait dit plus que la branche.
     motifs:
-      "default": "ni fragilité, ni comorbidité grave, ni antécédent cardiovasculaire, ni espérance de vie limitée : situation intermédiaire, en dehors des critères qui feraient basculer vers une cible plus prudente (< 9 % ou ≤ 8 %) ou plus stricte (~6,5 %)"
+      "default": "ni fragilité, ni comorbidité grave, ni maladie cardiovasculaire établie, ni espérance de vie limitée : situation intermédiaire, en dehors des critères qui feraient basculer vers une cible plus prudente (< 9 % ou ≤ 8 %) ou plus stricte (~6,5 %)"
     avantages:
       - "Compromis pour la majorité des patients : c'est la cible par défaut des recommandations françaises comme internationales."
     inconvenients:
@@ -162,6 +203,30 @@ options:
     references:
       - turnbull-control
       - boussageon
+# `alertes` — AJOUTÉ le 2026-08-07 (P14/S17, arbitrage 2 de S14, docs/decision/validation/
+# criteres-communs-2026-08-06.md §6 : décision référent en conversation, « passons en sécurité partout »).
+# Ce nœud n'avait jusqu'ici AUCUN champ `alertes` : `fragilite` y était lue UNIQUEMENT dans les
+# `conditions` des options (elle fait déjà partie du OR qui ouvre « Cible ≤ 8 % », et du garde négatif
+# qui ferme « Cible ~6,5 % ») — la cible affichée est donc DÉJÀ mécaniquement assouplie pour un patient
+# fragile, sans que rien ne dise EXPLICITEMENT au praticien pourquoi. R8 : ce fait est vrai quel que soit
+# le geste retenu ici (une seule carte possible, `ordered-first-match`) mais pas pour tous les patients →
+# canal « alerte de nœud ». R6 (argumentaire situationnel) : le message ne redit pas ce que la carte
+# affiche déjà (son plafond), il explicite le POURQUOI clinique — repris mot pour mot (aucun chiffre
+# nouveau) de l'`effet_attendu` de « Cible ≤ 8 % » et de l'`argumentaire` du nœud, ci-dessus/ci-dessous.
+# `quand: "fragilite == true"` SEUL (pas un dérivé) : c'est exactement le fait que l'arbitrage demande
+# d'élever, et c'est déjà l'unique déclencheur direct de « Cible ≤ 8 % » pour ce critère précis — aucune
+# dilution avec `comorbidite_grave`/`esperance_vie`/`ASCVD_etablie`, les trois autres branches du même OR,
+# qui restent silencieuses ici (hors mandat de cette session, portée strictement à `fragilite`).
+alertes:
+  - quand: "fragilite == true"
+    niveau: attention
+    message: >-
+      Fragilité déclarée : elle a mécaniquement assoupli la cible d'HbA1c affichée — au moins
+      « Cible ≤ 8 % », voire « Cible < 9 % » si l'espérance de vie est aussi limitée — plutôt que le repli
+      par défaut à ≤ 7 %. Chez le sujet fragile, un contrôle glycémique strict n'apporte aucun bénéfice de
+      mortalité démontré (1,04, non significatif) et expose à une hypoglycémie sévère multipliée par 2 à
+      2,5 (Boussageon : risque relatif 2,33 ; Turnbull/CONTROL : 2,48) : c'est ce risque de sur-traitement
+      que l'assouplissement de la cible cherche à éviter.
 # P10/S5 (T-082) : premier `cadrage` de ce nœud, patron `statine`/`insuline`. Périmètre relevé par la
 # recette référent — un périmètre ASSUMÉ, pas un défaut : ce nœud répond à « quelle cible viser », jamais
 # à « où en est ce patient par rapport à elle » (c'est `prescription`, via `position_vs_cible`/
@@ -178,8 +243,8 @@ cadrage:
   - >-
     Une ancienneté de diabète élevée ne suffit pas, à elle seule, à relâcher la cible proposée : elle
     n'agit ici qu'en réservant la cible la plus stricte aux diabètes qui évoluent depuis moins de cinq
-    ans. Un relâchement à ≤ 8 % demande un autre motif — fragilité, comorbidité grave, antécédent
-    cardiovasculaire ou espérance de vie limitée.
+    ans. Un relâchement à ≤ 8 % demande un autre motif — fragilité, comorbidité grave, maladie
+    cardiovasculaire établie ou espérance de vie limitée.
 argumentaire: >
   Aucun essai n'a comparé des bandes de cible étroites : les seuils affichés sont extrapolés. C'est cela
   que gradue le badge de preuve — la certitude sur le chiffre visé, non la solidité de l'individualisation,
@@ -189,7 +254,7 @@ argumentaire: >
   différé sur la mortalité n'a été observé que chez le sujet jeune récemment diagnostiqué, jamais chez le
   diabète ancien. D'où quatre bandes, du plus strict au plus prudent : ~6,5 % quand ce bénéfice différé est
   plausible et le risque hypoglycémique faible ; ≤ 7 % par défaut ; ≤ 8 %, puis < 9 %, quand la fragilité,
-  la comorbidité grave, l'antécédent cardiovasculaire ou l'espérance de vie limitée prennent le pas. Garde-fou : une baisse rapide de l'HbA1c peut aggraver une rétinopathie préexistante.
+  la comorbidité grave, la maladie cardiovasculaire établie ou l'espérance de vie limitée prennent le pas. Garde-fou : une baisse rapide de l'HbA1c peut aggraver une rétinopathie préexistante.
 sources:
   references_primaires:
     - id: accord
@@ -308,8 +373,85 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude Code"
   statut: valide
-  version: "2.16"
+  version: "2.19"
   changelog:
+    - date: "2026-08-07"
+      auteur: "référent DT2 (décision en conversation, 2026-08-07) + Claude Code (P14/S17, arbitrage 2 de S14)"
+      resume: >-
+        DÉCISION RÉFÉRENT tranchant l'arbitrage 2 laissé ouvert par S14
+        (docs/decision/validation/criteres-communs-2026-08-06.md §6) : « passons en sécurité partout » —
+        harmoniser le rôle de `fragilite` sur les 5 nœuds DT2 qui la déclarent. Sur `prescription`,
+        `rhd-activite-physique` et `rhd-alimentation`, `fragilite` sert déjà de canal de sécurité (alerte
+        `niveau: attention` ou `exclusions`) ; sur `cible-glycemique` et `insuline`, elle n'était lue que
+        par des `conditions`/dérivés `role: geste`, jamais un canal explicite. AJOUT d'un champ `alertes`
+        À CE NŒUD (absent jusqu'ici) : une alerte de nœud unique, `quand: "fragilite == true"`,
+        `niveau: attention`, explicitant le POURQUOI clinique de l'assouplissement de cible déjà produit
+        mécaniquement par les `conditions` existantes de « Cible ≤ 8 % »/« Cible < 9 % » (R6 — argumentaire
+        situationnel, pas une duplication de ce que la carte affiche). AUCUN chiffre nouveau : mortalité
+        1,04 (non significatif) et hypoglycémie sévère ×2 à 2,5 (Boussageon RR 2,33 ; Turnbull/CONTROL
+        RR 2,48) sont repris tels quels de l'`effet_attendu` de « Cible ≤ 8 % » et de l'`argumentaire`
+        du nœud, déjà présents plus haut dans ce fichier. AUCUNE `conditions`/`prerequis`/`exclusions`/
+        `priorite`/critère d'entrée modifié : `fragilite` reste `partage: true`, encodage rigoureusement
+        identique sur les 5 nœuds (I19/I32 inchangés). Snapshots `caracterisation*`/`paires` régénérés
+        (`-u`) : diff relu intégralement, verdict et détail complet dans
+        `plans/P14/S17-arbitrage2-fragilite.md`.
+    - date: "2026-08-07"
+      auteur: "référent DT2 (décision en conversation, 2026-08-07) + Claude Code (P14/S17, arbitrage 1 de S14)"
+      resume: >-
+        DÉCISION RÉFÉRENT tranchant l'arbitrage 1 laissé ouvert par S14
+        (docs/decision/validation/criteres-communs-2026-08-06.md §6) : « il faut appliquer ASCVD_etablie
+        sur le nœud de cible glycémique ». `antecedent_cv` est RETIRÉ et REMPLACÉ par `ASCVD_etablie`,
+        encodage IDENTIQUE à `prescription.yaml`/`statine.yaml` (`partage: true`, `type: bool`,
+        `presomption_non: true` — aucune `valeurs`/`derive`, saisie directe ; condition de l'invariant
+        I19/I32). CHANGEMENT DE COMPORTEMENT RÉEL ET ASSUMÉ : ce nœud adopte la définition STRICTE de
+        maladie cardiovasculaire ÉTABLIE (essais CTT/HPS : infarctus, AVC, artériopathie symptomatique,
+        revascularisation) au lieu de la définition plus large d'« antécédent cardiovasculaire » posée à
+        l'ajout du critère (P14/S8, T-176, 2026-08-06). Un antécédent cardiovasculaire ancien ou
+        stabilisé qui ne répond pas au sens strict d'« établie » n'ouvre plus seul « Cible ≤ 8 % » — ces
+        patients restent éligibles via `fragilite`/`comorbidite_grave`/`esperance_vie == limitee`, les
+        trois autres branches de l'option, inchangées.
+        Remplacements : condition de « Cible ≤ 8 % » (`antecedent_cv == true` → `ASCVD_etablie ==
+        true`) ; gardes négatifs de « Cible ~6,5 % » (`conditions`, `contre_indications` — texte
+        « Antécédent cardiovasculaire établi » → « Maladie cardiovasculaire établie ») ; clé de `motifs`
+        (`"antecedent_cv == false"` → `"ASCVD_etablie == false"`, texte « Aucune maladie cardiovasculaire
+        établie ») ; motif `default` de « Cible ≤ 7 % » et prose de `cadrage`/`argumentaire` (« antécédent
+        cardiovasculaire »/« antécédent CV » → « maladie cardiovasculaire établie », pour rester cohérents
+        avec le nom du critère). `argumentaire_exhaustif` (cible-glycemique.argumentaire.md) NON modifié :
+        il emploie déjà la nuance « établi »/« évolué » (§Périmètre point 1, table `reco_officielle`),
+        sans contradiction avec la lecture stricte — vérifié, pas de changement de fond nécessaire.
+        `aide` : PREMIÈRE aide écrite sur `ASCVD_etablie` dans le domaine (ni `prescription.yaml` ni
+        `statine.yaml` n'en portent une sur leur propre déclaration) — reprend le texte posé sur
+        `antecedent_cv` par T-176 (déjà proche du sens strict : IDM/AVC-AIT/revascularisation) et
+        l'aligne sur la définition complète de F-statine.md (« maladie athéromateuse établie … =
+        prévention secondaire »), en ajoutant l'artériopathie périphérique symptomatique. NON reportée
+        sur `prescription.yaml`/`statine.yaml` dans cette session (hors périmètre).
+        BLOCAGE SIGNALÉ, NON CORRIGÉ ICI (hors périmètre YAML) : `src/features/decision/lib/
+        esperanceVieDefault.ts` lit `criteria.antecedent_cv` en dur (`suggestEsperanceVie`,
+        `ESPERANCE_VIE_DRIVERS`) — après ce renommage, l'heuristique d'auto-suggestion d'`esperance_vie`
+        perd silencieusement ce driver (toujours lu `undefined`/`false` désormais) ; `labels.ts` n'a rien
+        à corriger (`ASCVD_etablie` y a déjà un libellé, l'entrée `antecedent_cv` devient orpheline sans
+        casser). Détail complet et verdict de la relecture des snapshots :
+        `plans/P14/S17-arbitrage1-antecedent-cv.md`.
+        Vignettes `evaluateNode.cible-glycemique.test.ts` et fichiers de banc mis à jour en conséquence
+        (`antecedent_cv` → `ASCVD_etablie`, même valeur, même profil clinique visé pour chaque vignette
+        manuelle ; la fixture figée `banc/fixtures/profils.cible-glycemique.json` N'A PAS été modifiée —
+        son ancienne colonne `antecedent_cv` devient inerte, `ASCVD_etablie` y est absente et retombe sur
+        son défaut générique `false` partout, cf. rapport de session pour le détail du mécanisme et son
+        effet sur les snapshots régénérés).
+    - date: "2026-08-06"
+      auteur: "Claude Code (P14/S11, T-181)"
+      resume: >-
+        PUBLICATION (D50, amende D28) : les quatre options reçoivent `publie: { critere: HbA1c_cible,
+        valeur: … }` — le PLAFOND de chaque carte (9 / 8 / 7 / 7, les deux dernières partageant le même
+        plafond pour des intentions différentes, cf. commentaires en regard de chaque option). Écrite en
+        mémoire de session par l'écran UNE FOIS l'option retenue (nœud `ordered-first-match`, jamais
+        `evaluateNode`) ; reçue par `prescription`/`insuline` (P14/S11, T-181 également) pour PRÉ-REMPLIR
+        `position_vs_cible`, jamais pour piloter une règle — garde-fou D50, vérifié vert par l'invariant
+        dédié du banc (`invariants-contenu.test.ts`, D50/T-179). AUCUNE `conditions`/`prerequis`/
+        `exclusions`/`priorite`/`role`/`famille`/critère d'entrée modifié : ce nœud continue de s'évaluer
+        exactement comme avant, `publie` n'ayant aucun effet moteur. Pertes cliniques consignées par D50 et
+        rappelées en commentaire : le plancher de la carte « ~6,5 % » (6,5 %) n'est pas représentable par
+        une valeur unique publiée (seul le plafond, 7, l'est).
     - date: "2026-08-06"
       auteur: "Claude Code (T-150, demande utilisateur)"
       resume: >-
