@@ -7,6 +7,9 @@
 > **R6 amendée (volet rendu), R11 et R12 ajoutées (propositions non arbitrées)** après la revue de
 > conception du 2026-08-04 (`docs/decision/validation/revue-conception-fable-2026-08-04.md`), qui a
 > confronté l'audit du même jour au comportement réel des cinq nœuds.
+> **R13, R14 et R15 ajoutées, R1/R5/R8/R10 enrichies** après le plan P14 (2026-08-06/07,
+> `docs/decision/validation/table-conditions-2026-08-06.md` et
+> `criteres-communs-2026-08-06.md`) — livrées, chacune adossée à un invariant de banc vert.
 > **Portée** : ce document ne parle **d'aucun domaine clinique**. Il énonce les **règles** que doit
 > respecter l'écriture de n'importe quel nœud, DT2 ou futur domaine — il se consulte *pendant*
 > l'écriture. Le **procédé** de construction d'un module (ordre des étapes, portes de sortie,
@@ -53,6 +56,21 @@ proposée, jamais un prérequis.
 > reste évaluable seul, la question reste posée, le praticien confirme — mais il ne recalcule pas de
 > tête ce que l'outil vient d'afficher. Proposition non arbitrée, détail dans
 > `validation/revue-conception-fable-2026-08-04.md` (P1).
+>
+> **Arbitrée le 2026-08-06 — `DECISIONS.md` D50** (amende D28), et la précision ci-dessus cesse d'être
+> une proposition. Ce que D50 **autorise** : sur un nœud `ordered-first-match` et sur lui seul, l'option
+> retenue **publie** en mémoire de session une valeur littérale déclarée par le contenu
+> (`Option.publie: { critere, valeur }`) ; le **seul lecteur autorisé** de cette valeur est un
+> `preremplissage` — elle ne fait donc que proposer un point de départ dans un champ que le praticien
+> voit, confirme ou écrase. Ce que D50 **continue d'interdire**, et c'est le garde-fou qui rend
+> l'amendement compatible avec R1 : qu'une valeur publiée atteigne une **règle** —
+> `conditions`, `prerequis`, `exclusions`, `alertes[].quand`, `calculs[].expression`, le `derive` d'un
+> autre critère, `visible_si`, `valeurs_visible_si`, `contraintes[].expression`,
+> `familles[].prioritaire_si`. Aucune règle d'un nœud ne peut se chaîner sur la conclusion d'un autre.
+> **Vérification** : invariant D50/T-179 (`engine/banc/invariants-contenu.test.ts`) — « un critère publié
+> n'a aucun lecteur hors préremplissage », vert sur le contenu réel depuis P14/S11. Corollaire assumé,
+> écrit dans D50 : un critère publié **sort définitivement du jeu de règles**, partout et pour tout
+> domaine à venir.
 
 **Vérification.** Le champ `nature` (ci-dessous) rend la règle mécaniquement testable : aucun critère
 de nature `etat` ne doit avoir un `derive` mentionnant un critère de nature `intention`.
@@ -195,6 +213,38 @@ union( criteresPertinents(node, profil) pour tout profil du banc )  ⊇  critèr
 ```
 
 Tout critère absent de l'union est signalé. **À ajouter au banc de tout nœud, tout domaine.**
+
+**Ce qui compte comme LECTEUR — la liste est close, et elle est mécanisée** (ajouté le 2026-08-06,
+P14/S2, T-164). La vérification par perturbation ci-dessus est *dynamique* : elle ne voit un critère que
+s'il déplace une sortie sur un profil tiré. Elle sous-estime donc les critères qui n'agissent que par un
+canal d'affichage — d'où un second contrôle, *statique*, qui lit le contenu au lieu de l'exécuter. Un
+critère est lu s'il est cité dans au moins une de ces expressions du nœud :
+
+`options[].conditions` · `options[].prerequis` · `options[].exclusions` · `options[].calculs[].expression` ·
+`options[].alertes[].quand` · `Noeud.alertes[].quand` · `Noeud.contraintes[].expression` ·
+`Noeud.familles[].prioritaire_si` · le `derive` d'un **autre** critère · le `visible_si` d'un **autre**
+critère · `valeurs_visible_si` · **`preremplissage[].quand`**.
+
+`preremplissage` compte comme lecteur — c'est le point qui a rendu `HbA1c_cible` légitime à nouveau sous
+D50 : *proposer une valeur de départ est déjà « faire quelque chose »*. Ne comptent **pas** comme
+lecteurs, délibérément : `priorite[].quand`, `action_si[].quand`, `contre_indications[].condition` — ils
+nuancent un affichage sans jamais rendre ni retirer une option.
+
+**Corollaire mesuré en P14 — une consigne dans une `aide` de saisie n'est PAS un lecteur.** Un fait peut
+être *écrit* dans un nœud sans y être *lu* : `prescription` portait « Élevé si … hypoglycémie sévère
+antérieure » dans l'`aide` d'un **autre** critère (`risque_hypoglycemie_schema`). Le fait apparaissait
+donc à l'écran, mais aucune expression du nœud ne l'évaluait — l'outil demandait au praticien de faire
+lui-même la traduction, puis raisonnait sur sa traduction. C'est la forme la plus trompeuse du critère
+mort : elle passe la relecture humaine (« le fait est bien mentionné ») et échappe au contrôle dynamique
+(il n'y a aucun critère à perturber). La forme correcte est un critère à part entière ; la clause
+d'`aide` se retire **dans le même lot**, sans quoi la même question est posée deux fois, une en clair et
+une noyée dans une case de synthèse. Résorbé le 2026-08-07 (P14/S19, T-192) — cf. **R15**, qui
+généralise le cas.
+
+**Vérification** : invariant T-164 (`engine/banc/invariants-contenu.test.ts`) — « tout critère déclaré a
+au moins un lecteur », **vert**, qui complète la mesure dynamique de `couverture.test.ts` sans la
+remplacer : la première dit qu'un critère est *cité*, la seconde qu'il *déplace une sortie*. Les deux
+sont nécessaires.
 
 > **Nuance ajoutée après la recette du 2026-07-26 — R5 peut passer alors que le défaut demeure.**
 > Sur `statine`, `age` n'apparaît dans **aucune** condition d'option : il ne sert qu'à l'alerte
@@ -366,6 +416,14 @@ Deux interdits : `priorite` ne porte **jamais** un fait de sécurité (rétrogra
 une alerte de nœud n'a **jamais** `quand: "default"` (elle s'affiche alors pour tout le monde, donc
 pour personne).
 
+**Portée exacte, et ce qui la complète — ajouté le 2026-08-06 (P14).** R8 est une règle **de nœud** :
+elle dit *un canal, et un seul, à l'intérieur du nœud qui porte le fait*. Elle ne dit rien du nœud voisin
+qui prescrit la même classe et ne déclare pas le fait du tout — c'est **R15** (« un fait de sécurité
+appartient au DOMAINE, pas au nœud ») qui ferme ce second trou, en exigeant une déclaration **unique pour
+le domaine** et un `concerne` qui désigne les nœuds à qui elle s'impose. Les deux ensemble seulement
+ferment la question ; séparées, chacune laisse passer ce que l'autre attrape — R8 seule laisse passer
+l'**absence**, R15 seule laisse passer le **mauvais canal**.
+
 > **Le quatrième canal est venu du second interdit** (2026-07-26). Deux nœuds portaient en
 > `quand: "default"` un énoncé qu'aucun critère ne pouvait conditionner — il ne parlait pas du patient
 > mais de l'état des preuves du nœud (« l'insuline n'a pas de bénéfice cardiovasculaire démontré » ;
@@ -483,16 +541,34 @@ donc survécu à cinq rapports d'audit et 769 tests unitaires.
 - une **halte silencieuse** : le moteur suspend une décision (indétermination, R7/D20) sans que l'écran
   ne le dise (l'écran rendait `null` à l'emplacement des cartes ; corrigé côté écran par P4/S3, T-023 —
   le panneau de résultats nomme désormais explicitement ce qui est suspendu, ou, à défaut de toute
-  option et de toute attente, dit que le nœud n'a rien à proposer dans son périmètre).
+  option et de toute attente, dit que le nœud n'a rien à proposer dans son périmètre) ;
+- **un repli dont les `prerequis` ne couvrent pas le domaine** (mesuré le 2026-08-06, P14/S2). Sur
+  `prescription`, les deux options `role: repli` se partagent le domaine par `intention == initier` +
+  `cible_atteinte == true` d'un côté, `intention != initier` de l'autre : la combinaison
+  `intention == initier` **et** cible non atteinte n'a **aucun plancher**. Un nœud à 28 options pouvait
+  donc rendre un écran vide, et c'est *l'arithmétique des `prerequis`* qui le disait — pas un profil.
+  Les deux nœuds RHD portaient la forme extrême du même défaut : **aucune** option de repli du tout
+  (résorbé par P14/S7, T-170, qui leur a donné à chacun un repli neutre).
 
 **Comment on le vérifie.** Mécaniquement, sur tout nœud publié, sans aucune relecture clinique répétée :
 
 - **I22** (`engine/banc/securite-atteignable.test.ts`) — toute option `role: securite` est
   `applicable` pour au moins un profil du banc ;
 - **I23** (même fichier) — sur aucun profil valide du banc, `applicable` et `enAttente` ne sont vides en
-  même temps.
+  même temps ;
+- **T-163** (`engine/banc/invariants-contenu.test.ts`, ajouté le 2026-08-06) — **la couverture
+  STRUCTURELLE des replis** : la disjonction des `prerequis` des options `role: repli` couvre le domaine
+  du nœud, vérifiée par **énumération finie** du produit des valeurs d'énumération (plafonné, avec repli
+  sur « au moins un `default` inconditionnel » quand un critère n'est pas énumérable).
 
-Un nœud ne se déclare pas vérifié (`CONSTRUIRE-UN-MODULE.md`, porte de sortie P6) tant que ces deux
+**Pourquoi la quatrième ne fait pas double emploi avec les trois autres, et pourquoi elle manquait.**
+I22/I23 testent des **profils tirés** ; elles ne peuvent voir un trou de couverture que si le tirage
+tombe dedans. La combinaison fautive de `prescription` n'a jamais été tirée — le nœud portait donc un
+écran vide atteignable, invisible à ~770 tests, cinq rapports d'audit et une douzaine de recettes.
+T-163 ne tire rien : elle **lit les `prerequis`** et démontre la couverture, ou nomme la combinaison qui
+manque. Une propriété de couverture ne se vérifie pas par échantillonnage.
+
+Un nœud ne se déclare pas vérifié (`CONSTRUIRE-UN-MODULE.md`, porte de sortie P6) tant que ces
 invariants ne sont pas verts.
 
 ---
@@ -553,6 +629,148 @@ qui fait autorité pour une saisie est la mémoire de saisie, pas l'arbre des se
 **Articulation avec R11.** Pendant qu'une section est masquée, ses valeurs mémorisées n'alimentent pas
 le moteur (sinon une valeur invisible agirait — l'interdit de R8) ; c'est la **dérivation** de R11 qui
 alimente le moteur sous cette valeur de primer. Les deux règles se livrent ensemble.
+
+---
+
+> ### R13 → R15 — les règles de la RELATION *(livrées, plan P14, 2026-08-06/07)*
+>
+> **Ce qui les motive, et qui vaut plus que chacune d'elles prise isolément.** Une lecture systématique
+> des 84 cartes des 6 nœuds DT2 sous forme de **table des conditions**
+> (`docs/decision/validation/table-conditions-2026-08-06.md`) a mis au jour neuf défauts. Ils ont
+> survécu à ~770 tests unitaires, à une douzaine de recettes et à cinq rapports d'audit — **non par
+> négligence, mais parce que rien ne les regardait** : les neuf sont **relationnels** (entre deux
+> cartes, entre deux nœuds, entre un jeu de cartes et le domaine), alors qu'aucun artefact du procédé
+> n'avait pour unité la relation. Les vignettes portent sur *un* patient, les invariants sur *une*
+> propriété d'*une* carte, la recette sur *un* écran, le golden master sur *un* profil. Le seul
+> instrument dont l'unité soit la relation était la table — et elle n'existait pas.
+>
+> D'où trois règles, une par échelle de relation : **R13** entre deux cartes d'un même nœud, **R14**
+> entre deux nœuds, **R15** entre un nœud et son domaine.
+
+## R13 — Un signal se partitionne : une valeur, une carte
+
+**Règle.** Quand plusieurs cartes d'un nœud dépendent d'un même **signal clinique** — un profil, une
+intention, une position, une situation —, les valeurs de ce signal doivent être réparties entre elles
+**sans recouvrement**. Greffer sur une de ces cartes un déclencheur **étranger** au signal qui structure
+ses voisines, c'est fabriquer une co-activation contradictoire : les deux cartes ne se disputent plus la
+même partition, elles répondent à deux questions différentes tout en s'affichant côte à côte.
+
+**Pourquoi.** Une partition est une garantie *par construction* : si les conditions couvrent le domaine
+du signal sans se recouvrir, deux cartes de la partition ne peuvent pas être vraies ensemble, quel que
+soit le patient. Un déclencheur étranger annule cette garantie sans que rien ne le signale — la carte
+reste juste prise isolément, ses conditions restent vraies, sa source reste bonne. Le défaut n'est dans
+aucune des deux cartes : il est **entre** elles.
+
+**Ce que ça interdit — le cas réel.** Sur `insuline`, les conduites sur la basale sont structurées par
+le **profil nocturne** (la courbe : à la cible, permet la titration, baisse continue). La carte « Ne pas
+sur-titrer la basale — intensifier autrement » portait, en plus de sa branche de profil, un
+`over_basalisation == true` — un **ratio dose/poids**, qui n'appartient pas à ce signal. Résultat mesuré
+sur les 180 profils figés du banc : « Ne pas sur-titrer » et « Titrer la basale » **co-actives sur
+2 profils**, c'est-à-dire deux conduites opposées sur le même geste, affichées ensemble. Les deux cartes
+étaient individuellement sourcées et correctement écrites.
+
+**Comment on le vérifie — deux instruments, à deux moments, et aucun ne remplace l'autre.**
+
+- **À la conception, avant tout YAML** : le **brouillon de la table des conditions** (P5,
+  `CONSTRUIRE-UN-MODULE.md`). Écrire deux options sur deux lignes d'un tableau, avec leurs `conditions`
+  côte à côte, rend un recouvrement visible d'un coup d'œil — bien avant qu'il ne devienne 400 lignes de
+  YAML. C'est le seul moment où corriger ne coûte rien.
+- **Après coup, en cliquet, pour toujours** : l'**inventaire des paires co-actives**
+  (`engine/banc/paires.test.ts`, **vert**), qui fige, nœud par nœud, quels intitulés s'affichent ensemble
+  et sur combien de profils du banc — avec une section dédiée aux paires **intra-famille**, qui rend
+  visible une famille `exclusive` dont deux alternatives coexistent. Un diff n'y est jamais une
+  régression en soi : c'est un fait à relire carte par carte.
+
+Le premier attrape ce qu'on s'apprête à écrire, le second ce qu'on a écrit ailleurs sans y penser. Le
+défaut ci-dessus a été introduit par un lot qui ne touchait qu'**une** des deux cartes.
+
+**Décisions** : **D52** (le cas mesuré — le ratio redevient une alerte, la courbe reste le signal qui
+partitionne) et **D53** (son corollaire : dans un nœud, des voies d'escalade sont des *alternatives*,
+pas des gestes cumulables — avec sa limite explicite, qui ne vaut pas pour les nœuds RHD).
+
+---
+
+## R14 — Un nom de critère porte une seule définition dans tout le domaine
+
+**Règle.** Deux nœuds d'un même domaine ne peuvent pas définir différemment un critère qui porte le même
+nom — `partage: true` ou non. La définition, c'est le `type`, les `valeurs`, le `derive`, les bornes :
+tout ce qui dit *quel fait clinique ce nom désigne*. La **mise en scène** (le `groupe`, le
+`visible_si`, l'ordre, le `preremplissage`) reste libre, nœud par nœud : elle ne change pas le fait.
+
+**Pourquoi ça échappait.** Les invariants existants (I19, I32) ne couvrent que les critères déclarés
+`partage: true` — précisément ceux dont l'auteur a *déjà* pensé qu'ils circulaient. Un critère qu'on a
+recopié d'un nœud à l'autre sans le déclarer partagé n'était surveillé par rien, et c'est exactement le
+cas où l'on diverge : on recopie de mémoire.
+
+**Ce que ça interdit — les cas réels.** `cible_atteinte`, **calculé** dans un nœud (`derive`) et
+**déclaré** dans l'autre : le même nom désignait tantôt une conclusion du moteur, tantôt une réponse du
+praticien — la frontière que R1 protège, franchie sous un nom commun.
+`terrain_cible_assouplie`, deux écritures distinctes du même terrain. Un praticien qui répond à la
+question dans un nœud et la retrouve dans le voisin n'a aucun moyen de savoir qu'elle n'y veut pas dire
+la même chose.
+
+**Comment on le vérifie.** Invariant **T-162** (`engine/banc/coherence-inter-noeuds.test.ts`, **vert**) —
+« un même nom de critère porte une même définition, au-delà de `partage: true` ». La signature comparée
+exclut explicitement la mise en scène (`groupe`, `presomption_non`), pour ne mordre que sur la
+définition.
+
+**Ce que R14 ne dit pas, et c'est la moitié du sujet** : elle compare deux déclarations. Elle ne voit
+donc jamais un nœud qui **ne déclare rien du tout** — cf. **R15**.
+
+---
+
+## R15 — Un fait de sécurité appartient au DOMAINE, pas au nœud
+
+**Règle.** Généralisation de **R8**, qui ne valait jusqu'ici qu'à l'intérieur d'un nœud. Un fait qui peut
+**contre-indiquer, retirer ou alerter** se déclare **une fois pour le domaine**
+(`content/decision/criteres-communs/<domaine>.yaml`) et se réfère depuis les nœuds (`{ ref: <nom> }`). La
+déclaration de domaine porte `concerne` : la liste des classes ou gestes qui rendent ce fait pertinent.
+**Tout nœud qui prescrit une de ces classes déclare le fait, ou le range dans `criteres_hors_perimetre`
+avec un motif écrit.** Il n'existe pas de troisième statut.
+
+**Pourquoi — et c'est exactement la moitié que R14 ne dit pas : l'ABSENCE SILENCIEUSE.** Une divergence
+de définition finit par se voir, parce qu'il y a **deux choses à comparer**. Une absence, elle, ne se
+voit jamais : rien ne manque nulle part, le nœud est simplement **muet**. Aucun test ne peut réclamer un
+critère dont il ignore qu'il devrait exister — sauf si quelqu'un, quelque part, a écrit que ce fait
+concerne cette classe. C'est tout le rôle de `concerne` : il transforme une omission en contradiction
+mécanique.
+
+**Ce que ça interdit — les deux cas mesurés le 2026-08-06** (résorbés depuis, cf. ci-dessous) :
+
+- `cetonemie` était déclarée dans `prescription` (elle y portait **deux** cartes de sécurité) et
+  **absente d'`insuline`** — un nœud qui prescrit précisément l'insuline basale et l'insuline rapide,
+  les deux classes que ce fait concerne. Le second nœud ne se contredisait pas : il ne disait rien ;
+- `hypo_severe_recurrente` était déclarée dans `insuline` et, dans `prescription`, **repliée dans
+  l'`aide` de saisie d'un autre critère** (« Élevé si … hypoglycémie sévère antérieure »). L'outil
+  demandait au praticien de faire la traduction, puis raisonnait sur sa traduction. Une absence déguisée
+  en présence — la pire des deux, parce qu'elle passe la relecture humaine (cf. R5, corollaire de
+  l'`aide`).
+
+Ordre de grandeur du terrain que la règle couvre : sur le premier domaine, **41 faits de sécurité, dont
+36 mono-nœud** (`docs/decision/validation/criteres-communs-2026-08-06.md`). Quatre d'entre eux étaient
+fautifs — et **aucune étape du procédé n'avait été sautée** : le procédé P0→P7 est entièrement *par
+nœud*, aucune de ses huit étapes ne posait jamais une question au niveau du domaine.
+
+**Comment on le vérifie.** Invariant **I33** (`engine/banc/invariants-contenu.test.ts`, P14/S16,
+**vert** depuis le 2026-08-07) — « un fait de sécurité concerné par une classe prescrite est évalué, ou
+déclaré hors périmètre ». Il porte **trois** garde-fous, pas un : l'absence silencieuse (le nœud
+prescrit une classe concernée et ne déclare rien), la contradiction (le nœud déclare le fait **et** le
+range hors périmètre), et la **déclaration morte** (un `criteres_hors_perimetre` qu'aucune classe
+prescrite ne concerne — une dispense qui ne dispense de rien, et qui aveuglerait un ajout futur).
+
+**Ce que la règle rend praticable, et qui n'allait pas de soi.** Le vocabulaire de sécurité d'un domaine
+**ne peut pas être dressé exhaustivement à l'avance** — on découvre des faits en écrivant les nœuds. Ce
+n'est donc pas un travail préalable, **c'est un cliquet** : le fichier commun s'ouvre avant le premier
+nœud, même quasi vide, et tout fait de sécurité rencontré ensuite s'y écrit, **jamais dans le nœud**.
+`concerne` fait le reste — ajouter un fait rend immédiatement rouge tout nœud **déjà écrit** qui prescrit
+une classe concernée. Le domaine se ré-interroge tout seul à chaque ajout, sans que personne ait à
+penser à relire les nœuds précédents. Procédé correspondant : `CONSTRUIRE-UN-MODULE.md`, **P1** (ouvrir
+le fichier commun) et **P6** (quatrième point de la porte de sortie). Décision : `DECISIONS.md` **D54**.
+
+**Une limite à connaître avant d'y ranger un champ.** Le partage porte sur la **définition**, jamais sur
+la mise en scène — et `presomption_non` reste **local au nœud**, malgré les apparences : D30 fait
+dépendre son éligibilité de l'usage du critère **dans ce nœud** (canal de sécurité ou non), jamais de la
+nature du fait. Le rendre global le rendrait impossible à poser.
 
 ---
 

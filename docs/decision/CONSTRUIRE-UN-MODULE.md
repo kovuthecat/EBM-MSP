@@ -6,16 +6,23 @@
 > `validation/revue-conception-fable-2026-08-04.md`) : items de checklist 2.1/2.4/2.5, nouvelles lignes
 > de la table des pièges (§4), invariants de rendu en porte P6 — même statut de proposition.
 >
+> **Amendé le 2026-08-06/07** (plan P14, `validation/table-conditions-2026-08-06.md` et
+> `criteres-communs-2026-08-06.md`) : **P1** ouvre le vocabulaire de sécurité du **domaine** ; **P5**
+> gagne le *brouillon* de la table des conditions ; **P6** gagne sa *régénération mécanique* et le
+> **diff** contre ce brouillon, plus un quatrième point de portée domaine. Ces trois inscriptions
+> répondent à la lacune la plus profonde que P14 met au jour — le procédé ci-dessous était entièrement
+> **par nœud**.
+>
 > **Portée** : ce document ne parle d'**aucun domaine clinique**. Il dit **dans quel ordre** construire
 > un module et **à quelles conditions** passer à l'étape suivante. Il ne dit pas comment écrire un
-> nœud — c'est `GRAMMAIRE-NOEUD.md` (règles R1→R12), consulté *pendant* l'écriture. Ce document-ci se
+> nœud — c'est `GRAMMAIRE-NOEUD.md` (règles R1→R15), consulté *pendant* l'écriture. Ce document-ci se
 > suit *avant et autour*.
 
 | document | répond à | consulté |
 |---|---|---|
 | `PROJECT_BRIEF.md` · `BRIEF_DECISION.md` | quoi, pour qui | au cadrage |
 | **`CONSTRUIRE-UN-MODULE.md`** *(ce fichier)* | **dans quel ordre, avec quelles portes** | **du début à la fin** |
-| `GRAMMAIRE-NOEUD.md` | comment écrire un nœud correct (R1→R12) | à l'écriture et à la relecture |
+| `GRAMMAIRE-NOEUD.md` | comment écrire un nœud correct (R1→R15) | à l'écriture et à la relecture |
 | `00-global.md` | comment sourcer et red-teamer (méthode, illustrée sur DT2) | à la collecte |
 | `schema/noeud.schema.json` | le contrat exécutable | en permanence, par les tests |
 | `DECISIONS.md` | les arbitrages transverses (D1→D23) | quand une règle surprend |
@@ -129,8 +136,37 @@ Deux livrables courts, écrits **par le référent, sans agent et sans source**.
   porte un préambule de terrain commun + un primer d'orientation. À décider **avant** d'écrire, sur le
   critère de la charge de saisie : au-delà d'une douzaine d'items par nœud, la consultation ne suit plus.
 
-**Porte de sortie P1** : le référent a écrit les intentions et l'inventaire de l'existant, et les trois
-questions sont tranchées par écrit.
+**Une troisième sortie, ajoutée le 2026-08-06 (P14, `GRAMMAIRE-NOEUD.md` R15, `DECISIONS.md` D54) —
+ouvrir le vocabulaire de sécurité du domaine.**
+
+Créer `content/decision/criteres-communs/<domaine>.yaml` **avant le premier nœud**, même quasi vide, et
+poser la règle avec lui : **tout fait qui peut contre-indiquer, retirer ou alerter s'y écrit, avec son
+`concerne` (les classes ou gestes qu'il rend pertinents) — jamais dans un nœud.** Les nœuds le
+référencent (`{ ref: <nom> }`) et n'en surchargent que la mise en scène.
+
+**Pourquoi ici, et pas ailleurs.** C'est la **seule étape d'où l'on regarde le domaine** et non une
+question. Toutes les autres — vignettes, écran, collecte, encodage, vérification, recette — sont par
+nœud, du premier mot au dernier. C'est la lacune que P14 met au jour, et elle explique un résultat qui
+serait autrement inexplicable : le premier domaine a fini avec **41 faits de sécurité, dont 36
+mono-nœud**, quatre d'entre eux fautifs, **sans qu'aucune étape du procédé n'ait été sautée**. Un fait de
+sécurité ne se découvre pas au moment où l'on rédige le nœud qui le porte — mais il **concerne** souvent
+des nœuds déjà écrits, et rien ne les rouvrait.
+
+**Ce n'est pas un travail préalable, c'est un CLIQUET — et c'est ce qui le rend praticable.** Personne ne
+peut dresser à l'avance la liste exhaustive des faits de sécurité d'un domaine : on les découvre en
+écrivant. Le fichier s'ouvre donc vide ou presque, et il **grossit tout seul**, chaque fait rencontré
+allant s'y écrire au lieu d'aller dans le nœud. Le champ `concerne` fait le reste : ajouter un fait rend
+immédiatement **rouge** tout nœud déjà écrit qui prescrit une classe concernée et qui ne le déclare pas
+(invariant I33, P14/S16 — cf. porte de sortie P6). **Le domaine se ré-interroge de lui-même à chaque
+ajout**, sans que personne ait à penser à relire ce qui précède. C'est ce qui distingue cette sortie
+d'une checklist : une checklist se relit quand on y pense, un cliquet mord tout seul.
+
+Premier domaine à l'avoir : `content/decision/criteres-communs/diabete-type-2.yaml` (DT2, ouvert
+rétroactivement en P14/S15 — pour un nouveau domaine, il s'ouvre ici, avant la première vignette).
+
+**Porte de sortie P1** : le référent a écrit les intentions et l'inventaire de l'existant, les trois
+questions sont tranchées par écrit, **et le fichier de critères communs du domaine existe** (même vide),
+avec la règle de cliquet écrite en tête.
 
 ---
 
@@ -250,9 +286,31 @@ primaire, et la passe adversariale est close.
 
 ### P5 — Encodage
 
-Écriture du YAML sous `GRAMMAIRE-NOEUD.md` (R1→R9) et sous les checklists du §2 ci-dessous.
+Écriture du YAML sous `GRAMMAIRE-NOEUD.md` (R1→R15) et sous les checklists du §2 ci-dessous.
 
-**Deux principes de rédaction issus des corrections DT2 :**
+**Trois principes de rédaction issus des corrections DT2. Le premier s'applique AVANT qu'aucune ligne de
+YAML n'existe :**
+
+- **Le brouillon de la table des conditions, premier geste de P5** *(ajouté le 2026-08-06, P14 —
+  `GRAMMAIRE-NOEUD.md` R13)*. Avant d'écrire la première ligne de YAML, dresser dans le **dossier de
+  preuve du nœud** (`docs/decision/noeuds/<fichier-du-nœud>.md`, nouvelle section) une table à **une
+  ligne par option envisagée**, colonnes : `role` · `famille` (et son `exclusive`) · rang · `conditions`
+  · `prerequis` · `exclusions`. Elle se rédige à partir des vignettes gelées (P2) et de la collecte (P4).
+
+  **Pourquoi P5, et pas P2 — la question se pose, elle a été tranchée.** P2 interdit explicitement le
+  DSL : « sortie attendue **en langage clinique — pas en YAML, pas en conditions** », règle apprise à la
+  dure (commit `9deda1f`), et il n'est pas question de la desserrer. **P5 est la première étape où
+  écrire une expression `conditions` est légitime.** Ce brouillon n'est donc pas une anticipation de P2 :
+  c'est le tout premier geste de P5, avant le YAML proprement dit.
+
+  **Ce qu'il attrape, et que rien d'autre n'attrape aussi tôt.** Écrire deux options **sur deux lignes
+  d'un même tableau, leurs `conditions` côte à côte**, rend un recouvrement visible d'un coup d'œil —
+  bien avant qu'il ne devienne 400 lignes de YAML réparties sur trois écrans. Cas réel : les trois voies
+  d'escalade d'un même nœud, rédigées côte à côte, auraient forcé la question « *ces trois lignes
+  s'excluent-elles, ou se cumulent-elles ?* ». C'est la question qui n'a jamais été posée — et le nœud a
+  vécu des semaines avec une famille dont l'exclusivité n'avait jamais été tranchée. Même chose pour un
+  signal mal partitionné (R13) : un déclencheur étranger greffé sur une carte saute aux yeux quand la
+  colonne `conditions` de ses voisines est juste au-dessus.
 
 - **Quand l'outil manque d'un fait pour décider, on ajoute le critère — on n'affaiblit pas la règle.**
   Face à « l'outil propose de réduire la metformine sans connaître la posologie », la réponse du
@@ -270,12 +328,42 @@ fichier de contenu, et aucun critère participant à une condition, une `exclusi
 d'une option `role: securite` (D25) n'en porte, **jamais**. La liste des critères éligibles s'établit
 mécaniquement (parcours des expressions du nœud), pas à la main — cf. `GRAMMAIRE-NOEUD.md` R7.
 
+**— et**, ajouté le 2026-08-06 (P14) : **le brouillon de la table des conditions existe, et il date
+d'avant le premier commit du YAML du nœud.** Vérifiable, et à vérifier :
+`git log --diff-filter=A -- docs/decision/noeuds/<fichier>.md content/decision/noeuds/<domaine>/<nœud>.yaml`.
+Ce n'est pas une formalité de datation : un brouillon rédigé *après* le YAML n'est plus un brouillon,
+c'est une transcription — il dira exactement ce que dit le YAML, y compris ses erreurs, et le **diff** de
+P6 comparera le fichier à lui-même. La valeur de l'artefact est **entièrement** dans son antériorité.
+
 ---
 
 ### P6 — **Deux** vérifications, nommées distinctement
 
 C'est l'étape que le DT2 n'a eue qu'à moitié, et c'est ce qui explique les 19 anomalies trouvées après
 un « 0 finding HAUTE ».
+
+> **Le constat qui justifie les portes ajoutées en 2026-08-06 : la donnée était là, l'AGRÉGATION
+> manquait.** Les faits qui ont fondé les neuf défauts de P14 étaient **déjà figés** dans le dépôt, dans
+> `__snapshots__/caracterisation.prescription.txt` et `caracterisation.insuline.txt` — 924 Ko et 620 Ko
+> au 2026-08-06 (1,0 Mo et 0,7 Mo aujourd'hui : ils grossissent). Tout y était : les profils affichant
+> deux cartes de même intitulé, ceux affichant deux conduites opposées sur le même geste. **Un fichier
+> de 900 Ko ne se relit pas.** Une fois agrégée dans un fichier de quelques dizaines de lignes, la même
+> information a rendu le défaut immédiat : **39 profils sur 180** affichant un intitulé en double sur
+> `prescription` (33 « Sulfamide », 6 « Glinide ») et **2 profils** affichant deux conduites opposées sur
+> la basale, dans `insuline`.
+>
+> *(Ces chiffres sont ceux que la mesure a rendus, par deux chemins de code indépendants. L'estimation à
+> main levée qui avait lancé le chantier parlait de « 9 profils » et « 1 profil » : même ordre de
+> grandeur, même diagnostic, comptes imprécis. Cf. `engine/banc/paires.test.ts`, docstring de tête —
+> et cf. §6.7 : un agent mesure, il n'estime pas.)*
+>
+> **Deux conséquences pour cette porte, et elles ne sont pas symétriques.** *Primo*, un artefact de
+> vérification qu'aucun humain ne peut lire ne vérifie rien : produire l'agrégat fait partie du travail,
+> il ne se déduit pas d'un instantané. *Secundo*, une régénération que seul un humain sait produire **à
+> la main** ne se refera pas systématiquement — la table du 2026-08-06 a été extraite par cinq agents
+> lisant chacun un YAML, ce qui a fonctionné **une fois**, pour un diagnostic ponctuel. Une porte de
+> sortie qu'aucun humain ne peut faire tourner à chaque clôture ne vérifie rien non plus. C'est pourquoi
+> la porte ci-dessous s'appuie sur un **outil committé**, pas sur une procédure de rédaction.
 
 | piste | question | instrument |
 |---|---|---|
@@ -295,6 +383,56 @@ ouvre une analyse ; il ne prescrit rien.
 vérifié sans eux — ce sont, à eux seuls, les trois invariants qui auraient attrapé les défauts les plus
 graves de la recette navigateur du 2026-07-28 (formulaire vierge qui recommande, option de sécurité
 inatteignable, écran muet).
+
+**Troisième porte, ajoutée le 2026-08-06 (P14) — régénérer la table des conditions, et la DIFFÉRER
+contre le brouillon de P5.**
+
+```bash
+npx vitest run src/features/decision/engine/banc/tableConditions.test.ts
+# → src/features/decision/engine/banc/__snapshots__/table-conditions.<nœud>.txt, un par nœud publié
+```
+
+L'outil est générique (il itère sur les nœuds publiés, aucun id en dur) et reproduit à l'identique la
+convention d'abréviation posée en 2026-08-06 — bloc nommé au-delà de 100 caractères, bloc nommé pour une
+expression de 40 à 100 caractères répétée dans au moins 3 options du même nœud. Il **lit** le contenu :
+aucun patient n'est construit, `evaluateNode` n'est jamais appelé, un rang conditionnel (D14) est rendu
+tel qu'écrit. La sortie est du Markdown, aux mêmes colonnes que le brouillon de P5 — elle se colle telle
+quelle à côté de lui.
+
+**Ce n'est pas une relecture, c'est un DIFF**, et c'est là toute la différence. Relire un bloc de
+conditions, on l'a fait des dizaines de fois sans rien voir. Comparer ce qui était **prévu** à ce qui a
+été **écrit** est un autre geste : chaque écart — un `role` changé, une famille reclassée, une condition
+apparue ou disparue en cours d'encodage — doit être **justifié** avant de clore le nœud. Deux issues, et
+une seule est bonne selon le cas :
+
+- le brouillon **sous-estimait un cas réel** découvert en écrivant → rouvrir **P2**, mettre à jour la
+  vignette, puis le brouillon. La découverte est légitime ; ce qui ne l'est pas, c'est qu'elle ne
+  remonte pas jusqu'au contrat d'acceptation ;
+- l'encodage a **dérivé du plan sans raison** → corriger le YAML.
+
+**Toute divergence non expliquée bloque la clôture.** C'est ce diff, et non la lecture, qui a le plus de
+chances de trouver les défauts relationnels — ceux qui ne sautent aux yeux que quand on met le prévu et
+l'écrit côte à côte.
+
+`docs/decision/validation/table-conditions-2026-08-06.md` reste cité, mais comme **exemple de sortie**
+(le diagnostic DT2, historique, extrait à la main une fois) — **plus comme modèle de forme à imiter à la
+main**. La forme fait désormais foi par l'outil.
+
+**Quatrième point, de portée DOMAINE — ajouté le 2026-08-06 (P14, R15/D54).** Relire le fichier commun du
+domaine (`content/decision/criteres-communs/<domaine>.yaml`) et son invariant, avec **une** question :
+*le nœud qu'on clôt a-t-il introduit un fait de sécurité qui concerne un nœud **déjà écrit** ?* Si oui, le
+fait s'écrit dans le fichier commun avec son `concerne`, et les nœuds concernés le déclarent (`{ ref }`)
+ou le rangent dans `criteres_hors_perimetre` avec un motif clinique.
+
+```bash
+npx vitest run src/features/decision/engine/banc/invariants-contenu.test.ts -t "I33"
+```
+
+C'est le seul point de tout le procédé qui regarde en arrière. Il est mécanisé (I33, P14/S16) précisément
+parce qu'un point de vigilance qui repose sur la mémoire de l'auteur ne tient pas trois nœuds : personne
+ne se souvient, en clôturant le sixième nœud, que le deuxième prescrivait une classe que le fait du jour
+concerne. `docs/decision/validation/criteres-communs-2026-08-06.md` est l'**exemple de sortie** de ce
+point : la matrice fait × nœud du domaine, avec ses verdicts.
 
 **Ajout du 2026-08-04 — les invariants de RENDU font partie de la piste B.** Quatre défauts de la revue
 de conception (expression brute, « : non », littéral dupliqué, méta-texte de fabrication) sont des
@@ -457,6 +595,21 @@ constats hors audit y ont été trouvés ainsi) :
       dérivation (dans les deux sens, statut `suggere`) ou, à défaut, une alerte de cohérence.
 - [ ] **Les limites connues sont écrites dans `incertitudes`**, pas laissées tacites (`6561c53` :
       trois limites documentées au moment même de la correction).
+- [ ] **La table des conditions régénérée a été diffée contre le brouillon de P5, et toute divergence
+      est justifiée par écrit** (P5/P6, 2026-08-06). Régénération :
+      `npx vitest run …/banc/tableConditions.test.ts`. Un rôle changé, une famille reclassée, une
+      condition apparue ou disparue en cours d'encodage se justifie — soit en rouvrant P2 (le brouillon
+      sous-estimait un cas réel), soit en corrigeant le YAML (l'encodage a dérivé). Le brouillon doit
+      dater d'**avant** le premier commit du YAML : sans antériorité, le diff compare le fichier à
+      lui-même.
+- [ ] **Les faits de sécurité introduits par ce nœud sont montés au DOMAINE, et les nœuds déjà écrits
+      qu'ils concernent ont été rouverts** (R15/D54, 2026-08-06). Tout fait qui contre-indique, retire ou
+      alerte vit dans `content/decision/criteres-communs/<domaine>.yaml` avec son `concerne` — jamais
+      dans le nœud seul. Chaque nœud qui prescrit une classe concernée le déclare (`{ ref }`) **ou** le
+      range dans `criteres_hors_perimetre` avec un motif clinique ; il n'y a pas de troisième statut.
+      Mécanisé par I33 (`…/banc/invariants-contenu.test.ts`) — c'est le seul contrôle du procédé qui
+      regarde les nœuds **déjà clos**, et c'est ce qui l'a rendu nécessaire : l'absence silencieuse ne se
+      voit jamais à la relecture, puisque rien ne manque nulle part.
 
 ### 2.5 Module (D22)
 
