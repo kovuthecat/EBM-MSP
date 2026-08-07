@@ -58,3 +58,7 @@
   line-height: 1.7;
   margin: 0;
 }
+
+.methode__section-body + .methode__section-body {
+  margin-top: 10px;
+}

@@ -1,63 +1,104 @@
 import './MethodeScreen.css'
 
 /**
- * S1 — Méthode : résumé de docs/veille/SOP_veille.md (contenu autoritaire),
- * pas le texte illustratif du prototype (cf. plans/P1/S1.md T-008 Décision clé).
- * Version affichée = version réelle de la SOP (v1.0), sans date inventée.
+ * Méthode : résumé fidèle des documents autoritaires, jamais un texte marketing.
+ * - Veille : docs/veille/SOP_veille.md (v1.2, en vigueur) — rôles réels (§2), cadence (§3),
+ *   sources (§4), routes brève/analyse (§5bis, D38), vérification bi-agents + relecture différée
+ *   (§5 étape 5, D39), garde-fous (§9).
+ * - Décision : docs/decision/CONSTRUIRE-UN-MODULE.md (procédé P0→P7) + 00-global.md (collecte,
+ *   règles de sourcing) + DECISIONS.md D3 (déterminisme), D5 (mise à jour non automatique),
+ *   D11 (3 niveaux de lecture), D48 (sources primaires à l'écran), D49 (pas de tuyauterie).
+ * Règle T-008 (plans/P1/S1.md) : version affichée = version réelle des documents, aucune date
+ * inventée ; l'état annoncé (statuts des algorithmes) = l'état réellement déployé.
  */
-const VEILLE_SECTIONS: Array<{ title: string; body: string }> = [
+const VEILLE_SECTIONS: Array<{ title: string; body: string[] }> = [
   {
-    title: 'Hiérarchie des sources (modèle 6S)',
-    body: "La veille privilégie les sources pré-évaluées, à haut rendement de lecture. Tier 1 — synthèses EBM pré-appréciées (Minerva, Prescrire, Cochrane, NNT.com, McMaster EvidenceAlerts, BMJ EBM, Médicalement Geek/DragiWebdo, Exercer). Tier 2 — recommandations et agences (HAS, sociétés savantes par thème, ANSM). Tier 3 — sommaires des grandes revues (NEJM, Lancet, JAMA, BMJ, Annals et revues spécialisées par profil). Tier 4 — études primaires, uniquement en vérification ou approfondissement d'un signal déjà repéré. Les outils d'IA (type OpenEvidence, web-fetch) ne servent qu'au débroussaillage complémentaire, jamais de source primaire : toute sortie IA est revérifiée sur l'article original.",
+    title: 'Une méthode qui décrit ce qui est réellement fait',
+    body: [
+      "Cette page décrit la veille telle qu'elle est produite, avec les moyens réellement disponibles. Quand une ressource n'existe pas encore, la méthode le dit et décrit le dispositif de remplacement, plutôt que de promettre un contrôle qui n'a pas lieu.",
+      "Concrètement : la veille repose aujourd'hui sur un référent unique, qui assure la collecte, le tri, l'analyse, la rédaction et la publication, sur neuf thèmes de médecine générale. Il n'y a donc pas encore de regard humain indépendant sur les analyses. Les dispositifs décrits plus bas — vérification croisée par deux agents, relecture différée — réduisent l'erreur d'extraction et la surinterprétation ; ils ne corrigent pas un angle mort que le référent partagerait avec ses outils. Un second relecteur est la première ressource que le projet cherche à recruter.",
+      "Quatre thèmes prévus (santé de la femme et périnatalité, orthophonie, soins infirmiers, éducation thérapeutique) ne font l'objet d'aucune production tant qu'un référent de la profession concernée ne les prend pas en charge : l'absence est déclarée, elle n'est pas masquée par un contenu produit hors compétence.",
+    ],
   },
   {
-    title: 'Cycle hebdomadaire',
-    body: "Cycle fixe et hebdomadaire : collecte sur les sources retenues (alertes automatisées) → présélection selon les critères d'inclusion et d'exclusion, avec un journal de screening → analyse critique de chaque article retenu, fiabilisée par une vérification bi-agents pour les items à impact pratique → classement (thèmes, professions concernées, niveau de preuve, niveau d'impact, temps de lecture, impact sur un algorithme) → double validation par un second contributeur pour tout item à impact pratique → mise en forme et publication (résumé critique + lien, jamais de copie intégrale) → pour les items concernant un algorithme, rédaction d'un diff proposé puis validation du comité éditorial avant toute mise à jour versionnée.",
+    title: 'Cycle hebdomadaire et traçabilité',
+    body: [
+      "La veille paraît le lundi et couvre les sept jours précédents. Chaque semaine est archivée intégralement : la liste brute des articles repérés, le journal de tri — ce qui a été retenu, exclu ou reporté, avec le motif — et les entrées publiées. Ce journal est un livrable au même titre que les entrées : c'est lui qui distingue une veille méthodique d'un fil de liens.",
+      "Une semaine peut ne rien contenir qui change la pratique, et le dire est une information en soi : la veille ne fabrique pas de la nouveauté pour remplir une page.",
+    ],
   },
   {
-    title: "Critères d'inclusion",
-    body: "Sont retenus : un design pertinent (essai randomisé, méta-analyse, recommandation, cohorte de qualité), une question pertinente pour les soins premiers ou le profil concerné, un critère de jugement important pour le patient. Sont exclus : les études précliniques ou animales, les très petits effectifs non répliqués, les critères purement intermédiaires sans portée clinique, les communiqués de presse sans article, les doublons et le contenu déjà couvert.",
+    title: 'Hiérarchie des sources et règle de balayage',
+    body: [
+      "Les sources pré-évaluées passent d'abord. Tier 1 — synthèses EBM déjà appréciées : Minerva, Prescrire, Cochrane, NNT.com, McMaster EvidenceAlerts, BMJ EBM, Médicalement Geek/DragiWebdo, Exercer. Tier 2 — recommandations et agences : HAS, Collège de la Médecine Générale, sociétés savantes par thème, ANSM. Ces deux niveaux sont balayés chaque semaine, intégralement.",
+      "Les sommaires des grandes revues (Tier 3) et les études primaires (Tier 4) ne sont ouverts que pour vérifier ou approfondir un signal déjà repéré — jamais en balayage systématique. Conséquence assumée : un essai important peut être signalé une à deux semaines après sa parution, quand une source pré-évaluée s'en saisit. C'est le prix d'une veille soutenable, préférable à une veille exhaustive qui s'effondre au bout d'un mois. La liste détaillée des sources, avec leur type et leur accès, est versionnée et publique.",
+    ],
   },
   {
-    title: "Grille d'appréciation",
-    body: "Chaque article retenu est apprécié sur le risque de biais (sélection, mesure), la distinction critère dur vs critère de substitution, l'effet absolu et le NNT/NNH plutôt que le seul risque relatif, la cohérence avec le corpus de preuves existant, et les conflits d'intérêt déclarés. L'analyse s'ancre sur la source primaire : l'accord entre deux lectures n'est jamais pris pour une vérité en soi.",
+    title: 'Brève ou analyse : deux formats, un seuil explicite',
+    body: [
+      "Au tri, trois questions cumulatives décident du sort de chaque article retenu : déplace-t-il une décision fréquente en soins premiers (peut-on nommer le geste qui changerait en consultation) ? L'effet porte-t-il sur un critère important pour le patient, avec une ampleur absolue non triviale — un critère de substitution seul ne suffit jamais ? La population et le comparateur sont-ils transposables à une patientèle de soins premiers ?",
+      "Trois oui : l'article part en analyse complète. Sinon il devient une brève, qui signale, situe et pointe la source — sans porter d'appréciation critique propre, donc sans jamais prétendre qu'un résultat change la pratique. Une analyse peut au contraire conclure « ne change rien », et c'est fréquent : « on a regardé de près, et non » est souvent le résultat le plus utile au lecteur.",
+      "Quand plus d'articles franchissent le seuil que la semaine ne peut en absorber, l'excédent est reporté — jamais bâclé : une demi-analyse ne se publie pas. Les reports sont datés et visibles dans le journal de tri.",
+    ],
   },
   {
-    title: 'Garde-fous',
-    body: "Aucune étude isolée ne justifie à elle seule un changement de pratique — elle est replacée dans la totalité des preuves. On remonte toujours à la source primaire, jamais à un communiqué ou un réseau social ; on lit les résultats en absolu et les critères pré-enregistrés ; on se méfie de l'absence de preuve prise pour une preuve d'absence. Rétractations et errata sont vérifiés avant toute intégration. Aucune mise à jour d'algorithme n'est automatique : toute proposition issue de la veille est signalée, puis validée par le comité éditorial avant d'être intégrée, de façon tracée et versionnée. Aucune donnée patient n'est collectée par le module de veille.",
+    title: 'Comment une analyse est fiabilisée',
+    body: [
+      "Chaque article analysé passe une grille d'appréciation complète : risque de biais, critère dur ou de substitution, effet absolu et NNT/NNH plutôt que le seul risque relatif, cohérence avec le corpus de preuves existant, conflits d'intérêt déclarés. La grille se remplit toujours depuis la publication scientifique originale — jamais depuis le résumé qu'en fait une source secondaire : une source pré-évaluée sert à repérer, pas à analyser. Si l'étude d'origine n'est pas identifiable, l'article est exclu.",
+      "L'analyse est ensuite vérifiée par deux agents d'intelligence artificielle aux rôles opposés — l'un extrait et chiffre, l'autre est missionné pour contredire — travaillant séparément, chacun ancré sur la source primaire. Leurs désaccords sont escaladés au référent, jamais lissés ; un désaccord non résolu empêche la publication en analyse. Enfin, rien n'est publié le jour où il est écrit : chaque entrée est relue à distance de sa rédaction, avec un regard neuf, avant de paraître.",
+    ],
+  },
+  {
+    title: 'Garde-fous, et impact sur les algorithmes',
+    body: [
+      "Résumé critique et lien vers la source, jamais de reproduction intégrale ni de contournement de paywall. Une étude isolée est toujours replacée dans l'ensemble des preuves. Les rétractations et errata sont vérifiés avant toute intégration ; toute sortie d'un outil d'intelligence artificielle est revérifiée sur l'article original, référence et chiffres compris. Si une entrée publiée est corrigée ou rétractée en amont, un erratum daté est publié.",
+      "Aucune modification d'un algorithme d'aide à la décision n'est automatique. Tant que le comité éditorial n'existe pas, aucune n'est même appliquée : quand un article concerne un algorithme, la proposition de mise à jour est enregistrée comme candidate, et elle attend une validation collégiale. Aucune donnée patient n'est collectée par la veille.",
+    ],
   },
 ]
 
-/**
- * Résumé de docs/decision/00-global.md (contenu autoritaire : pipeline en 9 étapes de construction
- * des nœuds + garde-fous de vérification en couches) + DECISIONS.md D3 (moteur déterministe), D5
- * (mise à jour non automatique), D11 (3 niveaux de lecture), D12 (granularité par molécule si EBM).
- * Même traitement que VEILLE_SECTIONS : prose fidèle au doc source, pas le texte du doc recopié tel quel.
- */
-const DECISION_SECTIONS: Array<{ title: string; body: string }> = [
+const DECISION_SECTIONS: Array<{ title: string; body: string[] }> = [
   {
-    title: "Pipeline de construction d'un nœud",
-    body: "Neuf étapes tracées, du dossier de preuve à l'algorithme. Cadrer la question clinique (PICO) et les critères d'entrée. Collecter en priorité les sources pré-appréciées (Prescrire, Médicalement Geek, Cochrane, HAS, ADA/EASD), puis les essais pivots — les outils d'IA (OpenEvidence, web) ne servent qu'au débroussaillage, jamais de source primaire. Apprécier chaque étude clé (risque de biais, critère dur vs substitution, effet absolu et NNT/NNH, cohérence, conflits d'intérêt, GRADE). Vérifier le dossier de preuve à deux agents indépendants — l'un extrait et chiffre, l'autre, contradicteur, traque le biais de présentation et revérifie chaque DOI et chaque chiffre sur la source primaire —, en triangulant avec OpenEvidence sans jamais trancher sur une source unique. Distiller le dossier en un brouillon d'algorithme (options, conditions, effet attendu, niveau de preuve) et en un argumentaire exhaustif lisible. Valider par une relecture clinique humaine, le référent. Encoder le nœud et son argumentaire. Vérifier ensuite l'encodage lui-même par une seconde double lecture, dédiée et distincte de la première : un agent contrôle la fidélité du fichier au dossier validé, un autre trace des profils de patients réels à travers le moteur pour débusquer une contre-indication oubliée, une incohérence, ou deux options qui se recommanderaient à tort ensemble. Publier enfin — statut validé et versionnement.",
+    title: 'Partir de la consultation, pas de la littérature',
+    body: [
+      "Avant toute recherche documentaire, le référent clinique écrit ce que l'outil devra savoir faire : les intentions possibles du praticien (initier, intensifier, alléger…), l'inventaire de ce qui peut déjà être en place chez le patient (traitements, doses, tolérance), puis quinze à vingt-cinq cas de patients réels, chacun avec la conduite attendue, rédigée en langage clinique. Ces cas sont gelés et deviennent le contrat : l'algorithme est correct s'il produit ces conduites — pas seulement s'il retranscrit fidèlement la littérature.",
+      "Cet ordre vient d'une leçon chèrement acquise sur le premier domaine : lors de la grande recette clinique, aucune des anomalies relevées n'était une erreur de données — pas un chiffre faux, pas une référence erronée. Toutes tenaient au comportement de l'outil face à une situation réelle : donnée manquante, geste déjà fait, deux règles justes qui interagissent mal. La méthode vérifie donc le comportement avec autant de rigueur que les preuves.",
+    ],
   },
   {
-    title: 'Sources interrogées, et lesquelles sont citées',
-    body: "Deux choses différentes : ce qu'on LIT pour construire un nœud, et ce qu'on CITE à l'appui de ce qu'il affiche. On lit systématiquement les recommandations officielles (HAS, sociétés savantes, ANSM), les revues de synthèse indépendantes (Prescrire, Cochrane, Minerva, Médicalement Geek/DragiWebdo, le Collège de la Médecine Générale), puis les essais primaires pivots. On ne cite, à l'écran, que les essais et les textes de recommandation officiels : une revue de synthèse a pu orienter une lecture, elle ne la démontre pas, et lire « d'après Prescrire » sous une position revient à substituer un nom à un argument. Ce qui a été consulté pour construire une position reste tracé dans le dépôt, hors de l'écran de consultation.",
-  },
-  {
-    title: 'Des vérifications indépendantes, en couches',
-    body: "La fiabilité ne repose pas sur un contrôle unique mais sur plusieurs couches indépendantes, chacune couvrant un risque que les autres ne voient pas. La double lecture bi-agents du dossier confronte chaque chiffre et chaque DOI à la source primaire et chasse le biais de présentation. Le débroussaillage OpenEvidence complète cette lecture sans jamais faire foi à lui seul. La triangulation entre ces sources part du principe qu'aucune — pas même un outil d'IA — n'est réputée juste isolément : sur le nœud « 1re intention », une relecture directe des textes primaires a corrigé trois erreurs d'un rapport OpenEvidence. La validation du référent tranche les arbitrages cliniques ouverts. Une double lecture distincte, dédiée à l'encodage, vérifie ensuite non plus les preuves mais la fidélité du fichier au dossier et la sûreté de son comportement dans le moteur, profils de patients à l'appui. Une validation technique automatisée ferme la marche : conformité au schéma, non-régression du moteur, compilation. Règle constante : un point « à vérifier » ne devient acquis que sur une source primaire ou un accord explicite du référent, jamais sur une source de seconde main.",
+    title: 'La collecte de preuve, et sa contre-vérification systématique',
+    body: [
+      "Pour chaque décision que les cas exigent, sont lues les recommandations officielles (HAS, sociétés savantes, ANSM), les synthèses indépendantes (Prescrire, Cochrane, Minerva, Médicalement Geek/DragiWebdo, Collège de la Médecine Générale), puis les essais pivots. Chaque dossier de preuve est vérifié par deux agents indépendants : l'un extrait et chiffre, l'autre — contradicteur — traque le biais de présentation et revérifie chaque référence et chaque chiffre sur la source primaire.",
+      "Les outils d'intelligence artificielle servent au débroussaillage, jamais de source : toute sortie est revérifiée sur l'article original — cette règle a notamment permis de détecter des identifiants d'articles erronés rendus par un de ces outils. Et aucun résultat de collecte n'entre dans le contenu sans sa passe contradictoire, y compris quand la collecte affirme avoir trouvé une erreur dans le contenu existant : sur quatre accusations de ce type examinées un même jour, trois se sont révélées infondées, et c'est la contre-vérification qui a rétabli les faits.",
+    ],
   },
   {
     title: 'Règles de sourcing',
-    body: "Aucune référence, aucun chiffre, aucun NNT/NNH n'est inventé : tout élément non vérifié est marqué « à vérifier » et n'entre pas dans l'algorithme tant qu'il n'est pas confirmé sur la source primaire. L'effet absolu et le NNT/NNH sont préférés au seul risque relatif, avec l'horizon temporel précisé, et la nature du critère (dur vs substitution) est toujours explicite. Une distinction n'est encodée dans le moteur que si des données EBM (essais, méta-analyses) la soutiennent ; un simple accord d'experts reste affiché en reco officielle sans piloter le moteur. De même, une molécule précise n'est nommée à la place de sa classe que si l'EBM le justifie pour l'indication. Face à un doute clinique qu'aucune source ne tranche : signaler, ne jamais trancher seul. Enfin, ce que le nœud affiche comme incertain se formule sur les données ou sur leur absence — jamais sur les arbitrages internes qui ont mené à l'encoder ainsi : un praticien qui lit doit pouvoir vérifier, pas faire confiance.",
+    body: [
+      "Aucune référence, aucun chiffre, aucun NNT n'est inventé : tout élément non vérifié est marqué comme tel et n'entre pas dans l'algorithme tant qu'il n'est pas confirmé sur la source primaire. L'effet absolu et le NNT/NNH sont préférés au seul risque relatif, avec leur horizon temporel ; la nature du critère — dur ou de substitution — est toujours explicite.",
+      "Une distinction ne pilote l'algorithme que si des données d'essais la soutiennent ; un accord d'experts est affiché comme recommandation officielle mais ne commande pas la sélection des options. De même, une molécule précise n'est nommée à la place de sa classe que si les données le justifient pour l'indication. Face à un doute clinique qu'aucune source ne tranche : signaler, jamais trancher seul.",
+    ],
   },
   {
-    title: 'Trois niveaux de lecture',
-    body: "Chaque nœud expose une transparence graduée. La recommandation d'abord : les options, ce qu'on gagne et ce qu'on perd, le niveau de preuve — et, derrière ce badge, l'effet chiffré, son délai d'apparition et les essais qui le portent. L'argumentaire détaillé ensuite, dépliable : comment le nœud raisonne, ce que disent les recommandations officielles, comment l'outil lit les données, et — le cas échéant — chaque divergence entre les deux, présentée en trois faces comparables : ce que dit la recommandation, ce que fait l'outil, et sur quelles données l'écart se fonde. Puis les incertitudes et les essais cités. L'argumentaire exhaustif enfin, en un clic : toutes les preuves, essai par essai. Une divergence est toujours nommée, jamais masquée — et elle doit s'appuyer sur des données, ou sur leur absence explicite.",
+    title: "Ce que l'écran cite",
+    body: [
+      "Deux choses différentes : ce qui est lu pour construire une position, et ce qui est cité à l'appui de ce qu'elle affirme. À l'écran ne sont citées que des sources primaires — les essais et les textes de recommandation officiels. Les synthèses qui ont orienté une lecture restent tracées dans le dépôt public du projet, hors de l'écran de consultation : écrire « d'après telle revue » sous une position reviendrait à substituer un nom à un argument. Le praticien qui lit doit pouvoir vérifier, pas faire confiance.",
+    ],
   },
   {
-    title: 'Garde-fous',
-    body: "Le moteur qui sélectionne les options est entièrement déterministe : des règles booléennes transparentes, jamais de score caché ni de modèle prédictif. Aucune mise à jour d'un algorithme n'est automatique, y compris depuis la veille : toute proposition est signalée puis validée par le référent avant d'être intégrée, de façon tracée et versionnée (numéro de version + changelog daté). La saisie des critères d'un patient reste locale à la session, sans persistance ni réseau.",
+    title: "L'algorithme est vérifié, pas seulement ses données",
+    body: [
+      "Une fois le dossier de preuve validé par le référent clinique, l'encodage passe deux vérifications distinctes. La première contrôle la fidélité : une seconde double lecture, dédiée, confronte le fichier encodé au dossier validé, option par option, chiffre par chiffre. La seconde contrôle le comportement : une batterie de tests automatisée rejoue les cas de patients gelés au départ, puis vérifie des propriétés de sécurité sur des milliers de profils générés — un formulaire vierge ne produit jamais de recommandation, une contre-indication avérée retire toujours l'option concernée, une alerte qui interdit un geste a toujours son garde-fou effectif, deux cartes affichées ensemble ne se contredisent pas. Cette batterie est rejouée en totalité à chaque modification du contenu, correctifs compris.",
+      "Vient enfin une recette en conditions réelles, dans le navigateur : la page est lue comme un praticien la lit, allers-retours et retours en arrière compris. C'est cette passe qui a trouvé les défauts que ni les relectures ni les tests n'avaient vus, et elle est obligatoire avant qu'un algorithme soit déclaré validé.",
+    ],
+  },
+  {
+    title: "Transparence à l'écran, et garde-fous",
+    body: [
+      "Le moteur qui sélectionne les options est entièrement déterministe : des règles booléennes lisibles, aucun score caché, jamais de modèle prédictif. Chaque algorithme s'expose sur trois niveaux : la recommandation et son niveau de preuve, l'argumentaire dépliable — avec, le cas échéant, chaque divergence vis-à-vis d'une recommandation officielle présentée en trois faces : ce que dit la recommandation, ce que fait l'outil, sur quelles données —, et l'argumentaire exhaustif, essai par essai. Les incertitudes affichées portent sur les données ou sur leur absence, jamais sur la fabrication interne de l'outil.",
+      "Chaque algorithme est versionné, avec un journal des modifications daté. Aucune mise à jour n'est automatique, y compris depuis la veille : toute proposition est validée par un humain avant d'être intégrée. La saisie des critères d'un patient reste locale à la session, sans persistance ni réseau.",
+    ],
   },
 ]
 
@@ -69,13 +110,18 @@ export function MethodeScreen() {
       <section className="methode__group">
         <h2 className="methode__group-title">Veille scientifique</h2>
         <p className="methode__version">
-          SOP de veille clinique — version 1.0 · statut : à valider par le comité éditorial
+          Procédure de veille clinique — version 1.2 · en vigueur, validée par le référent veille ·
+          périmètre : 9 thèmes de médecine générale
         </p>
 
         {VEILLE_SECTIONS.map((section) => (
           <section key={section.title} className="methode__section">
             <div className="methode__section-title">{section.title}</div>
-            <p className="methode__section-body">{section.body}</p>
+            {section.body.map((paragraph, i) => (
+              <p key={i} className="methode__section-body">
+                {paragraph}
+              </p>
+            ))}
           </section>
         ))}
       </section>
@@ -83,15 +129,19 @@ export function MethodeScreen() {
       <section className="methode__group">
         <h2 className="methode__group-title">Algorithmes d'aide à la décision</h2>
         <p className="methode__version">
-          Méthode de construction des nœuds — version 1.0 · statut : appliquée sur le domaine
-          Diabète de type 2 (nœuds « Cible glycémique » et « 1re intention selon les comorbidités »
-          validés et encodés ; autres nœuds en cours)
+          Procédé issu du premier domaine construit — Diabète de type 2 : six algorithmes en ligne,
+          deux validés par le référent clinique, quatre en brouillon (relecture clinique finale en
+          cours)
         </p>
 
         {DECISION_SECTIONS.map((section) => (
           <section key={section.title} className="methode__section">
             <div className="methode__section-title">{section.title}</div>
-            <p className="methode__section-body">{section.body}</p>
+            {section.body.map((paragraph, i) => (
+              <p key={i} className="methode__section-body">
+                {paragraph}
+              </p>
+            ))}
           </section>
         ))}
       </section>
