@@ -123,7 +123,8 @@ const CRITERE_LABELS: Record<string, string> = {
   // Nœuds RHD (alimentation + activité physique), 2026-07-29 : remplace `traitements_en_cours` sur ces
   // deux nœuds, qui ne lisaient que l'exposition à l'hypoglycémie et jamais la classe (cf. les YAML).
   insuline_ou_insulinosecreteur: 'Insuline, sulfamide ou glinide en cours',
-  antecedent_cv: 'Antécédent cardiovasculaire',
+  // `antecedent_cv` retiré le 2026-08-07 (décision référent, arbitrage 1 de S14, P14/S17) — remplacé par
+  // `ASCVD_etablie` (déjà libellé ci-dessus) sur `cible-glycemique.yaml`.
   comorbidite_grave: 'Comorbidité grave',
   diabete_complique: "Diabète compliqué (atteinte d'organe : rétinopathie, néphropathie, neuropathie, macrovasculaire)",
   // Nœud F « Statine » — lot intolérance du 2026-07-27.
@@ -199,7 +200,9 @@ const CRITERE_LABELS: Record<string, string> = {
   CK_normale_sup: 'Borne haute de la normale du laboratoire (UI/L)',
   dose_basale_actuelle: 'Dose de basale actuelle (U/j)',
   dose_rapide_actuelle: 'Dose de rapide actuelle (U/j)',
-  over_basalisation: 'Sur-basalisation (dose basale > 0,5 U/kg)',
+  // Renommé depuis `over_basalisation` le 2026-08-06 (P14/S4, T-167, décision référent) : cf.
+  // `content/decision/noeuds/diabete-type-2/insuline.yaml`, en tête de `criteres_entree`.
+  ratio_basale_poids_eleve: 'Dose de basale rapportée au poids > 0,5 U/kg/j, sans capteur',
   // `classes_a_benefice_indisponibles` RETIRÉ le 2026-07-29 avec le critère lui-même : le nœud calcule
   // désormais cette indisponibilité (`isglt2_indisponible AND aglp1_indisponible`) au lieu de la demander.
   // Nœud fusionné « Prescription » (docs/decision/noeuds/prescription.SPEC.md) — critères ajoutés à la fusion.
@@ -288,8 +291,8 @@ const CRITERE_LABELS: Record<string, string> = {
   symptomes_ischemie_effort: "Symptômes d'ischémie à l'effort",
   retinopathie_non_stabilisee_ou_proliferante: 'Rétinopathie non stabilisée ou proliférante',
   neuropathie_ou_mal_perforant_plantaire: 'Neuropathie ou mal perforant plantaire',
-  verrou_effort:
-    "Signe imposant un avis avant la pratique structurée (limitation, ischémie d'effort, rétinopathie, pied)",
+  // `verrou_effort` retiré du contenu le 2026-08-07 (P14/S8/T-172, décision référent) — libellé
+  // supprimé avec lui, cf. changelog `rhd-activite-physique.yaml`.
   difficulte_acces_activite: "Difficulté d'accès à une activité physique",
   offre_proximite_connue: "Offre d'activité de proximité connue",
   experience_activite_negative: "Expérience négative de l'activité physique",

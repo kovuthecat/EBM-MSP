@@ -173,6 +173,12 @@ describe('relevance — égalité de rang par défaut ne doit pas masquer un cri
       // effet d'une nature que l'instrument ne sait pas voir, et le dire ici vaut mieux que d'élargir
       // `signatureVue` à la couche de saisie pour un seul cas.
       'HbA1c_cible',
+      // Ajouté le 2026-08-07 avec le critère (P14/S19, T-192) : `hypo_severe_recurrente` conditionne
+      // « Sulfamide/Glinide — arrêter » en ET avec `intention != initier AND traitements_en_cours
+      // contient …` (`prescription.yaml`, l. 1932-1947). Ce profil étant naïf (intention=initier), ce
+      // premier terme est FAUX quelle que soit la valeur du critère : légitimement inerte ici, même
+      // mécanisme que `traitements_en_cours`/`intolerance_traitement` ci-dessus.
+      'hypo_severe_recurrente',
     ])
     for (const critere of node!.criteres_entree) {
       if (critere.derive != null) continue
