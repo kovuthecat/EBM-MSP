@@ -4,7 +4,7 @@ Photo à l'instant T. Mis à jour en fin de session. L'historique (comment on es
 `git log`, `DECISIONS.md`/`docs/commun/decisions/` et les changelogs de contenu — pas ici.
 Plafond : 80 lignes (appliqué par hook).
 
-> **Dernière mise à jour :** 2026-08-05
+> **Dernière mise à jour :** 2026-08-07
 
 ## Ce qui existe
 
@@ -13,47 +13,45 @@ Veille : **non commencé** (aucun code, `DECISIONS.md` D8 garde la place).
 
 **6 nœuds de contenu**, tous `content/decision/noeuds/diabete-type-2/*.yaml` :
 
-| nœud | statut | dernière version |
+| nœud | statut | dernière version **committée** |
 | --- | --- | --- |
-| `cible-glycemique` | `valide` | v2.15 |
-| `statine` | `brouillon` | v1.27 |
-| `prescription` | `brouillon` | v0.64 |
-| `insuline` | `valide` | v0.49 |
-| `rhd-alimentation` | `brouillon` | v0.15 |
-| `rhd-activite-physique` | `brouillon` | v0.17 |
+| `cible-glycemique` | `valide` | v2.19 |
+| `statine` | `brouillon` | v1.29 |
+| `prescription` | `brouillon` | v0.64 — **P14 en attente, non commité (cf. Chantier actif)** |
+| `insuline` | `valide` | v0.49 — **P14 en attente, non commité (cf. Chantier actif)** |
+| `rhd-alimentation` | `brouillon` | v0.15 — **P14 en attente, non commité (cf. Chantier actif)** |
+| `rhd-activite-physique` | `brouillon` | v0.17 — **P14 en attente, non commité (cf. Chantier actif)** |
 
 Passage à `valide` conditionné à la relecture référent finale (`TASKS.md` §validation clinique).
 
-**Banc de tests** (`src/features/decision/engine/banc/`) : non-régression du contenu en 3 couches
-(vignettes, couverture, invariants) + **I25, aucun jargon de projet dans un champ affiché**.
+**Banc de tests** (`src/features/decision/engine/banc/`) : non-régression du contenu en 4 couches
+(vignettes, couverture, invariants, **relation** — paires co-actives + table des conditions, P14) + I25.
 
 ## Chantier actif
 
-**Plan P13 — clos le 2026-08-05** (suites de la revue de conception du 2026-08-04) : S1-S5, S7, S8
-livrées. **S6 non livrée** (`exports`, T-149/T-150) : STOP légitime, ajouter `exports` au schéma exige
-de toucher `engine/expressionsNoeud.ts` (G1), hors mandat — conception prête, `TASKS.md`. **N1 déféré**
-sur la majorité des tâches (navigateur in-app indisponible pendant l'exécution), compensé par des tests
-RTL/jsdom — à rejouer avant clôture visuelle. Bilan : `plans/P13/index.md` §Bilan. N2 : `VALIDATION.md`.
+**Plan P14 — sessions closes le 2026-08-07, consolidation PARTIELLE** (neuf défauts relationnels + le
+chantier P2, `plans/P14/index.md`) : 19 sessions + 2 arbitrages hors plan livrés, N0 vert sur l'arbre de
+travail complet (1275 tests, 0 échec, aucun `it.fails` restant). **Commité** : les 7 invariants de
+relation, le socle des critères communs de domaine (P2), la publication D50, le procédé/grammaire
+amendés, D50/D52-D58, et le seul nœud de contenu propre (`cible-glycemique`). **NON commité** :
+`insuline.yaml`, `prescription.yaml`, `rhd-alimentation.yaml`, `rhd-activite-physique.yaml` et ce qui en
+dépend — découverts entrelacés, dans l'arbre de travail non commité, avec un second chantier hors P14 (la
+contre-relecture des 4 niveaux d'argumentaire, cf. ligne suivante), sans séparation fiable par fichier.
+Détail complet : `plans/P14/index.md` §Bilan de clôture.
 
-**Plan P12 — clos le 2026-08-03** : S1-S10 livrées ; seule **T-120** non livrée, STOP fondé (`plans/P12/index.md`).
+**Contre-relecture des 4 niveaux d'argumentaire (hors P14, 2026-08-06/07)** : `statine` et les 5
+`.argumentaire.md` commités (`f271c8c`) ; sa part sur `insuline`/`prescription`/`rhd-alimentation`/
+`rhd-activite-physique` reste, elle aussi, dans l'arbre de travail — même blocage que ci-dessus.
 
-**Plan PV1 — module Veille, cadré le 2026-07-31, pas démarré** (`plans/PV1/index.md`) : 10 sessions, deux
-éditions hebdomadaires produites **à la main** avant tout code, puis gel du modèle et câblage.
-
-**Plan P7** (cadré 2026-07-29, ouvert) : manquent SA2 (validité HbA1c) et S2. **P8 — clos** (S1-S8).
-
-**Argumentaire — deux passes hors plan.** *2026-08-04 (D48)* : l'écran ne cite plus que des sources
-primaires, dans un panneau « État des preuves ». *2026-08-05* : les 4 niveaux de lecture des 6 nœuds relus
-puis corrigés — cartes sourcées 40 → 65/84, délais de bénéfice 6 → 17, panneaux posologie 16 → 34,
-contradictions entre niveaux levées, I25 gagne 7 marqueurs (**D49**). Aucune dette ni exemption.
-Arbitrages en attente : `docs/decision/validation/passe-redaction-2026-08-05.md`.
+**Plan P13 — clos 2026-08-05**, **Plan P12 — clos 2026-08-03** : détail dans leurs `index.md`.
+**Plan PV1 — Veille, cadré 2026-07-31, pas démarré.** **Plan P7** (ouvert) : manquent SA2 et S2 · **P8 —
+clos.**
 
 ## Ce qui casse / n'est pas testé
 
 - Onglet **« Veille » rend une page blanche** — mécanique, non cadré (appartient à PV1/S6).
 - CTA flottant mobile : depuis **D47**, visible jusqu'à 1199 px (contre 959) — donc sur des fenêtres de bureau non maximisées. Jugement d'usage en attente, `VALIDATION.md`.
 - **I24 ne scanne que `conditions`/`prerequis`, pas `exclusions`** : 8 motifs négatifs sur `statine.yaml` en attente (P13/S7, T-152), exemptés nommément.
-- **2 tests rouges, aucun lié au contenu** : `couverture.test.ts`/`prescription` (angle mort du banc, diagnostic dans `engine/banc/profils.ts`) et `grammaire.test.ts` (champ `icone` de T-149 non classé).
 
 ## Bugs connus
 
@@ -62,12 +60,13 @@ Arbitrages en attente : `docs/decision/validation/passe-redaction-2026-08-05.md`
 
 ## Dette technique / recherche bloquante
 
+- **Finir la consolidation P14** : séparer (ou committer ensemble, décision référent) le lot P14 et le
+  lot contre-relecture sur les 4 fichiers de contenu ci-dessus, puis committer/pousser. Sans ce commit,
+  les 9 défauts du diagnostic P14 restent non livrés en production malgré un arbre de travail vert.
 - **Passe B — sécurité à l'effort** (`rhd-activite-physique`, `modèle: Opus, effort: high`).
 - **Validation clinique référent finale** (`prescription`, RHD ×2 → `statut: valide`) : à programmer.
 - **Albuminurie non convertie** : `derive` ne sait produire qu'un booléen ou un nombre, jamais un
   libellé — le praticien saisit toujours une catégorie là où son labo rend un ratio A/C.
-- **`terrain_fragile` déclaré DEUX FOIS avec des définitions différentes** (`insuline` sans
-  `hypo_severe_recurrente`, `prescription` avec) — I4 ne le voit pas (vérifié par nœud). À arbitrer.
 - **Contrainte de schéma à rendre opposable** (D48) : « `divergences` non vide si `divergence: true` »
   est vraie sur les 6 nœuds, peut être posée.
 

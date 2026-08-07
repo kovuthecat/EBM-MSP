@@ -5,15 +5,10 @@
 > Plafond : 120 lignes (hook). Légende : `[ ]` à valider · `[x]` OK · `[!]` à corriger.
 > Un bloc par écran/thème courant, état actuel uniquement — un écran réécrit **remplace** ses
 > anciens critères. Le détail de chaque point vit dans le `plans/P<n>/S<k>.md` qui l'a produit.
-
-## Purge du 2026-08-03 (clôture de P12)
-
-**La recette praticien naïf du 2026-08-02** (`docs/decision/validation/recette-praticien-naif-2026-08-02.md`)
-a rendu un jugement d'usage sur la majorité des items P8/P9/P10/P11 qui attendaient ici. Résolus et retirés :
-T-055 à T-058 · T-075, T-076 · T-084, T-086 · T-107 a et b (**ne pas colorer « Refuse »**) · T-112 (légende à
-garder, mais comme *sommaire de l'écran*) · T-105 (cible tactile 32 px, non prioritaire) · T-118 (remplacé
-par **D47**). **T-085** (descente d'insuline sans chiffre) est résolu **en négatif** : HAS 2024 R.87 porte la
-règle dans les deux sens, la source existait — cf. P12/S4.
+>
+> **Archive du 2026-08-07** (purge de plafond, P14/S12) — 3 blocs déplacés, rien de supprimé :
+> `docs/decision/validation/VALIDATION-archive-2026-08-07.md` (note de purge P12 · décisions en attente
+> T-120/T-132 · reste ouvert des plans antérieurs T-063 à T-111).
 
 ## Contenu clinique écrit par P12 — la relecture la plus importante
 
@@ -61,16 +56,6 @@ règle dans les deux sens, la source existait — cf. P12/S4.
       écarté car il entre en collision avec l'indéterminé interne) ? La mention est-elle assez visible
       sans être anxiogène ?
 
-## Décisions en attente
-
-- [ ] **T-120 — abandonner ?** L'implication « athérome établi ⇒ antécédent cardiovasculaire » ne peut
-      pas s'encoder : `cible-glycemique.yaml` ne déclare pas `ASCVD_etablie`, donc une règle de
-      pré-remplissage qui le lit ne s'évaluerait jamais. La sûreté est déjà acquise par S1/T-119.
-      Recommandation : **abandonner** (les deux autres voies coûtent plus qu'un clic économisé).
-- [ ] **S7/T-132 — faut-il finalement demander la statine en cours** (molécule + dose) ? Section
-      renommée « Tolérance de la statine » (option a, arbitrée). L'ajouter permettrait à l'outil de
-      dire « il y est déjà, ne touchez à rien » — au prix de deux champs et d'un cadrage à réécrire.
-
 ## Plan P13 (2026-08-05) — arbitrages référent rendus le 04/08, N2 accumulés en mode vague
 
 - [ ] **T-140 — le classement par sécurité (« Commencez par… ») est-il le bon défaut ?** Un critère qui
@@ -106,15 +91,29 @@ règle dans les deux sens, la source existait — cf. P12/S4.
       d'hypoglycémie absent sans capteur (`insuline`), pas de conduite d'urgence pour des CK très élevées
       avant initiation (`statine`). Détail : `docs/decision/validation/passe-redaction-2026-08-05.md`.
 
-## Reste ouvert des plans antérieurs (non tranché par la recette du 02/08)
+## Plan P14 (2026-08-06/07) — la leçon consignée : R13/R14/R15, procédé P1/P5/P6, D52 → D58
 
-- [ ] **T-063** — « Remplacer le glinide » chez un patient sous répaglinide à DFG 28 (scénario jamais
-      rejoué en recette).
-- [ ] **T-064/T-065** — libellés « Baisse/Hausse continue de la glycémie nocturne » sur un AGP réel.
-- [ ] **T-068** — une contre-indication levée est-elle assez visible pour rester vérifiable, et assez
-      discrète pour ne plus alerter à tort ?
-- [ ] **T-080 à T-083** — les blocs `cadrage` des six nœuds : justes et complets ? (La liste du nœud
-      `prescription` est validée par l'usage : la recette N15 la dit « exactement celle de ce qui me
-      fait hésiter ». Restent `insuline`, `statine`, `cible-glycemique` et les deux RHD.)
-- [ ] **T-111 (b)** — la pastille ambre se lit « attention », pas « une dose manque » (verdict rendu
-      par la recette). La correction proposée — une mention courte dans le socle — n'est pas faite.
+> Points ouverts par **S12** (clôture documentaire). Les points N2 des sessions de **contenu** de P14
+> (S4 à S8, S17-arbitrages, S18, S19) vivent dans leurs `plans/P14/S*.md` respectifs. **Consolidation
+> (S13) partielle** — 4 des 6 YAML de contenu restent non commités (entrelacés avec un chantier hors
+> P14) : `plans/P14/index.md` §Bilan.
+
+- [ ] **S12/T-182 — les trois nouvelles règles de `GRAMMAIRE-NOEUD.md`.** **R13** (un signal se
+      partitionne : une valeur, une carte) · **R14** (un nom de critère, une définition pour tout le
+      domaine) · **R15** (un fait de sécurité appartient au domaine, pas au nœud). Chacune est adossée à
+      un invariant vert et illustrée par le cas réel qui l'a produite. **Sont-elles énoncées au bon
+      niveau de généralité** — assez précises pour être opposables à un futur domaine, assez larges pour
+      ne pas décrire le seul DT2 ? R5, R8, R10 et R1 ont aussi été enrichies (liste close des lecteurs
+      d'un critère · renvoi R8→R15 · couverture structurelle des replis · renvoi R1→D50).
+- [ ] **S12/T-183 — les trois amendements du procédé (`CONSTRUIRE-UN-MODULE.md`).** **P1** ouvre le
+      vocabulaire de sécurité du domaine avant le premier nœud (cliquet) · **P5** exige un *brouillon* de
+      la table des conditions avant la 1ʳᵉ ligne de YAML · **P6** exige sa régénération mécanique et le
+      **diff** contre ce brouillon, plus un 4ᵉ point de portée domaine. **Coût tenable ?** Le brouillon
+      de P5 est le seul artefact vraiment nouveau à produire à la main ; le reste est mécanisé.
+- [ ] **S12/T-184 — les sept décisions D52 → D58**, dont trois arbitrages cliniques rendus en
+      conversation et jamais formalisés : **D52** (le ratio 0,5 U/kg redevient une alerte, sans capteur
+      uniquement), **D56** (`cible-glycemique` adopte `ASCVD_etablie` strict — des patients perdent
+      l'assouplissement à 8 % par ce seul critère), **D57** (`fragilite` alerte sur les 5 nœuds).
+      **La formulation écrite dit-elle bien ce qui a été tranché oralement ?** Point le plus important.
+      Vérifier aussi la limite que **D53** porte : « escalade = alternatives » **ne vaut pas pour les
+      nœuds RHD** — la frontière est-elle assez nette pour qu'un futur lot ne l'applique pas à tort ?

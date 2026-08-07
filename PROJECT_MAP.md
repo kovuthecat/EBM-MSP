@@ -107,6 +107,12 @@ jamais de texte intégral) ; marqueur « impacte un algorithme » → nœud.
   d'écriture d'un nœud, R1→R9) · `docs/decision/CONSTRUIRE-UN-MODULE.md` (procédé de construction d'un
   module, P0→P7, portes de sortie et checklists). `docs/decision/00-global.md` reste **DT2** (pipeline
   de preuve).
+- **Vocabulaire de sécurité du domaine** (P2 de la revue du 2026-08-04) : `docs/decision/validation/
+  criteres-communs-2026-08-06.md` — matrice des faits de sécurité par nœud, verdicts (légitime / défaut /
+  à arbitrer), candidats à `criteres-communs.yaml` (S15).
+- `docs/decision/validation/table-conditions-2026-08-06.md` — table des conditions des 84 cartes des 6
+  nœuds DT2 (lecture par la RELATION entre cartes) + inventaire des paires co-actives (P14/S3) : modèle
+  de ce que `CONSTRUIRE-UN-MODULE.md` exigera en porte de sortie P6 (S12/T-183).
 
 ---
 

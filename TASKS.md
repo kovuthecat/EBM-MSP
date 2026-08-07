@@ -12,12 +12,13 @@ plan** (statut dans son `index.md`) : `- T-ID — titre · → plans/…/S<k>.md
 - T-052/T-053 — Validité HbA1c (cadrage) → plans/P7/SA2.md · T-054 — recette locale → S2.md
   **Débloquée** : l'accroche chiffrée des blocs repliés est livrée (P12/S10).
 
-## Plan P14 — ouvert (statut/détail : `plans/P14/index.md`)
+## Backlog — consolidation P14 à finir (2026-08-07)
 
-- T-160/T-161 → S1.md · T-162→T-165 → S2.md · T-166 → S3.md · T-167 → S4.md · T-168 → S5.md · T-169/T-185 → S6.md · T-170 → S7.md
-- T-171→T-173 + T-175→T-177 → S8.md (T-174 abandonnée, arbitrage 2026-08-06) · T-178 (D50) → S9.md · T-179 → S10.md · T-180/T-181 → S11.md
-- **Chantier P2** (critères communs de domaine, absorbé de P13) : T-186/T-187 → S14.md · T-188 → S15.md · T-189 → S16.md · T-190 → S17.md · T-191 → S18.md · T-192 → S19.md
-- T-182→T-184 → S12.md · consolidation → S13.md
+- [ ] **Séparer (ou committer ensemble, décision référent) le lot P14 et le lot « contre-relecture des 4
+      niveaux d'argumentaire »** sur `insuline.yaml`, `prescription.yaml`, `rhd-alimentation.yaml`,
+      `rhd-activite-physique.yaml` — entrelacés dans le même arbre de travail non commité, aucune
+      séparation fiable par fichier trouvée par S13 · `plans/P14/index.md` §Bilan · Sonnet, high,
+      arbitrage d'abord. **Sans ça, T-167→T-177, T-185, T-190→T-192 restent non livrés en production.**
 
 ## Backlog — né de P12 (2026-08-03), non cadré
 
@@ -55,4 +56,4 @@ plan** (statut dans son `index.md`) : `- T-ID — titre · → plans/…/S<k>.md
 
 ## Archivage
 
-Supprimer la ligne d'une tâche dès que son plan est clos (historique : `git log`/`STATUS.md`). Purgé 2026-07-30 : P7 T-048→T-051, P8 T-055→T-066, P9 T-068→T-077 · 2026-07-31 : items Veille + « Veille page blanche » (→ PV1/S6) · 2026-08-01 : P10 T-078→T-088 · 2026-08-02 : P11 T-102→T-118 · 2026-08-03 : P12 T-067 + T-119→T-136 (T-120 non livrée, remontée en backlog), clôture de P8 · 2026-08-05 : P13 T-137→T-159 (T-149/T-150 non livrées, T-154 STOP, T-152/statine partielle — remontées en backlog).
+Supprimer la ligne d'une tâche dès que son plan est clos (historique : `git log`/`STATUS.md`). Purgé 2026-07-30 : P7 T-048→T-051, P8 T-055→T-066, P9 T-068→T-077 · 2026-07-31 : items Veille + « Veille page blanche » (→ PV1/S6) · 2026-08-01 : P10 T-078→T-088 · 2026-08-02 : P11 T-102→T-118 · 2026-08-03 : P12 T-067 + T-119→T-136 (T-120 non livrée, remontée en backlog), clôture de P8 · 2026-08-05 : P13 T-137→T-159 (T-149/T-150 non livrées, T-154 STOP, T-152/statine partielle — remontées en backlog) · 2026-08-07 : P14 T-160→T-193 (T-174 abandonnée, arbitrage 2026-08-06) — toutes les sessions livrées, mais la consolidation (commit) de T-167→T-177, T-185, T-190→T-192 reste bloquée, remontée en backlog ci-dessus.
