@@ -98,6 +98,7 @@ Sortie :
   Alertes de nœud :
     - Patient en dialyse : le bénéfice d'une statine n'est pas démontré sur les critères durs dans cette population (4D chez le DT2 hémodialysé : critère principal RR 0,92 NS, avec un signal d'AVC fatal ; AURORA : neutre malgré −43 % de LDL). Chez un patient dialysé SANS statine en cours, l'option de haute intensité (prévention secondaire) n'est plus proposée par cet outil — retrait structurel, pas seulement un rappel. Si une statine est DÉJÀ en place, sa poursuite reste raisonnable et les options ci-dessus s'appliquent normalement. En maladie rénale chronique NON dialysée, la statine reste indiquée. [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
+    - Arrêter la statine — suspicion de rhabdomyolyse, avis spécialisé urgent :: à renseigner : statine_deja_en_place, CK_UI_L, CK_normale_sup
     - Interrompre la statine — la classe reste indisponible :: à renseigner : statine_deja_en_place, CK_UI_L, CK_normale_sup
 
 ### Profil #4 — 5 critère(s) masqué(s) (masque stratifié) : intolerance_statine, anciennete_diabete_annees, CK_normale_sup, ASCVD_etablie, statine_deja_en_place
@@ -229,6 +230,7 @@ Sortie :
   - [securite] Statine indisponible
       proposé parce que : intolerance_statine == averee
   Options EN ATTENTE (indétermination, R7/D20) :
+    - Arrêter la statine — suspicion de rhabdomyolyse, avis spécialisé urgent :: à renseigner : statine_deja_en_place, CK_UI_L, CK_normale_sup
     - Interrompre la statine — la classe reste indisponible :: à renseigner : statine_deja_en_place, CK_UI_L, CK_normale_sup
 
 ### Profil #10 — 4 critère(s) masqué(s) (masque stratifié) : CK_normale_sup, CK_UI_L, autres_FDRCV, ASCVD_etablie
@@ -251,6 +253,7 @@ Sortie :
       proposé parce que : intolerance_statine == averee
       alertes d'option : Ce patient a une maladie cardiovasculaire ÉTABLIE : il relève de la prévention SECONDAIRE, où le bénéfice de l'abaissement du LDL est le mieux démontré et le NNT le plus bas. L'indisponibilité de la statine ne diminue en rien son risque absolu — elle rend seulement plus difficile de le réduire. Ne pas laisser ce patient sans traitement hypolipémiant au motif que la statine est écartée. [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
+    - Arrêter la statine — suspicion de rhabdomyolyse, avis spécialisé urgent :: à renseigner : CK_UI_L, CK_normale_sup
     - Interrompre la statine — la classe reste indisponible :: à renseigner : CK_UI_L, CK_normale_sup
 
 ### Profil #11 — 7 critère(s) masqué(s) (masque stratifié) : ASCVD_etablie, age, dialyse, anciennete_diabete_annees, CK_UI_L, diabete_complique, intolerance_statine

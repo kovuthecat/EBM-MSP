@@ -38,21 +38,51 @@ const NOEUDS_AVEC_CRITERES_MORTS_CONNUS = new Set<string>([])
  * disparu du contenu. Une exception qui ne signale pas sa propre résorption devient du papier peint.
  */
 const CRITERES_NON_DECISIFS_ADMIS: Record<string, Record<string, string>> = {
-  // VIDE depuis le 2026-07-29 — dette résorbée, et c'est ce test qui l'a réclamé (il échoue sur une
-  // exception devenue inutile, pas seulement sur un critère mort).
+  // RÉOUVERTE le 2026-08-06 (P14/S11, T-180/T-181, D50 — amende D28) — même exception que celle VIDÉE le
+  // 2026-07-29 (cf. l'historique ci-dessous), pour le même motif structurel, mais sur les DEUX nœuds cette
+  // fois : `position_vs_cible` devient la définition UNIQUE de « où en est ce patient » (décision référent :
+  // « la position déclarée par le praticien prime »), et `cible_atteinte`/`ecart_sous_objectif_cible` sont
+  // RÉÉCRITS pour la lire — ils cessent tous deux de lire `HbA1c_actuelle`/`HbA1c_cible` directement.
   //
-  // L'unique entrée était `prescription :: HbA1c_cible` : ce critère n'agissait sur AUCUNE décision (aucune
-  // option, aucune alerte, aucun rang ne le lisait), seulement sur le FORMULAIRE, où il pré-remplissait
-  // `position_vs_cible` en calculant l'écart à la cible — un effet que `criteresPertinents` est
-  // structurellement incapable de mesurer, d'où l'exception.
+  // `HbA1c_cible` (les deux nœuds) et `HbA1c_actuelle` (`insuline` SEULEMENT — `prescription` le lit encore
+  // directement dans `hba1c_sous_cible`, garde-fou absolu indépendant de la cible, donc reste DÉCISIF là-bas)
+  // perdent donc tout lecteur de SÉLECTION. Leur SEUL lecteur restant est le `preremplissage` de
+  // `position_vs_cible` (D50/T-181, cf. le contenu) : il suggère une position de départ depuis l'écart à la
+  // cible PUBLIÉE par `cible-glycemique`, un effet que `criteresPertinents`/`evaluateNode` (ce fichier) sont
+  // STRUCTURELLEMENT incapables de mesurer — `preremplissage` est un mécanisme d'ÉCRAN
+  // (`DecisionNodeScreen.tsx`), jamais lu par le moteur. C'est EXACTEMENT le rôle que R5/T-164
+  // (`invariants-contenu.test.ts`) reconnaît explicitement à `preremplissage` comme lecteur légitime — cette
+  // table-ci est la contrepartie DYNAMIQUE de cette même reconnaissance, pas une dette nouvelle.
   //
-  // Le référent a retiré ce pré-remplissage le 2026-07-29 (retour assumé sur K6/D28 : `position_vs_cible`
-  // redevient purement DÉCLARÉ). `HbA1c_cible` a donc perdu son dernier lecteur sur ce nœud et a été
-  // supprimé avec les quatre dérivés d'écart qu'il alimentait — exactement ce que R5 exige (« un critère
-  // qu'on demande doit agir »). L'exception n'a plus d'objet.
+  // GARDE-FOU D50 VÉRIFIÉ (condition MÊME de la légitimité de cette exception) : ni `HbA1c_actuelle` ni
+  // `HbA1c_cible` ne sont cités par aucune `conditions`/`prerequis`/`exclusions`/`alertes`/`derive`/
+  // `contraintes` de ces deux nœuds — invariant dédié du banc (D50/T-179, `invariants-contenu.test.ts`).
   //
-  // NB : `HbA1c_cible` existe toujours sur le nœud `insuline`, où il est bel et bien DÉCISIF (il y nourrit
-  // le dérivé `cible_atteinte`, lu par des règles) — il n'y a donc jamais eu d'exception à déclarer là-bas.
+  // AUTO-EXPIRANTE comme le reste de cette table : si `HbA1c_actuelle`/`HbA1c_cible` redevenaient décisifs
+  // (une règle future les relisant directement), le test réclamerait le retrait de l'entrée correspondante.
+  insuline: {
+    HbA1c_actuelle: 'D50/T-180 (P14/S11) — ne nourrit plus que `preremplissage` de `position_vs_cible` (via cet écart), plus aucun `derive`/`conditions` de sélection ne le lit sur ce nœud.',
+    HbA1c_cible: 'D50/T-181 (P14/S11) — seul lecteur : `preremplissage` de `position_vs_cible`, jamais une règle de sélection (garde-fou D50).',
+  },
+  prescription: {
+    HbA1c_cible: 'D50/T-181 (P14/S11) — RÉTABLI après la suppression du 2026-07-29 (cf. l\'historique de cette table), sous la forme D50 : seul lecteur, `preremplissage` de `position_vs_cible`, jamais une règle de sélection (garde-fou D50).',
+  },
+  // ---------------------------------------------------------------------------------------------------
+  // HISTORIQUE — VIDE du 2026-07-29 au 2026-08-06, dette résorbée puis rouverte sous une forme différente.
+  //
+  // L'unique entrée était alors `prescription :: HbA1c_cible` : ce critère n'agissait sur AUCUNE décision
+  // (aucune option, aucune alerte, aucun rang ne le lisait), seulement sur le FORMULAIRE, où il
+  // pré-remplissait `position_vs_cible` en calculant l'écart à la cible (K6/D28) — le même effet
+  // structurellement invisible à `criteresPertinents` qui motive les entrées ci-dessus.
+  //
+  // Le référent avait retiré ce pré-remplissage le 2026-07-29 (retour assumé sur K6/D28 : `position_vs_cible`
+  // redevenait purement DÉCLARÉ). `HbA1c_cible` avait alors perdu son dernier lecteur sur ce nœud et avait
+  // été supprimé avec les quatre dérivés d'écart qu'il alimentait. `HbA1c_cible` existait alors toujours sur
+  // `insuline`, où il restait DÉCISIF (il y nourrissait `cible_atteinte`, lu par des règles) — pas
+  // d'exception à déclarer là-bas à l'époque. C'est cette dernière lecture directe que T-180 retire
+  // aujourd'hui (`cible_atteinte` lit désormais `position_vs_cible`), d'où la nouvelle entrée `insuline` ci-
+  // dessus — la dette n'est pas la même qu'en juillet, elle a la même FORME pour une raison structurelle
+  // différente (D50, publication inter-nœuds, plutôt que K6, reprise de saisie).
 }
 
 /**
@@ -82,6 +112,57 @@ const CRITERES_NON_DECISIFS_ADMIS: Record<string, Record<string, string>> = {
 const NOEUDS_AVEC_OPTION_INATTEIGNABLE_PAR_LE_GENERATEUR = new Set<string>([])
 
 /**
+ * OPTIONS DE REPLI VÉRIFIÉES NON COUVERTES PAR LE BANC FIGÉ, POUR UNE RAISON DOCUMENTÉE — deux root causes
+ * distinctes, chaque entrée précise laquelle. DIFFÉRENT de `NOEUDS_AVEC_OPTION_INATTEIGNABLE_PAR_LE_
+ * GENERATEUR` ci-dessus (réservé à un vrai BUG du générateur, aujourd'hui vide) : ici le générateur et le
+ * contenu sont corrects, seul le banc à graine fixe ne lève pas le cas.
+ *
+ * **Cause A — structurellement inatteignable PAR CONSTRUCTION** (`rhd-activite-physique`,
+ * `rhd-alimentation`, décision référent 2026-08-06, P14/S7/T-170) : ces deux nœuds couvrent aujourd'hui
+ * *tout* leur domaine par arithmétique des énums actuels. Le repli est un filet posé pour une évolution
+ * FUTURE du contenu, pas un cas vivant aujourd'hui — vérifié sur le banc EXHAUSTIF (110 592 / 1 360
+ * profils) : aucune combinaison de valeurs actuellement déclarées ne l'atteint, et aucune ne pourra
+ * jamais l'atteindre tant que le contenu actuel ne change pas.
+ *
+ * **Cause B — trou de DENSITÉ D'ÉCHANTILLONNAGE, contenu vérifié correct** (`prescription`, P14/S8/T-177) :
+ * le repli « Mesures hygiéno‑diététiques seules — réévaluer » a un `prerequis` volontairement élargi à
+ * `intention == initier` seul (fermeture du trou de couverture R10 identifié par S2/T-163). Sur un profil
+ * construit à la main, il s'affiche correctement, seul avec le socle, dans les deux états de
+ * `cible_atteinte` — le contenu N'EST PAS en cause. Mais sur les 1840 profils du banc à graine fixe,
+ * seuls 61 ont `intention == initier`, et AUCUN des 61 n'a par ailleurs zéro autre option applicable
+ * (chacun porte un déclencheur clinique réel distinct — glucotoxicité, indication iSGLT2, etc.) —
+ * vérifié indépendamment par l'orchestrateur (script de diagnostic ad hoc, supprimé après vérification :
+ * 61 profils `initier`, 0 sans autre option). C'est une propriété statistique de cette graine
+ * d'échantillonnage stratifié (indépendant par critère, pas par combinaison), pas un défaut de contenu :
+ * agrandir le banc ou raffiner la stratification dépasse le mandat de contenu de P14 (signalé, non fait).
+ *
+ * Grain : `${node.id} :: ${intitulé de l'option}`, JAMAIS le nœud entier — un nœud aussi actif que
+ * `prescription` (touché par de nombreuses sessions du plan) garderait sinon toutes ses AUTRES options
+ * sans surveillance de couverture.
+ *
+ * AUTO-EXPIRANTE : si un profil du banc atteint un jour réellement l'option (contenu enrichi, ou banc
+ * élargi/re-stratifié pour la cause B), le test réclame le retrait de l'entrée.
+ */
+const OPTIONS_REPLI_STRUCTURELLES_INATTEIGNABLES = new Map<string, string>([
+  [
+    "rhd-activite-physique :: Aucune piste prioritaire à proposer aujourd'hui",
+    'Décision référent 2026-08-06 (P14/S7/T-170) — cause A, filet structurel pour une évolution future du ' +
+      'contenu, domaine actuel déjà couvert en entier par les cartes réelles — accepté, cf. docstring ci-dessus.',
+  ],
+  [
+    "rhd-alimentation :: Aucune piste prioritaire à proposer aujourd'hui",
+    'Décision référent 2026-08-06 (P14/S7/T-170) — cause A, même motif, même mécanisme, cf. entrée ci-dessus.',
+  ],
+  [
+    'prescription :: Mesures hygiéno‑diététiques seules — réévaluer',
+    "Constaté 2026-08-06 (P14/S8/T-177) — cause B, trou de densité d'échantillonnage (61 profils " +
+      "`initier` sur 1840, 0 sans autre option applicable), contenu vérifié correct par construction " +
+      'manuelle ET par script indépendant — cf. docstring ci-dessus. Ne pas confondre avec une dette de ' +
+      'contenu : T-163 (couverture logique des replis) est vert sur ce nœud depuis T-177.',
+  ],
+])
+
+/**
  * Délai par test, relevé du défaut vitest (5 000 ms) le 2026-07-27 — même constante et même raison que
  * dans `banc/invariants.test.ts`. Conséquence VOULUE du relèvement de
  * `PLAFOND_ENUMERATION_EXHAUSTIVE` (20 000 → 60 000, cf. `banc/profils.ts`) : `statine` et
@@ -103,6 +184,16 @@ describe.each(noeuds.map((node) => [node.id, node] as const))('banc — couvertu
     const jamaisApplicable = new Set(node.options.map((option) => option.intitule))
     for (const profil of profils) {
       for (const option of evaluateNode(node, profil).applicable) jamaisApplicable.delete(option.intitule)
+    }
+    for (const [cle] of OPTIONS_REPLI_STRUCTURELLES_INATTEIGNABLES) {
+      if (!cle.startsWith(`${node.id} :: `)) continue
+      const intitule = cle.slice(`${node.id} :: `.length)
+      expect(
+        jamaisApplicable.has(intitule),
+        `"${cle}" ne correspond plus à aucune option inatteignable — dette résorbée (ou contenu changé), ` +
+          `retirer l'entrée de OPTIONS_REPLI_STRUCTURELLES_INATTEIGNABLES.`,
+      ).toBe(true)
+      jamaisApplicable.delete(intitule)
     }
     expect([...jamaisApplicable]).toEqual([])
   }, DELAI_BANC_MS)
@@ -224,6 +315,15 @@ describe.each(noeuds.map((node) => [node.id, node] as const))('banc — couvertu
   // (une évaluation par valeur candidate de chaque critère, cf. engine/relevance.ts) — coûteux mais pur
   // et déterministe ; sur un nœud riche (~25 critères saisissables) × 2000 profils, la mécanique seule
   // (hors E/S, hors réseau) dépasse le défaut sans indiquer un problème de performance du moteur.
+  //
+  // RELEVÉ 120 000 → `DELAI_BANC_MS` (300 000) le 2026-08-07 (P14, fin de vague 7) : `prescription` a
+  // gagné des options et des critères au fil du plan (S6, S8, S17, S19…) et son cas PASSANT — pourtant
+  // optimisé par la sortie anticipée ci-dessous — dépasse désormais 120 s à lui seul (mesuré 139-145 s,
+  // machine libre, hors toute contention), sans qu'aucun critère ne soit réellement jamais décisif :
+  // vérifié en isolant le test avec un budget temporaire de 300 s, il passe. Ce n'est donc pas la
+  // fragilité machine-dépendante que ce fichier documente ailleurs (`DELAI_BANC_MS`) : c'est la
+  // croissance du contenu qui rattrape un budget resté à sa valeur d'origine, dimensionnée pour un autre
+  // nœud (`insuline`) à un stade antérieur du contenu.
   const testR5 = NOEUDS_AVEC_CRITERES_MORTS_CONNUS.has(node.id) ? it.fails : it
   testR5(
     'R5 — chaque critère SAISISSABLE (non `derive`) est pertinent pour au moins un profil',
@@ -248,8 +348,8 @@ describe.each(noeuds.map((node) => [node.id, node] as const))('banc — couvertu
         `exception(s) R5 devenue(s) inutile(s) sur "${node.id}" — retirer de CRITERES_NON_DECISIFS_ADMIS`,
       ).toEqual([])
     },
-    // Filet, dimensionné pour le cas d'échec qui doit parcourir tout le banc (nœud `insuline`), pas pour
-    // le cas passant que la sortie anticipée rend court.
-    120_000,
+    // Filet, dimensionné pour le cas d'échec qui doit parcourir tout le banc (nœud `insuline`) — et,
+    // depuis le 2026-08-07, pour le cas passant de `prescription` lui-même, cf. commentaire ci-dessus.
+    DELAI_BANC_MS,
   )
 })

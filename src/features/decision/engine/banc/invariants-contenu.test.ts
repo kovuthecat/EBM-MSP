@@ -22,14 +22,14 @@
  * peut, ce qui est exactement la propriété demandée.
  */
 import { describe, expect, it } from 'vitest'
-import { noeuds } from '../../content/loadNodes.ts'
+import { fichiersCriteresCommuns, noeuds } from '../../content/loadNodes.ts'
 import { fragmentsDuNoeud } from '../expressionsNoeud.ts'
 import { contraintesViolees } from '../contraintes.ts'
 import { calculerCriteresDerives, determinesEffectifs } from '../deriveCritere.ts'
 import { evaluateCondition } from '../conditions.ts'
 import { champEstVisible, valeurParDefaut } from '../../lib/formLayout.ts'
 import { genererProfils, genererProfilsBruts, tailleBanc } from './profils.ts'
-import type { CritereEntree, Noeud, Option } from '../../content/node.types.ts'
+import type { CritereEntree, FichierCriteresCommuns, Noeud, Option } from '../../content/node.types.ts'
 import type { Criteria, CriteriaValue } from '../conditions.ts'
 
 // ---------------------------------------------------------------------------------------------------
@@ -827,12 +827,17 @@ const DRAPEAUX_SANS_VOIX_PROPRE_CONNUS: Record<string, Record<string, string>> =
   // ne lisait un signe en particulier) mais dans les LIBELLÉS, qui portaient le contenu de l'encadré 11
   // de la HAS. C'est ce contenu qu'il fallait sauver — d'où le champ `aide` ajouté au schéma le même jour,
   // et non un troisième canal d'alerte.
-  insuline: {
-    fragilite:
-      "Trouvé PAR CET INVARIANT, hors recette. `fragilite` n'agit qu'à travers le dérivé de cible " +
-      "assouplie. QUESTION AU RÉFÉRENT : l'écran doit-il DIRE que la cible est assouplie PARCE QUE le " +
-      "patient est fragile ? Le nœud `prescription`, lui, porte bien une alerte sur ce terrain.",
-  },
+  //
+  // `insuline.fragilite` A ÉTÉ RETIRÉ le 2026-08-07 (P14/S17, arbitrage 2 de S14, docs/decision/
+  // validation/criteres-communs-2026-08-06.md §6) — DETTE RÉSORBÉE.
+  //
+  // C'est EXACTEMENT la question que cette entrée posait au référent qui a été tranchée : « passons en
+  // sécurité partout » (décision référent en conversation, 2026-08-07). Une alerte de nœud
+  // `quand: "fragilite == true"`, `niveau: attention`, a été ajoutée à `insuline.yaml` (sur le modèle de
+  // l'alerte `hypo_severe_recurrente` voisine) — `fragilite` est désormais citée hors `derive`, elle a sa
+  // voix propre. Même décision appliquée à `cible-glycemique` (qui n'apparaissait pas dans cette dette :
+  // `fragilite` y était déjà citée directement dans les `conditions` des options, pas seulement via un
+  // `derive` — I14 ne l'avait donc jamais signalée sur ce nœud).
 }
 
 describe('I14 — un drapeau qui n’agit qu’à travers un `derive` n’a pas de voix propre', () => {
@@ -1333,5 +1338,825 @@ describe('I26 — un pré-remplissage sur un critère masqué ne pose jamais que
     // Le même critère VISIBLE (declencheur vrai) échappe à la propriété — elle ne parle que du masqué.
     const profilVisible = { declencheur: true, porte: true, champ: [] }
     expect(violationsPreremplissageMasque({ criteres_entree: criteresFautifs } as Noeud, profilVisible)).toEqual([])
+  })
+})
+
+// ═══════════════════════════════════════════════════════════════════════════════════════════════════
+// T-163 (P14/S2, mécanise R10) — les prérequis des options `default` couvrent le domaine du nœud
+// ═══════════════════════════════════════════════════════════════════════════════════════════════════
+
+/**
+ * POURQUOI CET INVARIANT, ET EN QUOI IL DIFFÈRE D'I22/I23 (`banc/securite-atteignable.test.ts`, R10).
+ * I22/I23 mécanisent déjà R10 (« tout patient repart avec quelque chose »), mais sur des PROFILS TIRÉS
+ * par le banc — ils ne peuvent donc voir qu'un trou que le générateur a effectivement échantillonné. Le
+ * trou de `prescription` est STRUCTUREL : ses deux replis sont gardés par
+ * `intention == initier AND cible_atteinte == true` et `intention != initier` — le cas
+ * `intention == initier AND cible_atteinte == false` n'est couvert par AUCUN des deux, quel que soit le
+ * nombre de profils tirés. Cet invariant-ci vérifie la COMBINATOIRE COMPLÈTE des critères cités par les
+ * replis, jamais un échantillon.
+ *
+ * CE QUE « COUVRIR » VEUT DIRE ICI. Un nœud `multi-options` évalue TOUS ses replis (`engine/
+ * evaluateNode.ts`, boucle `for (const option of defaults)`) : dès qu'AUCUNE option non-repli ne
+ * s'applique, chaque repli dont le `prerequis` est vrai s'affiche. « Couvrir le domaine » signifie donc :
+ * pour toute combinaison des critères cités par au moins un `prerequis` de repli, AU MOINS UN repli doit
+ * avoir un `prerequis` vrai (un repli sans aucun `prerequis` couvre alors tout, trivialement).
+ *
+ * PÉRIMÈTRE : `nombre` (et tout type non énuméré ici, `liste` comprise) N'EST PAS énumérable en un
+ * ensemble fini de valeurs pertinentes — on retombe alors sur l'exigence plus faible mais toujours
+ * mécanique qu'AU MOINS un repli soit INCONDITIONNEL (`prerequis` vide ou absent), seul moyen de garantir
+ * la couverture sans énumérer un continuum. `enum`/`bool` seuls se prêtent au produit croisé exact,
+ * plafonné à 4096 combinaisons (au-delà, même repli sur la règle précédente — aucun contenu réel du
+ * domaine n'approche ce plafond aujourd'hui).
+ *
+ * DÉRIVÉ CITÉ PAR UN `prerequis` DE REPLI (cf. « Si bloqué », `plans/P14/S2.md`) : traité comme n'importe
+ * quel autre critère, via son PROPRE `type` déclaré (`cible_atteinte`, `type: bool`, domaine
+ * `[true, false]`) — jamais déroulé vers ses primitifs (hors périmètre, cf. le plan).
+ *
+ * ROUGE À L'ÉCRITURE, ET C'ÉTAIT ATTENDU : `prescription` (renvoi S8/T-177) et les deux nœuds RHD, qui
+ * n'avaient AUCUN repli du tout (renvoi S7/T-170). `insuline`, qui partitionne EXACTEMENT son seul critère
+ * cité (`situation_insuline == naif` / `!= naif`, un `enum` à 2 branches complémentaires), est resté VERT
+ * de bout en bout.
+ *
+ * RÉSORBÉ le 2026-08-06 (P14/S8, T-177) : le repli « Mesures hygiéno‑diététiques seules — réévaluer » de
+ * `prescription` a perdu `cible_atteinte == true` de son `prerequis` (ne cite plus que
+ * `intention == initier`) — ses deux replis partitionnent désormais EXACTEMENT `intention`, et
+ * `cible_atteinte` disparaît de `nomsCites` (plus aucun repli ne le cite). Les deux nœuds RHD étaient
+ * déjà résorbés par S7/T-170. `it.fails` → `it` : les six nœuds sont désormais VERTS.
+ *
+ * GÉNÉRIQUE (CLAUDE.md invariant 5) : aucun nom de critère ni de nœud dans la LOGIQUE — seul ce
+ * commentaire, à titre d'exemple, en nomme.
+ */
+const PLAFOND_PRODUIT_T163 = 4096
+
+/** Les options de REPLI d'un nœud (`conditions` vaut exactement `["default"]`). */
+function optionsRepliDuNoeud(node: Noeud): Option[] {
+  return node.options.filter((o) => o.conditions.length === 1 && o.conditions[0] === 'default')
+}
+
+/** Produit croisé de plusieurs domaines nommés — `[{nom, valeurs}]` → une `Criteria` par combinaison. */
+function produitCroiseDomaines(domaines: { nom: string; valeurs: CriteriaValue[] }[]): Criteria[] {
+  let combinaisons: Criteria[] = [{}]
+  for (const { nom, valeurs } of domaines) {
+    const suivantes: Criteria[] = []
+    for (const combinaison of combinaisons) {
+      for (const valeur of valeurs) suivantes.push({ ...combinaison, [nom]: valeur })
+    }
+    combinaisons = suivantes
+  }
+  return combinaisons
+}
+
+/** Un repli couvre-t-il cette combinaison (tous ses `prerequis` vrais — `[]` couvre tout, trivialement) ? */
+function combinaisonCouverte(replis: Option[], combinaison: Criteria): boolean {
+  return replis.some((option) =>
+    (option.prerequis ?? []).every((expr) => evaluateCondition(expr, combinaison) === true),
+  )
+}
+
+/** Violations R10 d'UN nœud (cf. docstring ci-dessus pour la méthode complète). */
+function violationsCouvertureRepli(node: Noeud): string[] {
+  const replis = optionsRepliDuNoeud(node)
+  if (replis.length === 0) {
+    return [
+      `nœud "${node.id}" : aucune option de repli (\`conditions: ["default"]\`) — un patient dont aucune ` +
+        `autre option n'est applicable repart sans conduite ni attente (R10).`,
+    ]
+  }
+
+  const nomsCites = new Set<string>()
+  for (const option of replis) {
+    for (const expr of option.prerequis ?? []) {
+      for (const nom of extraireCriteres(expr)) nomsCites.add(nom)
+    }
+  }
+  if (nomsCites.size === 0) return [] // aucun `prerequis` cité par aucun repli : le premier les couvre tous.
+
+  const rang = new Map(node.criteres_entree.map((c, i) => [c.nom, i]))
+  const criteresCites = [...nomsCites]
+    .map((nom) => node.criteres_entree.find((c) => c.nom === nom))
+    .filter((c): c is CritereEntree => c != null)
+    .sort((a, b) => (rang.get(a.nom) ?? 0) - (rang.get(b.nom) ?? 0))
+
+  const inconditionnel = replis.some((o) => (o.prerequis ?? []).length === 0)
+  const nonEnumerables = criteresCites.filter((c) => c.type !== 'enum' && c.type !== 'bool')
+  if (nonEnumerables.length > 0) {
+    if (inconditionnel) return []
+    return [
+      `nœud "${node.id}" : les prérequis de repli citent un critère non énumérable ` +
+        `(${nonEnumerables.map((c) => `"${c.nom}" (${c.type})`).join(', ')}) — aucun repli n'est pourtant ` +
+        `inconditionnel (sans \`prerequis\`) pour couvrir le reste du domaine (R10).`,
+    ]
+  }
+
+  const domaines = criteresCites.map((c) => ({
+    nom: c.nom,
+    valeurs: (c.type === 'bool' ? [true, false] : (c.valeurs ?? [])) as CriteriaValue[],
+  }))
+  const taille = domaines.reduce((acc, d) => acc * d.valeurs.length, 1)
+  if (taille > PLAFOND_PRODUIT_T163) {
+    if (inconditionnel) return []
+    return [
+      `nœud "${node.id}" : produit croisé des prérequis de repli trop grand (${taille} > ` +
+        `${PLAFOND_PRODUIT_T163}) — aucun repli inconditionnel pour couvrir le reste du domaine (R10).`,
+    ]
+  }
+
+  const violations: string[] = []
+  for (const combinaison of produitCroiseDomaines(domaines)) {
+    if (combinaisonCouverte(replis, combinaison)) continue
+    const description = criteresCites.map((c) => `${c.nom}=${combinaison[c.nom]}`).join(', ')
+    violations.push(`nœud "${node.id}" : combinaison non couverte par aucun repli — ${description} (R10).`)
+  }
+  return violations
+}
+
+describe('T-163 (P14/S2, mécanise R10) — les prérequis des options `default` couvrent le domaine du nœud', () => {
+  // VERT depuis le 2026-08-06 (P14/S8, T-177) : `prescription` et les deux nœuds RHD (S7/T-170) sont
+  // désormais couverts, cf. docstring ci-dessus. `it.fails` → `it`.
+  it(
+    'toute combinaison des critères cités par les prérequis de repli est couverte par au moins un repli',
+    () => {
+      const violations = noeuds.flatMap((node) => violationsCouvertureRepli(node))
+      expect(violations).toEqual([])
+    },
+  )
+})
+
+// ═══════════════════════════════════════════════════════════════════════════════════════════════════
+// T-164 (P14/S2, mécanise R5) — tout critère déclaré a au moins un lecteur
+// ═══════════════════════════════════════════════════════════════════════════════════════════════════
+
+/**
+ * R5 (`docs/decision/GRAMMAIRE-NOEUD.md`, § « Un critère qu'on demande doit agir ») existe en prose
+ * depuis l'origine du domaine ; rien ne le vérifiait. `rhd-activite-physique.verrou_effort` est déclaré
+ * et cité NULLE PART : la carte « programme d'APA » réécrit ses 4 termes en clair dans ses `exclusions`
+ * au lieu de lire le dérivé — deux endroits à tenir cohérents au lieu d'un.
+ *
+ * LECTEURS QUI COMPTENT (Décision clé, `plans/P14/S2.md`) — la liste EXACTE, ni plus ni moins :
+ * `conditions`, `prerequis`, `exclusions`, `alertes[].quand` (nœud ET option), `calculs[].expression`,
+ * `derive` d'un AUTRE critère, `visible_si`, `valeurs_visible_si`, `preremplissage[].quand`,
+ * `contraintes[].expression`, `familles[].prioritaire_si`. `priorite[].quand`, `action_si[].quand` et
+ * `contre_indications[].condition` sont VOLONTAIREMENT ABSENTS de cette liste (Décision clé du plan) :
+ * un rang, un badge ou l'état visuel d'une contre-indication ne sont pas le genre d'effet que R5 vise
+ * (« la recommandation, un rang, une alerte, une dose calculée ») — un rang parmi des options DÉJÀ TOUTES
+ * proposées n'individualise rien de ce qui EST proposé, contrairement à une `condition` qui ajoute ou
+ * retire une carte.
+ *
+ * `preremplissage` COMPTE comme lecteur, et c'est un choix délibéré (Décision clé) : c'est ce qui rendra
+ * `HbA1c_cible` légitime après S11 (K6, `plans/P13/S5.md`) sans qu'il agisse par ailleurs sur la
+ * sélection — proposer une valeur de départ est déjà « faire quelque chose » au sens de R5.
+ *
+ * EXCLUSION DE SOI-MÊME (Décision clé, étape 1) : pour le critère EXAMINÉ, sa propre `derive` et son
+ * propre `visible_si` sont retirés de la concaténation avant la recherche — « un critère ne se lit pas
+ * lui-même ». Sans cette exclusion, un critère dérivé qui se citerait lui-même (jamais rencontré dans ce
+ * contenu, mais possible en théorie) se validerait sans qu'aucun AUTRE endroit du nœud ne le lise.
+ *
+ * ROUGE À L'ÉCRITURE (S2), PUIS RESTÉ ROUGE APRÈS S8/T-172 : `rhd-activite-physique.verrou_effort` avait
+ * deux lecteurs concurrents (liste « à renseigner » vs rendu du motif d'écartement, cf. le bilan de
+ * `plans/P14/S8.md`) — remplacer l'exclusion par `verrou_effort == true` aurait dégradé la précision du
+ * message affiché (retour en arrière sur T-155/D7). **VERT depuis le 2026-08-07** (décision référent) :
+ * `verrou_effort` est retiré du contenu plutôt que gardé sans lecteur — cf. le changelog
+ * `rhd-activite-physique.yaml`. Si un critère est de nouveau signalé, `plans/P14/S2.md` demande un STOP
+ * (rapporté, pas corrigé ici).
+ */
+/**
+ * D50/T-179 (P14/S10) — EXTRAITE de `expressionsLectrices` (ci-dessous) pour être RÉUTILISÉE telle quelle
+ * par l'invariant du garde-fou D50, plus bas dans ce fichier : la liste des lecteurs qui COMPTENT contre ce
+ * garde-fou est CELLE DE R5 (« exhaustive », D50), MOINS `preremplissage` (seul lecteur AUTORISÉ pour un
+ * critère publié). Décision de S9, à la relecture de D50 : « réutilise la même liste que R5 pour éviter
+ * deux listes désynchronisées » — S9 avait constaté que la première rédaction de `plans/P14/S10.md`
+ * énumérait cette liste À LA MAIN et y avait DÉJÀ oublié `calculs[].expression` et `valeurs_visible_si`.
+ * Une seule fonction, deux appelants (`expressionsLectrices` lui ajoute `preremplissage[].quand`,
+ * l'invariant D50 plus bas l'utilise NUE) : aucune seconde énumération à tenir synchrone avec celle-ci.
+ */
+function expressionsLectricesHorsPreremplissage(node: Noeud, critereExamine: CritereEntree): string[] {
+  const expressions: string[] = []
+  for (const option of node.options) {
+    expressions.push(...option.conditions)
+    expressions.push(...(option.prerequis ?? []))
+    expressions.push(...(option.exclusions ?? []))
+    expressions.push(...(option.calculs ?? []).map((c) => c.expression))
+    expressions.push(...(option.alertes ?? []).map((a) => a.quand))
+  }
+  expressions.push(...(node.alertes ?? []).map((a) => a.quand))
+  expressions.push(...(node.contraintes ?? []).map((c) => c.expression))
+  for (const famille of node.familles ?? []) {
+    if (famille.prioritaire_si) expressions.push(famille.prioritaire_si)
+  }
+  for (const critere of node.criteres_entree) {
+    if (critere.derive && critere !== critereExamine) expressions.push(critere.derive)
+    if (critere.visible_si && critere !== critereExamine) expressions.push(critere.visible_si)
+    for (const expr of Object.values(critere.valeurs_visible_si ?? {})) expressions.push(expr)
+  }
+  return expressions
+}
+
+function expressionsLectrices(node: Noeud, critereExamine: CritereEntree): string[] {
+  const expressions = expressionsLectricesHorsPreremplissage(node, critereExamine)
+  for (const critere of node.criteres_entree) {
+    for (const regle of critere.preremplissage ?? []) expressions.push(regle.quand)
+  }
+  return expressions
+}
+
+describe('T-164 (P14/S2, mécanise R5) — tout critère déclaré a au moins un lecteur', () => {
+  it(
+    'aucun `criteres_entree[].nom` n’est absent de la concaténation de ses lecteurs',
+    () => {
+      const violations: string[] = []
+      for (const node of noeuds) {
+        for (const critere of node.criteres_entree) {
+          const lu = expressionsLectrices(node, critere).some((expr) => citeLeCritere(expr, critere.nom))
+          if (!lu) {
+            violations.push(
+              `nœud "${node.id}" :: critère "${critere.nom}" déclaré sans AUCUN lecteur — R5 : « un ` +
+                `critère qu'on demande doit agir ; sinon on ne le demande pas » ` +
+                `(docs/decision/GRAMMAIRE-NOEUD.md).`,
+            )
+          }
+        }
+      }
+      expect(violations).toEqual([])
+    },
+  )
+})
+
+// ═══════════════════════════════════════════════════════════════════════════════════════════════════
+// T-179 (P14/S10, mécanise le garde-fou de D50) — un critère PUBLIÉ n'a aucun lecteur hors préremplissage
+// ═══════════════════════════════════════════════════════════════════════════════════════════════════
+
+/**
+ * D50 (`docs/commun/decisions/2026-08-06-d50-*.md`) amende D28 : l'option RETENUE d'un nœud à sortie
+ * unique (`selection: ordered-first-match`) peut PUBLIER une valeur en mémoire de session
+ * (`Option.publie`). Le GARDE-FOU OPPOSABLE qui rend ce mécanisme acceptable au regard de R1 (aucun
+ * chaînage entre nœuds) — « c'est la condition de validité du mécanisme, pas un supplément » (D50) : un
+ * critère alimenté par publication ne peut avoir AUCUN LECTEUR AUTRE QU'UN `preremplissage`. Sans lui, une
+ * valeur PUBLIÉE (une CONCLUSION du moteur sur un autre nœud) pourrait piloter une RÈGLE de CE nœud — le
+ * chaînage entre nœuds que R1/D28 interdisent depuis l'origine, sous un nom différent. « Sans cet
+ * invariant, le mécanisme n'est pas livré du tout » (D50).
+ *
+ * LISTE DES LECTEURS INTERDITS = celle de R5/T-164 CI-DESSUS, MOINS `preremplissage` —
+ * `expressionsLectricesHorsPreremplissage` (définie plus haut), PARTAGÉE avec `expressionsLectrices` :
+ * jamais une seconde liste tenue à la main (cf. sa docstring pour le précédent qui motive ce choix).
+ *
+ * PORTÉE GLOBALE (D50 : « la mémoire de session est un espace de noms unique », D28) : un critère publié
+ * l'est PARTOUT où son nom est déclaré, pas seulement sur le nœud qui le publie — `nomsPublies` ci-dessous
+ * collecte donc les noms publiés sur TOUT LE DOMAINE (toutes les options de tous les nœuds), et
+ * `violationsGardeFouD50` vérifie CHAQUE occurrence de ces noms, sur CHAQUE nœud qui les déclare, pas
+ * seulement sur le nœud publicateur.
+ *
+ * `Option.publie.critere` N'EST PAS AJOUTÉ à `expressionsLectricesHorsPreremplissage` : c'est un NOM CITÉ
+ * (l'identifiant d'un critère cible), jamais une EXPRESSION DSL — il n'a pas la forme d'un « lecteur » au
+ * sens de cet invariant, exactement comme `Option.famille`/`Calcul.libelle` n'en ont pas non plus.
+ *
+ * SUR DES NŒUDS DE FIXTURE (ci-dessous), JAMAIS SUR `content/` (S11 s'en charge, `plans/P14/S10.md`
+ * "Hors périmètre") : le premier test, lui, tourne sur `noeuds` (le contenu réel) — DOIT être vert dès
+ * l'écriture, puisqu'aucun nœud réel ne déclare encore `publie` au jour de T-179 (`nomsPublies(noeuds)` y
+ * est vide) ; c'est ce test-là que S11 fera trébucher le jour où un critère publié gagnerait un lecteur
+ * interdit. Les deux tests de fixture qui suivent prouvent que le CALCUL lui-même détecte bien une
+ * violation quand il y en a une (rouge attendu sur la fixture, symétrique du test qui passe).
+ */
+function nomsPublies(domaine: readonly Noeud[]): Set<string> {
+  const noms = new Set<string>()
+  for (const node of domaine) {
+    for (const option of node.options) {
+      if (option.publie) noms.add(option.publie.critere)
+    }
+  }
+  return noms
+}
+
+/** Toutes les violations du garde-fou D50 sur `domaine` — un message par (nœud, critère) fautif. */
+function violationsGardeFouD50(domaine: readonly Noeud[]): string[] {
+  const publies = nomsPublies(domaine)
+  const violations: string[] = []
+  for (const node of domaine) {
+    for (const critere of node.criteres_entree) {
+      if (!publies.has(critere.nom)) continue
+      const lecteurs = expressionsLectricesHorsPreremplissage(node, critere)
+      if (lecteurs.some((expr) => citeLeCritere(expr, critere.nom))) {
+        violations.push(
+          `nœud "${node.id}" :: critère publié "${critere.nom}" a un lecteur hors préremplissage — D50 : ` +
+            `« un critère alimenté par publication ne peut avoir aucun lecteur autre qu'un ` +
+            `préremplissage » (docs/commun/decisions/2026-08-06-d50-une-option-de-noeud-a-sortie-unique-` +
+            `peut-publier-une-valeur.md).`,
+        )
+      }
+    }
+  }
+  return violations
+}
+
+/** Gabarit minimal, commun aux deux nœuds de fixture ci-dessous (mêmes conventions que les fixtures RTL
+ *  du dossier `screens/*.test.tsx` : aucun champ clinique réel, D8). */
+function noeudFixtureD50(partiel: Pick<Noeud, 'id' | 'criteres_entree' | 'options'> & Partial<Noeud>): Noeud {
+  return {
+    domaine: 'test',
+    titre: `Nœud de test (${partiel.id})`,
+    population_cible: 'test',
+    argumentaire: 'x',
+    sources: {
+      references_primaires: [],
+      synthese_critique: { donnee: '' },
+      reco_officielle: { source: '', position: '', divergence: false, explication: '' },
+    },
+    incertitudes: [],
+    veille_liee: [],
+    meta: { date_revue: '2026-01-01', auteur: 'test', statut: 'valide', version: '1.0', changelog: [] },
+    ...partiel,
+  }
+}
+
+/** Le nœud PUBLICATEUR de fixture : un `ordered-first-match` dont l'unique option publie
+ *  `valeur_publiee_fixture`. Commun aux deux scénarios de fixture ci-dessous. */
+const NOEUD_FIXTURE_PUBLICATEUR: Noeud = noeudFixtureD50({
+  id: 'fixture-d50-publicateur',
+  selection: 'ordered-first-match',
+  criteres_entree: [],
+  options: [
+    {
+      intitule: 'Option socle (fixture)',
+      role: 'socle',
+      conditions: ['toujours'],
+      avantages: [],
+      inconvenients: [],
+      effet_attendu: 'non chiffrable',
+      niveau_preuve: 'faible',
+      publie: { critere: 'valeur_publiee_fixture', valeur: 7 },
+    },
+  ],
+})
+
+describe("D50/T-179 (P14/S10) — un critère publié n'a aucun lecteur hors préremplissage", () => {
+  it('sur le contenu réel : le garde-fou est vert (peuplé le 2026-08-06 par P14/S11, T-181 : `HbA1c_cible` publié par `cible-glycemique`, reçu par `prescription`/`insuline` — seul lecteur des deux côtés : `preremplissage` de `position_vs_cible`)', () => {
+    expect(violationsGardeFouD50(noeuds)).toEqual([])
+  })
+
+  it('fixture : un critère publié cité dans les `conditions` d’un AUTRE nœud VIOLE le garde-fou (rouge attendu)', () => {
+    const noeudRecepteurFautif = noeudFixtureD50({
+      id: 'fixture-d50-recepteur-fautif',
+      criteres_entree: [{ nom: 'valeur_publiee_fixture', type: 'nombre', min: 0, max: 20 }],
+      options: [
+        {
+          intitule: 'Option qui lit la valeur publiée dans une condition',
+          role: 'geste',
+          conditions: ['valeur_publiee_fixture > 5'],
+          avantages: [],
+          inconvenients: [],
+          effet_attendu: 'non chiffrable',
+          niveau_preuve: 'faible',
+        },
+      ],
+    })
+
+    const violations = violationsGardeFouD50([NOEUD_FIXTURE_PUBLICATEUR, noeudRecepteurFautif])
+
+    expect(violations).not.toEqual([])
+    expect(violations[0]).toContain('fixture-d50-recepteur-fautif')
+    expect(violations[0]).toContain('valeur_publiee_fixture')
+    expect(violations[0]).toContain('D50')
+  })
+
+  it('fixture : un critère publié cité SEULEMENT dans un `preremplissage[].quand` reste CONFORME (cas légitime de D50)', () => {
+    const noeudRecepteurLegitime = noeudFixtureD50({
+      id: 'fixture-d50-recepteur-legitime',
+      criteres_entree: [
+        { nom: 'valeur_publiee_fixture', type: 'nombre', min: 0, max: 20 },
+        {
+          nom: 'position_suggeree_fixture',
+          type: 'enum',
+          valeurs: ['a', 'b'],
+          // SEUL lecteur autorisé du critère publié : un `preremplissage[].quand` d'un AUTRE critère —
+          // exactement le canal que le garde-fou D50 laisse ouvert (« sinon le mécanisme ne suggère plus
+          // rien »).
+          preremplissage: [{ quand: 'valeur_publiee_fixture > 5', valeur: 'a' }],
+        },
+      ],
+      options: [
+        {
+          intitule: 'Option qui ne lit jamais la valeur publiée',
+          role: 'socle',
+          conditions: ['toujours'],
+          avantages: [],
+          inconvenients: [],
+          effet_attendu: 'non chiffrable',
+          niveau_preuve: 'faible',
+        },
+      ],
+    })
+
+    expect(violationsGardeFouD50([NOEUD_FIXTURE_PUBLICATEUR, noeudRecepteurLegitime])).toEqual([])
+  })
+})
+
+// ═══════════════════════════════════════════════════════════════════════════════════════════════════
+// T-165 (P14/S2, mécanise D30) — `presomption_non` reste hors des canaux de sécurité
+// ═══════════════════════════════════════════════════════════════════════════════════════════════════
+
+/**
+ * D30 pose en prose (`DECISIONS.md`) l'éligibilité de `presomption_non: true` : réservée aux critères qui
+ * ne participent à AUCUNE condition d'option `role: securite` ni à AUCUNE `exclusions` du nœud. Cette
+ * règle a été appliquée À LA MAIN, critère par critère, à l'écriture de T-018 (audit consigné dans le
+ * changelog de chaque nœud) — rien, depuis, ne la revérifie mécaniquement. Le risque n'est pas
+ * l'asymétrie d'aujourd'hui (`traitements_en_cours`, présumé faux sur `insuline`, pas sur `prescription`
+ * où il gate des cartes de sécurité — ASYMÉTRIE DOCUMENTÉE ET CORRECTE, cf.
+ * `CRITERES_DIVERGENTS_CONNUS` dans `coherence-inter-noeuds.test.ts`) : c'est le jour où une carte de
+ * sécurité future se mettra à lire un critère présumé faux SANS que personne ne le remarque à la
+ * relecture.
+ *
+ * UN NIVEAU DE DÉROULEMENT (Décision clé, étape 3) : un critère présumé faux peut être cité INDIRECTEMENT
+ * — une expression sensible cite un critère DÉRIVÉ, dont le `derive` cite lui-même le critère présumé
+ * faux. C'est ce que l'audit T-018, manuel et limité aux citations DIRECTES, ne pouvait pas voir.
+ * RÉPLIQUE LOCALE de `primitivesReferencees` (`engine/evaluateNode.ts`) — MÊME algorithme (un seul
+ * niveau, ce contenu ne chaîne jamais un dérivé sur un autre), PAS un import : cette fonction n'est pas
+ * exportée par le moteur, et cet invariant porte sur le CONTENU tel qu'il est écrit — même raison que le
+ * tokenizer local d'I6/I7 et le découpage de branches d'I24 en tête de ce fichier.
+ *
+ * CE QUI EST « SENSIBLE » (Décision clé, étape 2) : les `conditions` de toute option `role: securite` (un
+ * fait de sécurité qui se déclencherait à tort sur un critère présumé faux), ET TOUTES les `exclusions`
+ * du nœud, quelle que soit l'option (une exclusion présumée fausse ne retirerait jamais l'option qu'elle
+ * est censée garder sous contrôle). `prerequis` est HORS de cet ensemble, à dessein : un `prerequis`
+ * garde une COHÉRENCE (R6), il ne retire pas un fait de sécurité — c'est exactement le cas
+ * `insuline`/`traitements_en_cours` que D30 autorise.
+ *
+ * DOIT ÊTRE VERT DÈS L'ÉCRITURE. Si l'un des deux tests ci-dessous est rouge sur le contenu actuel : STOP
+ * (`plans/P14/S2.md`), ne pas ajuster le contenu ni la règle — décision référent.
+ */
+function primitivesExposeesUnNiveau(expression: string, criteres: CritereEntree[]): Set<string> {
+  const noms = new Set<string>()
+  for (const critere of criteres) {
+    if (!new RegExp(`\\b${critere.nom}\\b`).test(expression)) continue
+    if (critere.derive == null) {
+      noms.add(critere.nom)
+      continue
+    }
+    for (const autre of criteres) {
+      if (autre.derive == null && new RegExp(`\\b${autre.nom}\\b`).test(critere.derive)) noms.add(autre.nom)
+    }
+  }
+  return noms
+}
+
+/** Expressions « sensibles » d'un nœud (Décision clé, étape 2) : `conditions` des options `role:
+ * securite`, et TOUTES les `exclusions` du nœud. */
+function expressionsSensibles(
+  node: Pick<Noeud, 'options'>,
+): { expression: string; option: Option; canal: string }[] {
+  const sensibles: { expression: string; option: Option; canal: string }[] = []
+  for (const option of node.options) {
+    if (option.role === 'securite') {
+      for (const expr of option.conditions) {
+        sensibles.push({ expression: expr, option, canal: 'condition (role: securite)' })
+      }
+    }
+    for (const expr of option.exclusions ?? []) sensibles.push({ expression: expr, option, canal: 'exclusions' })
+  }
+  return sensibles
+}
+
+/**
+ * EXCEPTIONS D30 ACCEPTÉES — décision référent (Thibault), 2026-08-06, P14/S2/T-165. PAS des dispenses
+ * de forme : chaque entrée est un cas vérifié individuellement, pas un blanc-seing.
+ *
+ * `prescription :: infections_uro_genitales_recidivantes` — exposée INDIRECTEMENT, via le dérivé
+ * `isglt2_indisponible` (un `OR` parmi trois), dans l'`exclusions` de « Glinide [remplacer] ». Cette
+ * carte est `role: geste` (pas `securite`) : elle choisit ENTRE deux gestes non bloquants — remplacer le
+ * glinide par une classe protectrice, ou réduire sa posologie (seul insulinosécréteur utilisable sous
+ * DFG 30, arbitrage référent A2 du 2026-07-30, cf. commentaire `prescription.yaml` en tête de l'option).
+ * Si l'antécédent n'est pas renseigné, présumé absent : la carte « remplacer » peut s'afficher au lieu
+ * de « réduire la posologie » — un choix de LIBELLÉ entre deux gestes de la même famille, pas une
+ * exposition dangereuse (l'INITIATION effective d'un iSGLT2 reste gouvernée, ailleurs dans ce nœud, par
+ * ses propres gardes directs sur ce critère — jamais par cette carte). Décision référent 2026-08-06 :
+ * garder `presomption_non` tel quel — « un drapeau rouge non coché est considéré absent » est le
+ * principe général de l'outil, pas une exception ad hoc à ce seul critère. Vérifié : c'est la SEULE
+ * `exclusions` du nœud que `isglt2_indisponible`/`aglp1_indisponible` atteignent (les autres citations
+ * du couple sont des `conditions`/`prerequis` d'options `role: geste`, hors du périmètre de D30 par
+ * construction — `expressionsSensibles` ne les inclut déjà pas).
+ *
+ * Clé = `${node.id} :: ${critère exposé}`, même convention que `VIOLATIONS_R8_CONNUES_T018` ci-dessus.
+ * AUTO-EXPIRANTE : si un jour aucune violation ne cite plus ce critère sur ce nœud, le test réclame le
+ * retrait de l'entrée.
+ */
+const EXCEPTIONS_D30_T165 = new Map<string, string>([
+  [
+    'prescription :: infections_uro_genitales_recidivantes',
+    'Décision référent 2026-08-06 (P14/S2/T-165) : exposition indirecte via `isglt2_indisponible` dans ' +
+      "l'exclusion de « Glinide [remplacer] » (role: geste, pas securite) — accepté, cf. docstring ci-dessus.",
+  ],
+])
+
+/** Violations D30 d'UN nœud : un critère `presomption_non: true` exposé (directement, ou via UN niveau
+ * de dérivé) par une expression sensible, hors `EXCEPTIONS_D30_T165` connues. */
+function violationsPresomptionNonHorsSecurite(
+  node: Pick<Noeud, 'id' | 'criteres_entree' | 'options'>,
+): string[] {
+  const presumesFaux = node.criteres_entree.filter((c) => c.presomption_non === true)
+  if (presumesFaux.length === 0) return []
+  const violations: string[] = []
+  for (const { expression, option, canal } of expressionsSensibles(node)) {
+    const exposes = primitivesExposeesUnNiveau(expression, node.criteres_entree)
+    for (const critere of presumesFaux) {
+      if (!exposes.has(critere.nom)) continue
+      if (EXCEPTIONS_D30_T165.has(`${node.id} :: ${critere.nom}`)) continue // décision référent, cf. ci-dessus
+      violations.push(
+        `nœud "${node.id}" :: option "${option.intitule}" (${canal}) :: expression "${expression}" cite ` +
+          `"${critere.nom}" (\`presomption_non: true\`) — D30 interdit qu'un critère présumé faux ` +
+          `gouverne un canal de sécurité.`,
+      )
+    }
+  }
+  return violations
+}
+
+describe('T-165 (P14/S2, mécanise D30) — `presomption_non` reste hors des canaux de sécurité', () => {
+  it('aucun critère `presomption_non: true` n’est cité, même via un dérivé, dans une condition de sécurité ou une exclusion (hors exceptions référent documentées)', () => {
+    const violations = noeuds.flatMap((node) => violationsPresomptionNonHorsSecurite(node))
+    expect(violations).toEqual([])
+  })
+
+  it('EXCEPTIONS_D30_T165 ne contient aucune entrée périmée (auto-expiration)', () => {
+    for (const [cle] of EXCEPTIONS_D30_T165) {
+      const [nodeId, nom] = cle.split(' :: ')
+      const node = noeuds.find((n) => n.id === nodeId)
+      expect(node, `nœud "${nodeId}" de EXCEPTIONS_D30_T165 introuvable`).toBeDefined()
+      const presumesFaux = node!.criteres_entree.filter((c) => c.presomption_non === true)
+      const expose = expressionsSensibles(node!).some(({ expression }) =>
+        primitivesExposeesUnNiveau(expression, node!.criteres_entree).has(nom),
+      )
+      expect(
+        expose && presumesFaux.some((c) => c.nom === nom),
+        `"${cle}" ne correspond plus à aucune exposition réelle — dette résorbée, retirer l'entrée de ` +
+          `EXCEPTIONS_D30_T165.`,
+      ).toBe(true)
+    }
+  })
+
+  it('mord sur un cas fabriqué (dérivé qui expose un critère présumé faux dans une condition `role: securite`), laisse passer le même dérivé cité hors canal sensible', () => {
+    const primitif: CritereEntree = { nom: 'critere_presume_faux', type: 'liste', valeurs: ['x'], presomption_non: true }
+    const derive: CritereEntree = { nom: 'derive_qui_expose', type: 'bool', derive: 'critere_presume_faux contient x' }
+    const optionSecuriteFautive: Option = {
+      intitule: 'Option de sécurité synthétique',
+      role: 'securite',
+      avantages: [],
+      inconvenients: [],
+      effet_attendu: 'non chiffrable',
+      niveau_preuve: 'faible',
+      conditions: ['derive_qui_expose == true'],
+    }
+    const noeudFautif = { id: 'synthetique', criteres_entree: [primitif, derive], options: [optionSecuriteFautive] }
+    const violations = violationsPresomptionNonHorsSecurite(noeudFautif)
+    expect(violations).toHaveLength(1)
+    expect(violations[0]).toContain('critere_presume_faux')
+
+    // Contre-épreuve : la même option de sécurité, mais dont la condition ne cite PAS le dérivé sensible —
+    // rien à exposer, rien à mordre.
+    const noeudPropre = {
+      ...noeudFautif,
+      options: [{ ...optionSecuriteFautive, conditions: ['toujours'] }],
+    }
+    expect(violationsPresomptionNonHorsSecurite(noeudPropre)).toEqual([])
+  })
+})
+
+// ═══════════════════════════════════════════════════════════════════════════════════════════════════
+// I33 (P14/S16, T-189) — UN FAIT DE SÉCURITÉ CONCERNÉ PAR UNE CLASSE PRESCRITE EST ÉVALUÉ, OU DÉCLARÉ
+// HORS PÉRIMÈTRE (principe P2 de la revue de conception du 2026-08-04)
+// ═══════════════════════════════════════════════════════════════════════════════════════════════════
+
+/**
+ * I33 mécanise LE PRINCIPE P2 tel qu'énoncé par la revue de conception du 2026-08-04, arbitré le
+ * 2026-08-06 (`plans/P14/S16.md` § Décision clé) :
+ *
+ * > « un test d'invariant vérifie qu'un critère de sécurité déclarable quelque part est évalué (ou
+ * > explicitement déclaré hors périmètre) par tout nœud qui prescrit une classe concernée. »
+ *
+ * LES DEUX MOITIÉS COMPTENT AUTANT L'UNE QUE L'AUTRE. Un invariant qui exigerait que TOUT nœud voie TOUT
+ * fait commun serait ingérable et faux — `statine` n'a rien à faire de la cétonémie. Ce qui est
+ * inacceptable n'est pas l'ABSENCE, c'est l'ABSENCE SILENCIEUSE. D'où la porte de sortie explicite,
+ * `Noeud.criteres_hors_perimetre` (`{ nom, motif }`, `node.types.ts`) : le motif est lu par un HUMAIN,
+ * jamais par la machine — son EXISTENCE suffit à transformer un oubli en décision.
+ *
+ * CE QUE « PRESCRIRE UNE CLASSE » VEUT DIRE ICI, ET COMMENT C'EST DÉTECTÉ — sans aucun nom de nœud ni de
+ * domaine codé en dur (CLAUDE.md invariant 5). Une valeur de `CritereCommun.concerne` (fichier commun du
+ * DOMAINE du nœud examiné, `content/decision/criteres-communs/<domaine>.yaml`, exposé par
+ * `loadNodes.ts` sous `fichiersCriteresCommuns`) est « prescrite » par un nœud si elle apparaît, MOT
+ * ENTIER, dans au moins une expression `conditions`/`prerequis`/`exclusions` d'au moins une option de ce
+ * nœud — les TROIS canaux qui, à eux seuls, RETIENNENT ou RETIRENT une option pour un patient (même
+ * périmètre que `criteresDesGardeFous`, I7 en tête de ce fichier, pour `exclusions`/`prerequis`, étendu
+ * ici à `conditions` : la question n'est plus « qu'est-ce qui protège » mais « qu'est-ce qui est
+ * proposé »). `alertes[].quand`, `derive`, `visible_si`… ne comptent PAS : ils ne PRESCRIVENT rien par
+ * eux-mêmes, ils décrivent ou affichent.
+ *
+ * LA RÈGLE, pour chaque (nœud, fait commun) où au moins une classe concernée est prescrite par ce nœud :
+ * le nœud doit DÉCLARER le fait (forme complète OU `{ ref }` — INDISCERNABLES une fois `criteres_entree`
+ * résolu par `loadNodes.ts`, d'où la simple recherche par `nom` ci-dessous, jamais une inspection de la
+ * forme d'origine) OU le lister dans `criteres_hors_perimetre`. Ni l'un ni l'autre ⇒ ABSENCE SILENCIEUSE.
+ *
+ * DEUX GARDE-FOUS SYMÉTRIQUES SUR `criteres_hors_perimetre` LUI-MÊME (`plans/P14/S16.md`, étapes 5 et
+ * 6 — sans eux, cette porte de sortie deviendrait un second angle mort) :
+ *   - un fait à la fois DÉCLARÉ et listé hors périmètre est une CONTRADICTION (lequel des deux ment ?) ;
+ *   - un fait hors périmètre qu'AUCUNE classe prescrite ne concerne est une DÉCLARATION MORTE — rien à
+ *     écarter ici, la liste deviendrait un cimetière si elle n'était jamais vérifiée.
+ * Les deux font échouer le test au même titre que l'absence silencieuse — les TROIS vérifications sont
+ * INDÉPENDANTES (elles ne s'excluent pas mutuellement : un même fait pourrait en théorie cumuler
+ * contradiction et déclaration morte, si la classe qui l'avait un jour rendu pertinent a disparu du
+ * contenu pendant qu'il restait déclaré ET hors périmètre à la fois).
+ *
+ * ROUGE À L'ÉCRITURE, ET C'EST ATTENDU (`plans/P14/S16.md` § Validation, `it.fails`) : sur les DEUX
+ * défauts nommément mesurés par S14 (`docs/decision/validation/criteres-communs-2026-08-06.md` § 3.1) —
+ *   - `insuline` prescrit `insuline_basale`/`insuline_rapide` (deux valeurs de `concerne` de `cetonemie`)
+ *     sans déclarer `cetonemie` ni le lister hors périmètre ;
+ *   - `prescription` prescrit `sulfamide`/`glinide` (les deux valeurs de `concerne` de
+ *     `hypo_severe_recurrente`) sans déclarer ce fait ni le lister hors périmètre.
+ * Cet invariant CONSTATE — il ne corrige rien : `plans/P14/S18.md` (insuline/cetonemie) et
+ * `plans/P14/S19.md` (prescription/hypo_severe_recurrente) lèveront ces deux défauts, chacun par une
+ * décision de CONTENU propre (déclarer le fait, ou le déclarer hors périmètre avec un motif clinique —
+ * ce choix n'appartient pas à ce test). `it.fails` → `it` le jour où le second des deux tombe.
+ *
+ * `hypo_severe_recurrente` A GAGNÉ SA DÉFINITION COMMUNE EN S16 (et non en S17, comme le reste de la
+ * liste candidate de S14) POUR QUE CE MESSAGE PUISSE LA NOMMER — cf. `content/decision/criteres-communs/
+ * diabete-type-2.yaml`, MÊME GESTE que S15 pour `cetonemie` : une DÉFINITION commune ajoutée, AUCUNE
+ * déclaration de nœud convertie. `insuline.yaml` continue de déclarer `hypo_severe_recurrente` en forme
+ * COMPLÈTE, sans `{ ref }` — cette conversion est un déplacement de contenu, hors mandat de S16
+ * (`plans/P14/S16.md` § Hors périmètre : « ne modifier aucun contenu clinique »), laissée à S18/S19.
+ */
+function expressionsPrescriptivesDuNoeud(node: Pick<Noeud, 'options'>): string[] {
+  const expressions: string[] = []
+  for (const option of node.options) {
+    expressions.push(...option.conditions)
+    expressions.push(...(option.prerequis ?? []))
+    expressions.push(...(option.exclusions ?? []))
+  }
+  return expressions
+}
+
+/** Les valeurs de `classes`, PARMI CELLES-LÀ SEULEMENT, effectivement prescrites par ce nœud (mot entier,
+ * cf. docstring ci-dessus pour le périmètre exact des trois canaux `conditions`/`prerequis`/`exclusions`
+ * qui comptent comme « prescription »). */
+function classesPrescritesParmi(node: Pick<Noeud, 'options'>, classes: readonly string[]): string[] {
+  const expressions = expressionsPrescriptivesDuNoeud(node)
+  return classes.filter((classe) => expressions.some((expr) => new RegExp(`\\b${classe}\\b`).test(expr)))
+}
+
+/**
+ * Toutes les violations d'I33 sur UN nœud, contre l'ensemble des `fichiers` de critères communs. Seul le
+ * fichier dont `domaine` égale `node.domaine` est pertinent — un domaine SANS fichier commun n'a
+ * simplement rien à vérifier ici, ce n'est pas une erreur (contrairement à `resoudreCritereEntree` de
+ * `loadNodes.ts`, qui lève si un `ref` y renvoie explicitement : ici, aucun `ref` n'est en jeu, seulement
+ * la présence ou l'absence d'un fait DANS le contenu résolu du nœud).
+ */
+function violationsFaitsConcernes(
+  node: Pick<Noeud, 'id' | 'domaine' | 'options' | 'criteres_entree' | 'criteres_hors_perimetre'>,
+  fichiers: readonly FichierCriteresCommuns[],
+): string[] {
+  const fichier = fichiers.find((f) => f.domaine === node.domaine)
+  if (!fichier) return []
+
+  const violations: string[] = []
+  for (const fait of fichier.criteres) {
+    const classesConcernees = fait.concerne ?? []
+    const classesPrescrites = classesPrescritesParmi(node, classesConcernees)
+    const pertinent = classesPrescrites.length > 0
+    const declare = node.criteres_entree.some((c) => c.nom === fait.nom)
+    const horsPerimetre = (node.criteres_hors_perimetre ?? []).find((h) => h.nom === fait.nom)
+
+    if (declare && horsPerimetre) {
+      violations.push(
+        `nœud "${node.id}" :: fait "${fait.nom}" :: CONTRADICTION — déclaré dans \`criteres_entree\` ET ` +
+          `listé dans \`criteres_hors_perimetre\` (motif : "${horsPerimetre.motif}") :: retirer l'un des deux.`,
+      )
+    }
+    if (!pertinent && horsPerimetre) {
+      violations.push(
+        `nœud "${node.id}" :: fait "${fait.nom}" :: DÉCLARATION MORTE — listé dans ` +
+          `\`criteres_hors_perimetre\` (motif : "${horsPerimetre.motif}"), mais aucune des classes que ce ` +
+          `fait concerne (${classesConcernees.join(', ') || 'aucune'}) n'est prescrite par ce nœud :: rien ` +
+          `à écarter ici, retirer l'entrée.`,
+      )
+    }
+    if (pertinent && !declare && !horsPerimetre) {
+      violations.push(
+        `nœud "${node.id}" :: fait "${fait.nom}" :: ABSENCE SILENCIEUSE — ce nœud prescrit ` +
+          `${classesPrescrites.join(', ')} (concernée(s) par "${fait.nom}", ` +
+          `content/decision/criteres-communs/${node.domaine}.yaml), mais ne déclare pas "${fait.nom}" ` +
+          `(forme complète ou \`{ ref }\`) et ne le liste pas dans \`criteres_hors_perimetre\` :: deux ` +
+          `issues, jamais une troisième — (1) déclarer "${fait.nom}" dans \`criteres_entree\`, ou ` +
+          `(2) le lister dans \`criteres_hors_perimetre: [{ nom: "${fait.nom}", motif: "…" }]\` avec un ` +
+          `motif clinique (principe P2, plans/P14/S16.md).`,
+      )
+    }
+  }
+  return violations
+}
+
+describe('I33 (P14/S16, T-189) — un fait de sécurité concerné est évalué, ou déclaré hors périmètre (P2)', () => {
+  // VERT DEPUIS LE 2026-08-07 (P14/S19, T-192) — `it.fails` → `it`, comme annoncé par la docstring
+  // ci-dessus : les DEUX défauts nommément mesurés par S14 sont désormais levés, chacun par sa session
+  // (`plans/P14/S18.md`, insuline/cetonemie — `{ ref: cetonemie }` + alerte de nœud, T-191 ; `plans/P14/
+  // S19.md`, prescription/hypo_severe_recurrente — `{ ref: hypo_severe_recurrente }` + terme sur les
+  // cartes d'allègement sulfamide/glinide, T-192). Si ce test redevient rouge, c'est qu'un défaut du même
+  // type a été réintroduit ailleurs dans le domaine — ne PAS revenir à `it.fails` sans le diagnostiquer.
+  it(
+    'aucun nœud ne prescrit une classe concernée par un fait commun sans le déclarer ni le lister hors périmètre',
+    () => {
+      const violations = noeuds.flatMap((node) => violationsFaitsConcernes(node, fichiersCriteresCommuns))
+      expect(violations).toEqual([])
+    },
+  )
+
+  /**
+   * VACUITÉ NON PERTINENTE ICI (à la différence d'I24) : le test ci-dessus n'est PAS vert sur un ensemble
+   * vide au jour de l'écriture — il mord déjà sur le contenu réel (les deux défauts S14). Ce second test
+   * garde néanmoins le PATRON d'I24 (« mord sur un cas fabriqué, laisse passer le cas légitime ») : il
+   * prouve que le MÉCANISME de détection lui-même distingue les trois natures de violation et les deux
+   * cas légitimes, INDÉPENDAMMENT du contenu réel — ce que le test ci-dessus, par construction, ne peut
+   * pas démontrer isolément (un seul type de violation — l'absence — y est actuellement exercé).
+   */
+  it('mord sur trois défauts fabriqués (absence silencieuse, contradiction, déclaration morte), laisse passer les deux cas légitimes et le fait non pertinent', () => {
+    const fichierFictif: FichierCriteresCommuns = {
+      domaine: 'test-i33',
+      criteres: [
+        { nom: 'fait_absence_silencieuse', type: 'bool', concerne: ['CLASSE_A'] },
+        { nom: 'fait_contradiction', type: 'bool', concerne: ['CLASSE_B'] },
+        { nom: 'fait_declaration_morte', type: 'bool', concerne: ['CLASSE_C'] },
+        { nom: 'fait_correctement_declare', type: 'bool', concerne: ['CLASSE_D'] },
+        { nom: 'fait_correctement_hors_perimetre', type: 'bool', concerne: ['CLASSE_E'] },
+        { nom: 'fait_non_pertinent', type: 'bool', concerne: ['CLASSE_JAMAIS_PRESCRITE'] },
+      ],
+    }
+
+    const optionQuiPrescrit = (classe: string): Option => ({
+      intitule: `Option synthétique I33 (${classe})`,
+      role: 'geste',
+      avantages: [],
+      inconvenients: [],
+      effet_attendu: 'non chiffrable',
+      niveau_preuve: 'faible',
+      conditions: [`traitements_en_cours contient ${classe}`],
+    })
+
+    // Options qui prescrivent A, B, D, E — délibérément AUCUNE ne prescrit C ni CLASSE_JAMAIS_PRESCRITE :
+    // c'est ce qui rend `fait_declaration_morte` et `fait_non_pertinent` NON PERTINENTS pour ce nœud.
+    const noeudFautif = {
+      id: 'fixture-i33-fautif',
+      domaine: 'test-i33',
+      options: [
+        optionQuiPrescrit('CLASSE_A'),
+        optionQuiPrescrit('CLASSE_B'),
+        optionQuiPrescrit('CLASSE_D'),
+        optionQuiPrescrit('CLASSE_E'),
+      ],
+      criteres_entree: [
+        // Déclaré ET listé hors périmètre plus bas ⇒ contradiction.
+        { nom: 'fait_contradiction', type: 'bool' },
+        // Déclaré, pertinent, PAS hors périmètre ⇒ cas légitime, aucune violation.
+        { nom: 'fait_correctement_declare', type: 'bool' },
+      ] satisfies CritereEntree[],
+      criteres_hors_perimetre: [
+        { nom: 'fait_contradiction', motif: 'motif de test (contradiction attendue)' },
+        // CLASSE_C n'est prescrite par AUCUNE option ⇒ déclaration morte.
+        { nom: 'fait_declaration_morte', motif: 'motif de test (déclaration morte attendue)' },
+        // CLASSE_E est prescrite, le fait n'est PAS déclaré par ailleurs ⇒ cas légitime, aucune violation.
+        { nom: 'fait_correctement_hors_perimetre', motif: 'motif de test (cas légitime attendu)' },
+      ],
+    }
+
+    const violations = violationsFaitsConcernes(noeudFautif, [fichierFictif])
+
+    expect(violations).toHaveLength(3)
+    expect(
+      violations.some((v) => v.includes('fait_absence_silencieuse') && v.includes('ABSENCE SILENCIEUSE')),
+    ).toBe(true)
+    expect(violations.some((v) => v.includes('fait_contradiction') && v.includes('CONTRADICTION'))).toBe(true)
+    expect(
+      violations.some((v) => v.includes('fait_declaration_morte') && v.includes('DÉCLARATION MORTE')),
+    ).toBe(true)
+
+    // Les deux cas légitimes et le fait non pertinent ne sont nommés par AUCUNE violation.
+    expect(violations.some((v) => v.includes('fait_correctement_declare'))).toBe(false)
+    expect(violations.some((v) => v.includes('fait_correctement_hors_perimetre'))).toBe(false)
+    expect(violations.some((v) => v.includes('fait_non_pertinent'))).toBe(false)
+
+    // Contre-épreuve, patron I24 : un nœud SANS aucun `criteres_hors_perimetre` ni `criteres_entree`
+    // pertinent, contre un fichier commun VIDE de `concerne`, ne mord sur rien — la fonction ne fabrique
+    // aucune violation sur un ensemble sans classe concernée.
+    const fichierSansConcerne: FichierCriteresCommuns = {
+      domaine: 'test-i33',
+      criteres: [{ nom: 'fait_sans_concerne', type: 'bool' }],
+    }
+    expect(
+      violationsFaitsConcernes({ id: 'fixture-i33-vide', domaine: 'test-i33', options: [], criteres_entree: [] }, [
+        fichierSansConcerne,
+      ]),
+    ).toEqual([])
+
+    // Domaine sans fichier commun : rien à vérifier, jamais une erreur (à la différence d'un `ref` non
+    // résolu par `loadNodes.ts`, hors périmètre de cet invariant).
+    expect(
+      violationsFaitsConcernes(
+        { id: 'fixture-i33-domaine-inconnu', domaine: 'domaine-sans-fichier-commun', options: [], criteres_entree: [] },
+        [fichierFictif],
+      ),
+    ).toEqual([])
   })
 })

@@ -59,9 +59,13 @@ function signatureCritere(critere: CritereEntree): string {
  * Divergences CONNUES, nommées une par une avec leur nature et l'endroit où elles se corrigent. Ce ne
  * sont pas des dispenses : ce sont des constats datés, à résorber au lot 2 du `PLAN-CORRECTION.md`.
  *
- * Les quatre sont issues du même mouvement — le domaine DT2 a été écrit nœud par nœud, sur trois
- * semaines, sans qu'aucun mécanisme ne compare jamais deux nœuds. Deux d'entre elles demandent un
- * ARBITRAGE (quel vocabulaire, quelle définition), les deux autres sont de pure forme.
+ * Issues du même mouvement — le domaine DT2 a été écrit nœud par nœud, sur trois semaines, sans qu'aucun
+ * mécanisme ne compare jamais deux nœuds.
+ *
+ * `cible_atteinte` RÉSORBÉE le 2026-08-06 (P14/S11, T-180, D50 : « la position déclarée par le praticien
+ * prime ») — `insuline` dérive désormais `position_vs_cible == a_l_objectif OR position_vs_cible ==
+ * sous_objectif`, littéralement identique à `prescription`. Retirée de la table ci-dessous (dette
+ * résorbée, cf. le garde-fou qui l'exigeait à la ligne `expect(...).toBe(false)` plus bas).
  */
 const CRITERES_DIVERGENTS_CONNUS = new Map<string, string>([
   [
@@ -92,20 +96,28 @@ const CRITERES_DIVERGENTS_CONNUS = new Map<string, string>([
       "`insuline_ou_insulinosecreteur` (R5).",
   ],
   [
-    'cible_atteinte',
-    'DIVERGENCE DE DÉFINITION. `insuline` dérive `HbA1c_actuelle <= HbA1c_cible` (comparaison directe) ; ' +
-      '`prescription` dérive `position_vs_cible == a_l_objectif OR position_vs_cible == sous_objectif` ' +
-      "(via un enum intermédiaire). Le même nom porte deux encodages d'un même concept — I4 exactement, " +
-      "mais entre deux fichiers, là où l'invariant local ne peut pas le voir. Demande un ARBITRAGE : les " +
-      'deux définitions coïncident-elles réellement sur tous les profils ?',
-  ],
-  [
-    'terrain_cible_assouplie',
-    "DIVERGENCE DE FORME, introduite le 2026-07-27 par la scission de `terrain_fragile` dans " +
-      '`prescription` : les deux `derive` sont logiquement ÉQUIVALENTS mais écrits dans un ordre ' +
-      "différent (`age >= 75 OR fragilite == true OR esperance_vie == limitee` contre " +
-      '`fragilite OR esperance_vie == limitee OR age >= 75`), et l’un teste `fragilite` en booléen nu ' +
-      "quand l'autre écrit `fragilite == true`. Aucun effet sur la sortie ; à unifier par hygiène (I4).",
+    'hypo_severe_recurrente',
+    "DIVERGENCE ASSUMEE, MEME NATURE QUE `traitements_en_cours` CI-DESSUS (2026-08-07, P14/S19, T-192) : " +
+      "`presomption_non` — `true` sur `prescription`, ABSENT (donc normalise a `false` par cette " +
+      "signature) sur `insuline`. AUCUNE autre divergence : `type: bool` sur les deux, DEFINITION COMMUNE " +
+      "(`content/decision/criteres-communs/diabete-type-2.yaml`, ajoutee P14/S16/T-189), resolue par " +
+      "`{ ref }` sur les DEUX noeuds (`insuline` depuis P14/S17/T-190, `prescription` depuis cette entree) " +
+      "— seul ce champ de mise en scene, delibrement LOCAL par construction (`CritereEntreeRef`, " +
+      "`node.types.ts`), differe.\n" +
+      "COTE `prescription` (ce dont S19 repond) : `presomption_non: true` pose apres le test mecanique de " +
+      "T-018/D30 — ce critere n'y gate que des `conditions` de deux options `role: geste` (« Sulfamide — " +
+      "arreter », « Glinide — arreter »), jamais une condition d'option `role: securite` ni une " +
+      "`exclusions` de ce noeud. Sans ce champ, une reponse non fournie resterait INDETERMINEE (R7) et " +
+      "ferait basculer ces deux options en `enAttente` pour tout patient n'ayant pas encore repondu a " +
+      "cette question nouvellement posee — un cout de consultation, pas un gain de securite, puisque ce " +
+      "noeud ne retire jamais rien sur ce seul critere (aucune `exclusions` ne le lit).\n" +
+      "COTE `insuline` : NON MODIFIE par S19 (hors perimetre de ce plan — `plans/P14/S19.md` § Hors " +
+      "perimetre ; S18 y travaillait en parallele sur `cetonemie`, un critere disjoint). Sa declaration " +
+      "d'origine ne portait deja aucun `presomption_non` avant sa conversion en `{ ref }` (P14/S17, T-190, " +
+      "verifie a l'epoque, rien a reporter) ; aucun arbitrage referent explicite n'en documente le motif " +
+      "precis, et il n'appartient pas a cette entree d'en inventer un. Aligner les deux noeuds changerait " +
+      "le comportement d'`insuline` sur un critere que personne n'a demande de modifier ici — meme " +
+      "raisonnement de prudence que celui deja retenu pour `traitements_en_cours`.",
   ],
 ])
 
@@ -271,4 +283,88 @@ describe('S8 — tout nœud publié porte des vignettes exécutables', () => {
         `relecture référent n'a de prise. À écrire, ou à déclarer dans NOEUDS_SANS_VIGNETTES_CONNUS.`,
     ).toBe(true)
   })
+})
+
+// ---------------------------------------------------------------------------------------------------
+// T-162 (P14/S2) — un même nom de critère porte une même définition dans tout le domaine, AU-DELÀ des
+// seuls critères `partage: true` (extension d'I19/I32)
+// ---------------------------------------------------------------------------------------------------
+
+/**
+ * POURQUOI CETTE EXTENSION, ET POURQUOI I19/I32 NE SUFFISAIENT PAS. Les deux invariants ci-dessus ne
+ * comparent que les critères marqués `partage: true` — le mécanisme de reprise de valeur entre nœuds
+ * (`lib/sessionCriteres.ts`). Mais un même NOM peut aussi être un DÉRIVÉ LOCAL à chaque nœud, jamais
+ * partagé, et pourtant porter deux DÉFINITIONS différentes du même concept — deux dérivés locaux, jamais
+ * échangés entre nœuds, donc invisibles à I19/I32, et pourtant le même trou I4 qu'un critère `partage`
+ * divergent : un lecteur qui connaît le nom sans ouvrir les deux fichiers présume à tort une seule
+ * définition. C'est le trou exact par lequel `cible_atteinte` et `terrain_cible_assouplie` sont passés
+ * (`plans/P14/S2.md`) — `cible_atteinte` valait `HbA1c_actuelle <= HbA1c_cible` dans `insuline` contre
+ * `position_vs_cible == a_l_objectif OR position_vs_cible == sous_objectif` dans `prescription`, jusqu'à
+ * l'unification du 2026-08-06 (P14/S11, T-180) : voir plus bas, l'invariant est désormais VERT.
+ *
+ * SIGNATURE, DÉLIBÉRÉMENT DIFFÉRENTE de celle de S7 et d'I32 ci-dessus (trois signatures coexistent dans
+ * ce fichier, chacune pour une question distincte — ce n'est pas une redondance) :
+ *  - PAS `presomption_non` (contrairement à S7) : cette dimension a son propre régime de dette assumée
+ *    (`traitements_en_cours` ci-dessus) et T-165/P14/S2 la traite pour elle-même (canaux de sécurité,
+ *    D30) — la mélanger ici brouillerait les deux questions ;
+ *  - `valeurs` TRIÉES pour la comparaison SEULEMENT (contrairement à S7 ET à I32) : cet invariant ne
+ *    s'intéresse qu'à la DÉFINITION du concept, pas à l'ordre d'affichage (`valeurParDefaut` en dépend,
+ *    mais c'est la question que S7 pose déjà, avec sa propre dette nommée — `preference_injection`) ;
+ *  - `derive` comparé LITTÉRALEMENT après un simple `trim` (jamais réordonné ni simplifié) : deux
+ *    écritures logiquement équivalentes mais textuellement différentes SONT une dette I4 réelle —
+ *    `terrain_cible_assouplie` en est l'exemple vivant (cf. Décision clé, `plans/P14/S2.md`).
+ *
+ * ROUGE À L'ÉCRITURE (P14/S2), ET C'ÉTAIT ATTENDU ALORS : `cible_atteinte` et `terrain_cible_assouplie`
+ * divergeaient réellement à l'écriture — « Hors périmètre » de `plans/P14/S2.md` interdisait d'y toucher.
+ * `terrain_cible_assouplie` RÉSORBÉ le 2026-08-06 (P14/S8, T-173) : `insuline` réécrit sa `derive` à
+ * l'identique de `prescription`. `cible_atteinte` RÉSORBÉ le 2026-08-06 (P14/S11, T-180, D50 : « la
+ * position déclarée par le praticien prime ») : `insuline` réécrit `cible_atteinte` littéralement
+ * identique au texte de `prescription`, cette exigence-là même — plus aucune divergence connue.
+ * L'assertion ci-dessous est donc repassée en `it` NORMAL (elle était `it.fails` ; l'unification l'a fait
+ * échouer à son tour, réclamant exactement ce retrait — même mécanique que les tables auto-expirantes du
+ * fichier voisin, `invariants-contenu.test.ts`).
+ */
+function signatureCritereDomaine(critere: CritereEntree): string {
+  return JSON.stringify({
+    type: critere.type,
+    valeurs: critere.valeurs ? [...critere.valeurs].map((v) => v.trim()).sort() : critere.valeurs,
+    derive: critere.derive?.trim(),
+    min: critere.min,
+    max: critere.max,
+  })
+}
+
+describe('T-162 (P14/S2) — un même nom de critère porte une même définition, au-delà de `partage: true`', () => {
+  const parNomDomaine = new Map<string, { noeud: string; signature: string }[]>()
+  for (const node of noeuds) {
+    for (const critere of node.criteres_entree) {
+      if (!parNomDomaine.has(critere.nom)) parNomDomaine.set(critere.nom, [])
+      parNomDomaine.get(critere.nom)!.push({ noeud: node.id, signature: signatureCritereDomaine(critere) })
+    }
+  }
+  const partagesDomaine = [...parNomDomaine.entries()].filter(([, occ]) => occ.length > 1).sort()
+
+  it('le domaine partage bien des noms de critères entre nœuds (sinon ce test ne teste rien)', () => {
+    // Même garde-fou de vacuité que S7/I32 ci-dessus.
+    expect(partagesDomaine.length).toBeGreaterThan(5)
+  })
+
+  // `it.fails` → `it` NORMAL le 2026-08-06 (P14/S11, T-180) : `cible_atteinte`, dernière divergence
+  // connue, est RÉSORBÉE (cf. docstring ci-dessus) — plus aucune divergence de définition dans le
+  // domaine. L'invariant tourne désormais RÉELLEMENT, comme demandé par la tâche.
+  it(
+    'aucun nom de critère ne porte deux définitions différentes dans le domaine',
+    () => {
+      const violations: string[] = []
+      for (const [nom, occurrences] of partagesDomaine) {
+        const signatures = new Set(occurrences.map((o) => o.signature))
+        if (signatures.size === 1) continue
+        violations.push(
+          `Le critère "${nom}" porte des définitions différentes :\n` +
+            occurrences.map((o) => `  ${o.noeud} → ${o.signature}`).join('\n'),
+        )
+      }
+      expect(violations).toEqual([])
+    },
+  )
 })

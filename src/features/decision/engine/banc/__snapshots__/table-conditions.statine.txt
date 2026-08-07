@@ -1,0 +1,35 @@
+# TABLE DES CONDITIONS (régénérée mécaniquement) — nœud « statine » (Évaluer l'indication d'une statine dans le DT2)
+#
+# LECTURE DE CONTENU, JAMAIS UNE ÉVALUATION : aucun patient construit, `evaluateNode` jamais appelé,
+# rang conditionnel (D14) rendu TEL QU’ÉCRIT. Produit par `engine/banc/tableConditions.test.ts`
+# (T-193, P14/S12), convention d’abréviation identique à celle de S3
+# (`docs/decision/validation/table-conditions-2026-08-06.md` § 1) :
+#   · expression de plus de 100 caractères → bloc nommé, quel que soit son nombre d’occurrences ;
+#   · expression de 40 à 100 caractères répétée à l’identique dans au moins
+#     3 options du même nœud → bloc nommé ;
+#   · en deçà, ou moins répétée → recopiée en clair dans chaque cellule.
+#
+# UN DIFF ICI N’EST PAS UNE RÉGRESSION EN SOI : il se relit contre le brouillon de table rédigé en P5
+# (`docs/decision/CONSTRUIRE-UN-MODULE.md`). Toute divergence non expliquée bloque la clôture du nœud.
+
+`selection: ordered-first-match` · 8 option(s) · 0 famille(s) déclarée(s).
+
+## Options
+
+| # | intitulé | role | famille | rang | conditions | prerequis | exclusions |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | Interrompre la statine 4 à 6 semaines et réévaluer | securite | — | *ignoré (OFM)* | **[STA-1]** | — | — |
+| 2 | Arrêter la statine — suspicion de rhabdomyolyse, avis spécialisé urgent | securite | — | *ignoré (OFM)* | `intolerance_statine != non AND CK_x_normale > 50 AND statine_deja_en_place == true` | — | — |
+| 3 | Interrompre la statine — la classe reste indisponible | securite | — | *ignoré (OFM)* | **[STA-2]** | — | — |
+| 4 | Débuter la statine à dose plus faible | geste | — | *ignoré (OFM)* | **[STA-3]** | — | — |
+| 5 | Statine de haute intensité — prévention secondaire | geste | — | *ignoré (OFM)* | `ASCVD_etablie == true` | — | `dialyse == true AND statine_deja_en_place == false`<br>`intolerance_statine == averee`<br>`intolerance_statine != non AND CK_x_normale > 5 AND statine_deja_en_place == false` |
+| 6 | Discuter la statine | geste | — | *ignoré (OFM)* | `anciennete_diabete_annees < 10`<br>`autres_FDRCV == 0`<br>`diabete_complique == false` | — | `intolerance_statine == averee`<br>`intolerance_statine != non AND CK_x_normale > 5 AND statine_deja_en_place == false` |
+| 7 | Statine indisponible | securite | — | *ignoré (OFM)* | **[STA-4]** | — | — |
+| 8 | Statine — prévention primaire | repli | — | *ignoré (OFM)* | `default` | — | — |
+
+## Expressions nommées
+
+- **[STA-1]** (110 car., option 1, conditions) : `intolerance_statine == rapportee AND CK_x_normale > 5 AND CK_x_normale <= 50 AND statine_deja_en_place == true`
+- **[STA-2]** (107 car., option 3, conditions) : `intolerance_statine == averee AND CK_x_normale > 5 AND CK_x_normale <= 50 AND statine_deja_en_place == true`
+- **[STA-3]** (110 car., option 4, conditions) : `intolerance_statine == rapportee AND CK_x_normale > 4 AND CK_x_normale <= 5 AND statine_deja_en_place == false`
+- **[STA-4]** (115 car., option 7, conditions) : `intolerance_statine == averee OR intolerance_statine != non AND CK_x_normale > 5 AND statine_deja_en_place == false`

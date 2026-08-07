@@ -1,0 +1,20 @@
+# PAIRES DE CARTES CO-ACTIVES (cliquet) — nœud « statine » (Évaluer l'indication d'une statine dans le DT2)
+#
+# Un diff ICI n'est PAS une régression en soi : il doit être RELU, carte par carte — même
+# convention que caracterisation.test.ts (cf. sa docstring de tête). Une paire nouvelle signifie
+# que deux cartes s'affichent désormais ensemble pour au moins un profil du banc, jamais un échec
+# à corriger en modifiant le moteur pour que l’ancien texte revienne.
+#
+# 180 profils évalués, 0 paire(s) distincte(s).
+
+## Paires (triées par intitulé)
+
+(aucune paire — au plus une carte applicable par profil sur tout le banc)
+
+## Paires intra-famille
+#
+# Les deux cartes de la paire appartiennent à la MÊME famille de contenu (Option.famille /
+# Noeud.familles). Une famille EXCLUSIVE (alternatives) qui apparaît ici est le signal qu’une
+# alternative est présentée comme cumulable pour au moins un profil (défaut ③, cf. tête de fichier).
+
+(aucune paire intra-famille)
