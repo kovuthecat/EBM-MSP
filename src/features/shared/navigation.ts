@@ -29,6 +29,8 @@ export type Screen =
   | 'memory'
   | 'auth'
   | 'methode'
+  /** Écran référent (D51) : relit/traite les retours des membres — réservé par RLS + garde côté écran. */
+  | 'retours'
 
 export interface NavigationParams {
   nodeId?: string
@@ -72,4 +74,13 @@ export function isChromeless(screen: Screen): boolean {
  */
 export function isVeilleScreen(screen: Screen): boolean {
   return screen === 'veilleList' || screen === 'veilleDetail'
+}
+
+/**
+ * Écrans où le bandeau disclaimer (« Outil d'aide à la décision... ») n'a pas sa place : les écrans
+ * Veille (raison ci-dessus) et l'écran référent `retours`, un outil d'administration sans rapport
+ * avec le contenu clinique.
+ */
+export function hidesDecisionDisclaimer(screen: Screen): boolean {
+  return isVeilleScreen(screen) || screen === 'retours'
 }

@@ -35,6 +35,7 @@ export function pageLabelFor(screen: Screen): string {
     memory: 'Pour mémoire',
     auth: 'Connexion',
     methode: 'Méthode',
+    retours: 'Retours des membres',
   }
   return labels[screen] ?? screen
 }

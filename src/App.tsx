@@ -10,6 +10,7 @@ import { DecisionDomainNodesScreen } from './features/decision/screens/DecisionD
 import { DecisionModuleScreen } from './features/decision/screens/DecisionModuleScreen'
 import { DecisionNodeScreen } from './features/decision/screens/DecisionNodeScreen'
 import { VeilleListScreen } from './features/veille/screens/VeilleListScreen'
+import { RetoursScreen } from './features/feedback/RetoursScreen'
 import { reinitialiserSession } from './features/decision/lib/sessionCriteres'
 
 function App() {
@@ -69,6 +70,10 @@ function renderScreen(screen: Screen, params: NavigationParams, go: Navigation['
       // V1 (PV1/S6). `veilleDetail` reste au placeholder : le détail est déplié dans la carte, le
       // temps d'arbitrer le format et les options de tri.
       return <VeilleListScreen key={resetEpoch} go={go} />
+    case 'retours':
+      // D51 — écran référent, relit/traite les retours des membres (garde interne : redirige un
+      // non-référent vers l'accueil).
+      return <RetoursScreen key={resetEpoch} go={go} />
     default:
       return <PlaceholderScreen key={resetEpoch} go={go} />
   }

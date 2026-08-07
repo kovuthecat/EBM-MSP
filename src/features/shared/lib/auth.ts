@@ -40,3 +40,37 @@ export async function seConnecter(email: string, motDePasse: string): Promise<st
 export async function seDeconnecter(): Promise<void> {
   await supabase.auth.signOut()
 }
+
+/**
+ * Rôle référent (D51, écran `/retours`) — lit `public.members.role` du compte connecté. Table et
+ * rôle déjà créés par `annuaire-msp` (même projet Supabase) ; la RLS `members_select` autorise tout
+ * membre à lire sa propre ligne. `undefined` = pas encore résolu (session ou requête en cours),
+ * distinct de `false` (connecté mais pas référent, ou déconnecté) pour éviter un flash « accès
+ * refusé » avant que la réponse soit connue.
+ */
+export function useEstReferent(): boolean | undefined {
+  const utilisateur = useUtilisateur()
+  const [estReferent, setEstReferent] = useState<boolean | undefined>(undefined)
+
+  useEffect(() => {
+    if (utilisateur === undefined) return
+    if (utilisateur === null) {
+      setEstReferent(false)
+      return
+    }
+    let actif = true
+    supabase
+      .from('members')
+      .select('role')
+      .eq('id', utilisateur.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (actif) setEstReferent((data as { role?: string } | null)?.role === 'referent')
+      })
+    return () => {
+      actif = false
+    }
+  }, [utilisateur])
+
+  return estReferent
+}

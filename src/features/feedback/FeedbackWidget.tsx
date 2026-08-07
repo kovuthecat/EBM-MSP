@@ -16,8 +16,7 @@ import './FeedbackWidget.css'
  * session soit résolue évite un flash) — jamais sur l'écran de connexion lui-même (mêmes comptes,
  * même principe que l'annuaire : « jamais sur l'écran de connexion »).
  *
- * PAS PORTÉ, hors mandat de cette demande (le port du BOUTON, pas de l'écran référent) : la vue
- * `/retours` de traitement des retours (liste, changement de statut, export) — cf. backlog.
+ * Traitement référent des retours déposés ici : écran `RetoursScreen.tsx` (`/retours`, D51).
  */
 interface CategoryMeta {
   key: FeedbackCategory

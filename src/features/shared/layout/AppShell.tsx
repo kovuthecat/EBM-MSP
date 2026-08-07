@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import type { Navigation } from '../navigation'
-import { isChromeless, isVeilleScreen } from '../navigation'
+import { hidesDecisionDisclaimer, isChromeless } from '../navigation'
 import { Header } from './Header'
 import { DisclaimerBar } from './DisclaimerBar'
 import { ScreenErrorBoundary } from './ScreenErrorBoundary'
@@ -38,7 +38,7 @@ export function AppShell({ nav, children, onNouveauPatient }: AppShellProps) {
       {showChrome && (
         <>
           <Header nav={nav} onNouveauPatient={onNouveauPatient} />
-          {!isVeilleScreen(nav.screen) && <DisclaimerBar />}
+          {!hidesDecisionDisclaimer(nav.screen) && <DisclaimerBar />}
         </>
       )}
       <main className="app-shell__content">

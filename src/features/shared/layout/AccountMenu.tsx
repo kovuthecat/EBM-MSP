@@ -1,5 +1,5 @@
 import type { Screen } from '../navigation'
-import { seDeconnecter, useUtilisateur } from '../lib/auth'
+import { seDeconnecter, useEstReferent, useUtilisateur } from '../lib/auth'
 import './AccountMenu.css'
 
 interface AccountMenuProps {
@@ -12,10 +12,12 @@ interface AccountMenuProps {
  * Menu compte (D51, 2026-08-06) — état RÉEL désormais (mêmes comptes que `annuaire-msp`, cf.
  * `shared/lib/auth.ts`) : « Invité » + « Se connecter » redevient l'initiale de l'email connecté +
  * « Se déconnecter ». `profile`/`memory` restent des écrans placeholder (hors périmètre, cf.
- * `App.tsx`) — seule la connexion elle-même est réelle.
+ * `App.tsx`) — seule la connexion elle-même est réelle. « Retours des membres » n'apparaît qu'au
+ * référent (double barrière avec la RLS et la garde de l'écran lui-même).
  */
 export function AccountMenu({ open, onToggle, onNavigate }: AccountMenuProps) {
   const utilisateur = useUtilisateur()
+  const estReferent = useEstReferent()
   const connecte = Boolean(utilisateur)
   const initiale = utilisateur?.email?.[0]?.toUpperCase() ?? '?'
 
@@ -35,6 +37,11 @@ export function AccountMenu({ open, onToggle, onNavigate }: AccountMenuProps) {
           <button type="button" onClick={() => onNavigate('memory')}>
             Pour mémoire
           </button>
+          {estReferent && (
+            <button type="button" onClick={() => onNavigate('retours')}>
+              Retours des membres
+            </button>
+          )}
           {connecte ? (
             <button type="button" className="account-menu__login" onClick={() => void seDeconnecter()}>
               Se déconnecter
