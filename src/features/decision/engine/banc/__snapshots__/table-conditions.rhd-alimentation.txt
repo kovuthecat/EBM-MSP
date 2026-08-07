@@ -1,0 +1,57 @@
+# TABLE DES CONDITIONS (régénérée mécaniquement) — nœud « rhd-alimentation » (Alimentation — se rapprocher du repère méditerranéen)
+#
+# LECTURE DE CONTENU, JAMAIS UNE ÉVALUATION : aucun patient construit, `evaluateNode` jamais appelé,
+# rang conditionnel (D14) rendu TEL QU’ÉCRIT. Produit par `engine/banc/tableConditions.test.ts`
+# (T-193, P14/S12), convention d’abréviation identique à celle de S3
+# (`docs/decision/validation/table-conditions-2026-08-06.md` § 1) :
+#   · expression de plus de 100 caractères → bloc nommé, quel que soit son nombre d’occurrences ;
+#   · expression de 40 à 100 caractères répétée à l’identique dans au moins
+#     3 options du même nœud → bloc nommé ;
+#   · en deçà, ou moins répétée → recopiée en clair dans chaque cellule.
+#
+# UN DIFF ICI N’EST PAS UNE RÉGRESSION EN SOI : il se relit contre le brouillon de table rédigé en P5
+# (`docs/decision/CONSTRUIRE-UN-MODULE.md`). Toute divergence non expliquée bloque la clôture du nœud.
+
+`selection: multi-options` · 17 option(s) · 11 famille(s) déclarée(s).
+
+## Familles (ordre déclaré = ordre d’affichage des sections)
+
+| Ordre | libellé | exclusive | prioritaire_si |
+| --- | --- | --- | --- |
+| 1 | Boissons | cumul. | — |
+| 2 | Ultratransformés | cumul. | — |
+| 3 | Restauration rapide | cumul. | — |
+| 4 | Matières grasses | cumul. | — |
+| 5 | Viande et charcuterie | cumul. | — |
+| 6 | Fruits à coque, légumineuses, poisson | cumul. | — |
+| 7 | Structure des repas | cumul. | — |
+| 8 | Portions | cumul. | — |
+| 9 | Orientation | cumul. | — |
+| 10 | Maintien | cumul. | — |
+| 11 | Aucune piste prioritaire | cumul. | — |
+
+## Options
+
+| # | intitulé | role | famille | rang | conditions | prerequis | exclusions |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | Remplacer une boisson sucrée du quotidien par de l'eau | geste | Boissons (cumul.) | 3 | `frequence_boissons_sucrees == frequent OR frequence_boissons_sucrees == quotidien` | — | — |
+| 2 | Ne pas remplacer une boisson sucrée par des édulcorants intenses | geste | Boissons (cumul.) | 5 | `frequence_boissons_sucrees == frequent OR frequence_boissons_sucrees == quotidien` | — | — |
+| 3 | Un repas simple fait maison de plus par semaine | geste | Ultratransformés (cumul.) | 4 | `frequence_ultratransformes == frequent OR frequence_ultratransformes == quotidien` | — | — |
+| 4 | En restauration rapide, choisir mieux plutôt que s'interdire d'y aller | geste | Restauration rapide (cumul.) | 4 | `frequence_restauration_rapide == frequent OR frequence_restauration_rapide == quotidien` | — | — |
+| 5 | Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre | geste | Matières grasses (cumul.) | 1 | `matiere_grasse_cuisson == beurre_graisses_animales OR matiere_grasse_cuisson == melange` | — | — |
+| 6 | Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats) | geste | Viande et charcuterie (cumul.) | 4 | `frequence_viande_rouge_charcuterie == regulier OR frequence_viande_rouge_charcuterie == quotidien` | — | `fragilite == true` |
+| 7 | Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine | geste | Fruits à coque, légumineuses, poisson (cumul.) | 1 | `frequence_fruits_a_coque == jamais OR frequence_fruits_a_coque == occasionnel` | — | — |
+| 8 | Ajouter un plat de légumineuses de plus par semaine | geste | Fruits à coque, légumineuses, poisson (cumul.) | 3 | `frequence_legumineuses == jamais OR frequence_legumineuses == occasionnel` | — | — |
+| 9 | Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre | geste | Fruits à coque, légumineuses, poisson (cumul.) | 3 | `frequence_poisson == jamais OR frequence_poisson == occasionnel` | — | — |
+| 10 | Se fixer des repas à des horaires à peu près réguliers | geste | Structure des repas (cumul.) | 4 | `regularite_repas == irreguliers` | — | — |
+| 11 | Manger sans se presser | geste | Structure des repas (cumul.) | 5 | `alimentation_emotionnelle == frequent` | — | — |
+| 12 | Repérer un moment de grignotage récurrent et lui trouver une alternative | geste | Structure des repas (cumul.) | 4 | `frequence_grignotage == frequent OR frequence_grignotage == quotidien` | — | — |
+| 13 | Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées | geste | Portions (cumul.) | 6 | `difficulte_estimation_portions == difficile OR difficulte_estimation_portions == ne_sait_pas` | — | `fragilite == true` |
+| 14 | Orienter vers le diététicien de la structure | geste | Orientation (cumul.) | `signes_appel_tca == true` → 1<br>`fragilite == true` → 1<br>`default` → 6 | `acces_alimentation == difficultes_importantes OR signes_appel_tca == true OR fragilite == true` | — | — |
+| 15 | Proposer aussi un avis spécialisé en trouble du comportement alimentaire | geste | Orientation (cumul.) | 1 | `signes_appel_tca == true` | — | — |
+| 16 | Continuer ce qui fonctionne déjà | geste | Maintien (cumul.) | non déclaré | `matiere_grasse_cuisson == huile_olive_ou_colza AND frequence_fruits_a_coque == regulier` | — | — |
+| 17 | Aucune piste prioritaire à proposer aujourd'hui | repli | Aucune piste prioritaire (cumul.) | non déclaré | `default` | — | — |
+
+## Expressions nommées
+
+(aucune — aucune expression de plus de 100 caractères, aucune expression de 40 à 100 caractères répétée dans 3 options ou plus)

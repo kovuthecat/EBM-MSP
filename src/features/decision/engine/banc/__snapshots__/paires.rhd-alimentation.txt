@@ -1,0 +1,144 @@
+# PAIRES DE CARTES CO-ACTIVES (cliquet) — nœud « rhd-alimentation » (Alimentation — se rapprocher du repère méditerranéen)
+#
+# Un diff ICI n'est PAS une régression en soi : il doit être RELU, carte par carte — même
+# convention que caracterisation.test.ts (cf. sa docstring de tête). Une paire nouvelle signifie
+# que deux cartes s'affichent désormais ensemble pour au moins un profil du banc, jamais un échec
+# à corriger en modifiant le moteur pour que l’ancien texte revienne.
+#
+# 180 profils évalués, 118 paire(s) distincte(s).
+
+## Paires (triées par intitulé)
+
+82×  Ajouter un plat de légumineuses de plus par semaine  ⟷  Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre
+88×  Ajouter un plat de légumineuses de plus par semaine  ⟷  Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine
+9×  Ajouter un plat de légumineuses de plus par semaine  ⟷  Continuer ce qui fonctionne déjà
+49×  Ajouter un plat de légumineuses de plus par semaine  ⟷  En restauration rapide, choisir mieux plutôt que s'interdire d'y aller
+40×  Ajouter un plat de légumineuses de plus par semaine  ⟷  Manger sans se presser
+65×  Ajouter un plat de légumineuses de plus par semaine  ⟷  Ne pas remplacer une boisson sucrée par des édulcorants intenses
+97×  Ajouter un plat de légumineuses de plus par semaine  ⟷  Orienter vers le diététicien de la structure
+56×  Ajouter un plat de légumineuses de plus par semaine  ⟷  Proposer aussi un avis spécialisé en trouble du comportement alimentaire
+65×  Ajouter un plat de légumineuses de plus par semaine  ⟷  Remplacer une boisson sucrée du quotidien par de l'eau
+55×  Ajouter un plat de légumineuses de plus par semaine  ⟷  Repérer un moment de grignotage récurrent et lui trouver une alternative
+26×  Ajouter un plat de légumineuses de plus par semaine  ⟷  Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats)
+54×  Ajouter un plat de légumineuses de plus par semaine  ⟷  Se fixer des repas à des horaires à peu près réguliers
+47×  Ajouter un plat de légumineuses de plus par semaine  ⟷  Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées
+63×  Ajouter un plat de légumineuses de plus par semaine  ⟷  Un repas simple fait maison de plus par semaine
+83×  Ajouter un plat de légumineuses de plus par semaine  ⟷  Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre
+78×  Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre  ⟷  Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine
+13×  Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre  ⟷  Continuer ce qui fonctionne déjà
+61×  Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre  ⟷  En restauration rapide, choisir mieux plutôt que s'interdire d'y aller
+38×  Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre  ⟷  Manger sans se presser
+53×  Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre  ⟷  Ne pas remplacer une boisson sucrée par des édulcorants intenses
+99×  Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre  ⟷  Orienter vers le diététicien de la structure
+53×  Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre  ⟷  Proposer aussi un avis spécialisé en trouble du comportement alimentaire
+53×  Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre  ⟷  Remplacer une boisson sucrée du quotidien par de l'eau
+61×  Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre  ⟷  Repérer un moment de grignotage récurrent et lui trouver une alternative
+27×  Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre  ⟷  Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats)
+55×  Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre  ⟷  Se fixer des repas à des horaires à peu près réguliers
+41×  Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre  ⟷  Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées
+57×  Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre  ⟷  Un repas simple fait maison de plus par semaine
+86×  Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre  ⟷  Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre
+57×  Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine  ⟷  En restauration rapide, choisir mieux plutôt que s'interdire d'y aller
+36×  Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine  ⟷  Manger sans se presser
+65×  Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine  ⟷  Ne pas remplacer une boisson sucrée par des édulcorants intenses
+102×  Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine  ⟷  Orienter vers le diététicien de la structure
+62×  Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine  ⟷  Proposer aussi un avis spécialisé en trouble du comportement alimentaire
+65×  Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine  ⟷  Remplacer une boisson sucrée du quotidien par de l'eau
+60×  Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine  ⟷  Repérer un moment de grignotage récurrent et lui trouver une alternative
+26×  Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine  ⟷  Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats)
+65×  Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine  ⟷  Se fixer des repas à des horaires à peu près réguliers
+44×  Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine  ⟷  Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées
+60×  Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine  ⟷  Un repas simple fait maison de plus par semaine
+83×  Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine  ⟷  Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre
+13×  Continuer ce qui fonctionne déjà  ⟷  En restauration rapide, choisir mieux plutôt que s'interdire d'y aller
+12×  Continuer ce qui fonctionne déjà  ⟷  Manger sans se presser
+12×  Continuer ce qui fonctionne déjà  ⟷  Ne pas remplacer une boisson sucrée par des édulcorants intenses
+16×  Continuer ce qui fonctionne déjà  ⟷  Orienter vers le diététicien de la structure
+9×  Continuer ce qui fonctionne déjà  ⟷  Proposer aussi un avis spécialisé en trouble du comportement alimentaire
+12×  Continuer ce qui fonctionne déjà  ⟷  Remplacer une boisson sucrée du quotidien par de l'eau
+11×  Continuer ce qui fonctionne déjà  ⟷  Repérer un moment de grignotage récurrent et lui trouver une alternative
+5×  Continuer ce qui fonctionne déjà  ⟷  Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats)
+12×  Continuer ce qui fonctionne déjà  ⟷  Se fixer des repas à des horaires à peu près réguliers
+7×  Continuer ce qui fonctionne déjà  ⟷  Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées
+11×  Continuer ce qui fonctionne déjà  ⟷  Un repas simple fait maison de plus par semaine
+34×  En restauration rapide, choisir mieux plutôt que s'interdire d'y aller  ⟷  Manger sans se presser
+40×  En restauration rapide, choisir mieux plutôt que s'interdire d'y aller  ⟷  Ne pas remplacer une boisson sucrée par des édulcorants intenses
+75×  En restauration rapide, choisir mieux plutôt que s'interdire d'y aller  ⟷  Orienter vers le diététicien de la structure
+47×  En restauration rapide, choisir mieux plutôt que s'interdire d'y aller  ⟷  Proposer aussi un avis spécialisé en trouble du comportement alimentaire
+40×  En restauration rapide, choisir mieux plutôt que s'interdire d'y aller  ⟷  Remplacer une boisson sucrée du quotidien par de l'eau
+37×  En restauration rapide, choisir mieux plutôt que s'interdire d'y aller  ⟷  Repérer un moment de grignotage récurrent et lui trouver une alternative
+25×  En restauration rapide, choisir mieux plutôt que s'interdire d'y aller  ⟷  Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats)
+46×  En restauration rapide, choisir mieux plutôt que s'interdire d'y aller  ⟷  Se fixer des repas à des horaires à peu près réguliers
+30×  En restauration rapide, choisir mieux plutôt que s'interdire d'y aller  ⟷  Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées
+40×  En restauration rapide, choisir mieux plutôt que s'interdire d'y aller  ⟷  Un repas simple fait maison de plus par semaine
+59×  En restauration rapide, choisir mieux plutôt que s'interdire d'y aller  ⟷  Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre
+34×  Manger sans se presser  ⟷  Ne pas remplacer une boisson sucrée par des édulcorants intenses
+50×  Manger sans se presser  ⟷  Orienter vers le diététicien de la structure
+33×  Manger sans se presser  ⟷  Proposer aussi un avis spécialisé en trouble du comportement alimentaire
+34×  Manger sans se presser  ⟷  Remplacer une boisson sucrée du quotidien par de l'eau
+31×  Manger sans se presser  ⟷  Repérer un moment de grignotage récurrent et lui trouver une alternative
+15×  Manger sans se presser  ⟷  Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats)
+30×  Manger sans se presser  ⟷  Se fixer des repas à des horaires à peu près réguliers
+25×  Manger sans se presser  ⟷  Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées
+25×  Manger sans se presser  ⟷  Un repas simple fait maison de plus par semaine
+38×  Manger sans se presser  ⟷  Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre
+77×  Ne pas remplacer une boisson sucrée par des édulcorants intenses  ⟷  Orienter vers le diététicien de la structure
+44×  Ne pas remplacer une boisson sucrée par des édulcorants intenses  ⟷  Proposer aussi un avis spécialisé en trouble du comportement alimentaire
+89×  Ne pas remplacer une boisson sucrée par des édulcorants intenses  ⟷  Remplacer une boisson sucrée du quotidien par de l'eau
+52×  Ne pas remplacer une boisson sucrée par des édulcorants intenses  ⟷  Repérer un moment de grignotage récurrent et lui trouver une alternative
+14×  Ne pas remplacer une boisson sucrée par des édulcorants intenses  ⟷  Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats)
+50×  Ne pas remplacer une boisson sucrée par des édulcorants intenses  ⟷  Se fixer des repas à des horaires à peu près réguliers
+28×  Ne pas remplacer une boisson sucrée par des édulcorants intenses  ⟷  Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées
+43×  Ne pas remplacer une boisson sucrée par des édulcorants intenses  ⟷  Un repas simple fait maison de plus par semaine
+59×  Ne pas remplacer une boisson sucrée par des édulcorants intenses  ⟷  Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre
+89×  Orienter vers le diététicien de la structure  ⟷  Proposer aussi un avis spécialisé en trouble du comportement alimentaire
+77×  Orienter vers le diététicien de la structure  ⟷  Remplacer une boisson sucrée du quotidien par de l'eau
+78×  Orienter vers le diététicien de la structure  ⟷  Repérer un moment de grignotage récurrent et lui trouver une alternative
+29×  Orienter vers le diététicien de la structure  ⟷  Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats)
+80×  Orienter vers le diététicien de la structure  ⟷  Se fixer des repas à des horaires à peu près réguliers
+43×  Orienter vers le diététicien de la structure  ⟷  Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées
+71×  Orienter vers le diététicien de la structure  ⟷  Un repas simple fait maison de plus par semaine
+103×  Orienter vers le diététicien de la structure  ⟷  Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre
+44×  Proposer aussi un avis spécialisé en trouble du comportement alimentaire  ⟷  Remplacer une boisson sucrée du quotidien par de l'eau
+49×  Proposer aussi un avis spécialisé en trouble du comportement alimentaire  ⟷  Repérer un moment de grignotage récurrent et lui trouver une alternative
+24×  Proposer aussi un avis spécialisé en trouble du comportement alimentaire  ⟷  Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats)
+57×  Proposer aussi un avis spécialisé en trouble du comportement alimentaire  ⟷  Se fixer des repas à des horaires à peu près réguliers
+35×  Proposer aussi un avis spécialisé en trouble du comportement alimentaire  ⟷  Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées
+43×  Proposer aussi un avis spécialisé en trouble du comportement alimentaire  ⟷  Un repas simple fait maison de plus par semaine
+64×  Proposer aussi un avis spécialisé en trouble du comportement alimentaire  ⟷  Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre
+52×  Remplacer une boisson sucrée du quotidien par de l'eau  ⟷  Repérer un moment de grignotage récurrent et lui trouver une alternative
+14×  Remplacer une boisson sucrée du quotidien par de l'eau  ⟷  Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats)
+50×  Remplacer une boisson sucrée du quotidien par de l'eau  ⟷  Se fixer des repas à des horaires à peu près réguliers
+28×  Remplacer une boisson sucrée du quotidien par de l'eau  ⟷  Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées
+43×  Remplacer une boisson sucrée du quotidien par de l'eau  ⟷  Un repas simple fait maison de plus par semaine
+59×  Remplacer une boisson sucrée du quotidien par de l'eau  ⟷  Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre
+17×  Repérer un moment de grignotage récurrent et lui trouver une alternative  ⟷  Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats)
+43×  Repérer un moment de grignotage récurrent et lui trouver une alternative  ⟷  Se fixer des repas à des horaires à peu près réguliers
+31×  Repérer un moment de grignotage récurrent et lui trouver une alternative  ⟷  Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées
+41×  Repérer un moment de grignotage récurrent et lui trouver une alternative  ⟷  Un repas simple fait maison de plus par semaine
+64×  Repérer un moment de grignotage récurrent et lui trouver une alternative  ⟷  Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre
+22×  Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats)  ⟷  Se fixer des repas à des horaires à peu près réguliers
+28×  Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats)  ⟷  Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées
+22×  Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats)  ⟷  Un repas simple fait maison de plus par semaine
+31×  Réduire la charcuterie et la viande rouge (porc, bœuf, veau, mouton, agneau, abats)  ⟷  Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre
+29×  Se fixer des repas à des horaires à peu près réguliers  ⟷  Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées
+46×  Se fixer des repas à des horaires à peu près réguliers  ⟷  Un repas simple fait maison de plus par semaine
+53×  Se fixer des repas à des horaires à peu près réguliers  ⟷  Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre
+35×  Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées  ⟷  Un repas simple fait maison de plus par semaine
+45×  Se repérer aux proportions dans l'assiette plutôt qu'aux quantités pesées  ⟷  Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre
+57×  Un repas simple fait maison de plus par semaine  ⟷  Utiliser de l'huile d'olive pour la cuisson et l'assaisonnement, à la place du beurre
+
+## Paires intra-famille
+#
+# Les deux cartes de la paire appartiennent à la MÊME famille de contenu (Option.famille /
+# Noeud.familles). Une famille EXCLUSIVE (alternatives) qui apparaît ici est le signal qu’une
+# alternative est présentée comme cumulable pour au moins un profil (défaut ③, cf. tête de fichier).
+
+82×  [famille « Fruits à coque, légumineuses, poisson » — cumulable]  Ajouter un plat de légumineuses de plus par semaine  ⟷  Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre
+88×  [famille « Fruits à coque, légumineuses, poisson » — cumulable]  Ajouter un plat de légumineuses de plus par semaine  ⟷  Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine
+78×  [famille « Fruits à coque, légumineuses, poisson » — cumulable]  Ajouter un repas de poisson de plus par semaine, en alternant gras et maigre  ⟷  Ajouter une petite poignée de fruits à coque non salés, plusieurs fois par semaine
+31×  [famille « Structure des repas » — cumulable]  Manger sans se presser  ⟷  Repérer un moment de grignotage récurrent et lui trouver une alternative
+30×  [famille « Structure des repas » — cumulable]  Manger sans se presser  ⟷  Se fixer des repas à des horaires à peu près réguliers
+89×  [famille « Boissons » — cumulable]  Ne pas remplacer une boisson sucrée par des édulcorants intenses  ⟷  Remplacer une boisson sucrée du quotidien par de l'eau
+89×  [famille « Orientation » — cumulable]  Orienter vers le diététicien de la structure  ⟷  Proposer aussi un avis spécialisé en trouble du comportement alimentaire
+43×  [famille « Structure des repas » — cumulable]  Repérer un moment de grignotage récurrent et lui trouver une alternative  ⟷  Se fixer des repas à des horaires à peu près réguliers

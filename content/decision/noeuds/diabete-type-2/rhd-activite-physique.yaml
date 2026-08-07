@@ -37,13 +37,16 @@
 #      activité quotidienne puis pratique structurée (accompagnement, effort de mise en œuvre plus élevé).
 #
 # GARDE-FOUS — DES `exclusions`, PAS DES ALERTES (D21), ancrés HAS DT2 R.19/R.27/R.28 : le verrou
-# « sécurité à l'effort » (`verrou_effort`, dérivé de 4 signes, tous `presomption_non` ABSENT — D30/T-018,
-# P4/S1 : ce sont exactement les 4 signes qui gardent l'exclusion de la famille « pratique structurée »,
-# donc jamais éligibles à une présomption de « non » — limitation physique connue, symptômes d'ischémie à
-# l'effort, rétinopathie non stabilisée/proliférante, neuropathie périphérique/mal perforant plantaire)
-# bloque UNIQUEMENT la montée d'intensité/pratique
-# structurée (décision de bucketing du référent, CONCEPTION-module-rhd.md §4) ; il laisse passer
-# l'activité quotidienne, les déplacements actifs et la rupture de sédentarité. L'hypoglycémie sous
+# « sécurité à l'effort » — quatre signes, tous `presomption_non` ABSENT — D30/T-018, P4/S1 : ce sont
+# exactement les 4 signes qui gardent l'exclusion de la famille « pratique structurée », donc jamais
+# éligibles à une présomption de « non » — limitation physique connue, symptômes d'ischémie à l'effort,
+# rétinopathie non stabilisée/proliférante, neuropathie périphérique/mal perforant plantaire) bloque
+# UNIQUEMENT la montée d'intensité/pratique structurée (décision de bucketing du référent,
+# CONCEPTION-module-rhd.md §4) ; il laisse passer l'activité quotidienne, les déplacements actifs et la
+# rupture de sédentarité. Ces quatre signes sont cités TERME À TERME dans l'exclusion (jamais via un
+# dérivé agrégatif — décision référent 2026-08-07, P14/S8/T-172 puis retrait du dérivé `verrou_effort`,
+# cf. la section « Sécurité à l'effort » ci-dessous : un agrégat masquait au praticien LEQUEL des quatre
+# signes motive l'écartement, cf. le commentaire de l'option exclue). L'hypoglycémie sous
 # insuline/sulfamide/glinide reste une ALERTE simple, jamais un blocage (arbitrage référent explicite,
 # tranchant le point laissé ouvert par le red-team, finding B-3).
 #
@@ -73,11 +76,11 @@ domaine: diabete-type-2
 module: RHD
 titre: "Activité physique — se rapprocher de la régularité"
 population_cible: >-
-  Adulte DT2, en consultation de médecine générale. Nœud du module RHD (axe activité physique, y compris
-  sédentarité) : recueil bref des habitudes de pratique, de déplacement et de sédentarité, puis pistes
-  concrètes et négociables de rapprochement de la régularité — jamais un objectif chiffré à atteindre,
-  jamais un score d'adhérence. Autonome : évaluable seul, sans prérequis d'un autre nœud. Hors
-  périmètre : objectif de perte de poids et rémission (aucun nœud ne les porte à ce jour) ; bilan
+  Adulte DT2, en consultation de médecine générale. Cet écran recueille brièvement les habitudes de
+  pratique, de déplacement et de sédentarité, puis propose des pistes concrètes et négociables de
+  rapprochement de la régularité — jamais un objectif chiffré à atteindre, jamais un score d'adhérence.
+  Autonome : évaluable seul, sans prérequis d'un autre écran. Hors périmètre : objectif de perte de poids
+  et rémission (aucun écran ne les porte à ce jour) ; bilan
   d'aptitude physique détaillé (endurance cardiorespiratoire, force, souplesse — évaluation professionnelle
   d'un enseignant en activité physique adaptée) ; questionnaire d'activité physique structuré, qu'il
   s'agisse du GPAQ de l'Organisation mondiale de la santé ou du questionnaire de l'Observatoire national
@@ -96,6 +99,10 @@ familles:
   - libelle: "Orientation vers une ressource"
     exclusive: false
   - libelle: "Maintien"
+    exclusive: false
+  # AJOUTÉE le 2026-08-06 (P14/S7, T-170) : porte le repli neutre `["default"]` en dernière position, cf.
+  # son option en fin de `options` pour la justification complète (R10).
+  - libelle: "Aucune piste prioritaire"
     exclusive: false
 criteres_entree:
   # ── Terrain (I4 : `fragilite` identique à rhd.yaml/prescription.yaml/insuline.yaml/rhd-alimentation.yaml) ──
@@ -172,10 +179,17 @@ criteres_entree:
   #    structurée (décision de bucketing du référent) ; laisse passer déplacements actifs, activité
   #    quotidienne et rupture de sédentarité. Chaque signe garde `presomption_non` ABSENT — aucun des
   #    quatre n'est éligible mécaniquement (T-018, P4/S1) : ils gardent tous l'exclusion de la famille
-  #    « pratique structurée » (cf. `verrou_effort` ci-dessous et l'option qu'il exclut). Avant D30, ces
-  #    quatre portaient `confirmation_requise: true` (même effet : indéterminé tant que non répondu) ; le
+  #    « pratique structurée », citée terme à terme (cf. l'option qu'ils excluent). Avant D30, ces quatre
+  #    portaient `confirmation_requise: true` (même effet : indéterminé tant que non répondu) ; le
   #    renommage D30 inverse le SENS du champ (une déclaration positive présume désormais le « non », pas
-  #    l'inverse), donc ils PERDENT le champ plutôt que de le porter sous le nouveau nom. ──
+  #    l'inverse), donc ils PERDENT le champ plutôt que de le porter sous le nouveau nom.
+  #    DÉRIVÉ AGRÉGATIF `verrou_effort` RETIRÉ le 2026-08-07 (décision référent, P14/S8/T-172 puis
+  #    P14/S11-relecture/T-164) : décomposé en ces quatre termes explicites dès T-155 (P13/S7, D7,
+  #    2026-08-05 — un agrégat masquait au praticien lequel des quatre signes motive l'écartement), il
+  #    n'avait plus aucun lecteur nulle part dans ce nœud (vérifié deux fois, T-172 puis à la suppression).
+  #    Le garder aurait exigé soit de l'exposer à un second lecteur artificiel, soit une exception
+  #    permanente à l'invariant R5 (« un critère déclaré doit avoir un lecteur ») — supprimer le
+  #    déclaratif est la solution la plus simple : rien ne le lit, rien ne le référence. ──
   - nom: limitation_physique_connue
     type: bool
     groupe: Sécurité à l'effort
@@ -188,12 +202,6 @@ criteres_entree:
   - nom: neuropathie_ou_mal_perforant_plantaire
     type: bool
     groupe: Sécurité à l'effort
-  - nom: verrou_effort
-    type: bool
-    groupe: Sécurité à l'effort
-    derive: >-
-      limitation_physique_connue == true OR symptomes_ischemie_effort == true
-      OR retinopathie_non_stabilisee_ou_proliferante == true OR neuropathie_ou_mal_perforant_plantaire == true
   # ── Approfondissement (décisifs uniquement, R5) ──
   # T-018 (P4/S1, D30) : éligible mécaniquement à presomption_non (aucune condition d'option
   # `role: securite`, aucune `exclusions` de ce nœud) — et vérifié par I21 (`engine/banc/vierge.test.ts`,
@@ -263,10 +271,11 @@ options:
     famille: "Rupture de sédentarité"
     apercu: "au moins une minute de mouvement par heure passée assis — un repère, pas un objectif à atteindre"
     avantages:
-      - "Réduit le temps de sédentarité continue. Le repère de la HAS pour le diabète de type 2 est « au moins une minute toutes les heures » : le plus bas et le mieux gradé des seuils proposés par les différentes sources, donc le plus atteignable."
+      - "Réduit le temps de sédentarité continue."
+      - "Le repère retenu ici — « au moins une minute toutes les heures » — est celui de la HAS pour le diabète de type 2 : le plus bas et le mieux gradé des seuils proposés par les différentes sources, donc le plus atteignable."
       - "Formulé à chaque pause ou changement de tâche plutôt qu'en objectif abstrait de « moins s'asseoir »."
     inconvenients:
-      - "Une minute par heure est un repère, pas un seuil validé par un essai contrôlé dédié : une source HAS parallèle juge les preuves encore insuffisantes sur ce chiffre précis, et les autres sources en donnent de plus élevés, sans gradation (voir « ce qui reste incertain »)."
+      - "Une minute par heure est un repère, pas un seuil validé par un essai contrôlé dédié : les sources institutionnelles ne convergent pas sur ce chiffre — une source HAS parallèle juge même les preuves encore insuffisantes, tandis que d'autres proposent des seuils plus élevés, non gradués."
     effet_attendu: "Repère de recommandation officielle : réduit le temps de sédentarité continue, effet propre de ce geste isolé non chiffrable."
     niveau_preuve: faible
     references:
@@ -360,7 +369,8 @@ options:
     famille: "Activité quotidienne"
     apercu: "un peu plus de pas que la semaine précédente, sans total à atteindre"
     avantages:
-      - "La HAS déconseille elle-même d'ériger un nombre de pas quotidien en dogme : elle invite à une progression graduelle plutôt qu'à un total précis, en rappelant que chaque pas en plus est bénéfique. Le patient se compare à sa propre semaine précédente, pas à un chiffre."
+      - "La HAS déconseille elle-même d'ériger un nombre de pas quotidien en dogme : elle invite à une progression graduelle plutôt qu'à un total précis, en rappelant que chaque pas en plus est bénéfique."
+      - "Le patient se compare à sa propre semaine précédente, pas à un chiffre imposé."
     inconvenients:
       - "Repère de bonne pratique (guide de connaissances HAS), pas un essai contrôlé randomisant un objectif de pas contre un autre."
     effet_attendu: "Repère de recommandation officielle : rapproche du volume de marche quotidienne recommandé par une progression auto-mesurée, sans seuil fixé — effet propre de ce geste isolé non chiffrable."
@@ -468,7 +478,7 @@ options:
     avantages:
       - "Répond à ce qui bloque concrètement la reprise — l'accès, le savoir-faire ou la sécurité : tout professionnel de santé en contact avec un patient DT2 est invité à connaître les structures d'orientation de son territoire (maison sport-santé, enseignant en activité physique adaptée)."
     inconvenients:
-      - "Le contenu précis de l'offre locale n'est pas détaillé par ce nœud (aucun annuaire de structures mobilisé ici) ; dépend de la disponibilité réelle de la ressource."
+      - "Le contenu précis de l'offre locale n'est pas détaillé par cet écran (aucun annuaire de structures mobilisé ici) ; dépend de la disponibilité réelle de la ressource."
     effet_attendu: "Repère de recommandation officielle : orientation, pas un geste d'activité physique en soi — non chiffrable."
     niveau_preuve: faible
     references:
@@ -520,6 +530,53 @@ options:
     niveau_preuve: faible
     references:
       - duodecim-ap
+  # ═══════════ FAMILLE AUCUNE PISTE PRIORITAIRE (repli neutre, R10 — P14/S7, T-170) ═══════════
+  # Les deux cartes « Maintien » ci-dessus couvrent aujourd'hui la totalité du domaine, mais PAR
+  # ARITHMÉTIQUE des énums actuels (cf. § RÈGLE STRUCTURELLE en tête de fichier), pas par construction :
+  # `rupture_sedentarite_habituelle == false` déclenche systématiquement la famille « Rupture de
+  # sédentarité » ; `rupture_sedentarite_habituelle == true` combiné à CHACUNE des quatre valeurs de
+  # `frequence_activite_structuree` déclenche systématiquement soit « Activité quotidienne »/« Pratique
+  # structurée » (jamais/une_fois_semaine), soit l'une des deux cartes « Maintien »
+  # (deux_a_trois_fois_semaine/quatre_fois_ou_plus_semaine). Ajouter une CINQUIÈME valeur à
+  # `frequence_activite_structuree` (ou tout autre critère qui gouvernerait ces familles) romprait cette
+  # arithmétique et ouvrirait un écran vide, violation silencieuse de R10.
+  #
+  # CE REPLI N'EST DONC PAS UNE CARTE « MAINTIEN » — sous peine de retomber sous R9/I15 (un repli qui
+  # propose de CONTINUER quelque chose doit porter un `prerequis`, ce qui rouvrirait exactement le trou
+  # qu'on ferme). `conditions: ["default"]`, `role: repli`, AUCUN `prerequis`. Il n'affirme rien sur le
+  # patient : il ne conclut PAS que tout va bien, il constate que les réponses recueillies ici ne font
+  # ressortir aucune piste négociable ce jour, et renvoie à la prochaine consultation.
+  #
+  # Par construction (`engine/evaluateNode.ts`, sémantique de `default` en `multi-options`), il ne peut
+  # apparaître qu'en l'ABSENCE de toute autre carte — jamais à côté du « Maintien » ou d'une autre piste.
+  #
+  # ARITHMÉTIQUEMENT INATTEIGNABLE PAR LE CONTENU ACTUEL (constaté, pas un défaut de ce repli) : aucune
+  # combinaison des valeurs d'énumération AUJOURD'HUI déclarées ne le déclenche — c'est un filet
+  # structurel pour une évolution future du contenu (cf. `evaluateNode.rhd-activite-physique.test.ts`, la
+  # vignette qui le prouve en simulant une valeur d'énumération encore non déclarée). Conséquence
+  # signalée au référent : `engine/banc/couverture.test.ts` (« chaque option est applicable pour au moins
+  # un profil ») ne peut mécaniquement pas le voir se déclencher sur le banc actuel.
+  - intitule: "Aucune piste prioritaire à proposer aujourd'hui"
+    role: repli
+    conditions:
+      - "default"
+    famille: "Aucune piste prioritaire"
+    avantages:
+      - "Nomme explicitement l'absence de piste plutôt que de laisser l'écran vide : les réponses données aujourd'hui ont bien été prises en compte, rien ne s'est perdu en route."
+      - "N'affirme rien sur le patient — ni satisfecit, ni jugement sur ses habitudes : un simple constat sur ce que les réponses d'aujourd'hui permettent de proposer."
+    inconvenients:
+      - "N'identifie aucune marge de progression : si une piste existe malgré tout, les réponses recueillies aujourd'hui ne suffisent pas à la faire apparaître — à réinterroger lors d'une prochaine consultation."
+      - "Ne remplace pas l'échange clinique : un praticien qui perçoit une marge de manœuvre reste libre de la proposer, même si les réponses recueillies aujourd'hui ne l'ont pas mise en évidence."
+    effet_attendu: "Aucun effet clinique propre à ce constat : il ne propose pas de geste, il signale l'absence de piste négociable identifiée aujourd'hui."
+    delai_benefice: "non établi"
+    # `faible` → `tres_faible` le 2026-08-07 (arbitrage référent : « retirer le badge », cette carte de
+    # repli ne reposant sur aucune source clinique). `niveau_preuve` est un champ OBLIGATOIRE du schéma
+    # (`schema/decision/noeud.schema.json`, pas de valeur « sans objet ») : `tres_faible`, le palier GRADE
+    # le plus bas, est l'approximation la plus proche de « aucune base de preuve » que le schéma permette
+    # d'écrire sans modifier le rendu partagé par toutes les cartes. Signalé au référent : une vraie
+    # suppression du badge sur `role: repli` demanderait un changement de composant (OptionCard.tsx),
+    # hors mandat d'un lot de contenu.
+    niveau_preuve: tres_faible
 alertes:
   # DÉCISION RÉFÉRENT 2026-07-27 : le verrou d'effort retire toute la famille « pratique structurée » dès
   # qu'un signe est positif — y compris pour une neuropathie / un mal perforant plantaire, alors que la
@@ -563,7 +620,7 @@ alertes:
 # bilan de session), au même titre que la liste équivalente du nœud `prescription` (S3).
 cadrage:
   - >-
-    Ce nœud suggère des pistes de rapprochement de la régularité de pratique, seul repère prédictif
+    Cet écran suggère des pistes de rapprochement de la régularité de pratique, seul repère prédictif
     retenu ici, jamais un objectif chiffré (150 min/semaine, 10 000 pas). Aucune piste ne revendique de
     bénéfice cardiovasculaire dur : aucun essai contrôlé d'exercice isolé ne l'a démontré dans le diabète
     de type 2 établi. Ce qui est démontré est d'un autre ordre — environ 0,6 point d'HbA1c en moins avec
@@ -578,69 +635,25 @@ cadrage:
     sont pas des données recueillies ici : ce sont des rappels ponctuels, portés par une alerte au moment
     où ils servent.
   - >-
-    Ce que ce nœud ne prend pas en compte : le projet ou la motivation propre du patient (ex. envie de
+    Ce que cet écran ne prend pas en compte : le projet ou la motivation propre du patient (ex. envie de
     reprendre la course) ; si un bilan cardiologique (ECG) a déjà été réalisé ; un sevrage tabagique
     récent ; ce que recouvre concrètement « l'évaluation médicale minimale » recommandée avant l'effort,
     nommée par une alerte sans être définie ; le nom des structures d'activité physique adaptée du
     secteur — l'orientation reste générique, ces informations vieillissent vite et le praticien connaît
     son territoire.
 argumentaire: >
-  Sur cet axe, la preuve est plus mince que le discours courant ne le laisse croire, et le nœud le dit
-  plutôt que de l'atténuer. Aucun essai contrôlé randomisé d'exercice isolé, dans le diabète de type 2
-  établi, ne démontre de bénéfice sur un critère cardiovasculaire ou sur la mortalité. Look AHEAD, mené
-  dans cette population exacte, est neutre sur son critère cardiovasculaire primaire (HR 0,95, essai
-  arrêté pour futilité) et ne réduit pas la mortalité toutes causes. En amont du diabète, chez des sujets
-  seulement à risque, le seul essai à avoir isolé un bras « exercice seul » — Da Qing — n'atteint pas non
-  plus la significativité sur les critères durs. Le seul bénéfice cardiovasculaire dur des mesures
-  hygiéno-diététiques est porté par le régime méditerranéen, côté alimentation, pas par l'activité
-  physique seule. Aucune piste de ce nœud ne porte donc l'étiquette « bénéfice sur critère dur ».
+  Les pistes sont hiérarchisées selon l'effort de mise en œuvre qu'elles demandent au patient, pas selon
+  leur niveau de preuve. Le rang 1 revient au renforcement positif d'une pratique déjà régulière et à la
+  rupture de sédentarité : c'est le repère le plus bas et le plus atteignable, celui qui demande le moins
+  de changement. Au-delà, l'activité quotidienne, puis la pratique structurée avec l'accompagnement d'un
+  professionnel, demandent un effort de mise en œuvre croissant — c'est cette progression que le rang de
+  chaque piste reflète, jamais un objectif chiffré à atteindre.
 
 
-  Cette réserve n'est pas un rejet. Ce que l'exercice fait de démontré, il le fait sur un marqueur
-  intermédiaire : dans le diabète de type 2 établi, l'exercice structuré abaisse l'HbA1c d'environ
-  0,6 point (méta-analyse Cochrane, essais de 8 semaines à 12 mois) — un effet net et cohérent d'une
-  source à l'autre, mais qui reste un marqueur amélioré, pas un événement évité.
-
-
-  Ce que la preuve désigne le mieux n'est pas un chiffre, c'est un principe : l'activité physique
-  régulière prédit un bon résultat à long terme, davantage que l'intensité ou que la perte de poids
-  initiale (guide EBM européen, grade A). C'est cette régularité que le recueil et les pistes cherchent à
-  faire progresser.
-
-
-  Les repères chiffrés officiels existent — 150 à 300 minutes hebdomadaires d'intensité modérée, sans
-  volume minimal en dessous duquel il n'y aurait aucun bénéfice, fractionnables y compris en périodes de
-  moins de dix minutes ; 2 à 3 séances d'activité physique adaptée par semaine ; une progression de 1 000
-  à 3 000 pas hebdomadaires plutôt qu'un objectif de 10 000 pas érigé en dogme. Ils vivent ici en
-  contexte, jamais comme cible affichée au patient : administrer un chiffre reviendrait à mesurer un
-  écart, donc à produire un score d'adhérence. C'est d'ailleurs la formule de la source officielle
-  elle-même, qui met en garde contre le dogme du nombre de pas.
-
-
-  Les pistes sont organisées en six familles cumulables : déplacements actifs, rupture de sédentarité,
-  activité quotidienne, pratique structurée, orientation vers une ressource, et maintien de ce qui est
-  déjà en place chez un patient dont la pratique est régulière. Le repère retenu pour la rupture de
-  sédentarité — au moins une minute toutes les heures — est le plus bas et le mieux gradé des seuils
-  voisins disponibles, et le plus atteignable ; d'autres sources en proposent de plus élevés, sans
-  gradation, cf. « ce qui reste incertain ».
-
-
-  Une remarque sur les badges de preuve portés par chaque piste, parce qu'ils peuvent surprendre à côté
-  d'un texte qui cite un grade A. Le badge gradue la certitude de la donnée pour le geste isolé tel qu'il
-  est proposé ici ; le grade d'une recommandation, lui, porte sur le principe d'ensemble qu'elle défend.
-  Les deux ne mesurent pas le même objet et peuvent donc diverger : le principe « la régularité prédit le
-  résultat à long terme » est solidement établi, tandis que la piste concrète qui en découle n'a le plus
-  souvent jamais été testée seule contre un comparateur. Un outil de lecture des preuves grade la
-  certitude de la donnée, pas la force de la recommandation qui l'englobe — d'où des badges « preuve
-  modérée » ou « faible » au voisinage d'un grade A, sans contradiction.
-
-
-  Un verrou de sécurité à l'effort — limitation physique connue, symptômes d'ischémie à l'effort,
-  rétinopathie non stabilisée ou proliférante, neuropathie périphérique ou mal perforant plantaire —
-  bloque la montée d'intensité et la pratique structurée, jamais les déplacements actifs ni la rupture de
-  sédentarité : ce qui est risqué, c'est l'effort soutenu, pas le mouvement. L'hypoglycémie sous insuline,
-  sulfamide ou glinide reste une alerte et jamais un blocage, dès qu'une piste augmente la dépense
-  énergétique.
+  Un mot sur les badges de preuve qui accompagnent chaque piste, car ils peuvent surprendre à côté d'un
+  grade A cité par ailleurs : le badge gradue la certitude de la donnée pour le geste isolé tel qu'il est
+  proposé ici, ce qui n'est pas la même chose que la force d'une recommandation portant sur un principe
+  plus général — les deux peuvent diverger sans se contredire.
 sources:
   references_primaires:
     - id: look-ahead
@@ -685,14 +698,14 @@ sources:
       lien: ""
   synthese_critique:
     donnee: >-
-      Aucune revue secondaire indépendante consultée pour ce nœud ne revendique de bénéfice
+      Aucune revue secondaire indépendante consultée pour cet écran ne revendique de bénéfice
       cardiovasculaire dur propre à l'exercice isolé dans le diabète de type 2 établi — position cohérente
       avec le constat de preuve retenu ici. Le bénéfice cardiovasculaire dur des mesures
-      hygiéno-diététiques reste porté par le régime méditerranéen, traité par le nœud « Alimentation — se
+      hygiéno-diététiques reste porté par le régime méditerranéen, traité par l'écran « Alimentation — se
       rapprocher du repère méditerranéen », pas par l'activité physique seule. Ce qui est solidement
       documenté du côté de l'activité physique porte sur un marqueur : environ 0,6 point d'HbA1c en moins
-      avec l'exercice structuré. Aucune synthèse dédiée spécifiquement aux gestes proposés par ce nœud n'a
-      été identifiée dans le corpus rassemblé (signalé plutôt qu'inventé).
+      avec l'exercice structuré. Aucune synthèse dédiée spécifiquement aux gestes proposés par cet écran
+      n'a été identifiée dans le corpus rassemblé.
     appuis:
       - look-ahead
       - da-qing
@@ -752,7 +765,8 @@ sources:
         appui: >-
           Aucun essai contrôlé d'exercice isolé dans le diabète de type 2 établi ne montre de bénéfice
           cardiovasculaire ou de mortalité : Look AHEAD, mené dans cette population, est neutre sur son
-          critère primaire (HR 0,95, arrêt pour futilité) et sur la mortalité toutes causes. En amont du
+          critère primaire (rapport de risque, ou HR, à 0,95, essai arrêté pour futilité) et sur la
+          mortalité toutes causes. En amont du
           diabète, chez des sujets seulement à risque, le bras exercice seul de Da Qing n'atteint pas non
           plus la significativité. Ce que l'exercice améliore de façon documentée est un marqueur —
           environ 0,6 point d'HbA1c. Ce n'est pas un argument contre l'activité physique : c'est un refus
@@ -763,17 +777,105 @@ sources:
       deux écarts ci-dessus portent sur la forme du conseil et sur ce qu'on lui fait dire — pas sur son
       opportunité.
 incertitudes:
-  - "Aucune piste de ce nœud ne porte de bénéfice démontré sur critère dur. Look AHEAD est neutre sur son critère cardiovasculaire primaire et sur la mortalité toutes causes ; aucun essai contrôlé d'exercice isolé dans le diabète de type 2 établi n'en montre. C'est l'état de la preuve sur cet axe, pas une lacune de cette revue."
+  - "Aucune piste de cet écran ne porte de bénéfice démontré sur critère dur. Look AHEAD est neutre sur son critère cardiovasculaire primaire et sur la mortalité toutes causes ; aucun essai contrôlé d'exercice isolé dans le diabète de type 2 établi n'en montre. C'est l'état de la preuve sur cet axe, pas une lacune de cette revue."
   - "Seuil de rupture de sédentarité : trois sources institutionnelles donnent trois repères différents pour le même geste — « au moins une minute toutes les heures » (grade C, retenu ici), « 4 à 5 minutes toutes les heures et demie » (non gradé), « minimum 1 à 5 minutes » (non gradé, assorti d'une réserve explicite sur la littérature internationale sous-jacente). Le repère le plus bas et le mieux gradé a été retenu ; les sources ne convergent pas."
-  - "Le verrou de sécurité à l'effort bloque toute la famille « pratique structurée » dès qu'un signe est positif, y compris pour une neuropathie ou un mal perforant plantaire — alors que la contre-indication ne porte, à la source, que sur l'activité des membres inférieurs. Le nœud ne recueille pas de quoi qualifier chaque piste par segment corporel ; il énonce donc ce qui reste possible (activités des membres supérieurs, travail en décharge) par une alerte dédiée, plutôt que de filtrer plus finement. Sur-blocage assumé, du côté sûr."
+  - "Le verrou de sécurité à l'effort bloque toute la famille « pratique structurée » dès qu'un signe est positif, y compris pour une neuropathie ou un mal perforant plantaire — alors que la contre-indication ne porte, à la source, que sur l'activité des membres inférieurs."
   - "La magnitude retenue pour l'effet sur l'HbA1c — environ 0,6 point — vient d'essais courts (8 semaines à 12 mois) et de petits effectifs. Elle est cohérente d'une source à l'autre, mais aucun de ces essais n'était dimensionné pour observer une complication ou un décès : la durée du bénéfice au-delà d'un an n'est pas documentée par cette littérature."
 veille_liee: []
 meta:
   date_revue: "2026-07-26"
   auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
   statut: brouillon
-  version: "0.17"
+  version: "0.21"
   changelog:
+    - date: "2026-08-07"
+      auteur: "Claude Code — arbitrage référent, en attente de relecture clinique"
+      resume: >-
+        Harmonisation « nœud » → « cet écran »/reformulation clinique, 10 occurrences du terme sur 6
+        champs (`population_cible` ×3, `cadrage` ×2, `sources.synthese_critique.donnee` ×3,
+        `incertitudes[0]`, un `inconvenients` d'option), aucun champ moteur touché.
+    - date: "2026-08-07"
+      auteur: "Claude Code — décision référent (P14/S8/T-172, invariant R5/T-164)"
+      resume: >-
+        RETRAIT DU DÉRIVÉ AGRÉGATIF `verrou_effort` (`criteres_entree`, section « Sécurité à l'effort »).
+        Décomposé en ses quatre composants explicites dès le 2026-08-05 (P13/S7, T-155, D7 — un agrégat
+        masquait au praticien lequel des quatre signes motive l'écartement), il n'avait plus aucun
+        lecteur : ni `conditions`, ni `exclusions`, ni `prerequis`, ni `alertes`, ni aucun autre `derive`
+        de ce nœud ne le citait (vérifié le 2026-08-06 par P14/S8/T-172, confirmé à nouveau avant ce
+        retrait). Décision référent du 2026-08-07 : plutôt que de garder un critère déclaré sans lecteur
+        (dette permanente sur l'invariant R5/S2/T-164) ou de revenir à l'agrégat au prix de la précision
+        du message d'écartement (retour en arrière sur T-155), le supprimer purement et simplement — rien
+        ne le référence, rien ne perd de fonction. Les quatre signes (`limitation_physique_connue`,
+        `symptomes_ischemie_effort`, `retinopathie_non_stabilisee_ou_proliferante`,
+        `neuropathie_ou_mal_perforant_plantaire`) restent déclarés à l'identique, toujours cités terme à
+        terme dans l'`exclusions` de l'option « Envisager un programme d'activité physique adaptée… ».
+        Aucune condition, aucun seuil, aucun message affiché ne change. Golden master : décisions et
+        textes inchangés (`verrou_effort` n'apparaissait dans aucune sortie).
+    - date: "2026-08-06"
+      auteur: "Claude Code — contre-relecture rédactionnelle, en attente de relecture clinique"
+      resume: >-
+        CORRECTIONS DE CONTRE-RELECTURE SUR LES QUATRE NIVEAUX DE LECTURE (rédactionnel seul, aucune
+        `condition`, `exclusions`, `prerequis`, `priorite`, `role`, `famille`, `derive`, `visible_si` ni clé
+        de `motifs` existante modifiée). (1) Carte de repli « Aucune piste prioritaire » (ajoutée le
+        2026-08-06 par T-170, après la passe rédactionnelle du 2026-08-05, restée non alignée) : ses
+        `avantages`/`inconvenients` sont réécrits au registre consultation (retrait de « le praticien sait
+        que le nœud a bien été évalué », « ce recueil ne l'a pas vue », « en dehors de cet outil ») ;
+        `effet_attendu`, jusqu'ici la valeur nue « non chiffrable », devient une phrase complète. (2) Deux
+        puces mêlant deux idées sont scindées en deux puces distinctes, sans ajout de contenu : l'avantage
+        de la carte « Se lever et bouger… » (repère de rupture de sédentarité / méta-justification du
+        seuil retenu) et l'avantage de la carte « Suivre son nombre de pas… » (mise en garde HAS contre le
+        dogme du chiffre / principe de comparaison à soi). (3) L'inconvénient de la carte « Se lever et
+        bouger… » qui renvoyait à « voir « ce qui reste incertain » » est reformulé pour énoncer la réserve
+        dans la phrase elle-même, sans renvoi d'interface. (4) `argumentaire` resserré de ~550 à ~160 mots :
+        énonce enfin la logique de hiérarchisation des pistes par rang (renforcement positif et rupture de
+        sédentarité en tête, la plus atteignable ; effort de mise en œuvre croissant au-delà — logique déjà
+        explicite en commentaire de tête de fichier, jamais dite au praticien), garde une seule phrase sur
+        ce que gradue le badge de preuve (le paragraphe complet reste porté par l'argumentaire exhaustif),
+        retire les redites du constat de preuve déjà portées par `cadrage`, `synthese_critique.donnee`, la
+        divergence n°2 et l'incertitude n°1 — ce retrait supprime au passage le renvoi « cf. « ce qui reste
+        incertain » » qui terminait l'ancien paragraphe sur les six familles. (5) `sources.synthese_critique.
+        donnee` : retrait de la mention « (signalé plutôt qu'inventé) », formule de charte interne sans
+        rien apporter au praticien. (6) Incertitude n°3 recentrée sur la donnée (la source HAS ne restreint
+        la contre-indication du mal perforant plantaire qu'aux membres inférieurs) : les phrases qui
+        décrivaient un choix de conception (absence de recueil par segment corporel, « sur-blocage
+        assumé ») sont retirées, déjà portées par ailleurs par l'alerte de nœud dédiée à la neuropathie.
+        (7) « HR 0,95 » développé en « rapport de risque, ou HR, à 0,95 » à sa première occurrence parmi
+        les champs affichés (l'occurrence de l'ancien `argumentaire` ayant disparu au resserrement, la
+        première restante est dans `sources.reco_officielle.divergence.divergences[1].appui`). (8)
+        `rhd-activite-physique.argumentaire.md` resynchronisé avec le YAML : en-tête alignée sur le gabarit
+        commun (« **Lecture exhaustive.** Destiné au professionnel qui veut le détail complet et toutes les
+        sources. »), sigles CV/IDM/AVC développés à leur première occurrence dans le tableau Look AHEAD,
+        note ajoutée sur le rôle de filet de la carte de repli (le tableau « Provenance des pistes » reste à
+        treize lignes, une par piste sourcée — la carte de repli n'en est pas une), « charge de saisie » et
+        « aurait alourdi le socle » reformulés en langage lecteur. SIGNALÉ AU RÉFÉRENT, NON TRANCHÉ ICI : le
+        sens du badge de preuve (`niveau_preuve: faible`) porté par la carte de repli, qui ne repose sur
+        aucune source clinique — arbitrage hors mandat de cette passe.
+    - date: "2026-08-06"
+      auteur: "Claude Code (P14/S7, T-170) — en attente de relecture référent"
+      resume: >-
+        AJOUT D'UN REPLI NEUTRE (R10) : nouvelle famille « Aucune piste prioritaire » (`exclusive: false`,
+        en dernière position de `familles`) et une option de repli en dernière position de `options`
+        (`conditions: ["default"]`, `role: repli`, AUCUN `prerequis`). MOTIF : ce nœud n'avait aucune
+        option `default` ; le plancher reposait sur la carte « Maintenir la pratique actuelle » et sur
+        « Poursuivre les habitudes actuelles », dont les conditions couvrent aujourd'hui tout le domaine
+        par ARITHMÉTIQUE des énums actuels (`frequence_activite_structuree` × `rupture_sedentarite_
+        habituelle`) — pas par construction : ajouter une valeur à l'un de ces critères romprait cette
+        arithmétique et ouvrirait un écran vide (R10). Le repli n'affirme rien sur le patient (ni
+        satisfecit, ni jugement) : il constate qu'aucune piste prioritaire ne ressort des réponses
+        recueillies et renvoie à la prochaine consultation — volontairement PAS une carte « maintien » (un
+        repli qui proposerait de continuer devrait porter un `prerequis`, R9/I15, ce qui rouvrirait le
+        trou que ce lot ferme). Les deux cartes « Maintien » existantes restent des `geste` ordinaires,
+        conditions inchangées ; aucune `exclusive` de nœud touchée (S8/T-174, hors mandat). CONSÉQUENCE
+        CONSTATÉE, PAS UN DÉFAUT DE CE LOT : arithmétiquement, ce repli est INATTEIGNABLE par toute
+        combinaison des valeurs d'énumération actuellement déclarées (les deux axes cités ci-dessus
+        couvrent déjà tout le domaine à eux seuls, cf. commentaire de l'option) — c'est un filet
+        structurel pour une évolution future du contenu, pas un cas vivant sur le contenu d'aujourd'hui ;
+        la vignette de banc ajoutée à `evaluateNode.rhd-activite-physique.test.ts` le prouve en simulant
+        une valeur d'énumération encore non déclarée. `engine/banc/couverture.test.ts` (« chaque option
+        est applicable pour au moins un profil ») ne peut mécaniquement pas voir ce repli se déclencher
+        sur le banc actuel — signalé au référent, non corrigé ici (hors mandat de T-170, qui ne liste que
+        les deux fichiers YAML et leurs tests dédiés). `engine/banc/invariants-contenu.test.ts` (I15, I17,
+        T-163) revérifiés : I15/I17 verts, T-163 cesse de signaler ce nœud.
     - date: "2026-08-05"
       auteur: "Claude Code — en attente de relecture clinique"
       resume: >-

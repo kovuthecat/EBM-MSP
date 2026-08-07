@@ -106,6 +106,7 @@ const PROPORTIONS = intitule('Se repérer aux proportions')
 const DIETETICIEN = intitule('Orienter vers le diététicien')
 const AVIS_TCA = intitule('avis spécialisé en trouble du comportement alimentaire')
 const MAINTIEN = intitule('Continuer ce qui fonctionne déjà')
+const REPLI = intitule('Aucune piste prioritaire')
 
 function evalProfil(overrides: Partial<Criteria>) {
   const criteria = calculerCriteresDerives(node!.criteres_entree, { ...BASE, ...overrides } as Criteria)
@@ -374,5 +375,64 @@ describe('rhd-alimentation — R-A-06 : rang de l’orientation vers le diétét
 
   it('reste au rang de repli quand seul l’accès à l’alimentation est en cause', () => {
     expect(rang({ acces_alimentation: 'difficultes_importantes' }, DIETETICIEN)).toBe(6)
+  })
+})
+
+// ═══════════════════════════════════════════════════════════════════════════════════════════════════
+// R-A-07 — Le repli neutre (R10, P14/S7, T-170) : jamais à côté d’une autre carte, et seul quand rien
+// d’autre ne s’applique
+//
+// CE QUE CETTE VIGNETTE PEUT (ET NE PEUT PAS) MONTRER. La carte « Continuer ce qui fonctionne déjà »
+// couvre aujourd’hui la totalité du domaine UTILE de ce nœud PAR ARITHMÉTIQUE des énums actuels (cf. le
+// commentaire de tête du YAML et celui de l’option de repli elle-même) : sur les 9 combinaisons de
+// `matiere_grasse_cuisson` (3 valeurs) × `frequence_fruits_a_coque` (3 valeurs), CHACUNE déclenche soit
+// « Utiliser de l’huile d’olive… », soit « Ajouter une petite poignée de fruits à coque… », soit
+// « Continuer ce qui fonctionne déjà » — jamais aucune des trois à la fois. Aucune combinaison des
+// valeurs d’énumération AUJOURD’HUI déclarées ne peut donc laisser ce nœud silencieux sur cet axe — ce
+// qui est la preuve même que le repli est un filet STRUCTUREL pour une évolution future du contenu, pas
+// un cas vivant sur le contenu d’aujourd’hui (exactement ce que dit le commentaire de tête du YAML :
+// « ajouter une valeur à … `matiere_grasse_cuisson` … ouvrirait un trou silencieux »).
+//
+// Le second `it` ci-dessous le prouve donc en construisant, À PARTIR du critère réel `matiere_grasse_
+// cuisson`, une valeur HORS de son domaine déclaré aujourd’hui — simulant honnêtement l’ajout futur que
+// le contenu redoute. Le moteur ne valide pas les critères saisis contre le schéma au runtime (D9,
+// `docs/decision/GRAMMAIRE-NOEUD.md`) : cette valeur traverse `evaluateNode` exactement comme le ferait
+// une vraie matière grasse pas encore câblée dans les conditions existantes — c’est la seule façon
+// honnête de mettre ce filet sous test sans changer le contenu réel.
+// ═══════════════════════════════════════════════════════════════════════════════════════════════════
+describe('rhd-alimentation — R-A-07 : le repli neutre (R10)', () => {
+  it('n’apparaît jamais à côté d’une autre carte — le profil neutre (déjà proche du repère) ne montre que « Continuer »', () => {
+    // Même profil que R-A-00 : réaffirme explicitement que le repli est absent dès qu’une autre carte
+    // s’applique — la sémantique `default` en `multi-options` (`evaluateNode.ts`).
+    expect(proposees({})).not.toContain(REPLI)
+    expect(proposees({})).toEqual([MAINTIEN])
+  })
+
+  it('sort SEUL quand aucune piste ne s’applique — simulé par une valeur hors du domaine actuel de `matiere_grasse_cuisson`', () => {
+    const HORS_DOMAINE_MUET: Partial<Criteria> = {
+      fragilite: false,
+      insuline_ou_insulinosecreteur: false,
+      frequence_boissons_sucrees: 'jamais', // silence « Boissons » (les deux options)
+      frequence_ultratransformes: 'jamais', // silence « Un repas simple fait maison… »
+      frequence_restauration_rapide: 'jamais', // silence « En restauration rapide… »
+      // HORS DU DOMAINE RÉEL (beurre_graisses_animales / melange / huile_olive_ou_colza) : simule
+      // l’ajout d’une matière grasse pas encore déclarée — silence à la fois « Utiliser de l’huile
+      // d’olive… » (qui ne lit que beurre/mélange) ET « Continuer ce qui fonctionne déjà » (qui exige
+      // `== huile_olive_ou_colza`), sans avoir à toucher `frequence_fruits_a_coque`.
+      matiere_grasse_cuisson: 'graisse_hors_domaine_future',
+      frequence_viande_rouge_charcuterie: 'jamais', // silence « Réduire la charcuterie et la viande rouge »
+      frequence_fruits_a_coque: 'regulier', // valeur RÉELLE : silence « Ajouter des fruits à coque… »
+      frequence_legumineuses: 'regulier', // silence « Ajouter un plat de légumineuses… »
+      frequence_poisson: 'regulier', // silence « Ajouter un repas de poisson… »
+      regularite_repas: 'reguliers', // silence « Se fixer des repas à des horaires réguliers »
+      frequence_grignotage: 'jamais', // silence « Repérer un moment de grignotage… »
+      difficulte_estimation_portions: 'facile', // silence « Se repérer aux proportions… »
+      acces_alimentation: 'sans_difficulte', // silence une des trois branches de l’orientation diététicien
+      signes_appel_tca: false, // silence les deux orientations TCA
+      alimentation_emotionnelle: 'jamais', // silence « Manger sans se presser »
+      consommation_vin: 'jamais',
+    }
+    expect(proposees(HORS_DOMAINE_MUET)).toEqual([REPLI])
+    expect(ecartees(HORS_DOMAINE_MUET)).toEqual([])
   })
 })

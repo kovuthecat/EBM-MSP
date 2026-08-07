@@ -1,0 +1,86 @@
+# TABLE DES CONDITIONS (régénérée mécaniquement) — nœud « prescription » (Initier ou optimiser un traitement non insulinique)
+#
+# LECTURE DE CONTENU, JAMAIS UNE ÉVALUATION : aucun patient construit, `evaluateNode` jamais appelé,
+# rang conditionnel (D14) rendu TEL QU’ÉCRIT. Produit par `engine/banc/tableConditions.test.ts`
+# (T-193, P14/S12), convention d’abréviation identique à celle de S3
+# (`docs/decision/validation/table-conditions-2026-08-06.md` § 1) :
+#   · expression de plus de 100 caractères → bloc nommé, quel que soit son nombre d’occurrences ;
+#   · expression de 40 à 100 caractères répétée à l’identique dans au moins
+#     3 options du même nœud → bloc nommé ;
+#   · en deçà, ou moins répétée → recopiée en clair dans chaque cellule.
+#
+# UN DIFF ICI N’EST PAS UNE RÉGRESSION EN SOI : il se relit contre le brouillon de table rédigé en P5
+# (`docs/decision/CONSTRUIRE-UN-MODULE.md`). Toute divergence non expliquée bloque la clôture du nœud.
+
+`selection: multi-options` · 30 option(s) · 6 famille(s) déclarée(s).
+
+## Familles (ordre déclaré = ordre d’affichage des sections)
+
+| Ordre | libellé | exclusive | prioritaire_si |
+| --- | --- | --- | --- |
+| 1 | À faire d'emblée — sécurité | cumul. | — |
+| 2 | Socle du traitement | cumul. | — |
+| 3 | Traitement à corriger ou remplacer | cumul. | — |
+| 4 | Le choix de l'agent | **excl.** | — |
+| 5 | Traitement à alléger | cumul. | `intention == deprescrire` |
+| 6 | Aucun geste — surveiller | cumul. | — |
+
+## Options
+
+| # | intitulé | role | famille | rang | conditions | prerequis | exclusions |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | Metformine — instaurer ou poursuivre | socle | Socle du traitement (cumul.) | 0 | `toujours` | — | `DFG < 30`<br>`metformine_deprescriptible == true`<br>**[PRE-1]** |
+| 2 | Metformine (DFG < 30) | securite | À faire d'emblée — sécurité (cumul.) | 1 | **[PRE-R1]**<br>`DFG < 30` | — | — |
+| 3 | Metformine — réduire la posologie | securite | À faire d'emblée — sécurité (cumul.) | 3 | **[PRE-R1]**<br>**[PRE-2]** | — | `DFG < 30` |
+| 4 | Sulfamide (DFG < 30) | securite | À faire d'emblée — sécurité (cumul.) | 1 | **[PRE-R2]**<br>`DFG < 30` | — | — |
+| 5 | iSGLT2 — suspendre | securite | À faire d'emblée — sécurité (cumul.) | 1 | `intention != initier AND traitements_en_cours contient iSGLT2`<br>`cetonemie == true` | — | — |
+| 6 | Insuline d'initiation | securite | À faire d'emblée — sécurité (cumul.) | 1 | `symptomes_glucotoxicite == true OR cetonemie == true` | **[PRE-3]** | — |
+| 7 | iSGLT2 — introduire | geste | Le choix de l'agent (**excl.**) | `infections_uro_genitales_recidivantes == true` → 6<br>`insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo` → 2<br>`ASCVD_etablie == true OR IMC >= 30` → 3<br>`default` → 2 | **[PRE-4]** | `traitements_en_cours ne_contient_pas iSGLT2`<br>**[PRE-R3]** | `DFG < 20`<br>`cetonemie == true` |
+| 8 | AR GLP‑1 — introduire | geste | Le choix de l'agent (**excl.**) | `preference_injection == refuse` → 7<br>`insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo` → 3<br>`ASCVD_etablie == true OR IMC >= 30` → 2<br>`IMC < 25` → 4<br>`default` → 2 | **[PRE-5]** | **[PRE-R4]**<br>**[PRE-R5]**<br>**[PRE-R3]** | `IMC < 22`<br>`denutrition == true`<br>`cetonemie == true` |
+| 9 | Tirzépatide — introduire | geste | Le choix de l'agent (**excl.**) | `preference_injection == refuse` → 7<br>`default` → 4 | `IMC >= 30` | **[PRE-R5]**<br>**[PRE-R4]**<br>**[PRE-R6]**<br>**[PRE-R3]** | `denutrition == true` |
+| 10 | Association iSGLT2 + AR GLP‑1 | geste | Le choix de l'agent (**excl.**) | `preference_injection == refuse` → 7<br>`default` → 4 | `insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo`<br>`ASCVD_etablie == true OR IMC >= 30` | **[PRE-R6]**<br>`traitements_en_cours ne_contient_pas iSGLT2`<br>**[PRE-R4]**<br>**[PRE-R5]**<br>**[PRE-R3]** | `DFG < 20`<br>`cetonemie == true`<br>`IMC < 22`<br>`denutrition == true` |
+| 11 | Envisager l'insuline | geste | Le choix de l'agent (**excl.**) | 6 | `cible_atteinte == false`<br>`isglt2_indisponible == true AND aglp1_indisponible == true` | **[PRE-3]** | — |
+| 12 | Gliptine — remplacer par un agent à bénéfice démontré | geste | Traitement à corriger ou remplacer (cumul.) | 3 | `intention != initier AND traitements_en_cours contient gliptine` | **[PRE-R4]**<br>**[PRE-R5]** | `cetonemie == true` |
+| 13 | Gliptine (redondante) | geste | Traitement à corriger ou remplacer (cumul.) | 3 | `intention != initier AND traitements_en_cours contient gliptine`<br>**[PRE-6]** | — | — |
+| 14 | Sulfamide — remplacer par un agent à bénéfice démontré | geste | Traitement à corriger ou remplacer (cumul.) | 4 | **[PRE-R2]** | — | `DFG < 30` |
+| 15 | Glinide — remplacer par un agent à bénéfice démontré | geste | Traitement à corriger ou remplacer (cumul.) | 4 | **[PRE-R7]**<br>`hypoglycemie_recente == false` | — | `isglt2_indisponible == true AND aglp1_indisponible == true` |
+| 16 | Optimiser l'agent mal toléré | geste | Traitement à alléger (cumul.) | 2 | `intention != initier AND intolerance_traitement == true` | **[PRE-7]** | **[PRE-8]** |
+| 17 | Sulfamide — arrêter | geste | Traitement à alléger (cumul.) | 1 | **[PRE-R2]**<br>**[PRE-9]** | — | — |
+| 18 | Glinide — arrêter | geste | Traitement à alléger (cumul.) | 1 | **[PRE-R7]**<br>**[PRE-9]** | — | — |
+| 19 | Désintensifier : alléger la charge thérapeutique | geste | Traitement à alléger (cumul.) | 1 | **[PRE-10]**<br>**[PRE-11]** | — | — |
+| 20 | Insuline — réduire la posologie | geste | Traitement à alléger (cumul.) | 1 | **[PRE-11]**<br>**[PRE-12]** | — | — |
+| 21 | AR GLP‑1 — réduire la posologie | geste | Traitement à alléger (cumul.) | 2 | `intention != initier AND traitements_en_cours contient aGLP1`<br>**[PRE-13]** | — | — |
+| 22 | Tirzépatide — réduire la posologie | geste | Traitement à alléger (cumul.) | 2 | `intention != initier AND traitements_en_cours contient tirzepatide`<br>**[PRE-13]** | — | — |
+| 23 | Sulfamide — réduire la posologie | geste | Traitement à alléger (cumul.) | 2 | **[PRE-R2]**<br>**[PRE-14]** | — | `DFG < 30` |
+| 24 | Glinide — réduire la posologie | geste | Traitement à alléger (cumul.) | 2 | **[PRE-R7]**<br>**[PRE-14]** | — | — |
+| 25 | Metformine (désintensification) | geste | Traitement à alléger (cumul.) | 3 | **[PRE-R1]**<br>`metformine_deprescriptible == true` | — | — |
+| 26 | Reconsidérer un agent protecteur hors indication | geste | Traitement à alléger (cumul.) | 4 | **[PRE-15]** | — | — |
+| 27 | Gliptine — introduire | geste | Le choix de l'agent (**excl.**) | `isglt2_indisponible == true AND aglp1_indisponible == true` → 3<br>`default` → 5 | `isglt2_indisponible == true AND aglp1_indisponible == true OR palette_glycemique_ouverte == true`<br>`position_vs_cible != sous_objectif` | **[PRE-R6]**<br>**[PRE-R4]**<br>**[PRE-R5]** | `symptomes_glucotoxicite == true`<br>`cetonemie == true` |
+| 28 | Sulfamide — introduire | geste | Le choix de l'agent (**excl.**) | `isglt2_indisponible == true AND aglp1_indisponible == true` → 3<br>`default` → 5 | `isglt2_indisponible == true AND aglp1_indisponible == true OR palette_glycemique_ouverte == true`<br>`position_vs_cible != sous_objectif` | `traitements_en_cours ne_contient_pas sulfamide`<br>**[PRE-3]** | `DFG < 30`<br>`symptomes_glucotoxicite == true`<br>`cetonemie == true`<br>`fragilite == true` |
+| 29 | Mesures hygiéno‑diététiques seules — réévaluer | repli | Aucun geste — surveiller (cumul.) | non déclaré | `default` | `intention == initier` | — |
+| 30 | Poursuivre le traitement en cours et réévaluer | repli | Aucun geste — surveiller (cumul.) | non déclaré | `default` | `intention != initier` | — |
+
+## Expressions nommées
+
+- **[PRE-1]** (338 car., option 1, exclusions) : `traitements_en_cours contient metformine AND DFG >= 45 AND DFG < 60 AND dose_metformine > 2000 OR traitements_en_cours contient metformine AND DFG >= 30 AND DFG < 45 AND dose_metformine > 1000 OR traitements_en_cours contient metformine AND intention != initier AND intolerance_traitement == true AND nature_intolerance contient digestive`
+- **[PRE-R1]** (65 car., options 2, 3, 25, conditions) : `intention != initier AND traitements_en_cours contient metformine`
+- **[PRE-2]** (203 car., option 3, conditions) : `DFG >= 45 AND DFG < 60 AND dose_metformine > 2000 OR DFG >= 30 AND DFG < 45 AND dose_metformine > 1000 OR intention != initier AND intolerance_traitement == true AND nature_intolerance contient digestive`
+- **[PRE-R2]** (64 car., options 4, 14, 17, 23, conditions) : `intention != initier AND traitements_en_cours contient sulfamide`
+- **[PRE-3]** (109 car., options 6, 11, 28, prerequis) : `traitements_en_cours ne_contient_pas insuline_basale AND traitements_en_cours ne_contient_pas insuline_rapide`
+- **[PRE-4]** (173 car., option 7, conditions) : `insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo OR ASCVD_etablie == true OR palette_glycemique_ouverte == true OR remplacement_agent_sans_benefice == true`
+- **[PRE-R3]** (59 car., options 7, 8, 9, 10, prerequis) : `isglt2_indisponible == false OR aglp1_indisponible == false`
+- **[PRE-5]** (168 car., option 8, conditions) : `ASCVD_etablie == true OR IMC >= 30 OR palette_glycemique_ouverte == true OR remplacement_agent_sans_benefice == true OR DFG > 0 AND DFG < 30 AND cible_atteinte == false`
+- **[PRE-R4]** (42 car., options 8, 9, 10, 12, 27, prerequis) : `traitements_en_cours ne_contient_pas aGLP1`
+- **[PRE-R5]** (48 car., options 8, 9, 10, 12, 27, prerequis) : `traitements_en_cours ne_contient_pas tirzepatide`
+- **[PRE-R6]** (45 car., options 9, 10, 27, prerequis) : `traitements_en_cours ne_contient_pas gliptine`
+- **[PRE-6]** (130 car., option 13, conditions) : `intention != initier AND traitements_en_cours contient aGLP1 OR intention != initier AND traitements_en_cours contient tirzepatide`
+- **[PRE-R7]** (62 car., options 15, 18, 24, conditions) : `intention != initier AND traitements_en_cours contient glinide`
+- **[PRE-7]** (613 car., option 16, prerequis) : `intention != initier AND traitements_en_cours contient metformine OR intention != initier AND traitements_en_cours contient iSGLT2 OR intention != initier AND traitements_en_cours contient aGLP1 OR intention != initier AND traitements_en_cours contient tirzepatide OR intention != initier AND traitements_en_cours contient sulfamide OR intention != initier AND traitements_en_cours contient gliptine OR intention != initier AND traitements_en_cours contient insuline_basale OR intention != initier AND traitements_en_cours contient insuline_rapide OR intention != initier AND traitements_en_cours contient glinide`
+- **[PRE-8]** (452 car., option 16, exclusions) : `metformine_seule_en_cours == true AND traitements_en_cours contient metformine AND DFG >= 45 AND DFG < 60 AND dose_metformine > 2000 OR metformine_seule_en_cours == true AND traitements_en_cours contient metformine AND DFG >= 30 AND DFG < 45 AND dose_metformine > 1000 OR metformine_seule_en_cours == true AND traitements_en_cours contient metformine AND intention != initier AND intolerance_traitement == true AND nature_intolerance contient digestive`
+- **[PRE-9]** (236 car., options 17, 18, conditions) : `hba1c_sous_cible == true OR hypoglycemie_recente == true AND terrain_cible_assouplie == true OR hypoglycemie_recente == true AND risque_hypoglycemie_schema == eleve OR position_vs_cible == sous_objectif OR hypo_severe_recurrente == true`
+- **[PRE-10]** (202 car., option 19, conditions) : `hba1c_sous_cible == true OR hypoglycemie_recente == true AND terrain_cible_assouplie == true OR hypoglycemie_recente == true AND risque_hypoglycemie_schema == eleve OR position_vs_cible == sous_objectif`
+- **[PRE-11]** (144 car., options 19, 20, conditions) : `intention != initier AND traitements_en_cours contient insuline_basale OR intention != initier AND traitements_en_cours contient insuline_rapide`
+- **[PRE-12]** (153 car., option 20, conditions) : `hba1c_sous_cible == true OR hypoglycemie_recente == true OR intention != initier AND intolerance_traitement == true OR position_vs_cible == sous_objectif`
+- **[PRE-13]** (223 car., options 21, 22, conditions) : `denutrition == true OR intention != initier AND intolerance_traitement == true AND nature_intolerance contient perte_poids OR intention != initier AND intolerance_traitement == true AND nature_intolerance contient digestive`
+- **[PRE-14]** (187 car., options 23, 24, conditions) : `intention != initier AND intolerance_traitement == true OR hypoglycemie_recente == true OR position_vs_cible == sous_objectif OR isglt2_indisponible == true AND aglp1_indisponible == true`
+- **[PRE-15]** (213 car., option 26, conditions) : `intention != initier AND traitements_en_cours contient iSGLT2 AND ASCVD_etablie == false AND insuffisance_cardiaque == false AND DFG >= 60 AND albuminurie == normo AND infections_uro_genitales_recidivantes == true`

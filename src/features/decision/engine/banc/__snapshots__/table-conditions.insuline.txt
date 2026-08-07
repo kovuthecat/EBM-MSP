@@ -1,0 +1,57 @@
+# TABLE DES CONDITIONS (régénérée mécaniquement) — nœud « insuline » (Initier ou optimiser une insulinothérapie)
+#
+# LECTURE DE CONTENU, JAMAIS UNE ÉVALUATION : aucun patient construit, `evaluateNode` jamais appelé,
+# rang conditionnel (D14) rendu TEL QU’ÉCRIT. Produit par `engine/banc/tableConditions.test.ts`
+# (T-193, P14/S12), convention d’abréviation identique à celle de S3
+# (`docs/decision/validation/table-conditions-2026-08-06.md` § 1) :
+#   · expression de plus de 100 caractères → bloc nommé, quel que soit son nombre d’occurrences ;
+#   · expression de 40 à 100 caractères répétée à l’identique dans au moins
+#     3 options du même nœud → bloc nommé ;
+#   · en deçà, ou moins répétée → recopiée en clair dans chaque cellule.
+#
+# UN DIFF ICI N’EST PAS UNE RÉGRESSION EN SOI : il se relit contre le brouillon de table rédigé en P5
+# (`docs/decision/CONSTRUIRE-UN-MODULE.md`). Toute divergence non expliquée bloque la clôture du nœud.
+
+`selection: multi-options` · 14 option(s) · 7 famille(s) déclarée(s).
+
+## Familles (ordre déclaré = ordre d’affichage des sections)
+
+| Ordre | libellé | exclusive | prioritaire_si |
+| --- | --- | --- | --- |
+| 1 | Avant de décider — la mesure | cumul. | — |
+| 2 | Sécurité — à corriger d'abord | cumul. | — |
+| 3 | Instaurer l'insuline | **excl.** | — |
+| 4 | Intensifier le traitement | **excl.** | — |
+| 5 | Ajuster le schéma en place | cumul. | — |
+| 6 | Alléger le schéma | cumul. | — |
+| 7 | Aucun geste — surveiller | cumul. | — |
+
+## Options
+
+| # | intitulé | role | famille | rang | conditions | prerequis | exclusions |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | Envisager d'instaurer une mesure continue du glucose | geste | Avant de décider — la mesure (cumul.) | 1 | `situation_insuline != naif`<br>`mcg_disponible == false`<br>`cible_atteinte == false` | — | — |
+| 2 | Envisager un GLP-1 avant ou avec l'insuline | geste | Instaurer l'insuline (**excl.**) | 1 | `situation_insuline == naif`<br>`cible_atteinte == false OR symptomes_glucotoxicite == true` | `traitements_en_cours ne_contient_pas aGLP1` | — |
+| 3 | Initier une insuline basale | geste | Instaurer l'insuline (**excl.**) | 2 | `situation_insuline == naif`<br>`cible_atteinte == false OR symptomes_glucotoxicite == true` | `traitements_en_cours ne_contient_pas insuline_basale` | — |
+| 4 | Corriger l'hypoglycémie ou la variabilité | securite | Sécurité — à corriger d'abord (cumul.) | 1 | `situation_insuline == basale_seule OR situation_insuline == basale_plus_bolus`<br>**[INS-1]** | — | — |
+| 5 | Ne pas sur-titrer la basale — intensifier autrement | securite | Sécurité — à corriger d'abord (cumul.) | 2 | `situation_insuline == basale_seule`<br>`cible_atteinte == false`<br>**[INS-2]** | — | `mcg_disponible == true AND TBR > 4`<br>`mcg_disponible == true AND CV_glycemique > 36`<br>**[INS-R1]** |
+| 6 | Titrer la basale (augmenter la dose) | geste | Intensifier le traitement (**excl.**) | 3 | `situation_insuline == basale_seule`<br>`cible_atteinte == false`<br>**[INS-3]** | — | `mcg_disponible == true AND TBR > 4`<br>`mcg_disponible == true AND CV_glycemique > 36`<br>**[INS-R1]**<br>`mcg_disponible == false AND gaj_basse == true` |
+| 7 | Réduire la basale | geste | Ajuster le schéma en place (cumul.) | 1 | `situation_insuline != naif`<br>**[INS-R1]** | — | — |
+| 8 | Ajouter un GLP-1 / une association fixe d'abord | geste | Intensifier le traitement (**excl.**) | 1 | `situation_insuline == basale_plus_bolus OR situation_insuline == basale_seule`<br>`cible_atteinte == false`<br>**[INS-4]** | `traitements_en_cours ne_contient_pas aGLP1 AND traitements_en_cours ne_contient_pas tirzepatide` | `situation_insuline == basale_plus_bolus AND mcg_disponible == true AND TBR > 4`<br>`situation_insuline == basale_plus_bolus AND mcg_disponible == true AND CV_glycemique > 36`<br>**[INS-5]** |
+| 9 | Ajouter un bolus au repas principal | geste | Intensifier le traitement (**excl.**) | 2 | `situation_insuline == basale_plus_bolus OR situation_insuline == basale_seule`<br>`cible_atteinte == false`<br>**[INS-4]** | `traitements_en_cours ne_contient_pas insuline_rapide` | `situation_insuline == basale_plus_bolus AND mcg_disponible == true AND TBR > 4`<br>`situation_insuline == basale_plus_bolus AND mcg_disponible == true AND CV_glycemique > 36`<br>**[INS-5]** |
+| 10 | Insuline prémélangée — option dégradée, dernier recours | geste | Intensifier le traitement (**excl.**) | 3 | `situation_insuline == basale_plus_bolus`<br>`preference_injection == refuse` | — | — |
+| 11 | Désintensifier / alléger le schéma | geste | Alléger le schéma (cumul.) | 1 | **[INS-6]** | — | — |
+| 12 | Optimiser la répartition du basal-bolus | geste | Ajuster le schéma en place (cumul.) | 2 | `situation_insuline == basal_bolus OR situation_insuline == basale_plus_bolus`<br>**[INS-7]** | — | — |
+| 13 | Poursuivre le schéma d'insuline en cours et réévaluer | repli | Aucun geste — surveiller (cumul.) | non déclaré | `default` | `situation_insuline != naif` | — |
+| 14 | Pas d'indication à initier une insuline aujourd'hui | repli | Aucun geste — surveiller (cumul.) | non déclaré | `default` | `situation_insuline == naif` | — |
+
+## Expressions nommées
+
+- **[INS-1]** (132 car., option 4, conditions) : `mcg_disponible == true AND TBR > 4 OR mcg_disponible == true AND CV_glycemique > 36 OR mcg_disponible == false AND gaj_basse == true`
+- **[INS-2]** (109 car., option 5, conditions) : `mcg_disponible == false AND gaj_a_cible == true OR mcg_disponible == true AND profil_nocturne_a_cible == true`
+- **[INS-R1]** (61 car., options 5, 6, 7, exclusions/conditions) : `mcg_disponible == true AND profil_nocturne == baisse_continue`
+- **[INS-3]** (116 car., option 6, conditions) : `mcg_disponible == false AND gaj_haute == true OR mcg_disponible == true AND profil_nocturne_permet_titration == true`
+- **[INS-4]** (325 car., options 8, 9, conditions) : `situation_insuline == basale_plus_bolus OR mcg_disponible == true AND TBR > 4 OR mcg_disponible == true AND CV_glycemique > 36 OR mcg_disponible == true AND profil_nocturne == baisse_continue OR gaj_a_cible == true OR mcg_disponible == false AND gaj_basse == true OR mcg_disponible == true AND profil_nocturne_a_cible == true`
+- **[INS-5]** (105 car., options 8, 9, exclusions) : `situation_insuline == basale_plus_bolus AND mcg_disponible == true AND profil_nocturne == baisse_continue`
+- **[INS-6]** (141 car., option 11, conditions) : `situation_insuline == basal_bolus AND risque_hypoglycemique_eleve == true OR situation_insuline != naif AND ecart_sous_objectif_cible == true`
+- **[INS-7]** (273 car., option 12, conditions) : `cible_atteinte == false OR mcg_disponible == true AND TBR > 4 OR mcg_disponible == true AND CV_glycemique > 36 OR mcg_disponible == true AND profil_nocturne == baisse_continue OR profil_entre_repas == baisse_entre_repas OR pre_repas_haute == true OR pre_repas_basse == true`

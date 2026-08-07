@@ -56,6 +56,10 @@ const BASE: Criteria = {
   intolerance_traitement: false,
   nature_intolerance: [],
   hypoglycemie_recente: false,
+  // T-192 (P14/S19, 2026-08-07) : nouveau critère commun (`{ ref: hypo_severe_recurrente }`), DISTINCT de
+  // `hypoglycemie_recente` juste au-dessus (épisode daté vs antécédent récurrent, cf. prescription.yaml).
+  // `false` neutre, même convention que les autres booléens de ce profil.
+  hypo_severe_recurrente: false,
   symptomes_glucotoxicite: false,
   cetonemie: false,
   preference_injection: 'indifferent',
@@ -77,6 +81,11 @@ function evalProfile(overrides: Partial<Criteria>) {
 // est un CONSOMMATEUR de test, pas la source de vérité du libellé. Préfixe plutôt que suffixe : les
 // fragments existants qui tronquaient AVANT le trait d'union insécable de « GLP‑1 » (cf. commentaire
 // d'origine) restent valides sans y toucher.
+// TOUJOURS VALABLE APRÈS T-171 (P14/S8, 2026-08-06) : les intitulés de `prescription.yaml` sont redevenus
+// uniques (l'action figure maintenant DANS le titre, ex. « iSGLT2 — introduire »), donc ce préfixage n'est
+// plus strictement nécessaire pour désambiguïser — mais il reste inoffensif : `has()`/`idx()` matchent par
+// sous-chaîne, et l'ancien radical (« iSGLT2 », « AR GLP », « Tirzépatide ») est toujours un préfixe du
+// nouvel intitulé complet. Gardé tel quel pour limiter le diff de cette tâche mécanique.
 const etiquette = (opt: { intitule: string; action?: string }) =>
   opt.action ? `${opt.action}·${opt.intitule}` : opt.intitule
 const titles = (o: Partial<Criteria>) => evalProfile(o).applicable.map(etiquette)
@@ -179,22 +188,33 @@ describe('prescription — B/C · préférence (fix bug 9) & tirzépatide ⊂ ob
 })
 
 describe('prescription — D · portes SU/gliptine × position', () => {
-  it('D1 — SU + sur-traitement (HbA1c < 6,5 %) : DÉPRESCRIPTION à tout âge, pas de switch', () => {
+  it('D1 — SU + sur-traitement (HbA1c < 6,5 %) : ARRÊT du sulfamide à tout âge, ET remplacement désormais ouvert (T-169/T-185)', () => {
     // `hba1c_sous_cible` dérive de l'HbA1c saisie (garde-fou absolu < 6,5 %), indépendant de
     // `position_vs_cible` — `sous_objectif` ici ne fait que refléter le même sur-traitement à l'écran.
+    //
+    // ⚠ ATTENTE INVERSÉE en DEUX temps sur ce profil (P14/S6, 2026-08-06, décisions référent) :
+    // (T-169) « remplacer » n'est plus fermé par `hba1c_sous_cible == false` — `remplacer·Sulfamide`
+    // devient VRAI. (T-185) « Désintensifier » est restreinte aux insulines (cf. `prescription.yaml`,
+    // changelog v0.67) : ce patient est sous sulfamide SEUL (pas d'insuline), donc Désintensifier ne se
+    // déclenche PLUS pour lui — c'est désormais « Sulfamide — arrêter » qui porte, nommément, la même
+    // situation (hba1c_sous_cible == true). Les trois issues (arrêter/réduire/remplacer) sont donc
+    // potentiellement disponibles pour un patient en sur-contrôle, à charge du praticien de choisir.
     const o = { age: 72, traitements_en_cours: ['metformine', 'sulfamide'], intention: 'deprescrire',
       position_vs_cible: 'sous_objectif', hba1c_sous_cible: true, risque_hypoglycemie_schema: 'eleve',
       HbA1c_actuelle: 6.2 } as Partial<Criteria>
     const t = titles(o)
-    expect(has(t, 'Désintensifier')).toBe(true)
-    expect(has(t, 'remplacer·Sulfamide')).toBe(false)
+    expect(has(t, 'Désintensifier')).toBe(false)
+    expect(has(t, 'arreter·Sulfamide')).toBe(true)
+    expect(has(t, 'remplacer·Sulfamide')).toBe(true)
   })
 
-  it('D1b — sur-traitement chez un sujet JEUNE non fragile sous SU : déprescription quand même (gel D2)', () => {
+  it('D1b — sur-traitement chez un sujet JEUNE non fragile sous SU : arrêt du sulfamide quand même (gel D2 ; T-185, Désintensifier ne porte plus ce cas)', () => {
     const o = { age: 55, fragilite: false, traitements_en_cours: ['metformine', 'sulfamide'],
       intention: 'deprescrire', position_vs_cible: 'sous_objectif', HbA1c_actuelle: 6.0,
       risque_hypoglycemie_schema: 'eleve' } as Partial<Criteria>
-    expect(has(titles(o), 'Désintensifier')).toBe(true)
+    const t = titles(o)
+    expect(has(t, 'Désintensifier')).toBe(false) // T-185 : restreinte aux insulines, ce patient n'en a pas
+    expect(has(t, 'arreter·Sulfamide')).toBe(true)
   })
 
   it('D2 — SU + au-dessus + ASCVD : SWITCH du sulfamide, pas de désintensification, AR GLP-1 devant iSGLT2', () => {
@@ -387,11 +407,13 @@ describe('prescription — correctifs vérification adversariale S8', () => {
     expect(alertMsgs(o).some((m) => m.includes('Cohérence') && m.includes('INTENSIFICATION'))).toBe(true)
   })
 
-  it('V-hba1c-derive — HbA1c 6,0 saisie (drapeau non requis) : déprescription du SU se déclenche', () => {
+  it('V-hba1c-derive — HbA1c 6,0 saisie (drapeau non requis) : arrêt du SU se déclenche (T-185 : Désintensifier ne porte plus le sulfamide)', () => {
     const o = { traitements_en_cours: ['metformine', 'sulfamide'], intention: 'deprescrire',
       position_vs_cible: 'sous_objectif', HbA1c_actuelle: 6.0,
       risque_hypoglycemie_schema: 'eleve' } as Partial<Criteria>
-    expect(has(titles(o), 'Désintensifier')).toBe(true)
+    const t = titles(o)
+    expect(has(t, 'Désintensifier')).toBe(false)
+    expect(has(t, 'arreter·Sulfamide')).toBe(true)
   })
 })
 
@@ -507,11 +529,20 @@ describe('prescription — R3 (remplacement_agent_sans_benefice, GRAMMAIRE-NOEUD
     expect(has(t, ISGLT2) || has(t, GLP1)).toBe(true)
   })
 
-  it('R3-3 — sulfamide + HbA1c < 6,5 % (hba1c_sous_cible) : le switch NE se déclenche PAS (sur-contrôle → déprescription, pas de remplacement)', () => {
+  it('R3-3 — sulfamide + HbA1c < 6,5 % (hba1c_sous_cible) : le switch SE déclenche AUSSI désormais (T-169), et c’est « Sulfamide — arrêter » qui porte le sur-contrôle (T-185)', () => {
+    // ⚠ ATTENTE INVERSÉE EN DEUX TEMPS (P14/S6, 2026-08-06, décisions référent).
+    // (T-169) « remplacer » disponible aussi quand l'HbA1c est sous la cible (`hba1c_sous_cible == false`
+    // retiré des `conditions`) — AVANT, ce test vérifiait que le switch NE se déclenchait PAS en
+    // sur-contrôle, exactement l'écart mesuré par S6.md.
+    // (T-185) « Désintensifier » est restreinte aux insulines : ce patient sous sulfamide seul (pas
+    // d'insuline) ne la déclenche plus — c'est « Sulfamide — arrêter » qui porte désormais, nommément, le
+    // même sur-contrôle. Les trois gestes (arrêter/réduire tous deux non testés ici/remplacer) coexistent
+    // à dessein (familles non exclusives) : au praticien de choisir.
     const o = { traitements_en_cours: ['metformine', 'sulfamide'], HbA1c_actuelle: 6.0 } as Partial<Criteria>
     const t = titles(o)
-    expect(has(t, 'remplacer·Sulfamide')).toBe(false)
-    expect(has(t, 'Désintensifier')).toBe(true) // le sur-contrôle reste géré par la désintensification
+    expect(has(t, 'remplacer·Sulfamide')).toBe(true)
+    expect(has(t, 'Désintensifier')).toBe(false)
+    expect(has(t, 'arreter·Sulfamide')).toBe(true) // porte désormais le sur-contrôle (T-185)
   })
 
   it('R3-4 — sulfamide + hypoglycémie récente, terrain NON fragile : le switch SE déclenche (arbitrage A1, 2026-08-01), la désintensification non ; la réduction de dose l’accompagne', () => {
@@ -541,13 +572,128 @@ describe('prescription — R3 (remplacement_agent_sans_benefice, GRAMMAIRE-NOEUD
     expect(has(t, 'reduire·Sulfamide')).toBe(true)
   })
 
-  it('R3-4-fragile (P-56) — sulfamide + hypoglycémie récente, terrain FRAGILE : Désintensifier apparaît (contre-épreuve, couvre la branche jamais atteinte signalée par l’audit)', () => {
-    // NOUVELLE (chantier vignettes 2026-07-26, couverture) : complète R3-4 ci-dessus en couvrant enfin
-    // POSITIVEMENT la seconde porte de « Désintensifier » (prescription.yaml:628, « hypoglycémie récente
-    // ET terrain fragile ») — signalée par l'audit comme jamais exercée par aucune vignette du banc.
+  it('R3-4-fragile (P-56) — sulfamide + hypoglycémie récente, terrain FRAGILE : « Sulfamide — arrêter » porte cette situation (T-185 ; Désintensifier ne couvre plus le sulfamide)', () => {
+    // NOUVELLE (chantier vignettes 2026-07-26, couverture) : complétait R3-4 ci-dessus en couvrant enfin
+    // POSITIVEMENT la seconde porte de « hypoglycémie récente ET terrain fragile ») — signalée par
+    // l'audit comme jamais exercée par aucune vignette du banc. RETITRÉE le 2026-08-06 (T-185) :
+    // « Désintensifier » est désormais restreinte aux insulines et ne se déclenche plus pour ce patient
+    // (sulfamide seul, pas d'insuline) ; « Sulfamide — arrêter » reprend exactement la même situation
+    // déclenchante (transposée du premier item de conditions de l'ex-« Désintensifier »).
     const o = { traitements_en_cours: ['metformine', 'sulfamide'], hypoglycemie_recente: true,
       fragilite: true } as Partial<Criteria>
-    expect(has(titles(o), 'Désintensifier')).toBe(true)
+    const t = titles(o)
+    expect(has(t, 'Désintensifier')).toBe(false)
+    expect(has(t, 'arreter·Sulfamide')).toBe(true)
+  })
+})
+
+/**
+ * T-169 (P14/S6, 2026-08-06) — trois écarts mesurés entre la règle du référent et le contenu, comblés :
+ * (1) « réduire » (sulfamide/glinide) ne se déclenchait pas quand le patient est déjà sous les DEUX
+ * classes à bénéfice dur (plus d'agent protecteur à échanger) ; (2) « remplacer » restait fermé par
+ * `hba1c_sous_cible == false` ; (3) deux cartes « Sulfamide » et deux cartes « Glinide » portaient le
+ * même intitulé. Vignettes VALIDÉES par la section « Validation » de `plans/P14/S6.md` (T-169).
+ */
+describe('prescription — T-169 (P14/S6) : réduire/remplacer ouverts, titres désambiguïsés', () => {
+  it('T169-a — sulfamide, déjà sous iSGLT2 ET AR GLP-1 (plus d’agent protecteur à ajouter), sans intolérance ni hypo récente : « réduire » devient applicable', () => {
+    // Cas nommé par le référent : « déjà sous iSGLT2 et AR GLP‑1 » — plus d'agent à bénéfice dur à
+    // ajouter en échange du sulfamide, donc réduire la posologie est la seule conduite qui reste. Avant
+    // T-169, ce profil ne déclenchait NI intolérance NI hypoglycémie NI sous-objectif : « réduire » était
+    // absente (cas non couvert, cf. tableau de la décision clé de T-169).
+    const o = { traitements_en_cours: ['metformine', 'iSGLT2', 'aGLP1', 'sulfamide'], intention: 'intensifier',
+      position_vs_cible: 'au_dessus', HbA1c_actuelle: 8, intolerance_traitement: false,
+      hypoglycemie_recente: false } as Partial<Criteria>
+    const t = titles(o)
+    expect(has(t, 'reduire·Sulfamide')).toBe(true)
+  })
+
+  it('T169-b — glinide, HbA1c sous la cible, pas d’hypoglycémie récente : « remplacer » devient applicable (verrou `hba1c_sous_cible` levé)', () => {
+    // Symétrique de R3-3 (ci-dessus, côté sulfamide) : `hba1c_sous_cible == false` a été retiré des
+    // `conditions` de « Glinide — remplacer » (T-169 étape 3) ; `hypoglycemie_recente == false`, qui
+    // répond à autre chose, reste en vigueur et vaut trivialement ici (non déclarée).
+    const o = { traitements_en_cours: ['metformine', 'glinide'], HbA1c_actuelle: 6.0 } as Partial<Criteria>
+    const t = titles(o)
+    expect(has(t, 'remplacer·Glinide')).toBe(true)
+  })
+
+  it('T169-c — sulfamide, HbA1c au-dessus, intolérance : « remplacer » ET « réduire » coexistent, titres DISTINCTS', () => {
+    const o = { traitements_en_cours: ['metformine', 'sulfamide'], intention: 'intensifier',
+      position_vs_cible: 'au_dessus', HbA1c_actuelle: 8, intolerance_traitement: true,
+      nature_intolerance: ['digestive'] } as Partial<Criteria>
+    const t = titles(o)
+    expect(has(t, 'remplacer·Sulfamide')).toBe(true)
+    expect(has(t, 'reduire·Sulfamide')).toBe(true)
+    // Désambiguïsation (T-169 étape 1) : les deux cartes n'ont plus l'intitulé nu « Sulfamide ».
+    const intitulesSulfamide = evalProfile(o).applicable.filter((opt) => opt.intitule.startsWith('Sulfamide')).map((opt) => opt.intitule)
+    expect(new Set(intitulesSulfamide).size).toBe(intitulesSulfamide.length) // aucun doublon d'intitulé
+    expect(intitulesSulfamide).not.toContain('Sulfamide') // plus de titre nu applicable ici
+  })
+})
+
+/**
+ * T-185 (P14/S6, 2026-08-06) — redécoupage de « Traitement à alléger » : une carte d'arrêt PAR
+ * MÉDICAMENT (« Sulfamide — arrêter », « Glinide — arrêter »), « Désintensifier » restreinte aux
+ * insulines. Vignettes VALIDÉES par la section « Validation » de `plans/P14/S6.md` (T-185).
+ */
+describe('prescription — T-185 (P14/S6) : une carte d’arrêt par insulinosécréteur, Désintensifier restreinte aux insulines', () => {
+  it('T185-a — sulfamide, HbA1c sous la cible : les TROIS issues visibles (arrêter · réduire · remplacer), sur DEUX familles', () => {
+    const o = { traitements_en_cours: ['metformine', 'sulfamide'], HbA1c_actuelle: 6.0,
+      position_vs_cible: 'sous_objectif' } as Partial<Criteria>
+    const res = evalProfile(o)
+    const t = res.applicable.map(etiquette)
+    expect(has(t, 'arreter·Sulfamide')).toBe(true)
+    expect(has(t, 'reduire·Sulfamide')).toBe(true)
+    expect(has(t, 'remplacer·Sulfamide')).toBe(true)
+    const familles = new Set(
+      res.applicable.filter((opt) => opt.intitule.startsWith('Sulfamide')).map((opt) => opt.famille),
+    )
+    expect(familles).toEqual(new Set(['Traitement à alléger', 'Traitement à corriger ou remplacer']))
+  })
+
+  it('T185-b — insuline SEULE, HbA1c sous la cible : « Désintensifier » présente, AUCUNE carte sulfamide/glinide', () => {
+    const o = { traitements_en_cours: ['metformine', 'insuline_basale'], HbA1c_actuelle: 6.0 } as Partial<Criteria>
+    const t = titles(o)
+    expect(has(t, 'Désintensifier')).toBe(true)
+    expect(t.some((titre) => titre.includes('Sulfamide'))).toBe(false)
+    expect(t.some((titre) => titre.includes('Glinide'))).toBe(false)
+  })
+
+  it('T185-c — sulfamide SANS insuline, HbA1c sous la cible : « Désintensifier » ABSENTE (c’est le redécoupage), « Sulfamide — arrêter » présente', () => {
+    const o = { traitements_en_cours: ['metformine', 'sulfamide'], HbA1c_actuelle: 6.0 } as Partial<Criteria>
+    const t = titles(o)
+    expect(has(t, 'Désintensifier')).toBe(false)
+    expect(has(t, 'arreter·Sulfamide')).toBe(true)
+  })
+})
+
+/**
+ * T-192 (P14/S19, 2026-08-07) — corrige le défaut D9 (`docs/decision/validation/
+ * criteres-communs-2026-08-06.md` § 3.1) : `hypo_severe_recurrente` devient un critère saisi de ce nœud
+ * (`{ ref }` vers `content/decision/criteres-communs/diabete-type-2.yaml`), plus seulement une phrase de
+ * l'`aide` de `risque_hypoglycemie_schema`. Canal choisi (R8, GRAMMAIRE-NOEUD.md) : un quatrième terme, EN
+ * DISJONCTION INDÉPENDANTE de `hypoglycemie_recente`, sur les `conditions` de « Sulfamide — arrêter » et
+ * « Glinide — arrêter » SEULEMENT — jamais « réduire la posologie » (repli `bas_rang`), jamais une alerte
+ * de nœud, jamais une exclusion sur « Sulfamide — introduire » (cf. le commentaire de la carte).
+ */
+describe('prescription — T-192 (P14/S19) : hypo_severe_recurrente déclenche « arrêter », pas « réduire »', () => {
+  it('T192-a — sulfamide en cours, hypoglycémie sévère récurrente, AUCUN autre signal (pas d’hypo récente, cible atteinte, terrain non fragile) : « Sulfamide — arrêter » se déclenche SEULE sur ce nouveau motif, « réduire » reste absente', () => {
+    const o = { traitements_en_cours: ['metformine', 'sulfamide'], hypo_severe_recurrente: true } as Partial<Criteria>
+    const t = titles(o)
+    expect(has(t, 'arreter·Sulfamide')).toBe(true)
+    expect(has(t, 'reduire·Sulfamide')).toBe(false)
+  })
+
+  it('T192-b — même antécédent, glinide en cours : « Glinide — arrêter » se déclenche aussi (même fait commun, `concerne: [sulfamide, glinide]`), « réduire » reste absente', () => {
+    const o = { traitements_en_cours: ['metformine', 'glinide'], hypo_severe_recurrente: true } as Partial<Criteria>
+    const t = titles(o)
+    expect(has(t, 'arreter·Glinide')).toBe(true)
+    expect(has(t, 'reduire·Glinide')).toBe(false)
+  })
+
+  it('T192-c — contre-épreuve : même profil, sans l’antécédent (hypo_severe_recurrente: false) : « Sulfamide — arrêter » NE se déclenche PAS — isole l’effet du nouveau terme', () => {
+    const o = { traitements_en_cours: ['metformine', 'sulfamide'], hypo_severe_recurrente: false } as Partial<Criteria>
+    const t = titles(o)
+    expect(has(t, 'arreter·Sulfamide')).toBe(false)
   })
 })
 
@@ -601,10 +747,11 @@ describe('prescription — P-38+ (déprescrire la metformine, garde-fou 2026-07-
     const renseignes = new Set(Object.keys(criteria))
     renseignes.delete('dose_metformine') // LA seule inconnue de ce profil.
     const res = evaluateNode(node!, criteria, renseignes)
-    // `opt.intitule` directement (pas `titles()`/`etiquette()`) : l'intitulé simplifié (2026-08-04,
-    // « Metformine » bare) exige `action === 'reduire'` pour rester unique — cf. `estReduireMetformine`.
+    // `opt.intitule` directement (pas `titles()`/`etiquette()`) : RETITRÉ le 2026-08-06 (P14/S8, T-171) —
+    // l'intitulé est désormais unique par construction (« Metformine — réduire la posologie », distinct du
+    // socle « Metformine — instaurer ou poursuivre »). `action === 'reduire'` gardé par prudence.
     const estReduireMetformine = (opt: { intitule: string; action?: string }) =>
-      opt.intitule === 'Metformine' && opt.action === 'reduire'
+      opt.intitule === 'Metformine — réduire la posologie' && opt.action === 'reduire'
     const enAttenteEntry = [...res.enAttente.entries()].find(([opt]) => estReduireMetformine(opt))
     expect(enAttenteEntry).toBeDefined()
     expect(enAttenteEntry?.[1]).toEqual(['dose_metformine'])
@@ -643,12 +790,16 @@ describe('prescription — P-38+ (déprescrire la metformine, garde-fou 2026-07-
     expect(has(titles(o), 'Metformine (désintensification)')).toBe(false)
   })
 
-  it('P-43 — le même patient (fragile, sous-objectif) + UN SULFAMIDE en plus : metformine PAS déprescrite, c’est le sulfamide qu’on retire d’abord', () => {
+  it('P-43 — le même patient (fragile, sous-objectif) + UN SULFAMIDE en plus : metformine PAS déprescrite, c’est le sulfamide qu’on retire d’abord (T-185 : « Sulfamide — arrêter », plus « Désintensifier »)', () => {
     const o = { traitements_en_cours: ['metformine', 'iSGLT2', 'sulfamide'], position_vs_cible: 'sous_objectif',
       fragilite: true, HbA1c_actuelle: 6.0 } as Partial<Criteria>
     const t = titles(o)
     expect(has(t, 'Metformine (désintensification)')).toBe(false)
-    expect(has(t, 'Désintensifier')).toBe(true) // « alléger / arrêter le sulfamide » (intitulé de l'option)
+    // RETITRÉ le 2026-08-06 (T-185) : « Désintensifier » est restreinte aux insulines et ne se déclenche
+    // plus pour ce patient sous sulfamide seul (pas d'insuline) — « Sulfamide — arrêter » porte désormais
+    // nommément le même retrait.
+    expect(has(t, 'Désintensifier')).toBe(false)
+    expect(has(t, 'arreter·Sulfamide')).toBe(true)
   })
 
   it('P-44 — le même patient (fragile, sous-objectif) + INSULINE en plus : metformine PAS déprescrite, c’est l’insuline qu’on allège d’abord', () => {
@@ -924,10 +1075,15 @@ describe('prescription — lot seuils rénaux du 2026-07-27 (garde-fou gériatri
   // « IRC sévère (DFG 15-29) ou terminale (< 15) : cible ≤ 8 %, avec une limite INFÉRIEURE de 7 % en cas de
   // traitement par glinide ou insuline. » Le plancher unique à 6,5 % laissait passer toute la bande
   // 6,5-7 % — c'est-à-dire exactement la zone que la SFD interdit.
-  it('R6-4 — DFG 25 sous répaglinide, HbA1c 6,8 % : la désintensification est PROPOSÉE (plancher à 7 %)', () => {
+  it('R6-4 — DFG 25 sous répaglinide, HbA1c 6,8 % : « Glinide — arrêter » est PROPOSÉE (plancher à 7 %) — RETITRÉ T-185, Désintensifier ne porte plus le glinide', () => {
+    // AVANT T-185, ce plancher se manifestait par « Désintensifier ». Depuis la restriction de
+    // « Désintensifier » aux insulines (P14/S6, 2026-08-06), c'est « Glinide — arrêter » (nouvelle carte,
+    // même déclencheur transposé) qui porte ce cas — patient sous glinide seul, pas d'insuline.
     const o = { traitements_en_cours: ['glinide'], DFG: 25, HbA1c_actuelle: 6.8,
       dose_metformine: 0 } as Partial<Criteria>
-    expect(has(titles(o), DESINTENSIFIER)).toBe(true)
+    const t = titles(o)
+    expect(has(t, DESINTENSIFIER)).toBe(false)
+    expect(has(t, 'arreter·Glinide')).toBe(true)
   })
 
   it('R6-5 — même patient à DFG 50 : plancher général de 6,5 %, rien ne se déclenche à 6,8 %', () => {

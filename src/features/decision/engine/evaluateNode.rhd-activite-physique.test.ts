@@ -98,6 +98,7 @@ const NOMBRE_DE_PAS = intitule('Suivre son nombre de pas')
 const MAINTENIR_PRATIQUE = intitule('Maintenir la pratique actuelle')
 const POURSUIVRE = intitule('Poursuivre les habitudes actuelles')
 const ORIENTER_STRUCTURE = intitule('Orienter vers une structure')
+const REPLI = intitule('Aucune piste prioritaire')
 
 function evalProfil(overrides: Partial<Criteria>) {
   const criteria = calculerCriteresDerives(node!.criteres_entree, { ...BASE, ...overrides } as Criteria)
@@ -351,5 +352,59 @@ describe('rhd-activite-physique — R-P-06 : maintien, alerte de carte, rang de 
 
   it('et reste au rang de repli quand seule l’offre de proximité fait défaut', () => {
     expect(vueOption({ ...SEDENTAIRE, offre_proximite_connue: false }, ORIENTER_STRUCTURE)?.rang).toBe(5)
+  })
+})
+
+// ═══════════════════════════════════════════════════════════════════════════════════════════════════
+// R-P-07 — Le repli neutre (R10, P14/S7, T-170) : jamais à côté d’une autre carte, et seul quand rien
+// d’autre ne s’applique
+//
+// CE QUE CETTE VIGNETTE PEUT (ET NE PEUT PAS) MONTRER. Les deux cartes « Maintien »/« Poursuivre »
+// couvrent aujourd’hui la totalité du domaine de ce nœud PAR ARITHMÉTIQUE des énums actuels (cf. le
+// commentaire de tête du YAML et celui de l’option de repli elle-même) : `rupture_sedentarite_
+// habituelle == false` déclenche systématiquement « Rupture de sédentarité » ; `== true` combiné à
+// CHACUNE des quatre valeurs RÉELLES de `frequence_activite_structuree` déclenche systématiquement une
+// autre famille ou l’une des deux cartes « Maintien ». Aucune combinaison des valeurs d’énumération
+// AUJOURD’HUI déclarées ne peut donc laisser ce nœud silencieux — ce qui est la preuve même que le repli
+// est un filet STRUCTUREL pour une évolution future du contenu, pas un cas vivant sur le contenu
+// d’aujourd’hui (exactement ce que dit le commentaire de tête du YAML : « ajouter une valeur à
+// `frequence_activite_structuree` … ouvrirait un trou silencieux »).
+//
+// Le second `it` ci-dessous le prouve donc en construisant, À PARTIR du critère réel `frequence_
+// activite_structuree`, une valeur HORS de son domaine déclaré aujourd’hui — simulant honnêtement
+// l’ajout futur que le contenu redoute. Le moteur ne valide pas les critères saisis contre le schéma au
+// runtime (D9, `docs/decision/GRAMMAIRE-NOEUD.md`) : cette valeur traverse `evaluateNode` exactement
+// comme le ferait une vraie cinquième bande de fréquence pas encore câblée dans les conditions
+// existantes — c’est la seule façon honnête de mettre ce filet sous test sans changer le contenu réel.
+// ═══════════════════════════════════════════════════════════════════════════════════════════════════
+describe('rhd-activite-physique — R-P-07 : le repli neutre (R10)', () => {
+  it('n’apparaît jamais à côté d’une autre carte — le profil neutre (déjà actif) ne montre que « Poursuivre »', () => {
+    // Même profil que R-P-00 : réaffirme explicitement que le repli est absent dès qu’une autre carte
+    // s’applique — la sémantique `default` en `multi-options` (`evaluateNode.ts`).
+    expect(proposees({})).not.toContain(REPLI)
+    expect(proposees({})).toEqual([POURSUIVRE])
+  })
+
+  it('sort SEUL quand aucune piste ne s’applique — simulé par une valeur hors du domaine actuel de `frequence_activite_structuree`', () => {
+    const HORS_DOMAINE_MUET: Partial<Criteria> = {
+      mode_deplacement_courts_trajets: 'actif_pied_ou_velo', // silence « Déplacements actifs »
+      temps_assis_quotidien: 'moins_4h', // avec rupture=true ci-dessous, silence « Rupture de sédentarité »
+      rupture_sedentarite_habituelle: true,
+      // HORS DU DOMAINE RÉEL (jamais / une_fois_semaine / deux_a_trois_fois_semaine /
+      // quatre_fois_ou_plus_semaine) : simule l’ajout d’une cinquième bande de fréquence — silence à la
+      // fois « Activité quotidienne », « Pratique structurée » et les deux cartes « Maintien », qui ne
+      // lisent chacune que les quatre valeurs déclarées aujourd’hui.
+      frequence_activite_structuree: 'cinq_fois_ou_plus_semaine',
+      duree_seance: 'plus_30_min', // silence « Répartir l’activité en séances courtes »
+      limitation_physique_connue: false,
+      symptomes_ischemie_effort: false,
+      retinopathie_non_stabilisee_ou_proliferante: false,
+      neuropathie_ou_mal_perforant_plantaire: false,
+      difficulte_acces_activite: false,
+      offre_proximite_connue: true, // avec les deux ci-dessus, silence « Orienter vers une structure »
+      experience_activite_negative: false, // silence « Proposer un bilan avec un enseignant en APA »
+    }
+    expect(proposees(HORS_DOMAINE_MUET)).toEqual([REPLI])
+    expect(ecartees(HORS_DOMAINE_MUET)).toEqual([])
   })
 })

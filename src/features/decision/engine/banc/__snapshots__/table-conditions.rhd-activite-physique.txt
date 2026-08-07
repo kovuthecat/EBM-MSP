@@ -1,0 +1,55 @@
+# TABLE DES CONDITIONS (régénérée mécaniquement) — nœud « rhd-activite-physique » (Activité physique — se rapprocher de la régularité)
+#
+# LECTURE DE CONTENU, JAMAIS UNE ÉVALUATION : aucun patient construit, `evaluateNode` jamais appelé,
+# rang conditionnel (D14) rendu TEL QU’ÉCRIT. Produit par `engine/banc/tableConditions.test.ts`
+# (T-193, P14/S12), convention d’abréviation identique à celle de S3
+# (`docs/decision/validation/table-conditions-2026-08-06.md` § 1) :
+#   · expression de plus de 100 caractères → bloc nommé, quel que soit son nombre d’occurrences ;
+#   · expression de 40 à 100 caractères répétée à l’identique dans au moins
+#     3 options du même nœud → bloc nommé ;
+#   · en deçà, ou moins répétée → recopiée en clair dans chaque cellule.
+#
+# UN DIFF ICI N’EST PAS UNE RÉGRESSION EN SOI : il se relit contre le brouillon de table rédigé en P5
+# (`docs/decision/CONSTRUIRE-UN-MODULE.md`). Toute divergence non expliquée bloque la clôture du nœud.
+
+`selection: multi-options` · 14 option(s) · 7 famille(s) déclarée(s).
+
+## Familles (ordre déclaré = ordre d’affichage des sections)
+
+| Ordre | libellé | exclusive | prioritaire_si |
+| --- | --- | --- | --- |
+| 1 | Déplacements actifs | cumul. | — |
+| 2 | Rupture de sédentarité | cumul. | — |
+| 3 | Activité quotidienne | cumul. | — |
+| 4 | Pratique structurée | cumul. | — |
+| 5 | Orientation vers une ressource | cumul. | — |
+| 6 | Maintien | cumul. | — |
+| 7 | Aucune piste prioritaire | cumul. | — |
+
+## Options
+
+| # | intitulé | role | famille | rang | conditions | prerequis | exclusions |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine | geste | Déplacements actifs (cumul.) | 5 | `mode_deplacement_courts_trajets == motorise_ou_assis` | — | — |
+| 2 | Pour les courses, préférer plusieurs petits déplacements actifs à un grand trajet motorisé | geste | Déplacements actifs (cumul.) | 5 | `mode_deplacement_courts_trajets == motorise_ou_assis` | — | — |
+| 3 | Se lever et bouger quelques minutes à chaque heure de position assise prolongée | geste | Rupture de sédentarité (cumul.) | 2 | **[RHDAP-1]** | — | — |
+| 4 | S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant) | geste | Rupture de sédentarité (cumul.) | 3 | **[RHDAP-1]** | — | — |
+| 5 | Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants | geste | Rupture de sédentarité (cumul.) | 3 | **[RHDAP-1]** | — | — |
+| 6 | Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées) | geste | Activité quotidienne (cumul.) | 2 | **[RHDAP-R1]** | — | — |
+| 7 | Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue | geste | Activité quotidienne (cumul.) | 3 | `duree_seance == moins_10_min AND frequence_activite_structuree != jamais` | — | — |
+| 8 | Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente | geste | Activité quotidienne (cumul.) | 2 | **[RHDAP-R1]** | — | — |
+| 9 | Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel | geste | Pratique structurée (cumul.) | 4 | **[RHDAP-R1]** | — | **[RHDAP-2]** |
+| 10 | Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement) | geste | Pratique structurée (cumul.) | 1 | **[RHDAP-3]** | — | — |
+| 11 | Orienter vers une structure d'activité physique adaptée pour un bilan et un accompagnement progressif | geste | Orientation vers une ressource (cumul.) | `limitation_physique_connue == true` → 1<br>`default` → 5 | **[RHDAP-4]** | — | — |
+| 12 | Proposer un bilan avec un enseignant en activité physique adaptée avant toute reprise | geste | Orientation vers une ressource (cumul.) | 2 | `experience_activite_negative == true` | — | — |
+| 13 | Poursuivre les habitudes actuelles et rester attentif à la régularité | geste | Maintien (cumul.) | non déclaré | **[RHDAP-5]** | — | — |
+| 14 | Aucune piste prioritaire à proposer aujourd'hui | repli | Aucune piste prioritaire (cumul.) | non déclaré | `default` | — | — |
+
+## Expressions nommées
+
+- **[RHDAP-1]** (119 car., options 3, 4, 5, conditions) : `temps_assis_quotidien == quatre_a_huit_h OR temps_assis_quotidien == plus_8h OR rupture_sedentarite_habituelle == false`
+- **[RHDAP-R1]** (92 car., options 6, 8, 9, conditions) : `frequence_activite_structuree == jamais OR frequence_activite_structuree == une_fois_semaine`
+- **[RHDAP-2]** (176 car., option 9, exclusions) : `limitation_physique_connue == true OR symptomes_ischemie_effort == true OR retinopathie_non_stabilisee_ou_proliferante == true OR neuropathie_ou_mal_perforant_plantaire == true`
+- **[RHDAP-3]** (103 car., option 10, conditions) : `frequence_activite_structuree == quatre_fois_ou_plus_semaine AND rupture_sedentarite_habituelle == true`
+- **[RHDAP-4]** (106 car., option 11, conditions) : `limitation_physique_connue == true OR difficulte_acces_activite == true OR offre_proximite_connue == false`
+- **[RHDAP-5]** (101 car., option 13, conditions) : `frequence_activite_structuree == deux_a_trois_fois_semaine AND rupture_sedentarite_habituelle == true`

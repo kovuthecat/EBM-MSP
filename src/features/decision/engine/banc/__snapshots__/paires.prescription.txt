@@ -1,0 +1,309 @@
+# PAIRES DE CARTES CO-ACTIVES (cliquet) — nœud « prescription » (Initier ou optimiser un traitement non insulinique)
+#
+# Un diff ICI n'est PAS une régression en soi : il doit être RELU, carte par carte — même
+# convention que caracterisation.test.ts (cf. sa docstring de tête). Une paire nouvelle signifie
+# que deux cartes s'affichent désormais ensemble pour au moins un profil du banc, jamais un échec
+# à corriger en modifiant le moteur pour que l’ancien texte revienne.
+#
+# 180 profils évalués, 230 paire(s) distincte(s).
+
+## Paires (triées par intitulé)
+
+2×  AR GLP‑1 — introduire  ⟷  Association iSGLT2 + AR GLP‑1
+1×  AR GLP‑1 — introduire  ⟷  Désintensifier : alléger la charge thérapeutique
+3×  AR GLP‑1 — introduire  ⟷  Glinide — arrêter
+3×  AR GLP‑1 — introduire  ⟷  Glinide — remplacer par un agent à bénéfice démontré
+3×  AR GLP‑1 — introduire  ⟷  Glinide — réduire la posologie
+6×  AR GLP‑1 — introduire  ⟷  Gliptine — remplacer par un agent à bénéfice démontré
+4×  AR GLP‑1 — introduire  ⟷  Insuline d'initiation
+1×  AR GLP‑1 — introduire  ⟷  Insuline — réduire la posologie
+6×  AR GLP‑1 — introduire  ⟷  Metformine — instaurer ou poursuivre
+2×  AR GLP‑1 — introduire  ⟷  Metformine — réduire la posologie
+3×  AR GLP‑1 — introduire  ⟷  Optimiser l'agent mal toléré
+1×  AR GLP‑1 — introduire  ⟷  Sulfamide (DFG < 30)
+3×  AR GLP‑1 — introduire  ⟷  Sulfamide — arrêter
+2×  AR GLP‑1 — introduire  ⟷  Sulfamide — remplacer par un agent à bénéfice démontré
+2×  AR GLP‑1 — introduire  ⟷  Sulfamide — réduire la posologie
+6×  AR GLP‑1 — introduire  ⟷  iSGLT2 — introduire
+9×  AR GLP‑1 — réduire la posologie  ⟷  Désintensifier : alléger la charge thérapeutique
+13×  AR GLP‑1 — réduire la posologie  ⟷  Envisager l'insuline
+16×  AR GLP‑1 — réduire la posologie  ⟷  Glinide — arrêter
+4×  AR GLP‑1 — réduire la posologie  ⟷  Glinide — remplacer par un agent à bénéfice démontré
+24×  AR GLP‑1 — réduire la posologie  ⟷  Glinide — réduire la posologie
+23×  AR GLP‑1 — réduire la posologie  ⟷  Gliptine (redondante)
+24×  AR GLP‑1 — réduire la posologie  ⟷  Insuline d'initiation
+14×  AR GLP‑1 — réduire la posologie  ⟷  Insuline — réduire la posologie
+12×  AR GLP‑1 — réduire la posologie  ⟷  Metformine (DFG < 30)
+23×  AR GLP‑1 — réduire la posologie  ⟷  Metformine — instaurer ou poursuivre
+6×  AR GLP‑1 — réduire la posologie  ⟷  Metformine — réduire la posologie
+26×  AR GLP‑1 — réduire la posologie  ⟷  Optimiser l'agent mal toléré
+1×  AR GLP‑1 — réduire la posologie  ⟷  Reconsidérer un agent protecteur hors indication
+14×  AR GLP‑1 — réduire la posologie  ⟷  Sulfamide (DFG < 30)
+22×  AR GLP‑1 — réduire la posologie  ⟷  Sulfamide — arrêter
+19×  AR GLP‑1 — réduire la posologie  ⟷  Sulfamide — remplacer par un agent à bénéfice démontré
+19×  AR GLP‑1 — réduire la posologie  ⟷  Sulfamide — réduire la posologie
+24×  AR GLP‑1 — réduire la posologie  ⟷  Tirzépatide — réduire la posologie
+4×  AR GLP‑1 — réduire la posologie  ⟷  iSGLT2 — introduire
+11×  AR GLP‑1 — réduire la posologie  ⟷  iSGLT2 — suspendre
+1×  Association iSGLT2 + AR GLP‑1  ⟷  Glinide — arrêter
+1×  Association iSGLT2 + AR GLP‑1  ⟷  Glinide — réduire la posologie
+1×  Association iSGLT2 + AR GLP‑1  ⟷  Insuline d'initiation
+2×  Association iSGLT2 + AR GLP‑1  ⟷  Metformine — instaurer ou poursuivre
+2×  Association iSGLT2 + AR GLP‑1  ⟷  iSGLT2 — introduire
+12×  Désintensifier : alléger la charge thérapeutique  ⟷  Glinide — arrêter
+1×  Désintensifier : alléger la charge thérapeutique  ⟷  Glinide — remplacer par un agent à bénéfice démontré
+11×  Désintensifier : alléger la charge thérapeutique  ⟷  Glinide — réduire la posologie
+9×  Désintensifier : alléger la charge thérapeutique  ⟷  Gliptine (redondante)
+24×  Désintensifier : alléger la charge thérapeutique  ⟷  Insuline — réduire la posologie
+8×  Désintensifier : alléger la charge thérapeutique  ⟷  Metformine (DFG < 30)
+10×  Désintensifier : alléger la charge thérapeutique  ⟷  Metformine — instaurer ou poursuivre
+1×  Désintensifier : alléger la charge thérapeutique  ⟷  Metformine — réduire la posologie
+10×  Désintensifier : alléger la charge thérapeutique  ⟷  Optimiser l'agent mal toléré
+9×  Désintensifier : alléger la charge thérapeutique  ⟷  Sulfamide (DFG < 30)
+15×  Désintensifier : alléger la charge thérapeutique  ⟷  Sulfamide — arrêter
+6×  Désintensifier : alléger la charge thérapeutique  ⟷  Sulfamide — remplacer par un agent à bénéfice démontré
+5×  Désintensifier : alléger la charge thérapeutique  ⟷  Sulfamide — réduire la posologie
+4×  Désintensifier : alléger la charge thérapeutique  ⟷  Tirzépatide — réduire la posologie
+1×  Désintensifier : alléger la charge thérapeutique  ⟷  iSGLT2 — introduire
+6×  Désintensifier : alléger la charge thérapeutique  ⟷  iSGLT2 — suspendre
+10×  Envisager l'insuline  ⟷  Glinide — arrêter
+20×  Envisager l'insuline  ⟷  Glinide — réduire la posologie
+18×  Envisager l'insuline  ⟷  Gliptine (redondante)
+1×  Envisager l'insuline  ⟷  Gliptine — introduire
+30×  Envisager l'insuline  ⟷  Insuline d'initiation
+6×  Envisager l'insuline  ⟷  Metformine (DFG < 30)
+32×  Envisager l'insuline  ⟷  Metformine — instaurer ou poursuivre
+2×  Envisager l'insuline  ⟷  Metformine — réduire la posologie
+19×  Envisager l'insuline  ⟷  Optimiser l'agent mal toléré
+8×  Envisager l'insuline  ⟷  Sulfamide (DFG < 30)
+10×  Envisager l'insuline  ⟷  Sulfamide — arrêter
+12×  Envisager l'insuline  ⟷  Sulfamide — remplacer par un agent à bénéfice démontré
+12×  Envisager l'insuline  ⟷  Sulfamide — réduire la posologie
+14×  Envisager l'insuline  ⟷  Tirzépatide — réduire la posologie
+15×  Envisager l'insuline  ⟷  iSGLT2 — suspendre
+5×  Glinide — arrêter  ⟷  Glinide — remplacer par un agent à bénéfice démontré
+53×  Glinide — arrêter  ⟷  Glinide — réduire la posologie
+26×  Glinide — arrêter  ⟷  Gliptine (redondante)
+1×  Glinide — arrêter  ⟷  Gliptine — introduire
+4×  Glinide — arrêter  ⟷  Gliptine — remplacer par un agent à bénéfice démontré
+32×  Glinide — arrêter  ⟷  Insuline d'initiation
+12×  Glinide — arrêter  ⟷  Insuline — réduire la posologie
+13×  Glinide — arrêter  ⟷  Metformine (DFG < 30)
+25×  Glinide — arrêter  ⟷  Metformine — instaurer ou poursuivre
+6×  Glinide — arrêter  ⟷  Metformine — réduire la posologie
+28×  Glinide — arrêter  ⟷  Optimiser l'agent mal toléré
+1×  Glinide — arrêter  ⟷  Reconsidérer un agent protecteur hors indication
+12×  Glinide — arrêter  ⟷  Sulfamide (DFG < 30)
+26×  Glinide — arrêter  ⟷  Sulfamide — arrêter
+14×  Glinide — arrêter  ⟷  Sulfamide — remplacer par un agent à bénéfice démontré
+13×  Glinide — arrêter  ⟷  Sulfamide — réduire la posologie
+16×  Glinide — arrêter  ⟷  Tirzépatide — réduire la posologie
+7×  Glinide — arrêter  ⟷  iSGLT2 — introduire
+10×  Glinide — arrêter  ⟷  iSGLT2 — suspendre
+7×  Glinide — remplacer par un agent à bénéfice démontré  ⟷  Glinide — réduire la posologie
+6×  Glinide — remplacer par un agent à bénéfice démontré  ⟷  Gliptine (redondante)
+3×  Glinide — remplacer par un agent à bénéfice démontré  ⟷  Gliptine — remplacer par un agent à bénéfice démontré
+10×  Glinide — remplacer par un agent à bénéfice démontré  ⟷  Insuline d'initiation
+1×  Glinide — remplacer par un agent à bénéfice démontré  ⟷  Insuline — réduire la posologie
+8×  Glinide — remplacer par un agent à bénéfice démontré  ⟷  Metformine — instaurer ou poursuivre
+3×  Glinide — remplacer par un agent à bénéfice démontré  ⟷  Metformine — réduire la posologie
+6×  Glinide — remplacer par un agent à bénéfice démontré  ⟷  Optimiser l'agent mal toléré
+2×  Glinide — remplacer par un agent à bénéfice démontré  ⟷  Sulfamide (DFG < 30)
+2×  Glinide — remplacer par un agent à bénéfice démontré  ⟷  Sulfamide — arrêter
+1×  Glinide — remplacer par un agent à bénéfice démontré  ⟷  Sulfamide — remplacer par un agent à bénéfice démontré
+3×  Glinide — remplacer par un agent à bénéfice démontré  ⟷  Tirzépatide — réduire la posologie
+6×  Glinide — remplacer par un agent à bénéfice démontré  ⟷  iSGLT2 — introduire
+39×  Glinide — réduire la posologie  ⟷  Gliptine (redondante)
+1×  Glinide — réduire la posologie  ⟷  Gliptine — introduire
+5×  Glinide — réduire la posologie  ⟷  Gliptine — remplacer par un agent à bénéfice démontré
+46×  Glinide — réduire la posologie  ⟷  Insuline d'initiation
+15×  Glinide — réduire la posologie  ⟷  Insuline — réduire la posologie
+19×  Glinide — réduire la posologie  ⟷  Metformine (DFG < 30)
+36×  Glinide — réduire la posologie  ⟷  Metformine — instaurer ou poursuivre
+9×  Glinide — réduire la posologie  ⟷  Metformine — réduire la posologie
+41×  Glinide — réduire la posologie  ⟷  Optimiser l'agent mal toléré
+1×  Glinide — réduire la posologie  ⟷  Reconsidérer un agent protecteur hors indication
+16×  Glinide — réduire la posologie  ⟷  Sulfamide (DFG < 30)
+25×  Glinide — réduire la posologie  ⟷  Sulfamide — arrêter
+1×  Glinide — réduire la posologie  ⟷  Sulfamide — introduire
+17×  Glinide — réduire la posologie  ⟷  Sulfamide — remplacer par un agent à bénéfice démontré
+17×  Glinide — réduire la posologie  ⟷  Sulfamide — réduire la posologie
+25×  Glinide — réduire la posologie  ⟷  Tirzépatide — réduire la posologie
+5×  Glinide — réduire la posologie  ⟷  iSGLT2 — introduire
+15×  Glinide — réduire la posologie  ⟷  iSGLT2 — suspendre
+32×  Gliptine (redondante)  ⟷  Insuline d'initiation
+15×  Gliptine (redondante)  ⟷  Insuline — réduire la posologie
+16×  Gliptine (redondante)  ⟷  Metformine (DFG < 30)
+30×  Gliptine (redondante)  ⟷  Metformine — instaurer ou poursuivre
+7×  Gliptine (redondante)  ⟷  Metformine — réduire la posologie
+29×  Gliptine (redondante)  ⟷  Optimiser l'agent mal toléré
+1×  Gliptine (redondante)  ⟷  Reconsidérer un agent protecteur hors indication
+15×  Gliptine (redondante)  ⟷  Sulfamide (DFG < 30)
+23×  Gliptine (redondante)  ⟷  Sulfamide — arrêter
+22×  Gliptine (redondante)  ⟷  Sulfamide — remplacer par un agent à bénéfice démontré
+21×  Gliptine (redondante)  ⟷  Sulfamide — réduire la posologie
+23×  Gliptine (redondante)  ⟷  Tirzépatide — réduire la posologie
+6×  Gliptine (redondante)  ⟷  iSGLT2 — introduire
+14×  Gliptine (redondante)  ⟷  iSGLT2 — suspendre
+1×  Gliptine — introduire  ⟷  Metformine — instaurer ou poursuivre
+1×  Gliptine — introduire  ⟷  Optimiser l'agent mal toléré
+4×  Gliptine — remplacer par un agent à bénéfice démontré  ⟷  Insuline d'initiation
+3×  Gliptine — remplacer par un agent à bénéfice démontré  ⟷  Metformine (DFG < 30)
+7×  Gliptine — remplacer par un agent à bénéfice démontré  ⟷  Metformine — instaurer ou poursuivre
+3×  Gliptine — remplacer par un agent à bénéfice démontré  ⟷  Metformine — réduire la posologie
+7×  Gliptine — remplacer par un agent à bénéfice démontré  ⟷  Optimiser l'agent mal toléré
+1×  Gliptine — remplacer par un agent à bénéfice démontré  ⟷  Sulfamide (DFG < 30)
+5×  Gliptine — remplacer par un agent à bénéfice démontré  ⟷  Sulfamide — arrêter
+4×  Gliptine — remplacer par un agent à bénéfice démontré  ⟷  Sulfamide — remplacer par un agent à bénéfice démontré
+4×  Gliptine — remplacer par un agent à bénéfice démontré  ⟷  Sulfamide — réduire la posologie
+5×  Gliptine — remplacer par un agent à bénéfice démontré  ⟷  iSGLT2 — introduire
+17×  Insuline d'initiation  ⟷  Metformine (DFG < 30)
+2×  Insuline d'initiation  ⟷  Metformine (désintensification)
+58×  Insuline d'initiation  ⟷  Metformine — instaurer ou poursuivre
+9×  Insuline d'initiation  ⟷  Metformine — réduire la posologie
+49×  Insuline d'initiation  ⟷  Optimiser l'agent mal toléré
+1×  Insuline d'initiation  ⟷  Reconsidérer un agent protecteur hors indication
+21×  Insuline d'initiation  ⟷  Sulfamide (DFG < 30)
+35×  Insuline d'initiation  ⟷  Sulfamide — arrêter
+28×  Insuline d'initiation  ⟷  Sulfamide — remplacer par un agent à bénéfice démontré
+27×  Insuline d'initiation  ⟷  Sulfamide — réduire la posologie
+1×  Insuline d'initiation  ⟷  Tirzépatide — introduire
+27×  Insuline d'initiation  ⟷  Tirzépatide — réduire la posologie
+5×  Insuline d'initiation  ⟷  iSGLT2 — introduire
+27×  Insuline d'initiation  ⟷  iSGLT2 — suspendre
+11×  Insuline — réduire la posologie  ⟷  Metformine (DFG < 30)
+12×  Insuline — réduire la posologie  ⟷  Metformine — instaurer ou poursuivre
+3×  Insuline — réduire la posologie  ⟷  Metformine — réduire la posologie
+17×  Insuline — réduire la posologie  ⟷  Optimiser l'agent mal toléré
+12×  Insuline — réduire la posologie  ⟷  Sulfamide (DFG < 30)
+15×  Insuline — réduire la posologie  ⟷  Sulfamide — arrêter
+10×  Insuline — réduire la posologie  ⟷  Sulfamide — remplacer par un agent à bénéfice démontré
+9×  Insuline — réduire la posologie  ⟷  Sulfamide — réduire la posologie
+10×  Insuline — réduire la posologie  ⟷  Tirzépatide — réduire la posologie
+1×  Insuline — réduire la posologie  ⟷  iSGLT2 — introduire
+8×  Insuline — réduire la posologie  ⟷  iSGLT2 — suspendre
+17×  Metformine (DFG < 30)  ⟷  Optimiser l'agent mal toléré
+22×  Metformine (DFG < 30)  ⟷  Sulfamide (DFG < 30)
+16×  Metformine (DFG < 30)  ⟷  Sulfamide — arrêter
+11×  Metformine (DFG < 30)  ⟷  Tirzépatide — réduire la posologie
+6×  Metformine (DFG < 30)  ⟷  iSGLT2 — suspendre
+2×  Metformine (désintensification)  ⟷  Optimiser l'agent mal toléré
+1×  Metformine (désintensification)  ⟷  Tirzépatide — réduire la posologie
+1×  Metformine (désintensification)  ⟷  iSGLT2 — introduire
+36×  Metformine — instaurer ou poursuivre  ⟷  Optimiser l'agent mal toléré
+1×  Metformine — instaurer ou poursuivre  ⟷  Poursuivre le traitement en cours et réévaluer
+30×  Metformine — instaurer ou poursuivre  ⟷  Sulfamide — arrêter
+1×  Metformine — instaurer ou poursuivre  ⟷  Sulfamide — introduire
+42×  Metformine — instaurer ou poursuivre  ⟷  Sulfamide — remplacer par un agent à bénéfice démontré
+40×  Metformine — instaurer ou poursuivre  ⟷  Sulfamide — réduire la posologie
+1×  Metformine — instaurer ou poursuivre  ⟷  Tirzépatide — introduire
+27×  Metformine — instaurer ou poursuivre  ⟷  Tirzépatide — réduire la posologie
+9×  Metformine — instaurer ou poursuivre  ⟷  iSGLT2 — introduire
+18×  Metformine — instaurer ou poursuivre  ⟷  iSGLT2 — suspendre
+13×  Metformine — réduire la posologie  ⟷  Optimiser l'agent mal toléré
+1×  Metformine — réduire la posologie  ⟷  Reconsidérer un agent protecteur hors indication
+4×  Metformine — réduire la posologie  ⟷  Sulfamide — arrêter
+7×  Metformine — réduire la posologie  ⟷  Sulfamide — remplacer par un agent à bénéfice démontré
+7×  Metformine — réduire la posologie  ⟷  Sulfamide — réduire la posologie
+4×  Metformine — réduire la posologie  ⟷  Tirzépatide — réduire la posologie
+2×  Metformine — réduire la posologie  ⟷  iSGLT2 — introduire
+5×  Metformine — réduire la posologie  ⟷  iSGLT2 — suspendre
+1×  Optimiser l'agent mal toléré  ⟷  Reconsidérer un agent protecteur hors indication
+24×  Optimiser l'agent mal toléré  ⟷  Sulfamide (DFG < 30)
+35×  Optimiser l'agent mal toléré  ⟷  Sulfamide — arrêter
+25×  Optimiser l'agent mal toléré  ⟷  Sulfamide — remplacer par un agent à bénéfice démontré
+25×  Optimiser l'agent mal toléré  ⟷  Sulfamide — réduire la posologie
+28×  Optimiser l'agent mal toléré  ⟷  Tirzépatide — réduire la posologie
+4×  Optimiser l'agent mal toléré  ⟷  iSGLT2 — introduire
+21×  Optimiser l'agent mal toléré  ⟷  iSGLT2 — suspendre
+1×  Reconsidérer un agent protecteur hors indication  ⟷  Sulfamide — arrêter
+1×  Reconsidérer un agent protecteur hors indication  ⟷  Sulfamide — remplacer par un agent à bénéfice démontré
+1×  Reconsidérer un agent protecteur hors indication  ⟷  Sulfamide — réduire la posologie
+1×  Reconsidérer un agent protecteur hors indication  ⟷  iSGLT2 — suspendre
+29×  Sulfamide (DFG < 30)  ⟷  Sulfamide — arrêter
+10×  Sulfamide (DFG < 30)  ⟷  Tirzépatide — réduire la posologie
+2×  Sulfamide (DFG < 30)  ⟷  iSGLT2 — introduire
+11×  Sulfamide (DFG < 30)  ⟷  iSGLT2 — suspendre
+34×  Sulfamide — arrêter  ⟷  Sulfamide — remplacer par un agent à bénéfice démontré
+32×  Sulfamide — arrêter  ⟷  Sulfamide — réduire la posologie
+17×  Sulfamide — arrêter  ⟷  Tirzépatide — réduire la posologie
+4×  Sulfamide — arrêter  ⟷  iSGLT2 — introduire
+15×  Sulfamide — arrêter  ⟷  iSGLT2 — suspendre
+1×  Sulfamide — introduire  ⟷  Tirzépatide — réduire la posologie
+47×  Sulfamide — remplacer par un agent à bénéfice démontré  ⟷  Sulfamide — réduire la posologie
+17×  Sulfamide — remplacer par un agent à bénéfice démontré  ⟷  Tirzépatide — réduire la posologie
+3×  Sulfamide — remplacer par un agent à bénéfice démontré  ⟷  iSGLT2 — introduire
+11×  Sulfamide — remplacer par un agent à bénéfice démontré  ⟷  iSGLT2 — suspendre
+17×  Sulfamide — réduire la posologie  ⟷  Tirzépatide — réduire la posologie
+2×  Sulfamide — réduire la posologie  ⟷  iSGLT2 — introduire
+11×  Sulfamide — réduire la posologie  ⟷  iSGLT2 — suspendre
+1×  Tirzépatide — réduire la posologie  ⟷  iSGLT2 — introduire
+11×  Tirzépatide — réduire la posologie  ⟷  iSGLT2 — suspendre
+
+## Paires intra-famille
+#
+# Les deux cartes de la paire appartiennent à la MÊME famille de contenu (Option.famille /
+# Noeud.familles). Une famille EXCLUSIVE (alternatives) qui apparaît ici est le signal qu’une
+# alternative est présentée comme cumulable pour au moins un profil (défaut ③, cf. tête de fichier).
+
+2×  [famille « Le choix de l'agent » — EXCLUSIVE]  AR GLP‑1 — introduire  ⟷  Association iSGLT2 + AR GLP‑1
+6×  [famille « Le choix de l'agent » — EXCLUSIVE]  AR GLP‑1 — introduire  ⟷  iSGLT2 — introduire
+9×  [famille « Traitement à alléger » — cumulable]  AR GLP‑1 — réduire la posologie  ⟷  Désintensifier : alléger la charge thérapeutique
+16×  [famille « Traitement à alléger » — cumulable]  AR GLP‑1 — réduire la posologie  ⟷  Glinide — arrêter
+24×  [famille « Traitement à alléger » — cumulable]  AR GLP‑1 — réduire la posologie  ⟷  Glinide — réduire la posologie
+14×  [famille « Traitement à alléger » — cumulable]  AR GLP‑1 — réduire la posologie  ⟷  Insuline — réduire la posologie
+26×  [famille « Traitement à alléger » — cumulable]  AR GLP‑1 — réduire la posologie  ⟷  Optimiser l'agent mal toléré
+1×  [famille « Traitement à alléger » — cumulable]  AR GLP‑1 — réduire la posologie  ⟷  Reconsidérer un agent protecteur hors indication
+22×  [famille « Traitement à alléger » — cumulable]  AR GLP‑1 — réduire la posologie  ⟷  Sulfamide — arrêter
+19×  [famille « Traitement à alléger » — cumulable]  AR GLP‑1 — réduire la posologie  ⟷  Sulfamide — réduire la posologie
+24×  [famille « Traitement à alléger » — cumulable]  AR GLP‑1 — réduire la posologie  ⟷  Tirzépatide — réduire la posologie
+2×  [famille « Le choix de l'agent » — EXCLUSIVE]  Association iSGLT2 + AR GLP‑1  ⟷  iSGLT2 — introduire
+12×  [famille « Traitement à alléger » — cumulable]  Désintensifier : alléger la charge thérapeutique  ⟷  Glinide — arrêter
+11×  [famille « Traitement à alléger » — cumulable]  Désintensifier : alléger la charge thérapeutique  ⟷  Glinide — réduire la posologie
+24×  [famille « Traitement à alléger » — cumulable]  Désintensifier : alléger la charge thérapeutique  ⟷  Insuline — réduire la posologie
+10×  [famille « Traitement à alléger » — cumulable]  Désintensifier : alléger la charge thérapeutique  ⟷  Optimiser l'agent mal toléré
+15×  [famille « Traitement à alléger » — cumulable]  Désintensifier : alléger la charge thérapeutique  ⟷  Sulfamide — arrêter
+5×  [famille « Traitement à alléger » — cumulable]  Désintensifier : alléger la charge thérapeutique  ⟷  Sulfamide — réduire la posologie
+4×  [famille « Traitement à alléger » — cumulable]  Désintensifier : alléger la charge thérapeutique  ⟷  Tirzépatide — réduire la posologie
+1×  [famille « Le choix de l'agent » — EXCLUSIVE]  Envisager l'insuline  ⟷  Gliptine — introduire
+53×  [famille « Traitement à alléger » — cumulable]  Glinide — arrêter  ⟷  Glinide — réduire la posologie
+12×  [famille « Traitement à alléger » — cumulable]  Glinide — arrêter  ⟷  Insuline — réduire la posologie
+28×  [famille « Traitement à alléger » — cumulable]  Glinide — arrêter  ⟷  Optimiser l'agent mal toléré
+1×  [famille « Traitement à alléger » — cumulable]  Glinide — arrêter  ⟷  Reconsidérer un agent protecteur hors indication
+26×  [famille « Traitement à alléger » — cumulable]  Glinide — arrêter  ⟷  Sulfamide — arrêter
+13×  [famille « Traitement à alléger » — cumulable]  Glinide — arrêter  ⟷  Sulfamide — réduire la posologie
+16×  [famille « Traitement à alléger » — cumulable]  Glinide — arrêter  ⟷  Tirzépatide — réduire la posologie
+6×  [famille « Traitement à corriger ou remplacer » — cumulable]  Glinide — remplacer par un agent à bénéfice démontré  ⟷  Gliptine (redondante)
+3×  [famille « Traitement à corriger ou remplacer » — cumulable]  Glinide — remplacer par un agent à bénéfice démontré  ⟷  Gliptine — remplacer par un agent à bénéfice démontré
+1×  [famille « Traitement à corriger ou remplacer » — cumulable]  Glinide — remplacer par un agent à bénéfice démontré  ⟷  Sulfamide — remplacer par un agent à bénéfice démontré
+15×  [famille « Traitement à alléger » — cumulable]  Glinide — réduire la posologie  ⟷  Insuline — réduire la posologie
+41×  [famille « Traitement à alléger » — cumulable]  Glinide — réduire la posologie  ⟷  Optimiser l'agent mal toléré
+1×  [famille « Traitement à alléger » — cumulable]  Glinide — réduire la posologie  ⟷  Reconsidérer un agent protecteur hors indication
+25×  [famille « Traitement à alléger » — cumulable]  Glinide — réduire la posologie  ⟷  Sulfamide — arrêter
+17×  [famille « Traitement à alléger » — cumulable]  Glinide — réduire la posologie  ⟷  Sulfamide — réduire la posologie
+25×  [famille « Traitement à alléger » — cumulable]  Glinide — réduire la posologie  ⟷  Tirzépatide — réduire la posologie
+22×  [famille « Traitement à corriger ou remplacer » — cumulable]  Gliptine (redondante)  ⟷  Sulfamide — remplacer par un agent à bénéfice démontré
+4×  [famille « Traitement à corriger ou remplacer » — cumulable]  Gliptine — remplacer par un agent à bénéfice démontré  ⟷  Sulfamide — remplacer par un agent à bénéfice démontré
+17×  [famille « À faire d'emblée — sécurité » — cumulable]  Insuline d'initiation  ⟷  Metformine (DFG < 30)
+9×  [famille « À faire d'emblée — sécurité » — cumulable]  Insuline d'initiation  ⟷  Metformine — réduire la posologie
+21×  [famille « À faire d'emblée — sécurité » — cumulable]  Insuline d'initiation  ⟷  Sulfamide (DFG < 30)
+27×  [famille « À faire d'emblée — sécurité » — cumulable]  Insuline d'initiation  ⟷  iSGLT2 — suspendre
+17×  [famille « Traitement à alléger » — cumulable]  Insuline — réduire la posologie  ⟷  Optimiser l'agent mal toléré
+15×  [famille « Traitement à alléger » — cumulable]  Insuline — réduire la posologie  ⟷  Sulfamide — arrêter
+9×  [famille « Traitement à alléger » — cumulable]  Insuline — réduire la posologie  ⟷  Sulfamide — réduire la posologie
+10×  [famille « Traitement à alléger » — cumulable]  Insuline — réduire la posologie  ⟷  Tirzépatide — réduire la posologie
+22×  [famille « À faire d'emblée — sécurité » — cumulable]  Metformine (DFG < 30)  ⟷  Sulfamide (DFG < 30)
+6×  [famille « À faire d'emblée — sécurité » — cumulable]  Metformine (DFG < 30)  ⟷  iSGLT2 — suspendre
+2×  [famille « Traitement à alléger » — cumulable]  Metformine (désintensification)  ⟷  Optimiser l'agent mal toléré
+1×  [famille « Traitement à alléger » — cumulable]  Metformine (désintensification)  ⟷  Tirzépatide — réduire la posologie
+5×  [famille « À faire d'emblée — sécurité » — cumulable]  Metformine — réduire la posologie  ⟷  iSGLT2 — suspendre
+1×  [famille « Traitement à alléger » — cumulable]  Optimiser l'agent mal toléré  ⟷  Reconsidérer un agent protecteur hors indication
+35×  [famille « Traitement à alléger » — cumulable]  Optimiser l'agent mal toléré  ⟷  Sulfamide — arrêter
+25×  [famille « Traitement à alléger » — cumulable]  Optimiser l'agent mal toléré  ⟷  Sulfamide — réduire la posologie
+28×  [famille « Traitement à alléger » — cumulable]  Optimiser l'agent mal toléré  ⟷  Tirzépatide — réduire la posologie
+1×  [famille « Traitement à alléger » — cumulable]  Reconsidérer un agent protecteur hors indication  ⟷  Sulfamide — arrêter
+1×  [famille « Traitement à alléger » — cumulable]  Reconsidérer un agent protecteur hors indication  ⟷  Sulfamide — réduire la posologie
+11×  [famille « À faire d'emblée — sécurité » — cumulable]  Sulfamide (DFG < 30)  ⟷  iSGLT2 — suspendre
+32×  [famille « Traitement à alléger » — cumulable]  Sulfamide — arrêter  ⟷  Sulfamide — réduire la posologie
+17×  [famille « Traitement à alléger » — cumulable]  Sulfamide — arrêter  ⟷  Tirzépatide — réduire la posologie
+17×  [famille « Traitement à alléger » — cumulable]  Sulfamide — réduire la posologie  ⟷  Tirzépatide — réduire la posologie

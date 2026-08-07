@@ -33,6 +33,19 @@
  * absent du choix de la molécule à l'initiation, alors qu'il pilote déjà la désintensification plus loin
  * dans le même nœud — fusionné dans `risque_hypoglycemique_eleve`, cf. changelog `insuline.yaml` v0.10).
  *
+ * MISE À JOUR le 2026-08-06 (P14/S5, T-168, décision référent) : « Choisir un analogue basal de
+ * 2ᵉ génération » (l'option que F4 ci-dessous rendait applicable) est SUPPRIMÉE — ce n'était pas une
+ * alternative à « Initier une insuline basale », mais une MODALITÉ DE PRESCRIPTION de cette même carte,
+ * reversée dans son `posologie_detail` (prose, hors calcul moteur) et son argumentaire (`avantages` /
+ * `inconvenients` / `effet_attendu` / `delai_benefice` / `references`) — cf. changelog `insuline.yaml`
+ * v0.52. F4 est CONSERVÉE mais RETOURNÉE : elle vérifie désormais qu'aucune carte de cet intitulé n'existe
+ * plus, quel que soit `risque_hypoglycemique_eleve`. Les deux familles d'escalade (« Instaurer l'insuline »,
+ * « Intensifier le traitement ») passent par la même occasion en `exclusive: true` — sans effet sur
+ * `evaluateNode.applicable` (l'exclusivité de famille est un concept d'AFFICHAGE/badge, cf.
+ * `lib/optionBadges.ts` ; elle ne retire aucune option de la liste des applicables), donc sans effet sur
+ * aucune assertion `titles(...)` de ce fichier — seul le TITRE/commentaire de la vignette E-01 ci-dessous
+ * est mis à jour pour ne plus affirmer que ces deux cartes sont « pas une alternative ».
+ *
  * Ce fichier n'exécute et ne modifie que ce nœud + le moteur RÉEL (`evaluateNode` + `deriveCritere`) ;
  * aucun autre fichier du dépôt n'est touché par cette tâche (trois agents écrivent en parallèle sur
  * d'autres nœuds).
@@ -49,11 +62,12 @@ if (!node) throw new Error('Nœud "insuline" introuvable (content/noeuds/diabete
 
 /**
  * Profil « neutre » cliniquement plausible : situation « basale seule », valeurs jamais à zéro par
- * accident (over_basalisation, gaj_a_cible… dépendent toutes de divisions/bornes sensibles à 0 — cf.
- * `docs/decision/validation/recette-2026-07-25-prescription-intensifier.md` 12.1-12.5). Les critères
- * dérivés (`cible_atteinte`, `risque_hypoglycemique_eleve`, `gaj_a_cible`, `over_basalisation`) sont recalculés par
- * `calculerCriteresDerives` à chaque appel ; les valeurs ici ne servent qu'à la lecture du profil neutre
- * (même convention que `evaluateNode.prescription.test.ts`).
+ * accident (ratio_basale_poids_eleve, gaj_a_cible… dépendent toutes de divisions/bornes sensibles à 0 —
+ * cf. `docs/decision/validation/recette-2026-07-25-prescription-intensifier.md` 12.1-12.5). Les critères
+ * dérivés (`cible_atteinte`, `risque_hypoglycemique_eleve`, `gaj_a_cible`, `ratio_basale_poids_eleve`,
+ * ex-`over_basalisation`, renommé P14/S4 T-167 2026-08-06) sont recalculés par `calculerCriteresDerives`
+ * à chaque appel ; les valeurs ici ne servent qu'à la lecture du profil neutre (même convention que
+ * `evaluateNode.prescription.test.ts`).
  */
 const BASE: Criteria = {
   situation_insuline: 'basale_seule',
@@ -65,6 +79,12 @@ const BASE: Criteria = {
   esperance_vie: 'longue',
   risque_hypoglycemie_schema: 'faible',
   hypo_severe_recurrente: false,
+  // T-191 (P14/S18, 2026-08-07) : critère nouvellement déclaré par ce nœud (`{ ref: cetonemie }`,
+  // définition commune du domaine). DOIT figurer ici comme tous les autres primitifs (cf. commentaire de
+  // tête sur `glycemie_pre_repas`) : la nouvelle alerte de nœud `quand: "cetonemie == true"` est évaluée
+  // pour CHAQUE profil de ce fichier, donc `evaluateAtomic` lèverait `ConditionError : Variable de
+  // critère inconnue : "cetonemie"` sur toute vignette existante si la clé était absente de `BASE`.
+  cetonemie: false,
   symptomes_glucotoxicite: false,
   traitements_en_cours: [],
   preference_injection: 'indifferent',
@@ -97,7 +117,7 @@ const BASE: Criteria = {
   // (principe référent, déjà appliqué au nœud A).
   terrain_cible_assouplie: false,
   gaj_a_cible: true,
-  over_basalisation: false,
+  ratio_basale_poids_eleve: false,
 }
 
 /** Mode « tout est renseigné » (D20, repli) : comportement booléen strict, comme avant le chantier. */
@@ -158,6 +178,9 @@ const CORRIGER_HYPO = "Corriger l'hypoglycémie ou la variabilité"
 const REDUIRE_BASALE = 'Réduire la basale'
 const NE_PAS_SURTITRER = 'Ne pas sur-titrer la basale'
 const TITRER = 'Titrer la basale'
+// T-167 (P14/S4, 2026-08-06) : carte de tête, famille « Avant de décider — la mesure », nommée par
+// l'alerte de nœud `ratio_basale_poids_eleve` (cf. décrit ci-dessous).
+const MCG_ENVISAGER = "Envisager d'instaurer une mesure continue du glucose"
 const AJOUTER_GLP1_BB = 'Ajouter un GLP-1 / une association fixe'
 const AJOUTER_BOLUS = 'Ajouter un bolus au repas principal'
 const DESINTENSIFIER = 'Désintensifier / alléger le schéma'
@@ -165,20 +188,29 @@ const OPTIMISER_BB = 'Optimiser la répartition du basal-bolus'
 const POURSUIVRE = 'Poursuivre le schéma'
 
 describe('insuline — E-01 : naïf, HbA1c au-dessus de la cible, pas de GLP-1 en cours', () => {
-  it('GLP-1 (avant/avec l\'insuline) ET initiation d\'une basale sont TOUTES DEUX applicables (gestes cumulables, pas une alternative)', () => {
-    const o = {
-      situation_insuline: 'naif',
-      HbA1c_actuelle: 9,
-      HbA1c_cible: 7,
-      traitements_en_cours: [],
-      symptomes_glucotoxicite: false,
-    } as Partial<Criteria>
-    const t = titles(o)
-    expect(has(t, GLP1_NAIF)).toBe(true)
-    expect(has(t, INITIER_BASALE)).toBe(true)
-    // Un naïf fragile n'est pas ce profil (âge 60, non fragile, EV longue) : pas d'analogue 2ᵉ génération ici.
-    expect(has(t, ANALOGUE_2G)).toBe(false)
-  })
+  it(
+    "GLP-1 (avant/avec l'insuline) ET initiation d'une basale sont TOUTES DEUX applicables — DEUX voies " +
+      "alternatives depuis le 2026-08-06 (P14/S5, T-168 : famille « Instaurer l'insuline » passée en " +
+      '`exclusive: true`), pas « cumulables » comme avant cette date. Sans effet sur cette assertion : ' +
+      'l\'exclusivité de famille est un concept de PRÉSENTATION (mention « — en choisir un », badge ' +
+      '« recommandée » réservé au rang de tête — `lib/optionBadges.ts`), `evaluateNode.applicable` ' +
+      'continue de lister les deux, exactement comme avant.',
+    () => {
+      const o = {
+        situation_insuline: 'naif',
+        HbA1c_actuelle: 9,
+        HbA1c_cible: 7,
+        traitements_en_cours: [],
+        symptomes_glucotoxicite: false,
+      } as Partial<Criteria>
+      const t = titles(o)
+      expect(has(t, GLP1_NAIF)).toBe(true)
+      expect(has(t, INITIER_BASALE)).toBe(true)
+      // T-168 (P14/S5, 2026-08-06) : l'option n'existe plus, `has(t, ANALOGUE_2G)` est donc toujours false,
+      // quel que soit `risque_hypoglycemique_eleve` — cf. F4 plus bas pour la vignette dédiée.
+      expect(has(t, ANALOGUE_2G)).toBe(false)
+    },
+  )
 })
 
 describe('insuline — décisions référent 2026-07-26 implémentées (E-02/E-03/E-06, cf. changelog insuline.yaml v0.7)', () => {
@@ -357,98 +389,139 @@ describe(
   },
 )
 
-describe('insuline — E-04 : sur-basalisation réelle (dose 40 U / poids 70 kg), GAJ hors cible', () => {
-  // ATTENTE RÉVISÉE le 2026-07-27 (arbitrage référent, après collecte + red-team). Cette vignette
-  // exigeait que « Titrer la basale » soit ÉCARTÉE au-dessus de 0,5 U/kg. Le seuil ne porte plus cette
-  // exclusion : issu d'un post-hoc non pré-spécifié, retiré des Standards ADA en 2025 (maintenu par
-  // l'AACE), jamais testé comme règle de décision, et coupant au milieu de la plage de doses d'entretien
-  // réellement atteintes à la cible (0,34-0,78 U/kg). Les DEUX cartes coexistent désormais et le rang
-  // hiérarchise : le praticien voit la lecture « titrer » et la lecture « intensifier autrement », et
-  // arbitre — ce qu'il est le seul à pouvoir faire chez un patient dont la nuit reste hors cible (ici
-  // GAJ 1,5 g/L). Le geste alternatif reste poussé, ce qui était l'objet réel du correctif de la veille.
-  it('E-04a — « Titrer la basale » et « Ne pas sur-titrer… » coexistent (exclusion retirée le 2026-07-27)', () => {
+describe(
+  'insuline — E-04 : ratio dose/poids élevé (40 U / 70 kg = 0,571 U/kg), GAJ hors cible haute, sans capteur',
+  () => {
+    // RÉÉCRITE le 2026-08-06 (P14/S4, T-167, décision référent) — amende la révision du 2026-07-27.
+    // Cette vignette testait alors la coexistence de « Titrer la basale » et « Ne pas sur-titrer… », le
+    // rang hiérarchisant entre les deux. Cette lecture reposait sur un mécanisme qui n'opère PAS entre
+    // deux familles différentes (`groupesExAequo` ne calcule les rangs qu'à l'intérieur d'une famille) :
+    // 2 des 180 profils figés du banc affichaient bien les deux cartes ensemble. Décision référent du
+    // 2026-08-06 : la sur-basalisation se lit sur la COURBE MCG nocturne, pas sur ce ratio ; sans capteur,
+    // la GAJ est le seul pivot disponible, et ici elle dit « la nuit monte » (1,5 g/L, hors cible haute)
+    // — la conduite est donc de TITRER, pas d'afficher les deux lectures côte à côte. Le ratio dose/poids
+    // (renommé `ratio_basale_poids_eleve`) redevient un simple REPÈRE, porté par l'alerte de nœud
+    // (vérifiée ci-dessous), jamais un déclencheur ni une sélection d'option.
+    it(
+      'E-04a — seule « Titrer la basale » s\'affiche ; « Ne pas sur-titrer… » ne se déclenche plus ' +
+        '(partition par la GAJ, le ratio retiré de ses conditions) ; le repère reste visible via l\'alerte',
+      () => {
+        const o = {
+          situation_insuline: 'basale_seule',
+          poids: 70,
+          dose_basale_actuelle: 40, // 40/70 ≈ 0,571 U/kg > 0,5 U/kg → ratio_basale_poids_eleve vrai
+          GAJ: 1.5, // hors cible HAUTE (> 1,30) : la nuit monte
+          HbA1c_actuelle: 8,
+          HbA1c_cible: 7,
+          TBR: 2,
+          TBR_severe: 0,
+          CV_glycemique: 20,
+          profil_nocturne: 'courbe_plate', // mcg_disponible non défini ici (BASE: false) : champ inerte.
+        } as Partial<Criteria>
+        expect(has(titles(o), TITRER)).toBe(true)
+        expect(has(excludedTitles(o), TITRER)).toBe(false)
+        // Le changement du 2026-08-06 : l'alternative n'est plus poussée à côté — la partition par la
+        // nuit (GAJ haute → Titrer, jamais Ne pas sur-titrer) est désormais exclusive.
+        expect(has(titles(o), NE_PAS_SURTITRER)).toBe(false)
+        // Le repère reste visible, mais seulement via l'alerte de nœud (I7 : elle constate et oriente,
+        // elle ne redevient ni exclusion ni déclencheur d'option).
+        const messages = alertMsgs(o)
+        expect(messages.some((m) => /0,5 U\/kg\/j/.test(m))).toBe(true)
+        expect(messages.some((m) => /mesure continue du glucose/i.test(m))).toBe(true)
+      },
+    )
+
+    it(
+      'E-04b — RÉÉCRITE le 2026-08-06 (P14/S4, T-167) : sans capteur et GAJ haute, les deux cartes ' +
+        'd\'intensification latérale (GLP-1/association fixe, bolus) ne se déclenchent PLUS — conséquence ' +
+        'ASSUMÉE de la décision référent (aucun signal lisible sans capteur ne les justifiait). Le patient ' +
+        'ne perd pas la suggestion de capteur : elle est déjà déclenchée pour lui, en tête d\'affichage.',
+      () => {
+        const o = {
+          situation_insuline: 'basale_seule',
+          poids: 70,
+          dose_basale_actuelle: 40,
+          GAJ: 1.5,
+          HbA1c_actuelle: 8,
+          HbA1c_cible: 7,
+          TBR: 2,
+          TBR_severe: 0,
+          CV_glycemique: 20,
+          profil_nocturne: 'courbe_plate', // mcg_disponible non défini ici (BASE: false) : champ inerte.
+        } as Partial<Criteria>
+        const t = titles(o)
+        expect(has(t, AJOUTER_GLP1_BB)).toBe(false)
+        expect(has(t, AJOUTER_BOLUS)).toBe(false)
+        expect(has(t, MCG_ENVISAGER)).toBe(true)
+      },
+    )
+  },
+)
+
+describe(
+  'insuline — E-05 : poids NON renseigné (D20) — RÉÉCRITE le 2026-08-06 (P14/S4, T-167)',
+  () => {
+    // Le retrait du 2026-08-06 change le mécanisme que cette vignette démontrait. `ratio_basale_poids_eleve`
+    // (ex-`over_basalisation`) n'étant plus lu par AUCUNE `conditions`/`exclusions`/`prerequis` d'option,
+    // un `poids` non renseigné ne met plus « Ne pas sur-titrer… » en attente : l'option n'en dépend
+    // simplement plus. Ce que `poids` manquant affecte désormais : l'ALERTE de nœud, qui reste
+    // indéterminée et ne s'affiche donc pas (R7/D20, `GRAMMAIRE-NOEUD.md` : « alertes, doses calculées et
+    // dérivés indéterminés ne s'affichent pas »). Ce que la vignette vérifie : « Ne pas sur-titrer… » se
+    // résout correctement SANS le poids (nuit à la cible, décidée par la GAJ seule), et l'alerte de ratio
+    // se tait plutôt que d'affirmer un fait qu'on ne peut pas calculer.
+    it(
+      'un poids non renseigné laisse « Ne pas sur-titrer… » APPLICABLE (nuit à la cible sur la GAJ ' +
+        'seule) et fait taire l\'alerte de ratio, indéterminée plutôt qu\'affirmée à tort',
+      () => {
+        const o = {
+          situation_insuline: 'basale_seule',
+          dose_basale_actuelle: 40,
+          GAJ: 1.0, // à la cible [0,70-1,30] : la nuit ne monte ni ne descend
+          HbA1c_actuelle: 8,
+          HbA1c_cible: 7,
+          TBR: 2,
+          TBR_severe: 0,
+          CV_glycemique: 20,
+          profil_nocturne: 'courbe_plate', // mcg_disponible: false ci-dessous : champ inerte.
+          mcg_disponible: false,
+        } as Partial<Criteria>
+        const res = evalProfileTernaire(o, ['poids'])
+        const optNePasSurtitrer = node!.options.find((opt) => opt.intitule.includes(NE_PAS_SURTITRER))!
+
+        // L'option ne dépend plus du poids : elle se résout, alors même que `poids` est indéterminé.
+        expect(res.enAttente.has(optNePasSurtitrer)).toBe(false)
+        expect(res.applicable.map((o2) => o2.intitule)).toContain(optNePasSurtitrer.intitule)
+
+        // Seule l'ALERTE, elle, dépend du poids — indéterminée, elle ne s'affiche pas.
+        const messages = res.alertes.map((a) => a.message)
+        expect(messages.some((m) => /0,5 U\/kg\/j/.test(m))).toBe(false)
+      },
+    )
+  },
+)
+
+describe('insuline — T-167 (P14/S4, 2026-08-06) : le ratio dose/poids ne joue qu\'en l\'absence de capteur', () => {
+  // Décision référent : « le ratio 0,5 U/kg peut rester en alerte, en l'absence de MCG UNIQUEMENT ». Le
+  // `derive` de `ratio_basale_poids_eleve` porte désormais le garde `mcg_disponible == false` — vérifié
+  // ici plutôt que supposé : un patient équipé d'un capteur, au ratio tout aussi élevé, ne doit RECEVOIR
+  // NI l'alerte NI aucun effet du ratio, quelle que soit la lecture de la courbe nocturne.
+  it('capteur en place, ratio > 0,5 U/kg : l\'alerte de ratio ne s\'affiche pas (le garde `mcg_disponible == false` du derive)', () => {
     const o = {
       situation_insuline: 'basale_seule',
       poids: 70,
-      dose_basale_actuelle: 40, // 40/70 ≈ 0,571 U/kg > 0,5 U/kg → over_basalisation vrai
-      GAJ: 1.5, // hors cible [0,70-1,20]
-      HbA1c_actuelle: 8,
-      HbA1c_cible: 7,
-      TBR: 2,
-      TBR_severe: 0,
-      CV_glycemique: 20,
-      profil_nocturne: 'courbe_plate', // mcg_disponible non défini ici (BASE: false) : champ inerte.
-    } as Partial<Criteria>
-    expect(has(titles(o), TITRER)).toBe(true)
-    expect(has(excludedTitles(o), TITRER)).toBe(false)
-    // Le point qui compte cliniquement n'a pas changé : l'alternative est POUSSÉE, pas laissée en prose.
-    expect(has(titles(o), NE_PAS_SURTITRER)).toBe(true)
-  })
-
-  it(
-    'E-04b — la sur-basalisation « suggère désormais d\'autres pistes de contrôle glycémique » (référent ' +
-      '2026-07-26, même décision implémentée que E-06). En situation « basale seule », la carte ' +
-      '« Ne pas sur-titrer… » continue de s\'afficher, mais elle n\'est plus seule : le levier GLP-1/bolus, ' +
-      'qui ne figurait qu\'en PROSE (dans `avantages`), est désormais aussi une option distincte et ' +
-      'actionnable — réutilisée depuis la situation « basale_plus_bolus », qui portait déjà « Ajouter un ' +
-      'GLP-1 / une association fixe ».',
-    () => {
-      const o = {
-        situation_insuline: 'basale_seule',
-        poids: 70,
-        dose_basale_actuelle: 40,
-        GAJ: 1.5,
-        HbA1c_actuelle: 8,
-        HbA1c_cible: 7,
-        TBR: 2,
-        TBR_severe: 0,
-        CV_glycemique: 20,
-        profil_nocturne: 'courbe_plate', // mcg_disponible non défini ici (BASE: false) : champ inerte.
-      } as Partial<Criteria>
-      expect(has(titles(o), AJOUTER_GLP1_BB)).toBe(true)
-    },
-  )
-})
-
-describe('insuline — E-05 : même sur-basalisation qu\'E-04, mais poids NON renseigné (D20)', () => {
-  // ATTENTE RÉVISÉE le 2026-07-27, en même temps qu'E-04a : `over_basalisation` n'étant plus une
-  // exclusion de « Titrer la basale », un poids non renseigné ne met plus CETTE option en attente. Le
-  // mécanisme D20 qu'elle démontrait reste vérifié, mais sur l'option qui dépend RÉELLEMENT du poids —
-  // « Ne pas sur-titrer… », dont `over_basalisation` est le déclencheur. La vignette gagne au change :
-  // elle vérifie désormais les deux bords à la fois, l'option retenue en attente ET celle qui ne doit
-  // plus l'être. Le défaut qu'elle protégeait à l'origine (écarter une option sur une exclusion qu'on ne
-  // peut pas trancher) reste couvert.
-  it('un poids non renseigné met « Ne pas sur-titrer… » EN ATTENTE, et ne retient plus « Titrer la basale »', () => {
-    const o = {
-      situation_insuline: 'basale_seule',
-      dose_basale_actuelle: 40,
-      GAJ: 1.5, // hors cible, renseignée
-      HbA1c_actuelle: 8,
-      HbA1c_cible: 7,
-      TBR: 2,
-      TBR_severe: 0,
-      CV_glycemique: 20,
-      // `hausse_continue`, et non `courbe_plate` : depuis le 2026-07-30 (P8/S7), une courbe PLATE rend
-      // `profil_nocturne_a_cible` VRAI, ce qui résoudrait « Ne pas sur-titrer... » de façon déterminée
-      // (indépendamment du poids manquant) et casserait cette vignette — elle teste spécifiquement la
-      // dépendance au poids via `over_basalisation`, donc a besoin d'un profil qui ne déclenche NI
-      // `profil_nocturne_a_cible` NI l'exclusion sur `baisse_continue`.
-      profil_nocturne: 'hausse_continue',
+      dose_basale_actuelle: 40, // 40/70 ≈ 0,571 U/kg > 0,5 U/kg
       mcg_disponible: true,
+      profil_nocturne: 'hausse_continue', // nuit qui monte : Titrer reste la lecture, indépendamment du ratio
+      HbA1c_actuelle: 8,
+      HbA1c_cible: 7,
+      TBR: 2,
+      TBR_severe: 0,
+      CV_glycemique: 20,
+      GAJ: 1.0, // inerte : mcg_disponible == true
     } as Partial<Criteria>
-    const res = evalProfileTernaire(o, ['poids'])
-    const optTitrer = node!.options.find((opt) => opt.intitule.includes(TITRER))!
-    const optNePasSurtitrer = node!.options.find((opt) => opt.intitule.includes(NE_PAS_SURTITRER))!
-
-    // L'option qui DÉPEND du poids est retenue en attente, avec le critère à renseigner nommé —
-    // ni écartée à tort sur une condition qu'on ne peut pas trancher, ni proposée en silence.
-    expect(res.enAttente.get(optNePasSurtitrer)).toEqual(['poids'])
-    expect(res.applicable.map((o2) => o2.intitule)).not.toContain(optNePasSurtitrer.intitule)
-    expect([...res.excluded.keys()].map((o2) => o2.intitule)).not.toContain(optNePasSurtitrer.intitule)
-
-    // L'option qui n'en dépend plus n'est plus retenue en otage par un poids manquant.
-    expect(res.enAttente.has(optTitrer)).toBe(false)
-    expect([...res.excluded.keys()].map((o2) => o2.intitule)).not.toContain(optTitrer.intitule)
+    const messages = alertMsgs(o)
+    expect(messages.some((m) => /0,5 U\/kg\/j/.test(m))).toBe(false)
+    expect(has(titles(o), TITRER)).toBe(true)
   })
 })
 
@@ -473,6 +546,9 @@ describe('insuline — E-07/E-08 : « risque_hypoglycemique_eleve » inclut l\'�
       age: 60,
       HbA1c_actuelle: 7,
       HbA1c_cible: 7,
+      // D50/T-180 (P14/S11) : `cible_atteinte` lit désormais `position_vs_cible`, saisi ici à l'identique
+      // de l'écart réel (7-7=0, zone « à l'objectif ») — sans quoi le critère reste indéterminé.
+      position_vs_cible: 'a_l_objectif',
       fragilite: false,
       esperance_vie: 'longue',
       risque_hypoglycemie_schema: 'faible',
@@ -613,14 +689,19 @@ describe(
 )
 
 describe(
-  'insuline — F4 (redteam-clinique-silences.md, 2026-07-26) : `hypo_severe_recurrente` absent du choix ' +
-    'de la molécule à l\'initiation — arbitrage I3, fusionné dans `risque_hypoglycemique_eleve`',
+  'insuline — F4 (redteam-clinique-silences.md, 2026-07-26 ; RETOURNÉE le 2026-08-06, P14/S5, T-168) : ' +
+    '`hypo_severe_recurrente` (fusionné dans `risque_hypoglycemique_eleve`, arbitrage I3) ne fait plus ' +
+    'apparaître de carte « Choisir un analogue basal de 2ᵉ génération » — cette option est SUPPRIMÉE, son ' +
+    'contenu reversé dans `posologie_detail` (prose, hors calcul moteur) de « Initier une insuline basale ».',
   () => {
     it(
-      'profil EXACT du rapport (naïf, 74 ans, non fragile, EV longue, risque de schéma faible, SEUL ' +
-        'signal = hypo_severe_recurrente) : « Choisir un analogue basal de 2ᵉ génération » devient ' +
-        'applicable — auparavant silencieuse malgré ce signal, alors qu\'il pilotait déjà (en OR littéral) ' +
-        'la désintensification du basal-bolus plus loin dans ce même nœud.',
+      'profil EXACT du rapport F4 (naïf, 74 ans, non fragile, EV longue, risque de schéma faible, SEUL ' +
+        "signal = hypo_severe_recurrente) : « Initier une insuline basale » reste applicable (ses " +
+        "`conditions` ne lisent pas `risque_hypoglycemique_eleve`), mais AUCUNE carte « Choisir un " +
+        'analogue basal de 2ᵉ génération » — cette option n\'existe plus, quel que soit ' +
+        '`risque_hypoglycemique_eleve`. Le choix de molécule que ce signal aurait auparavant piloté vit ' +
+        "désormais en PROSE dans le panneau posologie de « Initier une insuline basale », pas dans une " +
+        'carte distincte ni dans une condition moteur.',
       () => {
         const o = {
           situation_insuline: 'naif',
@@ -634,7 +715,7 @@ describe(
           traitements_en_cours: ['aGLP1', 'sulfamide', 'gliptine'],
         } as Partial<Criteria>
         const t = titles(o)
-        expect(has(t, ANALOGUE_2G)).toBe(true)
+        expect(has(t, ANALOGUE_2G)).toBe(false)
         expect(has(t, INITIER_BASALE)).toBe(true)
         // Déjà sous aGLP1 : cette option reste hors jeu (prérequis), non contestée par cette vignette.
         expect(has(t, GLP1_NAIF)).toBe(false)
@@ -794,9 +875,17 @@ describe('insuline — repli de la situation « naïf » (v0.33) : la partition 
     situation_insuline: 'naif',
     HbA1c_actuelle: 6.9,
     HbA1c_cible: 8,
+    // D50/T-180 (P14/S11) : `cible_atteinte` lit désormais `position_vs_cible`, saisi ici à l'identique de
+    // l'écart réel (6,9-8=-1,1, zone « sous l'objectif ») — sans quoi le critère reste indéterminé.
+    position_vs_cible: 'sous_objectif',
     symptomes_glucotoxicite: false,
-    // Aucun terrain à risque hypoglycémique : sinon « Choisir un analogue basal de 2ᵉ génération » se
-    // déclenche (option ordinaire), le repli est masqué, et la vignette ne mesurerait plus rien.
+    // Terrain SANS risque hypoglycémique, conservé après le 2026-08-06 (P14/S5, T-168) bien que l'ancien
+    // motif ait disparu avec l'option qu'il visait : jusque-là, un terrain à risque déclenchait « Choisir
+    // un analogue basal de 2ᵉ génération » (option ordinaire, SEULE — ses `conditions` ne portaient pas
+    // `cible_atteinte`), ce qui masquait le repli et rendait la vignette muette. Cette option est
+    // supprimée (reversée dans `posologie_detail` de « Initier une insuline basale »), donc plus aucune
+    // carte ne peut plus se déclencher sur ce seul terrain ; les valeurs restent inchangées pour ne pas
+    // élargir sans mandat ce que cette vignette teste.
     age: 60,
     fragilite: false,
     esperance_vie: 'longue',
@@ -829,7 +918,11 @@ describe('insuline — repli de la situation « naïf » (v0.33) : la partition 
     () => {
       // Le profil neutre BASE est exactement ce cas (basale seule, HbA1c 7 pour une cible de 7, GAJ à la
       // cible, aucun signal de sécurité) : c'est le trou que le repli du 2026-07-25 avait bouché.
-      const resultat = evalProfile({})
+      // D50/T-180 (P14/S11) : `position_vs_cible` saisi ici à l'identique de l'écart réel de BASE
+      // (7-7=0, zone « à l'objectif ») — BASE elle-même n'est pas modifiée (une valeur par défaut y
+      // serait incohérente pour les vignettes qui surchargent HbA1c_actuelle/HbA1c_cible sans surcharger
+      // position_vs_cible ; cf. audit dédié, seules les 3 vignettes qui en avaient besoin sont corrigées).
+      const resultat = evalProfile({ position_vs_cible: 'a_l_objectif' })
       const t = resultat.applicable.map((o) => o.intitule)
       expect(has(t, POURSUIVRE)).toBe(true)
       expect(has(t, PAS_D_INDICATION_NAIF)).toBe(false)
@@ -864,6 +957,72 @@ describe('insuline — repli de la situation « naïf » (v0.33) : la partition 
       expect(resultat.enAttente.size).toBeGreaterThan(0)
       // Et le champ à renseigner est bien nommé au praticien.
       expect([...resultat.enAttente.values()].flat()).toContain('situation_insuline')
+    },
+  )
+})
+
+describe('insuline — T-191 (P14/S18, 2026-08-07) : ce nœud voit désormais la cétonémie (P2/D5)', () => {
+  /**
+   * Avant cette tâche, `insuline` ne déclarait pas `cetonemie` et aucune de ses alertes ne la lisait — un
+   * patient en cétonémie confirmée, vu sur CE nœud (pour une initiation ou un ajustement de schéma),
+   * n'obtenait aucun signal d'urgence catabolique (cas D5, `docs/decision/validation/
+   * criteres-communs-2026-08-06.md` § 3.1). Le canal choisi est une ALERTE DE NŒUD (R8, 1er choix de
+   * préférence : le message vaut à l'identique quelle que soit la carte affichée), `quand: "cetonemie ==
+   * true"`, sans garde de situation — vérifié ci-dessous SUR LES DEUX situations qui bornent le nœud
+   * (naïf ET déjà sous une basale), exactement la propriété qui justifie le choix de ce canal plutôt
+   * qu'une alerte d'option.
+   */
+  it.each([
+    ['naif', [] as string[]],
+    ['basale_seule', ['insuline_basale']],
+  ])(
+    'situation_insuline = %s : la cétonémie déclenche l\'alerte de nœud dédiée, quelle que soit la carte affichée',
+    (situation, traitementsEnCours) => {
+      const o = {
+        situation_insuline: situation,
+        traitements_en_cours: traitementsEnCours,
+        cetonemie: true,
+      } as Partial<Criteria>
+      const messages = alertMsgs(o)
+      expect(has(messages, 'Cétonémie confirmée')).toBe(true)
+      // Les deux repères cliniques repris de `prescription.yaml` (source primaire vérifiée, cf. le
+      // commentaire du critère `cetonemie` dans `insuline.yaml`) sont bien dans LE MÊME message, pas
+      // dispersés sur deux alertes différentes (R8 : un fait, un canal).
+      expect(has(messages, 'rupture thérapeutique')).toBe(true)
+      expect(has(messages, 'urgence (insuline + hospitalisation)')).toBe(true)
+    },
+  )
+
+  it(
+    'cétonémie NON déclarée (`false`, valeur du profil neutre BASE) : l\'alerte ne se déclenche pas — ' +
+      'contre-épreuve, sans elle un `true` en dur dans le contenu passerait inaperçu',
+    () => {
+      const messages = alertMsgs({ cetonemie: false })
+      expect(has(messages, 'Cétonémie confirmée')).toBe(false)
+    },
+  )
+
+  it(
+    'cohérence avec l\'alerte iSGLT2 existante (R8 — un fait, un canal) : sous iSGLT2 SANS cétonémie ' +
+      'mesurée, seule l\'alerte iSGLT2 s\'affiche ; avec cétonémie mesurée, LES DEUX s\'affichent sans se ' +
+      'contredire — deux faits distincts (présence de la classe vs cétonémie mesurée), jamais le même ' +
+      'fait porté deux fois',
+    () => {
+      const sousISGLT2Seul = alertMsgs({
+        situation_insuline: 'basale_seule',
+        traitements_en_cours: ['insuline_basale', 'iSGLT2'],
+        cetonemie: false,
+      })
+      expect(has(sousISGLT2Seul, 'acidocétose euglycémique')).toBe(true)
+      expect(has(sousISGLT2Seul, 'Cétonémie confirmée')).toBe(false)
+
+      const sousISGLT2EtCetonemie = alertMsgs({
+        situation_insuline: 'basale_seule',
+        traitements_en_cours: ['insuline_basale', 'iSGLT2'],
+        cetonemie: true,
+      })
+      expect(has(sousISGLT2EtCetonemie, 'acidocétose euglycémique')).toBe(true)
+      expect(has(sousISGLT2EtCetonemie, 'Cétonémie confirmée')).toBe(true)
     },
   )
 })

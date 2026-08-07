@@ -12,14 +12,21 @@
 # interprétation + alertes (cibles = CONSENSUS Battelino 2019, PAS un critère dur). Axe SÉCURITÉ
 # (TBR/TBR_severe/CV/hypo nocturnes) = critère DUR (EBM DEVOTE) → gate les recommandations de sécurité.
 #
-# DÉRIVÉS FORMULAIRE (le DSL ne compare pas 2 variables ni ne calcule de seuil — précédent nœud C) :
-# `cible_atteinte` (HbA1c_actuelle <= HbA1c_cible), `gaj_a_cible` (GAJ dans la cible), `over_basalisation`
-# (dose_basale_actuelle / poids > 0,5 U/kg — repère [À VÉRIFIER] ; depuis 2026-07-26, EXCLUSION dure de
-# « Titrer la basale » et déclencheur, avec `gaj_a_cible`, de « Ne pas sur-titrer... » — plus une simple
-# alerte d'option), `risque_hypoglycemique_eleve` (fragilite OR esperance_vie==limitee OR age>=75 OR
-# risque_hypoglycemie_schema==eleve OR hypo_severe_recurrente==true, aligné sur la relaxation du nœud A ; depuis 2026-07-26, gate aussi
-# « Choisir un analogue basal de 2ᵉ génération » et « Désintensifier / alléger le schéma », qui utilisaient
-# jusque-là un triplet brut sans l'âge — cf. changelog. `hypo_severe_recurrente` FUSIONNÉ dans ce dérivé
+# DÉRIVÉS FORMULAIRE : `cible_atteinte` (position_vs_cible == a_l_objectif OR sous_objectif — RECÂBLÉ le
+# 2026-08-06, P14/S11, T-180 : ex-`HbA1c_actuelle <= HbA1c_cible`, calculé ; unifié sur la définition de
+# `prescription`, désormais la définition unique du domaine, cf. changelog et D50), `gaj_a_cible` (GAJ dans
+# la cible), `ratio_basale_poids_eleve`
+# (ex-`over_basalisation`, renommé le 2026-08-06 — P14/S4, T-167 : dose_basale_actuelle / poids > 0,5 U/kg
+# ET absence de MCG — repère [À VÉRIFIER], jamais un déclencheur ni une exclusion d'option depuis cette
+# date : la sur-basalisation se lit désormais SUR LA COURBE MCG nocturne (`profil_nocturne`), ce ratio
+# n'alimente plus qu'une alerte de nœud, `niveau: attention`, limitée à l'absence de capteur), `risque_hypoglycemique_eleve` (fragilite OR esperance_vie==limitee OR age>=75 OR
+# risque_hypoglycemie_schema==eleve OR hypo_severe_recurrente==true, aligné sur la relaxation du nœud A ; depuis 2026-07-26, gate
+# (en `conditions`) « Désintensifier / alléger le schéma », qui utilisait jusque-là un triplet brut sans
+# l'âge — cf. changelog. Gatait AUSSI « Choisir un analogue basal de 2ᵉ génération » jusqu'au 2026-08-06
+# (P14/S5, T-168) : cette option est SUPPRIMÉE ce jour-là (modalité de posologie, pas une alternative — cf.
+# son commentaire de suppression et le changelog), et le même repère ne pilote plus qu'une PROSE
+# conditionnelle dans `posologie_detail` de « Initier une insuline basale », plus une `conditions` d'option.
+# `hypo_severe_recurrente` FUSIONNÉ dans ce dérivé
 # le 2026-07-26 (4ᵉ lot, arbitrage I3 du rapport red-team `docs/decision/validation/chantier-2026-07-26/
 # redteam-clinique-silences.md` F4) : même concept de sécurité encodé deux fois — `risque_hypoglycemique_eleve` ici,
 # `hypo_severe_recurrente` en OR littéral sur « Désintensifier » seulement — le défaut que l'invariant I4
@@ -81,35 +88,80 @@ criteres_entree:
     min: 6
     max: 9.5
     partage: true
+    # SEUL LECTEUR depuis le 2026-08-06 (P14/S11, T-180/T-181, D50) : le `preremplissage` de
+    # `position_vs_cible` ci-dessous. `cible_atteinte`/`ecart_sous_objectif_cible` NE LE LISENT PLUS
+    # (unifiés sur `position_vs_cible`, cf. leurs `derive` plus bas) — condition du garde-fou D50 : un
+    # critère que `cible-glycemique` PUBLIE (T-181) ne peut avoir AUCUN lecteur hors `preremplissage`
+    # (invariant dédié du banc, `invariants-contenu.test.ts`). Suffisant pour R5/T-164 : `preremplissage`
+    # compte comme lecteur (S2/T-164, décision de plan explicite).
+  # AJOUTÉ le 2026-08-06 (P14/S11, T-180, D50) : la définition de `prescription` — « où en est ce patient »
+  # SE DÉCLARE, elle ne se déduit pas de la comparaison HbA1c_actuelle/HbA1c_cible — devient celle du
+  # domaine (décision référent : la position déclarée par le praticien prime). `partage: true`, encodage
+  # IDENTIQUE à `prescription` (même `type`, mêmes `valeurs`, même ORDRE — I19/I32) : `a_l_objectif` en
+  # tête reste la seule valeur inerte sur un formulaire vierge, même raison qu'sur `prescription`.
+  - nom: position_vs_cible
+    type: enum
+    groupe: Profil et objectif glycémique
+    valeurs: [a_l_objectif, au_dessus, nettement_au_dessus, sous_objectif]
+    partage: true
+    # PRÉ-REMPLISSAGE (D50/T-181, P14/S11) — IDENTIQUE, texte pour texte, à celui de `prescription` (même
+    # exigence que pour `cible_atteinte` ci-dessous : une divergence textuelle serait une divergence de
+    # définition). Suggère la position depuis l'écart (HbA1c mesurée − cible PUBLIÉE par « Déterminer la
+    # cible ») SEULEMENT si l'écart est net ; ZONE MORTE délibérée entre +0,3 et +0,5 point (bornes exclues
+    # : rien n'y est proposé, aucune règle ne couvre cet intervalle — c'est le point de D50, cf. le
+    # commentaire complet côté `prescription`, qui fait autorité pour ce mécanisme). PAS DE `default` :
+    # un repli poserait une valeur sur un écart ambigu, exactement ce que la zone morte évite. ÉNUMÉRÉ PAR
+    # VALEUR DE CIBLE (7/8/9, les trois plafonds que `cible-glycemique` publie — D50) plutôt qu'en une
+    # comparaison arithmétique générale : le DSL de `conditions`/`preremplissage` (`engine/conditions.ts`)
+    # ne compare QUE `variable OP littéral` ou `variable OP variable`, JAMAIS `variable OP (variable ±
+    # littéral)` — l'arithmétique n'existe que côté `derive` (`engine/deriveCritere.ts`), et un `derive` qui
+    # lirait `HbA1c_cible` violerait le garde-fou D50 (lecteur hors `preremplissage`). CONSÉQUENCE ASSUMÉE :
+    # une cible SAISIE À LA MAIN hors {7, 8, 9} (ex. 7,5) ne déclenche aucune suggestion — cohérent avec
+    # D50 (« si le nœud voisin n'a pas été ouvert, rien n'est publié, le champ reste purement déclaré »),
+    # pas un défaut de ce contenu.
+    preremplissage:
+      - quand: "HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND HbA1c_cible == 7 AND HbA1c_actuelle < 6.5 OR HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND HbA1c_cible == 8 AND HbA1c_actuelle < 7.5 OR HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND HbA1c_cible == 9 AND HbA1c_actuelle < 8.5"
+        valeur: sous_objectif
+      - quand: "HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND HbA1c_cible == 7 AND HbA1c_actuelle >= 6.5 AND HbA1c_actuelle <= 7.3 OR HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND HbA1c_cible == 8 AND HbA1c_actuelle >= 7.5 AND HbA1c_actuelle <= 8.3 OR HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND HbA1c_cible == 9 AND HbA1c_actuelle >= 8.5 AND HbA1c_actuelle <= 9.3"
+        valeur: a_l_objectif
+      - quand: "HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND HbA1c_cible == 7 AND HbA1c_actuelle >= 7.5 AND HbA1c_actuelle <= 8.5 OR HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND HbA1c_cible == 8 AND HbA1c_actuelle >= 8.5 AND HbA1c_actuelle <= 9.5 OR HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND HbA1c_cible == 9 AND HbA1c_actuelle >= 9.5 AND HbA1c_actuelle <= 10.5"
+        valeur: au_dessus
+      - quand: "HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND HbA1c_cible == 7 AND HbA1c_actuelle > 8.5 OR HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND HbA1c_cible == 8 AND HbA1c_actuelle > 9.5 OR HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND HbA1c_cible == 9 AND HbA1c_actuelle > 10.5"
+        valeur: nettement_au_dessus
   - nom: cible_atteinte
     type: bool
-    derive: "HbA1c_actuelle <= HbA1c_cible"
+    # RECÂBLÉ le 2026-08-06 (P14/S11, T-180, D50) : ex-`HbA1c_actuelle <= HbA1c_cible` (CALCULÉ).
+    # `prescription` définissait déjà « cible atteinte » comme un ÉTAT DÉCLARÉ — R1 (GRAMMAIRE-NOEUD.md) —
+    # et cette définition devient celle du DOMAINE (décision référent 2026-08-06 : « la position déclarée
+    # par le praticien prime »). EXPRESSION LITTÉRALEMENT IDENTIQUE à `prescription.cible_atteinte` :
+    # l'invariant T-162 (S2/`coherence-inter-noeuds.test.ts`) compare le TEXTE de la règle, pas sa
+    # sémantique — toute reformulation même équivalente romprait l'unification qu'il vérifie.
+    derive: "position_vs_cible == a_l_objectif OR position_vs_cible == sous_objectif"
   - nom: ecart_sous_objectif_cible
     type: bool
     # « SOUS la cible », ajouté le 2026-07-29 (passe A, arbitrage référent : « il faut effectivement que
     # le nœud insuline comporte le concept de sous la cible »).
     #
-    # LE DÉFAUT CORRIGÉ (vignette V-A5, mesuré sur le moteur) : `cible_atteinte` lit « HbA1c ≤ cible »,
+    # LE DÉFAUT CORRIGÉ (vignette V-A5, mesuré sur le moteur) : `cible_atteinte` lisait « HbA1c ≤ cible »,
     # si bien qu'une HbA1c à 6,3 % pour une cible fixée à 8 % se lisait « objectif atteint ». Un homme de
     # 84 ans, fragile, vivant seul, franchement SUR-TRAITÉ, recevait « Poursuivre le schéma d'insuline en
     # cours et réévaluer » — alors que le sur-traitement du sujet âgé est le risque autour duquel tout le
     # nœud A est construit. Le nœud ne portait aucun concept d'écart NÉGATIF à la cible.
     #
-    # ⚠ NOM ET DÉRIVATION REPRIS OCTET POUR OCTET de `prescription` (P7/T-048, même journée), et ce n'est
-    # pas une coquetterie de nommage. La première rédaction de ce lot avait appelé ce dérivé
-    # `hba1c_sous_cible` — nom que `prescription` porte DÉJÀ, mais pour un concept DIFFÉRENT : un plancher
-    # ABSOLU (HbA1c < 6,5 % à tout âge, plus des branches rénales), garde-fou dur. Ici le concept est
-    # l'écart à l'objectif INDIVIDUALISÉ, que `prescription` nomme `ecart_sous_objectif_cible`. L'invariant
-    # I4 inter-nœuds (`banc/coherence-inter-noeuds.test.ts`) a attrapé la collision au premier `npm test`
-    # de ce lot — deux concepts sous un nom, exactement la dette que ce dépôt a déjà payée sur
-    # `terrain_fragile`. Le nom ET l'expression sont donc alignés, pas seulement le seuil.
+    # ⚠ NOM REPRIS OCTET POUR OCTET de `prescription` (P7/T-048, même journée), et ce n'est pas une
+    # coquetterie de nommage — cf. l'historique complet plus bas dans le changelog pour la collision de
+    # nom évitée avec `hba1c_sous_cible` (concept DIFFÉRENT, plancher ABSOLU indépendant de la cible).
     #
-    # SEUIL : écart ≥ 1 point sous l'objectif (référent, 2026-07-29). Gardes `> 0` conservées telles
-    # quelles — le défaut d'un nombre non saisi est 0, et c'est le banc qu'elles protègent, pas l'écran.
-    # Écrit `HbA1c_cible - HbA1c_actuelle >= 1` plutôt qu'avec un littéral négatif : n'introduit aucun
-    # littéral nouveau dans le domaine de tirage du banc (0, 1 et 2 sont hors des bornes déclarées de
-    # `HbA1c_actuelle` 4-18 et de `HbA1c_cible` 6-9,5).
-    derive: "HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND HbA1c_cible - HbA1c_actuelle >= 1"
+    # RECÂBLÉ le 2026-08-06 (P14/S11, T-180, D50, « on garde position vs cible pour insuline 12 ») :
+    # ex-`HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND HbA1c_cible - HbA1c_actuelle >= 1` (écart ≥ 1 point
+    # sous l'objectif, CALCULÉ). CE QUI SE PERD : la nuance de MAGNITUDE — « au moins 1 point sous la
+    # cible » devient simplement « sous la cible », quel que soit l'écart réel (0,1 point ou 3 points se
+    # lisent désormais pareil). CE QUI EST GAGNÉ : une seule définition de « sous la cible » dans tout le
+    # domaine, cohérente avec `cible_atteinte` ci-dessus et avec `prescription` — un patient qui déclare sa
+    # position ne peut plus se lire différemment selon l'écran. Arbitrage référent explicite (pas un
+    # correctif mécanique) : la magnitude n'était lue nulle part ailleurs que par ce seuil précis, et la
+    # définition unique prime sur elle.
+    derive: "position_vs_cible == sous_objectif"
   - nom: DFG
     # `partage` ajouté le 2026-07-29 (recette référent, item F) : même concept, encodage IDENTIQUE
     # sur tous les nœuds qui le déclarent (type, valeurs, bornes) — condition de l'invariant I19.
@@ -472,8 +524,8 @@ criteres_entree:
     max: 150
     # T4/(a) : un naïf n'a par définition aucune dose de basale en cours (12.10/capture 7) — pourtant
     # comptée parmi les critères décisifs non confirmés dans la recette. Sûr au masquage : aucune option
-    # de la situation « naïf » ne lit ce champ ; `over_basalisation` resterait à 0 (faux), le comportement
-    # déjà voulu pour un naïf.
+    # de la situation « naïf » ne lit ce champ ; `ratio_basale_poids_eleve` (ex-`over_basalisation`)
+    # resterait à 0 (faux), le comportement déjà voulu pour un naïf.
     visible_si: "situation_insuline != naif"
   - nom: dose_rapide_actuelle
     type: nombre
@@ -486,9 +538,21 @@ criteres_entree:
     # `visible_si` élargi en conséquence, sinon le calcul « dose totale » aurait silencieusement ignoré la
     # dose de bolus déjà administrée (remise à 0 par défaut) pour cette situation.
     visible_si: "situation_insuline == basal_bolus OR situation_insuline == basale_plus_bolus"
-  - nom: over_basalisation
+  - nom: ratio_basale_poids_eleve
     type: bool
-    derive: "situation_insuline != naif AND dose_basale_actuelle / poids > 0.5"
+    # Renommé depuis `over_basalisation` le 2026-08-06 (P14/S4, T-167, décision référent) : le nom dit ce
+    # qui est MESURÉ (un ratio dose/poids), pas ce qui est CONCLU (une sur-basalisation) — c'est exactement
+    # l'écart que la preuve (`docs/decision/validation/chantier-2026-07-27/preuve-sur-basalisation.md`,
+    # `redteam-sur-basalisation.md`) a établi : seuil grade E, post-hoc non pré-spécifié (Umpierrez 2019,
+    # N=458, financé par le fabricant), porté par l'ADA de 2018 à 2023 puis explicitement retiré en 2025
+    # (absent en 2026), maintenu par l'AACE depuis 2018 — deux sociétés savantes divergent, le seuil n'est
+    # donc ni consensuel ni abandonné. Garde `mcg_disponible == false` AJOUTÉ au même arbitrage : la
+    # sur-basalisation elle-même se lit désormais SUR LA COURBE MCG NOCTURNE (`profil_nocturne`, cf.
+    # `profil_nocturne_a_cible`/`profil_nocturne_permet_titration`) ; ce ratio ne redevient un repère que
+    # faute de capteur, où il n'y a rien d'autre à lire. Ne pilote plus aucune `conditions`/`exclusions`
+    # d'option (cf. « Ne pas sur-titrer la basale », « Ajouter un GLP-1... », « Ajouter un bolus... »
+    # ci-dessous) : seule une alerte de nœud le lit désormais (canal R8 « qualifie sans interdire »).
+    derive: "situation_insuline != naif AND mcg_disponible == false AND dose_basale_actuelle / poids > 0.5"
   # P6/SA3 (2026-07-29) : les 5 champs ci-dessous (+ leurs 2 dérivés) étaient auparavant intercalés juste
   # après `DFG`, avant `traitements_en_cours` — reportés ici, à la fin de `criteres_entree`, uniquement
   # pour que l'ORDRE D'AFFICHAGE des groupes suive le raisonnement clinique (situation → profil → traitement
@@ -517,8 +581,71 @@ criteres_entree:
       (sécrétagogue — sulfamide, glinide — ou insuline, dose élevée, prises irrégulières ou repas
       sautés), ou si le terrain exposerait un futur traitement même sans hypoglycémiant actuel (âge
       avancé, insuffisance rénale, fragilité, hypoglycémie sévère antérieure). « Faible » sinon.
-  - nom: hypo_severe_recurrente
-    type: bool
+  # CONVERTI (2026-08-07, P14/S17, T-190) : déclaration complète remplacée par `{ ref: hypo_severe_recurrente }`,
+  # référence à sa DÉFINITION déplacée vers content/decision/criteres-communs/diabete-type-2.yaml (ajoutée par
+  # S16, T-189, reprise à l'identique de cette déclaration — `type: bool` seul). `groupe` reste ici : c'est de
+  # la mise en scène LOCALE à ce nœud, pas une part de la définition du fait. Aucun autre champ de mise en
+  # scène (`visible_si`, `valeurs_visible_si`, `debut_de_ligne`, `masque_si_indetermine`, `preremplissage`,
+  # `libelle_masque`, `presomption_non`) : la déclaration d'origine n'en portait aucun — vérifié avant cette
+  # conversion, rien à reporter. Résolu par `loadNodes.ts` au chargement — ce nœud continue de recevoir
+  # `hypo_severe_recurrente` en `CritereEntree` complet, identique bit à bit à avant ce changement (S14/T-190,
+  # docs/decision/validation/criteres-communs-2026-08-06.md § « Liste candidate au fichier commun »).
+  - ref: hypo_severe_recurrente
+    groupe: Signaux d'alerte et tolérance
+  # AJOUTÉ le 2026-08-07 (P14/S18, T-191) — LE FAIT MANQUANT LE PLUS NET DE LA REVUE DE CONCEPTION DU
+  # 2026-08-04 (cas D5, `docs/decision/validation/criteres-communs-2026-08-06.md` § 3.1) : ce nœud
+  # PRESCRIT `insuline_basale`/`insuline_rapide` — `prerequis: "traitements_en_cours ne_contient_pas
+  # insuline_basale"` de « Initier une insuline basale » (`:845`), `ne_contient_pas insuline_rapide` de
+  # l'option bolus équivalente (`:1571`) — les DEUX valeurs que `concerne` de `cetonemie` nomme
+  # (`content/decision/criteres-communs/diabete-type-2.yaml`), sans jamais déclarer le fait lui-même :
+  # c'est l'ABSENCE SILENCIEUSE que l'invariant I33 (P14/S16, T-189) mesure. DÉFINITION DÉJÀ COMMUNE
+  # depuis S15 (démonstration du mécanisme `{ ref }`, reprise à l'identique de `prescription.yaml`) : ce
+  # nœud n'a donc RIEN à définir, seulement à RÉFÉRENCER — même geste que `hypo_severe_recurrente`
+  # juste au-dessus.
+  #
+  # SOURCE PRIMAIRE VÉRIFIÉE AVANT D'ÉCRIRE QUOI QUE CE SOIT (étape 1, `plans/P14/S18.md`) : les DEUX
+  # cartes `role: securite` de `prescription.yaml` qui lisent `cetonemie` — « iSGLT2 — suspendre » (patient
+  # DÉJÀ sous iSGLT2) et « Insuline d'initiation » (patient PAS ENCORE sous insuline, `prerequis:
+  # "traitements_en_cours ne_contient_pas insuline_basale AND … ne_contient_pas insuline_rapide"`,
+  # `:1099-1100`) — portent, TOUTES DEUX, le même texte de `contre_indications` : « Cétonémie ≥ 3 mmol/L →
+  # urgence (insuline + hospitalisation), hors périmètre de cet écran. » (`:1064`, `:1124`). Et surtout,
+  # `prescription.yaml` porte DÉJÀ une alerte de nœud dédiée au patient DÉJÀ SOUS INSULINE — exactement la
+  # situation de CE nœud — ajoutée le 2026-07-26 pour colmater une régression : `quand: "intention != initier
+  # AND cetonemie == true AND traitements_en_cours contient insuline_basale OR … insuline_rapide"` (`:2603`),
+  # message : « État catabolique (cétonémie) chez un patient DÉJÀ sous insuline : rare en pratique — la
+  # PREMIÈRE chose à rechercher est une RUPTURE THÉRAPEUTIQUE … Si l'insuline est bien prise et correctement
+  # administrée, l'ajustement du schéma est urgent et relève de L'INSULINOTHÉRAPIE (HORS PÉRIMÈTRE DE CET
+  # ÉCRAN) … Cétonémie ≥ 3 mmol/L → urgence … Suspecter un DT1… » (`:2606-2611`). Ce texte dit lui-même,
+  # noir sur blanc, que le relais revient à CE nœud — qui jusqu'ici ne disait rien. La preuve porte donc
+  # bien la situation du nœud `insuline` (patient déjà sous insuline OU sur le point d'y être mis), pas
+  # seulement l'initiation d'un iSGLT2 : aucun STOP nécessaire (cf. `plans/P14/S18.md` § Si bloqué).
+  #
+  # CANAL (R8, ordre de préférence) : ALERTE DE NŒUD, voir `alertes` ci-dessous (en tête de liste). Pas une
+  # alerte d'option — le message vaut à l'identique quelle que soit la carte affichée à ce patient
+  # (initiation chez le naïf, titration d'une basale, ajustement d'un bolus…) : c'est le premier critère de
+  # préférence de R8 (« vrai quel que soit le geste retenu, mais pas pour tous les patients »). Pas une
+  # `exclusions` : aucun geste PROPOSÉ PAR CE NŒUD ne devient dangereux du fait de la cétonémie — ce qui
+  # change, c'est le PÉRIMÈTRE de prise en charge (orienter/hospitaliser au lieu d'ajuster une dose), pas la
+  # sécurité d'un geste précis que ce nœud offrirait par ailleurs. Poser une exclusion aurait donc exigé un
+  # arbitrage référent explicite qui n'a pas été donné pour ce cas — cf. `plans/P14/S18.md` § Si bloqué,
+  # non déclenché ici.
+  #
+  # COHÉRENCE AVEC L'ALERTE iSGLT2 EXISTANTE (`alertes`, `quand: "traitements_en_cours contient iSGLT2"`,
+  # ci-dessous) VÉRIFIÉE : deux faits DISTINCTS, R8 respectée (un fait, un canal — pas « un fait, au moins un
+  # canal »). L'alerte iSGLT2 se déclenche sur la PRÉSENCE de la classe dans le traitement, jamais sur une
+  # cétonémie MESURÉE (elle prévient d'un risque futur pour qui est sous iSGLT2 + insuline) ; la nouvelle
+  # alerte se déclenche sur `cetonemie == true`, jamais sur la seule présence d'une classe. Aucun
+  # chevauchement de déclencheur, aucune contradiction de conduite entre les deux.
+  #
+  # PAS DE `visible_si` : visible dans toutes les situations (`situation_insuline`), comme sur
+  # `prescription` — un patient encore naïf ET un patient déjà sous insuline sont TOUS DEUX concernés
+  # (cf. les deux cartes sources ci-dessus). PAS DE `presomption_non` : mécaniquement éligible sur CE nœud
+  # (le fait n'y gate aucune `conditions`/`exclusions`/`prerequis` d'option `role: securite`, seulement
+  # l'alerte ci-dessous — R7), mais la présomption « non » sur un signe d'urgence catabolique reste un choix
+  # clinique, pas une conséquence mécanique automatique : non posée, comme `symptomes_glucotoxicite` juste
+  # en dessous, qui partage exactement ce profil (même famille de signal, même nœud, même absence de
+  # `presomption_non`).
+  - ref: cetonemie
     groupe: Signaux d'alerte et tolérance
   - nom: symptomes_glucotoxicite
     # `partage` ajouté le 2026-07-29 (recette référent, item F) : même concept, encodage IDENTIQUE
@@ -568,7 +695,7 @@ criteres_entree:
     # les deux signaux d'hypoglycémie (`risque_hypoglycemie_schema`, `hypo_severe_recurrente`) : ils
     # appellent une correction du traitement, pas une cible plus permissive. C'est le miroir exact des
     # déclencheurs de relaxation du nœud A, dont ce nœud doit rester cohérent (cf. incertitudes).
-    derive: "fragilite OR esperance_vie == limitee OR age >= 75"
+    derive: "age >= 75 OR fragilite == true OR esperance_vie == limitee"
 # FAMILLES DÉCLARÉES (D22/correctif « ordre accidentel », arbitrage référent 2026-07-27). Motif : les
 # rangs `priorite` 1-2-3 sont RÉUTILISÉS par les quatre blocs de situation de ce nœud, si bien que deux
 # gestes de nature opposée pouvaient s'afficher sous la mention « à égalité » — typiquement « Corriger
@@ -619,14 +746,33 @@ familles:
   # voulu : elle ne corrige rien, elle interroge l'INSTRUMENT sur lequel tout le reste de l'écran repose.
   # Elle ne s'affiche que chez le patient sans capteur, donc elle ne pousse jamais la sécurité vers le bas
   # pour quelqu'un qui en a un.
+  # DEUX FAMILLES PASSÉES À `exclusive: true` le 2026-08-06 (P14/S5, T-168, décision référent) : leurs
+  # cartes sont des ALTERNATIVES (on en choisit une), pas des gestes cumulables — ce que `exclusive: false`
+  # affirmait à tort jusqu'ici (mention « — gestes cumulables » et badge « recommandée » sur les trois
+  # voies d'escalade de « Intensifier le traitement », alors que la carte prémélangée s'y présente
+  # elle-même comme une « option dégradée, dernier recours »).
+  #  - « Instaurer l'insuline » : après la suppression de « Choisir un analogue basal de 2ᵉ génération »
+  #    (cf. son commentaire de suppression, plus bas), ne contient plus que « Envisager un GLP-1 avant ou
+  #    avec l'insuline » (rang 1) et « Initier une insuline basale » (rang 2) — deux voies alternatives.
+  #  - « Intensifier le traitement » : « Ajouter un GLP-1 / une association fixe d'abord » (rang 1),
+  #    « Ajouter un bolus au repas principal » (rang 2), « Insuline prémélangée — option dégradée, dernier
+  #    recours » (rang 3).
+  # EFFET DE BADGE VÉRIFIÉ (étape 5 de T-168), pas seulement supposé — cf. rapport de session pour le
+  # profil exact et la sortie observée : en famille exclusive, `computeBadges` (lib/optionBadges.ts)
+  # réserve la mise en avant au groupe d'égalité de TÊTE (rang 1, `groupesExAequo`) ; la carte
+  # prémélangée (rang 3) cesse donc d'être badgée « recommandée » dès que le GLP-1 (rang 1) ou le bolus
+  # (rang 2) s'applique — c'est le résultat visé. Les trois rangs de « Intensifier le traitement » sont
+  # FIXES et tous distincts (aucune règle `priorite` conditionnelle sur ces trois options) : aucun risque
+  # de rang à égalité entre elles. Les CINQ autres familles restent `exclusive: false` : leurs cartes sont
+  # des faits distincts, réellement cumulables — aucune n'est retouchée par T-168.
   - libelle: "Avant de décider — la mesure"
     exclusive: false
   - libelle: "Sécurité — à corriger d'abord"
     exclusive: false
   - libelle: "Instaurer l'insuline"
-    exclusive: false
+    exclusive: true
   - libelle: "Intensifier le traitement"
-    exclusive: false
+    exclusive: true
   - libelle: "Ajuster le schéma en place"
     exclusive: false
   - libelle: "Alléger le schéma"
@@ -670,8 +816,9 @@ options:
     # mécanique en « Label : non », lisible comme du code (même défaut relevé en recette du 02/08 sur
     # `prescription.yaml`).
     motifs:
-      "mcg_disponible == false": "Pas de MCG en place"
-      "cible_atteinte == false": "Cible glycémique non atteinte"
+      "situation_insuline != naif": "une insulinothérapie déjà en place"
+      "mcg_disponible == false": "pas de mesure continue du glucose en place"
+      "cible_atteinte == false": "cible glycémique non atteinte"
     priorite: 1
     avantages:
       - "La mesure continue du glucose (MCG) est remboursée chez le diabétique de type 2 traité par insuline, et le médecin généraliste peut la primo-prescrire (SFD 2025, Avis 23) : l'obstacle à mieux voir est clinique, pas économique. Elle est simplement peu souvent proposée."
@@ -687,6 +834,7 @@ options:
       méta-analyse de 12 essais, HbA1c −0,31 % et temps dans la cible +6,4 points, la réduction des
       hypoglycémies sévères n'y atteignant pas la significativité (RR 0,66 — Jancev). Aucun essai n'a
       mesuré d'effet sur les complications dures ni sur la mortalité.
+    delai_benefice: "non établi — durée de suivi non précisée par MOBILE, FreeDM2 ni la méta-analyse Jancev pour cette question"
     niveau_preuve: modere
     references:
       - mobile
@@ -709,7 +857,7 @@ options:
     # T-125 (P12/S5) : motif sur la branche booléenne négative — sans lui, rendu mécanique en
     # « HbA1c à la cible : non », lisible comme du code.
     motifs:
-      "cible_atteinte == false": "Cible glycémique non atteinte"
+      "cible_atteinte == false": "cible glycémique non atteinte"
     # R6 (docs/decision/GRAMMAIRE-NOEUD.md, arbitrage indication/prérequis) : garde-fou de cohérence
     # (ne pas déjà prendre la classe visée) — jamais montré comme justification.
     prerequis:
@@ -728,6 +876,7 @@ options:
       poids inférieur (−3,6 kg ; −5,66 kg ; −4,7 kg). Aucun de ces essais n'a randomisé le CHOIX DU
       PREMIER INJECTABLE chez un patient naïf d'insuline : la préférence pour l'AR GLP-1 à ce stade est une
       recommandation, pas un résultat d'essai.
+    delai_benefice: "non établi — durée de suivi non précisée dans le dossier pour cette question"
     niveau_preuve: modere
     references:
       - eng
@@ -743,7 +892,7 @@ options:
     # T-125 (P12/S5) : motif sur la branche booléenne négative — sans lui, rendu mécanique en
     # « HbA1c à la cible : non », lisible comme du code.
     motifs:
-      "cible_atteinte == false": "Cible glycémique non atteinte"
+      "cible_atteinte == false": "cible glycémique non atteinte"
     # R6 : garde-fou de cohérence — les déclarations « situation » et « traitements en cours » n'étaient
     # jamais recoupées (12.10, recette) : un patient déjà sous insuline basale mais dont la situation
     # restait déclarée « naïf » se voyait recommander de l'« initier » et une dose de départ calculée.
@@ -753,34 +902,73 @@ options:
     avantages:
       - "L'insuline basale du soir associée aux antidiabétiques en cours (oraux et/ou AR GLP-1) a le meilleur profil de tolérance parmi les schémas testés en essai randomisé (4T) ; réalisable en soins primaires."
       - "Meilleur profil hypoglycémie / poids que les schémas prandial ou prémélangé (4T : hypoglycémie 2,3 contre 12,0 événements/patient/an et poids +1,9 contre +5,7 kg face à un schéma prandial, à 1 an)."
+      # AJOUTÉ le 2026-08-06 (P14/S5, T-168, étape 1) : REVERSÉ depuis `avantages` de « Choisir un analogue
+      # basal de 2ᵉ génération », supprimée ci-dessous — cf. son commentaire de suppression pour le détail
+      # complet du reversement.
+      - "Chez le patient à risque d'hypoglycémie, le choix de la molécule compte autant que celui du schéma : un analogue basal de 2ᵉ génération réduit les hypoglycémies symptomatiques et nocturnes par rapport à glargine U100 ou détémir, a fortiori à la NPH (SFD 2025, Avis 18 bis)."
     inconvenients:
       - "Hypoglycémie (ORIGIN : hypoglycémie sévère 1,00 contre 0,31 pour 100 personnes-années) et prise de poids (~+1,6 kg) ; aucun bénéfice sur les événements cardiovasculaires (ORIGIN : MACE HR 1,02)."
       - "Le bénéfice microvasculaire est extrapolé du contrôle glycémique (UKPDS), non démontré par un essai dédié à l'insuline sur critère dur."
+      # AJOUTÉ le 2026-08-06 (P14/S5, T-168, étape 1) : REVERSÉ depuis `inconvenients` de « Choisir un
+      # analogue basal de 2ᵉ génération », supprimée ci-dessous.
+      - "Le bénéfice de l'analogue de 2ᵉ génération sur l'hypoglycémie SÉVÈRE (critère dur) n'est démontré que pour le dégludec contre glargine U100 (DEVOTE : RR 0,60, NNT ~59 sur ~2 ans, en population à très haut risque)."
+      - "Aucune supériorité n'est démontrée d'un analogue de 2ᵉ génération sur l'autre (BRIGHT : équivalence ; CONCLUDE : critère primaire négatif), et pour la 1ʳᵉ génération contre NPH la réduction de l'hypoglycémie sévère n'est pas significative (Cochrane 2020 : RR 0,68, IC 0,46-1,01)."
+      - "Le surcoût de l'analogue de 2ᵉ génération est à peser, et aucun bénéfice cardiovasculaire n'est propre à la molécule."
+    # DERNIÈRES PHRASES AJOUTÉES le 2026-08-06 (P14/S5, T-168, étape 1) : REVERSÉES depuis `effet_attendu`
+    # de « Choisir un analogue basal de 2ᵉ génération », supprimée ci-dessous — chiffres inchangés.
+    # RÉORGANISÉ le même jour (contre-relecture rédactionnelle) : le champ atteignait 259 mots et
+    # répondait à deux questions distinctes. Deux temps désormais — démarrer une basale, puis choisir la
+    # molécule. Les chiffres retirés (7,6-7,3-7,2 % à 3 ans détaillés, 81,6 %, RR 0,70 / 0,58, −31 %,
+    # RR 0,60, NNT ~59, RR 0,88, p = 0,35) sont TOUS portés ailleurs : `avantages`/`inconvenients` de
+    # cette même carte, `delai_benefice` ci-dessous, ou `insuline.argumentaire.md` §1 et §2.
     effet_attendu: >-
-      Ce que les essais ont mesuré. À 1 an, un départ en basale laisse une HbA1c un peu plus haute que les
+      FAUT-IL DÉMARRER UNE BASALE. À 1 an, un départ en basale laisse une HbA1c un peu plus haute que les
       schémas prémélangé et prandial (7,6 contre 7,3 et 7,2 %), pour cinq fois moins d'hypoglycémies
       (2,3 contre 5,7 et 12,0 événements/patient/an) et une prise de poids moindre (+1,9 contre +4,7 et
-      +5,7 kg) ; à 3 ans les HbA1c convergent autour de 6,8-7,1 % et l'avantage de tolérance persiste,
-      81,6 % du bras basale ayant dû ajouter un second type d'insuline (4T). Sur les événements
-      cardiovasculaires, l'insuline est neutre : MACE HR 1,02 (0,94-1,11), mortalité HR 0,98 sur 6,2 ans,
-      au prix d'environ trois fois plus d'hypoglycémies sévères (1,00 contre 0,31 pour 100 personnes-années)
-      et de ~+1,6 kg (ORIGIN).
-    delai_benefice: "1 an pour l'avantage d'hypoglycémie et de poids (4T, maintenu à 3 ans) ; aucun bénéfice cardiovasculaire à 6,2 ans (ORIGIN)"
+      +5,7 kg) ; à 3 ans les HbA1c convergent et l'avantage de tolérance persiste (4T). Sur les événements
+      cardiovasculaires, l'insuline est neutre : MACE HR 1,02 (0,94-1,11) sur 6,2 ans, au prix d'environ
+      trois fois plus d'hypoglycémies sévères et de ~+1,6 kg (ORIGIN).
+
+
+      QUELLE INSULINE CHOISIR. Le choix de la molécule se joue sur l'hypoglycémie, et sur des critères de
+      substitution : chez le patient à risque élevé, le dégludec réduit les épisodes symptomatiques et
+      nocturnes face à glargine U100 (SWITCH 2), et glargine U300 réduit les épisodes nocturnes face à U100
+      (EDITION). Sur l'hypoglycémie SÉVÈRE, critère dur, une seule démonstration : le dégludec contre
+      glargine U100 en population à très haut risque (DEVOTE) ; ailleurs le résultat n'est pas significatif.
+      Les essais tête-à-tête ne départagent pas les deux molécules de 2ᵉ génération (BRIGHT, CONCLUDE),
+      d'où une recommandation au niveau de la CLASSE plutôt que d'une molécule nommée.
+    # DERNIER MEMBRE AJOUTÉ le 2026-08-06 (P14/S5, T-168, étape 1) : REVERSÉ depuis `delai_benefice` de
+    # « Choisir un analogue basal de 2ᵉ génération », supprimée ci-dessous.
+    delai_benefice: "1 an pour l'avantage d'hypoglycémie et de poids (4T, maintenu à 3 ans) ; aucun bénéfice cardiovasculaire à 6,2 ans (ORIGIN) ; ~2 ans pour la réduction de l'hypoglycémie sévère par l'analogue de 2ᵉ génération chez le patient à risque élevé (DEVOTE)"
     niveau_preuve: modere
     # 2026-07-29 (consignation passe A) : « +10-20 % » → « +10 % » (D2, borne haute sans source — la SFD
     # écrit 10 %, l'ADA 10-15 %, personne n'écrit 20 %) et sources de l'algorithme ajoutées. `treat-to-target`
     # est CONSERVÉ ici, mais pour ce qu'il porte réellement : la faisabilité d'une titration sur la glycémie
     # à jeun, pas le détail du pas ni du rythme (cf. commentaire D3 sur « Titrer la basale »).
+    # 5 IDS AJOUTÉS le 2026-08-06 (P14/S5, T-168, étape 1) : REVERSÉS depuis `references` de « Choisir un
+    # analogue basal de 2ᵉ génération », supprimée ci-dessous (I8 : cette carte revendique désormais, dans
+    # `avantages`/`inconvenients`/`effet_attendu` ci-dessus, des chiffres tirés de ces 5 essais — elle doit
+    # dire d'où elle les tient).
+    # LISTE RESSERRÉE le 2026-08-06 (contre-relecture rédactionnelle) : la ligne « D'après : » dépassait
+    # 250 mots au rendu, avec 12 essais dont 5 n'appuyaient plus aucun chiffre d'`effet_attendu`
+    # (`originale`, `treat-to-target`, `ebmfrance-insuline`, `sfd-2025-avis18`, `has-2024-r87` — les trois
+    # dernières restent NOMMÉES, source par source, dans `posologie_detail` ci-dessous, qui est leur canal).
+    # Ne restent que les 7 essais qui portent les chiffres réellement affichés en état des preuves.
     references:
       - origin
-      - originale
-      - treat-to-target
       - quatre-t
-      - ebmfrance-insuline
-      - sfd-2025-avis18
-      - has-2024-r87
-    contre_indications:
-      - "Pas de contre-indication absolue à l'insuline. Arrêter le sulfamide / glinide à l'introduction (risque d'hypoglycémie cumulée)."
+      - devote
+      - switch-2
+      - bright
+      - conclude
+      - edition-pool
+    # `contre_indications` VIDÉE le 2026-08-06 (contre-relecture rédactionnelle) : le panneau annonçait
+    # « 1 contre-indication » puis affichait « Pas de contre-indication absolue à l'insuline » — un
+    # compteur qui contredisait son propre texte. Le contenu ne porte aucune contre-indication absolue à
+    # l'insuline ; la consigne d'arrêt du sulfamide / du glinide, qui n'en est pas une, rejoint
+    # `posologie_detail` ci-dessous (elle reste par ailleurs portée par l'alerte de nœud dédiée, gatée sur
+    # la présence effective de l'une de ces deux classes).
+    contre_indications: []
     calculs:
       - { libelle: "Dose initiale (0,1 U/kg)", expression: "poids * 0.1", unite: "U/j" }
       - { libelle: "Dose initiale (0,2 U/kg)", expression: "poids * 0.2", unite: "U/j" }
@@ -788,50 +976,39 @@ options:
     # PROTOCOLE D'INITIATION DÉPLACÉ ICI depuis `effet_attendu` : le panneau « État des preuves » doit
     # porter ce que les essais ont mesuré, la posologie a son propre panneau (même correctif que sur
     # `prescription.yaml`, option « Metformine »). Chiffres inchangés, source par source.
+    # DERNIER ITEM AJOUTÉ le 2026-08-06 (P14/S5, T-168, étape 1) : le SCHÉMA DE CHOIX DE MOLÉCULE de
+    # « Choisir un analogue basal de 2ᵉ génération » (supprimée ci-dessous) REVERSÉ ici plutôt que dans
+    # `avantages`/`inconvenients` — c'est une CONDUITE PRATIQUE (quelle molécule, pour qui), pas un état de
+    # la preuve ; le panneau posologie est le bon canal (même principe que les deux items ci-dessus).
     posologie_detail:
       - "Dose d'initiation = poids × 0,1 à 0,2 U/kg/j, en une injection le soir. Repli fixe de 10 U le soir si le poids n'est pas disponible — repère pragmatique, non issu d'un essai dédié."
       - "Titration par auto-ajustement : +2 U si la glycémie à jeun reste au-dessus de la cible 3 matins de suite (ebmfrance), ou +10 % par paliers si la dose dépasse 40 U/j (SFD 2025, Avis 18) ; adapter tous les 3 jours (HAS 2024, R.87). Cible de glycémie avant les repas ~0,70-1,30 g/L, à individualiser."
       - "Maintenir la metformine et les traitements à bénéfice cardio-rénal en cours (iSGLT2, AR GLP-1)."
-  - intitule: "Choisir un analogue basal de 2ᵉ génération"
-    role: geste
-    famille: "Instaurer l'insuline"
-    # Arbitrage référent 2026-07-26 (2ᵉ série, 12.6/12.7) : condition alignée sur `risque_hypoglycemique_eleve` au lieu
-    # du triplet brut `risque_hypoglycemie_schema == eleve OR fragilite == true OR esperance_vie == limitee`,
-    # qui omettait l'âge — alors que `risque_hypoglycemique_eleve` (age >= 75 inclus) gate déjà les alertes de cibles MCG
-    # assouplies. Décision référent : aligner les OPTIONS sur `risque_hypoglycemique_eleve` (pas l'inverse) — le
-    # sur-traitement du sujet âgé est le risque autour duquel le nœud A est construit ; le manquer est plus
-    # grave que de proposer l'analogue de 2ᵉ génération à tort.
-    # I3/F4 (2026-07-26, 4ᵉ lot) : `risque_hypoglycemique_eleve` inclut désormais `hypo_severe_recurrente` (cf.
-    # `criteres_entree`) — cette option couvre donc maintenant aussi le patient dont le SEUL signal de
-    # risque est un antécédent d'hypoglycémie sévère récurrente (auparavant silencieux ici alors que ce
-    # même signal pilotait déjà « Désintensifier / alléger le schéma » plus loin dans ce nœud).
-    conditions:
-      - "situation_insuline == naif"
-      - "risque_hypoglycemique_eleve == true"
-    priorite: 3
-    avantages:
-      - "Quand le risque d'hypoglycémie est élevé, préférer un analogue basal de 2ᵉ génération — glargine U300 ou dégludec — à glargine U100 ou détémir, a fortiori à la NPH (SFD 2025, Avis 18 bis)."
-      - "Réduction démontrée de l'hypoglycémie symptomatique globale et de l'hypoglycémie nocturne (SWITCH 2 : RR 0,70 symptomatique globale, 0,58 nocturne ; EDITION U300 : −31 % nocturne)."
-    inconvenients:
-      - "Le bénéfice sur l'hypoglycémie SÉVÈRE (critère dur) n'est démontré que pour le dégludec contre glargine U100 (DEVOTE : RR 0,60, NNT ~59 sur ~2 ans, en population à très haut risque) ; aucune supériorité n'est démontrée d'un analogue de 2ᵉ génération sur l'autre (BRIGHT : équivalence ; CONCLUDE : critère primaire négatif)."
-      - "Pour la 1ʳᵉ génération contre NPH, la réduction de l'hypoglycémie sévère n'est PAS significative (Cochrane 2020 : RR 0,68, IC 0,46-1,01) ; surcoût à peser. Aucun bénéfice cardiovasculaire."
-    effet_attendu: >-
-      Le bénéfice mesuré porte sur l'hypoglycémie symptomatique et nocturne, critères de substitution :
-      RR 0,70 sur les épisodes symptomatiques et 0,58 sur les épisodes nocturnes pour le dégludec contre
-      glargine U100 (SWITCH 2), −31 % d'épisodes nocturnes pour glargine U300 contre U100 (EDITION). Sur
-      l'hypoglycémie SÉVÈRE, critère dur, une seule démonstration : RR 0,60 et NNT ~59 sur ~2 ans pour le
-      dégludec contre glargine U100, en population à très haut risque (DEVOTE) ; ailleurs le résultat n'est
-      pas significatif (SWITCH 2 : 1,6 contre 2,4 %, p = 0,35). Les essais tête-à-tête ne départagent pas
-      les deux molécules de 2ᵉ génération (BRIGHT : équivalence ; CONCLUDE : critère primaire négatif,
-      RR 0,88), d'où une recommandation au niveau de la CLASSE.
-    delai_benefice: "~2 ans — horizon sur lequel DEVOTE mesure la réduction de l'hypoglycémie sévère"
-    niveau_preuve: modere
-    references:
-      - devote
-      - switch-2
-      - bright
-      - conclude
-      - edition-pool
+      # ITEM DÉPLACÉ DEPUIS `contre_indications` le 2026-08-06 (contre-relecture rédactionnelle) : une
+      # consigne d'arrêt d'un traitement en cours est une modalité de prescription, pas une
+      # contre-indication à l'insuline — le panneau sécurité n'était pas son canal.
+      - "Un sulfamide ou un glinide en cours s'arrête à l'introduction de l'insuline : leurs effets hypoglycémiants s'additionnent."
+      - "Choix de la MOLÉCULE, piloté par le risque hypoglycémique — fragilité, espérance de vie limitée, âge ≥ 75 ans, schéma à risque hypoglycémique élevé, ou antécédent d'hypoglycémie sévère récurrente : préférer un analogue basal de 2ᵉ génération (glargine U300 ou dégludec) à glargine U100, détémir, a fortiori à la NPH (SFD 2025, Avis 18 bis). Les deux molécules de 2ᵉ génération ne se départagent pas entre elles en tête-à-tête (BRIGHT, CONCLUDE) : la préférence se joue au niveau de la CLASSE, pas d'une molécule nommée. Hors ce contexte de risque élevé, glargine U100, détémir ou NPH restent des choix valides, à surcoût moindre."
+  # ═══════════ OPTION SUPPRIMÉE le 2026-08-06 (P14/S5, T-168, décision référent) ═══════════
+  # « Choisir un analogue basal de 2ᵉ génération » (naïf, `risque_hypoglycemique_eleve == true`, priorite 3)
+  # est RETIRÉE : ce n'est pas une alternative à « Initier une insuline basale » ci-dessus, c'est une
+  # MODALITÉ DE PRESCRIPTION de cette même carte — elle la QUALIFIE, elle ne la concurrence pas (décision
+  # référent, `plans/P14/S5.md`).
+  # REVERSEMENT COMPLET avant suppression, rien perdu (étape 1 de T-168) :
+  #  - `avantages` / `inconvenients` / `effet_attendu` / `delai_benefice` → fondus dans les mêmes champs de
+  #    « Initier une insuline basale » ci-dessus (3ᵉ item d'`avantages`, 3ᵉ item d'`inconvenients`, dernières
+  #    phrases d'`effet_attendu`, dernier membre de `delai_benefice`) ;
+  #  - `references` (devote, switch-2, bright, conclude, edition-pool) → ajoutées à celles de « Initier une
+  #    insuline basale » (I8 : une carte en preuve modérée doit dire d'où elle tire ce qu'elle revendique) ;
+  #  - le SCHÉMA DE CHOIX DE MOLÉCULE → dernier item de `posologie_detail` de « Initier une insuline
+  #    basale » ;
+  #  - aucune `alertes` propre à reverser : cette option n'en portait pas.
+  # LE PATIENT DÉJÀ SOUS BASALE (`situation_insuline != naif`) — que cette option n'a JAMAIS vu, sa
+  # `conditions` exigeant `situation_insuline == naif` — reçoit désormais la question par une ALERTE DE
+  # NŒUD dédiée (`alertes`, `traitements_en_cours contient insuline_basale`, plus bas) : un patient
+  # distinct, jamais couvert ni par cette option ni par aucune carte d'initiation.
+  # Vérifié avant suppression : aucun `motifs`, aucune `priorite` d'une autre option et aucun commentaire
+  # actif de ce fichier ne référencent plus cette carte par son intitulé.
   # ═══════════ SITUATION 2 — BASALE SEULE À OPTIMISER ═══════════
   - intitule: "Corriger l'hypoglycémie ou la variabilité"
     role: securite
@@ -893,7 +1070,7 @@ options:
     # réduit à la branche vraie par T-144). Sans ce motif, rendu mécanique « … et MCG disponible : non et
     # Glycémie à jeun sous la cible (< 0,70 g/L) », lisible comme du code sur son premier atome seulement.
     motifs:
-      "mcg_disponible == false AND gaj_basse == true": "absence de MCG, glycémie à jeun sous la cible (< 0,70 g/L)"
+      "mcg_disponible == false AND gaj_basse == true": "absence de mesure continue du glucose, glycémie à jeun sous la cible (< 0,70 g/L)"
     priorite: 1
     # D2 CORRIGÉ ICI AUSSI le 2026-07-29 (consignation de la passe A), et c'est la face la plus visible du
     # défaut : le `calculs` ci-dessous affichait une dose calculée à −20 %, c'est-à-dire le chiffre
@@ -918,7 +1095,11 @@ options:
       SFD 2025 Avis 18 ; ebmfrance, qui porte le palier de −4 U. Ils encadrent le geste, ils ne le
       démontrent pas.
     delai_benefice: "3 jours — délai de réévaluation après une baisse de dose (accord d'experts) ; aucun essai n'a mesuré de délai de bénéfice"
-    niveau_preuve: modere
+    # `modere` → `faible` le 2026-08-07 (arbitrage référent) : aucun essai n'a randomisé cette règle de
+    # descente (accord d'experts seul, cf. commentaire ci-dessus) — même fondement que « Désintensifier »,
+    # qui porte `faible` depuis le 2026-08-05 pour le même motif. Deux cartes au même fondement portaient
+    # deux badges différents.
+    niveau_preuve: faible
     # BIBLIOGRAPHIE RECENTRÉE : les 5 essais de comparaison de molécules (DEVOTE, SWITCH 2, EDITION,
     # Cochrane, Porcellati) n'appuyaient aucun chiffre affiché sur cette carte — ils appartiennent à
     # « Choisir un analogue basal de 2ᵉ génération ». Ne restent que les trois sources qui portent
@@ -935,20 +1116,17 @@ options:
   - intitule: "Ne pas sur-titrer la basale — intensifier autrement"
     role: securite
     famille: "Sécurité — à corriger d'abord"
-    # Arbitrage référent 2026-07-26 (2ᵉ série) : condition ÉLARGIE pour éviter un MUTISME. `over_basalisation
-    # == true` devient une exclusion de « Titrer la basale » (ci-dessous) ; sans ce second déclencheur, un
-    # patient sur-basalisé (dose/poids > 0,5 U/kg) mais dont la glycémie à jeun reste hors cible
-    # (`gaj_a_cible == false`) perdait TOUTE option en situation « basale seule » — échange perdant. Condition
-    # validée par le référent, en forme normale disjonctive (le DSL n'a pas de parenthèses, AND prime sur OR) :
-    # « situation_insuline == basale_seule AND cible_atteinte == false AND gaj_a_cible == true
-    #   OR situation_insuline == basale_seule AND cible_atteinte == false AND over_basalisation == true ».
-    # Les deux disjoncts partagent leurs 2 premiers termes (situation, cible_atteinte) : par distributivité,
-    # encodée ci-dessous comme conjonction de 3 items `conditions` (le moteur les ANDe) dont le dernier est
-    # le OR restant (`gaj_a_cible == true OR over_basalisation == true`) — logiquement identique au texte
-    # validé, sans répétition. Rationale (mots du référent) : la sur-basalisation est EN ELLE-MÊME une raison
-    # de ne pas titrer davantage, indépendamment de la glycémie à jeun — c'est ce que disait l'ex-alerte
-    # `over_basalisation` (retirée de « Titrer la basale » ci-dessous) ; son propre texte devient le
-    # déclencheur du geste alternatif.
+    # RÉVISÉ le 2026-08-06 (P14/S4, T-167, décision référent) : le 3ᵉ item ci-dessous a PERDU son troisième
+    # disjonct `over_basalisation == true` (arbitrage du 2026-07-26, 2ᵉ série — historique complet conservé
+    # sur « Titrer la basale » ci-dessous). Motif de la révision : le rang ne hiérarchisait PAS les deux
+    # options comme le pensait l'arbitrage du 2026-07-26 — `groupesExAequo` ne calcule les rangs qu'À
+    # L'INTÉRIEUR d'une famille, et « Ne pas sur-titrer... » / « Titrer la basale » sont dans deux familles
+    # différentes (« Sécurité — à corriger d'abord » / « Intensifier le traitement ») ; une famille
+    # `exclusive: false` badge « recommandée » TOUTES ses cartes. Vérifié : 2 des 180 profils figés du banc
+    # affichaient les deux cartes simultanément. Le mécanisme sur lequel s'appuyait l'arbitrage du
+    # 2026-07-26 n'opérait donc pas. La sur-basalisation se lit désormais SUR LA COURBE MCG nocturne
+    # (`profil_nocturne`), pas sur le ratio dose/poids ; le ratio, renommé `ratio_basale_poids_eleve`,
+    # redevient un simple REPÈRE porté par une alerte de nœud (ci-dessous), limité à l'absence de capteur.
     #
     # E-03 (2026-07-26) : le 3ᵉ item ci-dessous est réécrit pour le PIVOT nocturne (référent, 3 fois : « la
     # GAJ est le cas de repli quand il n'y a pas de MCG »). `gaj_a_cible == true` ne gouverne plus QUE le
@@ -957,12 +1135,18 @@ options:
     # arbitrage référent) : ce n'est plus l'excursion post-prandiale qui le déclenche (ce signal vit
     # désormais dans `profil_entre_repas`, sans rôle sur le pivot nocturne) mais la courbe nocturne PLATE —
     # la nuit/le jeûne sont à la cible, l'écart d'HbA1c restant est diurne, monter la basale n'y peut rien.
-    # `over_basalisation == true` reste un déclencheur INDÉPENDANT de la MCG (3ᵉ terme de l'OR, inchangé) :
-    # la sur-basalisation est une raison de ne pas titrer que la MCG soit disponible ou non.
+    #
+    # PARTITION DES TROIS OPTIONS DE LA SITUATION « BASALE SEULE » (consignée le 2026-08-06, T-167,
+    # étape 7) : les trois états de la nuit sont EXCLUSIFS, par définition de l'énum `profil_nocturne`
+    # (`baisse_continue` / `courbe_plate` / `hausse_continue`) et des dérivés `gaj_*` (`gaj_basse` /
+    # `gaj_a_cible` / `gaj_haute`) — la nuit DESCEND → « Réduire la basale » (avec MCG) / « Corriger
+    # l'hypoglycémie ou la variabilité » (sans MCG) ; la nuit est À LA CIBLE → cette option-ci ; la nuit
+    # MONTE → « Titrer la basale ». Aucun chevauchement possible entre les trois cartes de titration de la
+    # basale.
     conditions:
       - "situation_insuline == basale_seule"
       - "cible_atteinte == false"
-      - "mcg_disponible == false AND gaj_a_cible == true OR mcg_disponible == true AND profil_nocturne_a_cible == true OR over_basalisation == true"
+      - "mcg_disponible == false AND gaj_a_cible == true OR mcg_disponible == true AND profil_nocturne_a_cible == true"
     # T-125 (P12/S5) : motif sur la branche booléenne négative isolée — sans lui, rendu mécanique en
     # « HbA1c à la cible : non », lisible comme du code.
     # T-152 (P13/S7, I28/D18) : motif négatif ajouté pour la branche `mcg_disponible == false AND
@@ -970,8 +1154,8 @@ options:
     # l'hypoglycémie ou la variabilité » ci-dessus) — sans lui, rendu mécanique en « … et MCG disponible :
     # non et Glycémie à jeun à la cible », lisible comme du code sur son premier atome.
     motifs:
-      "cible_atteinte == false": "Cible glycémique non atteinte"
-      "mcg_disponible == false AND gaj_a_cible == true": "absence de MCG, glycémie à jeun à la cible"
+      "cible_atteinte == false": "cible glycémique non atteinte"
+      "mcg_disponible == false AND gaj_a_cible == true": "absence de mesure continue du glucose, glycémie à jeun à la cible"
     priorite: 2
     avantages:
       # 2026-07-29 (consignation passe A, suite de D4) : la mention de la SFD est AJOUTÉE ici. Le red-team
@@ -982,17 +1166,20 @@ options:
       - "L'AR GLP-1 ou l'association fixe donne le même contrôle que le basal-bolus avec moins d'hypoglycémie et de poids (DUAL VII : HbA1c non-inférieure, hypoglycémie rate ratio 0,11, −3,6 kg, 1 injection contre ≥ 4 ; méta Eng contre basal-bolus : hypoglycémie RR 0,67)."
     inconvenients:
       - "Nécessite d'ajouter une classe (AR GLP-1) ou une injection prandiale."
-      - "Le repère de sur-basalisation à 0,5 U/kg est DISCUTÉ, ce n'est pas une règle : écrit tel quel dans la recommandation française (SFD 2025, Avis 19), il vient d'un post-hoc non pré-spécifié, a été retiré des Standards de l'ADA en 2025 et reste maintenu par l'AACE. Les doses d'entretien atteintes à la cible dans les essais s'étalent de 0,34 à 0,78 U/kg."
-      - "Cette carte propose une alternative à la titration ; elle ne la retire pas si la nuit reste hors cible."
+      # DEUX PUCES RÉÉCRITES/RETIRÉES le 2026-08-06 (contre-relecture rédactionnelle), à la suite du
+      # retrait du ratio dose/poids des `conditions` de cette option : l'une argumentait le repère de
+      # 0,5 U/kg, qui ne déclenche plus rien ici (il est désormais porté par une alerte de nœud, avec sa
+      # critique complète) ; l'autre annonçait une coexistence avec la titration que la partition des
+      # trois états de la nuit rend impossible.
+      - "Cette conduite suppose une nuit et un jeûne déjà à la cible : l'écart d'HbA1c qui reste vient alors de la journée. Lorsque la glycémie nocturne monte encore, la conduite est au contraire d'augmenter la basale."
     effet_attendu: >-
       Ce que les essais ont mesuré, chez des patients dont l'insuline basale ne suffit plus : associer un
       AR GLP-1 à la basale plutôt que passer au basal-bolus donne le même contrôle (HbA1c non-inférieure,
       écart −0,02 % — DUAL VII ; −0,1 % en méta-analyse — Eng) avec beaucoup moins d'hypoglycémie (rate
       ratio 0,11 ; RR 0,67 ; RR 0,66) et un poids inférieur (−3,6 kg ; −5,66 kg ; −4,7 kg). Si un bolus
       devient nécessaire, l'ajouter par étapes est non-inférieur au basal-bolus d'emblée, avec moins
-      d'hypoglycémie (FullSTEP : rate ratio 0,58). En revanche, aucun essai n'a comparé « plafonner la
-      basale puis intensifier autrement » à « continuer à titrer » : le repère de 0,5 U/kg n'est adossé
-      qu'à un post-hoc non pré-spécifié.
+      d'hypoglycémie (FullSTEP : rate ratio 0,58).
+    delai_benefice: "non établi — durée de suivi non précisée par DUAL VII, la méta-analyse Eng ni FullSTEP pour cette question"
     niveau_preuve: modere
     references:
       - eng
@@ -1000,6 +1187,11 @@ options:
       - dual-vii
       - fullstep
       - sfd-2025-avis18
+    # AJOUTÉ le 2026-08-06 (P14/S4, T-167, étape 5) : le chiffre reste visible là où il éclaire une
+    # décision, sans jamais la sélectionner (R2/R5) — `poids` conserve ainsi un second lecteur sur ce nœud,
+    # en plus des `calculs` de dose d'initiation de « Initier une insuline basale » (R5 satisfait).
+    calculs:
+      - { libelle: "Dose rapportée au poids", expression: "dose_basale_actuelle / poids", unite: "U/kg/j" }
     # T-033 (P5/S2, 2026-07-28) : `mcg_disponible == true AND` ajouté à chaque exclusion — ces 4 champs
     # sont désormais masqués sans capteur ; sans ce garde, un patient sans capteur laissait l'exclusion
     # INDÉTERMINÉE (jamais fausse) une fois les `conditions` de cette option satisfaites, faisant partir
@@ -1036,8 +1228,8 @@ options:
     # non et Glycémie à jeun au-dessus de la cible (> 1,30 g/L) », lisible comme du code sur son premier
     # atome.
     motifs:
-      "cible_atteinte == false": "Cible glycémique non atteinte"
-      "mcg_disponible == false AND gaj_haute == true": "absence de MCG, glycémie à jeun au-dessus de la cible (> 1,30 g/L)"
+      "cible_atteinte == false": "cible glycémique non atteinte"
+      "mcg_disponible == false AND gaj_haute == true": "absence de mesure continue du glucose, glycémie à jeun au-dessus de la cible (> 1,30 g/L)"
     priorite: 3
     # D2 + D3 CORRIGÉS le 2026-07-29 (consignation de la passe A). Les deux défauts portaient sur CE texte.
     #
@@ -1054,10 +1246,13 @@ options:
     # « validé » est retiré partout : aucun essai n'a jamais randomisé une règle de titration de ce type.
     avantages:
       - "Titrer sur la glycémie à jeun est la stratégie la mieux documentée en soins primaires : dans l'essai qui l'a instrumentée, 33,2 % des patients atteignent une HbA1c ≤ 7 % SANS hypoglycémie nocturne, contre 26,7 % dans le bras comparateur (Treat-to-Target)."
-      - "Le même essai porte aussi le chiffre plus large de « ~60 % atteignent la cible » : c'est la proportion d'HbA1c ≤ 7 % sans compter les hypoglycémies. Les deux sont exacts, sur deux critères différents."
-      - "Réserve : cet essai valide le PRINCIPE d'une titration pilotée par la glycémie à jeun, pas le protocole proposé ici — le sien était hebdomadaire, gradué par paliers de 2 à 8 U, vers une cible plus basse."
+    # DEUX PUCES SORTIES D'`avantages` le 2026-08-06 (contre-relecture rédactionnelle) : ni l'une ni
+    # l'autre n'était un avantage de la conduite — c'étaient deux appréciations de la PREUVE. La
+    # première (lecture du « ~60 % atteignent la cible ») est déjà portée mot pour mot par
+    # l'`effet_attendu` ci-dessous ; la seconde (portée réelle de l'essai) devient un inconvénient.
     inconvenients:
-      - "Risque d'hypoglycémie si sur-titration — surveiller la glycémie à jeun (une valeur sous 0,70 g/L retire cette proposition) ou, si un capteur est en place, le temps passé sous la cible (TBR)."
+      - "L'essai de référence valide le PRINCIPE d'une titration pilotée par la glycémie à jeun, pas le protocole proposé ici : le sien était hebdomadaire, gradué par paliers de 2 à 8 U, vers une cible plus basse."
+      - "Risque d'hypoglycémie en cas de sur-titration : surveiller la glycémie à jeun — une valeur sous 0,70 g/L appelle à corriger l'hypoglycémie plutôt qu'à majorer la dose — ou, si un capteur est en place, le temps passé sous la cible (TBR)."
       - "Sans capteur, une part importante des hypoglycémies reste invisible : chez le sujet âgé sous insuline, 93 % des épisodes ne sont reconnus ni par une autosurveillance à 4 mesures par jour, ni par les symptômes (Munshi ; série de 40 patients, population mixte DT1/DT2)."
       - "Titrer sans capteur se fait donc sur une information incomplète — c'est une raison de prudence, pas de renoncement."
     effet_attendu: >-
@@ -1068,6 +1263,7 @@ options:
       sous NPH (2,0 contre 3,9 %, p = 0,04 ; nocturnes sévères 0,7 contre 2,1 %, p = 0,002 — Porcellati),
       résultat discordant de la revue Cochrane. Aucun essai n'a randomisé le pas, le rythme ni le
       déclencheur de titration proposés ici : ce sont des accords d'experts.
+    delai_benefice: "non établi — durée de suivi non précisée par Treat-to-Target ni Porcellati pour cette question"
     niveau_preuve: modere
     references:
       - treat-to-target
@@ -1122,10 +1318,20 @@ options:
     # contre « continuer à titrer ». Enfin les doses d'entretien réellement atteintes à la cible dans les
     # essais s'étalent de 0,34 à 0,78 U/kg : un gate à 0,5 coupe au milieu de la plage normale.
     #
-    # CE QUI RESTE. Le seuil garde tout son rôle de DÉCLENCHEUR sur « Ne pas sur-titrer la basale —
-    # intensifier autrement » (ci-dessus) : les deux options coexistent désormais, et c'est le RANG qui
-    # hiérarchise, plus le retrait. Le praticien voit les deux lectures et arbitre — ce qu'il est le seul
-    # à pouvoir faire pour un patient dont la nuit n'est pas à la cible.
+    # CE QUI RESTAIT (jusqu'au 2026-08-06). Le seuil gardait un rôle de DÉCLENCHEUR sur « Ne pas
+    # sur-titrer la basale — intensifier autrement » (ci-dessus), et le rang était censé hiérarchiser les
+    # deux cartes quand elles coexistaient. RÉVISÉ le 2026-08-06 (P14/S4, T-167, décision référent) : ce
+    # mécanisme n'opérait pas — `groupesExAequo` ne calcule les rangs qu'À L'INTÉRIEUR d'une famille, et
+    # ces deux options sont dans deux familles différentes (« Sécurité — à corriger d'abord » /
+    # « Intensifier le traitement »), dont l'une, `exclusive: false`, badge « recommandée » TOUTES ses
+    # cartes. Vérifié : 2 des 180 profils figés du banc affichaient les deux cartes simultanément. La
+    # sur-basalisation se lit désormais SUR LA COURBE MCG NOCTURNE (`profil_nocturne`), qui fait déjà
+    # partition avec « Titrer la basale » et « Réduire la basale » (cf. leurs `conditions`) : le ratio
+    # dose/poids, renommé `ratio_basale_poids_eleve`, n'est plus lu par AUCUNE `conditions`/`exclusions`
+    # d'option — il redevient un simple REPÈRE, porté par une alerte de nœud (ci-dessous), limité à
+    # l'absence de capteur (`mcg_disponible == false`). Le praticien qui titre sans capteur continue de
+    # voir le repère, nommément relié aux deux cartes qui portent le geste (« Envisager d'instaurer une
+    # mesure continue du glucose », « Ne pas sur-titrer la basale »).
     #
     # CE QUI N'A PAS ÉTÉ RETIRÉ, et pourquoi : la mention « majore l'hypoglycémie ». La collecte
     # concluait qu'elle était démentie par sa propre source ; le RED-TEAM a montré que c'était une lecture
@@ -1209,6 +1415,13 @@ options:
     conditions:
       - "situation_insuline != naif"
       - "mcg_disponible == true AND profil_nocturne == baisse_continue"
+    # MOTIFS AJOUTÉS le 2026-08-06 (contre-relecture rédactionnelle) : cette option n'en portait aucun,
+    # et « Proposé parce que » rendait mécaniquement « Situation d'insulinothérapie ≠ Naïf d'insuline et
+    # MCG disponible et Baisse continue… », lisible comme du code sur ses deux branches. Le premier motif
+    # reprend la formulation déjà employée par « Désintensifier / alléger le schéma » pour la même branche.
+    motifs:
+      "situation_insuline != naif": "une insulinothérapie déjà en place"
+      "mcg_disponible == true AND profil_nocturne == baisse_continue": "une baisse continue de la glycémie pendant la nuit, lue sur la mesure continue du glucose"
     priorite: 1
     avantages:
       - "Une baisse continue de la glycémie pendant la nuit, lue sur le profil de glucose ambulatoire (AGP) du capteur, désigne la basale : c'est elle qu'il faut réduire, et non le bolus."
@@ -1223,7 +1436,11 @@ options:
       (réévaluation tous les 3 jours) sont un accord d'experts concordant (HAS 2024 R.87 ; SFD 2025
       Avis 18) — la même règle que pour la montée, écrite explicitement dans les deux sens.
     delai_benefice: "3 jours — délai de réévaluation après une baisse de dose (accord d'experts) ; aucun essai n'a mesuré de délai de bénéfice"
-    niveau_preuve: modere
+    # `modere` → `faible` le 2026-08-07 (arbitrage référent) : aucun essai n'a randomisé cette règle de
+    # décroissance (accord d'experts seul, cf. `effet_attendu` ci-dessus) — même fondement que
+    # « Désintensifier », qui porte `faible` depuis le 2026-08-05 pour le même motif. Deux cartes au même
+    # fondement portaient deux badges différents.
+    niveau_preuve: faible
     references:
       - sfd-2025-avis18
       - has-2024-r87
@@ -1246,14 +1463,21 @@ options:
   # du geste de sécurité/temporisation, sans le remplacer ; le choix entre elles reste porté par leurs
   # `prerequis` existants (ne pas déjà prendre la classe visée), déjà « les critères déjà collectés ».
   #
-  # Déclencheur en « basale seule » : `cible_atteinte == false` ET l'un des 2 signaux nommés par le
+  # Déclencheur en « basale seule » : `cible_atteinte == false` ET l'un des signaux nommés par le
   # référent — hypoglycémie/variabilité nocturne (les 4 termes du déclencheur de « Corriger
-  # l'hypoglycémie… », répétés ici à l'identique, aucun contenu nouveau) OU sur-basalisation
-  # (`over_basalisation == true`, même dérivé que « Ne pas sur-titrer... »). ⚠ Portée volontairement
-  # LIMITÉE à ces 2 signaux explicitement nommés : le cas « GAJ/profil nocturne déjà à la cible, sans
-  # aucun autre signal » (`gaj_a_cible == true` seul, ou son équivalent MCG `profil_nocturne_a_cible`)
-  # n'ouvre PAS ce déclencheur — laissé en l'état (prose seule sur « Ne pas sur-titrer... »), non demandé
-  # par le référent, non testé par une vignette ; signalé comme limite plutôt que généralisé sans mandat.
+  # l'hypoglycémie… », répétés ici à l'identique, aucun contenu nouveau) OU nuit déjà à la cible
+  # (`gaj_a_cible`/`profil_nocturne_a_cible`, écart diurne — cf. bloc ci-dessous). `over_basalisation
+  # == true` (RENOMMÉ `ratio_basale_poids_eleve`) RETIRÉ de ce déclencheur le 2026-08-06 (P14/S4, T-167,
+  # décision référent) : la sur-basalisation se lit désormais sur la courbe MCG nocturne, pas sur le
+  # ratio dose/poids — celui-ci ne pousse plus vers AUCUNE option, seule une alerte de nœud le porte.
+  # Conséquence assumée : un patient sans capteur à GAJ HAUTE (nuit qui monte) n'obtient plus cette carte
+  # ni « Ajouter un bolus » — la conduite est de titrer la basale (carte suivante) et d'envisager un
+  # capteur (carte de tête, famille « Avant de décider — la mesure ») ; vérifié par vignette explicite
+  # (`evaluateNode.insuline.test.ts`), pas seulement par lecture. ⚠ Portée volontairement LIMITÉE aux 2
+  # signaux nommés par le référent en 2026-07-27 (hypoglycémie/variabilité nocturne, nuit à la cible) :
+  # le cas « aucun signal » n'ouvre pas ce déclencheur — laissé en l'état (prose seule sur « Ne pas
+  # sur-titrer... »), non demandé par le référent, non testé par une vignette ; signalé comme limite
+  # plutôt que généralisé sans mandat.
   - intitule: "Ajouter un GLP-1 / une association fixe d'abord"
     role: geste
     action: ajouter
@@ -1274,8 +1498,10 @@ options:
       # qui dit d'intensifier sans dire par quoi ; il reçoit désormais les deux gestes nommés.
       # T-033 (P5/S2, 2026-07-28) : `mcg_disponible == true AND` ajouté devant les 4 signaux MCG bruts ET
       # devant `profil_nocturne_a_cible` (lui-même dérivé de `profil_nocturne`, désormais masqué sans
-      # capteur) — sans quoi, sans capteur, ce terme restait INDÉTERMINÉ (I11). `over_basalisation` et
-      # `gaj_a_cible` restent hors garde : ni l'un ni l'autre ne dépend d'un champ masqué par T-033.
+      # capteur) — sans quoi, sans capteur, ce terme restait INDÉTERMINÉ (I11). `gaj_a_cible` reste hors
+      # garde : il ne dépend d'aucun champ masqué par T-033. `over_basalisation` (RENOMMÉ
+      # `ratio_basale_poids_eleve`) est RETIRÉ de ce terme depuis le 2026-08-06 (P14/S4, T-167) — il n'a
+      # donc plus sa place ici, gardée ou non.
       # 2026-07-29 (passe A) — DEUX changements dans ce terme :
       # (1) `mcg_disponible == true AND TBR_severe > 1` retiré avec le critère ;
       # (2) `gaj_basse == true` AJOUTÉ à côté de `gaj_a_cible == true`. Motif : ces deux termes disent la
@@ -1286,7 +1512,7 @@ options:
       #     son écart diurne — exactement le silence que l'arbitrage du 2026-07-27 avait comblé pour
       #     `gaj_a_cible`. ⚠ EXTENSION À CONFIRMER PAR LE RÉFÉRENT (invariant 6) : elle découle de
       #     « câbler au-dessus et en dessous », elle n'a pas été énoncée mot pour mot.
-      - "situation_insuline == basale_plus_bolus OR mcg_disponible == true AND TBR > 4 OR mcg_disponible == true AND CV_glycemique > 36 OR mcg_disponible == true AND profil_nocturne == baisse_continue OR over_basalisation == true OR gaj_a_cible == true OR mcg_disponible == false AND gaj_basse == true OR mcg_disponible == true AND profil_nocturne_a_cible == true"
+      - "situation_insuline == basale_plus_bolus OR mcg_disponible == true AND TBR > 4 OR mcg_disponible == true AND CV_glycemique > 36 OR mcg_disponible == true AND profil_nocturne == baisse_continue OR gaj_a_cible == true OR mcg_disponible == false AND gaj_basse == true OR mcg_disponible == true AND profil_nocturne_a_cible == true"
     # T-125 (P12/S5) : motif sur la branche booléenne négative isolée (2ᵉ item `conditions` ci-dessus) —
     # sans lui, rendu mécanique en « HbA1c à la cible : non », lisible comme du code.
     # T-152 (P13/S7, I28/D18) : motif négatif ajouté pour la branche `mcg_disponible == false AND
@@ -1294,8 +1520,8 @@ options:
     # l'hypoglycémie ou la variabilité » plus haut) — sans lui, rendu mécanique en « … et MCG disponible :
     # non et Glycémie à jeun sous la cible (< 0,70 g/L) », lisible comme du code sur son premier atome.
     motifs:
-      "cible_atteinte == false": "Cible glycémique non atteinte"
-      "mcg_disponible == false AND gaj_basse == true": "absence de MCG, glycémie à jeun sous la cible (< 0,70 g/L)"
+      "cible_atteinte == false": "cible glycémique non atteinte"
+      "mcg_disponible == false AND gaj_basse == true": "absence de mesure continue du glucose, glycémie à jeun sous la cible (< 0,70 g/L)"
     # R6 : garde-fou de cohérence (ne pas déjà prendre l'une des classes visées) — jamais montré comme
     # justification.
     prerequis:
@@ -1314,6 +1540,7 @@ options:
       ratio 0,11 ; RR 0,67 ; RR 0,66) et un poids inférieur (−3,6 kg ; −5,66 kg ; −4,7 kg), pour une seule
       injection au lieu de quatre ou plus. Aucun essai de morbi-mortalité cardiovasculaire n'est dédié aux
       associations fixes : leur bénéfice reste sur critères de substitution.
+    delai_benefice: "non établi — durée de suivi non précisée par DUAL VII ni les méta-analyses Eng/Maiorino pour cette question"
     niveau_preuve: modere
     references:
       - eng
@@ -1323,9 +1550,10 @@ options:
     # cette option, contrairement à « Titrer la basale » (4 signaux). 401/401 profils du banc en
     # « basale_plus_bolus » avec un signal d'hypoglycémie documenté (TBR > 4 OU TBR_severe > 1 OU
     # hypo_severe_recurrente) recevaient malgré tout une escalade sans aucun garde-fou. Modèle repris :
-    # les 4 signaux MCG de « Titrer la basale » (`over_basalisation` exclu à dessein — repère de
-    # sur-titration de la BASALE, sans rapport avec l'ajout d'un GLP-1/bolus, et déjà ce qui pousse VERS
-    # cette option ailleurs dans ce nœud) + `hypo_severe_recurrente`, absent du modèle cité par la mission
+    # les 4 signaux MCG de « Titrer la basale » (`ratio_basale_poids_eleve`, ex-`over_basalisation`, exclu
+    # à dessein — repère de dose de la BASALE, sans rapport avec la sécurité de l'ajout d'un GLP-1/bolus ;
+    # retiré aussi de ses `conditions` le 2026-08-06, P14/S4, T-167 — il ne pousse plus vers cette option
+    # nulle part dans ce nœud) + `hypo_severe_recurrente`, absent du modèle cité par la mission
     # mais nécessaire pour couvrir le profil exact du rapport (TBR=1, TBR_severe=0 : seul ce signal
     # déclenche l'exclusion) — même signal déjà utilisé comme déclencheur indépendant ailleurs dans ce
     # nœud (ex-« Désintensifier », désormais fondu dans `risque_hypoglycemique_eleve`, cf. I3/F4). Choix référent À
@@ -1368,8 +1596,10 @@ options:
       # qui dit d'intensifier sans dire par quoi ; il reçoit désormais les deux gestes nommés.
       # T-033 (P5/S2, 2026-07-28) : `mcg_disponible == true AND` ajouté devant les 4 signaux MCG bruts ET
       # devant `profil_nocturne_a_cible` (lui-même dérivé de `profil_nocturne`, désormais masqué sans
-      # capteur) — sans quoi, sans capteur, ce terme restait INDÉTERMINÉ (I11). `over_basalisation` et
-      # `gaj_a_cible` restent hors garde : ni l'un ni l'autre ne dépend d'un champ masqué par T-033.
+      # capteur) — sans quoi, sans capteur, ce terme restait INDÉTERMINÉ (I11). `gaj_a_cible` reste hors
+      # garde : il ne dépend d'aucun champ masqué par T-033. `over_basalisation` (RENOMMÉ
+      # `ratio_basale_poids_eleve`) est RETIRÉ de ce terme depuis le 2026-08-06 (P14/S4, T-167) — il n'a
+      # donc plus sa place ici, gardée ou non.
       # 2026-07-29 (passe A) — DEUX changements dans ce terme :
       # (1) `mcg_disponible == true AND TBR_severe > 1` retiré avec le critère ;
       # (2) `gaj_basse == true` AJOUTÉ à côté de `gaj_a_cible == true`. Motif : ces deux termes disent la
@@ -1380,7 +1610,7 @@ options:
       #     son écart diurne — exactement le silence que l'arbitrage du 2026-07-27 avait comblé pour
       #     `gaj_a_cible`. ⚠ EXTENSION À CONFIRMER PAR LE RÉFÉRENT (invariant 6) : elle découle de
       #     « câbler au-dessus et en dessous », elle n'a pas été énoncée mot pour mot.
-      - "situation_insuline == basale_plus_bolus OR mcg_disponible == true AND TBR > 4 OR mcg_disponible == true AND CV_glycemique > 36 OR mcg_disponible == true AND profil_nocturne == baisse_continue OR over_basalisation == true OR gaj_a_cible == true OR mcg_disponible == false AND gaj_basse == true OR mcg_disponible == true AND profil_nocturne_a_cible == true"
+      - "situation_insuline == basale_plus_bolus OR mcg_disponible == true AND TBR > 4 OR mcg_disponible == true AND CV_glycemique > 36 OR mcg_disponible == true AND profil_nocturne == baisse_continue OR gaj_a_cible == true OR mcg_disponible == false AND gaj_basse == true OR mcg_disponible == true AND profil_nocturne_a_cible == true"
     # T-125 (P12/S5) : motif sur la branche booléenne négative isolée (2ᵉ item `conditions` ci-dessus) —
     # sans lui, rendu mécanique en « HbA1c à la cible : non », lisible comme du code.
     # T-152 (P13/S7, I28/D18) : motif négatif ajouté pour la branche `mcg_disponible == false AND
@@ -1388,8 +1618,8 @@ options:
     # l'hypoglycémie ou la variabilité » plus haut) — sans lui, rendu mécanique en « … et MCG disponible :
     # non et Glycémie à jeun sous la cible (< 0,70 g/L) », lisible comme du code sur son premier atome.
     motifs:
-      "cible_atteinte == false": "Cible glycémique non atteinte"
-      "mcg_disponible == false AND gaj_basse == true": "absence de MCG, glycémie à jeun sous la cible (< 0,70 g/L)"
+      "cible_atteinte == false": "cible glycémique non atteinte"
+      "mcg_disponible == false AND gaj_basse == true": "absence de mesure continue du glucose, glycémie à jeun sous la cible (< 0,70 g/L)"
     # R6 : garde-fou de cohérence — même faille que « Initier une insuline basale » (12.10) : sans ce
     # prérequis, un bolus déjà en place pouvait être re-« ajouté ».
     prerequis:
@@ -1415,6 +1645,7 @@ options:
       (écart de traitement −0,06 % [−0,29 ; +0,17]). Une glycémie post-prandiale à 2 h sous 1,80 g/L reste
       une cible officielle (HAS 2025 ; ADA Table 6.3), mais c'est un accord d'experts : aucun essai n'a
       montré qu'y viser change quoi que ce soit.
+    delai_benefice: "non établi — durée de suivi non précisée par FullSTEP ni STEP-Wise pour cette question"
     niveau_preuve: modere
     # 2026-07-29 (consignation passe A) : `step-wise` et `has-2025-parcours` ajoutés — l'`effet_attendu`
     # ci-dessus les cite tous les deux nommément depuis la correction de D1, sans qu'ils figurent dans
@@ -1626,7 +1857,7 @@ options:
     # T-125 (P12/S5) : motif sur la branche booléenne négative — sans lui, rendu mécanique en
     # « HbA1c à la cible : non », lisible comme du code.
     motifs:
-      "cible_atteinte == false": "Cible glycémique non atteinte"
+      "cible_atteinte == false": "cible glycémique non atteinte"
     priorite: 2
     avantages:
       - "Le basal-bolus s'ajuste en médecine générale : équilibrer basale et bolus autour de 50/50, à partir des doses déjà en cours."
@@ -1637,7 +1868,8 @@ options:
       - "Une baisse de la glycémie entre les repas accuse un bolus trop fort pour le repas — le réduire."
       - "Sans capteur, la même lecture se fait sur les glycémies mesurées avant les repas : celle du matin juge la basale, celle prise avant un repas juge le bolus du repas précédent — au-dessus de 1,30 g/L l'augmenter, sous 0,70 g/L le réduire."
     inconvenients:
-      - "Le calcul formel des ratios glucides-insuline et du facteur de sensibilité n'est pas inclus (éducation spécialisée). Si le déséquilibre PERSISTE malgré l'optimisation, ou en situation particulière → orienter vers le spécialiste (voir alerte)."
+      - "Le calcul formel des ratios glucides-insuline et du facteur de sensibilité n'est pas inclus (éducation spécialisée)."
+      - "Lorsque le déséquilibre PERSISTE malgré l'optimisation, ou dans une situation particulière — hypoglycémies sévères récurrentes ou non perçues, instabilité marquée, grossesse ou projet de grossesse —, orienter vers le spécialiste."
     effet_attendu: >-
       Aucun essai n'a mesuré ce qu'apporte le rééquilibrage d'un basal-bolus déjà en place, ni la lecture
       branche par branche d'un profil de glucose : c'est une lecture clinique standard du profil, pas un
@@ -1756,7 +1988,7 @@ options:
       - "L'objectif d'HbA1c est atteint sans insuline et il n'y a pas de symptôme de glucotoxicité : rien n'appelle à instaurer une insulinothérapie aujourd'hui. Chez un patient jamais traité par insuline, l'épargner tant qu'elle n'est pas nécessaire évite d'emblée l'hypoglycémie et la prise de poids qui l'accompagnent (ORIGIN : hypoglycémie sévère 1,00 vs 0,31 pour 100 personnes-années, poids ~+1,6 kg), pour un bénéfice cardiovasculaire nul (ORIGIN : MACE HR 1,02)."
     inconvenients:
       - "Réévaluer au prochain contrôle : une HbA1c qui repasse au-dessus de l'objectif, l'apparition de symptômes de glucotoxicité (amaigrissement, syndrome polyuro-polydipsique) ou une décompensation intercurrente rouvrent la question de l'insuline."
-      - "Cette carte ne dit rien du reste de la prise en charge : le choix et l'ajustement des antidiabétiques non insuliniques — y compris la question d'un allègement si l'HbA1c est nettement SOUS l'objectif individualisé — se décident hors de ce nœud (voir nœud prescription), de même que les mesures hygiéno-diététiques."
+      - "Le choix et l'ajustement des antidiabétiques non insuliniques — y compris la question d'un allègement si l'HbA1c est nettement SOUS l'objectif individualisé — relèvent de la décision de prescription, comme les mesures hygiéno-diététiques."
     effet_attendu: >-
       Pas d'instauration d'insuline. Surveillance de l'HbA1c, de la tolérance du traitement en cours et de
       l'apparition de signes de glucotoxicité.
@@ -1764,6 +1996,30 @@ options:
     references:
       - origin
 alertes:
+  # AJOUTÉ le 2026-08-07 (P14/S18, T-191) — cf. le commentaire complet sur le critère `cetonemie`
+  # (`criteres_entree` ci-dessus) pour le sourcing, le choix du canal et la vérification de cohérence avec
+  # l'alerte iSGLT2 plus bas dans cette même liste. PLACÉE EN TÊTE : c'est le signal le plus grave que ce
+  # nœud puisse recevoir (urgence métabolique potentielle), avant les alertes de sécurité qui suivent.
+  # PAS DE GARDE DE SITUATION (`situation_insuline`), délibérément — même construction que les alertes
+  # `hypo_severe_recurrente`/`fragilite` juste en dessous : le fait vaut aussi bien chez le naïf que chez
+  # le patient déjà sous insuline (les deux cas sourcés dans le commentaire du critère). TEXTE ENTIÈREMENT
+  # REPRIS de `prescription.yaml` (`contre_indications` des cartes « iSGLT2 — suspendre » / « Insuline
+  # d'initiation », `:1064`/`:1124` ; alerte de nœud dédiée au patient déjà sous insuline, `:2603-2611` ;
+  # alerte de nœud proxy-cétonémie, `:2582-2587`) — AUCUN chiffre ni seuil nouveau, aucune source nouvelle.
+  # SANS TOURNURE PROHIBITIVE (I7, `docs/decision/GRAMMAIRE-NOEUD.md`) : elle CONSTATE et ORIENTE («
+  # rechercher », « pousse à démarrer », « reste une urgence »), elle n'interdit aucun geste de ce nœud —
+  # aucune `exclusions`/`prerequis` n'est donc requise en contrepartie (cf. le commentaire du critère pour
+  # la justification complète de ce choix de canal).
+  - quand: "cetonemie == true"
+    niveau: attention
+    message: >-
+      Cétonémie confirmée : décompensation catabolique. Chez un patient déjà sous insuline, cette
+      situation est rare en pratique — la première chose à rechercher est une rupture thérapeutique
+      (arrêt, oubli, défaut d'administration, panne de pompe) avant d'envisager un ajustement de schéma.
+      Chez un patient encore naïf, c'est un signal qui pousse à démarrer l'insulinothérapie sans délai.
+      Dans les deux cas, une cétonémie ≥ 3 mmol/L reste une urgence (insuline + hospitalisation), hors
+      périmètre de cet écran de titration. Devant une cétose ou un amaigrissement rapide chez un sujet non
+      obèse, évoquer aussi un diabète de type 1 méconnu.
   # E-02 (2026-07-26) A MIGRÉ VERS `contraintes` le 2026-07-27 — voir le bloc `contraintes` en tête de
   # fichier. Référent : « si il est naïf, il ne peut pas avoir une basale dans son traitement — c'est une
   # erreur du praticien. » Elle disait déjà d'elle-même être « une incohérence de SAISIE (situation vs
@@ -1797,6 +2053,41 @@ alertes:
       préjuge pas du risque sous le schéma actuel et ne doit pas faire renoncer à titrer si la glycémie
       le justifie. Il invite en revanche à titrer prudemment, à préférer un analogue basal de 2ᵉ
       génération, et à réévaluer la perception des hypoglycémies.
+  # AJOUTÉ le 2026-08-07 (P14/S17, arbitrage 2 de S14, docs/decision/validation/
+  # criteres-communs-2026-08-06.md §6 : décision référent en conversation, « passons en sécurité
+  # partout »). Jusqu'ici `fragilite` n'avait, sur ce nœud, AUCUN canal `niveau: attention` propre : elle
+  # n'était lue que par `risque_hypoglycemique_eleve` (qui ne gate plus, aujourd'hui, QUE la `conditions`
+  # de « Désintensifier / alléger le schéma », et seulement en situation `basal_bolus` — les commentaires
+  # plus haut qui parlent encore d'un effet sur le choix de molécule à l'INITIATION décrivent l'état
+  # d'AVANT la suppression de « Choisir un analogue basal de 2ᵉ génération » le 2026-08-06, périmés sur ce
+  # point précis) et par `terrain_cible_assouplie` (alerte `niveau: info` sur les cibles MCG, ci-dessous,
+  # et seulement si `mcg_disponible == true`). Un patient fragile en situation `naif`, `basale_seule` ou
+  # `basale_plus_bolus`, sans mesure continue du glucose, ne recevait donc AUCUN signal. Cette alerte
+  # comble le trou, sur le modèle exact de l'alerte `hypo_severe_recurrente` juste au-dessus (R8 canal
+  # « alerte de nœud » : vrai quel que soit le geste retenu, pas pour tous les patients — pas de garde de
+  # situation, le signal vaut dans toutes les situations, y compris chez le naïf).
+  # CONDITIONNÉE SUR `fragilite == true` SEUL, PAS sur `risque_hypoglycemique_eleve` : ce dérivé agrège
+  # aussi l'âge, l'espérance de vie limitée et le risque du schéma — l'utiliser ici aurait dilué le signal
+  # fragilité dans ces trois autres faits et fait doublonner cette alerte avec `hypo_severe_recurrente`
+  # juste au-dessus (l'un des OR du même dérivé). `fragilite == true` seul isole exactement le fait que
+  # l'arbitrage demande d'élever — un fait, un canal (R8), même choix que les 4 alertes `fragilite`
+  # existantes de `prescription.yaml`, elles aussi toutes conditionnées sur `fragilite == true` seul.
+  # RIEN D'INVENTÉ : la préférence pour un analogue basal de 2ᵉ génération chez le patient fragile est
+  # déjà écrite, nommément, dans le dernier item de `posologie_detail` de « Initier une insuline basale »
+  # ci-dessus (« Choix de la MOLÉCULE, piloté par le risque hypoglycémique — fragilité, … » — SFD 2025,
+  # Avis 18 bis) ; la prudence de titration et la réévaluation de la perception des hypoglycémies sont
+  # reprises de l'alerte `hypo_severe_recurrente` ci-dessus ; l'allègement en basal-bolus et les cibles MCG
+  # assouplies sont les deux mécanismes déjà existants cités plus haut dans ce commentaire.
+  - quand: "fragilite == true"
+    niveau: attention
+    message: >-
+      Sujet fragile sous insulinothérapie : risque hypoglycémique majoré, quel que soit le schéma en
+      cours et la situation clinique. Préférer un analogue basal de 2ᵉ génération (glargine U300 ou
+      dégludec) à glargine U100, détémir ou NPH, titrer prudemment, et réévaluer la perception des
+      hypoglycémies — même conduite que devant un antécédent d'hypoglycémie sévère récurrente
+      (ci-dessus). En basal-bolus, ce terrain ouvre aussi l'allègement du schéma (« Désintensifier /
+      alléger le schéma ») ; si une mesure continue du glucose est en place, il applique déjà des cibles
+      de temps dans la cible assouplies (alerte ci-dessous).
   - quand: "traitements_en_cours contient sulfamide OR traitements_en_cours contient glinide"
     niveau: attention
     message: "À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée)."
@@ -1826,8 +2117,9 @@ alertes:
     message: >-
       Insuffisance rénale : besoins en insuline réduits et risque d'hypoglycémie majoré (adapter les doses,
       renforcer la surveillance) ; sulfamide (s'il est encore utilisé) : gliclazide/glimépiride à dose réduite
-      et surveillance rapprochée si DFG 30-44, contre-indiqué si DFG < 30 (convention KDIGO/SFD — cf. nœud
-      prescription, place résiduelle SU/gliptine) ; adapter ou arrêter la metformine selon le DFG.
+      et surveillance rapprochée si DFG 30-44, contre-indiqué si DFG < 30 (convention KDIGO/SFD ; la place
+      résiduelle des sulfamides et des gliptines relève de la décision de prescription) ; adapter ou arrêter
+      la metformine selon le DFG.
   # Ces deux alertes lisent `terrain_cible_assouplie` (et NON `risque_hypoglycemique_eleve`) depuis le 2026-07-27 :
   # un risque hypoglycémique appelle une correction du traitement, pas une cible plus permissive — cf. le
   # commentaire des deux dérivés dans `criteres_entree`. Conséquence concrète : un patient de 55 ans, non
@@ -1857,6 +2149,47 @@ alertes:
       Sans mesure continue du glucose : titrer la basale sur la glycémie à jeun (cible ~0,70-1,30 g/L) ;
       utiliser des profils capillaires 6-7 points (avant/après les 3 repas + coucher) pour guider
       l'intensification prandiale.
+  # ALERTE CRÉÉE le 2026-08-06 (P14/S4, T-167, décision référent) — canal R8 « qualifie sans interdire » :
+  # le ratio dose/poids devient un repère PORTÉ PAR UNE ALERTE plutôt qu'un déclencheur/une exclusion
+  # d'option (cf. le renommage `over_basalisation` → `ratio_basale_poids_eleve` en tête de
+  # `criteres_entree`, et le commentaire de « Ne pas sur-titrer la basale » ci-dessus). Rédaction
+  # contrainte par I7 (`engine/banc/invariants-contenu.test.ts`) : elle CONSTATE et ORIENTE, elle
+  # n'interdit rien — une tournure prohibitive (« ne pas majorer », « ne pas titrer au-delà ») aurait
+  # exigé un garde-fou qui retire un geste, exactement la boucle du 2026-07-26 que la décision du
+  # 2026-08-06 referme. Pour la même raison, le message ne CITE PAS littéralement l'intitulé « Ne pas
+  # sur-titrer la basale » (qui contient lui-même la tournure « ne pas ») : il le désigne par un repère
+  # sans ambiguïté (sa famille, unique dans cette situation) plutôt que par une citation qui ferait
+  # échouer I7 sur un simple artefact de formulation, pas sur un fond prohibitif.
+  - quand: "ratio_basale_poids_eleve == true"
+    niveau: attention
+    message: >-
+      Dose de basale rapportée au poids au-delà de 0,5 U/kg/j. Ce repère est discuté, pas consensuel :
+      porté par l'ADA de 2018 à 2023, il en a été retiré en 2025 et reste absent en 2026 ; l'AACE le
+      maintient depuis 2018. Dans les essais qui fondent la titration, les doses d'entretien réellement
+      atteintes à la cible s'étalent de 0,34 à 0,78 U/kg/j — un seuil à 0,5 coupe au milieu de la plage
+      normale. Sans mesure continue du glucose, ce seul repère ne suffit pas à juger si la nuit est
+      réellement sur-couverte : instaurer une mesure continue du glucose permet de le vérifier sur la
+      courbe nocturne. En attendant, si la glycémie à jeun est déjà à la cible alors que l'HbA1c ne l'est
+      pas, l'écart restant vient de la journée : le geste utile est alors d'ajouter un AR GLP-1, de passer
+      à une association fixe, ou d'ajouter un bolus au repas le plus hyperglycémiant.
+  # ALERTE CRÉÉE le 2026-08-06 (P14/S5, T-168, décision référent, étape 3) — REVERSE la question que
+  # portait « Choisir un analogue basal de 2ᵉ génération » (supprimée ci-dessus, cf. son commentaire de
+  # suppression) vers le patient qu'elle ne voyait JAMAIS : cette option exigeait `situation_insuline ==
+  # naif`, donc un patient déjà sous basale ne recevait ni carte ni question sur la molécule en place — et
+  # personne ne la lui pose aujourd'hui. Canal R8 « qualifie sans interdire » (même registre que l'alerte
+  # `ratio_basale_poids_eleve` juste au-dessus) : elle CONSTATE une question à poser, elle ne retire ni
+  # n'impose aucun geste. Pas de garde de situation : `traitements_en_cours` (donc `insuline_basale`) n'est
+  # de toute façon montré au formulaire que pour `situation_insuline != naif` (`valeurs_visible_si`,
+  # `criteres_entree` en tête de fichier), donc cette alerte ne peut jamais se déclencher chez un naïf.
+  # Chiffres REPRIS tels quels de l'ancien `avantages` de l'option supprimée, aucun chiffre nouveau :
+  # SWITCH 2 (RR 0,58 nocturne) et EDITION U300 (−31 % nocturne), désormais dans `references` de
+  # « Initier une insuline basale » ci-dessus.
+  - quand: "traitements_en_cours contient insuline_basale"
+    niveau: info
+    message: >-
+      La basale en place est-elle un analogue de 2ᵉ génération (glargine U300 ou dégludec) ? À contrôle
+      glycémique égal, cela réduit l'hypoglycémie nocturne par rapport à glargine U100, détémir ou NPH
+      (SWITCH 2 : RR 0,58 ; EDITION U300 : −31 % d'épisodes nocturnes).
 # Position de lecture du nœud (D24) — DÉPLACÉE le 2026-07-26 depuis `alertes` où elle était écrite en
 # `quand: "default"`, ce que D21 (interdit n°2) proscrit. Texte inchangé : le défaut était le canal, pas
 # l'énoncé. Ce fait ne dépend d'aucun critère du patient — il dit ce que vaut la preuve pour TOUTE
@@ -1871,7 +2204,7 @@ cadrage:
   # conduite en consultation (S3.md, Décision clé). ⚠ LISTE PROVISOIRE — À VALIDER PAR LE RÉFÉRENT : dire
   # ce qu'un outil ignore est un engagement clinique, cf. bilan de session.
   - >-
-    Aucune conduite de ce nœud n'est déclenchée par le temps dans la cible (TIR) : il n'en demande pas la
+    Aucune conduite de cet écran n'est déclenchée par le temps dans la cible (TIR) : il n'en demande pas la
     valeur — seuls le temps sous la cible et le coefficient de variation sont saisis — et les cibles de
     temps dans la cible qu'il affiche servent uniquement de repères pour lire un profil. Ne sont pas non
     plus pris en compte : l'heure précise d'une hypoglycémie au-delà du repère « nocturne » ou « entre les
@@ -1881,43 +2214,37 @@ cadrage:
   # POINT DÉPLACÉ DEPUIS `incertitudes` : il dit ce que ce nœud lit et ce qu'il ne recalcule pas, donc une
   # position de lecture (D24) — pas ce que la preuve établit ou n'établit pas.
   - >-
-    L'objectif d'HbA1c utilisé ici est celui retenu pour ce patient ; ce nœud ne le recalcule pas. Les
+    L'objectif d'HbA1c utilisé ici est celui retenu pour ce patient ; cet écran ne le recalcule pas. Les
     éléments qui justifient de le relâcher — âge, fragilité, espérance de vie — sont aussi ceux qui pilotent
     ici l'allègement du schéma et les cibles de mesure continue du glucose.
+# ARGUMENTAIRE RESSERRÉ le 2026-08-06 (contre-relecture rédactionnelle) : ~320 mots ramenés à ~200, en
+# retirant les chiffres et les noms d'essais que la carte affichée et l'argumentaire exhaustif portent déjà
+# (NNT ~59, DEVOTE, DUAL VII, 4T, Bertuol) et la mention « hypoglycémies nocturnes » comme motif de choix
+# d'un analogue de 2ᵉ génération, qui n'a jamais fait partie du signal de risque de ce nœud.
 argumentaire: >
   Quand une insuline devient nécessaire dans le diabète de type 2, le schéma de choix est une insuline
-  BASALE ajoutée aux antidiabétiques en cours, oraux ou AR GLP-1 — l'AR GLP-1 étant préféré comme premier
-  injectable. Les schémas prandial et prémélangé d'emblée ne sont pas fondés sur les preuves : ils
-  apportent un surcroît d'hypoglycémie et de poids sans gain durable (4T, Bertuol).
+  BASALE ajoutée aux antidiabétiques en cours, l'AR GLP-1 restant préféré comme premier injectable. Les
+  schémas prandial et prémélangé d'emblée ne sont pas fondés sur les preuves : surcroît d'hypoglycémie et
+  de poids, sans gain durable.
 
 
-  L'intensification privilégie l'AR GLP-1 ou l'association fixe AVANT le bolus — même contrôle que le
-  basal-bolus, avec moins d'hypoglycémie et moins de poids (DUAL VII, méta-analyse Eng) — puis le
-  basal-plus par étapes avant le basal-bolus complet (FullSTEP).
+  L'intensification suit un ordre : AR GLP-1 ou association fixe AVANT le bolus — même contrôle que le
+  basal-bolus, avec moins d'hypoglycémie et de poids —, puis un bolus ajouté par étapes.
 
 
   Le choix de la molécule et de la cible se pilote sur le RISQUE HYPOGLYCÉMIQUE, pas sur l'HbA1c seule :
-  analogues de deuxième génération (glargine U300 ou dégludec) en cas de risque élevé, de fragilité ou
-  d'hypoglycémies nocturnes. Le bénéfice y est démontré sur l'hypoglycémie nocturne, qui est un critère de
-  substitution ; sur l'hypoglycémie SÉVÈRE, il ne l'est que pour le dégludec contre glargine U100 (DEVOTE,
-  NNT ~59).
+  un analogue de deuxième génération lorsque ce risque est élevé. Le bénéfice y porte sur l'hypoglycémie
+  symptomatique et nocturne, critères de substitution ; sur l'hypoglycémie SÉVÈRE, seul le dégludec contre
+  glargine U100 l'a démontré.
 
 
-  L'insuline est cardiovasculairement neutre (ORIGIN). Son bénéfice est glycémique et microvasculaire — ce
-  dernier extrapolé du contrôle glycémique, jamais démontré par un essai dédié à l'insuline. Ce n'est en
-  aucun cas une promesse de survie.
+  L'insuline est cardiovasculairement neutre : son bénéfice est glycémique et microvasculaire, ce dernier
+  extrapolé du contrôle glycémique — jamais une promesse de survie. C'est cette distinction entre critère
+  de substitution et critère dur que gradue le niveau de preuve affiché sur chaque proposition.
 
 
-  Les métriques de mesure continue du glucose servent l'INTERPRÉTATION — la lecture du profil — et les
-  ALERTES de sécurité. Leurs cibles sont un consensus d'experts et non un critère dur : le lien entre le
-  temps dans la cible et les complications est observationnel, et le bénéfice de la mesure continue dans le
-  diabète de type 2 porte sur des critères de substitution. Seule la dimension hypoglycémie — temps sous la
-  cible, variabilité, hypoglycémies nocturnes — pilote des recommandations de sécurité.
-
-
-  Les doses d'initiation et d'ajustement se calculent à partir du poids et des doses en cours. Le périmètre
-  est celui de la médecine générale, de la basale au basal-bolus ; l'orientation vers le spécialiste est
-  réservée au déséquilibre persistant et aux situations particulières.
+  Les cibles de mesure continue du glucose sont un consensus d'experts : elles servent à lire un profil,
+  non à décider. Seule la dimension hypoglycémie y pilote des gestes de sécurité.
 sources:
   references_primaires:
     - id: origin
@@ -2117,22 +2444,28 @@ sources:
       type_critere: substitution
       lien: "https://doi.org/10.1016/j.mmm.2025.10.002"
   synthese_critique:
+    # RÉÉCRIT le 2026-08-06 (contre-relecture rédactionnelle) : phrases complètes au lieu des formes
+    # abrégées (« Schéma de choix = … », « hypo 2,3 vs 12,0 »), sigles développés à leur première
+    # occurrence, « temps dans la cible » au lieu de « Time in Range », PMID retiré de la prose (il vit
+    # dans la bibliographie du nœud). La « remarque de sourçage » finale est retirée : le même fait —
+    # Prescrire ne traite pas la hiérarchie NPH / analogues — est déjà porté par l'argumentaire exhaustif
+    # (§ 8, « Réserves »), et il parlait du corpus de l'outil, pas de la donnée.
     donnee: >-
-      Schéma de choix = insuline basale ajoutée aux antidiabétiques oraux/GLP-1, avec le meilleur profil
-      tolérance/poids observé en essai randomisé (4T : hypo 2,3 vs 12,0 évén./patient/an, poids +1,9 vs
-      +5,7 kg vs un schéma prandial à 1 an, PMID 17890232) ; les schémas prandial et prémélangé
-      systématiques restent hors 1ʳᵉ intention (gain d'HbA1c modeste, −0,24 à −0,38 %, critère de
-      substitution — Bertuol, méta-analyse en réseau 2026, 58 essais/19 122 patients) ; le GLP-1 est
-      préféré avant tout bolus, avec un contrôle équivalent et moins d'hypoglycémie/de poids (DUAL VII ;
-      métas Eng et Maiorino). Vigilance sur le surtraitement du sujet âgé : aucune métrique, HbA1c ou
-      MCG, ne prédit fiablement le risque d'hypoglycémie, et les cibles de Time in Range restent un
-      consensus d'experts (Battelino/ATTD 2019), non un critère dur validé sur les complications — le
-      lien TIR-complications est observationnel (Beck 2019 en DT1 ; Lu 2021 en DT2). Insuline en ajout
-      lorsque l'HbA1c est très élevée ou si éviter la prise de poids n'est pas prioritaire ; effets
-      indésirables : hypoglycémie, prise de poids, aggravation d'une rétinopathie préexistante en cas de
-      baisse rapide de l'HbA1c. Remarque de sourçage : la synthèse Prescrire consultée ne traite pas la
-      hiérarchie NPH / analogues de 2ᵉ génération — cet argument s'appuie ici sur les essais dédiés
-      (SWITCH 2, DEVOTE, EDITION, BRIGHT, CONCLUDE, Cochrane Semlitsch).
+      Le schéma de choix est une insuline basale ajoutée aux antidiabétiques oraux ou à un agoniste du
+      récepteur du GLP-1 : c'est celui dont le profil de tolérance et de poids est le meilleur en essai
+      randomisé (4T : hypoglycémie 2,3 contre 12,0 événements par patient et par an, prise de poids +1,9
+      contre +5,7 kg face à un schéma prandial, à 1 an). Les schémas prandial et prémélangé systématiques
+      restent hors de la première intention : leur gain d'HbA1c est modeste, de 0,24 à 0,38 %, et c'est un
+      critère de substitution (Bertuol, méta-analyse en réseau de 58 essais et 19 122 patients, 2026). Le
+      GLP-1 est préféré avant tout bolus, à contrôle équivalent et avec moins d'hypoglycémie et de poids
+      (DUAL VII ; méta-analyses Eng et Maiorino). La vigilance porte sur le surtraitement du sujet âgé :
+      aucune métrique, HbA1c ou mesure continue du glucose (MCG), ne prédit fiablement le risque
+      d'hypoglycémie, et les cibles de temps dans la cible restent un consensus d'experts (Battelino/ATTD
+      2019), non un critère dur validé sur les complications — le lien entre temps dans la cible et
+      complications est observationnel (Beck 2019 dans le diabète de type 1, DT1 ; Lu 2021 dans le diabète
+      de type 2, DT2). L'insuline s'ajoute lorsque l'HbA1c est très élevée, ou lorsque éviter la prise de
+      poids n'est pas prioritaire. Ses effets indésirables sont l'hypoglycémie, la prise de poids et
+      l'aggravation d'une rétinopathie préexistante en cas de baisse rapide de l'HbA1c.
     appuis:
       - origin
       - devote
@@ -2192,10 +2525,12 @@ sources:
           La HAS reste silencieuse sur le choix entre générations d'analogues basaux.
         position_outil: >-
           L'outil préfère explicitement un analogue de deuxième génération en cas de risque hypoglycémique
-          élevé, de fragilité ou d'hypoglycémies nocturnes.
+          élevé : âge avancé, fragilité, espérance de vie limitée, schéma qui expose déjà, ou antécédent
+          d'hypoglycémie sévère récurrente.
         appui: >-
-          La réduction de l'hypoglycémie NOCTURNE est démontrée (SWITCH 2, RR 0,70 ; EDITION U300, −31 %),
-          et celle de l'hypoglycémie SÉVÈRE l'est pour le dégludec contre glargine U100 (DEVOTE, NNT ~59
+          La réduction de l'hypoglycémie est démontrée (SWITCH 2 : symptomatique globale RR 0,70, nocturne
+          RR 0,58 ; EDITION U300 : −31 % d'épisodes nocturnes), et celle de l'hypoglycémie SÉVÈRE l'est
+          pour le dégludec contre glargine U100 (DEVOTE, NNT ~59
           sur 2 ans). L'outil ne va pas plus loin que la donnée : aucune supériorité n'est affirmée entre
           les deux analogues de deuxième génération (BRIGHT, CONCLUDE), et pour la première génération
           contre NPH la différence n'est pas significative (Cochrane 2020).
@@ -2260,10 +2595,10 @@ sources:
 #   — Reste ouvert côté écran : l'AFFICHAGE du nombre de dose calculé (le moteur le calcule, l'écran ne le
 #     rend pas encore).
 incertitudes:
-  - "AUTOSURVEILLANCE GLYCÉMIQUE — ce que le nœud ne dit PAS, et pourquoi. L'autosurveillance chez le diabétique de type 2 insulino-traité n'a pas fait la preuve d'un bénéfice propre : Nauck 2014 (n = 300) pose exactement cette question et il est NÉGATIF (différence d'HbA1c 0,0 %, IC −0,2 à +0,2). Le nœud ne l'énonce pourtant pas, et c'est délibéré : ce n'est pas une intervention thérapeutique dont on vanterait l'effet, c'est l'INSTRUMENT DE MESURE sans lequel il n'y a pas de décision du tout. Lui opposer l'absence d'effet propre désarmerait le praticien sans rien lui offrir à la place, en particulier quand la mesure continue du glucose n'est pas disponible."
-  - "CIBLER LA GLYCÉMIE POST-PRANDIALE N'A JAMAIS AMÉLIORÉ UN CRITÈRE DUR. Le nœud affiche le seuil de 1,80 g/L à 2 heures parce que c'est la cible officielle française et américaine, mais il ne fait agir AUCUNE option dessus. Les trois essais d'une stratégie à visée post-prandiale sont nuls (HEART2D, ACE, NAVIGATOR), et STEP-Wise, qui a randomisé le pivot de titration lui-même — post-prandial contre pré-prandial —, ne trouve aucune différence (−0,06 %, IC −0,29 à +0,17). Le nœud titre donc le bolus sur la glycémie relevée avant le repas suivant, ce que FullSTEP a réellement instrumenté."
+  - "AUTOSURVEILLANCE GLYCÉMIQUE : aucun bénéfice propre démontré chez le diabétique de type 2 insulino-traité. Nauck 2014 (n = 300) a randomisé exactement cette question — autosurveillance contre absence d'autosurveillance — et le résultat est NÉGATIF (différence d'HbA1c 0,0 %, IC −0,2 à +0,2). Ce résultat porte sur l'effet propre de la mesure, non sur son utilité comme instrument : c'est sur elle que reposent la titration et le repérage des hypoglycémies, en particulier lorsque la mesure continue du glucose n'est pas disponible."
+  - "CIBLER LA GLYCÉMIE POST-PRANDIALE N'A JAMAIS AMÉLIORÉ UN CRITÈRE DUR. Les trois essais d'une stratégie à visée post-prandiale sont nuls (HEART2D, ACE, NAVIGATOR), et STEP-Wise, qui a randomisé le pivot de titration lui-même — post-prandial contre pré-prandial —, ne trouve aucune différence (−0,06 %, IC −0,29 à +0,17). Le seuil de 1,80 g/L à 2 heures reste la cible officielle française et américaine, mais c'est un accord d'experts : la titration d'un bolus se fait sur la glycémie relevée avant le repas suivant, seul pivot qu'un essai ait réellement instrumenté (FullSTEP)."
   - "AUCUNE DONNÉE NE SOUTIENT UN GARDE-FOU DE SUR-TITRATION PAR CRÉNEAUX HORAIRES. Aucun essai n'a randomisé l'attribution « heure de la journée → composant de l'insuline à modifier » : Bergenstal 2008 l'instrumente dans ses DEUX bras, il la présuppose donc au lieu de la tester. Le découpage en quatre périodes fixes n'existe dans aucune source, et les fenêtres nocturnes divergent d'un essai à l'autre. Sur le sujet âgé, « relever la cible » a plusieurs sources ; « titrer plus lentement » n'en a aucune — SENIOR, seul essai dédié, randomise deux insulines à cible commune et n'a testé ni un pas ni un intervalle différents."
-  - "SEUIL DE SUR-BASALISATION À 0,5 U/kg/j : faiblement fondé, et les sociétés savantes divergent. Le chiffre est écrit tel quel dans la recommandation française (SFD 2025, Avis 19), mais l'ADA l'a explicitement retiré de ses Standards en 2025 alors que l'AACE le maintient. Son seul support de données est un post-hoc non pré-spécifié, financé par le fabricant. Aucun essai n'a comparé « plafonner puis intensifier autrement » à « continuer à titrer », et les doses d'entretien réellement atteintes à la cible s'étalent de 0,34 à 0,78 U/kg. C'est pourquoi ce seuil ouvre une conduite alternative — « ne pas sur-titrer, intensifier autrement » — sans jamais retirer la titration."
+  - "SEUIL DE SUR-BASALISATION À 0,5 U/kg/j : faiblement fondé, et les sociétés savantes divergent. Le chiffre est écrit tel quel dans la recommandation française (SFD 2025, Avis 19), mais l'ADA l'a explicitement retiré de ses Standards en 2025 alors que l'AACE le maintient. Son seul support de données est un post-hoc non pré-spécifié, financé par le fabricant. Aucun essai n'a comparé « plafonner puis intensifier autrement » à « continuer à titrer », et les doses d'entretien réellement atteintes à la cible s'étalent de 0,34 à 0,78 U/kg. C'est pourquoi ce seuil est seulement signalé comme un repère à interpréter, en l'absence de mesure continue du glucose : il n'ouvre aucune conduite et n'en retire aucune. Ce qu'il prétend décrire — une nuit sur-couverte — se lit sur la courbe nocturne, et non sur le rapport de la dose au poids."
   - "MESURE CONTINUE DU GLUCOSE : les cibles (temps dans la cible au-dessus de 70 %, etc.) sont un consensus d'experts, pas un critère dur. Le lien entre temps dans la cible et complications est observationnel — ré-analyse du DCCT dans le diabète de type 1, cohorte dans le type 2 — et le bénéfice de la mesure continue dans le diabète de type 2 porte sur des critères de substitution, sans preuve sur les complications dures ni sur la mortalité."
   - "Le bénéfice microvasculaire de l'insuline est EXTRAPOLÉ du contrôle glycémique en général (UKPDS) : aucun essai dédié à l'insuline ne l'a démontré sur critère dur. Et l'insuline est cardiovasculairement neutre (ORIGIN)."
   - "Une courbe nocturne PLATE avec une HbA1c au-dessus de l'objectif ne dit pas « la titration reste ouverte » mais « la basale n'est pas en cause » — l'écart est alors ailleurs, et monter la basale n'aiderait pas. Seule une HAUSSE continue pendant la nuit signe une couverture insuffisante. Symétriquement, une hypoglycémie ENTRE les repas accuse le bolus (dose trop importante par rapport au repas), pas la basale. C'est une lecture clinique standard du profil, pas un résultat d'essai."
@@ -2275,8 +2610,244 @@ meta:
   date_revue: "2026-07-31"
   auteur: "référent DT2 (Thibault) + Opus + Claude Code"
   statut: valide
-  version: "0.50"
+  version: "0.59"
   changelog:
+    - date: "2026-08-07"
+      auteur: "Claude Code (P14/S18, T-191)"
+      resume: >-
+        Ce nœud voit désormais la cétonémie (P2/D5, `docs/decision/validation/
+        criteres-communs-2026-08-06.md` § 3.1) : `insuline` prescrit `insuline_basale`/`insuline_rapide`
+        (`prerequis` de « Initier une insuline basale » et de l'option bolus équivalente) — les deux
+        valeurs que `concerne` de `cetonemie` nomme — sans jamais déclarer ce fait, l'absence silencieuse
+        que l'invariant I33 (P14/S16, T-189) mesurait. AJOUT de `{ ref: cetonemie }` dans `criteres_entree`
+        (définition déjà commune depuis S15, aucune définition nouvelle) et d'UNE alerte de nœud, `quand:
+        "cetonemie == true"`, `niveau: attention`, en tête de `alertes`. CANAL CHOISI (R8, ordre de
+        préférence) : alerte de nœud, pas alerte d'option (le message vaut à l'identique quelle que soit la
+        carte affichée — initiation, titration de basale, ajustement d'un bolus), pas `exclusions` (aucun
+        geste PROPOSÉ PAR CE NŒUD ne devient dangereux du fait de la cétonémie ; ce qui change, c'est le
+        périmètre de prise en charge, pas la sécurité d'un geste que ce nœud offre par ailleurs — poser une
+        exclusion aurait exigé un arbitrage référent explicite non donné pour ce cas, cf. `plans/P14/
+        S18.md` § Si bloqué). TEXTE ENTIÈREMENT REPRIS de `prescription.yaml` (`contre_indications` des
+        cartes « iSGLT2 — suspendre » / « Insuline d'initiation », `:1064`/`:1124` ; son alerte de nœud
+        dédiée au patient déjà sous insuline, `:2603-2611` ; son alerte proxy-cétonémie, `:2582-2587`) :
+        aucun chiffre, seuil ni source nouveaux — cf. le commentaire complet sur le critère `cetonemie`
+        (`criteres_entree`) pour la vérification de source primaire (étape 1 du plan) et la vérification de
+        cohérence avec l'alerte iSGLT2 existante de ce nœud (deux faits distincts, R8 respectée). Message
+        SANS tournure prohibitive (I7) : aucune `exclusions`/`prerequis` requise en contrepartie. `presomption_non`
+        NON posé sur `cetonemie` (choix clinique, pas une conséquence mécanique de R7 — même profil que
+        `symptomes_glucotoxicite` voisin). AUCUNE option créée, `prescription.yaml` NON touché (S19 y
+        travaille en parallèle sur `hypo_severe_recurrente`, fichier disjoint). Nouvelle vignette :
+        `evaluateNode.insuline.test.ts` (« T-191 » — patient en cétonémie, naïf et déjà sous insuline,
+        reçoit l'alerte ; profil neutre `BASE` complété de `cetonemie: false`, requis dès qu'une expression
+        `quand`/`conditions` du nœud cite ce critère — `evaluateAtomic` lève `ConditionError` sur toute
+        variable absente de l'objet `Criteria`). Snapshots `caracterisation*.insuline.txt`/`paires.
+        insuline.txt` régénérés (`-u`) : diff relu intégralement, verdict dans la section ajoutée en bas de
+        `plans/P14/S18.md`.
+    - date: "2026-08-07"
+      auteur: "référent DT2 (décision en conversation, 2026-08-07) + Claude Code (P14/S17, arbitrage 2 de S14)"
+      resume: >-
+        DÉCISION RÉFÉRENT tranchant l'arbitrage 2 laissé ouvert par S14
+        (docs/decision/validation/criteres-communs-2026-08-06.md §6) : « passons en sécurité partout » —
+        harmoniser le rôle de `fragilite` sur les 5 nœuds DT2 qui la déclarent. Sur `prescription`,
+        `rhd-activite-physique` et `rhd-alimentation`, `fragilite` sert déjà de canal de sécurité ; sur
+        `cible-glycemique` et ce nœud, elle n'était lue que par des `conditions`/dérivés `role: geste`
+        (`risque_hypoglycemique_eleve`, `terrain_cible_assouplie`), jamais un canal `niveau: attention`
+        propre. AJOUT d'une alerte de nœud, `quand: "fragilite == true"`, `niveau: attention`, sur le
+        modèle exact de l'alerte `hypo_severe_recurrente` voisine (pas de garde de situation). Choix de
+        conditionner sur `fragilite == true` SEUL plutôt que sur `risque_hypoglycemique_eleve` (qui agrège
+        aussi âge/espérance de vie/risque de schéma) : le dérivé aurait dilué le signal et doublonné
+        l'alerte `hypo_severe_recurrente` existante — un fait, un canal (R8), même principe que les 4
+        alertes `fragilite` de `prescription.yaml`. Message construit sans aucun chiffre nouveau : reprend
+        la préférence pour un analogue basal de 2ᵉ génération déjà écrite dans `posologie_detail` de
+        « Initier une insuline basale » (SFD 2025, Avis 18 bis), la conduite de titration prudente de
+        l'alerte `hypo_severe_recurrente`, et renvoie aux deux mécanismes déjà existants qui lisent
+        `fragilite` (allègement du schéma en basal-bolus via `risque_hypoglycemique_eleve`, cibles MCG
+        assouplies via `terrain_cible_assouplie`). AUCUNE `conditions`/`prerequis`/`exclusions`/
+        `priorite`/critère d'entrée modifié : `fragilite` reste `partage: true`, encodage identique sur les
+        5 nœuds (I19/I32 inchangés). Snapshots `caracterisation*`/`paires` régénérés (`-u`) : diff relu
+        intégralement, verdict et détail complet dans `plans/P14/S17-arbitrage2-fragilite.md`.
+    - date: "2026-08-07"
+      auteur: "Claude Code (P14/S17, T-190)"
+      resume: >-
+        Critère `hypo_severe_recurrente` : déclaration inline remplacée par `{ ref: hypo_severe_recurrente }`,
+        référence à sa DÉFINITION déplacée vers content/decision/criteres-communs/diabete-type-2.yaml
+        (définition ajoutée par S16/T-189, reprise à l'identique de cette déclaration — `type: bool` seul,
+        aucun `valeurs`/`min`/`max`/`derive`/`aide`/`partage`). `groupe` (« Signaux d'alerte et tolérance »,
+        mise en scène) reste déclaré ici, à côté du `ref` — seul champ de mise en scène que portait la
+        déclaration d'origine (ni `visible_si`, ni `valeurs_visible_si`, ni `debut_de_ligne`, ni
+        `masque_si_indetermine`, ni `preremplissage`, ni `libelle_masque`, ni `presomption_non`, aucun ne
+        s'appliquait). AUCUN changement de définition ni de comportement : la résolution au chargement
+        (`loadNodes.ts`) reconstruit un `CritereEntree` identique bit à bit à l'ancienne forme inline —
+        vérifié par la non-régression des snapshots `engine/banc/__snapshots__/caracterisation.*.txt`.
+        Mandat : docs/decision/validation/criteres-communs-2026-08-06.md § « Liste candidate au fichier
+        commun (S15) » (verdicts validés par le référent, gate de S17). `prescription.yaml` N'EST PAS
+        TOUCHÉ : lui ajouter la référence à `hypo_severe_recurrente` est un déplacement de contenu distinct
+        (S19), hors mandat de cette session (§ « Hors périmètre », plans/P14/S17.md).
+    - date: "2026-08-07"
+      auteur: "Claude Code — arbitrage référent, en attente de relecture clinique"
+      resume: >-
+        Harmonisation « nœud » → « cet écran »/reformulation clinique, 12 occurrences (2 dans `cadrage` de
+        ce fichier, 10 dans `insuline.argumentaire.md`), aucun champ moteur touché.
+    - date: "2026-08-06"
+      auteur: "Claude Code (P14/S11, T-181)"
+      resume: >-
+        PUBLICATION → PRÉ-REMPLISSAGE (D50, amende D28). `HbA1c_cible` gagne le commentaire « seul lecteur »
+        (son seul lecteur RÉEL, à l'exécution, était déjà retiré par T-180 ci-dessous) et `position_vs_cible`
+        gagne un `preremplissage` — IDENTIQUE, texte pour texte, à celui ajouté sur `prescription` (P14/S11,
+        même tâche) : suggère la position depuis l'écart à la cible PUBLIÉE par `cible-glycemique`
+        (T-181, même tâche), avec zone morte délibérée entre +0,3 et +0,5 point d'écart (aucune règle ne la
+        couvre). Détail du mécanisme et du garde-fou D50 vérifié : cf. commentaire complet en tête du
+        critère `position_vs_cible`. AUCUNE `conditions`/`prerequis`/`exclusions`/`priorite`/`derive`
+        (hors celui documenté par T-180) touché — le pré-remplissage est un mécanisme d'ÉCRAN, jamais lu
+        par `evaluateNode`. Garde-fou D50 vérifié vert : `HbA1c_cible` n'est cité par aucune `conditions`,
+        `prerequis`, `exclusions`, `alertes`, `derive` ni `contraintes` de ce nœud (invariant dédié du banc).
+    - date: "2026-08-06"
+      auteur: "Claude Code (P14/S11, T-180)"
+      resume: >-
+        UNIFICATION DE `position_vs_cible` (décision référent : « la position déclarée par le praticien
+        prime »). Ce nœud déclarait `cible_atteinte` CALCULÉ (`HbA1c_actuelle <= HbA1c_cible`) là où
+        `prescription` le déclare DÉCLARÉ (`position_vs_cible == a_l_objectif OR sous_objectif`) — deux
+        définitions pour un même nom, capté par l'invariant T-162 (S2/P14) en `it.fails` depuis son
+        écriture. `position_vs_cible` (enum, `partage: true`, encodage IDENTIQUE à `prescription` — type,
+        valeurs, ordre) rejoint ce nœud ; `cible_atteinte` et `ecart_sous_objectif_cible` sont RÉÉCRITS pour
+        la lire, `cible_atteinte` LITTÉRALEMENT identique au texte de `prescription` (T-162 compare le
+        texte, pas la sémantique). PERTE CONSIGNÉE : `ecart_sous_objectif_cible` perdait la nuance de
+        MAGNITUDE (« au moins 1 point sous la cible ») — devient simplement « sous la cible » (arbitrage
+        référent explicite, « on garde position vs cible pour insuline 12 »). `HbA1c_cible`/`HbA1c_actuelle`
+        RESTENT déclarés ici (arbitré) : leur seul lecteur devient le `preremplissage` de T-181 (même
+        session), ce qui suffit à R5/T-164. VIGNETTE AVANT/APRÈS (invariant demandé, T-180 étape 5) : un
+        patient dont la position déclarée correspond à ses chiffres (ex. `position_vs_cible: sous_objectif`,
+        `HbA1c_actuelle` nettement sous `HbA1c_cible`) garde EXACTEMENT le même comportement sur les cartes
+        qui lisaient `cible_atteinte`/`ecart_sous_objectif_cible` — seul un patient dont la position
+        DÉCLARÉE contredirait ses chiffres (jamais rencontré dans les profils figés révisés, cf. bilan de
+        session `plans/P14/S11.md`) verrait un comportement différent, et c'est désormais la position
+        déclarée qui l'emporte, conformément à la décision référent. Golden master `caracterisation.
+        insuline.txt` : diverge (nouveau critère `position_vs_cible` + définitions recâblées) — diff relu
+        nœud par nœud, cf. bilan de session.
+    - date: "2026-08-06"
+      auteur: "Claude Code — contre-relecture rédactionnelle, en attente de relecture clinique"
+      resume: >-
+        CONTRE-RELECTURE DES QUATRE NIVEAUX DE LECTURE, après les deux lots du jour qui avaient changé le
+        comportement sans repasser les textes. Aucune `conditions`, `exclusions`, `prerequis`, `priorite`,
+        `role`, `action`, `famille`, `derive`, `visible_si`, `calculs` ni `quand` d'alerte touchés ; aucune
+        clé de `motifs` existante modifiée.
+        (1) SUR-BASALISATION — plus aucun texte affiché ne la présente comme un déclencheur d'option.
+        « Ne pas sur-titrer la basale » perd la puce d'`inconvenients` qui argumentait le repère de
+        0,5 U/kg (sa critique complète vit dans l'alerte de nœud dédiée) et la puce « propose une
+        alternative à la titration », devenue fausse depuis que les trois états de la nuit font partition ;
+        elle est remplacée par la lecture clinique réelle (nuit et jeûne à la cible, écart diurne). La
+        dernière phrase de son `effet_attendu`, qui justifiait le ratio, est retirée. L'incertitude
+        correspondante dit désormais que le seuil ne déclenche ni ne retire aucune conduite.
+        (2) SWITCH 2 — l'appui de la divergence « analogues de 2ᵉ génération » attribuait le RR 0,70 à
+        l'hypoglycémie nocturne : rétabli en « symptomatique globale RR 0,70, nocturne RR 0,58 »,
+        conformément à l'entrée bibliographique et aux cartes.
+        (3) La mention « ou d'hypoglycémies nocturnes » comme motif de choix d'un analogue de 2ᵉ génération
+        est retirée de l'`argumentaire` et de la `position_outil` de cette même divergence : le signal de
+        risque du nœud ne l'a jamais contenue.
+        (4) MOTIFS — « Réduire la basale » n'en portait aucun (deux ajoutés, un par branche) et
+        « Envisager d'instaurer une mesure continue du glucose » n'en avait pas pour sa branche de
+        situation (ajouté). Vocabulaire du capteur harmonisé dans TOUS les motifs du fichier (« MCG » →
+        « mesure continue du glucose »), casse rendue cohérente (initiale minuscule : les motifs
+        s'affichent après « Proposé parce que : » et se joignent par « et »).
+        (5) « Initier une insuline basale » — `effet_attendu` de 259 mots réorganisé en deux temps
+        (démarrer une basale / choisir la molécule), sans perdre de chiffre non porté ailleurs ;
+        `references` ramenées de 12 à 7 entrées (la ligne « D'après : » dépassait 250 mots au rendu).
+        (6) `contre_indications` de cette même carte vidée : le panneau annonçait « 1 contre-indication »
+        pour un texte disant qu'il n'y en a aucune d'absolue. La consigne d'arrêt du sulfamide / du glinide
+        rejoint `posologie_detail`.
+        (7) Les deux premières `incertitudes` parlaient de l'outil (« ce que le nœud ne dit PAS », « il ne
+        fait agir AUCUNE option ») : réécrites sur ce que Nauck 2014 et les essais post-prandiaux
+        établissent ou non ; la première resserrée à ~100 mots.
+        (8) `argumentaire` resserré de ~320 à ~200 mots, chiffres déjà portés par la carte et
+        l'argumentaire exhaustif retirés.
+        (9) `synthese_critique.donnee` — phrases complètes, sigles développés, « temps dans la cible » au
+        lieu de « Time in Range », PMID retiré de la prose, « remarque de sourçage » finale supprimée (le
+        même fait est déjà dans l'argumentaire exhaustif, § 8).
+        (10) Le message de l'alerte `ratio_basale_poids_eleve` renvoyait à une carte « juste au-dessus »
+        qui peut être absente de l'écran : la conduite est désormais écrite en toutes lettres, sans
+        pointer ni carte ni famille.
+        (11) PUCES — la puce de 85 mots sur l'analogue de 2ᵉ génération scindée en trois ; la puce
+        d'`avantages` qui répétait `posologie_detail` et `effet_attendu` dédupliquée ; les deux
+        appréciations de preuve classées en `avantages` de « Titrer la basale » retirées ou reversées en
+        `inconvenients` ; « retire cette proposition », « → orienter vers le spécialiste (voir alerte) »,
+        « voir nœud prescription » et « cf. nœud prescription » réécrits en langue clinique.
+        (12) `insuline.argumentaire.md` — duplication de l'« argumentation négative » fusionnée, phrase
+        sans verbe principal de la désintensification réparée, sigles (méta-analyse en réseau, essai
+        randomisé, écart de traitement, réduction absolue du risque, événements cardiovasculaires majeurs,
+        Fédération internationale du diabète) développés à leur première occurrence, citation de la
+        Fédération internationale du diabète traduite, quatre passages de conception réécrits en clinique,
+        en-tête aligné sur le gabarit de lecture exhaustive.
+        NON TOUCHÉ, signalé : `niveau_preuve` de « Corriger l'hypoglycémie ou la variabilité » et de
+        « Réduire la basale » ; les six `delai_benefice` manquants sur les options en preuve modérée ;
+        « Poursuivre le schéma d'insuline en cours » sans `references`.
+    - date: "2026-08-06"
+      auteur: "Claude Code (P14/S5, T-168, décision référent)"
+      resume: >-
+        L'analogue basal de 2ᵉ génération devient une modalité de posologie, plus une carte — deux volets.
+        (1) SUPPRIMÉ « Choisir un analogue basal de 2ᵉ génération » (naïf, `risque_hypoglycemique_eleve ==
+        true`, priorite 3) : ce n'était pas une alternative à « Initier une insuline basale », mais une
+        MODALITÉ DE PRESCRIPTION de cette même carte. Reversement complet avant suppression (rien perdu) :
+        `avantages`/`inconvenients`/`effet_attendu`/`delai_benefice` fondus dans les mêmes champs de
+        « Initier une insuline basale » ; `references` (devote, switch-2, bright, conclude, edition-pool)
+        ajoutées aux siennes (I8) ; le schéma de choix de molécule (préférer un analogue de 2ᵉ génération
+        chez le patient à risque hypoglycémique élevé) déplacé dans son `posologie_detail`. Aucun chiffre
+        ni source perdu — cf. commentaire de suppression dans le fichier pour le détail.
+        (2) CRÉÉ une alerte de nœud `traitements_en_cours contient insuline_basale`, `niveau: info` : la
+        question que l'option supprimée ne posait JAMAIS (elle exigeait `situation_insuline == naif`) au
+        patient qu'elle ne voyait jamais — celui déjà sous basale. Chiffres repris tels quels (SWITCH 2,
+        EDITION), aucun chiffre nouveau.
+        (3) PASSÉ `exclusive: true` sur deux `familles` : « Instaurer l'insuline » (ne contient plus, après
+        (1), que « Envisager un GLP-1 avant ou avec l'insuline » et « Initier une insuline basale », deux
+        voies alternatives) et « Intensifier le traitement » (GLP-1 / bolus / prémélangée, trois voies
+        alternatives — la prémélangée se présentait déjà elle-même comme une « option dégradée, dernier
+        recours », ce que `exclusive: false` contredisait par le badge « recommandée » sur les trois).
+        Effet de badge vérifié (pas supposé) sur un profil basale + 1 bolus à cible non atteinte — cf.
+        rapport de session P14/S5 pour le détail : la prémélangée (rang 3) cesse d'être badgée
+        « recommandée » dès que le GLP-1 (rang 1) ou le bolus (rang 2) s'applique.
+        Vignette F4 d'`evaluateNode.insuline.test.ts` mise à jour (l'option qu'elle testait n'existe plus) ;
+        `__snapshots__/paires.insuline.txt` et `__snapshots__/caracterisation*.insuline.txt` régénérés.
+    - date: "2026-08-06"
+      auteur: "Claude Code (P14/S4, T-167, décision référent)"
+      resume: >-
+        RÉVISION de la décision du 2026-07-27 (v0.44) sur `over_basalisation`, sur arbitrage référent du
+        2026-08-06 : « la sur-basalisation se lit sur la courbe MCG nocturne, pas sur le ratio dose/poids ».
+        Motif de la révision, PAS un retour en arrière : le mécanisme sur lequel s'appuyait la décision du
+        2026-07-27 (« les deux options coexistent, le RANG hiérarchise ») n'opérait pas — `groupesExAequo`
+        ne calcule les rangs qu'à l'intérieur d'une famille, « Ne pas sur-titrer... » et « Titrer la
+        basale » sont dans deux familles différentes, et une famille `exclusive: false` badge
+        « recommandée » toutes ses cartes. Vérifié : 2 des 180 profils figés du banc affichaient les deux
+        cartes simultanément.
+        (1) RENOMMÉ `over_basalisation` → `ratio_basale_poids_eleve` (le nom dit ce qui est MESURÉ, pas ce
+        qui est CONCLU) et REDÉFINI avec un garde `mcg_disponible == false` ajouté au `derive` : ce repère
+        ne s'active plus que faute de capteur.
+        (2) RETIRÉ `ratio_basale_poids_eleve == true` du 3ᵉ item de `conditions` de « Ne pas sur-titrer la
+        basale — intensifier autrement » : la carte ne se déclenche plus que sur la nuit à la cible
+        (`gaj_a_cible`/`profil_nocturne_a_cible`).
+        (3) RETIRÉ le même terme des `conditions` des deux options d'intensification (« Ajouter un GLP-1 /
+        une association fixe d'abord », « Ajouter un bolus au repas principal »). Conséquence ASSUMÉE : un
+        patient sans capteur à GAJ HAUTE (nuit qui monte) n'obtient plus ces deux cartes — la conduite est
+        de titrer la basale (carte suivante, disjointe par construction) et d'envisager un capteur (carte
+        de tête, famille « Avant de décider — la mesure », déjà déclenchée pour ce profil). Vérifié par
+        vignette explicite (`evaluateNode.insuline.test.ts`), pas seulement par lecture — cf. rapport de
+        session.
+        (4) CRÉÉ une alerte de nœud `ratio_basale_poids_eleve == true`, `niveau: attention` : constate le
+        ratio et oriente vers la mesure continue du glucose et la carte de sécurité, sans jamais interdire
+        un geste (I7) — reprend les chiffres du dossier de preuve du 2026-07-27 (retrait ADA 2025/absence
+        2026, maintien AACE depuis 2018, doses d'entretien réellement atteintes 0,34-0,78 U/kg).
+        (5) AJOUTÉ un `calculs` (« Dose rapportée au poids », U/kg/j) sur « Ne pas sur-titrer la basale » :
+        le chiffre reste visible là où il éclaire une décision, sans la sélectionner ; confirme au passage
+        que `poids` conserve un second lecteur (R5), via les `calculs` de dose d'initiation de « Initier
+        une insuline basale ».
+        (6) Commentaire de PARTITION ajouté au-dessus des trois options de titration de la situation
+        « basale seule » (Réduire / Ne pas sur-titrer / Titrer) : les trois états de `profil_nocturne`/
+        `gaj_*` sont exclusifs par construction.
+        HORS PÉRIMÈTRE de cette session (confirmé par le plan) : familles, option « analogue de 2ᵉ
+        génération » (S5), seuils MCG (`TBR > 4`, `CV > 36`), sémantique de `profil_nocturne` — aucun
+        touché.
+        `__snapshots__/caracterisation.insuline.txt` et `__snapshots__/paires.insuline.txt` régénérés et
+        relus nœud par nœud (docstring `caracterisation.test.ts`) : la paire « Ne pas sur-titrer la
+        basale » ⟷ « Titrer la basale » a disparu de `paires.insuline.txt`, conformément au livrable de
+        T-167.
     - date: "2026-08-06"
       auteur: "Claude Code (T-150, demande utilisateur)"
       resume: >-

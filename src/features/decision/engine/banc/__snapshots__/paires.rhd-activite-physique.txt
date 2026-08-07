@@ -1,0 +1,95 @@
+# PAIRES DE CARTES CO-ACTIVES (cliquet) — nœud « rhd-activite-physique » (Activité physique — se rapprocher de la régularité)
+#
+# Un diff ICI n'est PAS une régression en soi : il doit être RELU, carte par carte — même
+# convention que caracterisation.test.ts (cf. sa docstring de tête). Une paire nouvelle signifie
+# que deux cartes s'affichent désormais ensemble pour au moins un profil du banc, jamais un échec
+# à corriger en modifiant le moteur pour que l’ancien texte revienne.
+#
+# 180 profils évalués, 69 paire(s) distincte(s).
+
+## Paires (triées par intitulé)
+
+7×  Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel  ⟷  Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées)
+6×  Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel  ⟷  Orienter vers une structure d'activité physique adaptée pour un bilan et un accompagnement progressif
+4×  Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel  ⟷  Pour les courses, préférer plusieurs petits déplacements actifs à un grand trajet motorisé
+4×  Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel  ⟷  Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine
+5×  Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel  ⟷  S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant)
+5×  Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel  ⟷  Se lever et bouger quelques minutes à chaque heure de position assise prolongée
+7×  Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel  ⟷  Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente
+5×  Envisager un programme d'activité physique adaptée (endurance et renforcement), avec l'accompagnement d'un professionnel  ⟷  Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants
+82×  Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées)  ⟷  Orienter vers une structure d'activité physique adaptée pour un bilan et un accompagnement progressif
+29×  Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées)  ⟷  Pour les courses, préférer plusieurs petits déplacements actifs à un grand trajet motorisé
+47×  Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées)  ⟷  Proposer un bilan avec un enseignant en activité physique adaptée avant toute reprise
+29×  Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées)  ⟷  Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine
+21×  Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées)  ⟷  Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue
+70×  Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées)  ⟷  S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant)
+70×  Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées)  ⟷  Se lever et bouger quelques minutes à chaque heure de position assise prolongée
+91×  Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées)  ⟷  Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente
+70×  Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées)  ⟷  Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants
+16×  Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement)  ⟷  Orienter vers une structure d'activité physique adaptée pour un bilan et un accompagnement progressif
+7×  Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement)  ⟷  Pour les courses, préférer plusieurs petits déplacements actifs à un grand trajet motorisé
+6×  Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement)  ⟷  Proposer un bilan avec un enseignant en activité physique adaptée avant toute reprise
+7×  Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement)  ⟷  Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine
+3×  Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement)  ⟷  Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue
+11×  Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement)  ⟷  S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant)
+11×  Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement)  ⟷  Se lever et bouger quelques minutes à chaque heure de position assise prolongée
+11×  Maintenir la pratique actuelle ; envisager de diversifier (endurance et renforcement)  ⟷  Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants
+50×  Orienter vers une structure d'activité physique adaptée pour un bilan et un accompagnement progressif  ⟷  Pour les courses, préférer plusieurs petits déplacements actifs à un grand trajet motorisé
+19×  Orienter vers une structure d'activité physique adaptée pour un bilan et un accompagnement progressif  ⟷  Poursuivre les habitudes actuelles et rester attentif à la régularité
+79×  Orienter vers une structure d'activité physique adaptée pour un bilan et un accompagnement progressif  ⟷  Proposer un bilan avec un enseignant en activité physique adaptée avant toute reprise
+50×  Orienter vers une structure d'activité physique adaptée pour un bilan et un accompagnement progressif  ⟷  Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine
+42×  Orienter vers une structure d'activité physique adaptée pour un bilan et un accompagnement progressif  ⟷  Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue
+129×  Orienter vers une structure d'activité physique adaptée pour un bilan et un accompagnement progressif  ⟷  S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant)
+129×  Orienter vers une structure d'activité physique adaptée pour un bilan et un accompagnement progressif  ⟷  Se lever et bouger quelques minutes à chaque heure de position assise prolongée
+82×  Orienter vers une structure d'activité physique adaptée pour un bilan et un accompagnement progressif  ⟷  Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente
+129×  Orienter vers une structure d'activité physique adaptée pour un bilan et un accompagnement progressif  ⟷  Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants
+11×  Pour les courses, préférer plusieurs petits déplacements actifs à un grand trajet motorisé  ⟷  Poursuivre les habitudes actuelles et rester attentif à la régularité
+27×  Pour les courses, préférer plusieurs petits déplacements actifs à un grand trajet motorisé  ⟷  Proposer un bilan avec un enseignant en activité physique adaptée avant toute reprise
+60×  Pour les courses, préférer plusieurs petits déplacements actifs à un grand trajet motorisé  ⟷  Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine
+17×  Pour les courses, préférer plusieurs petits déplacements actifs à un grand trajet motorisé  ⟷  Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue
+46×  Pour les courses, préférer plusieurs petits déplacements actifs à un grand trajet motorisé  ⟷  S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant)
+46×  Pour les courses, préférer plusieurs petits déplacements actifs à un grand trajet motorisé  ⟷  Se lever et bouger quelques minutes à chaque heure de position assise prolongée
+29×  Pour les courses, préférer plusieurs petits déplacements actifs à un grand trajet motorisé  ⟷  Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente
+46×  Pour les courses, préférer plusieurs petits déplacements actifs à un grand trajet motorisé  ⟷  Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants
+13×  Poursuivre les habitudes actuelles et rester attentif à la régularité  ⟷  Proposer un bilan avec un enseignant en activité physique adaptée avant toute reprise
+11×  Poursuivre les habitudes actuelles et rester attentif à la régularité  ⟷  Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine
+9×  Poursuivre les habitudes actuelles et rester attentif à la régularité  ⟷  Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue
+20×  Poursuivre les habitudes actuelles et rester attentif à la régularité  ⟷  S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant)
+20×  Poursuivre les habitudes actuelles et rester attentif à la régularité  ⟷  Se lever et bouger quelques minutes à chaque heure de position assise prolongée
+20×  Poursuivre les habitudes actuelles et rester attentif à la régularité  ⟷  Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants
+27×  Proposer un bilan avec un enseignant en activité physique adaptée avant toute reprise  ⟷  Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine
+25×  Proposer un bilan avec un enseignant en activité physique adaptée avant toute reprise  ⟷  Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue
+73×  Proposer un bilan avec un enseignant en activité physique adaptée avant toute reprise  ⟷  S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant)
+73×  Proposer un bilan avec un enseignant en activité physique adaptée avant toute reprise  ⟷  Se lever et bouger quelques minutes à chaque heure de position assise prolongée
+47×  Proposer un bilan avec un enseignant en activité physique adaptée avant toute reprise  ⟷  Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente
+73×  Proposer un bilan avec un enseignant en activité physique adaptée avant toute reprise  ⟷  Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants
+17×  Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine  ⟷  Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue
+46×  Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine  ⟷  S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant)
+46×  Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine  ⟷  Se lever et bouger quelques minutes à chaque heure de position assise prolongée
+29×  Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine  ⟷  Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente
+46×  Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine  ⟷  Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants
+38×  Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue  ⟷  S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant)
+38×  Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue  ⟷  Se lever et bouger quelques minutes à chaque heure de position assise prolongée
+21×  Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue  ⟷  Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente
+38×  Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue  ⟷  Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants
+150×  S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant)  ⟷  Se lever et bouger quelques minutes à chaque heure de position assise prolongée
+70×  S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant)  ⟷  Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente
+150×  S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant)  ⟷  Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants
+70×  Se lever et bouger quelques minutes à chaque heure de position assise prolongée  ⟷  Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente
+150×  Se lever et bouger quelques minutes à chaque heure de position assise prolongée  ⟷  Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants
+70×  Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente  ⟷  Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants
+
+## Paires intra-famille
+#
+# Les deux cartes de la paire appartiennent à la MÊME famille de contenu (Option.famille /
+# Noeud.familles). Une famille EXCLUSIVE (alternatives) qui apparaît ici est le signal qu’une
+# alternative est présentée comme cumulable pour au moins un profil (défaut ③, cf. tête de fichier).
+
+21×  [famille « Activité quotidienne » — cumulable]  Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées)  ⟷  Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue
+91×  [famille « Activité quotidienne » — cumulable]  Intégrer du mouvement dans les tâches déjà présentes dans la journée (escaliers, ménage, jardinage, courses portées)  ⟷  Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente
+79×  [famille « Orientation vers une ressource » — cumulable]  Orienter vers une structure d'activité physique adaptée pour un bilan et un accompagnement progressif  ⟷  Proposer un bilan avec un enseignant en activité physique adaptée avant toute reprise
+60×  [famille « Déplacements actifs » — cumulable]  Pour les courses, préférer plusieurs petits déplacements actifs à un grand trajet motorisé  ⟷  Remplacer un trajet motorisé par la marche ou le vélo, une à deux fois par semaine
+21×  [famille « Activité quotidienne » — cumulable]  Répartir l'activité en plusieurs séances courtes dans la journée plutôt qu'une seule longue  ⟷  Suivre son nombre de pas et chercher à en faire un peu plus que la semaine précédente
+150×  [famille « Rupture de sédentarité » — cumulable]  S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant)  ⟷  Se lever et bouger quelques minutes à chaque heure de position assise prolongée
+150×  [famille « Rupture de sédentarité » — cumulable]  S'appuyer sur un repère du quotidien pour penser à se lever (téléphone hors de portée, appel pris en marchant)  ⟷  Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants
+150×  [famille « Rupture de sédentarité » — cumulable]  Se lever et bouger quelques minutes à chaque heure de position assise prolongée  ⟷  Transformer une pause déjà prise dans la journée en occasion de bouger quelques instants

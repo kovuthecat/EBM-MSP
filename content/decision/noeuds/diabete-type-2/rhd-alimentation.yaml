@@ -80,14 +80,14 @@ domaine: diabete-type-2
 module: RHD
 titre: "Alimentation — se rapprocher du repère méditerranéen"
 population_cible: >-
-  Adulte DT2, en consultation de médecine générale. Nœud du module RHD (axe alimentation) : recueil bref
-  des habitudes alimentaires (socle ~2-3 minutes) puis pistes concrètes et négociables de rapprochement du
+  Adulte DT2, en consultation de médecine générale. Cet écran recueille brièvement les habitudes
+  alimentaires (socle ~2-3 minutes) puis propose des pistes concrètes et négociables de rapprochement du
   motif alimentaire méditerranéen — jamais un objectif chiffré à atteindre, jamais un score d'adhérence.
-  Autonome : évaluable seul, sans qu'un autre nœud ait à être rempli d'abord. Hors périmètre : objectif de
-  perte de poids et rémission (aucun nœud ne les porte à ce jour) ; prescription diététique détaillée
+  Autonome : évaluable seul, sans qu'un autre écran ait à être rempli d'abord. Hors périmètre : objectif de
+  perte de poids et rémission (aucun écran ne les porte à ce jour) ; prescription diététique détaillée
   (orientation vers le diététicien de la structure) ; instrument validé de repérage des troubles du
   comportement alimentaire (le repérage ci-dessous reformule des signes d'appel, ce n'est pas un score — il
-  oriente, il ne bloque aucune piste). Aucune restriction, chiffrée ou non : ce nœud modifie des habitudes,
+  oriente, il ne bloque aucune piste). Aucune restriction, chiffrée ou non : cet écran modifie des habitudes,
   il ne prescrit pas de régime. Les repères sont ceux de Santé publique France /
   Manger-Bouger — trois directions, « Augmenter », « Aller vers », « Réduire », jamais une quantité.
 selection: multi-options
@@ -114,6 +114,10 @@ familles:
   - libelle: "Orientation"
     exclusive: false
   - libelle: "Maintien"
+    exclusive: false
+  # AJOUTÉE le 2026-08-06 (P14/S7, T-170) : porte le repli neutre `["default"]` en dernière position, cf.
+  # son option en fin de `options` pour la justification complète (R10).
+  - libelle: "Aucune piste prioritaire"
     exclusive: false
 criteres_entree:
   # ── Terrain (I4 : `fragilite` identique à rhd.yaml/prescription.yaml/insuline.yaml) ──
@@ -266,15 +270,19 @@ options:
     famille: "Boissons"
     avantages:
       - "Réduit l'apport en sucres rapides et rapproche du repère « eau » du motif méditerranéen."
-      - "Objectif concret repris par un guide de recommandations européen (« arrêter les boissons sucrées et les boissons énergisantes ») et par le repère de Santé publique France sur les boissons sucrées."
+      - "Objectif concret repris par un guide de recommandations européen (« arrêter les boissons sucrées et les boissons énergisantes »)."
+      - "Rejoint aussi le repère de Santé publique France sur les boissons sucrées."
       - "Geste léger, négociable un repas sur deux pour commencer (eau plate ou pétillante, éventuellement aromatisée maison)."
     inconvenients:
-      - "Pas de bénéfice cardiovasculaire dur démontré pour ce geste isolé : c'est le motif alimentaire méditerranéen pris dans son ensemble qui porte la preuve dure (voir « Comment ce nœud raisonne »)."
+      - "Pas de bénéfice cardiovasculaire dur démontré pour ce geste isolé : c'est le motif alimentaire méditerranéen pris dans son ensemble qui porte la preuve dure (voir « Comment cet écran raisonne »)."
     effet_attendu: >-
       Ce qui a été mesuré porte sur le motif alimentaire méditerranéen entier, jamais sur la boisson prise
       à part : aucun essai n'a chiffré l'effet cardiovasculaire du seul remplacement d'une boisson sucrée
       par de l'eau. Ce que ce geste change à coup sûr, c'est l'apport en sucres rapides, et une
-      recommandation officielle en fait un objectif concret.
+      recommandation officielle en fait un objectif concret (gradé A/B selon la section) : c'est cette
+      force de recommandation que qualifie le niveau de preuve affiché, pas l'effet cardiovasculaire du
+      remplacement pris isolément.
+    delai_benefice: "4,8 à 7 ans — durée des essais du motif alimentaire d'ensemble ; non établi pour ce geste isolé"
     niveau_preuve: modere
     references:
       - spf-50-astuces
@@ -294,6 +302,7 @@ options:
     effet_attendu: >-
       Rien n'a été mesuré sur ce geste : aucun essai ne l'a testé. Le signal sur les édulcorants intenses
       est un repère de prudence issu d'une synthèse critique, et la source qui le porte ne le grade pas.
+    delai_benefice: "non établi"
     niveau_preuve: faible
   # ═══════════ FAMILLE ULTRATRANSFORMÉS ═══════════
   - intitule: "Un repas simple fait maison de plus par semaine"
@@ -310,6 +319,7 @@ options:
     effet_attendu: >-
       Aucun essai n'a testé ce geste : ce qui est établi, c'est un repère de composition, pas un effet
       chiffré. Il relève du savoir-faire diététique et rejoint deux repères officiels non gradés.
+    delai_benefice: "non établi"
     niveau_preuve: faible
     references:
       - has-obesite-alim
@@ -322,7 +332,9 @@ options:
     priorite: 4
     famille: "Restauration rapide"
     avantages:
-      - "Réduit la densité énergétique du repas sans viser l'éviction complète : préférer une formule avec crudités ou salade, éviter d'associer systématiquement boisson sucrée et dessert sucré."
+      - "Réduit la densité énergétique du repas sans viser l'éviction complète."
+      - "Concrètement : préférer une formule avec crudités ou salade plutôt que le menu standard."
+      - "Éviter d'associer systématiquement boisson sucrée et dessert sucré au même repas."
       - "Objectif concret d'un guide de recommandations européen, qui nomme explicitement les repas de type hamburger ou pizza."
       - "Cohérent avec la mise en garde contre les régimes trop restrictifs et rigides."
     inconvenients:
@@ -331,6 +343,7 @@ options:
       Ce qui a été mesuré porte sur le motif alimentaire d'ensemble, jamais sur le choix du menu pris à
       part. Ce geste réduit la densité énergétique du repas, et un guide de recommandations européen le
       formule comme objectif concret (gradé A/B selon la section).
+    delai_benefice: "4,8 à 7 ans — durée des essais du motif alimentaire d'ensemble ; non établi pour ce geste isolé"
     niveau_preuve: modere
     references:
       - duodecim-alim
@@ -344,8 +357,8 @@ options:
     famille: "Matières grasses"
     avantages:
       - "Le geste le plus proche de ce que l'essai a réellement testé : l'un des deux bras de PREDIMED supplémentait le régime méditerranéen en huile d'olive vierge extra."
-      - "Le résultat cardiovasculaire dur appartient au motif alimentaire entier, pas à ce seul changement de matière grasse — cette piste ne le revendique pas pour elle-même (voir « Comment ce nœud raisonne »)."
-      - "L'huile de colza reste un choix légitime, recommandé par Santé publique France pour son profil en oméga-3 (« aller vers l'huile de colza, de noix et d'olive »), même si le bras randomisé portait sur l'huile d'olive."
+      - "L'huile de colza reste un choix légitime, recommandé par Santé publique France pour son profil en oméga-3 (« aller vers l'huile de colza, de noix et d'olive »)."
+      - "Le bras réellement randomisé dans PREDIMED portait sur l'huile d'olive, pas sur l'huile de colza : la recommandation officielle sur le colza s'appuie sur son profil nutritionnel, pas sur cet essai."
     inconvenients:
       - "Aucun essai n'a testé ce geste isolément hors du motif alimentaire méditerranéen complet : l'effet propre de ce seul changement de matière grasse n'est pas mesurable séparément."
     effet_attendu: >-
@@ -353,6 +366,7 @@ options:
       CORDIOPREV, sur un critère cardiovasculaire dur. L'effet propre du seul changement de matière grasse
       n'a jamais été isolé ; le repère de matière grasse est par ailleurs porté, sans grade, par une
       recommandation officielle française.
+    delai_benefice: "4,8 à 7 ans — durée des essais du motif alimentaire d'ensemble ; non établi pour ce geste isolé"
     niveau_preuve: faible
     references:
       - predimed
@@ -402,6 +416,7 @@ options:
       Aucun essai n'a isolé ce geste : ce qui est mesuré porte sur le motif alimentaire d'ensemble. La
       direction, elle, est portée sans grade par une recommandation officielle française — réduire la
       viande transformée et la viande rouge.
+    delai_benefice: "4,8 à 7 ans — durée des essais du motif alimentaire d'ensemble ; non établi pour ce geste isolé"
     niveau_preuve: faible
     references:
       - manger-bouger-affiche
@@ -415,7 +430,6 @@ options:
     famille: "Fruits à coque, légumineuses, poisson"
     avantages:
       - "Le geste le plus proche de ce que l'essai a réellement testé : le second bras de PREDIMED supplémentait le régime méditerranéen en fruits à coque."
-      - "Le résultat cardiovasculaire dur appartient au motif alimentaire entier, pas à cet ajout pris à part — cette piste ne le revendique pas pour elle seule (voir « Comment ce nœud raisonne »)."
       - "Santé publique France recommande une petite poignée par jour — cité ici comme ce qui a été recommandé, pas comme un objectif à atteindre pour ce patient."
     inconvenients:
       - "Aucun essai n'a testé ce geste isolément hors du motif alimentaire méditerranéen complet."
@@ -423,6 +437,7 @@ options:
       Ce qui a été mesuré, c'est le motif méditerranéen supplémenté dans son ensemble — PREDIMED, sur un
       critère cardiovasculaire dur. L'effet propre du seul ajout de fruits à coque n'a jamais été isolé ;
       le repère est par ailleurs porté, sans grade, par une recommandation officielle française.
+    delai_benefice: "4,8 à 7 ans — durée des essais du motif alimentaire d'ensemble ; non établi pour ce geste isolé"
     niveau_preuve: faible
     references:
       - predimed
@@ -442,6 +457,7 @@ options:
       Ce qui a été mesuré porte sur le motif méditerranéen d'ensemble, dont les légumineuses font partie ;
       elles n'ont jamais été testées seules. Le repère est porté, sans grade, par une recommandation
       officielle française.
+    delai_benefice: "4,8 à 7 ans — durée des essais du motif alimentaire d'ensemble ; non établi pour ce geste isolé"
     niveau_preuve: faible
     references:
       - spf-50-astuces
@@ -460,6 +476,7 @@ options:
     effet_attendu: >-
       Ce qui a été mesuré porte sur le motif méditerranéen d'ensemble, dont le poisson fait partie ; il n'a
       jamais été testé seul. Le repère est porté, sans grade, par une recommandation officielle française.
+    delai_benefice: "4,8 à 7 ans — durée des essais du motif alimentaire d'ensemble ; non établi pour ce geste isolé"
     niveau_preuve: faible
     references:
       - spf-50-astuces
@@ -479,6 +496,7 @@ options:
       Aucun essai n'a chiffré ce geste. Ce qui est établi, c'est qu'un rythme de repas prévient le
       grignotage compensatoire — repère de savoir-faire diététique, repris sans grade par un guide de
       recommandations européen et par la HAS.
+    delai_benefice: "non établi"
     niveau_preuve: faible
     references:
       - duodecim-alim
@@ -491,12 +509,13 @@ options:
     famille: "Structure des repas"
     avantages:
       - "Aide à mieux percevoir les signaux de satiété — repère cité par un guide de recommandations européen et par la HAS (« manger lentement »)."
+      - "La HAS garde « manger lentement » parmi ses mesures d'accompagnement même quand un trouble du comportement alimentaire est repéré : le conseil reste pertinent, il s'articule alors avec l'orientation plutôt que de la remplacer."
     inconvenients:
       - "La prise alimentaire rapide est aussi un signe d'appel possible de trouble du comportement alimentaire : si un signe est repéré par ailleurs, articuler ce conseil avec l'orientation plutôt que le proposer seul."
-      - "La HAS garde « manger lentement » parmi ses mesures d'accompagnement : le conseil reste pertinent dans ce cas, il ne se suffit simplement pas à lui-même."
     effet_attendu: >-
       Aucun essai n'a chiffré ce geste. Ce qui est établi, c'est un repère de savoir-faire diététique sur
       la perception de la satiété, repris sans grade par un guide de recommandations européen et par la HAS.
+    delai_benefice: "non établi"
     niveau_preuve: faible
     references:
       - duodecim-alim
@@ -510,7 +529,8 @@ options:
     # `verrou_tca` RETIRÉ le 2026-07-27 (décision référent) : trouver une ALTERNATIVE à un moment de
     # grignotage est une substitution, pas une restriction — rien n'y est retiré ni chiffré. Le verrou
     # bloquait ici un geste qui n'entre pas dans ce qu'il existe pour empêcher.
-    exclusions: []
+    # `exclusions: []` (inerte, `statutUne([])` vaut `false`) SUPPRIMÉ le 2026-08-06 (P14/S8, T-175) : un
+    # tableau vide n'exprime rien et masquait une intention non écrite, cf. le schéma (`minItems: 1`).
     avantages:
       - "Rejoint la structuration des repas visée par le motif méditerranéen — des repas réguliers plutôt que des prises dispersées, repère partagé par la HAS et par un guide de recommandations européen."
       - "Propose une alternative (fruit, eau, activité) ou un repas structuré à l'heure du grignotage, plutôt qu'une interdiction : rien n'est retiré ni chiffré."
@@ -520,6 +540,7 @@ options:
     effet_attendu: >-
       Aucun essai n'a chiffré ce geste. Ce qui est établi, c'est un repère de savoir-faire diététique sur
       la structuration des repas, repris sans grade par la HAS et par un guide de recommandations européen.
+    delai_benefice: "non établi"
     niveau_preuve: faible
     references:
       - has-obesite-alim
@@ -555,6 +576,7 @@ options:
     effet_attendu: >-
       Rien n'a été mesuré sur ce geste : il aide à estimer des quantités, il n'a pas d'effet métabolique
       propre. Repère de savoir-faire diététique, non gradé.
+    delai_benefice: "non établi"
     niveau_preuve: faible
     references:
       - sfd-glucides
@@ -575,10 +597,11 @@ options:
       - "Passe le relais quand le levier dépasse ce qu'une consultation de médecine générale peut négocier seule."
       - "Le diététicien de la structure peut travailler ce qu'une consultation n'a pas le temps de reprendre : les habitudes en détail, les contraintes d'accès, l'équilibre des apports."
     inconvenients:
-      - "Dépend de la disponibilité réelle de la ressource dans la structure ; le contenu précis de l'accompagnement diététique n'est pas détaillé par ce nœud."
+      - "Dépend de la disponibilité réelle de la ressource dans la structure ; le contenu précis de l'accompagnement diététique n'est pas détaillé par cet écran."
     effet_attendu: >-
       Rien n'a été mesuré : c'est une orientation, pas un geste alimentaire. La HAS nomme les situations
       qui appellent l'expertise diététique ; le relais lui-même repose sur une ressource de la structure.
+    delai_benefice: "non établi"
     niveau_preuve: faible
     references:
       - has-obesite-alim
@@ -609,6 +632,7 @@ options:
       Rien n'a été mesuré : c'est une orientation, pas un geste alimentaire. Elle est écrite telle quelle
       dans une recommandation officielle française, comme complément et non comme substitut de
       l'accompagnement diététique.
+    delai_benefice: "non établi"
     niveau_preuve: faible
     references:
       - has-obesite-alim
@@ -646,22 +670,71 @@ options:
       Rien n'a été mesuré : c'est un renforcement positif sur deux axes déjà favorables, pas un geste
       nouveau. Le principe de non-culpabilisation qui le porte est écrit dans une recommandation officielle
       française.
+    delai_benefice: "non établi"
     niveau_preuve: faible
     references:
       - predimed
       - spf-50-astuces
       - has-obesite-alim
+  # ═══════════ FAMILLE AUCUNE PISTE PRIORITAIRE (repli neutre, R10 — P14/S7, T-170) ═══════════
+  # La carte « Continuer ce qui fonctionne déjà » ci-dessus couvre aujourd'hui la totalité du domaine
+  # utile, mais PAR ARITHMÉTIQUE des énums actuels (cf. § PLAFOND D'AFFICHAGE en tête de fichier), pas par
+  # construction : pour les 9 combinaisons de `matiere_grasse_cuisson` (3 valeurs) ×
+  # `frequence_fruits_a_coque` (3 valeurs), CHACUNE déclenche soit « Utiliser de l'huile d'olive… », soit
+  # « Ajouter une petite poignée de fruits à coque… », soit « Continuer ce qui fonctionne déjà » — jamais
+  # aucune des trois. Ajouter une valeur à l'un de ces deux critères (ou tout autre critère qui
+  # gouvernerait ces familles) romprait cette arithmétique et ouvrirait un écran vide, violation
+  # silencieuse de R10.
+  #
+  # CE REPLI N'EST DONC PAS UNE CARTE « MAINTIEN » — sous peine de retomber sous R9/I15 (un repli qui
+  # propose de CONTINUER quelque chose doit porter un `prerequis`, ce qui rouvrirait exactement le trou
+  # qu'on ferme). `conditions: ["default"]`, `role: repli`, AUCUN `prerequis`. Il n'affirme rien sur le
+  # patient : il ne conclut PAS que tout va bien, il constate que les réponses recueillies ici ne font
+  # ressortir aucune piste négociable ce jour, et renvoie à la prochaine consultation.
+  #
+  # Par construction (`engine/evaluateNode.ts`, sémantique de `default` en `multi-options`), il ne peut
+  # apparaître qu'en l'ABSENCE de toute autre carte — jamais à côté du « Maintien » ou d'une autre piste.
+  #
+  # ARITHMÉTIQUEMENT INATTEIGNABLE PAR LE CONTENU ACTUEL (constaté, pas un défaut de ce repli) : aucune
+  # combinaison des valeurs d'énumération AUJOURD'HUI déclarées ne le déclenche — c'est un filet
+  # structurel pour une évolution future du contenu (cf. `evaluateNode.rhd-alimentation.test.ts`, la
+  # vignette qui le prouve en simulant une valeur d'énumération encore non déclarée). Conséquence
+  # signalée au référent : `engine/banc/couverture.test.ts` (« chaque option est applicable pour au moins
+  # un profil ») ne peut mécaniquement pas le voir se déclencher sur le banc actuel.
+  - intitule: "Aucune piste prioritaire à proposer aujourd'hui"
+    role: repli
+    conditions:
+      - "default"
+    famille: "Aucune piste prioritaire"
+    avantages:
+      - "Dit clairement qu'aucune piste prioritaire ne ressort des réponses recueillies aujourd'hui, plutôt que de ne rien afficher, et invite à refaire le point à la prochaine consultation."
+      - "N'affirme rien sur le patient — ni satisfecit, ni jugement sur ses habitudes : un simple constat sur ce que les réponses recueillies ici permettent de proposer aujourd'hui."
+    inconvenients:
+      - "N'identifie aucune marge de progression : si une piste existe malgré tout, ce recueil ne l'a pas vue — à réinterroger à une prochaine consultation."
+      - "Ne remplace pas l'échange clinique : un praticien qui perçoit une marge de manœuvre que ce recueil ne capte pas reste libre de la proposer selon son propre jugement."
+    effet_attendu: >-
+      Aucun effet propre à attendre de ce constat : aucun geste n'est proposé aujourd'hui, il n'y a donc
+      rien à chiffrer. Le bénéfice dépendra de la piste qui sera trouvée à une prochaine consultation.
+    delai_benefice: "non établi"
+    # `faible` → `tres_faible` le 2026-08-07 (arbitrage référent : « retirer le badge », cette carte de
+    # repli ne reposant sur aucune source clinique). `niveau_preuve` est un champ OBLIGATOIRE du schéma
+    # (`schema/decision/noeud.schema.json`, pas de valeur « sans objet ») : `tres_faible`, le palier GRADE
+    # le plus bas, est l'approximation la plus proche de « aucune base de preuve » que le schéma permette
+    # d'écrire sans modifier le rendu partagé par toutes les cartes. Signalé au référent : une vraie
+    # suppression du badge sur `role: repli` demanderait un changement de composant (OptionCard.tsx),
+    # hors mandat d'un lot de contenu.
+    niveau_preuve: tres_faible
 alertes:
   - quand: "insuline_ou_insulinosecreteur == true"
     niveau: attention
     message: >-
       Sous insuline, sulfamide ou glinide, toute piste qui réduit l'apport en sucres/glucides rapides ou
       l'apport calorique global majore le risque d'hypoglycémie : signaler le risque au patient et envisager
-      en parallèle un allègement du traitement (voir les nœuds de prescription et d'insuline du domaine).
+      en parallèle un allègement du traitement (voir les décisions de prescription et d'insuline du domaine).
   - quand: "consommation_vin == sept_verres_ou_plus_semaine"
     niveau: attention
     message: >-
-      Consommation de vin déclarée à 7 verres par semaine ou plus : ce nœud ne propose jamais l'alcool
+      Consommation de vin déclarée à 7 verres par semaine ou plus : cet écran ne propose jamais l'alcool
       comme piste — orienter vers le repérage d'un mésusage plutôt que d'encourager cette consommation.
       Interactions à garder en tête : foie, triglycérides, hypoglycémie sous insulinosécréteur.
 # `cadrage` créé (P10/S6, T-083 ; second énoncé retravaillé P10 post-arbitrage référent 2026-07-31).
@@ -679,35 +752,25 @@ alertes:
 # pour la même affirmation.
 cadrage:
   - >-
-    Ce nœud suggère des pistes de rapprochement du repère alimentaire méditerranéen, jamais un objectif
+    Cet écran suggère des pistes de rapprochement du repère alimentaire méditerranéen, jamais un objectif
     chiffré ni un score d'adhérence à atteindre ; une piste refusée n'est pas un échec, c'est une
     information pour la consultation suivante. Le repérage d'un trouble du comportement alimentaire n'y
     bloque plus aucune piste, il déclenche seulement une orientation (diététicien, avis spécialisé TCA).
   - >-
-    Ce nœud ne permet pas d'enregistrer que la demande du patient porte elle-même sur le poids — c'est
-    pourtant la situation la plus fréquente à IMC élevé, et le nœud y répond quand même par des gestes
+    Cet écran ne permet pas d'enregistrer que la demande du patient porte elle-même sur le poids — c'est
+    pourtant la situation la plus fréquente à IMC élevé, et il y répond quand même par des gestes
     alimentaires généraux, sans le dire. Il ne prend pas non plus en compte le tour de taille, la tension
     artérielle, ni le repérage d'un syndrome d'apnées du sommeil (l'objectif de perte de poids et la
     rémission sont hors périmètre du module RHD dans son ensemble — voir l'écran d'aiguillage).
   - >-
-    Ce nœud ne recueille que des critères alimentaires : tout ce qui touche à l'effort — contre-indications
-    comprises — relève du nœud d'activité physique du même module.
+    Cet écran ne recueille que des critères alimentaires : tout ce qui touche à l'effort — contre-indications
+    comprises — relève de l'écran d'activité physique du même module.
 argumentaire: >
   Le seul bénéfice démontré sur un critère cardiovasculaire dur, parmi les mesures alimentaires, est celui
-  du régime de type méditerranéen pris dans son ensemble : PREDIMED (critère cardiovasculaire majeur
-  composite, HR 0,69 pour le bras huile d'olive vierge extra et 0,72 pour le bras fruits à coque — essai
-  rétracté puis republié après correction méthodologique en 2018) et CORDIOPREV (HR 0,72, prévention
-  secondaire, environ la moitié de diabétiques). Ce qui a été randomisé, c'est un motif alimentaire
-  supplémenté, jamais un geste isolé de changement d'huile ou d'ajout de fruits à coque. Aucune piste de ce
-  nœud ne revendique donc ce bénéfice pour elle-même : l'étiquette de preuve dure appartient au cap
-  d'ensemble, pas à une carte prise séparément.
-
-
-  Ce nœud ne mesure et n'affiche aucun écart à ce motif. Il n'administre jamais le score MEDAS à 14 items,
-  l'instrument qui opérationnalise l'adhérence dans PREDIMED : il s'en sert seulement comme cadre pour
-  choisir les axes à recueillir — fruits à coque, légumineuses, poisson, viande rouge et charcuterie, vin.
-  Le recueil porte sur une direction et une fréquence déclarées, jamais sur une quantité comparée à un
-  seuil.
+  du régime méditerranéen pris dans son ensemble : PREDIMED et CORDIOPREV randomisent un motif alimentaire
+  supplémenté, jamais un geste isolé. Aucune piste de cet écran ne revendique donc ce bénéfice pour
+  elle-même. Le score MEDAS sert seulement à choisir les axes recueillis, jamais à mesurer un écart
+  administré au patient.
 
 
   Toutes les pistes ne sont donc pas à la même distance de la preuve, et c'est ce qui décide de leur ordre
@@ -720,34 +783,8 @@ argumentaire: >
   accepte, et c'est alors la bonne.
 
 
-  Une précision sur le niveau de preuve affiché par chaque carte : il qualifie la force de la
-  recommandation qui porte le geste, pas l'ampleur de l'effet de ce geste pris isolément. Une carte peut
-  donc afficher « preuve modérée » — parce qu'un texte officiel la recommande clairement — et dire dans le
-  même panneau que son effet propre n'est pas chiffrable, parce qu'aucun essai ne l'a testée seule. Les
-  deux énoncés ne portent pas sur la même chose.
-
-
-  Les pistes proposées sont concrètes, négociables, et plutôt petites que grandes. Un outil qui demanderait
-  la fréquence de restauration rapide puis répondrait « réduisez la restauration rapide » tomberait
-  exactement dans le registre culpabilisant contre lequel les recommandations mettent en garde — « la
-  stabilisation du poids est déjà un succès ». Aucune piste n'est présentée avec plus de force que sa
-  source n'en affirme.
-
-
-  Le repérage d'un trouble du comportement alimentaire ne bloque aucune piste : il oriente, vers un
-  diététicien et vers un avis spécialisé. Le principe qui gouverne le nœud entier l'explique — en médecine
-  générale on modifie des habitudes alimentaires, on ne prescrit pas de régime et on ne propose pas de
-  restriction chiffrée. Un garde-fou anti-restriction n'a donc pas d'objet dans un nœud qui ne propose
-  aucune restriction. La fragilité et la dénutrition, en revanche — qu'un IMC élevé n'exclut pas —
-  écartent bien les pistes qui réduisent l'apport protéique ou énergétique : c'est le seul garde-fou
-  bloquant du nœud.
-
-
-  Le vin est recueilli, parce qu'il est un item du score MEDAS et qu'il appartient au tableau clinique
-  (interactions hépatiques, triglycérides, hypoglycémie sous insulinosécréteur). Il n'est proposé par
-  aucune piste : refus délibéré de proposer de l'alcool en soins primaires. Enfin, une perte de poids sous
-  insulinosécréteur ou sous insuline majore le risque d'hypoglycémie si les apports baissent — c'est une
-  alerte, jamais un blocage.
+  Le niveau de preuve affiché par chaque carte qualifie la force de la recommandation qui porte le geste,
+  pas l'ampleur de l'effet de ce geste pris isolément.
 sources:
   references_primaires:
     - id: predimed
@@ -816,7 +853,7 @@ sources:
   synthese_critique:
     donnee: >-
       Aucune synthèse critique indépendante ne porte spécifiquement sur ces pistes alimentaires : il n'en
-      existe pas dans le corpus rassemblé pour ce nœud, et rien n'a été écrit pour combler ce vide. Deux
+      existe pas dans le corpus rassemblé pour cet écran, et rien n'a été écrit pour combler ce vide. Deux
       éléments seulement ont été retrouvés, cités ici comme repères et jamais comme l'argument lui-même :
       l'huile d'olive et l'eau comme éléments du motif méditerranéen, et un signal de prudence
       épidémiologique sur les édulcorants intenses (association à un risque accru de diabète de type 2,
@@ -886,9 +923,10 @@ sources:
           Les deux recommandations disponibles ne disent pas la même chose : l'USPSTF conclut que les
           preuves sont insuffisantes pour évaluer la balance bénéfices-risques d'un dépistage chez la
           personne sans signe ni symptôme. S'y ajoute une question de performance : la valeur prédictive
-          positive du SCOFF-F dans cette population est estimée entre ~21 % et ~38 %, et sa valeur
+          positive du questionnaire de dépistage SCOFF-F dans cette population est estimée entre ~21 % et
+          ~38 %, et sa valeur
           prédictive négative de ~99 % reflète surtout la faible prévalence — à 5 % de prévalence, un test
-          négatif ne fait gagner que 4 points. Réserve de périmètre : le patient de ce nœud, adulte
+          négatif ne fait gagner que 4 points. Réserve de périmètre : le patient de cet écran, adulte
           diabétique d'âge moyen ou avancé, n'appartient à la population cible déclarée d'aucun des deux
           documents HAS invoqués.
     explication: >-
@@ -899,17 +937,92 @@ sources:
 incertitudes:
   - "Le bénéfice sur critère dur du régime méditerranéen porte sur le motif alimentaire supplémenté dans son ensemble (PREDIMED, CORDIOPREV), jamais sur une piste isolée — y compris l'huile d'olive et les fruits à coque, pourtant les deux composants réellement randomisés. Aucun essai n'a testé un geste seul."
   - "Aucune version française validée du MEDAS n'a été identifiée. Sans conséquence pour cet usage : l'instrument sert de cadre pour choisir les axes recueillis, il n'est jamais administré ni scoré."
-  - "Les trois signes d'appel de trouble du comportement alimentaire reformulent des signes issus d'une recommandation ; ce n'est pas un instrument validé. Aucune étude n'a évalué la performance de cette combinaison : un résultat négatif ne garantit rien, un positif ne confirme rien. Depuis que le repérage n'ouvre qu'une orientation et ne ferme plus aucune piste, un faux positif coûte une proposition de plus — il ne retire plus rien au patient."
+  - "Les trois signes d'appel de trouble du comportement alimentaire reformulent des signes issus d'une recommandation ; ce n'est pas un instrument validé. Aucune étude n'a évalué la performance de cette combinaison : un résultat négatif ne garantit rien, un positif ne confirme rien. Le repérage n'ouvrant qu'une orientation et ne fermant aucune piste, un faux positif coûte une proposition de plus — il ne retire rien au patient."
   - "Ne pas se servir d'un dépistage négatif pour lever la prudence : la valeur prédictive négative élevée du SCOFF-F (~99 %) reflète surtout la faible prévalence. À 5 % de prévalence, la probabilité pré-test d'absence de trouble est déjà de 95 % — un test négatif ne fait gagner que 4 points."
-  - "Aucune proportion chiffrée n'est affirmée pour la piste « se repérer aux proportions dans l'assiette » — ni moitié de légumes, ni quart de féculents. Aucune source du dossier ne chiffre ce ratio ; le repère reste qualitatif, la place relative des composantes. La piste de pesée des aliments a été retirée : elle relève des patients pratiquant un comptage précis en insulinothérapie fonctionnelle, et sa généralisation au diabète de type 2 tout-venant n'est soutenue par aucune source."
+  - "Aucune proportion chiffrée n'est affirmée pour la piste « se repérer aux proportions dans l'assiette » — ni moitié de légumes, ni quart de féculents. Aucune source du dossier ne chiffre ce ratio ; le repère reste qualitatif, la place relative des composantes."
   - "Rapprocher l'alimentation émotionnelle de la tachyphagie, que la source cite pour la piste « manger sans se presser », est une extrapolation raisonnée : les deux notions sont voisines sans être identiques dans le corpus."
 veille_liee: []
 meta:
   date_revue: "2026-07-26"
   auteur: "Claude Code (agent dédié) + référent DT2 (Thibault) — encodage en attente de validation clinique"
   statut: brouillon
-  version: "0.15"
+  version: "0.18"
   changelog:
+    - date: "2026-08-07"
+      auteur: "Claude Code — arbitrage référent, en attente de relecture clinique"
+      resume: >-
+        Harmonisation « nœud » → « cet écran »/reformulation clinique, 15 occurrences du terme sur 11
+        champs (`population_cible` ×3, `cadrage` ×4 sur 3 énoncés, deux `alertes[].message`,
+        `argumentaire`, `sources.synthese_critique.donnee`,
+        `sources.reco_officielle.divergences[1].appui`, deux `options[].inconvenients`), aucun champ
+        moteur touché.
+    - date: "2026-08-06"
+      auteur: "Claude Code — contre-relecture rédactionnelle, en attente de relecture clinique"
+      resume: >-
+        CONTRE-RELECTURE DES QUATRE NIVEAUX DE LECTURE, sur le YAML et sur l'argumentaire exhaustif. Aucune
+        `conditions`, `prerequis`, `exclusions`, `priorite`, `role`, `famille`, `derive`, `visible_si`,
+        `calculs`, aucun `quand` d'alerte ni aucune clé de `motifs` existante n'est touché. (1) CARTE DE
+        REPLI (T-170, ajoutée hors de la passe du 2026-08-05) : ses puces sont réécrites en registre
+        consultation (« le nœud a bien été évalué », « en dehors de cet outil » sortent) et son
+        `effet_attendu` devient une phrase construite au lieu d'un « non chiffrable » nu. (2)
+        `delai_benefice` renseigné sur les 16 options qui ne l'avaient pas (la carte de repli l'avait déjà
+        depuis T-170) : « 4,8 à 7 ans — durée des essais du motif alimentaire d'ensemble ; non établi pour
+        ce geste isolé » pour les sept pistes dont l'`effet_attendu` s'adosse explicitement au motif
+        méditerranéen d'ensemble (boisson sucrée, restauration rapide, huile d'olive, viande/charcuterie,
+        fruits à coque, légumineuses, poisson) ; « non établi » pour les neuf autres (savoir-faire
+        diététique et orientations), vérifié carte par carte contre leur `effet_attendu`. (3) DEUX PUCES
+        DUPLIQUÉES retirées des `avantages` de « Huile d'olive » et « Fruits à coque » : le désaveu de
+        preuve qu'elles portaient (« le résultat cardiovasculaire dur appartient au motif entier ») restait
+        déjà dans leurs `inconvenients`. (4) UNE PUCE MAL RANGÉE : sur « Manger sans se presser », l'avantage
+        « la HAS garde manger lentement parmi ses mesures d'accompagnement » était classé en
+        `inconvenients` ; déplacé en `avantages`. (5) TROIS PUCES MULTI-IDÉES scindées (une idée par puce) :
+        boisson sucrée, restauration rapide, huile d'olive/huile de colza. (6) BADGE BOISSONS SUCRÉES : une
+        incise ajoutée à l'`effet_attendu`, sur le modèle de la carte restauration rapide, précisant que le
+        niveau de preuve affiché qualifie la recommandation, pas l'effet cardiovasculaire du geste isolé.
+        (7) INCERTITUDES : l'historique éditorial de l'outil (piste de pesée retirée, évolution du
+        repérage TCA vers un rôle d'orientation) sort de deux entrées, qui ne gardent que le fait clinique ;
+        le sigle SCOFF-F est introduit (« questionnaire de dépistage SCOFF-F ») à sa première occurrence.
+        (8) ARGUMENTAIRE DU NŒUD resserré d'environ 480 à environ 215 mots : la logique de hiérarchisation
+        des rangs et la phrase sur ce que qualifie le niveau de preuve sont conservées, le reste (vin, TCA,
+        hypoglycémie) retiré car déjà porté par le `cadrage`, les options et les `alertes`. (9) ARGUMENTAIRE
+        EXHAUSTIF (`rhd-alimentation.argumentaire.md`) resynchronisé : la carte de repli entre dans le
+        tableau de provenance du §3 (17 lignes) et la note sur « Continuer ce qui fonctionne déjà » attribue
+        désormais le rôle de filet d'écran muet à cette carte, pas à elle-même ; la parenthèse d'historique
+        sur l'attribution erronée à la liste DSM-5 est retirée au profit du fait direct ; les deux notes sur
+        les citations SFD/Salame réécrites en énoncé du périmètre réel des sources (même fond : SFD §8.7 =
+        MASLD, Salame = émulsifiants) ; « corpus local »/« le dépôt » remplacés par des formulations
+        lecteur ; RCT, HR, IC, NNT, Se/Sp/VPP et MEDAS développés à leur première occurrence ; l'en-tête
+        perd son étiquette de niveau interne au profit du gabarit « Lecture exhaustive. Destiné au
+        professionnel qui veut le détail complet et toutes les sources. » SIGNALÉ, NON CORRIGÉ (hors mandat
+        de ce lot, arbitrage référent en attente) : l'URL manquante de l'affiche Manger-Bouger
+        (`sources.references_primaires` `manger-bouger-affiche.lien`, vide) ; le choix du chiffre -0,6 %
+        Cochrane évoqué dans l'arbitrage n°10 de la contre-relecture, qui n'apparaît pas dans ce nœud et n'a
+        donc pas été touché ici.
+    - date: "2026-08-06"
+      auteur: "Claude Code (P14/S7, T-170) — en attente de relecture référent"
+      resume: >-
+        AJOUT D'UN REPLI NEUTRE (R10) : nouvelle famille « Aucune piste prioritaire » (`exclusive: false`,
+        en dernière position de `familles`) et une option de repli en dernière position de `options`
+        (`conditions: ["default"]`, `role: repli`, AUCUN `prerequis`). MOTIF : ce nœud n'avait aucune
+        option `default` ; le plancher reposait sur la carte « Continuer ce qui fonctionne déjà », dont la
+        conjonction couvre aujourd'hui tout le domaine utile par ARITHMÉTIQUE des énums actuels
+        (`matiere_grasse_cuisson` × `frequence_fruits_a_coque`) — pas par construction : ajouter une
+        valeur à l'un de ces critères romprait cette arithmétique et ouvrirait un écran vide (R10). Le
+        repli n'affirme rien sur le patient (ni satisfecit, ni jugement) : il constate qu'aucune piste
+        prioritaire ne ressort des réponses recueillies et renvoie à la prochaine consultation —
+        volontairement PAS une carte « maintien » (un repli qui proposerait de continuer devrait porter un
+        `prerequis`, R9/I15, ce qui rouvrirait le trou que ce lot ferme). La carte « Continuer ce qui
+        fonctionne déjà » reste un `geste` ordinaire, conditions inchangées ; aucune `exclusive` de nœud
+        touchée (S8/T-174, hors mandat). CONSÉQUENCE CONSTATÉE, PAS UN DÉFAUT DE CE LOT : arithmétiquement,
+        ce repli est INATTEIGNABLE par toute combinaison des valeurs d'énumération actuellement déclarées
+        (les deux axes cités ci-dessus couvrent déjà tout le domaine utile à eux seuls, cf. commentaire de
+        l'option) — c'est un filet structurel pour une évolution future du contenu, pas un cas vivant sur
+        le contenu d'aujourd'hui ; la vignette de banc ajoutée à `evaluateNode.rhd-alimentation.test.ts`
+        le prouve en simulant une valeur d'énumération encore non déclarée. `engine/banc/couverture.test.ts`
+        (« chaque option est applicable pour au moins un profil ») ne peut mécaniquement pas voir ce repli
+        se déclencher sur le banc actuel — signalé au référent, non corrigé ici (hors mandat de T-170, qui
+        ne liste que les deux fichiers YAML et leurs tests dédiés). `engine/banc/invariants-contenu.test.ts`
+        (I15, I17, T-163) revérifiés : I15/I17 verts, T-163 cesse de signaler ce nœud.
     - date: "2026-08-05"
       auteur: "Claude Code — en attente de relecture clinique"
       resume: >-
