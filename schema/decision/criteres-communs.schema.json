@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ebm-msp.local/schema/criteres-communs.schema.json",
+  "title": "Critères communs de domaine",
+  "description": "T-188 (P14/S15), principe P2 de la revue de conception du 2026-08-04 arbitré le 2026-08-06 : « un fait clinique de sécurité a un vocabulaire unique et global » — généralisation AU DOMAINE de R8 (docs/decision/GRAMMAIRE-NOEUD.md), qui ne valait jusqu'ici qu'à l'intérieur d'un nœud. Un fichier par domaine (ex. content/decision/criteres-communs/diabete-type-2.yaml) porte la DÉFINITION d'un fait clinique une seule fois ; un nœud le RÉFÉRENCE via `{ ref: <nom> }` dans `criteres_entree` (schema/decision/noeud.schema.json, définition `critereEntreeRef`) plutôt que de le redéclarer. LE PARTAGE PORTE SUR LA DÉFINITION, JAMAIS SUR LA MISE EN SCÈNE : ce fichier ne porte QUE ce qu'un nœud ne peut plus surcharger une fois qu'il référence ce nom (`type`, `valeurs`, `min`, `max`, `paliers`, `derive`, `partage`, `aide`) — jamais `groupe`, `visible_si`, `debut_de_ligne`, `libelle_masque`, `valeurs_visible_si`, `masque_si_indetermine`, `preremplissage` (ceux-ci restent déclarés par CHAQUE nœud qui référence le fait, dans le `criteres_entree` correspondant) ni `presomption_non` (LOCAL par conception, D30 : son éligibilité dépend de l'usage DANS le nœud — canal de sécurité ou non — pas de la définition du fait ; cf. l'asymétrie voulue de `traitements_en_cours`, vérifiée par l'invariant S2/T-165). Résolu au CHARGEMENT (`src/features/decision/content/loadNodes.ts`), avant que quoi que ce soit d'autre voie le nœud : le moteur (`engine/`), le formulaire et le banc reçoivent toujours un `CritereEntree` complet et ignorent totalement ce mécanisme. Un `ref` vers un nom absent de ce fichier, ou un domaine sans fichier commun alors qu'un nœud y réfère, lève une erreur explicite au chargement (même politique que `ConditionError` du moteur) — jamais de repli silencieux.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["domaine", "criteres"],
+  "properties": {
+    "domaine": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Domaine clinique de ce fichier (ex. diabete-type-2) — doit correspondre au `domaine` des nœuds qui y référencent un critère par `ref`. Un fichier par domaine (convention du dépôt : content/decision/criteres-communs/<domaine>.yaml)."
+    },
+    "criteres": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/critereCommun" }
+    }
+  },
+  "definitions": {
+    "critereCommun": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["nom", "type"],
+      "description": "Une DÉFINITION de fait clinique, partagée par tous les nœuds du domaine qui la référencent via `{ ref: nom }`. Champs identiques en nature à ceux de `noeud.schema.json#/definitions/critereEntree` (même sens, même effet), mais RESTREINTS à ceux qui définissent le fait plutôt que sa présentation — voir la description de tête de ce fichier pour la table complète des deux colonnes (défini ici / laissé au nœud).",
+      "properties": {
+        "nom": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Nom du critère — c'est la valeur que `criteres_entree[].ref` doit reprendre EXACTEMENT pour résoudre vers cette définition. Unique dans ce fichier (vérifié par un test dédié, pas par ce schéma qui ne peut pas comparer deux entrées entre elles)."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["nombre", "bool", "enum", "liste"],
+          "description": "Même sens qu'sur `critereEntree` — 'liste' = critère multivalué (DECISIONS.md D13)."
+        },
+        "valeurs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Valeurs possibles, pertinent quand `type` vaut `enum` ou `liste`. L'ORDRE est significatif (`valeurParDefaut` retient la première valeur déclarée, `lib/formLayout.ts`) et fait donc partie de la DÉFINITION du fait — raison de plus pour qu'il ne soit posé qu'une fois ici plutôt que risquer une divergence d'ordre entre nœuds (cf. la dette historique `preference_injection`, `engine/banc/coherence-inter-noeuds.test.ts`)."
+        },
+        "min": {
+          "type": "number",
+          "description": "Voir `critereEntree.min` (noeud.schema.json) pour le rôle complet (borne de saisie, filtre des valeurs candidates du banc, domaine de repli du tirage)."
+        },
+        "max": {
+          "type": "number",
+          "description": "Voir `critereEntree.max` (noeud.schema.json)."
+        },
+        "paliers": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": { "type": "number" },
+          "description": "Voir `critereEntree.paliers` (noeud.schema.json) — paliers standard d'un critère `nombre`, aucun effet moteur."
+        },
+        "derive": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Voir `critereEntree.derive` (noeud.schema.json) — expression calculée depuis d'autres critères. Fait partie de la DÉFINITION (le calcul qui produit le fait), pas de sa mise en scène."
+        },
+        "partage": {
+          "type": "boolean",
+          "description": "Voir `critereEntree.partage` (noeud.schema.json) — reprise de la valeur SAISIE d'un nœud à l'autre dans la même session (K6). Fait partie de la définition du fait : soit ce fait circule entre nœuds partout où il apparaît, soit nulle part — un nœud ne peut pas décider unilatéralement de ne pas participer au partage d'un fait par ailleurs déclaré `partage: true` ici (cf. le garde-fou de `plans/P14/S15.md` § Si bloqué : une telle incohérence est un arbitrage, pas un contournement)."
+        },
+        "aide": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Voir `critereEntree.aide` (noeud.schema.json) — texte d'aide à la saisie. Fait partie de la définition (« qu'est-ce que je coche exactement ? » ne dépend pas du nœud qui pose la question)."
+        },
+        "concerne": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Libellés d'actes ou de classes thérapeutiques que ce fait rend pertinents (ex. [\"sulfamide\", \"glinide\", \"insuline\"]). AUCUN EFFET MOTEUR NI DE PRÉSENTATION : `src/features/decision/content/loadNodes.ts` ne recopie PAS ce champ sur le `CritereEntree` résolu (le moteur, le formulaire et le banc n'ont jamais eu de raison de le connaître). Existe UNIQUEMENT pour l'invariant prévu en S16 (plans/P14, session ultérieure), qui doit pouvoir dire « ce nœud prescrit une classe concernée par ce fait et ne le voit pas »."
+        }
+      }
+    }
+  }
+}

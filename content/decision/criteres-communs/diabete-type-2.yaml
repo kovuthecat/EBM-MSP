@@ -1,0 +1,86 @@
+# Critères communs du domaine « diabète de type 2 » (T-188, P14/S15) — schema/decision/criteres-communs.schema.json
+#
+# CE QUE CE FICHIER PORTE, ET CE QU'IL NE PORTE PAS. La DÉFINITION d'un fait clinique, une seule fois pour
+# tout le domaine — jamais sa MISE EN SCÈNE (`groupe`, `visible_si`, `debut_de_ligne`, `libelle_masque`,
+# `valeurs_visible_si`, `masque_si_indetermine`, `preremplissage`), qui reste déclarée par CHAQUE nœud dans
+# son `criteres_entree`, à côté du `{ ref: <nom> }` qui pointe ici. `presomption_non` reste, lui aussi,
+# LOCAL au nœud — délibérément absent de ce fichier (D30 : son éligibilité dépend de l'usage DANS le nœud
+# qui le déclare — canal de sécurité ou non —, jamais de la définition du fait ; cf. l'asymétrie voulue de
+# `traitements_en_cours`, invariant S2/T-165, `src/features/decision/engine/banc/coherence-inter-noeuds.
+# test.ts`). Doctrine complète : `plans/P14/S15.md` § Décision clé (principe P2 de la revue de conception
+# du 2026-08-04, arbitré le 2026-08-06).
+#
+# DEUX CRITÈRES À CE JOUR (2026-08-07, après P14/S15 puis P14/S16, T-188 puis T-189) — TOUJOURS PAS LE
+# DÉPLACEMENT COMPLET. Le déplacement de la liste candidate entière reste S17, après relecture référent de
+# `docs/decision/validation/criteres-communs-2026-08-06.md` (produit par S14).
+#
+# `cetonemie` AJOUTÉ EN S15 COMME DÉMONSTRATION parmi les deux candidats que S14 classe « légitime à
+# déplacer, aucun arbitrage ouvert » (`docs/decision/validation/criteres-communs-2026-08-06.md` § « Liste
+# candidate au fichier commun (S15) ») : une seule définition existante dans tout le domaine
+# (`prescription.yaml`, avant le 2026-08-06), aucune définition concurrente à arbitrer — `insuline.yaml`
+# ne le déclare pas du tout (c'est exactement le « défaut » que S14 documente : un patient vu sur
+# `insuline` pour un ajustement de schéma n'obtient aucune alerte d'urgence catabolique). S15 n'a PAS
+# corrigé ce défaut (ajouter la référence sur `insuline` est un déplacement de contenu, hors périmètre —
+# S17/S18/S19) : elle a seulement démontré que la définition peut vivre ici et être référencée sans en
+# changer le sens (`prescription` continue de la lire à l'identique, cf. son changelog).
+#
+# `hypo_severe_recurrente` AJOUTÉ EN S16 (T-189), PAS POUR LE DÉPLACER MAIS POUR QUE L'INVARIANT DE S16
+# PUISSE LE NOMMER. S16 livre l'invariant I33 (`src/features/decision/engine/banc/
+# invariants-contenu.test.ts`, principe P2 de la revue de conception du 2026-08-04) : « un fait de
+# sécurité déclarable est évalué, ou explicitement déclaré hors périmètre, par tout nœud qui prescrit une
+# classe concernée ». Sa Validation exige que le message d'échec nomme AU MINIMUM les deux défauts déjà
+# mesurés par S14 (`docs/decision/validation/criteres-communs-2026-08-06.md` § 3.1) : `insuline`/
+# `cetonemie` (couvert par l'entrée ci-dessus, dont le `concerne` cite déjà `insuline_basale`/
+# `insuline_rapide`) ET `prescription`/`hypo_severe_recurrente` — qui N'ÉTAIT PAS encore dans ce fichier
+# avant ce jour, puisque S15 n'en avait livré qu'UN SEUL à dessein. Sans une définition commune portant
+# `concerne`, l'invariant ne peut tout simplement pas voir ce second défaut : il lit `concerne` depuis CE
+# fichier, pas depuis le contenu d'un nœud.
+#
+# MÊME GESTE QUE S15 POUR `cetonemie`, RIEN DE PLUS : une DÉFINITION commune ajoutée (reprise À
+# L'IDENTIQUE de la seule déclaration existante, `insuline.yaml`, avant ce jour — `type: bool` seul,
+# aucun `valeurs`/`min`/`max`/`derive`/`aide`/`partage`), plus son `concerne`. `insuline.yaml` N'EST PAS
+# TOUCHÉ : sa déclaration reste en forme COMPLÈTE, pas convertie en `{ ref }` — cette conversion est un
+# déplacement de contenu (S17/S18/S19), hors mandat de S16 (`plans/P14/S16.md` § Hors périmètre : « ne
+# modifier aucun contenu clinique »). Deux définitions du même fait coexistent donc temporairement (celle-
+# ci et celle, complète, d'`insuline.yaml`) — redondance ASSUMÉE et TEMPORAIRE, le prix de fournir à
+# l'invariant le vocabulaire dont il a besoin sans anticiper la décision de contenu (déclarer le fait sur
+# `prescription`, ou le déclarer hors périmètre avec un motif clinique) qui appartient à S19, pas à S16.
+#
+# `concerne: [sulfamide, glinide]` — REPRIS TEL QUEL de `docs/decision/validation/
+# criteres-communs-2026-08-06.md` § 3.1 (ligne `hypo_severe_recurrente`) : « Sulfamide, glinide — les deux
+# classes qui exposent à l'hypoglycémie sévère, prescrites ou poursuivies par ce nœud [prescription] ».
+# Vérifié dans le contenu réel avant d'écrire cette entrée : les DEUX tokens apparaissent littéralement
+# dans des `conditions`/`prerequis` d'options de `prescription.yaml` (ex. `traitements_en_cours contient
+# sulfamide`, `traitements_en_cours contient glinide`), et dans AUCUN autre nœud du domaine sous cette
+# forme structurée (les occurrences ailleurs — `rhd-alimentation`, `rhd-activite-physique`,
+# `cible-glycemique` — ne sont que de la prose : `aide`, `alertes[].message`, commentaires) : `concerne`
+# ne produit donc aucun faux positif sur les 6 nœuds du domaine à ce jour.
+domaine: diabete-type-2
+criteres:
+  - nom: cetonemie
+    # Définition reprise TELLE QUELLE de `prescription.yaml` (seule déclaration existante avant ce jour) :
+    # un simple booléen — « Cétonémie ≥ 3 mmol/L » (cf. `prescription.yaml`, contre-indications de
+    # « Suspendre l'iSGLT2 » / « Insuline d'initiation »), sans `valeurs`/`min`/`max`/`derive`/`aide`
+    # propres : le nœud portait déjà tout le contexte clinique en prose (`contre_indications`, alertes),
+    # pas dans une aide de champ.
+    type: bool
+    # Classes/gestes que ce fait rend pertinents (AUCUN effet moteur ni de rendu — sert uniquement à
+    # l'invariant prévu en S16) : les classes que `prescription.yaml` exclut ou suspend sur
+    # `cetonemie == true` (iSGLT2, aGLP1, sulfamide, gliptine — combinaisons comprises), plus `insuline`,
+    # qui AJUSTE un schéma déjà en place sans voir ce fait aujourd'hui (le « défaut » documenté par S14).
+    concerne: [iSGLT2, aGLP1, sulfamide, gliptine, insuline_basale, insuline_rapide]
+  - nom: hypo_severe_recurrente
+    # Définition reprise TELLE QUELLE de `insuline.yaml` (seule déclaration existante à ce jour,
+    # 2026-08-07) : un simple booléen, sans `valeurs`/`min`/`max`/`derive`/`aide`/`partage` propres — le
+    # nœud portait déjà tout le contexte clinique dans son `aide` de `risque_hypoglycemie_schema` voisin
+    # et dans ses alertes de nœud, pas dans une aide propre à ce champ. `insuline.yaml` N'EST PAS modifié
+    # par cette entrée (cf. le commentaire de tête de ce fichier) : sa déclaration reste en forme complète.
+    type: bool
+    # Classes/gestes que ce fait rend pertinents (AUCUN effet moteur ni de rendu — sert uniquement à
+    # l'invariant I33, P14/S16) : REPRIS TEL QUEL de `docs/decision/validation/
+    # criteres-communs-2026-08-06.md` § 3.1 — sulfamide et glinide, les deux classes insulinosécrétrices
+    # que `prescription.yaml` prescrit ou poursuit (`traitements_en_cours contient sulfamide`/`glinide`
+    # dans plusieurs `conditions`/`prerequis` d'options) sans voir ce fait aujourd'hui (le « défaut »
+    # documenté par S14 : aucune traduction de l'antécédent en critère saisi sur ce nœud, seulement une
+    # mention en prose dans l'`aide` de `risque_hypoglycemie_schema`).
+    concerne: [sulfamide, glinide]

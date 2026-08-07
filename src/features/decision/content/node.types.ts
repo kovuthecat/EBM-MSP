@@ -280,6 +280,75 @@ export interface CritereEntree {
 }
 
 /**
+ * FORME COURTE d'un critère d'entrée (T-188, P14/S15) : référence une DÉFINITION commune de domaine
+ * (`content/decision/criteres-communs/<domaine>.yaml`, miroir TS de `criteres-communs.schema.json`, cf.
+ * `CritereCommun` ci-dessous) au lieu de la redéclarer. `loadNodes.ts` résout chaque `ref` en
+ * `CritereEntree` complet AU CHARGEMENT, avant que quoi que ce soit d'autre voie le nœud — cette forme
+ * n'apparaît donc JAMAIS dans un `Noeud` résolu (`Noeud.criteres_entree: CritereEntree[]`, inchangé) : le
+ * moteur, le formulaire et le banc ne savent rien de ce mécanisme.
+ *
+ * N'ADMET QUE `ref` PLUS LES CHAMPS DE MISE EN SCÈNE — c'est le point de conception central (plans/P14/
+ * S15.md § Décision clé, principe P2 de la revue du 2026-08-04) : le partage porte sur la DÉFINITION du
+ * fait (`type`, `valeurs`, `min`, `max`, `paliers`, `derive`, `partage`, `aide` — aucun n'apparaît ici),
+ * jamais sur sa présentation. `presomption_non` est l'EXCEPTION notable : il ressemble à un champ de
+ * définition mais reste délibérément LOCAL (D30 — son éligibilité dépend de l'usage du critère DANS CE
+ * NŒUD, canal de sécurité ou non, jamais de la définition du fait ; c'est l'asymétrie voulue de
+ * `traitements_en_cours`, vérifiée par l'invariant S2/T-165, `engine/banc/coherence-inter-noeuds.test.ts`
+ * — la rendre globale la rendrait impossible). Le schéma JSON (`critereEntreeRef`) REFUSE tout autre champ
+ * (`additionalProperties: false`) : une entrée qui porterait `ref` ET un champ de définition serait
+ * rejetée, plutôt que de réintroduire en silence la divergence que ce mécanisme élimine.
+ */
+export interface CritereEntreeRef {
+  /** Nom du critère dans le fichier de critères communs du domaine de ce nœud. */
+  ref: string
+  groupe?: string
+  debut_de_ligne?: boolean
+  libelle_masque?: boolean
+  visible_si?: string
+  valeurs_visible_si?: Record<string, string>
+  masque_si_indetermine?: boolean
+  preremplissage?: ReglePreremplissage[]
+  /** LOCAL, délibérément — voir la docstring de l'interface. */
+  presomption_non?: boolean
+}
+
+/**
+ * Une entrée de `FichierCriteresCommuns.criteres` (T-188, P14/S15) — la DÉFINITION d'un fait clinique,
+ * partagée par tous les nœuds du domaine qui la référencent via `{ ref: nom }` (`CritereEntreeRef`).
+ * Miroir TS de `schema/decision/criteres-communs.schema.json#/definitions/critereCommun`.
+ *
+ * Porte EXACTEMENT les champs qu'un nœud ne peut plus surcharger une fois qu'il pose un `ref` sur ce
+ * `nom` : le même sous-ensemble que la colonne gauche de la table de `plans/P14/S15.md` § Décision clé.
+ * `presomption_non` en est absent SANS EXCEPTION (contrairement à `CritereEntreeRef`, qui l'admet
+ * lui-même comme champ LOCAL) : ce fichier ne le porte jamais, précisément parce qu'il reste au nœud.
+ */
+export interface CritereCommun {
+  nom: string
+  type: 'nombre' | 'bool' | 'enum' | 'liste'
+  valeurs?: string[]
+  min?: number
+  max?: number
+  paliers?: number[]
+  derive?: string
+  partage?: boolean
+  aide?: string
+  /**
+   * Libellés d'actes/classes thérapeutiques que ce fait rend pertinents (ex. `[sulfamide, glinide,
+   * insuline]`). AUCUN EFFET MOTEUR NI DE PRÉSENTATION : `loadNodes.ts` ne le recopie PAS sur le
+   * `CritereEntree` résolu — n'existe que pour l'invariant prévu en S16 (session ultérieure), qui doit
+   * pouvoir dire « ce nœud prescrit une classe concernée par ce fait et ne le voit pas ».
+   */
+  concerne?: string[]
+}
+
+/** Fichier de critères communs d'UN domaine (`content/decision/criteres-communs/<domaine>.yaml`, un
+ * fichier par domaine). Miroir TS de `criteres-communs.schema.json` (racine). */
+export interface FichierCriteresCommuns {
+  domaine: string
+  criteres: CritereCommun[]
+}
+
+/**
  * Règle de rang conditionnel (DECISIONS.md D14) : si `quand` (condition DSL, ou `"default"` pour le
  * repli) est vraie pour le patient, l'option prend ce `rang`. Utilisée dans `Option.priorite` sous
  * forme de liste évaluée en première-correspondance.
@@ -331,6 +400,38 @@ export interface Calcul {
 export type RoleOption = 'socle' | 'securite' | 'geste' | 'repli'
 
 /**
+ * VALEUR PUBLIÉE par l'option RETENUE d'un nœud à sortie unique (`docs/commun/decisions/
+ * 2026-08-06-d50-*.md`, D50, amende D28) : `critere` — un NOM, jamais connu du socle par avance (D8) —
+ * reçoit `valeur`, un NOMBRE LITTÉRAL déclaré par le contenu, **jamais une expression calculée, jamais une
+ * valeur reprise de la saisie**.
+ *
+ * AUCUN EFFET MOTEUR : `evaluateNode` ne lit jamais ce champ. La publication a lieu APRÈS que le moteur a
+ * rendu son verdict, hors de lui (`screens/DecisionNodeScreen.tsx`, sur la sortie d'`evaluateNode`) — donc
+ * jamais dans la boucle de perturbation d'`engine/relevance.ts`. Elle N'A LIEU QU'UNE FOIS LE NŒUD SORTI :
+ * un nœud `enAttente` (le moteur ne s'est pas prononcé, R7/D20) ne publie rien.
+ *
+ * RÉSERVÉ à `Noeud.selection === 'ordered-first-match'` (D50, § « Raison du choix » : seul un nœud à
+ * sortie unique a UNE conclusion à publier ; en `multi-options`, plusieurs options concurrentes
+ * publieraient des valeurs sans règle d'arbitrage) — NON vérifié par ce type ni par le schéma (une
+ * propriété d'option ne voit pas le `selection` de son nœud) : c'est l'écran qui n'agit sur `publie` que
+ * pour un nœud `ordered-first-match`.
+ *
+ * CE QUE `publie` N'EST PAS, et c'est tout le sujet de D50 : PAS un chaînage de règles. La valeur publiée
+ * n'atteint JAMAIS une `condition` / un `prerequis` / une `exclusions` / un `derive` / un `visible_si` /
+ * ... d'un autre critère — SEUL un `preremplissage` peut la lire (garde-fou opposable de D50, mécanisé par
+ * l'invariant dédié d'`engine/banc/invariants-contenu.test.ts`). Elle n'est JAMAIS IMPOSÉE : posée en
+ * mémoire de session (`lib/sessionCriteres.ts`, fonction `publierCritere`), elle ne fait que PRÉ-REMPLIR —
+ * exactement comme un `preremplissage` de contenu (K6) — un champ d'un AUTRE nœud qui déclare le même nom
+ * de critère. Le praticien la voit, l'écran signale son origine (ce nœud + cette option), et il l'écrase
+ * d'un geste comme n'importe quel pré-remplissage : ce qui circule reste une SUGGESTION DE SAISIE, jamais
+ * une CONCLUSION imposée.
+ */
+export interface Publication {
+  critere: string
+  valeur: number
+}
+
+/**
  * Verbe d'action pour piloter un badge couleur à l'écran (SB3) — réservé aux nœuds dont le contenu
  * emploie déjà ce vocabulaire (`prescription`, `insuline`). Les 4 autres nœuds (cible-glycemique,
  * statine, rhd-alimentation, rhd-activite-physique) n'ont pas ce vocabulaire et ne doivent jamais
@@ -372,6 +473,15 @@ export interface Option {
    * DEUX SENS : une déclaration qui dérive de la mécanique serait pire que pas de déclaration du tout.
    */
   role: RoleOption
+  /**
+   * PUBLICATION en mémoire de session (D50, amende D28) — cf. `Publication` ci-dessus pour la doctrine
+   * complète (ce que c'est, ce que ça n'est PAS, le garde-fou). Résumé : quand CETTE option est celle que
+   * le moteur RETIENT pour un nœud `ordered-first-match`, l'écran écrit `publie.valeur` en mémoire de
+   * session sous le nom `publie.critere` — une SUGGESTION pour pré-remplir ce même nom sur un AUTRE nœud,
+   * jamais un chaînage de règles. Optionnel, et réservé de fait aux options d'un nœud à sortie unique :
+   * absent = comportement rigoureusement inchangé (aucune publication, comme avant ce champ).
+   */
+  publie?: Publication
   /**
    * Verbe d'action pour piloter un badge couleur à l'écran (SB3) — réservé aux nœuds dont le contenu
    * emploie déjà ce vocabulaire (`prescription`, `insuline`). Optionnel : les 4 autres nœuds
@@ -825,6 +935,14 @@ export interface Noeud {
    * AUCUN effet sur la sélection : `evaluateNode` ne lit pas ce champ.
    */
   contraintes?: Contrainte[]
+  /**
+   * FAITS COMMUNS DÉLIBÉRÉMENT HORS PÉRIMÈTRE de ce nœud (principe P2, T-189, P14/S16) — cf.
+   * `CritereHorsPerimetre` pour la doctrine complète (ce que c'est, ce que ça n'est PAS, l'unique
+   * consommateur). Optionnel : absent = aucune exclusion déclarée pour ce nœud, comportement
+   * rigoureusement inchangé — l'invariant I33 exige alors que tout fait commun pertinent pour ce nœud
+   * soit DÉCLARÉ (forme complète ou `{ ref }`), faute de quoi il signale une absence silencieuse.
+   */
+  criteres_hors_perimetre?: CritereHorsPerimetre[]
 }
 
 /**
@@ -838,4 +956,44 @@ export interface Contrainte {
   expression: string
   /** Ce que le praticien lit quand elle est violée. En langage clinique, sans citer l'expression. */
   message: string
+}
+
+/**
+ * ENTRÉE de `Noeud.criteres_hors_perimetre` (principe P2 de la revue de conception du 2026-08-04, T-189,
+ * P14/S16) : déclare qu'un fait de sécurité du fichier commun de domaine
+ * (`content/decision/criteres-communs/<domaine>.yaml`) — CONCERNÉ par une classe/geste que CE nœud
+ * prescrit (une valeur de `CritereCommun.concerne` citée dans une `conditions`/`prerequis`/`exclusions`
+ * d'au moins une option de ce nœud) — a été délibérément jugé SANS OBJET ici, et pourquoi.
+ *
+ * DÉCLARATION D'INTENTION OPPOSABLE, PAS UNE EXCLUSION MÉCANIQUE : `evaluateNode` ne lit JAMAIS ce champ,
+ * il n'a AUCUN effet sur la sélection, le tri, une exclusion ou une alerte. Le SEUL consommateur est
+ * l'invariant du banc I33 (`src/features/decision/engine/banc/invariants-contenu.test.ts`), qui
+ * mécanise le principe P2 : « un critère de sécurité déclarable quelque part est évalué (ou explicitement
+ * déclaré hors périmètre) par tout nœud qui prescrit une classe concernée ». Sans ce champ, un fait de
+ * sécurité qu'un nœud ne voit pas est indiscernable d'un OUBLI ; avec lui, l'absence devient une DÉCISION
+ * OPPOSABLE — quelqu'un a lu, jugé, et écrit pourquoi.
+ *
+ * LES DEUX CHAMPS SONT OBLIGATOIRES ET NON VIDES (schéma, `additionalProperties: false` des deux côtés) :
+ * `motif` est lu par un HUMAIN, jamais par la machine — I33 vérifie seulement que ce champ EXISTE et
+ * n'est pas vide, jamais ce qu'il dit : c'est son existence, pas son contenu rédactionnel, qui transforme
+ * un oubli en décision.
+ */
+export interface CritereHorsPerimetre {
+  /** Nom du fait commun jugé hors périmètre — doit correspondre EXACTEMENT au `nom` d'une entrée de
+   * `content/decision/criteres-communs/<domaine>.yaml` (le domaine de ce nœud). */
+  nom: string
+  /** Pourquoi ce fait, bien que concerné par une classe que ce nœud prescrit, n'a pas d'objet ICI. */
+  motif: string
+}
+
+/**
+ * Nœud TEL QU'ÉCRIT en YAML (T-188, P14/S15) — AVANT la résolution des `{ ref }` de `criteres_entree`.
+ * SEUL `loadNodes.ts` importe ce type : c'est la forme brute que lit `import.meta.glob` sur
+ * `content/decision/noeuds/**\/*.yaml`, transformée en `Noeud` (résolu, ci-dessus) avant d'être exposée
+ * par `export const noeuds`. Aucun autre fichier ne doit importer `NoeudBrut` — le moteur, le formulaire
+ * et le banc travaillent exclusivement sur `Noeud`/`CritereEntree`, complets, sans savoir que ce
+ * mécanisme existe (c'est tout le point de résoudre AVANT que quoi que ce soit d'autre voie le nœud).
+ */
+export interface NoeudBrut extends Omit<Noeud, 'criteres_entree'> {
+  criteres_entree: (CritereEntree | CritereEntreeRef)[]
 }
