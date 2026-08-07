@@ -463,6 +463,14 @@ if (!OPT_INTERRUPTION) throw new Error('Option « Interrompre la statine » intr
 // s'affichait, est devenue une option à part entière avec son propre titre.
 const OPT_ARRET_URGENCE = node.options.find((o) => o.intitule.includes('suspicion de rhabdomyolyse'))
 if (!OPT_ARRET_URGENCE) throw new Error('Option « Arrêter la statine — suspicion de rhabdomyolyse » introuvable.')
+// 2026-08-07 (arbitrage référent) : `OPT_ARRET_URGENCE` couvre désormais AUSSI la branche avérée
+// (`intolerance_statine != non`, élargi depuis `== rapportee`) — la carte jumelle « la classe reste
+// indisponible » portait le même défaut D6 que sa jumelle rapportée avant T-153 (alerte CK > 50 N
+// démentant son propre titre) ; plutôt que dupliquer une troisième carte, la carte d'urgence existante
+// est partagée entre les deux branches, et « la classe reste indisponible » reçoit la même borne
+// `<= 50` que sa jumelle rapportée.
+const OPT_INTERRUPTION_AVEREE = node.options.find((o) => o.intitule.includes('la classe reste indisponible'))
+if (!OPT_INTERRUPTION_AVEREE) throw new Error('Option « Interrompre la statine — la classe reste indisponible » introuvable.')
 
 describe('statine — F-21/F-25 : conduite CK sous traitement (parcours NHS, lot du soir)', () => {
   it('F-21 — CK à 6 N sous statine : l’interruption 4-6 semaines PREND LA MAIN sur le tier de risque', () => {
@@ -528,6 +536,46 @@ describe('statine — F-21/F-25 : conduite CK sous traitement (parcours NHS, lot
     const result = evalProfile(o)
     expect(result.applicable).toEqual([OPT_TERMINALE])
     expect(result.excluded.get(OPT_HAUTE)).toContain('intolerance_statine != non AND CK_x_normale > 5 AND statine_deja_en_place == false')
+  })
+
+  it('F-21b — CK à 6 N, intolérance AVÉRÉE : « la classe reste indisponible » (bande <= 50)', () => {
+    // Miroir de F-21, branche avérée. Vérifie que la borne `<= 50` ajoutée le 2026-08-07 laisse toujours
+    // passer la bande basse, et que la carte urgence (partagée entre les deux branches) ne préempte pas.
+    const o = { statine_deja_en_place: true, intolerance_statine: 'averee', CK_UI_L: 6, CK_normale_sup: 1 } as Partial<Criteria>
+    expect(evalProfile(o).applicable).toEqual([OPT_INTERRUPTION_AVEREE])
+  })
+
+  it('F-23b — CK à 6 N, intolérance AVÉRÉE : aucune des deux alertes de bande haute ne s’affiche', () => {
+    const o = { statine_deja_en_place: true, intolerance_statine: 'averee', CK_UI_L: 6, CK_normale_sup: 1 } as Partial<Criteria>
+    const msgs = alertesDeCetteOption(o, OPT_INTERRUPTION_AVEREE).map((a) => a.message)
+    expect(msgs.some((m) => m.includes('FONCTION RÉNALE'))).toBe(false)
+    expect(msgs.some((m) => m.includes('RHABDOMYOLYSE'))).toBe(false)
+  })
+
+  it('F-24b — CK à 20 N, intolérance AVÉRÉE : l’alerte demande la fonction rénale (et pas l’urgence)', () => {
+    const o = { statine_deja_en_place: true, intolerance_statine: 'averee', CK_UI_L: 20, CK_normale_sup: 1 } as Partial<Criteria>
+    const msgs = alertesDeCetteOption(o, OPT_INTERRUPTION_AVEREE).map((a) => a.message)
+    expect(msgs.some((m) => m.includes('FONCTION RÉNALE'))).toBe(true)
+    expect(msgs.some((m) => m.includes('RHABDOMYOLYSE'))).toBe(false)
+  })
+
+  it('F-25-avr — CK à 60 N, intolérance AVÉRÉE : bascule sur la carte d’urgence PARTAGÉE, pas « la classe reste indisponible »', () => {
+    // C'est le test qui aurait échoué avant le 2026-08-07 : la carte terminale portait alors une alerte
+    // CK > 50 N qui démentait son propre titre au lieu de rediriger vers la carte d'urgence.
+    const o = { statine_deja_en_place: true, intolerance_statine: 'averee', CK_UI_L: 60, CK_normale_sup: 1 } as Partial<Criteria>
+    const result = evalProfile(o)
+    expect(result.applicable).toEqual([OPT_ARRET_URGENCE])
+    expect(result.applicable).not.toContain(OPT_INTERRUPTION_AVEREE)
+    expect((OPT_ARRET_URGENCE.avantages ?? []).join(' ')).toContain('RHABDOMYOLYSE')
+    const msgsAveree = alertesDeCetteOption(o, OPT_INTERRUPTION_AVEREE).map((a) => a.message)
+    expect(msgsAveree.some((m) => m.includes('RHABDOMYOLYSE'))).toBe(false)
+  })
+
+  it('F-25b-avr — CK à 50 N pile (borne), intolérance AVÉRÉE : reste sur « la classe reste indisponible », pas sur l’urgence', () => {
+    const o = { statine_deja_en_place: true, intolerance_statine: 'averee', CK_UI_L: 50, CK_normale_sup: 1 } as Partial<Criteria>
+    const result = evalProfile(o)
+    expect(result.applicable).toEqual([OPT_INTERRUPTION_AVEREE])
+    expect(result.applicable).not.toContain(OPT_ARRET_URGENCE)
   })
 
   it('F-27 — la divergence France / NHS sur l’arrêt définitif est ÉCRITE, pas effacée', () => {

@@ -23,16 +23,16 @@ population_cible: >-
   consultation absorbe.
 cadrage:
   - >-
-    Ces deux nœuds suggèrent des pistes de RAPPROCHEMENT d'un repère démontré ; ils ne fixent jamais un
+    Ces deux axes suggèrent des pistes de RAPPROCHEMENT d'un repère démontré ; ils ne fixent jamais un
     objectif chiffré à atteindre, et ne calculent aucun score d'adhérence. La négociation avec le patient
     fait partie du geste : une piste refusée n'est pas un échec, c'est une information.
   - >-
     Chaque axe est autonome : on peut n'en ouvrir qu'un, dans n'importe quel ordre, sans que l'autre ait
     été renseigné. Leurs conseils respectifs ne se mélangent jamais — mais les critères de terrain
-    partagés (dont la fragilité) circulent d'un nœud à l'autre, comme entre tous les nœuds de cette
+    partagés (dont la fragilité) circulent d'un écran à l'autre, comme entre tous les écrans de cette
     consultation.
   - >-
-    Hors périmètre des deux nœuds : l'objectif de perte de poids et la rémission, la prescription
+    Hors périmètre des deux axes : l'objectif de perte de poids et la rémission, la prescription
     diététique détaillée (orientation vers le diététicien de la structure) et le bilan d'aptitude
     physique (enseignant en activité physique adaptée).
 primer:
@@ -54,8 +54,13 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude Code"
   statut: brouillon
-  version: "0.4"
+  version: "0.5"
   changelog:
+    - date: "2026-08-07"
+      auteur: "Claude Code — arbitrage référent, en attente de relecture clinique"
+      resume: >-
+        Harmonisation « nœud » → « ces deux axes »/« ces deux écrans », 4 occurrences dans `cadrage`
+        (jargon de projet dans un champ affiché, même défaut que I25/D49). Aucun champ moteur touché.
     - date: "2026-08-06"
       auteur: "Claude Code (T-150, demande utilisateur)"
       resume: >-

@@ -1,19 +1,21 @@
 # Alimentation — module RHD — argumentaire exhaustif
 
-> Niveau de lecture 3 (preuve complète). Document autonome, sources croisées et vérifiées : PREDIMED et
-> CORDIOPREV pour le motif méditerranéen, le MEDAS en source primaire pour sa définition.
+> **Lecture exhaustive.** Destiné au professionnel qui veut le détail complet et toutes les sources.
+> Document autonome, sources croisées et vérifiées : PREDIMED et CORDIOPREV pour le motif méditerranéen,
+> le MEDAS (Mediterranean Diet Adherence Screener, questionnaire d'adhérence au régime méditerranéen) en
+> source primaire pour sa définition.
 
 ## En bref
 
-Ce nœud ne propose pas de cible chiffrée : il recueille des habitudes en fréquence déclarée et suggère des
+Cet écran ne propose pas de cible chiffrée : il recueille des habitudes en fréquence déclarée et suggère des
 pistes concrètes, négociables, pour se rapprocher du motif alimentaire méditerranéen — le seul motif
 alimentaire à bénéfice cardiovasculaire **dur** démontré. Trois points structurants :
 
 - **Le bénéfice dur appartient au motif dans son ensemble, jamais à un geste isolé.** PREDIMED et
   CORDIOPREV randomisent un régime méditerranéen supplémenté (huile d'olive ou fruits à coque), pas un
-  changement isolé d'huile ou l'ajout de quelques noix. Aucune piste de ce nœud ne revendique donc
+  changement isolé d'huile ou l'ajout de quelques noix. Aucune piste de cet écran ne revendique donc
   l'étiquette « bénéfice EBM sur critère dur » — elle appartient au cap d'ensemble, porté par ce document
-  et par la section « Comment ce nœud raisonne », jamais par une carte prise séparément.
+  et par la section « Comment cet écran raisonne », jamais par une carte prise séparément.
 - **Aucun score.** Le score MEDAS (14 items, l'instrument qui mesure l'adhérence dans PREDIMED) sert
   uniquement à choisir **quels** axes recueillir (fruits à coque, légumineuses, poisson, viande rouge,
   vin) — jamais à calculer un score administré au patient.
@@ -26,8 +28,9 @@ alimentaire à bénéfice cardiovasculaire **dur** démontré. Trois points stru
 
 ### PREDIMED (republication 2018, après rétractation pour irrégularités de randomisation sur certains centres, correction méthodologique publiée en 2018)
 
-RCT ouvert, n=7447, prévention primaire cardiovasculaire (≈ 52 % de diabétiques, proportion déduite),
-médiane 4,8 ans. Trois bras :
+Essai randomisé contrôlé (RCT) ouvert, n=7447, prévention primaire cardiovasculaire (≈ 52 % de diabétiques,
+proportion déduite), médiane 4,8 ans. Résultats exprimés en hazard ratio (HR, rapport des risques entre les
+deux groupes comparés) avec son intervalle de confiance à 95 % (IC). Trois bras :
 
 | Bras | Intervention | Composite CV majeur (IDM + AVC + décès CV) |
 | --- | --- | --- |
@@ -42,9 +45,10 @@ accrue n'était intégrée au protocole (elle n'est pas un facteur de confusion 
 ### CORDIOPREV (2022)
 
 RCT monocentrique, n=1002, **prévention secondaire** (coronariens), ~50 % de diabétiques, suivi 7 ans.
-Composite CV dur (adjugé) : **HR 0,72 (IC 0,54-0,96)**, NNT ~20/7 ans ; effet significatif chez l'homme,
-non significatif chez la femme (n=175, sous-effectif). Deuxième essai contrôlé randomisé démontrant un
-bénéfice cardiovasculaire dur du régime méditerranéen.
+Composite CV dur (adjugé) : **HR 0,72 (IC 0,54-0,96)**, nombre de patients à traiter pour éviter un
+événement sur 7 ans (NNT) ~20 ; effet significatif chez l'homme, non significatif chez la femme (n=175,
+sous-effectif). Deuxième essai contrôlé randomisé démontrant un bénéfice cardiovasculaire dur du régime
+méditerranéen.
 
 ### Composition qualitative du régime testé (littérature secondaire sur PREDIMED)
 
@@ -89,13 +93,13 @@ al., *PLoS ONE* 2012;7(8):e43134, DOI 10.1371/journal.pone.0043134, CC-BY).
 **Aucune version française validée n'a été identifiée** : des adaptations sont confirmées en allemand,
 anglais britannique et arabe marocain, ainsi que dans une étude transnationale à sept pays qui n'inclut pas
 la France ; la recherche française sur l'adhérence méditerranéenne utilise un autre score, le MeDi-Lite,
-dérivé d'un questionnaire de fréquence à 148 items. **Ce constat est sans conséquence pour ce nœud** : le
+dérivé d'un questionnaire de fréquence à 148 items. **Ce constat est sans conséquence pour cet écran** : le
 MEDAS n'y sert que de cadre pour choisir quels axes recueillir (fruits à coque, légumineuses, poisson,
 vin — items #12, #9, #10, #8), jamais d'instrument scoré nécessitant une validation linguistique.
 
-### Ce que le socle de ce nœud couvre du MEDAS
+### Ce que le socle de cet écran couvre du MEDAS
 
-| Item MEDAS | Question posée par ce nœud | Nature |
+| Item MEDAS | Question posée par cet écran | Nature |
 | --- | --- | --- |
 | #1/#6 huile d'olive vs beurre | Matière grasse de cuisson | Qualitatif (pas de seuil de quantité) |
 | #7 boissons sucrées | Fréquence des boissons sucrées | Fréquence déclarée (pas de seuil « < 1/jour ») |
@@ -130,31 +134,33 @@ preuve randomisée.
 | Orienter vers le diététicien de la structure | Orientation | Ressource locale | HAS (situations qui appellent l'expertise diététique) |
 | Proposer aussi un avis spécialisé en trouble du comportement alimentaire | Orientation | Recommandation officielle | HAS, guide parcours surpoids-obésité §3.6 (orientation « en complément » de l'accompagnement diététique) |
 | Continuer ce qui fonctionne déjà | Maintien | Recommandation officielle | HAS (non-culpabilisation : valoriser tout changement obtenu, déculpabiliser) |
+| Aucune piste prioritaire à proposer aujourd'hui | Aucune piste prioritaire | Repli neutre (aucune étiquette de preuve) | Aucun ancrage : se déclenche par défaut, seulement en l'absence de toute autre piste applicable |
 
 **Note sur « Continuer ce qui fonctionne déjà »** : cette piste répond à une situation précise — le patient
 qui cuisine déjà à l'huile d'olive ou de colza et mange déjà des fruits à coque régulièrement, c'est-à-dire
 dont les deux axes les plus proches du motif testé sont acquis. Ce n'est pas un message par défaut : elle
 ne s'affiche que sur ce constat, et elle coexiste avec les autres pistes quand d'autres axes restent
-améliorables. Elle couvre en particulier le patient déjà proche du motif méditerranéen sur tous les fronts,
-chez qui aucune autre piste ne se déclencherait — le cas où l'écran serait autrement muet.
+améliorables. C'est la carte « Aucune piste prioritaire à proposer aujourd'hui » qui
+prend le relais lorsqu'aucune autre piste ne se déclenche : c'est elle, et non celle-ci, qui répond au cas
+où le patient ne recevrait sinon aucune proposition.
 
 \* Piste ancrée sur le composant réellement randomisé de PREDIMED (huile d'olive, fruits à coque) — la plus
 proche du bras testé, mais l'étiquette reste « savoir-faire diététique » car aucune piste isolée ne porte
 l'étiquette « bénéfice EBM sur critère dur » (cf. §1 ci-dessus). C'est la proximité au bras randomisé qui
 justifie leur **rang d'affichage**, jamais leur étiquette de preuve.
 
-**Note sur les pistes « boisson sucrée » et « repas fait maison » :** la citation SFD 2025 qui leur était
-d'abord attachée (« en évitant… la consommation d'aliments ultra-transformés et de boissons sucrées »,
-p. 21) ne les soutient pas : vérifiée, cette phrase appartient à la section consacrée aux patients DT2 avec
-stéatose hépatique associée (§8.7 / Avis n° 15), pas à une recommandation générale du DT2 (Avis n° 14,
-p. 17, qui ne mentionne ni les boissons sucrées ni les ultratransformés) — deux occurrences en tout dans
-les 32 pages du document, toutes deux dans ce même passage. Ces pistes restent sourcées par ailleurs
+**Note sur les pistes « boisson sucrée » et « repas fait maison » :** la phrase SFD 2025 « en évitant… la
+consommation d'aliments ultra-transformés et de boissons sucrées » (p. 21) appartient à la section consacrée
+aux patients DT2 avec stéatose hépatique métabolique associée (MASLD, §8.7 / Avis n° 15), pas à une
+recommandation générale du DT2 (Avis n° 14, p. 17, qui ne mentionne ni les boissons sucrées ni les
+ultratransformés) — deux occurrences en tout dans les 32 pages du document, toutes deux dans ce même
+passage. Ces deux pistes ne s'appuient donc pas sur cette phrase ; elles restent sourcées par ailleurs
 (EBM Guidelines, HAS, Santé publique France).
 
 **Note sur la piste « édulcorants intenses » :** la référence Salame et al. (*Lancet Diabetes Endocrinol*
-2024, cohorte NutriNet-Santé) qui lui était d'abord attachée documente en réalité les **émulsifiants**, pas
-les édulcorants — un signal distinct dans la même note de la revue source. Le signal sur les édulcorants
-reste donc cité sans référence bibliographique précise, comme la source elle-même le présente.
+2024, cohorte NutriNet-Santé) documente les **émulsifiants**, pas les édulcorants intenses — un signal
+distinct, dans la même note de la revue source que celle qui rapporte le signal sur les édulcorants. Ce
+dernier reste donc cité sans référence bibliographique précise, comme la source elle-même le présente.
 
 ## 4. Les garde-fous, en détail
 
@@ -165,12 +171,11 @@ parcours surpoids-obésité (p. 43) :
 
 1. Restriction volontaire en quantité, avec épisodes de « craquage » — liste « perturbations de
    l'alimentation » de la source (pas la liste DSM-5).
-2. Manger seul ou en cachette, se sentir coupable après avoir mangé — même liste, pas DSM-5 non plus
-   (une version antérieure de ce document attribuait à tort ces deux premiers signes à la liste DSM-5).
+2. Manger seul ou en cachette, se sentir coupable après avoir mangé — même liste, pas la liste DSM-5.
 3. Antécédent de demande de régime amaigrissant ou habitudes alimentaires très restrictives — seul signe
    appartenant littéralement à la liste DSM-5 de la source.
 
-**Ce repérage ne bloque rien — il oriente.** Le principe qui gouverne le nœud entier l'explique : en
+**Ce repérage ne bloque rien — il oriente.** Le principe qui gouverne cet écran entier l'explique : en
 médecine générale on ne propose pas de restriction calorique, en tout cas pas chiffrée ; on propose des
 modifications d'habitudes alimentaires, jamais de régime. Un garde-fou anti-restriction n'a donc pas
 d'objet ici — et l'inventaire des trois pistes qu'il écartait autrefois le confirme, aucune n'était une
@@ -180,15 +185,15 @@ restriction :
 | --- | --- |
 | « Repérer un moment de grignotage et lui trouver une **alternative** » | une **substitution** : rien n'y est retiré ni chiffré |
 | « Se repérer aux **proportions** dans l'assiette » | un **repère qualitatif** : la place respective des composantes, sans aucune quantité |
-| « Diviser par deux la portion de fromage et de charcuterie » | le **seul** geste réellement chiffré du nœud — il est aujourd'hui réécrit sans chiffre (voir plus bas) |
+| « Diviser par deux la portion de fromage et de charcuterie » | le **seul** geste réellement chiffré de cet écran — il est aujourd'hui réécrit sans chiffre (voir plus bas) |
 
 Le repérage conditionne donc les **deux options d'orientation** — diététicien, et avis spécialisé — et rien
 d'autre. Ce rôle change aussi le poids d'une objection connue : sa sensibilité et sa spécificité sont
 **inconnues**, aucune étude ne l'ayant évalué. Pour un test bloquant, ce serait rédhibitoire. Pour un
 déclencheur d'orientation, un faux positif coûte une proposition de plus, il ne retire rien au patient.
 
-**Ce que la littérature contient réellement**, et que la formulation d'origine (« aucun instrument trouvé
-dans les sources locales ») était trop étroite pour dire — elle était **exacte**, le corpus local ne contenant
+**Ce que la littérature contient réellement**, et que la formulation d'origine (« aucun instrument
+identifié ») était trop étroite pour dire — elle était **exacte**, les sources rassemblées ici ne comportant
 effectivement ni la RBP anorexie 2010 ni la fiche boulimie 2019, mais non informative :
 
 - le **SCOFF-F** existe, il est validé en français et la HAS le nomme dans **deux** recommandations. Il reste
@@ -197,7 +202,7 @@ effectivement ni la RBP anorexie 2010 ni la fiche boulimie 2019, mais non inform
   l'entourage vous trouve trop mince ; chez un adulte DT2 en surpoids dont le TCA attendu est l'hyperphagie
   boulimique, **au moins un item est inversé** (la perte de poids y est un objectif thérapeutique, pas un
   signe d'alerte), et Kutz 2020 documente précisément cette perte de sensibilité dans l'hyperphagie
-  boulimique, chez les hommes et en recrutement communautaire — les trois conditions de ce nœud. Ses
+  boulimique, chez les hommes et en recrutement communautaire — les trois conditions de cet écran. Ses
   validations françaises (Garcia 2010, 2011) ne portent en outre que sur des **femmes jeunes**.
   Sa performance en population de faible prévalence achève de le disqualifier comme test décisif : à 5 %
   de prévalence, sa valeur prédictive positive est estimée entre **~21 % et ~38 %** selon la méta-analyse
@@ -208,15 +213,16 @@ effectivement ni la RBP anorexie 2010 ni la fiche boulimie 2019, mais non inform
   il n'a **jamais été évalué contre des témoins sans TCA** : ses auteurs demandent eux-mêmes une validation en
   médecine générale.
 - la **Binge Eating Scale française** (Brunault 2016) est le seul instrument validé chez l'adulte obèse des
-  deux sexes contre un entretien diagnostique (Se 75 %, Sp 88,4 %, VPP 37,5 % sur n = 47) — mais elle fait
-  **seize items**, incompatible avec le socle de 2-3 minutes que vise ce nœud.
+  deux sexes contre un entretien diagnostique (sensibilité (Se) 75 %, spécificité (Sp) 88,4 %, valeur
+  prédictive positive (VPP) 37,5 % sur n = 47) — mais elle fait **seize items**, incompatible avec le socle
+  de 2-3 minutes que vise cet écran.
 
 **Une divergence de recommandations, portée et non arbitrée.** La HAS 2019 écrit « rechercher
 systématiquement une hyperphagie boulimique en cas de surpoids ou d'obésité » ; l'USPSTF 2022 conclut que
-« les preuves actuelles sont insuffisantes » pour dépister l'adulte asymptomatique (*I statement*). Le nœud se
+« les preuves actuelles sont insuffisantes » pour dépister l'adulte asymptomatique (*I statement*). Cet écran se
 tient entre les deux — trois signes d'appel, pas de dépistage systématique — et l'enjeu en est réduit,
-puisque le repérage ne ferme aucune piste. Réserve de périmètre à connaître : le patient de ce
-nœud, adulte DT2 d'âge moyen ou avancé en surpoids, n'appartient à la population cible **déclarée** d'aucun
+puisque le repérage ne ferme aucune piste. Réserve de périmètre à connaître : le patient évalué ici,
+adulte DT2 d'âge moyen ou avancé en surpoids, n'appartient à la population cible **déclarée** d'aucun
 des deux documents HAS invoqués.
 
 Aucun signe n'est présumé absent tant que le praticien n'a pas répondu à la question : un « non » qui n'a
@@ -235,15 +241,16 @@ dans le reste du domaine, plutôt qu'à un seuil d'IMC.
 ### Hypoglycémie sous insulinosécréteur (alerte, pas blocage)
 
 Toute piste qui réduit l'apport en sucres et glucides rapides ou l'apport calorique global majore le risque
-d'hypoglycémie chez un patient sous insuline, sulfamide ou glinide. C'est une alerte de nœud, cohérente
-avec le choix déjà fait sur le nœud RHD du même domaine : alerte conservée, pas d'exclusion.
+d'hypoglycémie chez un patient sous insuline, sulfamide ou glinide. C'est une alerte affichée sur cet
+écran, cohérente avec le choix déjà fait sur l'écran d'activité physique du même module : alerte
+conservée, pas d'exclusion.
 
 **Ce qui est demandé au praticien pour la déclencher.** Une seule question — le patient est-il sous
 insuline, sulfamide ou glinide ? — et non plus la liste des neuf classes de traitement utilisée ailleurs
-dans le domaine. Cette alerte est la seule règle du nœud qui lisait ce point, et elle n'y lisait que ces
+dans le domaine. Cette alerte est la seule règle de cet écran qui lisait ce point, et elle n'y lisait que ces
 quatre situations, toujours ensemble. Les cinq autres classes — metformine, iSGLT2, AR GLP-1, tirzépatide,
-gliptine — n'entraient dans aucune règle ici : cliniquement inertes pour ce nœud, elles restent décisives
-dans les nœuds de prescription et d'insuline, qui gardent la liste complète. Un critère qu'on demande au
+gliptine — n'entraient dans aucune règle ici : cliniquement inertes pour cet écran, elles restent décisives
+dans les décisions de prescription et d'insuline, qui gardent la liste complète. Un critère qu'on demande au
 praticien doit agir ; cinq cases sur neuf n'agissaient pas. Le vocabulaire écarte « hypoglycémiant »,
 ambigu en français : metformine et gliptine sont des antihyperglycémiants, ils n'exposent pas à
 l'hypoglycémie en monothérapie. À patient identique, l'alerte se déclenche exactement dans les mêmes cas.
@@ -258,13 +265,13 @@ l'hypoglycémie en monothérapie. À patient identique, l'alerte se déclenche e
   entiers, jamais recueillie ici) ; ajouter un item dédié pour cette seule piste aurait gonflé le socle
   contre la consigne de charge de saisie.
 - **P3' (taille du repas suivant le poids)** — repose sur un suivi longitudinal du poids, hors périmètre
-  d'un nœud sans état ni historique.
+  d'un écran sans état ni historique.
 - **T3 (repas-type illustré)** — le support concret (photo, repas-type) n'existe pas dans le dépôt ; la
   source le signale elle-même comme « à produire ».
 - **Traditions culinaires** — la question qui conditionne tout le reste : quelles traditions, sur quelle
-  base, fournies par qui. Aucune source
-  du dépôt ne couvre ce corpus : rien n'a été inventé. La question « quelle est votre cuisine habituelle ? »
-  garde son intérêt pour la conversation, mais n'entre pas dans ce nœud comme critère décisif : les pistes
+  base, fournies par qui. Aucune source rassemblée ici ne couvre ce champ : rien n'a été inventé. La
+  question « quelle est votre cuisine habituelle ? »
+  garde son intérêt pour la conversation, mais n'entre pas dans cet écran comme critère décisif : les pistes
   se déclenchent sur l'habitude mesurée, jamais sur une tradition déclarée — deux patients de la même
   tradition peuvent avoir des profils opposés, que le socle mesure directement.
 

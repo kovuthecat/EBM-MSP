@@ -598,6 +598,7 @@ Table de relecture rapide. Chaque ligne est un défaut **constaté**, pas antici
 | **Le titre survit à la bande qui le contredit** | à CK 60 fois la normale, la carte s'intitule encore « Interrompre 4 à 6 semaines et réévaluer » et son encart doit écrire « Ce n'est PLUS la séquence décrite ci-dessus » (D6, 2026-08-04) — or le test des 20 secondes ne retient que le titre | quand une bande de valeur change la conduite, elle change le TITRE de la carte, pas seulement un encart |
 | **Références en registre de changelog** | un titre d'essai porte « Le nœud n'avait encodé que la montée » et « affiché par ce nœud » (`insuline`, 2026-08-04) — méta-texte de fabrication dans l'écran praticien | une référence dit ce que dit la source, jamais ce que fait le nœud ; l'auto-critique de l'outil vit en alerte ou en cadrage ; invariant textuel sur « ce nœud », « encodé » |
 | **Conclusion de nœud jamais exportée** | la « Cible ≤ 7 % » rendue par `cible-glycemique` n'existe pas en session : « Par rapport à l'objectif » se re-juge à la main deux clics plus tard (D12, 2026-08-04) | R1 (précision 2026-08-04) : la conclusion s'exporte en valeur suggérée « · calculé, à vérifier », la question directe reste posée |
+| **Comportement changé, texte non repropagé** | l'argumentaire exhaustif d'`insuline` affirme qu'un ratio « déclenche le relais à elle seule », alors qu'un lot du **même jour** venait de le rétrograder en simple repère d'alerte ; celui de `prescription` nie l'existence d'une carte d'arrêt créée la **veille** (T-167/T-168, T-185, 2026-08-06) | tout lot qui change `conditions`, `role`, `famille` ou l'existence d'une option liste, à côté du YAML, son `.argumentaire.md` **et** une recherche de l'ancien intitulé/comportement dans les quatre niveaux de lecture des autres nœuds du domaine |
 
 ---
 
@@ -658,6 +659,26 @@ moteur ne le connaît pas. Un critère dont la portée clinique est conditionnel
 doit porter cette condition **dans chaque expression qui le lit**, pas seulement dans son `visible_si` —
 sans quoi une valeur saisie puis rendue invisible continue d'agir. La redondance entre les deux est
 voulue : l'une sert la saisie, l'autre le raisonnement.
+
+**Un lot qui change le comportement d'une carte doit repasser les quatre niveaux de lecture qui la
+citent, pas seulement ses champs moteur.** Le YAML et l'argumentaire exhaustif (`.argumentaire.md`)
+sont deux fichiers distincts, édités à des rythmes différents — c'est la même désynchronisation que
+« deux chemins d'affichage » (§4), mais entre deux **fichiers** au lieu de deux composants de rendu.
+Trois lots de comportement livrés le même jour (2026-08-06 : T-167/T-168 sur `insuline`, T-185 sur
+`prescription`, T-170 sur les deux nœuds RHD) ont chacun laissé au moins un texte affirmer l'inverse du
+comportement livré : l'argumentaire exhaustif d'`insuline` promettait qu'un ratio de sur-basalisation
+« déclenche le relais à elle seule », alors que le même lot venait de le rétrograder en simple repère
+d'alerte ; celui de `prescription` niait l'existence d'une carte d'arrêt créée la veille ; les deux
+argumentaires RHD ne mentionnaient pas la carte de repli ajoutée l'avant-veille. **Aucun de ces textes
+n'était faux au moment où il a été écrit** — ils sont devenus faux le lendemain, par un lot qui ne les
+a pas vus. La cause structurelle : le YAML et le `.argumentaire.md` d'un même nœud sont deux fichiers,
+et un red-team de contenu qui s'arrête au premier ne voit jamais la contradiction introduite dans le
+second. **Parade** : la liste de fichiers d'un lot qui change `conditions`, `role`, `famille` ou
+l'existence d'une option inclut, à côté du YAML, son `.argumentaire.md` **et** une recherche de
+l'ancien intitulé ou de l'ancien comportement dans les quatre niveaux de lecture (badge, carte
+dépliée, argumentaire du nœud, argumentaire exhaustif) de **tous** les nœuds du domaine qui pourraient
+y renvoyer — un renvoi cassé ne reste pas forcément dans le fichier qu'on vient de modifier. Détail
+complet : `docs/decision/validation/contre-relecture-redaction-2026-08-06.md`.
 
 **Changer le TYPE d'un critère n'est pas ajouter un critère.** La procédure de gel des profils du banc
 sait *compléter* une fixture (nouvelle colonne, colonnes existantes intactes) ; elle ne sait pas

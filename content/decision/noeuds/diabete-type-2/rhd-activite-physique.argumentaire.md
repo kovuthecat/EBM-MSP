@@ -1,21 +1,21 @@
 # Activité physique — module RHD — argumentaire exhaustif
 
-> Niveau de lecture 3 (preuve complète). Document autonome : sources croisées et vérifiées, essai par
-> essai, jusqu'au constat central — aucun bénéfice cardiovasculaire dur n'est démontré pour l'exercice
-> pris isolément.
+> **Lecture exhaustive.** Destiné au professionnel qui veut le détail complet et toutes les sources.
+> Document autonome : sources croisées et vérifiées, essai par essai, jusqu'au constat central — aucun
+> bénéfice cardiovasculaire dur n'est démontré pour l'exercice pris isolément.
 
 ## En bref — la réserve majeure, et ce qu'elle n'interdit pas de dire
 
 Sur l'axe activité physique, **aucun essai contrôlé randomisé d'exercice isolé, dans le diabète de type 2
 établi, ne démontre de bénéfice sur un critère cardiovasculaire ou de mortalité**. C'est un constat sur
-l'état réel de la preuve, confirmé par une revue de preuve dédiée, pas une lacune de ce nœud : **aucune
-piste de ce nœud ne porte l'étiquette « bénéfice EBM sur critère dur »**. Le corpus HAS et Programme
+l'état réel de la preuve, confirmé par une revue de preuve dédiée, pas une lacune de cet écran : **aucune
+piste de cet écran ne porte l'étiquette « bénéfice EBM sur critère dur »**. Le corpus HAS et Programme
 national nutrition santé (PNNS) mobilisé ci-dessous enrichit le registre des pistes proposées, jamais leur
 niveau de preuve.
 
 Cette réserve porte sur les événements évités, pas sur l'ensemble des effets. Sur un marqueur
 intermédiaire, l'exercice structuré fait baisser l'HbA1c d'environ **0,6 point** dans le diabète de type 2
-établi. Les deux énoncés tiennent ensemble, et le nœud affiche les deux.
+établi. Les deux énoncés tiennent ensemble, et cet écran affiche les deux.
 
 ## 1. Le constat de preuve, en détail
 
@@ -27,7 +27,7 @@ Essai contrôlé randomisé, n=5145, DT2 en surpoids/obésité, intervention int
 
 | Critère | Résultat |
 | --- | --- |
-| Composite cardiovasculaire primaire (décès CV + IDM non fatal + AVC non fatal + hospitalisation pour angor) | **HR 0,95 (IC 0,83-1,09), p=0,51 — neutre, essai arrêté pour futilité** |
+| Composite cardiovasculaire primaire (décès cardiovasculaire [CV] + infarctus du myocarde [IDM] non fatal + accident vasculaire cérébral [AVC] non fatal + hospitalisation pour angor) | **HR 0,95 (IC 0,83-1,09), p=0,51 — neutre, essai arrêté pour futilité** |
 | Mortalité toutes causes (extension 16,7 ans) | **HR 0,91 (IC 0,81-1,02), p=0,11 — non significatif** |
 | Mortalité cardiovasculaire | **HR 0,88 (IC 0,61-1,29), p=0,52 — non significatif** |
 
@@ -141,6 +141,11 @@ Le **grade AE** qui apparaît deux fois dans ce tableau signifie « accord d'exp
 portée par un consensus professionnel, faute d'essai qui la gradue plus haut. C'est le grade le plus bas de
 l'échelle de la HAS, et il ne dit rien de plus que ce qu'il dit.
 
+**Sur la carte de repli « Aucune piste prioritaire »** : elle n'entre pas dans le
+tableau ci-dessus, qui recense les treize pistes fondées sur une source. Elle ne propose aucune piste :
+elle apparaît seulement quand aucune des treize ci-dessus ne s'applique, et sert de filet pour ne jamais
+laisser un écran vide.
+
 **Note sur « Poursuivre les habitudes actuelles… »** : cette piste répond à une situation précise — le
 patient déjà régulier, qui pratique deux à trois fois par semaine et interrompt déjà ses longues périodes
 assises. Sans elle, ce patient-là ressortait de l'écran sans aucune réponse, ni encouragement ni piste,
@@ -150,7 +155,7 @@ volontiers avec d'autres suggestions portant sur les axes où le patient a encor
 
 **Aucune piste « bénéfice EBM sur critère dur »**, aucune piste « ressource locale » nommée : une piste qui
 désignerait une structure du territoire — telle maison sport-santé identifiée près de la maison de santé —
-supposerait un annuaire de structures, que le contenu de ce nœud ne porte pas (cf. §5).
+supposerait un annuaire de structures, que le contenu de cet écran ne porte pas (cf. §5).
 
 **Note sur la piste « Maintenir/diversifier »** : son ancrage n'est pas la recommandation HAS R.24 (qui
 prescrit un programme structuré pour un patient qui en a besoin, pas un principe de maintien pour un
@@ -177,7 +182,7 @@ séparément ici (le verrou bloque la famille « pratique structurée » dans so
 membres supérieurs et inférieurs), limite signalée plutôt que résolue.
 
 Aucun de ces quatre signes n'est présumé absent : tant que le praticien n'a pas répondu, la question reste
-ouverte et la piste de pratique structurée n'est pas proposée. C'est le seul endroit du nœud où une absence
+ouverte et la piste de pratique structurée n'est pas proposée. C'est le seul endroit de cet écran où une absence
 de réponse suspend une proposition — ailleurs, une question laissée vide ne bloque rien.
 
 ### Évaluation médicale avant une montée d'intensité (rappel, pas un critère recueilli)
@@ -223,26 +228,27 @@ les deux cas.** Une hypoglycémie d'effort se prévient en adaptant la collation
 **Ce qui est demandé au praticien pour la déclencher.** Une seule question : le patient prend-il de
 l'insuline, un sulfamide hypoglycémiant ou un glinide ? Ce sont les seules classes qui exposent à
 l'hypoglycémie d'effort. Metformine, inhibiteurs de SGLT2, analogues du GLP-1, tirzépatide et gliptines n'y
-exposent pas en monothérapie. Ce nœud ne demande donc pas quelle classe précise est en cours : il ne lit
-que l'exposition au risque. Les nœuds qui prescrivent, eux, ont besoin de la classe et la demandent.
+exposent pas en monothérapie. Cet écran ne demande donc pas quelle classe précise est en cours : il ne lit
+que l'exposition au risque. Les écrans de prescription, eux, ont besoin de la classe et la demandent.
 
 ## 5. Ce qui n'a pas été repris, et pourquoi
 
-Le fil commun de ces omissions est la charge de saisie : une question qui ne change aucune piste proposée
-allonge la consultation sans rien apporter à la décision.
+Le fil commun de ces omissions : ne pas allonger la consultation par une question qui ne changerait aucune
+piste proposée.
 
 - **Les goûts et les préférences d'activité** — la source qui les propose les décrit elle-même comme une
   aide à la négociation qui « ne bloque rien » : jamais décisives, donc non recueillies. La conversation
-  directe en consultation y pourvoit, comme pour la question sur la culture culinaire du nœud
+  directe en consultation y pourvoit, comme pour la question sur la culture culinaire de l'écran
   « Alimentation ».
 - **Le vécu négatif, la peur de se blesser et la crainte des moqueries** — réunis en une seule question,
   « expérience négative de l'activité physique ». Les trois alimentaient la même piste unique ; une
   distinction plus fine n'aurait rien changé au geste proposé.
 - **Le carnet d'activité** — la piste supposait de savoir si le patient éprouve une difficulté de
   régularité et si son envie de pratiquer est vague ou faible, c'est-à-dire précisément les préférences non
-  recueillies ci-dessus. Créer une question dédiée pour cette seule piste aurait alourdi le socle.
+  recueillies ci-dessus. Créer une question dédiée pour cette seule piste aurait allongé la consultation
+  sans que cette piste isolée le justifie.
 - **La ressource locale nommée** — elle dépend entièrement d'un annuaire des structures d'activité physique
-  adaptée et des maisons sport-santé du territoire, qui n'existe pas dans le contenu de ce nœud et n'a pas
+  adaptée et des maisons sport-santé du territoire, qui n'existe pas dans le contenu de cet écran et n'a pas
   vocation à y être recopié : ces informations vieillissent vite, et le praticien connaît son secteur.
 - **La distinction membres supérieurs / membres inférieurs pour le mal perforant plantaire** — signalée
   comme limite (§4 ci-dessus), non modélisée : elle demanderait de fractionner la pratique structurée piste

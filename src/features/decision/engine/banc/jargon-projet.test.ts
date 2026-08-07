@@ -117,6 +117,14 @@ function fragmentsOption(option: Option, prefixe: string): Fragment[] {
   fragments.push({ chemin: `${prefixe}.effet_attendu`, texte: option.effet_attendu })
   if (option.delai_benefice) fragments.push({ chemin: `${prefixe}.delai_benefice`, texte: option.delai_benefice })
   if (option.apercu) fragments.push({ chemin: `${prefixe}.apercu`, texte: option.apercu })
+  // AJOUTÉ le 2026-08-07 : `posologie_detail` est rendu par `OptionCard.tsx:536` (paragraphes du panneau
+  // posologie) et manquait à cette liste — un champ affiché échappait donc à I25 depuis sa création.
+  // Trouvé en corrigeant l'arbitrage n°13 (harmonisation « nœud »/« cet écran ») : une occurrence de
+  // « du nœud « Insulinothérapie » » dans `prescription.yaml` (posologie_detail) n'était visible par
+  // AUCUN test avant cet ajout.
+  ;(option.posologie_detail ?? []).forEach((texte, i) =>
+    fragments.push({ chemin: `${prefixe}.posologie_detail[${i}]`, texte }),
+  )
   for (const [i, ci] of (option.contre_indications ?? []).entries()) {
     fragments.push({ chemin: `${prefixe}.contre_indications[${i}]`, texte: texteContreIndication(ci) })
   }
@@ -274,6 +282,17 @@ const MARQUEURS_ARGUMENT: { motif: RegExp; nom: string }[] = [
  *   - `identifiant-de-decision` — la forme PARENTHÉSÉE `(D20)`, `(R1)`, `(I12)` seulement. Restreinte à
  *     dessein : un « (R1) » entre parenthèses est un renvoi au registre de décisions du projet, tandis
  *     qu'un « D2 » ou « R3 » nu peut être une vertèbre, une racine nerveuse ou un stade clinique.
+ *
+ * HUITIÈME MARQUEUR AJOUTÉ LE 2026-08-07 (arbitrage n°13 de `passe-redaction-2026-08-05.md`, laissé
+ * ouvert deux passes) : `vocabulaire-architecture` (« nœud »/« noeud »). Un praticien ne sait pas ce
+ * qu'est un « nœud » du dépôt ; le mot était employé en auto-référence (« ce nœud »/« le nœud » →
+ * « cet écran », convention déjà adoptée sur `cible-glycemique`) et en référence à un autre écran
+ * nommément (« nœud prescription » → décrire ce qui s'y passe plutôt que le nommer). MESURÉ contre le
+ * corpus réel via `fragmentsNoeud`/`fragmentsOption` (pas un grep brut, qui compte aussi les 90+
+ * occurrences légitimes dans `meta.changelog` et les commentaires `#`, jamais rendus) : 82 occurrences
+ * trouvées et corrigées, zéro restant. Cette mesure a aussi trouvé un TROU DE COUVERTURE préexistant de
+ * ce fichier : `option.posologie_detail`, rendu par `OptionCard.tsx:536`, manquait à `fragmentsOption` —
+ * ajouté dans la foulée.
  */
 const MARQUEURS_REDACTION: { motif: RegExp; nom: string }[] = [
   { motif: /`/, nom: 'backtick (identifiant de code cité tel quel)' },
@@ -290,6 +309,13 @@ const MARQUEURS_REDACTION: { motif: RegExp; nom: string }[] = [
   },
   { motif: /\((?:D|R|I)\d{1,2}\)/, nom: 'identifiant-de-decision' },
 ]
+// NOTE (2026-08-07) : un HUITIÈME marqueur `vocabulaire-architecture` (« nœud »/« noeud », arbitrage n°13
+// de `passe-redaction-2026-08-05.md`) a été mesuré (82 occurrences, corrigées) et verrouillé en cliquet,
+// puis RETIRÉ D'ICI avant commit : `insuline`, `prescription`, `rhd-alimentation`, `rhd-activite-physique`
+// et `cible-glycemique` portent, dans le même arbre de travail non commité, des changements de
+// comportement d'une autre session (P14) qui n'incluent pas encore cette correction textuelle sur leurs
+// propres fichiers — les commiter ensemble aurait mêlé deux lots. Le marqueur revient dès que ces cinq
+// nœuds sont commités avec leur correction (cf. `docs/decision/validation/contre-relecture-redaction-2026-08-06.md` §4 ter).
 
 /** Fragments qui contiennent AU MOINS UN marqueur — chaque violation nomme le marqueur ET la chaîne. */
 function violationsDeFragments(

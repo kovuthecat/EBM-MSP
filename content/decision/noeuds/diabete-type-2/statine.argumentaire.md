@@ -1,7 +1,6 @@
 # Statine chez le diabétique de type 2 — argumentaire exhaustif
 
-> Niveau de lecture 3 (preuve complète). Document autonome : sources croisées et vérifiées, PMID/DOI
-> confirmés contre la source primaire.
+> **Lecture exhaustive.** Destiné au professionnel qui veut le détail complet et toutes les sources.
 
 ## En bref
 
@@ -16,7 +15,7 @@ de l'HbA1c** et du traitement antidiabétique. Quatre situations :
 - **Diabète non compliqué à faible risque absolu** (récent, sans autre facteur de risque) → **décision
   partagée** (bénéfice absolu faible).
 - **Statine indisponible** — intolérance **avérée**, ou créatine kinase (CK) au-dessus de 5 fois la normale
-  avant initiation → la classe est retirée et une carte terminale oriente vers les alternatives
+  avant initiation → la classe est retirée, et l'orientation se fait vers les alternatives
   hypolipémiantes.
 
 À quoi s'ajoute une conduite qui n'est pas un niveau de risque mais un geste de sécurité : **CK au-dessus de
@@ -34,9 +33,9 @@ d'environ un cinquième par mmol/L de LDL abaissé, avec un bénéfice **absolu 
 | --- | --- | --- | --- |
 | **CTT méta diabète 2008** | 18 686 diabétiques, 14 ECR | Événements vasculaires majeurs **RR 0,79 (0,72-0,86)** par mmol/L ; effet identique aux non-diabétiques | ~24 / 5 ans |
 | **HPS diabète 2003** | 5963 diab., simvastatine 40 | **20,2 % vs 25,1 %**, RR −22 % (13-30) | ~20 / 5 ans |
-| **CARE diabète 1998** | 586 diab. post-IDM, pravastatine 40 | −25 % (p=0,05) | ~12 / 5 ans |
-| **LIPID diabète 2003** | 1077 diab. post-SCA, pravastatine 40 | *any CV event* −21 % ; **critère 1aire du sous-groupe −19 % p=0,11 NS** | ~18 / 6 ans |
-| **4S diabète 1997** | 202 diab. (petit) post-IDM | Événements coronaires **RR 0,45 (0,27-0,74)** | — |
+| **CARE diabète 1998** | 586 diab. après infarctus du myocarde (IDM), pravastatine 40 | −25 % (p=0,05) | ~12 / 5 ans |
+| **LIPID diabète 2003** | 1077 diab. après syndrome coronarien aigu (SCA), pravastatine 40 | tout événement CV −21 % ; **critère principal du sous-groupe −19 % p=0,11 NS** | ~18 / 6 ans |
+| **4S diabète 1997** | 202 diab. (petit) après IDM | Événements coronaires **RR 0,45 (0,27-0,74)** | — |
 
 **Intensité (haute vs modérée)** : le gain incrémental est **réel mais modeste**, et **ne concerne pas la
 mortalité**.
@@ -46,7 +45,7 @@ mortalité**.
 | **CTT more-vs-less 2010** | méta 5 ECR d'intensité | Événements vasculaires majeurs **−15 % (11-18)** ; NNT ~25 / 5 ans |
 | **TNT diabète 2006** | atorva 80 vs 10 | **atorva 80 : 13,8 % vs atorva 10 : 17,9 %**, HR 0,75 (0,58-0,97) ; NNT ~24 / 4,9 ans |
 | **PROVE-IT diabète 2006** | atorva 80 vs prava 40 | 21,1 % vs 26,6 %, HR 0,75 (p=0,03) |
-| **IDEAL 2005** | atorva 80 vs simva 20-40 | Critère 1aire **HR 0,89 (0,78-1,01) p=0,07 NS** |
+| **IDEAL 2005** | atorva 80 vs simva 20-40 | Critère principal **HR 0,89 (0,78-1,01) p=0,07 NS** |
 | **SEARCH 2010** | simva 80 vs 20 | RR 0,94 (0,88-1,01) **NS** ; **myopathie 0,9 % vs 0,03 %** |
 | **de Vries 2014** (méta diabète, secondaire) | intensif vs standard | **RR 0,91 (0,84-0,98) = −9 %** |
 
@@ -63,7 +62,7 @@ prévenus).
 | Essai | Population | Événements CV | Mortalité totale |
 | --- | --- | --- | --- |
 | **CARDS 2004** | DT2 40-75, prévention primaire, ≥ 1 FDR (N=2838) | Composite **HR 0,63 (0,48-0,83)** ; 5,8 % vs 9,0 % ; AVC HR 0,52 | **HR 0,73 (0,52-1,01) p=0,059 → NS** |
-| **HPS 2003 (diab. sans maladie occlusive)** | 2912 diab. prévention primaire | ÉVM **RR −33 % (17-46)** ; NNT ~22 / 5 ans | non isolée |
+| **HPS 2003 (diab. sans maladie occlusive)** | 2912 diab. prévention primaire | Événements vasculaires majeurs (ÉVM) **RR −33 % (17-46)** ; NNT ~22 / 5 ans | non isolée |
 | **ASPEN 2006** | DT2, atorva 10 | Composite **HR 0,90 NS** ; primaire **HR 0,97 (nul)** | non significative |
 | **ASCOT-LLA diabète 2005** | 2532 diab. | Coronaire dur **HR 0,84 NS** ; composite élargi HR 0,77 (p=0,036, avec procédures) | non isolée |
 | **CTT diabète 2008** | méta mixte 1re+2de | — | **0,91 (IC99 0,82-1,01) p=0,02** (porté par le secondaire) |
@@ -103,7 +102,8 @@ absolu, seuils fixes ESC 2023) peut affiner le jugement dans cette situation pr�
 seule où l'outil suggère de le calculer — avec une réserve : il n'est **validé que 40-69 ans**, et un profil
 sans critère de grille (diabète récent, non compliqué, sans FDR) est souvent **plus jeune**, donc
 potentiellement hors de cette plage. La reco française 2026 range ce profil en « risque modéré » et fait de
-l'initiation une **décision partagée** si le LDL reste au-dessus de la cible malgré les mesures d'hygiène.
+l'initiation une **décision partagée** si le LDL reste au-dessus de la cible malgré les mesures
+hygiéno-diététiques.
 Niveau de preuve **faible**.
 
 ## 4. « Pas de cible LDL dogmatique » — le fondement
@@ -121,9 +121,9 @@ poursuite d'un chiffre de LDL cible. Fondements, appuyés sur la **preuve direct
 - Les cibles chiffrées des recommandations (ESC/EAS : < 1,4 / < 1,8 mmol/L) sont **extrapolées** de la relation
   continue « lower is better » (CTT), non validées comme cibles.
 
-*(Développement 2026, hors périmètre du nœud : un ECR de ciblage LDL intensif par **ajout** d'ézétimibe /
-anti-PCSK9 en prévention secondaire nuance ce débat — mais il concerne l'ajout d'un médicament, pas la dose de
-statine, et relève d'un éventuel nœud ultérieur « risque résiduel ».)*
+*(Développement 2026 : un ECR de ciblage LDL intensif par **ajout** d'ézétimibe / anti-PCSK9 en prévention
+secondaire nuance ce débat — mais il porte sur l'ajout d'un médicament, non sur la dose de statine, et sort
+du sujet traité ici, qui est le choix d'une statine.)*
 
 ## 5. Cas particuliers
 
@@ -135,9 +135,8 @@ dédié au sujet très âgé** (StAREE exclut les diabétiques ; PREVENTABLE en 
 de vie, fragilité). Le seuil « ~2,5 ans » avancé par la reco SFE/SFD/NSFA/SFC 2026 est une **EXTRAPOLATION**
 (méta Yourman 2021 portant sur des sujets de **50 à 75 ans**, jamais mesurée directement au-delà — confirmé en
 texte intégral : la reco assume elle-même cette extrapolation dans la phrase suivant sa citation) : à utiliser
-comme repère, pas comme mesure directe du sujet très âgé. L'alerte du nœud dit
-l'extrapolation et ne retire pas le chiffre. En prévention
-secondaire, le bénéfice persiste à tout âge.
+comme repère, pas comme mesure directe du sujet très âgé. Le chiffre est donc conservé, sa nature
+d'extrapolation étant dite explicitement. En prévention secondaire, le bénéfice persiste à tout âge.
 
 **Dialyse / maladie rénale terminale** : **ne pas INITIER** une statine. **4D** (atorvastatine, DT2
 hémodialysé) : critère principal **RR 0,92 (0,77-1,10) NS**, avec un **signal d'AVC fatal (RR 2,03)** ;
@@ -146,21 +145,19 @@ global est porté par les **non-dialysés** (sous-groupe dialyse non concluant).
 place**, sa poursuite est raisonnable. En maladie rénale chronique **non dialysée** (stade 3-5), la statine
 reste indiquée.
 
-*(Le nœud distingue l'initiation de la poursuite : l'option « haute intensité » n'est pas proposée à un
-patient dialysé qui n'a pas déjà de statine en cours, la poursuite reste possible. La situation « discuter » et
-le repli « intensité modérée » restent, eux, hors de cette exclusion — limite documentée dans les
-incertitudes du nœud.)*
+*(L'initiation se distingue ici de la poursuite : chez un patient dialysé qui n'a pas déjà de statine, la
+haute intensité n'est pas proposée, alors que la poursuite d'un traitement en cours reste possible. Les
+conduites de plus faible intensité — décision partagée, intensité modérée — ne sont pas concernées par ce
+retrait, limite enregistrée dans les incertitudes.)*
 
 **Cas particulier du cas particulier — dialysé ET en prévention secondaire, pas encore sous
-statine** : les situations de cet écran sont examinées dans l'ordre, et la première qui correspond
-l'emporte. Retirer l'option « haute intensité » par l'exclusion ci-dessus fait donc passer à la situation
-suivante, qui ne regarde pas la maladie cardiovasculaire établie — un patient de prévention
-**secondaire** risquerait d'être présenté comme à faible risque et sous-dosé. D'où une alerte
-portée par CHACUNE de ces deux options (visible seulement quand l'option est réellement atteinte pour ce
-patient) qui rappelle son statut ASCVD et dit explicitement ce que le dossier NE tranche PAS : ni l'excès
+statine** : écarter la haute intensité chez ce patient laisse en place des conduites calibrées sur un
+risque plus faible, alors que sa maladie cardiovasculaire est établie — il risquerait d'être présenté
+comme à faible risque et sous-dosé. Son statut de prévention **secondaire** lui est donc rappelé dans
+l'une comme dans l'autre de ces deux situations, avec ce que le dossier NE tranche PAS : ni l'excès
 d'une haute intensité non prouvée en dialyse, ni le sous-traitement d'un risque cardiovasculaire réel ne
 sont démontrés par 4D/AURORA pour ce sous-groupe précis (dialysé, ASCVD établie, jamais traité) — à discuter
-au cas par cas, pas de conduite inventée au-delà de ce que le dossier établit.
+au cas par cas, sans conduite inventée au-delà de ce que le dossier établit.
 
 ## 6. Sécurité
 
@@ -172,15 +169,15 @@ au cas par cas, pas de conduite inventée au-delà de ce que le dossier établit
   à la statine (~1 sur 15). *(Ce constat vaut pour une intolérance rapportée, non pour une intolérance
   avérée : adressé à un patient dont l'intolérance est établie, il l'inviterait à ignorer son propre
   dossier. Ce qu'il faut faire d'une intolérance rapportée est détaillé au § 6 bis ci-dessous.)*
-- **Créatine kinase (CK) — le seul seuil qui retire réellement une option.** La recommandation française 2026
+- **Créatine kinase (CK) — le seul seuil qui contre-indique réellement la classe.** La recommandation française 2026
   n'emploie le mot *contre-indication* qu'une seule fois dans tout son chapitre statine, et c'est ici : des CK
   élevées avant initiation contre-indiquent la classe. Deux seuils étaient en présence : le parcours NHS pose
-  **4 fois la normale**, la recommandation française et NICE NG238 (§1.5.7) posent **5**. Le nœud retient
+  **4 fois la normale**, la recommandation française et NICE NG238 (§1.5.7) posent **5**. Cet écran retient
   **5 fois la normale**. Le seuil le plus bas paraissait le plus prudent, il ne l'est pas : NG238 traite la
   bande sous 5 fois la normale en **débutant la statine à dose plus faible**, et non par l'abstention.
   Retenir 4 revenait donc à ne pas traiter un patient que la source veut traiter, dont le risque
   cardiovasculaire n'a pas bougé — une sous-prescription, pas une précaution. Les deux sources se rejoignent
-  en revanche sur un point que le nœud applique : **ne doser les CK qu'en présence d'une douleur musculaire**
+  en revanche sur un point que cet écran applique : **ne doser les CK qu'en présence d'une douleur musculaire**
   — « *Do not measure CK if person is asymptomatic* ». Le dosage n'est donc demandé que si une intolérance
   est rapportée ou avérée.
 - **Choix de molécule** : simvastatine et atorvastatine sont métabolisées par le **CYP3A4** (interactions :
@@ -188,9 +185,6 @@ au cas par cas, pas de conduite inventée au-delà de ce que le dossier établit
   rosuvastatine, pitavastatine** ont **moins d'interactions** — à préférer en cas de co-prescription à risque.
 
 ## 6 bis. Intolérance aux statines — ce que la donnée établit, et ce qu'on en fait
-
-*Cette section a été construite sur une revue de preuve dédiée et sur la lecture en source primaire des
-deux documents NICE.*
 
 ### Une intolérance rapportée n'est pas une intolérance
 
@@ -210,9 +204,9 @@ intolérants** et réintroduits **en aveugle** :
 - **SAMSON** et **StatinWISE**, tous deux **non industriels**, vont dans le même sens : ratio nocebo 0,90 pour
   le premier ; différence de score de douleur non significative pour le second, avec **deux tiers** de reprise.
 
-D'où la distinction que porte le nœud : l'intolérance y est déclarée **non**, **rapportée** ou **avérée**. Une
-intolérance *rapportée* ne retire rien — la conduite y est la réintroduction. Seule l'intolérance *avérée*
-rend la classe indisponible.
+D'où trois qualifications distinctes de l'intolérance, et non deux : **non**, **rapportée** ou **avérée**.
+Une intolérance *rapportée* ne retire rien — la conduite y est la réintroduction. Seule l'intolérance
+*avérée* rend la classe indisponible.
 
 ### Le protocole de réintroduction
 
@@ -252,21 +246,21 @@ Dans ce tableau, **N** se lit « fois la limite supérieure de la normale du lab
 **Règle commune à toutes les élévations : re-doser les CK à 7 jours** (NICE NG238, §1.5.7 avant initiation,
 §1.11.4-1.11.5 sous traitement). C'est ce second dosage qui distingue une élévation transitoire — effort
 physique récent, geste traumatique, cause non médicamenteuse — d'une élévation persistante attribuable au
-traitement, et le nœud l'affiche sur chacune des cartes concernées.
+traitement, et il vaut quelle que soit la bande de CK.
 
 La bande **4-5 N** mérite d'être lue deux fois, parce que la conduite y est l'inverse de celle des bandes
 hautes : sous traitement on ne touche à rien, et avant initiation on traite quand même, à dose plus faible.
 C'est le point où retenir le seuil de 4 aurait produit une sous-prescription (§ 6 ci-dessus).
 
-Le parcours ajoute une consigne que le nœud applique : **ne pas doser les CK chez un patient asymptomatique**.
+Le parcours ajoute une consigne que cet écran applique : **ne pas doser les CK chez un patient asymptomatique**.
 Le champ n'apparaît donc qu'à partir du moment où une intolérance est rapportée ou avérée.
 
 **La divergence, et elle porte sur une règle de sécurité.** La recommandation française 2026 écrit qu'au-delà
 de 10 fois la normale la statine est arrêtée **définitivement** (« *stopped permanently* »). Le parcours NHS
 ne réserve l'arrêt définitif qu'à la **myosite nécrosante auto-immune** — évoquée devant une faiblesse
-musculaire progressive et des CK qui ne se normalisent pas malgré l'arrêt. Le nœud suit le parcours NHS
-pour ne pas fermer définitivement la classe à un patient à haut risque cardiovasculaire
-qui pourrait la tolérer autrement ; la position française est **affichée dans la carte**, pas effacée.
+musculaire progressive et des CK qui ne se normalisent pas malgré l'arrêt. La conduite retenue ici est
+celle du parcours NHS, pour ne pas fermer définitivement la classe à un patient à haut risque
+cardiovasculaire qui pourrait la tolérer autrement ; la position française est **signalée**, pas effacée.
 
 ### Quand la statine est vraiment indisponible
 
@@ -277,13 +271,14 @@ qui pourrait la tolérer autrement ; la position française est **affichée dans
   leur statine**. EWTOPIA 75 est ouvert, contre conseils diététiques, tiré par la revascularisation, neutre
   sur l'AVC et la mortalité.
 - **Acide bempédoïque** : le **seul** agent disposant d'un essai de morbi-mortalité mené dans cette
-  population. CLEAR Outcomes (n = 13 970, 40,6 mois) : composite HR 0,87 (0,79-0,96), IDM HR 0,77,
-  revascularisation HR 0,81. Sous-groupe **diabète** (n = 6 373) : HR 0,83 (0,72-0,95), **réduction absolue de
+  population. CLEAR Outcomes (n = 13 970, 40,6 mois) : composite HR 0,87 (0,79-0,96), infarctus du
+  myocarde HR 0,77, revascularisation HR 0,81. Sous-groupe **diabète** (n = 6 373) : HR 0,83 (0,72-0,95), **réduction absolue de
   2,4 %** — chiffre publié. Propriété décisive ici : c'est une **prodrogue activée uniquement dans le foie,
   pas dans le muscle**, « *with no significant muscle pain, even in patients intolerant to statins* ».
   **Ce qu'il ne faut jamais en dire** : qu'il réduit la mortalité. Décès cardiovasculaire HR 1,04
   (0,88-1,24), toutes causes HR 1,03 (0,90-1,18) — points estimés **défavorables**, et c'est exactement ce qui
-  a motivé l'**ASMR V** de la HAS. Effets indésirables en excès : goutte 3,1 % vs 2,1 %, lithiase biliaire
+  a motivé l'**ASMR V** de la HAS (amélioration du service médical rendu de niveau V, c'est-à-dire
+  absente). Effets indésirables en excès : goutte 3,1 % vs 2,1 %, lithiase biliaire
   2,2 % vs 1,2 % — environ un cas supplémentaire pour 100 patients traités, pour chacun des deux.
 - **Anti-PCSK9** : 3ᵉ ligne française. FOURIER et ODYSSEY OUTCOMES ont été menés **sous statine**, pas chez
   l'intolérant. ODYSSEY ALTERNATIVE, lui, inclut bien des intolérants avérés — mais son critère principal est
@@ -302,9 +297,9 @@ recommande en **classe I / niveau B** chez le patient qui ne peut pas prendre de
 méthodologique à conserver** : ce n'est pas « dernier recours contre classe I ». La mention française est une
 phrase de **texte courant, non graduée** — la table des recommandations graduées de la reco ne contient
 aucune recommandation sur cette molécule. Il n'y a donc pas d'écart de **rang** à opposer, seulement un écart
-de **place**. Et la reco française rapporte CLEAR fidèlement (« −13 % de MACE, −23 % d'IDM, sans effet sur
-l'AVC ni la mortalité ») : la divergence ne vient pas d'une lecture biaisée des chiffres. Le nœud affiche les
-deux positions **sans trancher**.
+de **place**. Et la reco française rapporte CLEAR fidèlement — −13 % d'événements cardiovasculaires majeurs
+(MACE), −23 % d'infarctus du myocarde, sans effet sur l'AVC ni la mortalité : la divergence ne vient pas
+d'une lecture biaisée des chiffres. Les deux positions sont affichées **sans être départagées**.
 
 Statut réglementaire français, pour mémoire : avis favorable de la Commission de la transparence le
 **12/02/2025**, arrêté du 09/12/2025, **remboursement effectif au 12/12/2025** à 65 %, dans un périmètre
@@ -332,9 +327,10 @@ LODESTAR, VA/DoD 2026) et les sources critiques **indépendantes** (Prescrire, M
 
 **Synthèse critique indépendante** (Prescrire, Minerva — revues consultées, § Sources) : **dose fixe** de
 statine calée sur le risque absolu, **pas de cible LDL chiffrée** — aucun essai n'a randomisé deux valeurs
-cibles de LDL, et une stratégie de treat-to-target n'est pas supérieure à une dose fixe de haute intensité
-(**LODESTAR**, *JAMA* 2023, non-infériorité) ; **CARDS** et **HPS** ont démontré le bénéfice à dose fixe,
-indépendamment du LDL de base ; en prévention primaire, décider sur le **risque cardiovasculaire global**,
+cibles de LDL, et une stratégie de titration vers une cible chiffrée n'est pas supérieure à une dose fixe
+de haute intensité (**LODESTAR**, *JAMA* 2023, non-infériorité) ; **CARDS** et **HPS** ont démontré le
+bénéfice à dose fixe, indépendamment du LDL de base ; en prévention primaire, décider sur le
+**risque cardiovasculaire global**,
 pas sur les chiffres lipidiques.
 
 **Divergence assumée par l'outil** : convergence totale sur la prévention **secondaire** ; en prévention
@@ -357,8 +353,8 @@ tous les diabétiques.
   n'est PAS tranchée par ce dossier — ni l'excès d'une haute intensité non prouvée en dialyse (4D, AURORA) ni
   le sous-traitement d'un risque de prévention secondaire réel ne sont démontrés pour ce sous-groupe précis.
   Signalé au praticien par une alerte plutôt que résolu par une conduite inventée.
-- Cible LDL en prévention secondaire / très haut risque : évolutive (ECR 2026 par add-on), hors périmètre du
-  nœud.
+- Cible LDL en prévention secondaire / très haut risque : évolutive (ECR 2026 par add-on), hors périmètre de
+  cet écran.
 
 ## 9. Sources
 
