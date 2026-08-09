@@ -747,11 +747,12 @@ describe('prescription — P-38+ (déprescrire la metformine, garde-fou 2026-07-
     const renseignes = new Set(Object.keys(criteria))
     renseignes.delete('dose_metformine') // LA seule inconnue de ce profil.
     const res = evaluateNode(node!, criteria, renseignes)
-    // `opt.intitule` directement (pas `titles()`/`etiquette()`) : RETITRÉ le 2026-08-06 (P14/S8, T-171) —
-    // l'intitulé est désormais unique par construction (« Metformine — réduire la posologie », distinct du
-    // socle « Metformine — instaurer ou poursuivre »). `action === 'reduire'` gardé par prudence.
+    // `opt.intitule` directement (pas `titles()`/`etiquette()`) : « Metformine — réduire la posologie » →
+    // « Metformine » le 2026-08-09 (allègement des intitulés) — l'intitulé nu redevient partagé avec le
+    // socle « Metformine » (ex-« instaurer ou poursuivre »), `action === 'reduire'` est désormais le VRAI
+    // discriminant (plus une simple prudence, cf. commentaire similaire dans `invariants.test.ts`).
     const estReduireMetformine = (opt: { intitule: string; action?: string }) =>
-      opt.intitule === 'Metformine — réduire la posologie' && opt.action === 'reduire'
+      opt.intitule === 'Metformine' && opt.action === 'reduire'
     const enAttenteEntry = [...res.enAttente.entries()].find(([opt]) => estReduireMetformine(opt))
     expect(enAttenteEntry).toBeDefined()
     expect(enAttenteEntry?.[1]).toEqual(['dose_metformine'])

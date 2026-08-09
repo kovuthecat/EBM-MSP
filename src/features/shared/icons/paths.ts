@@ -232,9 +232,17 @@ export const ICON_PATHS: Record<NomIcone, ReactNode> = {
   // à tracer (aucun équivalent maquette) — goutte classique (larme inversée, base arrondie, pointe en
   // haut), pictogramme universel de fluide/mesure capillaire. Ajoutée 2026-08-06 (T-152) pour le domaine
   // Diabète de type 2 (glycémie capillaire) sur l'écran de sélection des domaines.
-  goutte: createElement('path', {
-    d: 'M12 3 C12 3 6 11 6 15.5 C6 19 8.7 21 12 21 C15.3 21 18 19 18 15.5 C18 11 12 3 12 3 Z',
-  }),
+  // MORCEAU DE SUCRE AJOUTÉ le 2026-08-09 (demande utilisateur) — un simple carré dans le ventre de la
+  // goutte : glycémie + sucre, lecture immédiate du domaine. Nu (pas d'arête de coupe) pour rester lisible
+  // à la plus petite taille d'usage (14px, `Icon.tsx` `taille` par défaut).
+  goutte: createElement(
+    Fragment,
+    null,
+    createElement('path', {
+      d: 'M12 3 C12 3 6 11 6 15.5 C6 19 8.7 21 12 21 C15.3 21 18 19 18 15.5 C18 11 12 3 12 3 Z',
+    }),
+    createElement('rect', { x: '9', y: '12.5', width: '6', height: '6', rx: '0.5' }),
+  ),
 
   // à tracer (aucun équivalent maquette) — deux poumons stylisés (deux lobes symétriques + trachée),
   // pictogramme universel de l'appareil respiratoire. Ajoutée 2026-08-06 (T-152) pour le domaine BPCO.

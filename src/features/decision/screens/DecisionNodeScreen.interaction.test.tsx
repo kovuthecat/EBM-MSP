@@ -434,12 +434,24 @@ function blocEnAttentePresent(container: HTMLElement): boolean {
  *
  * Sélection par classe plutôt que par `getByRole` : le titre porte maintenant le compteur dans le même
  * bouton, son nom accessible n'est donc plus exactement le libellé du groupe.
+ *
+ * IDEMPOTENT depuis le 2026-08-09 (même garde que `ouvrirSection`, `DecisionNodeScreen.bascule.test.tsx`) :
+ * une section peut désormais s'ouvrir TOUTE SEULE (auto-avance sur un dernier décisif répondu,
+ * `CriteriaForm.tsx` `avanceSiSectionComplete`) AVANT que ce test ne l'ouvre lui-même explicitement — ce
+ * n'est plus une erreur, seulement un geste devenu superflu. Ne lève une erreur QUE si la section reste
+ * introuvable À L'ÉTAT OUVERT NON PLUS (aucun `.criteria-form__label` ouvert ne porte ce libellé).
  */
 function ouvrirGroupeFormulaire(container: HTMLElement, libelleGroupe: string) {
   const titre = [...container.querySelectorAll('.criteria-form__group-header-bouton')].find((bouton) =>
     new RegExp(libelleGroupe, 'i').test(bouton.textContent ?? ''),
   )
-  if (!titre) throw new Error(`section repliée « ${libelleGroupe} » introuvable (déjà ouverte ? un seul groupe ?)`)
+  if (!titre) {
+    const dejaOuverte = [...container.querySelectorAll('.criteria-form__label')].some((label) =>
+      new RegExp(libelleGroupe, 'i').test(label.textContent ?? ''),
+    )
+    if (dejaOuverte) return
+    throw new Error(`section repliée « ${libelleGroupe} » introuvable (déjà ouverte ? un seul groupe ?)`)
+  }
   fireEvent.click(titre)
 }
 

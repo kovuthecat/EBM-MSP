@@ -9,35 +9,35 @@
 
 ## Paires (triées par intitulé)
 
-8×  Ajouter un GLP-1 / une association fixe d'abord  ⟷  Ajouter un bolus au repas principal
-3×  Ajouter un GLP-1 / une association fixe d'abord  ⟷  Corriger l'hypoglycémie ou la variabilité
-7×  Ajouter un GLP-1 / une association fixe d'abord  ⟷  Envisager d'instaurer une mesure continue du glucose
-2×  Ajouter un GLP-1 / une association fixe d'abord  ⟷  Insuline prémélangée — option dégradée, dernier recours
-7×  Ajouter un GLP-1 / une association fixe d'abord  ⟷  Optimiser la répartition du basal-bolus
-1×  Ajouter un GLP-1 / une association fixe d'abord  ⟷  Réduire la basale
-11×  Ajouter un bolus au repas principal  ⟷  Corriger l'hypoglycémie ou la variabilité
-10×  Ajouter un bolus au repas principal  ⟷  Envisager d'instaurer une mesure continue du glucose
-3×  Ajouter un bolus au repas principal  ⟷  Insuline prémélangée — option dégradée, dernier recours
-2×  Ajouter un bolus au repas principal  ⟷  Ne pas sur-titrer la basale — intensifier autrement
-9×  Ajouter un bolus au repas principal  ⟷  Optimiser la répartition du basal-bolus
-3×  Ajouter un bolus au repas principal  ⟷  Réduire la basale
+3×  Basale  ⟷  Bolus au repas principal
+15×  Basale  ⟷  Corriger l'hypoglycémie ou la variabilité
+9×  Basale  ⟷  Désintensifier / alléger le schéma
+1×  Basale  ⟷  GLP-1 / association fixe d'abord
+3×  Basale  ⟷  Insuline prémélangée — option dégradée, dernier recours
+16×  Basale  ⟷  Optimiser la répartition du basal-bolus
+11×  Bolus au repas principal  ⟷  Corriger l'hypoglycémie ou la variabilité
+10×  Bolus au repas principal  ⟷  Envisager d'instaurer une mesure continue du glucose
+8×  Bolus au repas principal  ⟷  GLP-1 / association fixe d'abord
+3×  Bolus au repas principal  ⟷  Insuline prémélangée — option dégradée, dernier recours
+2×  Bolus au repas principal  ⟷  Ne pas sur-titrer la basale — intensifier autrement
+9×  Bolus au repas principal  ⟷  Optimiser la répartition du basal-bolus
 12×  Corriger l'hypoglycémie ou la variabilité  ⟷  Désintensifier / alléger le schéma
 2×  Corriger l'hypoglycémie ou la variabilité  ⟷  Envisager d'instaurer une mesure continue du glucose
+3×  Corriger l'hypoglycémie ou la variabilité  ⟷  GLP-1 / association fixe d'abord
 8×  Corriger l'hypoglycémie ou la variabilité  ⟷  Insuline prémélangée — option dégradée, dernier recours
 30×  Corriger l'hypoglycémie ou la variabilité  ⟷  Optimiser la répartition du basal-bolus
-15×  Corriger l'hypoglycémie ou la variabilité  ⟷  Réduire la basale
 14×  Désintensifier / alléger le schéma  ⟷  Envisager d'instaurer une mesure continue du glucose
 4×  Désintensifier / alléger le schéma  ⟷  Insuline prémélangée — option dégradée, dernier recours
 60×  Désintensifier / alléger le schéma  ⟷  Optimiser la répartition du basal-bolus
-9×  Désintensifier / alléger le schéma  ⟷  Réduire la basale
+7×  Envisager d'instaurer une mesure continue du glucose  ⟷  GLP-1 / association fixe d'abord
 6×  Envisager d'instaurer une mesure continue du glucose  ⟷  Insuline prémélangée — option dégradée, dernier recours
 1×  Envisager d'instaurer une mesure continue du glucose  ⟷  Ne pas sur-titrer la basale — intensifier autrement
 35×  Envisager d'instaurer une mesure continue du glucose  ⟷  Optimiser la répartition du basal-bolus
 8×  Envisager d'instaurer une mesure continue du glucose  ⟷  Titrer la basale (augmenter la dose)
-21×  Envisager un GLP-1 avant ou avec l'insuline  ⟷  Initier une insuline basale
+21×  Envisager un GLP-1 avant ou avec l'insuline  ⟷  Insuline basale
+2×  GLP-1 / association fixe d'abord  ⟷  Insuline prémélangée — option dégradée, dernier recours
+7×  GLP-1 / association fixe d'abord  ⟷  Optimiser la répartition du basal-bolus
 16×  Insuline prémélangée — option dégradée, dernier recours  ⟷  Optimiser la répartition du basal-bolus
-3×  Insuline prémélangée — option dégradée, dernier recours  ⟷  Réduire la basale
-16×  Optimiser la répartition du basal-bolus  ⟷  Réduire la basale
 
 ## Paires intra-famille
 #
@@ -45,8 +45,8 @@
 # Noeud.familles). Une famille EXCLUSIVE (alternatives) qui apparaît ici est le signal qu’une
 # alternative est présentée comme cumulable pour au moins un profil (défaut ③, cf. tête de fichier).
 
-8×  [famille « Intensifier le traitement » — EXCLUSIVE]  Ajouter un GLP-1 / une association fixe d'abord  ⟷  Ajouter un bolus au repas principal
-2×  [famille « Intensifier le traitement » — EXCLUSIVE]  Ajouter un GLP-1 / une association fixe d'abord  ⟷  Insuline prémélangée — option dégradée, dernier recours
-3×  [famille « Intensifier le traitement » — EXCLUSIVE]  Ajouter un bolus au repas principal  ⟷  Insuline prémélangée — option dégradée, dernier recours
-21×  [famille « Instaurer l'insuline » — EXCLUSIVE]  Envisager un GLP-1 avant ou avec l'insuline  ⟷  Initier une insuline basale
-16×  [famille « Ajuster le schéma en place » — cumulable]  Optimiser la répartition du basal-bolus  ⟷  Réduire la basale
+16×  [famille « Ajuster le schéma en place » — cumulable]  Basale  ⟷  Optimiser la répartition du basal-bolus
+8×  [famille « Intensifier le traitement » — EXCLUSIVE]  Bolus au repas principal  ⟷  GLP-1 / association fixe d'abord
+3×  [famille « Intensifier le traitement » — EXCLUSIVE]  Bolus au repas principal  ⟷  Insuline prémélangée — option dégradée, dernier recours
+21×  [famille « Instaurer l'insuline » — EXCLUSIVE]  Envisager un GLP-1 avant ou avec l'insuline  ⟷  Insuline basale
+2×  [famille « Intensifier le traitement » — EXCLUSIVE]  GLP-1 / association fixe d'abord  ⟷  Insuline prémélangée — option dégradée, dernier recours

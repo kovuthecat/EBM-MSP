@@ -374,6 +374,62 @@ export function CriteriaForm({
     aConfirmer ? champs.filter((c) => aConfirmer.has(c.nom)).length : 0
 
   /**
+   * AUTO-AVANCE QUAND UNE SECTION À PLUSIEURS CHAMPS N'A PLUS RIEN « À CONFIRMER » (demande référent
+   * 2026-08-09). Complète T-156 (`autoAvanceVersGroupe` plus bas, qui ne couvre qu'une section à UN SEUL
+   * champ `enum` segmenté) : ici, la section ouverte peut porter plusieurs champs (bool, enum, nombre) —
+   * dès que le dernier champ DÉCISIF encore réclamé vient d'être répondu, elle cède la place à la
+   * suivante. Appelée EXPLICITEMENT depuis chaque geste qui répond à un champ (case `bool`, bouton `enum`,
+   * `onBlur` d'un `nombre`, clic « Rien à signaler ») — jamais depuis un `useEffect` réactif.
+   *
+   * POURQUOI PAS UN EFFET RÉACTIF (« le compte de la section ouverte vient-il de tomber à 0 ? ») —
+   * PREMIÈRE VERSION DE CETTE TÂCHE, RETIRÉE APRÈS UN DÉFAUT TROUVÉ AU BANC
+   * (`DecisionNodeScreen.bascule.test.tsx`, cas `insuline` « Basale seule → Naïf → Basale seule ») : sur ce
+   * nœud réel, changer `situation_insulinotherapie` démasque/remasque plusieurs sections EN CASCADE
+   * (`visible_si`) — le compte « à confirmer » d'une section peut donc tomber à 0 parce que SES CHAMPS
+   * VIENNENT D'ÊTRE MASQUÉS (retirés du décompte), pas parce que le praticien vient d'y répondre. Un effet
+   * qui ne regarde que « le compte a-t-il baissé » ne peut pas distinguer les deux cas et avance à tort
+   * pendant une cascade de masquage sans rapport avec une réponse. En appelant cette fonction SEULEMENT
+   * depuis le geste qui répond à un champ précis, l'ambiguïté disparaît par construction : elle ne
+   * s'exécute jamais pendant un simple démasquage.
+   *
+   * EXCLUSION VOLONTAIRE, à la demande du référent : une section qui porte un critère `type: liste`
+   * (cases à cocher multiples, ex. « Traitements en cours ») n'a AUCUN signal de fin — cocher une case
+   * puis une autre ne dit jamais « j'ai fini d'énumérer », contrairement à un `bool`/`enum`/`nombre` où
+   * CHAQUE réponse est déjà complète. Auto-avancer là pousserait le praticien plus loin avant qu'il ait
+   * fini de cocher.
+   *
+   * `nomsRepondus` : un seul nom (une saisie individuelle) ou plusieurs (« Rien à signaler », qui répond à
+   * toute une volée de champs d'un coup) — la section avance si, une fois CES noms retirés, plus aucun
+   * champ de la section ne reste dans `aConfirmer`.
+   *
+   * `valeursPatch` (T-156bis, 2026-08-09, bug trouvé au banc sur `prescription` juste après le premier
+   * correctif ci-dessus) — LA MÊME classe de défaut, à une échelle plus fine : cocher `intolerance_traitement`
+   * (section « Tolérance et préférences ») RÉVÈLE dans la MÊME section un `type: liste` (`nature_intolerance`,
+   * `visible_si: "intolerance_traitement == true"`) — mais `groupes`/`aConfirmer`, capturés dans CE rendu,
+   * datent d'AVANT ce clic : ni l'un ni l'autre ne voit encore ce nouveau champ, donc ni l'exclusion `liste`
+   * ni le calcul « reste-t-il un décisif ? » ne peuvent le compter. Résultat observé : la section avançait
+   * quand même, une fraction de rendu avant que la case à cocher tout juste révélée n'existe pour de bon.
+   * `valeursPatch` reconstruit la composition RÉELLE de la section (`grouperChamps` rejoué avec la valeur
+   * qu'on vient de poser) avant de statuer — jamais sur la base d'un rendu déjà périmé.
+   */
+  const avanceSiSectionComplete = (nomsRepondus: readonly string[], valeursPatch: Record<string, CriteriaValue> = {}) => {
+    if (!accordeon || groupeOuvert == null || !aConfirmer) return
+    const criteriaPatchee: Criteria = { ...criteria, ...valeursPatch }
+    const touchedPatchee = new Set([...touched, ...nomsRepondus])
+    const groupesActuels = grouperChamps(criteresEntree, criteriaPatchee, touchedPatchee)
+    const clesActuelles = groupesActuels.map((g, i) => g.libelle ?? `__sans-groupe-${i}`)
+    const index = clesActuelles.indexOf(groupeOuvert)
+    if (index === -1 || index >= groupesActuels.length - 1) return
+    const groupe = groupesActuels[index]
+    if (!groupe.champs.some((c) => nomsRepondus.includes(c.nom))) return // pas cette section.
+    if (groupe.champs.some((c) => c.type === 'liste')) return
+    const resteAConfirmer = groupe.champs.some(
+      (c) => !nomsRepondus.includes(c.nom) && aConfirmer.has(c.nom),
+    )
+    if (!resteAConfirmer) ouvrirGroupe(clesActuelles[index + 1])
+  }
+
+  /**
    * Valeur affichée d'un champ RENSEIGNÉ, pour le résumé d'une section repliée. `null` si rien à montrer
    * (champ jamais `touched`, ou `liste` cochée puis entièrement décochée). Formatage GÉNÉRIQUE par type,
    * même registre que le rendu du champ ouvert (`labelForEnumValue` déjà utilisé plus bas) — aucune
@@ -666,7 +722,10 @@ export function CriteriaForm({
             type="checkbox"
             className="criteria-form__flag-input"
             checked={Boolean(criteria[critere.nom])}
-            onChange={(event) => onChange(critere.nom, event.target.checked)}
+            onChange={(event) => {
+              onChange(critere.nom, event.target.checked)
+              avanceSiSectionComplete([critere.nom], { [critere.nom]: event.target.checked })
+            }}
             ref={registrerChamp(critere.nom)}
           />
           <Icon nom="drapeau" taille={16} className="criteria-form__flag-icon" />
@@ -812,7 +871,11 @@ export function CriteriaForm({
           <select
             className="criteria-form__input"
             value={touched.has(critere.nom) ? String(criteria[critere.nom] ?? '') : ''}
-            onChange={(event) => onChange(critere.nom, Number(event.target.value))}
+            onChange={(event) => {
+              const valeur = Number(event.target.value)
+              onChange(critere.nom, valeur)
+              avanceSiSectionComplete([critere.nom], { [critere.nom]: valeur })
+            }}
             ref={registrerChamp(critere.nom)}
           >
             <option value="" disabled>
@@ -885,6 +948,7 @@ export function CriteriaForm({
               // tampon : évite un texte figé qui ne suivrait plus une valeur changée par ailleurs (reprise
               // de session, pré-remplissage).
               retirerTexteFlexible(critere.nom)
+              avanceSiSectionComplete([critere.nom], { [critere.nom]: valeurFinale })
             }}
             ref={registrerChamp(critere.nom)}
           />
@@ -916,6 +980,11 @@ export function CriteriaForm({
               }
               onChange(critere.nom, Number(brut))
             }}
+            // `onBlur`, pas `onChange` : avancer dès la première frappe couperait la saisie en cours
+            // (« 1 » de « 180 » suffirait à faire fuir le champ) — la perte de focus est le seul signal
+            // fiable de « fini de taper ce nombre » (même principe que la correction d'échelle de la
+            // variante `unite_flexible`, `onBlur` ci-dessus).
+            onBlur={() => avanceSiSectionComplete([critere.nom])}
           />
         ) : segmente ? (
           <div className="criteria-form__segmented" role="group" aria-label={labelForCritere(critere.nom)}>
@@ -996,6 +1065,9 @@ export function CriteriaForm({
                     const premierChoix = !touched.has(critere.nom)
                     onChange(critere.nom, valeur)
                     if (premierChoix && autoAvanceVersGroupe) ouvrirGroupe(autoAvanceVersGroupe)
+                    // Section à PLUSIEURS champs (T-156 ci-dessus ne couvre que le champ UNIQUE d'une
+                    // section) : avance si ce choix vient de solder le dernier décisif encore réclamé.
+                    else avanceSiSectionComplete([critere.nom], { [critere.nom]: valeur })
                   }}
                 >
                   {/* Icône (2026-08-01, amélioration de lisibilité ; convertie en <Icon> SVG le
@@ -1034,7 +1106,10 @@ export function CriteriaForm({
             // ne correspond à sa `value`. L'option vide ci-dessous rend l'état « pas encore répondu »
             // REPRÉSENTABLE — sans elle, il n'existe aucune valeur à donner au champ pour ne rien dire.
             value={touched.has(critere.nom) ? String(criteria[critere.nom] ?? '') : ''}
-            onChange={(event) => onChange(critere.nom, event.target.value)}
+            onChange={(event) => {
+              onChange(critere.nom, event.target.value)
+              avanceSiSectionComplete([critere.nom], { [critere.nom]: event.target.value })
+            }}
             ref={registrerChamp(critere.nom)}
           >
             <option value="" disabled>
@@ -1115,6 +1190,16 @@ export function CriteriaForm({
           ? groupe.champs.filter((c) => c.type === 'bool' && aConfirmer.has(c.nom))
           : []
         const boolsVisiblesNonRenseignes = groupe.champs.filter((c) => c.type === 'bool' && !touched.has(c.nom))
+        // Demande référent 2026-08-09 : « Rien à signaler » répond aussi aux `enum` SANS EFFET SUR LA
+        // RECO actuelle (`estDim`, cf. sa définition plus haut — exige déjà `!touched`) — ex. « Préférence
+        // vis-à-vis de l'injectable » → se retrouve marquée à sa valeur par défaut (déjà celle que porte
+        // `criteria`, `lib/formLayout.ts` `valeurParDefaut` : la 1ʳᵉ valeur déclarée). JAMAIS un `enum`
+        // DÉCISIF (R1/D20) : le mécanisme ne doit jamais inventer une réponse qui compte pour la reco,
+        // seulement acter qu'un champ SANS EFFET n'a rien à dire.
+        const enumsSansEffetNonRenseignes = groupe.champs.filter(
+          (c) => c.type === 'enum' && !touched.has(c.nom) && estDim(c.nom),
+        )
+        const champsConfirmablesEnUnClic = [...boolsVisiblesNonRenseignes, ...enumsSansEffetNonRenseignes]
         const confirmerBools = boolsDecisifsNonConfirmes.length >= 1 ? onConfirmerChamps : undefined
         const afficherPiedDeSection = nombresARenseigner.length > 0 || confirmerBools != null
 
@@ -1200,7 +1285,13 @@ export function CriteriaForm({
                         className="criteria-form__group-rien"
                         // T-148 : répond à TOUS les `bool` visibles non renseignés, pas seulement aux
                         // décisifs qui ont déclenché l'affichage du bouton — cf. le commentaire ci-dessus.
-                        onClick={() => confirmerBools(boolsVisiblesNonRenseignes.map((c) => c.nom))}
+                        // 2026-08-09 : + les `enum` sans effet sur la reco (`champsConfirmablesEnUnClic`),
+                        // et avance à la section suivante si ce geste solde tous les décisifs restants.
+                        onClick={() => {
+                          const noms = champsConfirmablesEnUnClic.map((c) => c.nom)
+                          confirmerBools(noms)
+                          avanceSiSectionComplete(noms)
+                        }}
                       >
                         Rien à signaler
                       </button>
@@ -1210,12 +1301,17 @@ export function CriteriaForm({
 
                 {groupeSuivant && (
                   <div className="criteria-form__group-suivant">
+                    {/* 2026-08-09 (demande référent, allègement de page) : icône seule plutôt que
+                        « Suivant : {libellé} → » — le libellé de la section suivante reste porté par
+                        `aria-label` (lecteurs d'écran) et par son propre titre, visible juste en dessous
+                        une fois la section ouverte. */}
                     <button
                       type="button"
                       className="criteria-form__group-suivant-bouton"
                       onClick={() => ouvrirGroupe(clesGroupes[index + 1])}
+                      aria-label={`Suivant : ${groupeSuivant.libelle ?? 'section suivante'}`}
                     >
-                      Suivant : {groupeSuivant.libelle ?? 'section suivante'} →
+                      <Icon nom="chevron-bas" taille={18} />
                     </button>
                   </div>
                 )}

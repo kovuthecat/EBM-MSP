@@ -53,11 +53,17 @@ const FAMILLE_AGENT_A_AJOUTER = "Le choix de l'agent"
 // RETITRÉS le 2026-08-06 (P14/S8, T-171) : intitulés désormais uniques par construction (l'action figure
 // dans le titre, cf. `prescription.yaml`) — les prédicats suivent le nouveau texte exact. `action` gardé
 // en plus par prudence (même convention que les autres prédicats de ce fichier).
-const estIntroISGLT2 = (o: Option) => o.intitule === 'iSGLT2 — introduire' && o.action === 'ajouter'
+// RETITRÉS À NOUVEAU le 2026-08-09 (allègement des intitulés, demande utilisateur) : le verbe d'action
+// («  — introduire », «  — réduire la posologie »…) est retiré des `intitule` qui ne faisaient QUE le
+// répéter — le badge d'action seul suffit. Intitulé nu redevenu ambigu par construction sur plusieurs
+// molécules (« iSGLT2 » vaut aussi bien pour l'introduction que pour la suspension) : `action` (déjà
+// présent dans chaque prédicat depuis T-171) reste donc le VRAI discriminant, comme avant ce renommage —
+// cf. le changelog de `prescription.yaml` pour le détail complet des intitulés touchés.
+const estIntroISGLT2 = (o: Option) => o.intitule === 'iSGLT2' && o.action === 'ajouter'
 // `startsWith` plutôt qu'égalité stricte : tronqué avant le trait d'union insécable de « GLP‑1 », même
 // esquive que l'ancienne constante `INTRO_GLP1`.
 const estIntroGLP1 = (o: Option) => o.intitule.startsWith('AR GLP') && o.action === 'ajouter'
-const estIntroTirzepatide = (o: Option) => o.intitule === 'Tirzépatide — introduire' && o.action === 'ajouter'
+const estIntroTirzepatide = (o: Option) => o.intitule === 'Tirzépatide' && o.action === 'ajouter'
 const AGENTS_A_BENEFICE_ORGANE_INTRO = [estIntroISGLT2, estIntroGLP1, estIntroTirzepatide]
 
 // `bas_rang` (nouveau champ, cf. `node.types.ts`) plutôt que `action === 'ajouter'` seul : c'est
@@ -65,11 +71,17 @@ const AGENTS_A_BENEFICE_ORGANE_INTRO = [estIntroISGLT2, estIntroGLP1, estIntroTi
 // le verbe si un jour une AUTRE option `ajouter` non `bas_rang` s'ajoutait sur la même molécule.
 // RETITRÉE le 2026-08-06 (P14/S8, T-171) : « Gliptine » (place résiduelle, `ajouter`) porte désormais
 // l'action dans le titre (désambiguïsation d'avec le switch ci-dessous, même intitulé nu jusqu'ici).
-const estGliptinePlaceResiduelle = (o: Option) => o.intitule === 'Gliptine — introduire' && o.bas_rang === true
-// RETITRÉE le 2026-08-06 (contre-relecture rédactionnelle) : « Sulfamide » (place résiduelle, `ajouter`)
-// porte désormais l'action dans le titre, comme ses deux cartes sœurs « iSGLT2 — introduire » et
-// « Gliptine — introduire » entre lesquelles elle s'affiche. `bas_rang` reste le discriminant réel.
-const estSulfamidePlaceResiduelle = (o: Option) => o.intitule === 'Sulfamide — introduire' && o.bas_rang === true
+// 2026-08-09 : `action` AJOUTÉ à ce prédicat (absent avant ce jour) — depuis le retrait du verbe de
+// l'intitulé, « Gliptine » seul désigne aussi bien cette carte que « Gliptine — remplacer… »/« Gliptine
+// (redondante) » si l'on ne regardait QUE `bas_rang` d'un contenu futur ; ici `bas_rang` seul restait
+// suffisant (aucune autre carte « Gliptine » ne le porte) mais l'ajout de `action` documente l'intention
+// et protège contre une régression de contenu silencieuse.
+const estGliptinePlaceResiduelle = (o: Option) => o.intitule === 'Gliptine' && o.action === 'ajouter' && o.bas_rang === true
+// RETITRÉE le 2026-08-09 (allègement des intitulés) : « Sulfamide » (place résiduelle, `ajouter`) partage
+// désormais son intitulé NU avec DEUX autres cartes sulfamide du même nœud (« Sulfamide — réduire la
+// posologie », elle-même `bas_rang: true`, ET « Sulfamide — arrêter ») — `bas_rang` SEUL ne suffit plus à
+// désambiguïser (deux options « Sulfamide » le portent désormais). `action` REDEVIENT nécessaire ici.
+const estSulfamidePlaceResiduelle = (o: Option) => o.intitule === 'Sulfamide' && o.action === 'ajouter' && o.bas_rang === true
 const estInsulineEnvisager = (o: Option) => o.intitule.startsWith("Envisager l'") // texte inchangé, unique
 const estInsulineInitiation = (o: Option) => o.intitule === "Insuline d'initiation" // texte inchangé, unique
 const AGENTS_PUREMENT_GLYCEMIQUES_INTRO = [
@@ -91,6 +103,11 @@ const VERDICTS_GLIPTINE = [estSwitchGliptine, estArretGliptineRedondante]
 // même esquive que `estDesintensifier`/`estInsulineEnvisager` ci-dessus).
 const estSwitchSulfamide = (o: Option) => o.intitule.startsWith('Sulfamide — remplacer') && o.action === 'remplacer'
 const estArretSulfamideDFG = (o: Option) => o.intitule === 'Sulfamide (DFG < 30)' // qualificatif conservé, reste unique
+// 2026-08-09 : RESTE PRÉFIXÉ (contrairement aux autres verbes de cette liste) — « Sulfamide — réduire la
+// posologie » n'a PAS été allégée en intitulé nu comme ses cartes sœurs (T-161, `paires.test.ts` : cette
+// carte peut être applicable EN MÊME TEMPS que « Sulfamide — arrêter », devenue « Sulfamide » nue ; deux
+// cartes visibles simultanément sous le même intitulé, badge seul distinct, est l'exacte violation que
+// T-161 interdit — cf. le changelog de `prescription.yaml`).
 const estReduireSulfamide = (o: Option) => o.intitule.startsWith('Sulfamide — réduire') && o.action === 'reduire'
 // AJOUTÉE le 2026-08-06 (P14/S6, T-185) : « Sulfamide — arrêter » (nouvelle carte) reprend, POUR LE
 // SULFAMIDE, le premier item de déclencheur que « Désintensifier » portait avant sa restriction aux
@@ -98,7 +115,9 @@ const estReduireSulfamide = (o: Option) => o.intitule.startsWith('Sulfamide — 
 // sans quoi l'invariant 5 (agent sans bénéfice dur en cours + ajout d'un agent protecteur ⇒ verdict
 // proposé aussi) perdrait sa couverture sur les profils où SEULE cette carte porte le verdict (HbA1c sous
 // la cible, sans DFG < 30 ni hypoglycémie/intolérance déclenchant switch/réduction).
-const estArretSulfamide = (o: Option) => o.intitule === 'Sulfamide — arrêter'
+// 2026-08-09 : `action` AJOUTÉ (absent avant ce jour, l'intitulé complet suffisait alors) — nécessaire
+// depuis que « Sulfamide » nu est partagé par trois cartes (introduire/réduire/arrêter).
+const estArretSulfamide = (o: Option) => o.intitule === 'Sulfamide' && o.action === 'arreter'
 const estDesintensifier = (o: Option) => o.intitule.startsWith('Désintensifier') // texte inchangé, unique
 const VERDICTS_SULFAMIDE = [estSwitchSulfamide, estArretSulfamideDFG, estReduireSulfamide, estArretSulfamide, estDesintensifier]
 

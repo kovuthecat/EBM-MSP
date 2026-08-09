@@ -832,7 +832,7 @@ familles:
     exclusive: false
 options:
   # ---- Gate / socle -------------------------------------------------------------------------------------
-  - intitule: "Metformine — instaurer ou poursuivre"
+  - intitule: "Metformine"
     role: socle
     # BADGE D'ACTION CONDITIONNEL (2026-08-04, demande utilisateur) — cette carte est TOUJOURS la même
     # option (`conditions: ["toujours"]`) qu'elle instaure ou poursuive, mais le verbe lu sur la pastille
@@ -944,7 +944,7 @@ options:
     niveau_preuve: faible
     # AJOUT T-126 (P12/S6, 2026-08-03) — rapport OpenEvidence du 2026-08-02, cf. `meta.changelog`.
     apercu: "arrêt immédiat, sans décroissance : contre-indication formelle dès DFG < 30 (KDIGO 2022)."
-  - intitule: "Metformine — réduire la posologie"
+  - intitule: "Metformine"
     role: securite
     action: reduire
     # GATING SUR LA DOSE (décision référent, 2026-07-26, 3e série — recette capture 1, problème 2) : avant
@@ -1051,7 +1051,7 @@ options:
     # AJOUT T-126 (P12/S6, 2026-08-03) — rapport OpenEvidence du 2026-08-02, cf. `meta.changelog`.
     apercu: "arrêt, sans décroissance ; l'hypoglycémie peut persister après la dernière prise, par accumulation (RCP, rubrique 4.4) — seuil DFG < 30 cité par la SFD (2023/2025)."
   # ---- Sécurité — acidocétose euglycémique sous iSGLT2 --------------------------------------------------
-  - intitule: "iSGLT2 — suspendre"
+  - intitule: "iSGLT2"
     role: securite
     action: arreter
     # AJOUT (2026-07-26, 4e série, red-team clinique sécurité HAUTE-3, PRIORITÉ ABSOLUE DU LOT) : aucune
@@ -1163,7 +1163,7 @@ options:
       - texte: "Cétonémie ≥ 3 mmol/L → urgence (insuline + hospitalisation), hors périmètre de cet écran."
         condition: "cetonemie == true"
   # ---- Ajout d'un agent protecteur (fix bug 9 : priorités conditionnelles) ------------------------------
-  - intitule: "iSGLT2 — introduire"
+  - intitule: "iSGLT2"
     role: geste
     action: ajouter
     conditions:
@@ -1289,7 +1289,7 @@ options:
       - "Empagliflozine (Jardiance) : 10 mg/j, puis 25 mg/j (dose maximale) si le DFG est ≥ 60 mL/min/1,73 m² et qu'un contrôle glycémique renforcé est recherché."
       - "Aucune hiérarchie n'est posée entre les deux : la protection cardio‑rénale est un effet de classe. Les deux sont commercialisées et remboursées en France dans le diabète de type 2."
       - "Source : RCP (EMA/ANSM) de chaque spécialité, rubrique 4.2."
-  - intitule: "AR GLP‑1 — introduire"
+  - intitule: "AR GLP‑1"
     role: geste
     action: ajouter
     # LEVÉE DU VERROU (référent, 2026-07-25) : `ne_contient_pas gliptine` retiré. La non-association
@@ -1443,7 +1443,7 @@ options:
       - "Sémaglutide, palier 2 mg/semaine : autorisé par le RCP européen, mais seules les présentations 0,25 / 0,5 / 1 mg sont commercialisées en France. Dose maximale utilisable en France : 1 mg/semaine."
       - "Dulaglutide (Trulicity) : 0,75 mg/semaine en monothérapie, ou 1,5 mg/semaine d'emblée en association ; puis 3 mg/semaine après au moins 4 semaines à 1,5 mg, puis 4,5 mg/semaine (dose maximale) après au moins 4 semaines supplémentaires. Les quatre dosages sont commercialisés et remboursés en France."
       - "Sources : RCP EMA/ANSM Victoza, Ozempic et Trulicity, rubrique 4.2 ; disponibilité France vérifiée sur la base de données publique des médicaments."
-  - intitule: "Tirzépatide — introduire"
+  - intitule: "Tirzépatide"
     role: geste
     action: ajouter
     conditions:
@@ -1925,7 +1925,7 @@ options:
   # clinique, nom du médicament en plus. Modèle de rédaction : « Sulfamide (DFG < 30) » plus haut (même
   # famille de geste — arrêter un insulinosécréteur —, `role: geste` ici et non `securite` : ce n'est pas
   # une urgence rénale mais une correction de sur-traitement, comme pour « Désintensifier »).
-  - intitule: "Sulfamide — arrêter"
+  - intitule: "Sulfamide"
     role: geste
     action: arreter
     conditions:
@@ -1972,7 +1972,7 @@ options:
     references:
       - grant
     apercu: "arrêt sans décroissance (pas de sevrage progressif requis pour un insulinosécréteur, comme pour « Sulfamide (DFG < 30) ») ; à l'introduction d'un AR GLP‑1, arrêt si HbA1c ≤ 7,5 % (avis d'experts, JAMA Cardiol 2020)."
-  - intitule: "Glinide — arrêter"
+  - intitule: "Glinide"
     role: geste
     action: arreter
     conditions:
@@ -2083,7 +2083,7 @@ options:
   # de cette famille de réductions à ne pas nommer le geste, au milieu de « AR GLP‑1 — réduire la
   # posologie », « Tirzépatide — réduire la posologie », « Sulfamide — réduire la posologie » et
   # « Glinide — réduire la posologie ». Aucune condition ni aucun rang ne bouge.
-  - intitule: "Insuline — réduire la posologie"
+  - intitule: "Insuline"
     role: geste
     action: reduire
     # GÉNÉRALISATION position_vs_cible (2026-07-26, 4e série, red-team clinique silences F1) : voir le
@@ -2112,7 +2112,7 @@ options:
     # âgé (vignette N7 de la recette du 02/08 : « je baisse les 12 UI de combien ? » reste À DESSEIN sans
     # réponse chiffrée hors relais, cette carte étant l'une des trois affichées sur ce profil).
     apercu: "en relais thérapeutique (introduction d'un autre agent) : −10 à −20 %, ou −20 à −30 % si à l'objectif ou hypoglycémie — jamais d'arrêt brutal sans relais (avis d'experts, AAFP 2026 / JAMA Cardiol 2020) ; en allègement isolé hors relais : au jugement clinique, aucun rythme chiffré sourcé."
-  - intitule: "AR GLP‑1 — réduire la posologie"
+  - intitule: "AR GLP‑1"
     role: geste
     action: reduire
     conditions:
@@ -2139,7 +2139,7 @@ options:
     # CHIFFRES sont remontés dans `effet_attendu` (c'est ce que les données ont mesuré) ; il ne reste ici
     # que la modalité pratique du geste.
     apercu: "réduire plutôt qu'arrêter ; surveiller le poids et l'HbA1c 4 à 12 semaines après le geste."
-  - intitule: "Tirzépatide — réduire la posologie"
+  - intitule: "Tirzépatide"
     role: geste
     action: reduire
     conditions:
@@ -2362,7 +2362,7 @@ options:
       Simplification thérapeutique, sans perte de bénéfice d'organe.
     niveau_preuve: faible
   # ---- Place résiduelle SU / gliptine (classes protectrices indisponibles) ------------------------------
-  - intitule: "Gliptine — introduire"
+  - intitule: "Gliptine"
     role: geste
     action: ajouter
     # BAS RANG (2026-08-04, demande utilisateur) : agent glycémique sans bénéfice sur critère dur,
@@ -2443,7 +2443,7 @@ options:
   # entre « iSGLT2 — introduire » et « Gliptine — introduire », seules cartes d'ajout de cette famille à
   # nommer leur geste. Aucune condition, aucun rang, aucun `bas_rang` ne bouge — seul le libellé.
   # Le prédicat `estSulfamidePlaceResiduelle` d'`engine/banc/invariants.test.ts` suit ce nouveau texte.
-  - intitule: "Sulfamide — introduire"
+  - intitule: "Sulfamide"
     role: geste
     action: ajouter
     # BAS RANG (2026-08-04, demande utilisateur) : agent glycémique sans bénéfice sur critère dur,
@@ -3231,8 +3231,46 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 + Claude"
   statut: brouillon
-  version: "0.73"
+  version: "0.74"
   changelog:
+    - date: "2026-08-09"
+      auteur: "Claude Code (demande utilisateur, allègement de l'affichage)"
+      resume: >-
+        INTITULÉS ALLÉGÉS — pas de changement clinique. Sur les cartes qui portent déjà un badge d'action
+        (`Option.action`, pastille « Ajouter »/« Remplacer »/« Arrêter »/« Réduire »/« Maintenir »,
+        `OptionCard.tsx`), le VERBE était souvent répété une seconde fois dans `intitule` (« iSGLT2 —
+        introduire », « Sulfamide — arrêter », « Metformine — réduire la posologie »…) : la même
+        information deux fois sur la même ligne. Retiré UNIQUEMENT quand la partie après le tiret ne fait
+        QUE reformuler le verbe du badge, sans rien ajouter d'autre (classe + verbe seul → classe seule) :
+        « Metformine — instaurer ou poursuivre » → « Metformine » ; « Metformine — réduire la posologie » →
+        « Metformine » ; « iSGLT2 — suspendre » → « iSGLT2 » ; « iSGLT2 — introduire » → « iSGLT2 » ;
+        « AR GLP‑1 — introduire » → « AR GLP‑1 » ; « Tirzépatide — introduire » → « Tirzépatide » ;
+        « Sulfamide — arrêter » → « Sulfamide » ; « Glinide — arrêter » → « Glinide » ; « Insuline —
+        réduire la posologie » → « Insuline » ; « AR GLP‑1 — réduire la posologie » → « AR GLP‑1 » ;
+        « Tirzépatide — réduire la posologie » → « Tirzépatide » ; « Gliptine — introduire » →
+        « Gliptine » ; « Sulfamide — introduire » → « Sulfamide ». CONSERVÉS À L'IDENTIQUE (l'ajout porte
+        une information CLINIQUE que le badge seul ne dit pas, ce n'est pas une répétition) : les
+        qualificatifs entre parenthèses (« Metformine (DFG < 30) », « Sulfamide (DFG < 30) », « Metformine
+        (désintensification) », « Gliptine (redondante) »), les « — remplacer PAR un agent à bénéfice
+        démontré » (le verbe seul ne dit pas PAR QUOI), « Insuline d'initiation » / « Envisager l'insuline »
+        (deux options `action: ajouter` DISTINCTES pour deux situations cliniques différentes — les fusionner
+        en un même intitulé aurait supprimé la seule chose qui les distingue à l'écran) et les cartes sans
+        `action` (« Optimiser l'agent mal toléré », « Désintensifier : alléger la charge thérapeutique »,
+        « Reconsidérer un agent protecteur hors indication », les deux mesures/repli hygiéno-diététiques).
+        REVENUES SUR LEUR INTITULÉ D'ORIGINE APRÈS COUP (même jour, banc rouge) : « Sulfamide — réduire la
+        posologie » et « Glinide — réduire la posologie » — allégées une première fois en « Sulfamide »/
+        « Glinide » nus, ce que `paires.test.ts` (T-161, « deux cartes applicables ne portent jamais le
+        même intitulé ») a détecté comme une VRAIE ambiguïté, pas une fausse alerte : ces deux cartes
+        peuvent être `applicable` EN MÊME TEMPS que « Sulfamide — arrêter »/« Glinide — arrêter »
+        (devenues, elles, « Sulfamide »/« Glinide » nues sans ce risque — la molécule n'a alors qu'UNE
+        carte candidate à la fois) — deux cartes visibles simultanément sous le MÊME intitulé, seul le
+        badge d'action les distinguant, contredit directement l'objectif de lisibilité qui motivait ce
+        chantier. Gardent donc leur verbe, seules exceptions à la règle « classe + verbe seul → classe
+        seule » énoncée plus haut.
+        AUCUNE `conditions`/`exclusions`/`priorite`/`role`/`action`/critère d'entrée touché : seul le champ
+        `intitule` (texte affiché) change, sur les options listées ci-dessus. Impact attendu sur les
+        snapshots textuels du banc (`engine/banc/__snapshots__/*.prescription.txt`) qui citent ces
+        intitulés — régénérés (`-u`) et relus dans la foulée de cette entrée.
     - date: "2026-08-07"
       auteur: "Claude Code (P14/S19, T-192)"
       resume: >-

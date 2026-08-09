@@ -853,10 +853,21 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
     // saisir l'HbA1c après avoir saisi la cible doit proposer la position, pas attendre un remontage.
     // `appliquerPreremplissage` ne touche jamais un champ déjà renseigné : la position DÉCLARÉE fait foi
     // dès que le praticien l'a donnée.
+    //
+    // 4ᵉ argument (`renseignesEffectifs`) : `touchedApres` SEUL ne contient jamais un critère PUBLIÉ (D50,
+    // ex. `HbA1c_cible` reçu de « Déterminer la cible ») — une valeur publiée n'entre jamais dans `touched`
+    // (ce n'est pas une saisie du praticien SUR CET écran). Sans cet argument, `position_vs_cible` restait
+    // indéfiniment `INDETERMINE` dès que sa condition référence `HbA1c_cible` : la cible s'affichait bien
+    // pré-remplie, mais la position ne se proposait jamais tant que le praticien n'avait pas retapé la
+    // cible à la main. `touched ∪ preremplis` (= `criteresRenseignes`, capturé ici via l'état `preremplis`
+    // D'AVANT ce changement) : SEUL ce 2ᵉ ensemble sert à déterminer les VARIABLES RÉFÉRENCÉES, jamais à
+    // exclure un candidat (cf. docstring `appliquerPreremplissage`, `lib/formLayout.ts`) — un champ déjà
+    // dans `preremplis` (ex. `position_vs_cible` suggéré par un tour précédent) reste donc RECONSIDÉRABLE.
     const { criteria: avecPrerempli, preremplis: nouveaux } = appliquerPreremplissage(
       node.criteres_entree,
       nettoye,
       touchedApres,
+      new Set([...touchedApres, ...preremplis]),
     )
     // T-143 — restaure ce qui redevient visible à l'instant (mémorisé ci-dessus ou lors d'un appel
     // précédent) : dernière étape avant de commettre l'état, pour que la restauration voie la visibilité

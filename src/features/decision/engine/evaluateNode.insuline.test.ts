@@ -170,19 +170,28 @@ const has = (list: string[], sub: string) => list.some((t) => t.includes(sub))
 // Intitulés exacts (substrings sans apostrophe ni exposant, pour éviter tout piège de codage de
 // caractère — même précaution que `GLP1` dans `evaluateNode.prescription.test.ts`).
 const GLP1_NAIF = 'Envisager un GLP-1'
-const INITIER_BASALE = 'Initier une insuline basale'
+// 2026-08-09 (allègement des intitulés, demande utilisateur) : « Initier une insuline basale » →
+// « Insuline basale » (le verbe était déjà porté par le badge d'action « Ajouter ») — cf. le changelog de
+// `insuline.yaml`.
+const INITIER_BASALE = 'Insuline basale'
 const ANALOGUE_2G = 'Choisir un analogue basal'
 const CORRIGER_HYPO = "Corriger l'hypoglycémie ou la variabilité"
 // T-067 (P12/S4, 2026-08-02) : nouvelle carte, déclenchée par le seul signal `profil_nocturne ==
 // baisse_continue` — retiré des déclencheurs de `CORRIGER_HYPO` ci-dessus (qui garde TBR/CV/GAJ basse).
-const REDUIRE_BASALE = 'Réduire la basale'
+// 2026-08-09 : « Réduire la basale » → « Basale » (le verbe était déjà porté par le badge « Réduire ») —
+// titre volontairement DISTINCT d'`INITIER_BASALE` (pas de fusion en « Insuline basale » commun), sinon
+// les deux options deviendraient indiscernables par leur seul titre pour ce banc.
+const REDUIRE_BASALE = 'Basale'
 const NE_PAS_SURTITRER = 'Ne pas sur-titrer la basale'
 const TITRER = 'Titrer la basale'
 // T-167 (P14/S4, 2026-08-06) : carte de tête, famille « Avant de décider — la mesure », nommée par
 // l'alerte de nœud `ratio_basale_poids_eleve` (cf. décrit ci-dessous).
 const MCG_ENVISAGER = "Envisager d'instaurer une mesure continue du glucose"
-const AJOUTER_GLP1_BB = 'Ajouter un GLP-1 / une association fixe'
-const AJOUTER_BOLUS = 'Ajouter un bolus au repas principal'
+// 2026-08-09 : « Ajouter un GLP-1 / une association fixe » → « GLP-1 / association fixe d'abord » ;
+// « Ajouter un bolus au repas principal » → « Bolus au repas principal » (verbe déjà porté par le badge
+// « Ajouter » dans les deux cas).
+const AJOUTER_GLP1_BB = 'GLP-1 / association fixe'
+const AJOUTER_BOLUS = 'Bolus au repas principal'
 const DESINTENSIFIER = 'Désintensifier / alléger le schéma'
 const OPTIMISER_BB = 'Optimiser la répartition du basal-bolus'
 const POURSUIVRE = 'Poursuivre le schéma'

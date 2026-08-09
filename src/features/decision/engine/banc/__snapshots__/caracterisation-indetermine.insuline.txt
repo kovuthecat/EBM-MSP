@@ -43,13 +43,13 @@ Sortie :
   Options EN ATTENTE (indétermination, R7/D20) :
     - Envisager d'instaurer une mesure continue du glucose :: à renseigner : situation_insuline, position_vs_cible, mcg_disponible
     - Envisager un GLP-1 avant ou avec l'insuline :: à renseigner : situation_insuline, position_vs_cible, symptomes_glucotoxicite
-    - Initier une insuline basale :: à renseigner : situation_insuline, position_vs_cible, symptomes_glucotoxicite
+    - Insuline basale :: à renseigner : situation_insuline, position_vs_cible, symptomes_glucotoxicite
     - Corriger l'hypoglycémie ou la variabilité :: à renseigner : situation_insuline, mcg_disponible, TBR, CV_glycemique, GAJ
     - Ne pas sur-titrer la basale — intensifier autrement :: à renseigner : situation_insuline, position_vs_cible, mcg_disponible, profil_nocturne, GAJ
     - Titrer la basale (augmenter la dose) :: à renseigner : situation_insuline, position_vs_cible, mcg_disponible, profil_nocturne, GAJ
-    - Réduire la basale :: à renseigner : situation_insuline, mcg_disponible, profil_nocturne
-    - Ajouter un GLP-1 / une association fixe d'abord :: à renseigner : situation_insuline, position_vs_cible, mcg_disponible, TBR, CV_glycemique, profil_nocturne, GAJ
-    - Ajouter un bolus au repas principal :: à renseigner : situation_insuline, position_vs_cible, mcg_disponible, TBR, CV_glycemique, profil_nocturne, GAJ
+    - Basale :: à renseigner : situation_insuline, mcg_disponible, profil_nocturne
+    - GLP-1 / association fixe d'abord :: à renseigner : situation_insuline, position_vs_cible, mcg_disponible, TBR, CV_glycemique, profil_nocturne, GAJ
+    - Bolus au repas principal :: à renseigner : situation_insuline, position_vs_cible, mcg_disponible, TBR, CV_glycemique, profil_nocturne, GAJ
     - Insuline prémélangée — option dégradée, dernier recours :: à renseigner : situation_insuline, preference_injection
     - Désintensifier / alléger le schéma :: à renseigner : situation_insuline, age, position_vs_cible, risque_hypoglycemie_schema, hypo_severe_recurrente, fragilite, esperance_vie
     - Optimiser la répartition du basal-bolus :: à renseigner : situation_insuline, position_vs_cible, mcg_disponible, TBR, CV_glycemique, profil_nocturne, profil_entre_repas, glycemie_pre_repas
@@ -127,7 +127,7 @@ Critères saisis (■ renseigné · ○ NON renseigné → indéterminé, D20) :
 
 Sortie :
   Famille « Instaurer l'insuline » (exclusive: true) :
-  - [recommandee] Initier une insuline basale
+  - [recommandee] Insuline basale
       proposé parce que : situation_insuline == naif ; cible_atteinte == false
       calculs : Dose initiale (0,1 U/kg) = 3.5U/j ; Dose initiale (0,2 U/kg) = 7U/j
   Alertes de nœud :
@@ -169,7 +169,7 @@ Sortie :
   - [recommandee] Envisager d'instaurer une mesure continue du glucose
       proposé parce que : situation_insuline != naif ; mcg_disponible == false ; cible_atteinte == false
   Famille « Intensifier le traitement » (exclusive: true) :
-  - [recommandee] Ajouter un bolus au repas principal
+  - [recommandee] Bolus au repas principal
       proposé parce que : situation_insuline == basale_plus_bolus ; cible_atteinte == false ; situation_insuline == basale_plus_bolus ; gaj_a_cible == true
       calculs : Bolus initial (~10 % de la basale) = 0.05U
   Famille « Ajuster le schéma en place » (exclusive: false) :
@@ -217,7 +217,7 @@ Sortie :
   - [recommandee] Envisager un GLP-1 avant ou avec l'insuline
       proposé parce que : situation_insuline == naif ; cible_atteinte == false
     -- groupe d'égalité #1 --
-  - [(sans badge)] Initier une insuline basale
+  - [(sans badge)] Insuline basale
       proposé parce que : situation_insuline == naif ; cible_atteinte == false
       calculs : Dose initiale (0,1 U/kg) = 3.5U/j ; Dose initiale (0,2 U/kg) = 7U/j
   Alertes de nœud :
@@ -305,7 +305,7 @@ Sortie :
     - Sans mesure continue du glucose : titrer la basale sur la glycémie à jeun (cible ~0,70-1,30 g/L) ; utiliser des profils capillaires 6-7 points (avant/après les 3 repas + coucher) pour guider l'intensification prandiale. [info]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Envisager d'instaurer une mesure continue du glucose :: à renseigner : position_vs_cible
-    - Ajouter un bolus au repas principal :: à renseigner : position_vs_cible
+    - Bolus au repas principal :: à renseigner : position_vs_cible
     - Désintensifier / alléger le schéma :: à renseigner : position_vs_cible
     - Optimiser la répartition du basal-bolus :: à renseigner : position_vs_cible, profil_entre_repas, glycemie_pre_repas
 
@@ -345,11 +345,11 @@ Sortie :
   Options EN ATTENTE (indétermination, R7/D20) :
     - Envisager d'instaurer une mesure continue du glucose :: à renseigner : situation_insuline, position_vs_cible
     - Envisager un GLP-1 avant ou avec l'insuline :: à renseigner : situation_insuline
-    - Initier une insuline basale :: à renseigner : situation_insuline
+    - Insuline basale :: à renseigner : situation_insuline
     - Corriger l'hypoglycémie ou la variabilité :: à renseigner : situation_insuline, GAJ
     - Ne pas sur-titrer la basale — intensifier autrement :: à renseigner : situation_insuline, position_vs_cible, GAJ
     - Titrer la basale (augmenter la dose) :: à renseigner : situation_insuline, position_vs_cible, GAJ
-    - Ajouter un bolus au repas principal :: à renseigner : situation_insuline, position_vs_cible, GAJ
+    - Bolus au repas principal :: à renseigner : situation_insuline, position_vs_cible, GAJ
     - Insuline prémélangée — option dégradée, dernier recours :: à renseigner : situation_insuline, preference_injection
     - Désintensifier / alléger le schéma :: à renseigner : situation_insuline, position_vs_cible, hypo_severe_recurrente
     - Optimiser la répartition du basal-bolus :: à renseigner : situation_insuline
@@ -394,7 +394,7 @@ Sortie :
     - Insuffisance rénale : besoins en insuline réduits et risque d'hypoglycémie majoré (adapter les doses, renforcer la surveillance) ; sulfamide (s'il est encore utilisé) : gliclazide/glimépiride à dose réduite et surveillance rapprochée si DFG 30-44, contre-indiqué si DFG < 30 (convention KDIGO/SFD ; la place résiduelle des sulfamides et des gliptines relève de la décision de prescription) ; adapter ou arrêter la metformine selon le DFG. [attention]
     - La basale en place est-elle un analogue de 2ᵉ génération (glargine U300 ou dégludec) ? À contrôle glycémique égal, cela réduit l'hypoglycémie nocturne par rapport à glargine U100, détémir ou NPH (SWITCH 2 : RR 0,58 ; EDITION U300 : −31 % d'épisodes nocturnes). [info]
   Options EN ATTENTE (indétermination, R7/D20) :
-    - Réduire la basale :: à renseigner : mcg_disponible
+    - Basale :: à renseigner : mcg_disponible
     - Optimiser la répartition du basal-bolus :: à renseigner : mcg_disponible, CV_glycemique, profil_entre_repas
 
 ### Profil #9 — 8 critère(s) masqué(s) (masque stratifié) : GAJ, poids, CV_glycemique, preference_injection, dose_basale_actuelle, TBR, dose_rapide_actuelle, age
@@ -474,11 +474,11 @@ Sortie :
   Options EN ATTENTE (indétermination, R7/D20) :
     - Envisager d'instaurer une mesure continue du glucose :: à renseigner : situation_insuline, mcg_disponible
     - Envisager un GLP-1 avant ou avec l'insuline :: à renseigner : situation_insuline
-    - Initier une insuline basale :: à renseigner : situation_insuline
+    - Insuline basale :: à renseigner : situation_insuline
     - Ne pas sur-titrer la basale — intensifier autrement :: à renseigner : situation_insuline, mcg_disponible, profil_nocturne
     - Titrer la basale (augmenter la dose) :: à renseigner : situation_insuline, mcg_disponible, profil_nocturne
-    - Réduire la basale :: à renseigner : situation_insuline, mcg_disponible, profil_nocturne
-    - Ajouter un bolus au repas principal :: à renseigner : situation_insuline, mcg_disponible, profil_nocturne
+    - Basale :: à renseigner : situation_insuline, mcg_disponible, profil_nocturne
+    - Bolus au repas principal :: à renseigner : situation_insuline, mcg_disponible, profil_nocturne
     - Insuline prémélangée — option dégradée, dernier recours :: à renseigner : situation_insuline
     - Désintensifier / alléger le schéma :: à renseigner : situation_insuline
     - Optimiser la répartition du basal-bolus :: à renseigner : situation_insuline
@@ -518,10 +518,10 @@ Sortie :
     - iSGLT2 + insuline : maintenir l'iSGLT2 pour le bénéfice cardio-rénal, mais informer du risque d'acidocétose euglycémique — une complication traître car la GLYCÉMIE PEUT RESTER PROCHE DE LA NORMALE, ce qui retarde le diagnostic si l'on ne s'appuie que sur elle. Suspendre en cas de jeûne, d'apports glucidiques manifestement insuffisants, de chirurgie ou de maladie aiguë intercurrente — et par principe au moins 3 jours avant une chirurgie programmée (4 jours pour l'ertugliflozine, ACC 2020). [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Envisager un GLP-1 avant ou avec l'insuline :: à renseigner : situation_insuline, position_vs_cible, symptomes_glucotoxicite
-    - Initier une insuline basale :: à renseigner : situation_insuline, position_vs_cible, symptomes_glucotoxicite
+    - Insuline basale :: à renseigner : situation_insuline, position_vs_cible, symptomes_glucotoxicite
     - Corriger l'hypoglycémie ou la variabilité :: à renseigner : situation_insuline, TBR
     - Titrer la basale (augmenter la dose) :: à renseigner : situation_insuline, position_vs_cible
-    - Ajouter un bolus au repas principal :: à renseigner : situation_insuline, position_vs_cible, TBR
+    - Bolus au repas principal :: à renseigner : situation_insuline, position_vs_cible, TBR
     - Insuline prémélangée — option dégradée, dernier recours :: à renseigner : situation_insuline, preference_injection
     - Désintensifier / alléger le schéma :: à renseigner : situation_insuline, age, position_vs_cible, risque_hypoglycemie_schema, hypo_severe_recurrente, fragilite
     - Optimiser la répartition du basal-bolus :: à renseigner : situation_insuline, position_vs_cible, TBR, profil_entre_repas
@@ -565,7 +565,7 @@ Sortie :
     - Corriger l'hypoglycémie ou la variabilité :: à renseigner : situation_insuline, mcg_disponible, CV_glycemique
     - Ne pas sur-titrer la basale — intensifier autrement :: à renseigner : situation_insuline, position_vs_cible, mcg_disponible, profil_nocturne
     - Titrer la basale (augmenter la dose) :: à renseigner : situation_insuline, position_vs_cible, mcg_disponible, profil_nocturne
-    - Réduire la basale :: à renseigner : situation_insuline, mcg_disponible, profil_nocturne
+    - Basale :: à renseigner : situation_insuline, mcg_disponible, profil_nocturne
     - Insuline prémélangée — option dégradée, dernier recours :: à renseigner : situation_insuline, preference_injection
     - Désintensifier / alléger le schéma :: à renseigner : situation_insuline, age, position_vs_cible, hypo_severe_recurrente, fragilite, esperance_vie
     - Optimiser la répartition du basal-bolus :: à renseigner : situation_insuline, position_vs_cible, mcg_disponible, CV_glycemique, profil_nocturne, glycemie_pre_repas
@@ -604,7 +604,7 @@ Sortie :
     - À l'introduction ou l'intensification de l'insuline : arrêter le sulfamide / le glinide (risque d'hypoglycémie cumulée). [attention]
   Options EN ATTENTE (indétermination, R7/D20) :
     - Envisager d'instaurer une mesure continue du glucose :: à renseigner : situation_insuline, position_vs_cible
-    - Initier une insuline basale :: à renseigner : situation_insuline, position_vs_cible, symptomes_glucotoxicite
+    - Insuline basale :: à renseigner : situation_insuline, position_vs_cible, symptomes_glucotoxicite
     - Corriger l'hypoglycémie ou la variabilité :: à renseigner : situation_insuline, GAJ
     - Ne pas sur-titrer la basale — intensifier autrement :: à renseigner : situation_insuline, position_vs_cible, GAJ
     - Titrer la basale (augmenter la dose) :: à renseigner : situation_insuline, position_vs_cible, GAJ
@@ -646,7 +646,7 @@ Sortie :
       proposé parce que : situation_insuline == basale_seule ; mcg_disponible == true AND TBR > 4
       calculs : Basale réduite (−10 %) = 0.45U/j
   Famille « Intensifier le traitement » (exclusive: true) :
-  - [recommandee] Ajouter un bolus au repas principal
+  - [recommandee] Bolus au repas principal
       proposé parce que : situation_insuline == basale_seule ; cible_atteinte == false ; mcg_disponible == true AND TBR > 4
       calculs : Bolus initial (~10 % de la basale) = 0.05U
   Alertes de nœud :
@@ -655,5 +655,5 @@ Sortie :
   Options EN ATTENTE (indétermination, R7/D20) :
     - Ne pas sur-titrer la basale — intensifier autrement :: à renseigner : profil_nocturne
     - Titrer la basale (augmenter la dose) :: à renseigner : profil_nocturne
-    - Réduire la basale :: à renseigner : profil_nocturne
+    - Basale :: à renseigner : profil_nocturne
 

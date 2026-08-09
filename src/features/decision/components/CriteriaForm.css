@@ -34,7 +34,11 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--c-text-faible);
+  /* 2026-08-09 (demande référent) : titre de section mis en valeur — le vert du logo MSP
+     (`--c-accent-veille`, même teinte que le dégradé de `.header__logo-mark`), à la place du gris
+     discret d'origine. Repris à l'identique sur l'en-tête REPLIÉ (`.criteria-form__group-header-bouton`,
+     plus bas), qui hérite déjà de cette classe. */
+  color: var(--c-accent-veille);
   margin-bottom: 14px;
 }
 
@@ -580,22 +584,37 @@
   color: var(--c-text-muted);
 }
 
-/* Pied de section ouverte : passage à la section suivante de l'accordéon. */
+/* Pied de section ouverte : passage à la section suivante de l'accordéon. 2026-08-09 (demande référent,
+   allègement de page) : bouton CENTRÉ dans la colonne plutôt qu'aligné à droite — un bouton icône seule
+   perdu dans le coin droit est moins reconnaissable qu'un texte, le centrage compense en l'installant
+   comme repère fixe de fin de section. */
 .criteria-form__group-suivant {
   margin-top: 16px;
-  text-align: right;
+  display: flex;
+  justify-content: center;
 }
 
+/* Icône seule (ex-texte « Suivant : {libellé} → », cf. `CriteriaForm.tsx`) : bouton rond, même teinte que
+   l'ancien bouton texte (`--c-accent-decision`, la couleur du module Décision) — le vert du titre de
+   section (`--c-accent-veille`, juste au-dessus) reste réservé aux TITRES, un bouton D'ACTION garde la
+   couleur d'action historique. */
 .criteria-form__group-suivant-bouton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
   border: 1px solid var(--c-accent-decision);
   background: var(--c-accent-decision);
   color: white;
-  padding: 8px 16px;
-  border-radius: var(--radius-md);
+  padding: 0;
+  border-radius: 50%;
   font: inherit;
-  font-size: 13px;
-  font-weight: 600;
   cursor: pointer;
+}
+
+.criteria-form__group-suivant-bouton:hover {
+  filter: brightness(1.08);
 }
 
 /* T-134 (P12/S9) — affordance « Indisponible » sur un champ décisif non confirmé : le praticien déclare

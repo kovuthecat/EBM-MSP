@@ -412,11 +412,12 @@ describe('groupesParFamille — cas réel (nœud `prescription`, correctif « pr
       // Depuis la simplification des intitulés (2026-08-04, le verbe est porté par le badge d'action et
       // non plus par le titre), un intitulé nu ne suffit plus à désigner une option : « Sulfamide » vaut
       // pour l'ajout, la réduction ET l'arrêt. Le couple (action, intitulé) est le seul discriminant.
-      // RETITRÉE le 2026-08-06 (P14/S6, T-169) : « Sulfamide » (réduire) porte désormais l'action dans le
-      // titre — `startsWith` sur le radical commun (même esquive qu'ailleurs dans le banc).
-      // RETITRÉE le 2026-08-06 (P14/S8, T-171) : « iSGLT2 » (introduction) porte désormais l'action dans
-      // le titre, cf. `prescription.yaml`.
-      const isglt2 = res.applicable.find((o) => o.action === 'ajouter' && o.intitule === 'iSGLT2 — introduire')
+      // RETITRÉE le 2026-08-09 (allègement des intitulés, demande utilisateur) : le verbe repart du titre
+      // d'iSGLT2 (déjà porté par le badge d'action) — intitulé nu « iSGLT2 », `action` reste le seul
+      // discriminant. « Sulfamide — réduire la posologie », elle, GARDE son verbe (T-161, `paires.test.ts` :
+      // cette carte coexiste parfois avec « Sulfamide — arrêter », devenue « Sulfamide » nue — deux cartes
+      // au même intitulé simultanément visibles est l'exacte violation que T-161 interdit).
+      const isglt2 = res.applicable.find((o) => o.action === 'ajouter' && o.intitule === 'iSGLT2')
       const reduireSU = res.applicable.find((o) => o.action === 'reduire' && o.intitule.startsWith('Sulfamide — réduire'))
       expect(isglt2).toBeDefined()
       expect(reduireSU).toBeDefined()

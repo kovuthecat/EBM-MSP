@@ -182,11 +182,24 @@ export function valeursProposeesDepuisSaisie(
  *
  * Renvoie les critères effectivement pré-remplis, pour que l'appelant les SIGNALE à l'écran : un champ
  * qui paraît répondu alors que personne n'a répondu sur cet écran est le défaut A du lot 1.
+ *
+ * `renseignesEffectifs` (optionnel, replie sur `renseignes` — RÉTRO-COMPATIBLE) : ensemble à utiliser
+ * pour déterminer si les VARIABLES RÉFÉRENCÉES par un `quand` (ex. `HbA1c_cible` dans le `quand` de
+ * `position_vs_cible`) sont connues. DISTINCT de `renseignes` à dessein : `renseignes` sert aussi à
+ * exclure un candidat déjà répondu (`!renseignes.has(c.nom)`), et un champ PUBLIÉ (D50) ou pré-rempli par
+ * une règle PRÉCÉDENTE (K6) doit rester un candidat RECONSIDÉRABLE (rebasculer `au_dessus` →
+ * `nettement_au_dessus` si l'HbA1c bouge, cf. `DecisionNodeScreen.tsx`) tout en comptant comme DÉTERMINÉ
+ * quand un AUTRE critère le référence. Sans cette distinction, un critère publié (jamais dans `touched`,
+ * donc absent de `renseignes` côté appelant) reste `INDETERMINE` pour toute règle qui le lit — le
+ * `quand: "HbA1c_actuelle > 0 AND HbA1c_cible > 0 AND …"` de `position_vs_cible` ne se déclenche alors
+ * jamais tant que `HbA1c_cible` n'a pas été TAPÉ à la main, ce qui contredit D50 (« le SEUL lecteur de
+ * `HbA1c_cible` est le `preremplissage` de `position_vs_cible` »).
  */
 export function appliquerPreremplissage(
   criteresEntree: CritereEntree[],
   criteria: Criteria,
   renseignes: ReadonlySet<string>,
+  renseignesEffectifs: ReadonlySet<string> = renseignes,
 ): { criteria: Criteria; preremplis: string[] } {
   const candidats = criteresEntree.filter(
     (c) => c.derive == null && (c.preremplissage ?? []).length > 0 && !renseignes.has(c.nom),
@@ -194,7 +207,7 @@ export function appliquerPreremplissage(
   if (candidats.length === 0) return { criteria, preremplis: [] }
 
   const derives = calculerCriteresDerives(criteresEntree, criteria)
-  const effectifs = determinesEffectifs(criteresEntree, derives, renseignes)
+  const effectifs = determinesEffectifs(criteresEntree, derives, renseignesEffectifs)
   const suivant = { ...criteria }
   const preremplis: string[] = []
 

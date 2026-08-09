@@ -29,15 +29,15 @@
 
 | # | intitulé | role | famille | rang | conditions | prerequis | exclusions |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | Metformine — instaurer ou poursuivre | socle | Socle du traitement (cumul.) | 0 | `toujours` | — | `DFG < 30`<br>`metformine_deprescriptible == true`<br>**[PRE-1]** |
+| 1 | Metformine | socle | Socle du traitement (cumul.) | 0 | `toujours` | — | `DFG < 30`<br>`metformine_deprescriptible == true`<br>**[PRE-1]** |
 | 2 | Metformine (DFG < 30) | securite | À faire d'emblée — sécurité (cumul.) | 1 | **[PRE-R1]**<br>`DFG < 30` | — | — |
-| 3 | Metformine — réduire la posologie | securite | À faire d'emblée — sécurité (cumul.) | 3 | **[PRE-R1]**<br>**[PRE-2]** | — | `DFG < 30` |
+| 3 | Metformine | securite | À faire d'emblée — sécurité (cumul.) | 3 | **[PRE-R1]**<br>**[PRE-2]** | — | `DFG < 30` |
 | 4 | Sulfamide (DFG < 30) | securite | À faire d'emblée — sécurité (cumul.) | 1 | **[PRE-R2]**<br>`DFG < 30` | — | — |
-| 5 | iSGLT2 — suspendre | securite | À faire d'emblée — sécurité (cumul.) | 1 | `intention != initier AND traitements_en_cours contient iSGLT2`<br>`cetonemie == true` | — | — |
+| 5 | iSGLT2 | securite | À faire d'emblée — sécurité (cumul.) | 1 | `intention != initier AND traitements_en_cours contient iSGLT2`<br>`cetonemie == true` | — | — |
 | 6 | Insuline d'initiation | securite | À faire d'emblée — sécurité (cumul.) | 1 | `symptomes_glucotoxicite == true OR cetonemie == true` | **[PRE-3]** | — |
-| 7 | iSGLT2 — introduire | geste | Le choix de l'agent (**excl.**) | `infections_uro_genitales_recidivantes == true` → 6<br>`insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo` → 2<br>`ASCVD_etablie == true OR IMC >= 30` → 3<br>`default` → 2 | **[PRE-4]** | `traitements_en_cours ne_contient_pas iSGLT2`<br>**[PRE-R3]** | `DFG < 20`<br>`cetonemie == true` |
-| 8 | AR GLP‑1 — introduire | geste | Le choix de l'agent (**excl.**) | `preference_injection == refuse` → 7<br>`insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo` → 3<br>`ASCVD_etablie == true OR IMC >= 30` → 2<br>`IMC < 25` → 4<br>`default` → 2 | **[PRE-5]** | **[PRE-R4]**<br>**[PRE-R5]**<br>**[PRE-R3]** | `IMC < 22`<br>`denutrition == true`<br>`cetonemie == true` |
-| 9 | Tirzépatide — introduire | geste | Le choix de l'agent (**excl.**) | `preference_injection == refuse` → 7<br>`default` → 4 | `IMC >= 30` | **[PRE-R5]**<br>**[PRE-R4]**<br>**[PRE-R6]**<br>**[PRE-R3]** | `denutrition == true` |
+| 7 | iSGLT2 | geste | Le choix de l'agent (**excl.**) | `infections_uro_genitales_recidivantes == true` → 6<br>`insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo` → 2<br>`ASCVD_etablie == true OR IMC >= 30` → 3<br>`default` → 2 | **[PRE-4]** | `traitements_en_cours ne_contient_pas iSGLT2`<br>**[PRE-R3]** | `DFG < 20`<br>`cetonemie == true` |
+| 8 | AR GLP‑1 | geste | Le choix de l'agent (**excl.**) | `preference_injection == refuse` → 7<br>`insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo` → 3<br>`ASCVD_etablie == true OR IMC >= 30` → 2<br>`IMC < 25` → 4<br>`default` → 2 | **[PRE-5]** | **[PRE-R4]**<br>**[PRE-R5]**<br>**[PRE-R3]** | `IMC < 22`<br>`denutrition == true`<br>`cetonemie == true` |
+| 9 | Tirzépatide | geste | Le choix de l'agent (**excl.**) | `preference_injection == refuse` → 7<br>`default` → 4 | `IMC >= 30` | **[PRE-R5]**<br>**[PRE-R4]**<br>**[PRE-R6]**<br>**[PRE-R3]** | `denutrition == true` |
 | 10 | Association iSGLT2 + AR GLP‑1 | geste | Le choix de l'agent (**excl.**) | `preference_injection == refuse` → 7<br>`default` → 4 | `insuffisance_cardiaque == true OR DFG < 60 OR albuminurie != normo`<br>`ASCVD_etablie == true OR IMC >= 30` | **[PRE-R6]**<br>`traitements_en_cours ne_contient_pas iSGLT2`<br>**[PRE-R4]**<br>**[PRE-R5]**<br>**[PRE-R3]** | `DFG < 20`<br>`cetonemie == true`<br>`IMC < 22`<br>`denutrition == true` |
 | 11 | Envisager l'insuline | geste | Le choix de l'agent (**excl.**) | 6 | `cible_atteinte == false`<br>`isglt2_indisponible == true AND aglp1_indisponible == true` | **[PRE-3]** | — |
 | 12 | Gliptine — remplacer par un agent à bénéfice démontré | geste | Traitement à corriger ou remplacer (cumul.) | 3 | `intention != initier AND traitements_en_cours contient gliptine` | **[PRE-R4]**<br>**[PRE-R5]** | `cetonemie == true` |
@@ -45,18 +45,18 @@
 | 14 | Sulfamide — remplacer par un agent à bénéfice démontré | geste | Traitement à corriger ou remplacer (cumul.) | 4 | **[PRE-R2]** | — | `DFG < 30` |
 | 15 | Glinide — remplacer par un agent à bénéfice démontré | geste | Traitement à corriger ou remplacer (cumul.) | 4 | **[PRE-R7]**<br>`hypoglycemie_recente == false` | — | `isglt2_indisponible == true AND aglp1_indisponible == true` |
 | 16 | Optimiser l'agent mal toléré | geste | Traitement à alléger (cumul.) | 2 | `intention != initier AND intolerance_traitement == true` | **[PRE-7]** | **[PRE-8]** |
-| 17 | Sulfamide — arrêter | geste | Traitement à alléger (cumul.) | 1 | **[PRE-R2]**<br>**[PRE-9]** | — | — |
-| 18 | Glinide — arrêter | geste | Traitement à alléger (cumul.) | 1 | **[PRE-R7]**<br>**[PRE-9]** | — | — |
+| 17 | Sulfamide | geste | Traitement à alléger (cumul.) | 1 | **[PRE-R2]**<br>**[PRE-9]** | — | — |
+| 18 | Glinide | geste | Traitement à alléger (cumul.) | 1 | **[PRE-R7]**<br>**[PRE-9]** | — | — |
 | 19 | Désintensifier : alléger la charge thérapeutique | geste | Traitement à alléger (cumul.) | 1 | **[PRE-10]**<br>**[PRE-11]** | — | — |
-| 20 | Insuline — réduire la posologie | geste | Traitement à alléger (cumul.) | 1 | **[PRE-11]**<br>**[PRE-12]** | — | — |
-| 21 | AR GLP‑1 — réduire la posologie | geste | Traitement à alléger (cumul.) | 2 | `intention != initier AND traitements_en_cours contient aGLP1`<br>**[PRE-13]** | — | — |
-| 22 | Tirzépatide — réduire la posologie | geste | Traitement à alléger (cumul.) | 2 | `intention != initier AND traitements_en_cours contient tirzepatide`<br>**[PRE-13]** | — | — |
+| 20 | Insuline | geste | Traitement à alléger (cumul.) | 1 | **[PRE-11]**<br>**[PRE-12]** | — | — |
+| 21 | AR GLP‑1 | geste | Traitement à alléger (cumul.) | 2 | `intention != initier AND traitements_en_cours contient aGLP1`<br>**[PRE-13]** | — | — |
+| 22 | Tirzépatide | geste | Traitement à alléger (cumul.) | 2 | `intention != initier AND traitements_en_cours contient tirzepatide`<br>**[PRE-13]** | — | — |
 | 23 | Sulfamide — réduire la posologie | geste | Traitement à alléger (cumul.) | 2 | **[PRE-R2]**<br>**[PRE-14]** | — | `DFG < 30` |
 | 24 | Glinide — réduire la posologie | geste | Traitement à alléger (cumul.) | 2 | **[PRE-R7]**<br>**[PRE-14]** | — | — |
 | 25 | Metformine (désintensification) | geste | Traitement à alléger (cumul.) | 3 | **[PRE-R1]**<br>`metformine_deprescriptible == true` | — | — |
 | 26 | Reconsidérer un agent protecteur hors indication | geste | Traitement à alléger (cumul.) | 4 | **[PRE-15]** | — | — |
-| 27 | Gliptine — introduire | geste | Le choix de l'agent (**excl.**) | `isglt2_indisponible == true AND aglp1_indisponible == true` → 3<br>`default` → 5 | `isglt2_indisponible == true AND aglp1_indisponible == true OR palette_glycemique_ouverte == true`<br>`position_vs_cible != sous_objectif` | **[PRE-R6]**<br>**[PRE-R4]**<br>**[PRE-R5]** | `symptomes_glucotoxicite == true`<br>`cetonemie == true` |
-| 28 | Sulfamide — introduire | geste | Le choix de l'agent (**excl.**) | `isglt2_indisponible == true AND aglp1_indisponible == true` → 3<br>`default` → 5 | `isglt2_indisponible == true AND aglp1_indisponible == true OR palette_glycemique_ouverte == true`<br>`position_vs_cible != sous_objectif` | `traitements_en_cours ne_contient_pas sulfamide`<br>**[PRE-3]** | `DFG < 30`<br>`symptomes_glucotoxicite == true`<br>`cetonemie == true`<br>`fragilite == true` |
+| 27 | Gliptine | geste | Le choix de l'agent (**excl.**) | `isglt2_indisponible == true AND aglp1_indisponible == true` → 3<br>`default` → 5 | `isglt2_indisponible == true AND aglp1_indisponible == true OR palette_glycemique_ouverte == true`<br>`position_vs_cible != sous_objectif` | **[PRE-R6]**<br>**[PRE-R4]**<br>**[PRE-R5]** | `symptomes_glucotoxicite == true`<br>`cetonemie == true` |
+| 28 | Sulfamide | geste | Le choix de l'agent (**excl.**) | `isglt2_indisponible == true AND aglp1_indisponible == true` → 3<br>`default` → 5 | `isglt2_indisponible == true AND aglp1_indisponible == true OR palette_glycemique_ouverte == true`<br>`position_vs_cible != sous_objectif` | `traitements_en_cours ne_contient_pas sulfamide`<br>**[PRE-3]** | `DFG < 30`<br>`symptomes_glucotoxicite == true`<br>`cetonemie == true`<br>`fragilite == true` |
 | 29 | Mesures hygiéno‑diététiques seules — réévaluer | repli | Aucun geste — surveiller (cumul.) | non déclaré | `default` | `intention == initier` | — |
 | 30 | Poursuivre le traitement en cours et réévaluer | repli | Aucun geste — surveiller (cumul.) | non déclaré | `default` | `intention != initier` | — |
 

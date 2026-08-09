@@ -882,7 +882,7 @@ options:
       - eng
       - maiorino
       - dual-vii
-  - intitule: "Initier une insuline basale"
+  - intitule: "Insuline basale"
     role: geste
     action: ajouter
     famille: "Instaurer l'insuline"
@@ -1408,7 +1408,7 @@ options:
   # (inchangées, rôle 2 de la Décision clé de T-067) qui l'en empêchent mécaniquement, aucune exclusion
   # nouvelle à écrire ici. La cohabitation avec « Ajouter un bolus / un GLP-1 » (rôle 3, E-04b) reste
   # possible et voulue : sécurité/ajustement et intensification sont cumulables, jamais une alternative.
-  - intitule: "Réduire la basale"
+  - intitule: "Basale"
     role: geste
     action: reduire
     famille: "Ajuster le schéma en place"
@@ -1478,7 +1478,7 @@ options:
   # le cas « aucun signal » n'ouvre pas ce déclencheur — laissé en l'état (prose seule sur « Ne pas
   # sur-titrer... »), non demandé par le référent, non testé par une vignette ; signalé comme limite
   # plutôt que généralisé sans mandat.
-  - intitule: "Ajouter un GLP-1 / une association fixe d'abord"
+  - intitule: "GLP-1 / association fixe d'abord"
     role: geste
     action: ajouter
     famille: "Intensifier le traitement"
@@ -1578,7 +1578,7 @@ options:
       # `risque_hypoglycemique_eleve` qui pilote le choix de molécule et l'allègement) ; il ne RETIRE plus
       # rien. NB : l'extension avait été posée le 2026-07-26 avec la mention « choix référent À CONFIRMER
       # (invariant 6) » — jamais confirmée, et ici infirmée.
-  - intitule: "Ajouter un bolus au repas principal"
+  - intitule: "Bolus au repas principal"
     role: geste
     action: ajouter
     famille: "Intensifier le traitement"
@@ -2610,8 +2610,28 @@ meta:
   date_revue: "2026-07-31"
   auteur: "référent DT2 (Thibault) + Opus + Claude Code"
   statut: valide
-  version: "0.59"
+  version: "0.60"
   changelog:
+    - date: "2026-08-09"
+      auteur: "Claude Code (demande utilisateur, allègement de l'affichage)"
+      resume: >-
+        INTITULÉS ALLÉGÉS — pas de changement clinique, même chantier que `prescription.yaml` le même
+        jour (cf. son changelog pour le raisonnement complet). Retiré UNIQUEMENT quand le texte après le
+        verbe ne fait que reformuler le badge d'action (`Option.action`) sans rien ajouter d'autre :
+        « Initier une insuline basale » → « Insuline basale » ; « Réduire la basale » → « Basale » (titre
+        DISTINCT plutôt que fusionné avec l'option `ajouter` ci-dessus — les deux intitulés servent de clé
+        de sélection dans plusieurs tests du banc, `evaluateNode.insuline.test.ts` en tête ; les fusionner
+        aurait rendu les deux options indiscernables par leur seul titre) ; « Ajouter un GLP-1 / une
+        association fixe d'abord » → « GLP-1 / association fixe d'abord » ; « Ajouter un bolus au repas
+        principal » → « Bolus au repas principal ». CONSERVÉS À L'IDENTIQUE : « Envisager un GLP-1 avant ou
+        avec l'insuline » (le mot « Envisager » et le contexte « avant ou avec l'insuline » ne sont pas dans
+        le vocabulaire du badge, perdus si retirés), « Titrer la basale (augmenter la dose) » (aucun `action`
+        déclaré, rien à désambiguïser), « Insuline prémélangée — option dégradée, dernier recours »,
+        « Désintensifier / alléger le schéma », « Poursuivre le schéma d'insuline en cours et réévaluer »,
+        « Pas d'indication à initier une insuline aujourd'hui » (repli/description entière, pas un format
+        « classe — verbe »), et les trois cartes sans `action`. AUCUNE `conditions`/`exclusions`/`priorite`/
+        `role`/`action`/`prerequis`/critère d'entrée touché : seul `intitule` change. Snapshots textuels du
+        banc (`engine/banc/__snapshots__/*.insuline.txt`) régénérés (`-u`) et relus dans la foulée.
     - date: "2026-08-07"
       auteur: "Claude Code (P14/S18, T-191)"
       resume: >-

@@ -371,7 +371,9 @@ describe('computeBadges — cas réel (nœud `prescription`, « le badge, c’es
       const reduireGLP1 = res.applicable.find((o) => o.intitule.startsWith('AR GLP') && o.action === 'reduire')
       // RETITRÉE le 2026-08-06 (P14/S8, T-171) : « iSGLT2 » (introduction) porte désormais l'action dans
       // le titre, cf. `prescription.yaml`.
-      const isglt2 = res.applicable.find((o) => o.intitule === 'iSGLT2 — introduire' && o.action === 'ajouter')
+      // RETITRÉE le 2026-08-09 (allègement des intitulés) : verbe retiré du titre (déjà porté par le
+      // badge), `action` reste le discriminant.
+      const isglt2 = res.applicable.find((o) => o.intitule === 'iSGLT2' && o.action === 'ajouter')
       expect(reduireGLP1).toBeDefined()
       expect(isglt2).toBeDefined()
       expect(badges.get(reduireGLP1!)).toBe('recommandee')
@@ -409,7 +411,9 @@ describe('computeBadges — cas réel (nœud `prescription`, « le badge, c’es
       // radical commun plutôt que l'égalité stricte, comme les prédicats de `invariants.test.ts`.
       const remplacerSU = res.applicable.find((o) => o.intitule.startsWith('Sulfamide — remplacer') && o.action === 'remplacer')
       // RETITRÉE le 2026-08-06 (P14/S8, T-171), cf. commentaire du bloc précédent.
-      const isglt2 = res.applicable.find((o) => o.intitule === 'iSGLT2 — introduire' && o.action === 'ajouter')
+      // RETITRÉE le 2026-08-09 (allègement des intitulés) : verbe retiré du titre (déjà porté par le
+      // badge), `action` reste le discriminant.
+      const isglt2 = res.applicable.find((o) => o.intitule === 'iSGLT2' && o.action === 'ajouter')
       expect(remplacerSU).toBeDefined()
       expect(isglt2).toBeDefined()
       expect(res.rangs.get(remplacerSU!)).toBe(4)
