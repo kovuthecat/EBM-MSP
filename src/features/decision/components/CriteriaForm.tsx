@@ -430,6 +430,41 @@ export function CriteriaForm({
   }
 
   /**
+   * AUTO-AVANCE QUAND LE DERNIER CHAMP MANQUANT VIENT D'ÊTRE PRÉ-REMPLI (bug référent 2026-08-09,
+   * `formLayout.ts` `appliquerPreremplissage`/`renseignesEffectifs`) — cas que `avanceSiSectionComplete`
+   * ci-dessus ne couvre PAS : un champ répond directement à un GESTE (case cochée, bouton cliqué…), mais
+   * un pré-remplissage (K6/D50) est un EFFET DE BORD calculé par l'appelant (`DecisionNodeScreen.tsx`
+   * `handleCriteriaChange`), APRÈS le rendu où le geste a eu lieu — le nom du champ pré-rempli n'est donc
+   * ni dans `nomsRepondus` ni dans `valeursPatch` de l'appel fait depuis le geste d'origine (souvent un
+   * AUTRE champ, ex. `HbA1c_actuelle`, qui pré-remplit `position_vs_cible`). Sans ce second déclencheur,
+   * la section restait ouverte bien que complète — seul un aller-retour manuel (décocher/recocher un
+   * champ quelconque de la section) relançait `avanceSiSectionComplete` et révélait qu'elle était déjà
+   * complète. Symptôme exact remonté par le référent : « le nœud cible pré-remplit HbA1c cible mais pas
+   * le rapport à la cible […] doit être décoché puis recoché ».
+   *
+   * DÉCLENCHEUR CIBLÉ, PAS UN EFFET GÉNÉRAL SUR `aConfirmer` — même prudence que ci-dessus (docstring de
+   * `avanceSiSectionComplete`) : on ne réagit qu'à des noms qui VIENNENT D'ENTRER dans `preremplis`
+   * (diff avec le rendu précédent), jamais à une simple baisse du compte « à confirmer ». `preremplis`
+   * n'est JAMAIS purgé par un masquage en cascade (contrat T-138, cf. commentaires `DecisionNodeScreen.tsx`
+   * autour de `setPreremplis`) — il ne peut donc pas produire le faux positif qui avait fait retirer la
+   * première version de ce mécanisme (cascade `situation_insulinotherapie`/`intention`, cf. plus haut).
+   * Ignoré au tout premier rendu (la ref de comparaison démarre déjà alignée sur `preremplis`) : un nœud
+   * ouvert avec des champs déjà pré-remplis à l'initialisation garde son comportement historique, seul un
+   * pré-remplissage survenant EN COURS DE SAISIE déclenche l'avance.
+   */
+  const preremplisPrecedents = useRef<ReadonlySet<string>>(preremplis ?? new Set())
+  useEffect(() => {
+    const precedents = preremplisPrecedents.current
+    const actuels = preremplis ?? new Set()
+    const nouveaux = [...actuels].filter((nom) => !precedents.has(nom))
+    preremplisPrecedents.current = actuels
+    if (nouveaux.length > 0) avanceSiSectionComplete(nouveaux)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- ne réagit QU'à un changement de `preremplis`
+    // (diff calculé ci-dessus) : inclure `avanceSiSectionComplete`/`groupeOuvert`/`aConfirmer` (recalculés
+    // à CHAQUE rendu) redéclencherait cet effet sans rapport avec un pré-remplissage, cf. la docstring.
+  }, [preremplis])
+
+  /**
    * Valeur affichée d'un champ RENSEIGNÉ, pour le résumé d'une section repliée. `null` si rien à montrer
    * (champ jamais `touched`, ou `liste` cochée puis entièrement décochée). Formatage GÉNÉRIQUE par type,
    * même registre que le rendu du champ ouvert (`labelForEnumValue` déjà utilisé plus bas) — aucune
