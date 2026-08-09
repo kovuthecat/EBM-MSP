@@ -118,19 +118,44 @@ Un lundi, dans cet ordre (meilleur rapport signal/temps d'abord) :
 
 ---
 
+## Orthophonie (ajouté au périmètre de production le 2026-08-09, D60)
+
+Sources rencontrées directement dans la boîte de collecte (pas encore vérifiées en ligne selon la
+méthode §7quater/D-093 des autres tiers — statut `repérage informel`) :
+
+| Nom | URL | Accès | Flux | Thèmes couverts | À parcourir |
+| --- | --- | --- | --- | --- | --- |
+| Glossa (revue scientifique orthophonie/logopédie) | https://glossa.fr/ | libre (open access intégral) | RSS via Blogtrottr, confirmé actif dans la boîte de collecte | orthophonie (langage oral/écrit, aphasiologie, tous champs) | chaque semaine — Tier 1 candidat (revue dédiée, open access), à confirmer en vérification en ligne complète |
+| unadreo (association nationale des enseignants et chercheurs en orthophonie) | non relevée précisément | libre | RSS via Blogtrottr | orthophonie (annonces, prix de thèse, colloques — **pas un flux de nouveautés scientifiques**) | jamais en balayage systématique — contenu associatif/administratif, pas de repérage d'étude attendu |
+
+> ⚠ Seuil brève/analyse restreint sur ce thème (§3bis, angle mort assumé) : tant qu'aucun référent
+> orthophoniste n'a rejoint la veille, tout item orthophonie retenu part en route **brève**, jamais
+> `analyse`, quel que soit le résultat du seuil §6bis du `SOP_veille.md`.
+
+## Santé de la femme et périnatalité (ajouté au périmètre de production le 2026-08-09, D61)
+
+Statut `repérage informel`, non vérifiées en ligne selon la méthode §7quater/T-093 :
+
+| Nom | URL | Accès | Thèmes couverts | À parcourir |
+| --- | --- | --- | --- | --- |
+| CNGOF (Collège national des gynécologues et obstétriciens français) | à vérifier | à vérifier | sante-femme-perinatalite | à la demande — recommandations de société savante, candidat Tier 2 |
+| HAS maternité | sous-ensemble has-sante.fr | libre (cf. ligne HAS, Tier 2) | sante-femme-perinatalite | à la demande |
+
+> ⚠ Même restriction que l'orthophonie (§3bis `SOP_veille.md`, D61) : la route `analyse` sur ce thème
+> passe obligatoirement par la vérification **tri-agents** (§7bis) — jamais tranchée par le seul
+> référent — et toute entrée publiée porte la mention explicite qu'aucun référent de profession
+> (sage-femme/gynécologue) ne l'a relue sur le fond.
+
 ## Hors périmètre de production actuel
 
 Sources listées dans `BRIEF_VEILLE.md` §8 pour d'autres professions que le médecin généraliste — elles
-ont leur place ici pour mémoire, mais ne couvrent aucun des 9 thèmes MG et ne sont donc **pas
-vérifiées en ligne dans cette session** (hors périmètre T-093) :
+ont leur place ici pour mémoire, mais ne couvrent aucun des thèmes actuellement en production et ne
+sont donc **pas vérifiées en ligne dans cette session** (hors périmètre T-093) :
 
 | Source | Profession / thème visé | Statut de vérification |
 | --- | --- | --- |
-| CNGOF | Santé-femme / périnatalité | inconnu — non vérifiée (hors périmètre MG de cette session) |
-| HAS maternité | Santé-femme / périnatalité | inconnu — non vérifiée (sous-ensemble de HAS, hors périmètre MG) |
 | SFFPC (plaies et cicatrisation) | Soins infirmiers (IDEL) | inconnu — non vérifiée (hors périmètre MG) |
 | Revues IDEL (non nommées dans le brief) | Soins infirmiers (IDEL) | inconnu — non identifiées précisément par `BRIEF_VEILLE.md` §8 lui-même (« à identifier ») |
-| Sociétés/revues d'orthophonie (non nommées dans le brief) | Orthophonie | inconnu — non identifiées précisément par `BRIEF_VEILLE.md` §8 lui-même (« à identifier ») |
 
 **Point tranché le 2026-07-31** : le thème MG `geriatrie-deprescription` n'avait aucune société savante
 dédiée dans la liste initiale (contrairement à `infectiologie-antibiotherapie`, couvert par SPILF).

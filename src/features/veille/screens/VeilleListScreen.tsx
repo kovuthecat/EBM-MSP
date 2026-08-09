@@ -4,7 +4,7 @@ import type { NiveauPreuve } from '../../shared/types'
 import { EvidenceBadge } from '../../shared/badges/EvidenceBadge'
 import { useUtilisateur } from '../../shared/lib/auth'
 import type { EntreeVeille, NiveauPreuveVeille } from '../content/entree.types'
-import { entrees, professionsPresentes, semaines, themesPresents } from '../content/loadEntrees'
+import { entrees, professionsPresentes, themesPresents } from '../content/loadEntrees'
 import type { EtatArticle } from '../lib/articleEtats'
 import { chargerEtats, definirEtat, retirerEtat } from '../lib/articleEtats'
 import './VeilleListScreen.css'
@@ -40,6 +40,14 @@ const THEME_LABELS: Record<string, string> = {
 
 const labelTheme = (slug: string) => THEME_LABELS[slug] ?? slug
 
+/** `meta.date_publication` (ISO, `AAAA-MM-JJ`) en affichage court `JJ/MM/AAAA` — repère de tri visible
+ * depuis le retrait du filtre par semaine (2026-08-09). Repli sur la valeur brute si non parsable. */
+const formaterDate = (isoDate: string): string => {
+  const d = new Date(isoDate)
+  if (Number.isNaN(d.getTime())) return isoDate
+  return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
 /**
  * Le contenu Veille écrit `tres_faible` (brief §5, underscore) ; le badge transverse attend
  * `tres-faible` (trait d'union, `shared/types.ts`). L'écart est documenté depuis P1 dans
@@ -57,13 +65,17 @@ const RANG_PREUVE: Record<NiveauPreuveVeille, number> = {
   tres_faible: 3,
 }
 
-type Tri = 'impact' | 'temps' | 'preuve'
+type Tri = 'anciennete' | 'impact' | 'temps' | 'preuve'
 
 const TRIS: { valeur: Tri; label: string; aide: string }[] = [
+  { valeur: 'anciennete', label: 'Date', aide: 'Par ancienneté — direction réglable ci-contre' },
   { valeur: 'impact', label: "Impact d'abord", aide: "Ce qui change la pratique avant ce qui l'informe" },
   { valeur: 'temps', label: 'Temps de lecture', aide: 'Le plus court en premier' },
   { valeur: 'preuve', label: 'Niveau de preuve', aide: 'Le plus solide en premier' },
 ]
+
+/** Sens du tri par ancienneté. `recent` = du plus récent au plus ancien (défaut). */
+type OrdreAnciennete = 'recent' | 'ancien'
 
 const TOUS = '__tous__'
 
@@ -72,22 +84,24 @@ interface VeilleListScreenProps {
 }
 
 export function VeilleListScreen({ go }: VeilleListScreenProps) {
-  const [semaine, setSemaine] = useState<string>(semaines[0] ?? TOUS)
   const [theme, setTheme] = useState<string>(TOUS)
   const [profession, setProfession] = useState<string>(TOUS)
   const [impact, setImpact] = useState<string>(TOUS)
   const [route, setRoute] = useState<string>(TOUS)
   const [seulementDecision, setSeulementDecision] = useState(false)
-  const [tri, setTri] = useState<Tri>('impact')
+  const [tri, setTri] = useState<Tri>('anciennete')
+  const [ordreAnciennete, setOrdreAnciennete] = useState<OrdreAnciennete>('recent')
   const [deplie, setDeplie] = useState<string | null>(null)
 
-  // GARDER/MASQUER (D51, 2026-08-06) : état personnel par praticien, chargé une fois la session
-  // connue. `etats` reste vide (jamais d'erreur bloquante) si le chargement échoue — un praticien
-  // qui n'a pas encore d'état enregistré doit voir la liste complète, pas un écran cassé.
+  // GARDER/MASQUER (D51, 2026-08-06 ; passage flux/bibliothèque 2026-08-09) : état personnel par
+  // praticien, chargé une fois la session connue. `etats` reste vide (jamais d'erreur bloquante) si
+  // le chargement échoue — un praticien qui n'a pas encore d'état enregistré doit voir le flux
+  // complet, pas un écran cassé. Le flux général exclut désormais TOUJOURS gardées et masquées (plus
+  // de case à cocher pour les faire réapparaître ici) : une gardée vit dans « Ma bibliothèque », une
+  // masquée n'est gérable (la re-marquer) que depuis cet écran.
   const utilisateur = useUtilisateur()
   const [etats, setEtats] = useState<Record<string, EtatArticle>>({})
-  const [afficherMasques, setAfficherMasques] = useState(false)
-  const [seulementGardes, setSeulementGardes] = useState(false)
+  const [vue, setVue] = useState<'flux' | 'bibliotheque'>('flux')
 
   useEffect(() => {
     if (!utilisateur) {
@@ -125,22 +139,14 @@ export function VeilleListScreen({ go }: VeilleListScreenProps) {
     void retirerEtat(articleId).catch(() => {})
   }
 
-  const visibles = useMemo(() => {
-    const filtrees = entrees.filter((e) => {
-      if (semaine !== TOUS && e.date_semaine !== semaine) return false
-      if (theme !== TOUS && !e.themes.includes(theme)) return false
-      if (profession !== TOUS && !e.professions_concernees.includes(profession)) return false
-      if (impact !== TOUS && e.niveau_impact !== impact) return false
-      if (route !== TOUS && e.route !== route) return false
-      if (seulementDecision && !e.impact_algorithme.concerne_decision) return false
-      if (!afficherMasques && etats[e.id] === 'masque') return false
-      if (seulementGardes && etats[e.id] !== 'garde') return false
-      return true
-    })
+  const parTitre = (a: EntreeVeille, b: EntreeVeille) => a.titre.localeCompare(b.titre, 'fr')
 
-    const parTitre = (a: EntreeVeille, b: EntreeVeille) => a.titre.localeCompare(b.titre, 'fr')
-
-    return [...filtrees].sort((a, b) => {
+  const trier = (liste: EntreeVeille[]) =>
+    [...liste].sort((a, b) => {
+      if (tri === 'anciennete') {
+        const cmp = a.meta.date_publication.localeCompare(b.meta.date_publication)
+        return (ordreAnciennete === 'recent' ? -cmp : cmp) || parTitre(a, b)
+      }
       if (tri === 'temps') return a.temps_lecture_min - b.temps_lecture_min || parTitre(a, b)
       if (tri === 'preuve') {
         const ra = a.niveau_preuve ? RANG_PREUVE[a.niveau_preuve] : 99
@@ -155,83 +161,133 @@ export function VeilleListScreen({ go }: VeilleListScreenProps) {
       const rb = b.route === 'analyse' ? 0 : 1
       return ra - rb || parTitre(a, b)
     })
-  }, [semaine, theme, profession, impact, route, seulementDecision, tri, afficherMasques, seulementGardes, etats])
 
-  const nbAnalyses = visibles.filter((e) => e.route === 'analyse').length
-  const nbPratiques = visibles.filter((e) => e.niveau_impact === 'pratique').length
+  // Flux général : jamais les gardées (elles vivent dans la bibliothèque), jamais les masquées.
+  const visibles = useMemo(() => {
+    const filtrees = entrees.filter((e) => {
+      if (etats[e.id] === 'garde' || etats[e.id] === 'masque') return false
+      if (theme !== TOUS && !e.themes.includes(theme)) return false
+      if (profession !== TOUS && !e.professions_concernees.includes(profession)) return false
+      if (impact !== TOUS && e.niveau_impact !== impact) return false
+      if (route !== TOUS && e.route !== route) return false
+      if (seulementDecision && !e.impact_algorithme.concerne_decision) return false
+      return true
+    })
+    return trier(filtrees)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [theme, profession, impact, route, seulementDecision, tri, ordreAnciennete, etats])
+
+  // Ma bibliothèque : les gardées (le contenu principal de l'écran) et les masquées (repliées,
+  // uniquement pour pouvoir les re-marquer — sinon une masquée serait perdue sans retour possible).
+  const gardees = useMemo(
+    () => trier(entrees.filter((e) => etats[e.id] === 'garde')),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [etats, tri, ordreAnciennete],
+  )
+  const masquees = useMemo(
+    () => trier(entrees.filter((e) => etats[e.id] === 'masque')),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [etats, tri, ordreAnciennete],
+  )
+
+  const listeAffichee = vue === 'flux' ? visibles : gardees
+  const nbAnalyses = listeAffichee.filter((e) => e.route === 'analyse').length
+  const nbPratiques = listeAffichee.filter((e) => e.niveau_impact === 'pratique').length
+
+  const carte = (entree: EntreeVeille) => (
+    <Carte
+      key={entree.id}
+      entree={entree}
+      ouvert={deplie === entree.id}
+      onToggle={() => setDeplie(deplie === entree.id ? null : entree.id)}
+      etat={etats[entree.id]}
+      connecte={Boolean(utilisateur)}
+      onMarquer={(etat) => marquer(entree.id, etat)}
+      onOublier={() => oublier(entree.id)}
+      onDemanderConnexion={() => go('auth')}
+    />
+  )
 
   return (
     <div className="veille-list">
-      <h1 className="veille-list__title">Veille clinique</h1>
+      <div className="veille-list__entete">
+        <h1 className="veille-list__title">Veille clinique</h1>
+        {/* Flux / bibliothèque (2026-08-09) : une gardée quitte le flux général pour vivre ici ; une
+            masquée quitte le flux et n'est reprenable que depuis cet onglet (repli « Masquées »
+            ci-dessous), jamais par une case à cocher dans le flux. */}
+        {utilisateur && (
+          <div className="veille-list__vues" role="tablist" aria-label="Affichage">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={vue === 'flux'}
+              className={vue === 'flux' ? 'veille-list__vue veille-list__vue--actif' : 'veille-list__vue'}
+              onClick={() => setVue('flux')}
+            >
+              Flux
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={vue === 'bibliotheque'}
+              className={
+                vue === 'bibliotheque' ? 'veille-list__vue veille-list__vue--actif' : 'veille-list__vue'
+              }
+              onClick={() => setVue('bibliotheque')}
+            >
+              Ma bibliothèque{gardees.length > 0 ? ` (${gardees.length})` : ''}
+            </button>
+          </div>
+        )}
+      </div>
       <p className="veille-list__subtitle">
-        {visibles.length} entrée{visibles.length > 1 ? 's' : ''} · {nbAnalyses} analyse
+        {listeAffichee.length} entrée{listeAffichee.length > 1 ? 's' : ''} · {nbAnalyses} analyse
         {nbAnalyses > 1 ? 's' : ''} · {nbPratiques} à impact pratique
       </p>
 
-      <section className="veille-list__filtres" aria-label="Filtres">
-        <Select label="Semaine" valeur={semaine} onChange={setSemaine} options={semaines} tousLabel="Toutes" />
-        <Select
-          label="Thème"
-          valeur={theme}
-          onChange={setTheme}
-          options={themesPresents}
-          rendu={labelTheme}
-          tousLabel="Tous"
-        />
-        <Select
-          label="Profession"
-          valeur={profession}
-          onChange={setProfession}
-          options={professionsPresentes}
-          tousLabel="Toutes"
-        />
-        <Select
-          label="Impact"
-          valeur={impact}
-          onChange={setImpact}
-          options={['pratique', 'informatif']}
-          rendu={(v) => (v === 'pratique' ? 'Change la pratique' : 'Informatif')}
-          tousLabel="Tous"
-        />
-        <Select
-          label="Format"
-          valeur={route}
-          onChange={setRoute}
-          options={['analyse', 'breve']}
-          rendu={(v) => (v === 'analyse' ? 'Analyse critique' : 'Brève')}
-          tousLabel="Tous"
-        />
-        <label className="veille-list__check">
-          <input
-            type="checkbox"
-            checked={seulementDecision}
-            onChange={(event) => setSeulementDecision(event.target.checked)}
+      {vue === 'flux' && (
+        <section className="veille-list__filtres" aria-label="Filtres">
+          <Select
+            label="Thème"
+            valeur={theme}
+            onChange={setTheme}
+            options={themesPresents}
+            rendu={labelTheme}
+            tousLabel="Tous"
           />
-          Touche un algorithme
-        </label>
-        {/* GARDER/MASQUER (D51) : filtres réservés à un praticien connecté — un visiteur non connecté
-            n'a par construction aucun état enregistré, ces deux cases n'auraient aucun effet pour lui. */}
-        {utilisateur && (
-          <>
-            <label className="veille-list__check">
-              <input
-                type="checkbox"
-                checked={seulementGardes}
-                onChange={(event) => setSeulementGardes(event.target.checked)}
-              />
-              Mes entrées gardées
-            </label>
-            <label className="veille-list__check">
-              <input
-                type="checkbox"
-                checked={afficherMasques}
-                onChange={(event) => setAfficherMasques(event.target.checked)}
-              />
-              Afficher les masquées
-            </label>
-          </>
-        )}
-      </section>
+          <Select
+            label="Profession"
+            valeur={profession}
+            onChange={setProfession}
+            options={professionsPresentes}
+            tousLabel="Toutes"
+          />
+          <Select
+            label="Impact"
+            valeur={impact}
+            onChange={setImpact}
+            options={['pratique', 'informatif']}
+            rendu={(v) => (v === 'pratique' ? 'Change la pratique' : 'Informatif')}
+            tousLabel="Tous"
+          />
+          <Select
+            label="Format"
+            valeur={route}
+            onChange={setRoute}
+            options={['analyse', 'breve']}
+            rendu={(v) => (v === 'analyse' ? 'Analyse critique' : 'Brève')}
+            tousLabel="Tous"
+          />
+          <label className="veille-list__check">
+            <input
+              type="checkbox"
+              checked={seulementDecision}
+              onChange={(event) => setSeulementDecision(event.target.checked)}
+            />
+            Touche un algorithme
+          </label>
+        </section>
+      )}
 
       <section className="veille-list__tris" aria-label="Tri">
         <span className="veille-list__tris-label">Trier par</span>
@@ -248,26 +304,38 @@ export function VeilleListScreen({ go }: VeilleListScreenProps) {
             {option.label}
           </button>
         ))}
+        {tri === 'anciennete' && (
+          <button
+            type="button"
+            className="veille-list__tri"
+            title="Inverser le sens du tri par date"
+            onClick={() => setOrdreAnciennete(ordreAnciennete === 'recent' ? 'ancien' : 'recent')}
+          >
+            {ordreAnciennete === 'recent' ? '↓ Plus récent d’abord' : '↑ Plus ancien d’abord'}
+          </button>
+        )}
       </section>
 
-      {visibles.length === 0 ? (
-        <p className="veille-list__vide">Aucune entrée ne correspond à ces filtres.</p>
+      {vue === 'flux' ? (
+        visibles.length === 0 ? (
+          <p className="veille-list__vide">Aucune entrée ne correspond à ces filtres.</p>
+        ) : (
+          <ul className="veille-list__cartes">{visibles.map(carte)}</ul>
+        )
       ) : (
-        <ul className="veille-list__cartes">
-          {visibles.map((entree) => (
-            <Carte
-              key={entree.id}
-              entree={entree}
-              ouvert={deplie === entree.id}
-              onToggle={() => setDeplie(deplie === entree.id ? null : entree.id)}
-              etat={etats[entree.id]}
-              connecte={Boolean(utilisateur)}
-              onMarquer={(etat) => marquer(entree.id, etat)}
-              onOublier={() => oublier(entree.id)}
-              onDemanderConnexion={() => go('auth')}
-            />
-          ))}
-        </ul>
+        <>
+          {gardees.length === 0 ? (
+            <p className="veille-list__vide">Aucune entrée gardée pour l'instant.</p>
+          ) : (
+            <ul className="veille-list__cartes">{gardees.map(carte)}</ul>
+          )}
+          {masquees.length > 0 && (
+            <details className="veille-list__masquees">
+              <summary>Masquées ({masquees.length}) — les reprendre</summary>
+              <ul className="veille-list__cartes">{masquees.map(carte)}</ul>
+            </details>
+          )}
+        </>
       )}
     </div>
   )
@@ -339,6 +407,16 @@ function Carte({
         <span className="veille-carte__temps">{entree.temps_lecture_min} min</span>
       </div>
 
+      {/* SOP §7bis (D61) : sur orthophonie/santé-femme-périnatalité en route analyse, aucun référent
+          de profession compétent n'a relu le fond clinique — bandeau visible, jamais réduit au détail
+          déplié. Ne concerne jamais les 9 thèmes MG (relecture_referent y vaut toujours true). */}
+      {!entree.meta.relecture_referent && (
+        <p className="veille-carte__non-relu">
+          ⚠ Non relu par un référent de profession — analyse produite par vérification tri-agents
+          (SOP §7bis), sans validation clinique de fond sur ce domaine.
+        </p>
+      )}
+
       {/* GARDER/MASQUER (D51, 2026-08-06) : état personnel, jamais partagé entre praticiens. Un
           visiteur non connecté voit une invite plutôt que des boutons inertes — cliquer dessus ouvre
           directement l'écran de connexion. */}
@@ -374,8 +452,8 @@ function Carte({
       <h2 className="veille-carte__titre">{entree.titre}</h2>
 
       <p className="veille-carte__meta">
-        {entree.source.nom} · {entree.type_publication} ·{' '}
-        {entree.themes.map(labelTheme).join(' · ')}
+        {formaterDate(entree.meta.date_publication)} · {entree.source.nom} · {entree.type_publication}{' '}
+        · {entree.themes.map(labelTheme).join(' · ')}
       </p>
 
       <p className="veille-carte__resume">{entree.resultat_resume}</p>

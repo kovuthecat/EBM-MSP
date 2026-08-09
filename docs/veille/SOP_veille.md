@@ -1,6 +1,6 @@
 # SOP — Procédure de veille clinique (MSP)
 
-**Version :** 1.2 (2026-08-01) · **Statut :** en vigueur, validée par le **référent veille** · **Prochaine revue :** +12 mois
+**Version :** 1.3 (2026-08-09) · **Statut :** en vigueur, validée par le **référent veille** · **Prochaine revue :** +12 mois
 **Destinée à être publiée dans l'outil (page « Méthode »)** — la transparence de la méthode est un gage de fiabilité.
 
 > **Ce document décrit ce qui est réellement fait, avec les moyens réellement disponibles.** Là où une ressource n'existe pas encore (second relecteur, référents de profession, comité éditorial), la procédure le **dit** et décrit le dispositif de remplacement, plutôt que de promettre un contrôle qui n'a pas lieu. C'est le même principe de transparence que le projet applique au niveau de preuve : mieux vaut une méthode plus modeste et vraie qu'une méthode ambitieuse et non suivie.
@@ -17,13 +17,13 @@ Décrire la procédure **reproductible** de production de la veille hebdomadaire
 
 ## 2. Rôles & responsabilités
 
-**État réel au 2026-07-31 : un référent unique.** Une seule personne assure aujourd'hui la collecte, la présélection, l'analyse, le classement, la rédaction et la publication, sur un périmètre de **9 thèmes** de médecine générale (§3bis). Les autres rôles sont des **cibles** : ils sont décrits ici pour ce qu'ils devront être, pas comme des contrôles en place.
+**État réel au 2026-08-09 : un référent unique.** Une seule personne assure aujourd'hui la collecte, la présélection, l'analyse, le classement, la rédaction et la publication, sur un périmètre de **11 thèmes** (§3bis) — les 9 thèmes de médecine générale plus, depuis le 2026-08-09, `orthophonie` (D60) et `sante-femme-perinatalite` (D61), sans référent de profession dédié pour ces deux derniers (voir l'angle mort assumé en §3bis et le circuit tri-agents §7bis). Les autres rôles sont des **cibles** : ils sont décrits ici pour ce qu'ils devront être, pas comme des contrôles en place.
 
 | Rôle | Responsabilité | Statut |
 |---|---|---|
 | **Référent veille** | Collecte, présélection, analyse, classement, rédaction, publication, tenue du journal. | **tenu** — un seul, tous thèmes |
 | **Référent algorithme** | Analyse, avec Claude Code, des items pouvant modifier un nœud de décision. | **tenu par le référent veille** |
-| **Référent(s) de profession** | Collecte, présélection, analyse, classement pour leur domaine et leur profession. | **cible** — conditionne l'ouverture des 4 thèmes hors production (§3bis) |
+| **Référent(s) de profession** | Collecte, présélection, analyse, classement pour leur domaine et leur profession. | **cible** — conditionne l'ouverture des 2 thèmes restants hors production (§3bis) et la relecture par un pair sur orthophonie/santé-femme-périnatalité (§7bis) |
 | **Relecteur (2ᵉ lecture indépendante)** | Validation indépendante des items à impact pratique. | **cible** — remplacé aujourd'hui par le dispositif de l'étape 5 (§5) |
 | **Comité éditorial** | Validation finale des modifications d'algorithme ; revue de la SOP. | **cible** — en son absence, aucune modification d'algorithme n'est appliquée (§5, étape 7) |
 
@@ -50,9 +50,11 @@ La convention ci-dessous est **arbitraire mais déclarée** : non écrite, elle 
 
 ### 3bis. Périmètre de production
 
-Le **modèle de données** couvre les 13 thèmes de la taxonomie et les 5 professions (`BRIEF_VEILLE.md` §3 et §4). La **production hebdomadaire**, elle, couvre aujourd'hui **9 thèmes** de médecine générale : `soins-premiers`, `diabete-metabolisme`, `cardiovasculaire-prevention`, `bpco-pneumo`, `infectiologie-antibiotherapie`, `geriatrie-deprescription`, `prevention-depistage-vaccination`, `sante-mentale-addictologie`, `douleur-soins-palliatifs`.
+Le **modèle de données** couvre les 13 thèmes de la taxonomie et les 5 professions (`BRIEF_VEILLE.md` §3 et §4). La **production hebdomadaire**, elle, couvre **11 thèmes** : les **9 thèmes de médecine générale** — `soins-premiers`, `diabete-metabolisme`, `cardiovasculaire-prevention`, `bpco-pneumo`, `infectiologie-antibiotherapie`, `geriatrie-deprescription`, `prevention-depistage-vaccination`, `sante-mentale-addictologie`, `douleur-soins-palliatifs` — plus, depuis le 2026-08-09, `orthophonie` (**D60**) et `sante-femme-perinatalite` (**D61**).
 
-Les 4 thèmes restants — `ETP`, `sante-femme-perinatalite`, `orthophonie`, `soins-infirmiers` — existent au modèle de données mais **ne font l'objet d'aucune production** tant qu'un référent de profession ne les prend pas en charge (§2). Un filtre qui ne renverrait rien est préférable à un contenu produit hors compétence : l'absence est déclarée, elle n'est pas masquée.
+Les 2 thèmes restants — `ETP`, `soins-infirmiers` — existent au modèle de données mais **ne font l'objet d'aucune production** tant qu'un référent de profession ne les prend pas en charge (§2).
+
+> ⚠ **Angle mort assumé pour `orthophonie` et `sante-femme-perinatalite`** : le référent unique est médecin généraliste, ni orthophoniste ni sage-femme (§2). La raison d'être de l'exclusion initiale (D40) — une appréciation critique hors compétence est pire qu'une absence — n'a pas disparu, elle est **contenue** différemment depuis D61 : sur ces deux thèmes, la route `analyse` reste ouverte, mais **jamais tranchée par le référent seul** — elle passe par la vérification **tri-agents** du §7bis (Agent A/B + un 3ᵉ agent réconciliateur qui rend la décision, remplaçant « le référent tranche » du §5 étape 5), et **toute entrée publiée sur ces deux thèmes porte la mention explicite qu'elle n'a reçu aucune relecture par un référent de profession** (`meta.relecture_referent: false`, affichée dans l'interface — cf. §7bis). Un filtre qui ne renverrait rien est préférable à un contenu produit hors compétence sans le dire ; ici, le contenu est produit, mais son statut de vérification incomplet est **dit**, pas masqué.
 
 ---
 
@@ -201,6 +203,54 @@ Pour **tout item en route `analyse`** (§5bis) — donc pour tout item susceptib
 
 ---
 
+## 7bis. Vérification tri-agents — thèmes hors compétence du référent (orthophonie, santé-femme-périnatalité)
+
+**Cas d'application** : tout item en route `analyse` dont un des `themes[]` est `orthophonie` ou
+`sante-femme-perinatalite` (§3bis, D60/D61). Le référent veille n'a la compétence clinique de fond
+pour trancher ni l'un ni l'autre — c'est précisément pour ça que ces deux thèmes étaient exclus jusqu'à
+D40/le point de départ. La procédure ci-dessous ne comble pas cette absence de compétence : elle la
+**rend visible au lecteur** au lieu de la masquer derrière une appréciation critique qui aurait l'air
+aussi solide que sur les 9 thèmes MG.
+
+**Différence avec le §7 (bi-agents standard)** : sur les 9 thèmes MG, l'issue de la vérification
+bi-agents est tranchée par le **référent humain**, compétent sur le fond. Ici, il ne l'est pas — la
+tri-agents remplace donc l'arbitrage humain par un **3ᵉ agent**, avec un garde-fou en contrepartie :
+**la mention explicite de l'absence de relecture par un référent de profession, publiée avec l'entrée**,
+pas seulement consignée en interne.
+
+1. **Agent A (Analyste/Extracteur)** — même rôle qu'au §7 : extrait résultats et effets absolus/NNT si
+   applicable, applique la grille (`GRILLE_APPRECIATION.md`), propose thème/profession/niveau
+   d'impact/niveau de preuve, **ancré sur la source primaire** (jamais l'article de presse qui l'a
+   signalée — cf. `docs/veille/TRI_BOITE_MAIL.md`, règle « une source de repérage ne détermine jamais
+   la route »).
+2. **Agent B (Contradicteur/Red-team)** — même rôle qu'au §7 : traque le *spin*, vérifie chaque
+   référence et chaque chiffre contre la source primaire, confronte à la totalité des preuves
+   disponibles (recherche complémentaire si besoin).
+3. **Agent C (Réconciliateur)** — rôle **nouveau**, propre à cette procédure : contextes séparés des
+   agents A et B (n'a pas vu leurs échanges internes, seulement leurs sorties), il compare les deux
+   analyses, tranche les désaccords factuels vérifiables (chiffre, citation, méthode), et **rend la
+   décision finale de classement** (`breve` / `analyse`, `niveau_impact`, `niveau_preuve`) — c'est lui
+   qui joue le rôle que le référent joue au §5 étape 5 sur les 9 thèmes MG. Un désaccord non résolu
+   entre A et B que C ne peut pas trancher sur pièces (chiffre vérifiable) → l'item **ne se publie
+   pas** : reporté, comme au §6bis « règle de file d'attente ».
+4. **Publication obligatoirement marquée** : le champ `meta.relecture_referent` de l'entrée est posé à
+   `false` (mirroir : `true` par défaut sur les 9 thèmes MG, où le référent a effectivement relu à
+   J+3). L'interface affiche ce champ comme un bandeau visible sur la carte, pas une mention en petit
+   dans le détail déplié — la relecture différée à J+3 du référent (§5 étape 5) continue de s'appliquer
+   pour la forme et la cohérence, **jamais comme validation de fond clinique** sur ces deux thèmes.
+5. **Journalisation** : les trois analyses (A, B, C) sont archivées comme au §7, avec le motif de tout
+   désaccord tranché par C.
+
+**Ce que cette procédure ne prétend pas être** : ce n'est pas l'équivalent d'une relecture par un
+référent orthophoniste ou sage-femme. Trois agents IA qui se contredisent puis se réconcilient
+réduisent l'erreur d'extraction et le *spin* non détecté (même logique que le §7), mais ils partagent
+un même **angle mort de compétence clinique de fond** que ni A, ni B, ni C ne peuvent lever — c'est
+justement ce que la mention publiée doit permettre au lecteur professionnel de son propre domaine de
+soupeser lui-même. **Cible inchangée** : lever la restriction dès qu'un référent orthophoniste ou
+sage-femme rejoint la veille (§2).
+
+---
+
 ## 8. Droit d'auteur & accès
 
 - **Résumé critique + lien** vers la source ; **jamais** de reproduction du texte intégral (Prescrire, journaux).
@@ -248,6 +298,16 @@ Pour **tout item en route `analyse`** (§5bis) — donc pour tout item susceptib
 - **À vérifier** : statut de dispositif médical (règlement UE 2017/745) pour le volet couplé aux algorithmes.
 
 ### Notes de changement
+
+**v1.3 — 2026-08-09** · *Périmètre de production étendu à `orthophonie` (D60) et `sante-femme-perinatalite`
+(D61) — 11 thèmes. Nouveau §7bis : vérification tri-agents (3ᵉ agent réconciliateur qui tranche, à la
+place du référent) pour la route `analyse` sur ces deux thèmes, avec publication obligatoire de
+l'absence de relecture par un référent de profession (`meta.relecture_referent`).*
+
+| § | Changement | Décision |
+|---|---|---|
+| §2, §3bis | Périmètre 9→11 thèmes ; angle mort reformulé (tri-agents + mention publiée, plus « route brève uniquement ») | D60, D61 |
+| §7bis | **Nouveau.** Procédure tri-agents (A/B/C, C tranche), garde-fou de publication obligatoire | D61 |
 
 **v1.2 — 2026-08-01** · *Pivot de collecte vers la boîte mail dédiée (`ebmmsp@gmail.com` : newsletters
 natives + flux RSS pontés par Blogtrottr) après échecs répétés du web-fetch programmé face aux

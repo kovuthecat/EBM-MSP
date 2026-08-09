@@ -21,6 +21,56 @@
   font-size: var(--text-sm);
 }
 
+/* --- Entête : titre + bascule Flux / Ma bibliothèque (2026-08-09) --- */
+
+.veille-list__entete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.veille-list__vues {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.veille-list__vue {
+  font: inherit;
+  font-size: var(--text-sm);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--c-border);
+  border-radius: 999px;
+  background: var(--c-bg);
+  color: var(--c-text-secondary);
+  cursor: pointer;
+}
+
+.veille-list__vue--actif {
+  background: var(--c-accent-veille-soft);
+  border-color: var(--c-accent-veille);
+  color: var(--c-text);
+  font-weight: 600;
+}
+
+/* --- Masquées, repliées dans « Ma bibliothèque » --- */
+
+.veille-list__masquees {
+  margin-top: var(--space-5);
+}
+
+.veille-list__masquees summary {
+  cursor: pointer;
+  font-size: var(--text-sm);
+  color: var(--c-text-muted);
+  padding: var(--space-2) 0;
+}
+
+.veille-list__masquees .veille-list__cartes {
+  margin-top: var(--space-3);
+}
+
 /* --- Filtres --- */
 
 .veille-list__filtres {
@@ -224,6 +274,19 @@
   background: var(--c-attention-soft);
   border: 1px solid var(--c-attention-border);
   color: var(--c-text);
+}
+
+/* SOP §7bis (D61) : bandeau d'absence de relecture référent — même famille visuelle que le brouillon
+   (attention), volontairement distinct pour ne pas laisser croire que la relecture différée J+3 vaut
+   validation de fond sur ces deux thèmes. */
+.veille-carte__non-relu {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--c-attention-soft);
+  border: 1px solid var(--c-attention-border);
+  border-radius: var(--radius-sm);
+  color: var(--c-text);
+  font-size: var(--text-xs);
 }
 
 .veille-carte__temps {

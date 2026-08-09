@@ -49,6 +49,13 @@ export interface MetaEntree {
   date_publication: string
   auteur: string
   statut: StatutEntree
+  /**
+   * `true` sur les 9 thèmes MG (le référent, généraliste, relit à J+3 — SOP §5 étape 5).
+   * `false` uniquement sur `orthophonie`/`sante-femme-perinatalite` en route `analyse` produite par
+   * le circuit tri-agents (SOP §7bis, D61) : aucun référent de profession compétent n'a relu le fond
+   * clinique. Doit rester **affiché**, jamais réduit à une mention dans le détail déplié.
+   */
+  relecture_referent: boolean
 }
 
 export interface EntreeVeille {
