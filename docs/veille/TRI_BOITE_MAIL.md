@@ -154,3 +154,8 @@ multi-articles (ex. « JAMA Network Open New Online ») est classé dans son ens
 isolés d'un digest par ailleurs classé `non-pertinent` pourraient mériter un second regard — c'est
 justement le rôle du balayage Tier 1-2 hebdomadaire (qui, lui, retrouvera l'info via une source
 pré-appréciée si elle est importante) plutôt que du dépouillement systématique de ces digests.
+
+**Suivi au niveau article** : quand un digest retagué `piste-a-verifier-source-primaire` contient
+plusieurs articles à potentiel, leur suivi individuel (source à récupérer, brève à rédiger, candidat
+analyse) se fait dans `docs/veille/JOURNAL_BOITE_MAIL.md` — pas dans ce document, qui reste au niveau
+du tri d'e-mail.
