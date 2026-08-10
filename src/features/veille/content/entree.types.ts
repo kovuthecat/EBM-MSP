@@ -50,7 +50,8 @@ export interface MetaEntree {
   auteur: string
   statut: StatutEntree
   /**
-   * `true` sur les 9 thèmes MG (le référent, généraliste, relit à J+3 — SOP §5 étape 5).
+   * `true` sur les 10 thèmes MG (le référent, généraliste, relit à J+3 — SOP §5 étape 5) —
+   * `pediatrie` compris depuis D63 : la pédiatrie de soins premiers relève du champ MG.
    * `false` uniquement sur `orthophonie`/`sante-femme-perinatalite` en route `analyse` produite par
    * le circuit tri-agents (SOP §7bis, D61) : aucun référent de profession compétent n'a relu le fond
    * clinique. Doit rester **affiché**, jamais réduit à une mention dans le détail déplié.
@@ -65,7 +66,7 @@ export interface EntreeVeille {
   titre: string
   source: SourceEntree
   type_publication: string
-  /** Thèmes de la taxonomie (BRIEF_VEILLE.md §4, 13 valeurs). */
+  /** Thèmes de la taxonomie (BRIEF_VEILLE.md §4, 14 valeurs). */
   themes: string[]
   professions_concernees: string[]
   route: Route

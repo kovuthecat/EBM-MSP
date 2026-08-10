@@ -17,7 +17,7 @@ Décrire la procédure **reproductible** de production de la veille hebdomadaire
 
 ## 2. Rôles & responsabilités
 
-**État réel au 2026-08-09 : un référent unique.** Une seule personne assure aujourd'hui la collecte, la présélection, l'analyse, le classement, la rédaction et la publication, sur un périmètre de **11 thèmes** (§3bis) — les 9 thèmes de médecine générale plus, depuis le 2026-08-09, `orthophonie` (D60) et `sante-femme-perinatalite` (D61), sans référent de profession dédié pour ces deux derniers (voir l'angle mort assumé en §3bis et le circuit tri-agents §7bis). Les autres rôles sont des **cibles** : ils sont décrits ici pour ce qu'ils devront être, pas comme des contrôles en place.
+**État réel au 2026-08-09 : un référent unique.** Une seule personne assure aujourd'hui la collecte, la présélection, l'analyse, le classement, la rédaction et la publication, sur un périmètre de **12 thèmes** (§3bis) — les 10 thèmes de médecine générale, `pediatrie` inclus depuis le 2026-08-10 (D63), plus, depuis le 2026-08-09, `orthophonie` (D60) et `sante-femme-perinatalite` (D61), sans référent de profession dédié pour ces deux derniers (voir l'angle mort assumé en §3bis et le circuit tri-agents §7bis). Les autres rôles sont des **cibles** : ils sont décrits ici pour ce qu'ils devront être, pas comme des contrôles en place.
 
 | Rôle | Responsabilité | Statut |
 |---|---|---|
@@ -50,9 +50,11 @@ La convention ci-dessous est **arbitraire mais déclarée** : non écrite, elle 
 
 ### 3bis. Périmètre de production
 
-Le **modèle de données** couvre les 13 thèmes de la taxonomie et les 5 professions (`BRIEF_VEILLE.md` §3 et §4). La **production hebdomadaire**, elle, couvre **11 thèmes** : les **9 thèmes de médecine générale** — `soins-premiers`, `diabete-metabolisme`, `cardiovasculaire-prevention`, `bpco-pneumo`, `infectiologie-antibiotherapie`, `geriatrie-deprescription`, `prevention-depistage-vaccination`, `sante-mentale-addictologie`, `douleur-soins-palliatifs` — plus, depuis le 2026-08-09, `orthophonie` (**D60**) et `sante-femme-perinatalite` (**D61**).
+Le **modèle de données** couvre les 14 thèmes de la taxonomie et les 5 professions (`BRIEF_VEILLE.md` §3 et §4). La **production hebdomadaire**, elle, couvre **12 thèmes** : les **10 thèmes de médecine générale** — `soins-premiers`, `diabete-metabolisme`, `cardiovasculaire-prevention`, `bpco-pneumo`, `infectiologie-antibiotherapie`, `geriatrie-deprescription`, `pediatrie` (depuis le 2026-08-10, **D63**), `prevention-depistage-vaccination`, `sante-mentale-addictologie`, `douleur-soins-palliatifs` — plus, depuis le 2026-08-09, `orthophonie` (**D60**) et `sante-femme-perinatalite` (**D61**).
 
 Les 2 thèmes restants — `ETP`, `soins-infirmiers` — existent au modèle de données mais **ne font l'objet d'aucune production** tant qu'un référent de profession ne les prend pas en charge (§2).
+
+> **`pediatrie` n'est pas un thème « hors compétence » et ne relève donc pas du §7bis.** La pédiatrie de soins premiers — prescription et déprescription chez l'enfant, suivi du nourrisson — fait partie du champ d'exercice du médecin généraliste (**D63**). Le référent est compétent pour trancher : circuit **bi-agents §7** standard, arbitrage par le référent au §5 étape 5, et `meta.relecture_referent: true` comme sur les 9 autres thèmes MG. C'est précisément ce qui distingue ce thème d'`orthophonie` et de `sante-femme-perinatalite`, où l'angle mort ci-dessous s'applique.
 
 > ⚠ **Angle mort assumé pour `orthophonie` et `sante-femme-perinatalite`** : le référent unique est médecin généraliste, ni orthophoniste ni sage-femme (§2). La raison d'être de l'exclusion initiale (D40) — une appréciation critique hors compétence est pire qu'une absence — n'a pas disparu, elle est **contenue** différemment depuis D61 : sur ces deux thèmes, la route `analyse` reste ouverte, mais **jamais tranchée par le référent seul** — elle passe par la vérification **tri-agents** du §7bis (Agent A/B + un 3ᵉ agent réconciliateur qui rend la décision, remplaçant « le référent tranche » du §5 étape 5), et **toute entrée publiée sur ces deux thèmes porte la mention explicite qu'elle n'a reçu aucune relecture par un référent de profession** (`meta.relecture_referent: false`, affichée dans l'interface — cf. §7bis). Un filtre qui ne renverrait rien est préférable à un contenu produit hors compétence sans le dire ; ici, le contenu est produit, mais son statut de vérification incomplet est **dit**, pas masqué.
 
@@ -210,9 +212,9 @@ Pour **tout item en route `analyse`** (§5bis) — donc pour tout item susceptib
 pour trancher ni l'un ni l'autre — c'est précisément pour ça que ces deux thèmes étaient exclus jusqu'à
 D40/le point de départ. La procédure ci-dessous ne comble pas cette absence de compétence : elle la
 **rend visible au lecteur** au lieu de la masquer derrière une appréciation critique qui aurait l'air
-aussi solide que sur les 9 thèmes MG.
+aussi solide que sur les 10 thèmes MG.
 
-**Différence avec le §7 (bi-agents standard)** : sur les 9 thèmes MG, l'issue de la vérification
+**Différence avec le §7 (bi-agents standard)** : sur les 10 thèmes MG, l'issue de la vérification
 bi-agents est tranchée par le **référent humain**, compétent sur le fond. Ici, il ne l'est pas — la
 tri-agents remplace donc l'arbitrage humain par un **3ᵉ agent**, avec un garde-fou en contrepartie :
 **la mention explicite de l'absence de relecture par un référent de profession, publiée avec l'entrée**,
@@ -230,11 +232,11 @@ pas seulement consignée en interne.
    agents A et B (n'a pas vu leurs échanges internes, seulement leurs sorties), il compare les deux
    analyses, tranche les désaccords factuels vérifiables (chiffre, citation, méthode), et **rend la
    décision finale de classement** (`breve` / `analyse`, `niveau_impact`, `niveau_preuve`) — c'est lui
-   qui joue le rôle que le référent joue au §5 étape 5 sur les 9 thèmes MG. Un désaccord non résolu
+   qui joue le rôle que le référent joue au §5 étape 5 sur les 10 thèmes MG. Un désaccord non résolu
    entre A et B que C ne peut pas trancher sur pièces (chiffre vérifiable) → l'item **ne se publie
    pas** : reporté, comme au §6bis « règle de file d'attente ».
 4. **Publication obligatoirement marquée** : le champ `meta.relecture_referent` de l'entrée est posé à
-   `false` (mirroir : `true` par défaut sur les 9 thèmes MG, où le référent a effectivement relu à
+   `false` (mirroir : `true` par défaut sur les 10 thèmes MG, où le référent a effectivement relu à
    J+3). L'interface affiche ce champ comme un bandeau visible sur la carte, pas une mention en petit
    dans le détail déplié — la relecture différée à J+3 du référent (§5 étape 5) continue de s'appliquer
    pour la forme et la cohérence, **jamais comme validation de fond clinique** sur ces deux thèmes.

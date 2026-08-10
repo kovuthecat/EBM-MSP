@@ -158,11 +158,11 @@ D2a/D2b ; les deux restent nommés « D2 » dans ce document quand la distinctio
   *Aucune donnée de santé, aucune donnée patient.*
 - **Taxonomie de thèmes** (partagée décision ↔ veille) : soins-premiers, diabete-metabolisme,
   cardiovasculaire-prevention, bpco-pneumo, infectiologie-antibiotherapie, geriatrie-deprescription,
-  prevention-depistage-vaccination, ETP, sante-femme-perinatalite, orthophonie, soins-infirmiers,
-  sante-mentale-addictologie, douleur-soins-palliatifs.
-  *13 thèmes. Liste identique à `docs/veille/BRIEF_VEILLE.md` §4 — les deux doivent le rester
-  (cf. D43). Le périmètre de **production** de veille n'en couvre que 9 (D40) ; les 4 autres
-  restent au modèle de données.*
+  pediatrie, prevention-depistage-vaccination, ETP, sante-femme-perinatalite, orthophonie,
+  soins-infirmiers, sante-mentale-addictologie, douleur-soins-palliatifs.
+  *14 thèmes. Liste identique à `docs/veille/BRIEF_VEILLE.md` §4 — les deux doivent le rester
+  (cf. D43, D63). Le périmètre de **production** de veille en couvre **12** (D40, amendé
+  D60/D61/D63) ; les 2 autres (`ETP`, `soins-infirmiers`) restent au modèle de données.*
 
 ## Contraintes UI
 

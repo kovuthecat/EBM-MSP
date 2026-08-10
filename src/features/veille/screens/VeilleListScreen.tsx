@@ -29,6 +29,7 @@ const THEME_LABELS: Record<string, string> = {
   'bpco-pneumo': 'BPCO et pneumologie',
   'infectiologie-antibiotherapie': 'Infectiologie et antibiothérapie',
   'geriatrie-deprescription': 'Gériatrie et déprescription',
+  pediatrie: 'Pédiatrie',
   'prevention-depistage-vaccination': 'Prévention, dépistage, vaccination',
   'sante-mentale-addictologie': 'Santé mentale et addictologie',
   'douleur-soins-palliatifs': 'Douleur et soins palliatifs',
