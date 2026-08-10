@@ -89,7 +89,6 @@ export function VeilleListScreen({ go }: VeilleListScreenProps) {
   const [profession, setProfession] = useState<string>(TOUS)
   const [impact, setImpact] = useState<string>(TOUS)
   const [route, setRoute] = useState<string>(TOUS)
-  const [seulementDecision, setSeulementDecision] = useState(false)
   const [tri, setTri] = useState<Tri>('anciennete')
   const [ordreAnciennete, setOrdreAnciennete] = useState<OrdreAnciennete>('recent')
   const [deplie, setDeplie] = useState<string | null>(null)
@@ -171,12 +170,11 @@ export function VeilleListScreen({ go }: VeilleListScreenProps) {
       if (profession !== TOUS && !e.professions_concernees.includes(profession)) return false
       if (impact !== TOUS && e.niveau_impact !== impact) return false
       if (route !== TOUS && e.route !== route) return false
-      if (seulementDecision && !e.impact_algorithme.concerne_decision) return false
       return true
     })
     return trier(filtrees)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [theme, profession, impact, route, seulementDecision, tri, ordreAnciennete, etats])
+  }, [theme, profession, impact, route, tri, ordreAnciennete, etats])
 
   // Ma bibliothèque : les gardées (le contenu principal de l'écran) et les masquées (repliées,
   // uniquement pour pouvoir les re-marquer — sinon une masquée serait perdue sans retour possible).
@@ -279,14 +277,6 @@ export function VeilleListScreen({ go }: VeilleListScreenProps) {
             rendu={(v) => (v === 'analyse' ? 'Analyse critique' : 'Brève')}
             tousLabel="Tous"
           />
-          <label className="veille-list__check">
-            <input
-              type="checkbox"
-              checked={seulementDecision}
-              onChange={(event) => setSeulementDecision(event.target.checked)}
-            />
-            Touche un algorithme
-          </label>
         </section>
       )}
 
@@ -387,25 +377,61 @@ function Carte({
   onOublier: () => void
   onDemanderConnexion: () => void
 }) {
-  const brouillon = entree.meta.statut === 'brouillon'
-
   return (
     <li className={`veille-carte veille-carte--${entree.niveau_impact}`}>
+      <div className="veille-carte__entete">
+        <h2 className="veille-carte__titre">{entree.titre}</h2>
+
+        {/* GARDER/MASQUER (D51, 2026-08-06) : état personnel, jamais partagé entre praticiens. Un
+            visiteur non connecté voit une invite plutôt que des boutons inertes — cliquer dessus ouvre
+            directement l'écran de connexion. Icônes compactes, alignées avec le titre : c'est une
+            action secondaire, elle ne doit plus retarder la lecture du sujet. */}
+        {connecte ? (
+          <div className="veille-carte__etat">
+            <button
+              type="button"
+              className={
+                etat === 'garde' ? 'veille-carte__etat-bouton veille-carte__etat-bouton--actif' : 'veille-carte__etat-bouton'
+              }
+              title={etat === 'garde' ? 'Retirer de ma bibliothèque' : 'Garder dans ma bibliothèque'}
+              aria-label={etat === 'garde' ? 'Retirer de ma bibliothèque' : 'Garder dans ma bibliothèque'}
+              onClick={() => (etat === 'garde' ? onOublier() : onMarquer('garde'))}
+            >
+              {etat === 'garde' ? '★' : '☆'}
+            </button>
+            <button
+              type="button"
+              className={
+                etat === 'masque' ? 'veille-carte__etat-bouton veille-carte__etat-bouton--actif' : 'veille-carte__etat-bouton'
+              }
+              title={etat === 'masque' ? 'Reprendre dans le flux' : 'Masquer'}
+              aria-label={etat === 'masque' ? 'Reprendre dans le flux' : 'Masquer'}
+              onClick={() => (etat === 'masque' ? onOublier() : onMarquer('masque'))}
+            >
+              {etat === 'masque' ? '🚫' : '✕'}
+            </button>
+          </div>
+        ) : (
+          <button type="button" className="veille-carte__etat-connexion" onClick={onDemanderConnexion}>
+            Se connecter pour garder/masquer
+          </button>
+        )}
+      </div>
+
+      <p className="veille-carte__meta">
+        {formaterDate(entree.meta.date_publication)} · {entree.source.nom} · {entree.type_publication}{' '}
+        · {entree.themes.map(labelTheme).join(' · ')}
+      </p>
+
       <div className="veille-carte__bandeau">
-        <span className={`veille-carte__route veille-carte__route--${entree.route}`}>
-          {entree.route === 'analyse' ? 'Analyse critique' : 'Brève'}
-        </span>
         <span className={`veille-carte__impact veille-carte__impact--${entree.niveau_impact}`}>
           {entree.niveau_impact === 'pratique' ? 'Change la pratique' : 'Informatif'}
         </span>
         {entree.niveau_preuve && <EvidenceBadge niveau={toBadgeNiveau(entree.niveau_preuve)} />}
-        {entree.impact_algorithme.concerne_decision && (
-          <span className="veille-carte__algo">
-            Touche l'algorithme · {entree.impact_algorithme.noeuds_impactes.join(', ')}
-          </span>
-        )}
-        {brouillon && <span className="veille-carte__brouillon">Brouillon — relecture à faire</span>}
-        <span className="veille-carte__temps">{entree.temps_lecture_min} min</span>
+        <span className={`veille-carte__route veille-carte__route--${entree.route}`}>
+          {entree.route === 'analyse' ? 'Analyse critique' : 'Brève'}
+        </span>
+        <span className="veille-carte__temps">{entree.temps_lecture_min} min de lecture</span>
       </div>
 
       {/* SOP §7bis (D61) : sur orthophonie/santé-femme-périnatalité en route analyse, aucun référent
@@ -417,45 +443,6 @@ function Carte({
           (SOP §7bis), sans validation clinique de fond sur ce domaine.
         </p>
       )}
-
-      {/* GARDER/MASQUER (D51, 2026-08-06) : état personnel, jamais partagé entre praticiens. Un
-          visiteur non connecté voit une invite plutôt que des boutons inertes — cliquer dessus ouvre
-          directement l'écran de connexion. */}
-      <div className="veille-carte__etat">
-        {connecte ? (
-          <>
-            <button
-              type="button"
-              className={
-                etat === 'garde' ? 'veille-carte__etat-bouton veille-carte__etat-bouton--actif' : 'veille-carte__etat-bouton'
-              }
-              onClick={() => (etat === 'garde' ? onOublier() : onMarquer('garde'))}
-            >
-              {etat === 'garde' ? '★ Gardée' : '☆ Garder'}
-            </button>
-            <button
-              type="button"
-              className={
-                etat === 'masque' ? 'veille-carte__etat-bouton veille-carte__etat-bouton--actif' : 'veille-carte__etat-bouton'
-              }
-              onClick={() => (etat === 'masque' ? onOublier() : onMarquer('masque'))}
-            >
-              {etat === 'masque' ? 'Masquée' : 'Masquer'}
-            </button>
-          </>
-        ) : (
-          <button type="button" className="veille-carte__etat-connexion" onClick={onDemanderConnexion}>
-            Se connecter pour garder/masquer
-          </button>
-        )}
-      </div>
-
-      <h2 className="veille-carte__titre">{entree.titre}</h2>
-
-      <p className="veille-carte__meta">
-        {formaterDate(entree.meta.date_publication)} · {entree.source.nom} · {entree.type_publication}{' '}
-        · {entree.themes.map(labelTheme).join(' · ')}
-      </p>
 
       <p className="veille-carte__resume">{entree.resultat_resume}</p>
 
