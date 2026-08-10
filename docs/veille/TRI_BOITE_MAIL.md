@@ -6,6 +6,9 @@ comment leurs règles s'appliquent concrètement au tri de `ebmmsp@gmail.com` (�
 étape 2 « présélection » de `SOP_veille.md` §5), avant même l'écriture d'un `moisson.md`/`screening.md`
 de semaine.
 
+> **Skill `tri-boite-mail`** (`.claude/skills/`) encode cette procédure — à exécuter **en sous-agent**
+> pour ne pas exposer le contenu brut des digests à la session principale. L'invoquer directement.
+
 ## Principe
 
 Chaque mail entrant est un **candidat brut**, jamais un contenu publié. Le tri applique, dans l'ordre :

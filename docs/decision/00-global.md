@@ -22,9 +22,21 @@ cinquième étape.
 
 ## Pipeline d'un nœud (dossier de preuve → algorithme)
 
+> **Skill `recherche-preuve-triangulee`** (`.claude/skills/`) encode les étapes 2-4 ci-dessous —
+> gabarits de prompt Agent A / OpenEvidence / red-team B, structure de sortie. L'invoquer plutôt que
+> de redériver la procédure. Charge lui-même `recherche-source-primaire` pour les techniques d'accès.
+
 1. **Cadrer** — question clinique (PICO), critères d'entrée (→ `criteres_entree` du schéma), options envisagées.
 2. **Collecter** — sources pré-appréciées d'abord (Prescrire, Médicalement Geek, Cochrane, HAS, reco
    ADA/EASD…), puis essais pivots. OpenEvidence/web = débroussaillage, **jamais** source primaire.
+   **Connecteurs de recherche (2026-08-10)** — PubMed, ClinicalTrials.gov, Consensus, SciSpace, Elicit,
+   activables par conversation dans Claude Desktop : même statut qu'OpenEvidence, débroussaillage et
+   identification seulement. Deux usages qui ont fait gagner du temps sur la veille et transposables
+   ici : le connecteur PubMed confirme en un appel si un article est en accès libre (PMCID oui/non)
+   avant de multiplier les tentatives de fetch ; le connecteur ClinicalTrials.gov donne accès aux
+   **documents déposés du registre** (protocole, plan d'analyse statistique) — souvent publics même
+   quand l'article l'est pas, utile pour trancher le statut préspécifié/exploratoire d'un critère d'un
+   essai pivot sans attendre l'accès à l'article complet.
 3. **Apprécier** — appliquer la grille à chaque étude clé : design/biais, **critère dur vs substitution**,
    **effet absolu / NNT-NNH**, validité externe, cohérence, conflits d'intérêt, GRADE.
 4. **Vérifier le dossier de preuve (bi-agents)** — Agent A extrait/chiffre, Agent B (red-team) traque le

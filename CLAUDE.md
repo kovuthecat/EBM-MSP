@@ -43,6 +43,9 @@ npm run typecheck
   `DECISIONS.md` (arbitrages transverses) · `PROJECT_MAP.md` (localisation).
 - Autorité du contenu clinique : `docs/decision/` (nœuds DT2) · méthodo veille : `docs/veille/`
   (SOP, grille, briefs sources).
+- **4 skills encodent les circuits répétitifs** (`.claude/skills/`) : `verif-source-veille`,
+  `recherche-preuve-triangulee`, `tri-boite-mail`, `recherche-source-primaire`. Les invoquer plutôt
+  que de redériver la procédure depuis les docs ci-dessus — chaque skill pointe vers sa doc source.
 - **Avant d'écrire ou de modifier un nœud** : `docs/decision/GRAMMAIRE-NOEUD.md` — les règles
   R1→R9, tous domaines (état ≠ intention, délai de bénéfice, deux décisions pour modifier un
   traitement, écarté ≠ non-indiqué, un critère doit agir, argumentaire situationnel, jamais se

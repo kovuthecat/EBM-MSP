@@ -128,9 +128,11 @@ méthode §7quater/D-093 des autres tiers — statut `repérage informel`) :
 | Glossa (revue scientifique orthophonie/logopédie) | https://glossa.fr/ | libre (open access intégral) | RSS via Blogtrottr, confirmé actif dans la boîte de collecte | orthophonie (langage oral/écrit, aphasiologie, tous champs) | chaque semaine — Tier 1 candidat (revue dédiée, open access), à confirmer en vérification en ligne complète |
 | unadreo (association nationale des enseignants et chercheurs en orthophonie) | non relevée précisément | libre | RSS via Blogtrottr | orthophonie (annonces, prix de thèse, colloques — **pas un flux de nouveautés scientifiques**) | jamais en balayage systématique — contenu associatif/administratif, pas de repérage d'étude attendu |
 
-> ⚠ Seuil brève/analyse restreint sur ce thème (§3bis, angle mort assumé) : tant qu'aucun référent
-> orthophoniste n'a rejoint la veille, tout item orthophonie retenu part en route **brève**, jamais
-> `analyse`, quel que soit le résultat du seuil §6bis du `SOP_veille.md`.
+> ⚠ **Mise à jour D61 (2026-08-09)** : la restriction « brève uniquement » de D60 est levée. La route
+> `analyse` est ouverte sur ce thème via le circuit **tri-agents §7bis** de `SOP_veille.md` (Agent A +
+> Agent B + Agent C réconciliateur, qui tranche à la place du référent). Toute entrée `analyse` publiée
+> sur ce thème porte `meta.relecture_referent: false`, affiché en bandeau visible sur la carte — le
+> référent unique reste médecin généraliste, sans compétence de fond en orthophonie.
 
 ## Santé de la femme et périnatalité (ajouté au périmètre de production le 2026-08-09, D61)
 

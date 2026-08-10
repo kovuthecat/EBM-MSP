@@ -217,6 +217,9 @@ l'outil dit, sur quel ton, dans quel ordre) — indépendamment du contenu clini
 
 ### P4 — Collecte EBM, **pilotée par les vignettes**
 
+> **Skill `recherche-preuve-triangulee`** (`.claude/skills/`) encode le circuit multi-agents décrit
+> ci-dessous. L'invoquer plutôt que de le redériver.
+
 **La méthode DT2 est conservée telle quelle** (`00-global.md`) : multi-agents, red-team des essais *et*
 des recommandations, vérification en source primaire, passe OpenEvidence. Elle a tenu — zéro erreur de
 données en recette, et 4 findings HAUTE trouvés sur des collectes pourtant issues de sources locales

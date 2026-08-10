@@ -71,6 +71,29 @@ Priorité aux sources **pré-évaluées** (haut rendement / temps maîtrisé). O
 
 > OpenEvidence / web-fetch IA = **débroussaillage complémentaire**, jamais source primaire. Toute sortie IA est re-vérifiée sur l'article original (référence réelle, chiffres exacts).
 
+> **Skill `recherche-source-primaire`** (`.claude/skills/`) encode les techniques ci-dessous —
+> l'invoquer directement plutôt que de les redériver.
+
+> **Connecteurs de recherche disponibles (2026-08-10)** : PubMed, Consensus, Elicit, SciSpace,
+> ClinicalTrials.gov — activables par conversation dans Claude Desktop (icône connecteurs), exposés à
+> Claude Code comme outils MCP une fois activés. Même statut que OpenEvidence : **débroussaillage et
+> identification**, jamais une référence en soi — toute affirmation reste re-vérifiée sur la source
+> primaire avant classement. Usage constaté utile :
+> - **PubMed** (`get_full_text_article`, `get_copyright_status`) : confirme le statut d'accès libre
+>   d'un article (PMCID oui/non) en un appel, au lieu de plusieurs tentatives de fetch qui échouent
+>   silencieusement — évite de conclure à tort à un problème de récupération quand l'article est
+>   simplement fermé.
+> - **ClinicalTrials.gov** (`search_trials`, `get_trial_details`) : donne accès aux **documents déposés
+>   du registre** (protocole, plan d'analyse statistique), souvent publics même quand l'article publié
+>   est payant. A débloqué un report sur ce lot (SAP de l'essai SELECT, cf. `JOURNAL_BOITE_MAIL.md`
+>   §2bis) — **vérifier le registre avant de reporter un item pour inaccessibilité**, pas seulement le
+>   supplément de la revue.
+> - **Consensus / SciSpace** : utiles pour **retrouver** un article dont la référence est incertaine ou
+>   incomplète (cross-search large), ou confirmer une identité — pas pour en tirer des chiffres cités
+>   directement sans être remontés à la source.
+> - **Elicit** (`search_papers`, `search_trials`) : nécessite un abonnement Pro côté compte pour l'accès
+>   API (`api_access_denied` constaté sans) — à vérifier avant de compter dessus.
+
 ### Règle de balayage — ce qui rend 9 thèmes tenables
 
 La hiérarchie ci-dessus classe les sources ; elle ne dit pas lesquelles on ouvre chaque lundi. La règle est celle-ci :
@@ -196,6 +219,10 @@ Le seuil dit ce qui **mérite** une analyse. Il ne dit pas ce que la semaine **p
 ---
 
 ## 7. Vérification bi-agents
+
+> **Skill `verif-source-veille`** (`.claude/skills/`) encode ce circuit et le §7bis ci-dessous —
+> choix du circuit selon le thème, gabarits de prompt A/B/C, conventions de fichiers. **L'invoquer
+> plutôt que de redériver la procédure depuis ce texte.**
 
 Pour **tout item en route `analyse`** (§5bis) — donc pour tout item susceptible d'être classé à impact pratique : **Claude Code (Opus) orchestre deux agents indépendants puis réconcilie** (détail : brief décision §13bis). Les brèves en sont dispensées : elles ne portent aucune appréciation critique à vérifier.
 - **Agent A (Analyste/Extracteur)** vs **Agent B (Contradicteur/Red-team)** ; contextes séparés ; hétérogénéité de modèle si possible.
