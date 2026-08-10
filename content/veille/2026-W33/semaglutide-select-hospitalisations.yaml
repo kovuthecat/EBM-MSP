@@ -1,0 +1,44 @@
+id: 2026-W33-semaglutide-select-hospitalisations
+date_semaine: "2026-W33"
+titre: "Sémaglutide 2,4 mg et hospitalisations toutes causes dans SELECT : −10 %, mais sur un critère exploratoire hors hiérarchie de test et non adjudiqué"
+source:
+  nom: JAMA Cardiology
+  lien: https://jamanetwork.com/journals/jamacardiology/fullarticle/2843245
+  doi: 10.1001/jamacardio.2025.4824
+type_publication: ECR
+themes: [diabete-metabolisme, cardiovasculaire-prevention]
+professions_concernees: [MG, IPA]
+route: analyse
+niveau_impact: informatif
+population: "17 604 adultes de 45 ans et plus, IMC ≥ 27, maladie cardiovasculaire établie et sans diabète, dans 804 centres de 41 pays. Suivi médian 41,8 mois. Analyse exploratoire préspécifiée de l'essai SELECT, dont le critère principal (décès cardiovasculaire, infarctus, AVC) a été publié dans le NEJM en 2023."
+resultat_resume: "Sur la durée totale de l'essai, les hospitalisations toutes causes passent de 20,4 à 18,3 pour 100 patients-années sous sémaglutide, soit un rapport de moyennes de 0,90 (IC95 % 0,85-0,95). Les jours d'hospitalisation passent de 176,2 à 157,2, rapport de taux 0,89 (0,82-0,98). Les quatre mesures rapportées — admissions toutes causes, admissions pour événement indésirable grave, jours toutes causes, jours pour événement grave — convergent autour de 0,89-0,90, sans hétérogénéité selon l'IMC, l'âge ou le sexe."
+appreciation_critique: |
+  Le socle est solide et les objections ne portent pas dessus. Essai randomisé, contrôlé contre placebo, en double aveugle, analysé en intention de traiter, sur près de 18 000 patients suivis plus de trois ans. La randomisation protège la comparabilité initiale ; ce qui se discute, c'est le statut inférentiel du critère, pas le design.
+
+  Le critère était bien préspécifié, et c'est vérifiable sur pièce publique. Le plan d'analyse statistique de SELECT (version 3.0, datée du 22 avril 2022, statut final) est déposé sur ClinicalTrials.gov sous le numéro NCT03574597, en accès libre. Sa section 2.5, intitulée « Exploratory endpoints », définit deux critères exploratoires à partir des hospitalisations toutes causes, analysés comme un processus d'événements récurrents avec le décès traité en risque compétitif, et rapportés en rapport de moyennes avec intervalle de confiance robuste. C'est exactement ce que rapporte l'article. L'auto-qualification « analyse exploratoire préspécifiée » est donc exacte, et l'hypothèse d'une pêche aux résultats après déverrouillage des données peut être écartée.
+
+  Mais le même document établit que le p < 0,001 n'a aucun statut confirmatoire. Le plan d'analyse sépare explicitement les critères confirmatoires, testés sous contrôle de la multiplicité par un schéma hiérarchique par étapes, des critères non confirmatoires, pour lesquels les effets sont rapportés avec des intervalles nominaux. Les hospitalisations relèvent de la section exploratoire : elles sont hors hiérarchie de test par construction. L'absence d'ajustement pour la multiplicité n'est donc pas une omission, c'est un choix de conception documenté — mais la conséquence reste entière, ce p ne vaut pas comme preuve confirmatoire. Le plan précise d'ailleurs que les comparaisons aux années 1 à 4 sont descriptives.
+
+  Le critère n'a pas été adjudiqué centralement, contrairement aux événements cardiovasculaires de l'essai principal. Une hospitalisation toutes causes non adjudiquée est un critère plus mou qu'il n'y paraît : sa saisie dépend des investigateurs, sans comité de validation en aveugle. À cela s'ajoute une fragilité d'aveugle rarement évaluée : les effets digestifs du sémaglutide sont assez caractéristiques pour que le maintien de l'insu soit douteux, et les auteurs ne le mesurent pas.
+
+  Effet absolu, absent de toute la communication. Les auteurs et le communiqué industriel ne parlent qu'en relatif — dix pour cent, onze pour cent. Rapporté à l'échelle du patient, l'écart représente environ 0,66 jour d'hospitalisation évité sur trois ans et demi, et de l'ordre de 30 patients à traiter pour éviter une première hospitalisation. C'est cet ordre de grandeur qu'il faut avoir en tête, pas le pourcentage.
+
+  L'essai s'est déroulé de 2018 à 2023, période au cours de laquelle les hospitalisations toutes causes ont été massivement perturbées — déprogrammations, rattrapage, hospitalisations liées au Covid. Les auteurs mentionnent cette incertitude dans leurs limites. Une part du signal pourrait tenir à un contexte qui ne se reproduira pas.
+
+  Le point de surinterprétation est dans le titre. Les auteurs concluent à un bénéfice « au-delà de la réduction du risque cardiovasculaire ». Une telle affirmation exigerait de démontrer que le bénéfice persiste après retrait de la composante cardiaque et de ses conséquences ; une ventilation descriptive par catégorie, non adjudiquée, ne l'établit pas. À porter au crédit de l'article : le critère est global et non trié, y compris les hospitalisations liées aux effets indésirables du produit, ce qui fait du −10 % un solde net plus robuste qu'un composite construit sur mesure. L'amplitude est par ailleurs cohérente avec l'essai principal, dont l'effet sur les événements cardiovasculaires majeurs était de 0,80 : un effet plus petit sur un critère dont une fraction seulement est cardiaque n'a rien de suspect.
+
+  Financement et indépendance : essai financé par Novo Nordisk, fabricant du produit ; publication soutenue par le promoteur ; quatre auteurs sur quatorze employés du fabricant, dont plusieurs actionnaires ; l'analyse statistique a été réalisée par un employé-actionnaire, et aucune analyse indépendante par un tiers n'est mentionnée. C'est la norme des grands essais de phase 3 et la déclaration est faite, mais l'empilement mérite d'être dit.
+
+  Ce que ça change : rien pour la décision. La population est sans diabète, en prévention secondaire cardiovasculaire ; l'item n'ajoute aucune indication et ne déplace aucun seuil. Il peut servir d'argument de conviction auprès d'un patient déjà éligible, à condition de ne pas présenter le chiffre comme une démonstration.
+niveau_preuve: modere
+pertinence_pratique: moderee
+impact_algorithme:
+  concerne_decision: false
+  noeuds_impactes: []
+  proposition_maj: aucune
+temps_lecture_min: 7
+meta:
+  date_publication: "2026-02-11"
+  auteur: "référent veille"
+  statut: brouillon
+  relecture_referent: true

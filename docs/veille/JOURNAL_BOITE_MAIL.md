@@ -100,7 +100,7 @@ article** le 2026-08-10. Rapports dans `docs/veille/verifications-backlog/`.
 | Issue | Items |
 |---|---|
 | Prêt à rédiger (après escalade humaine §7) | **H01** (`analyse`/`pratique`/`modere`) · **A03** (`analyse`/`informatif`/`faible`) · **A06** (`analyse`/`informatif`/`tres_faible`, §7bis) |
-| Reporté faute d'accès | **A04** (report 1/2) · **A02** (report 1/2, repli en brève déjà rédigé) · **A08** (report, **dernier rang** — ne pas retraiter) |
+| Reporté faute d'accès | ~~A04~~ · ~~A02~~ **— les deux reports soldés le 2026-08-10, voir ci-dessous** · **A08** (report, **dernier rang** — ne pas retraiter) |
 | Ne pas publier | **A12** — vérification complète, sans valeur ajoutée (des ECR répondent déjà à la question) |
 
 **Ce que le dispositif a effectivement attrapé** — aucun de ces points n'était visible sans remonter à la source :
@@ -126,6 +126,40 @@ article** le 2026-08-10. Rapports dans `docs/veille/verifications-backlog/`.
 - **A08** : l'agent C a vu ce que ni A ni B n'avaient vu (chevauchement des IC).
 - **A12** : l'agent C a donné raison à B sur le verdict mais **tort sur l'argument** (le seuil « 4 points »
   n'est pas validé dans l'endométriose ; la seule DMCI étudiée chez ces patientes est ≈1,0 pt).
+
+### Reprise du 2026-08-10 — les deux reports soldés en une passe
+
+Les reports A04 et A02 supposaient un accès qu'on n'avait pas cherché à obtenir. Recherche menée, les
+deux sont soldés le jour même — dans des directions opposées.
+
+**A04 : report levé, la pièce manquante était publique.** Le **plan d'analyse statistique de SELECT
+est déposé sur ClinicalTrials.gov** (`SAP_003.pdf`, NCT03574597), en accès libre. On visait le
+Supplément 1 de la revue, derrière paywall, alors que le document décisif était sur le registre — et
+il est meilleur, car daté et versionné. SAP v3.0 du **22 avril 2022**, section 2.5 « Exploratory
+endpoints » : les hospitalisations toutes causes y sont **définies comme deux critères exploratoires**,
+avec le modèle spécifié (moyenne marginale pour événements récurrents, décès en risque compétitif,
+résultat en *mean ratio*). L'auto-qualification de l'article est donc exacte, et l'hypothèse d'une
+analyse post-hoc tombe. En sens inverse, le SAP établit que le `p < 0,001` **n'a aucun statut
+confirmatoire** : il sépare les critères confirmatoires, « under multiplicity control » via un schéma
+hiérarchique, des non-confirmatoires à intervalles nominaux. L'objection du contradicteur perd son
+versant le plus grave et gagne en précision.
+
+> ⚠ **Piège d'extraction à retenir** : le PDF encode les caractères espacés (« S e m a gl uti d e »).
+> Une recherche plein texte naïve renvoie **zéro occurrence** de « hospitalisation » — faux négatif qui
+> aurait pu passer pour un résultat. Normaliser (supprimer les espaces) avant de chercher. Le contrôle
+> qui a détecté l'artefact : « semaglutide » lui-même ne matchait pas.
+
+**A02 : report soldé par le repli, l'accès n'existe pas.** API Europe PMC interrogée directement :
+`isOpenAccess: No`, `inEPMC: No`, `inPMC: No`, `hasPDF: No`, seule URL « subscription required » ;
+aucun manuscrit accepté en dépôt institutionnel (Université Laval, Université de Montréal, Maisonneuve-
+Rosemont, CHU de Québec). Quatrième vérification indépendante. Le report existe pour éviter de bâcler,
+pas pour attendre un accès dont on a établi qu'il n'arrivera pas — la sortie de repli en brève, rédigée
+d'avance dans la réconciliation, a donc été appliquée immédiatement plutôt qu'au cycle suivant.
+
+**Leçon de procédure, à porter à la revue de SOP** : avant de reporter un item pour inaccessibilité,
+épuiser les **sources primaires parallèles** — registre d'essais (protocole et SAP y sont souvent
+déposés, comme ici), PROSPERO pour une méta-analyse, dépôt institutionnel, API Europe PMC. Le réflexe
+« le supplément est derrière le paywall, donc on reporte » a coûté un report inutile sur A04.
 
 ### Notes pour le gel du schéma (S5) — frictions rencontrées
 
@@ -201,6 +235,8 @@ Publiées en `meta.statut: brouillon` — le gabarit réserve `valide` à l'apr�
 | B02 | `dysmenorrhee-adolescence-douleur-chronique` | 2026-W33 | `breve` | `informatif` | 2026-08-10 |
 | B04 | `poids-gestationnel-mortalite-50-ans` | 2026-W33 | `breve` | `informatif` | 2026-08-10 |
 | B05 | `intervalle-intergenesique-mortalite-perinatale` | 2026-W33 | `breve` | `informatif` | 2026-08-10 |
+| A04 | `semaglutide-select-hospitalisations` | 2026-W33 | `analyse` | `informatif` / `modere` | 2026-08-10 (report levé) |
+| A02 | `mesures-successives-pa-consultation-cartagene` | 2026-W33 | `breve` | `informatif` (repli) | 2026-08-10 (report soldé) |
 
 > **B03 (profils de comorbidité de l'endométriose, ComPaRe) n'a pas été publiée.** Vérification de la
 > source au moment de la rédaction : il ne s'agit pas d'une publication à comité de lecture mais d'un

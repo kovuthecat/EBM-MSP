@@ -7,9 +7,14 @@
 **Réconciliateur** : Claude Code (Opus) — SOP §7.
 **Date** : 2026-08-10.
 
-> **Statut : REPORTÉ** (`reporte`, SOP §6bis) — ni publiable, ni reclassable en l'état. Motif unique et
-> dirimant : le texte intégral et les Suppléments 1 à 4 n'ont été consultés par aucun des deux agents.
-> Voir §3, qui est le cœur de cette réconciliation.
+> **Statut initial : REPORTÉ.** ~~Motif unique et dirimant : le texte intégral et les Suppléments 1 à 4
+> n'ont été consultés par aucun des deux agents.~~
+>
+> **REPORT LEVÉ LE 2026-08-10 — voir §3bis.** Le **plan d'analyse statistique de SELECT est déposé
+> publiquement sur ClinicalTrials.gov** (`SAP_003.pdf`, NCT03574597), document que ni les agents ni le
+> réconciliateur n'avaient pensé à chercher : on visait le Supplément 1 de la revue, derrière paywall,
+> alors que la pièce était en accès libre sur le registre. Elle tranche la question centrale, et mieux
+> que ne l'aurait fait le supplément. **Route `analyse` confirmée, item publiable.**
 
 ---
 
@@ -107,6 +112,61 @@ du critère dans le SAP) + **Supplément 4** (partage des données), et confirma
 l'article ne l'est pas : à tenter avant de conclure à l'inaccessibilité. **Aucun contournement de
 paywall** (SOP §8) — si l'accès échoue légitimement deux fois, le reclassement en brève de B devient
 la sortie, avec son motif inscrit au journal.
+
+## 3bis. Levée du report — le SAP public (2026-08-10)
+
+**Source de la levée** : plan d'analyse statistique de SELECT, version 3.0, **daté du 22 avril 2022**,
+statut *Final*, promoteur Novo Nordisk, essai EX9536-4388 / NCT03574597 — déposé sur ClinicalTrials.gov
+(`SAP_003.pdf`) et librement consultable. Aucun contournement de paywall.
+
+> ⚠ **Piège d'extraction, à signaler pour les reprises** : le texte du PDF est encodé caractère par
+> caractère (« S e m a gl uti d e »). Une recherche plein texte naïve renvoie **zéro occurrence** de
+> « hospitalisation » — un faux négatif qui aurait pu passer pour un résultat. Il faut normaliser
+> (supprimer les espaces) avant de chercher. Le contrôle qui a détecté l'artefact : « semaglutide »
+> lui-même ne matchait pas.
+
+### Ce que le SAP établit, verbatim
+
+Section **2.5 « Exploratory endpoints »**, sous-section **« All-cause hospitalisations »** :
+
+> « Two exploratory endpoints are defined from all-cause hospitalisations. These are analysed as a
+> recurrent events process with all-cause death as a competing risk (terminal event) and where events
+> are having a duration, i.e. length of stay in hospital. »
+
+Puis, pour le **nombre total d'hospitalisations** : analyse « using a marginal mean regression model for
+recurrent events with treatment group […] as fixed factor and **reported as mean ratio and
+corresponding 95 % robust CI** », sur la durée totale de l'essai ; et « additionally, **descriptive**
+comparisons of treatment groups at year 1, 2, 3, and 4 are planned ». Le **nombre total de jours
+d'hospitalisation** est le second critère exploratoire.
+
+### Les quatre questions qui bloquaient, tranchées
+
+| Question | Réponse établie sur le SAP |
+|---|---|
+| Critère préspécifié, ou amendement postérieur au déverrouillage ? | **Préspécifié**, dans un SAP daté d'**avril 2022** — soit plus d'un an avant la publication princeps (*NEJM*, nov. 2023). L'auto-qualification « prespecified exploratory » de l'article est **exacte et désormais vérifiable sur pièce publique**. |
+| Modèle statistique pour événements récurrents ? | **Modèle de moyenne marginale** pour événements récurrents, **décès traité comme risque compétitif / événement terminal**, résultat en **mean ratio** avec IC95 % robuste. Correspond exactement à ce que rapporte l'article ; l'incertitude de l'Agent A sur le nom du modèle (« Ghosh-Lin ») est levée sur le fond. |
+| Le décès est-il correctement traité comme événement compétitif ? | **Oui**, explicitement. |
+| Absence d'ajustement pour la multiplicité : omission ou choix ? | **Choix de conception, documenté.** Le SAP sépare les critères *confirmatoires* (§2.4.1, testés « under multiplicity control » via un schéma hiérarchique par étapes) des critères *non confirmatoires*, pour lesquels les effets sont rapportés avec des intervalles bilatéraux **nominaux**. Les hospitalisations sont en **§2.5, exploratoire** : hors hiérarchie de test par construction. |
+
+### Ce que cela change à l'appréciation
+
+L'objection de l'Agent B — « une série d'analyses secondaires d'un essai financé par le fabricant,
+chacune publiée avec un résultat positif » — **perd son versant le plus grave** : il ne s'agit pas d'une
+pêche post-hoc, le critère était écrit et le modèle spécifié avant l'analyse.
+
+Mais son versant utile **se renforce et devient documentable** : le `p < 0,001` mis en avant n'a
+**aucun statut confirmatoire**. Le SAP le range explicitement du côté nominal. Ce n'est plus une
+inférence du contradicteur, c'est une propriété écrite du plan d'analyse — et c'est exactement ce que
+la communication industrielle (« bénéfice au-delà du risque cardiovasculaire ») exploite.
+
+### Ce qui reste non vérifié, et pourquoi ce n'est plus bloquant
+
+Le Supplément 4 (partage des données) et la ventilation par cause — dont le signal hépatobiliaire
+115 vs 93, p = 0,13, vu par l'Agent A dans un seul résumé automatisé non recoupé — restent
+inaccessibles. Ce sont des **limites à énoncer**, non des obstacles à l'appréciation : la question qui
+commandait le report portait sur le statut inférentiel du critère, et elle est tranchée. Le chiffre
+hépatobiliaire, lui, **ne doit pas être publié** faute de recoupement (règle posée en A08 : un chiffre
+non rattachable à un emplacement précis d'une source accessible ne figure pas dans une entrée).
 
 ## 4. Classement provisoire (à confirmer à la levée du report)
 

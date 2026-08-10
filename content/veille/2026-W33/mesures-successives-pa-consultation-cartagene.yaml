@@ -1,0 +1,27 @@
+id: 2026-W33-mesures-successives-pa-consultation-cartagene
+date_semaine: "2026-W33"
+titre: "Mesures successives de la pression artérielle en consultation : c'est la troisième qui prédit le mieux, et les moyennes incluant la première sont moins performantes"
+source:
+  nom: "Hypertension (American Heart Association)"
+  lien: https://pubmed.ncbi.nlm.nih.gov/37615094/
+  doi: 10.1161/HYPERTENSIONAHA.123.21510
+type_publication: cohorte
+themes: [cardiovasculaire-prevention]
+professions_concernees: [MG, IPA]
+route: breve
+niveau_impact: informatif
+population: "17 966 participants de la cohorte québécoise CARTaGENE, âgés de 40 à 70 ans, avec trois mesures de pression artérielle prises à deux minutes d'intervalle au moyen d'un appareil semi-automatisé lors d'une même visite. Environ 10 ans de suivi, 2 378 événements cardiovasculaires majeurs. Pression artérielle moyenne de la population entre 122,5 et 126,5 mmHg, soit une population quasi normotendue."
+resultat_resume: "Les trois mesures ont été comparées isolément et en moyennes combinées quant à leur association avec les événements cardiovasculaires majeurs. La troisième mesure présente l'association la plus forte (rapport de risques 1,10 par écart-type ; IC95 % 1,05-1,15) et la première la plus faible (1,06 ; 1,01-1,10) ; les auteurs concluent que la prédiction s'améliore surtout lorsque la première mesure est écartée. Le résultat est négatif sur la pression diastolique. Deux précautions de lecture : le message de l'étude porte sur le fait d'écarter la première mesure, non sur l'intérêt d'en faire trois pour les moyenner ; et l'écart de risque parfois présenté comme « deux fois supérieur » porte sur l'excès de risque à valeur tensionnelle donnée, pas sur le risque lui-même — cité hors de ce cadrage, il est faux. La mesure répétée en consultation est par ailleurs déjà recommandée (ESC 2024 : trois mesures, moyenne des deux dernières), et en France le diagnostic d'hypertension repose de toute façon sur une confirmation par automesure ou MAPA (HAS). Article non disponible en accès libre : cette brève repose sur le seul résumé, aucune appréciation critique n'est portée."
+appreciation_critique: null
+niveau_preuve: null
+pertinence_pratique: null
+impact_algorithme:
+  concerne_decision: false
+  noeuds_impactes: []
+  proposition_maj: aucune
+temps_lecture_min: 3
+meta:
+  date_publication: "2023-10-01"
+  auteur: "référent veille"
+  statut: brouillon
+  relecture_referent: true

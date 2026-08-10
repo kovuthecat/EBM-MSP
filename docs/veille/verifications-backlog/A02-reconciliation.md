@@ -8,9 +8,18 @@ DOI 10.1161/HYPERTENSIONAHA.123.21510 · PMID 37615094 · cohorte **CARTaGENE** 
 **Réconciliateur** : Claude Code (Opus) — SOP §7.
 **Date** : 2026-08-10.
 
-> **Statut : `reporte` (report 1/2, 2026-08-10).** Accès au texte intégral impossible sans
-> contournement de paywall. Trois points matériels restent invérifiables. **Sortie de repli définie
-> en §5** — elle est solide, car elle ne repose que sur l'abstract, intégralement vérifié.
+> **Statut initial : `reporte` (report 1/2).** Accès au texte intégral impossible sans contournement de
+> paywall ; trois points matériels invérifiables.
+>
+> **REPLI DÉCLENCHÉ LE 2026-08-10 — route `breve`.** Recherche d'accès menée après le report :
+> interrogation de l'API Europe PMC (`isOpenAccess: No`, `inEPMC: No`, `inPMC: No`, `hasPDF: No`, seule
+> URL « subscription required »), recherche de manuscrit accepté en dépôt institutionnel (Université
+> Laval, Université de Montréal, Hôpital Maisonneuve-Rosemont, CHU de Québec) — **aucune version libre
+> n'existe**. Quatrième vérification indépendante, après l'Agent B, l'Agent C et le premier passage.
+>
+> Le report existe pour éviter de bâcler, pas pour attendre un accès dont on a établi qu'il n'arrivera
+> pas : un second cycle serait une formalité sans objet. La **sortie de repli du §5 est appliquée
+> maintenant** — elle est solide, car elle ne repose que sur l'abstract, intégralement vérifié.
 
 ---
 
