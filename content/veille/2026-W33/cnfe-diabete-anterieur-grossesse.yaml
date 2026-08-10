@@ -1,0 +1,40 @@
+id: 2026-W33-cnfe-diabete-anterieur-grossesse
+date_semaine: "2026-W33"
+titre: "Diabète antérieur à la grossesse, consensus CNGOF-SFD : un texte honnête dont la reprise médiatique est trompeuse — 25 propositions d'experts, aucune graduée, et rien qui change la pratique de soins premiers"
+source:
+  nom: Gynécologie Obstétrique Fertilité & Sénologie
+  lien: https://cngof.fr/app/uploads/2026/05/CFE-diabete-anterieur-2026.pdf
+  doi: 10.1016/j.gofs.2025.12.001
+type_publication: reco
+themes: [sante-femme-perinatalite, diabete-metabolisme]
+professions_concernees: [MG, sage-femme, IPA]
+route: analyse
+niveau_impact: informatif
+population: "Femmes ayant un diabète de type 1 ou de type 2 antérieur à la grossesse — le diabète gestationnel est explicitement traité à part et n'est pas abordé. Consensus formalisé d'experts du CNGOF et de la Société francophone du diabète, 16 auteurs, 15 centres, 65 relecteurs externes."
+resultat_resume: "Consensus formalisé d'experts en 25 propositions, couvrant la période préconceptionnelle, le suivi de grossesse, l'accouchement et le post-partum. Les trois éléments repris par la presse spécialisée — surveillance ophtalmologique trimestrielle, bilan rénal préconceptionnel puis mensuel en cas d'atteinte, objectif tensionnel inférieur à 140/90 mmHg — ne sont pas trois recommandations distinctes mais une proposition unique, votée en bloc (proposition 14). Le texte se prononce également sur la couverture du diabète de type 2, la mesure continue du glucose, la délivrance automatisée d'insuline, la supplémentation en folates et la contraception du post-partum."
+appreciation_critique: |
+  Avertissement de grade, à lire avant tout le reste. Il s'agit de propositions d'experts, validées par un Delphi à un tour auprès de 65 relecteurs. Aucune n'est graduée : les auteurs indiquent eux-mêmes que la méthode GRADE n'était pas applicable, faute d'essais randomisés sur ces questions. Les 25 propositions relèvent donc de l'accord professionnel. Le « pourcentage d'accord » qui accompagne chacune n'est pas une proportion de votes favorables : c'est une proportion de réponses situées dans la même tierce de l'échelle, sans dispersion publiée.
+
+  Les trois éléments médiatisés forment une seule proposition. La surveillance ophtalmologique, le bilan rénal et la cible tensionnelle ont été votés ensemble, dans un encadré unique, avec une seule ligne Delphi. Le chiffre d'accord de 89,5 % ne peut être rapporté à aucun des trois pris isolément, et en particulier pas au seul objectif tensionnel.
+
+  Pourquoi ce texte ne change pas la pratique de soins premiers, proposition par proposition. Le rythme de surveillance ophtalmologique reconduit la position SFO-SFD de 2016, et le texte le dit lui-même. Le bilan rénal, l'arrêt des IEC, des ARA2 et des statines, le sevrage tabagique et la cible d'HbA1c préconceptionnelle sont déjà la pratique établie. La supplémentation en folates conclut littéralement qu'il ne semble pas nécessaire de modifier la dose habituelle de 0,4 mg : par construction, cela ne change aucun geste. Ce qui est réellement nouveau — la couverture du diabète de type 2, la mesure continue du glucose, la délivrance automatisée d'insuline — relève du soin spécialisé, non de la maison de santé. Il reste donc un seul item susceptible de modifier une conduite, la cible tensionnelle, et c'est précisément celui qu'il faut manier avec prudence.
+
+  La cible tensionnelle, en formulation descriptive. Le consensus retient un objectif inférieur à 140/90 mmHg. Il l'appuie sur l'essai CHAP — dans lequel 140/90 était le seuil de déclenchement du traitement, non la cible atteinte. Le même argumentaire cite, deux paragraphes plus haut et sur la même page, une étude visant 135/85, sans expliquer l'écart. Aucune cible étrangère n'est discutée. L'entrée décrit cet écart ; elle n'arbitre pas entre sociétés savantes et ne conseille au lecteur aucune autre cible.
+
+  Deux limites de gouvernance. Aucune sage-femme ne figure parmi les sociétés sollicitées ni dans la liste des professions des relecteurs, alors que le texte se déclare destiné aux sages-femmes — la médecine générale, elle, est bien représentée. Par ailleurs, les liens d'intérêt sont déclarés nominativement mais ne sont gérés nulle part : aucune récusation, aucun déport, aucun financement déclaré. Cela porte notamment sur les propositions relatives à la mesure continue du glucose et à la délivrance automatisée d'insuline, les plus coûteuses du texte. La faisabilité et l'accès ne sont pas traités : le texte ne dit rien des délais d'obtention d'un examen ophtalmologique trimestriel, ni des solutions de rechange.
+
+  Ce que le texte fait bien, et qu'il serait injuste de passer sous silence. La méthodologie est transparente, le Delphi a été externalisé auprès de 65 relecteurs, les abstentions sont explicites, l'argumentaire sur les folates est sérieux et documenté, et la médecine générale est représentée dans le groupe. C'est un texte honnête ; c'est sa reprise médiatique qui est trompeuse, en transformant une proposition d'experts votée en bloc en trois recommandations nouvelles et fermes.
+
+  Cette entrée n'a reçu aucune relecture par un référent sage-femme ou gynécologue. Elle a été produite par trois agents en contextes isolés, dont la confrontation a permis de repérer le vote en bloc, une recommandation de contraception attribuée à tort au texte, la conversion du seuil de CHAP en objectif et la reconduction de la position de 2016 — quatre points qu'un lecteur unique n'aurait pas vus. Cela réduit l'erreur d'extraction, cela ne remplace pas la compétence clinique de terrain d'un professionnel du domaine.
+niveau_preuve: tres_faible
+pertinence_pratique: moderee
+impact_algorithme:
+  concerne_decision: true
+  noeuds_impactes: []
+  proposition_maj: candidate
+temps_lecture_min: 7
+meta:
+  date_publication: "2025-12-07"
+  auteur: "référent veille"
+  statut: brouillon
+  relecture_referent: false

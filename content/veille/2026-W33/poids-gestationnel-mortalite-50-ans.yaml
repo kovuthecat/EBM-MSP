@@ -1,0 +1,27 @@
+id: 2026-W33-poids-gestationnel-mortalite-50-ans
+date_semaine: "2026-W33"
+titre: "Prise de poids pendant la grossesse et mortalité 50 ans plus tard : une association dans une cohorte américaine des années 1959-65"
+source:
+  nom: The Lancet
+  lien: https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(23)01517-9/abstract
+  doi: 10.1016/S0140-6736(23)01517-9
+type_publication: cohorte
+themes: [sante-femme-perinatalite, cardiovasculaire-prevention]
+professions_concernees: [MG, sage-femme, IPA]
+route: breve
+niveau_impact: informatif
+population: "Plus de 46 000 femmes du Collaborative Perinatal Project, cohorte de grossesse prospective menée aux États-Unis entre 1959 et 1965, appariée au National Death Index et au Social Security Death Master File pour le statut vital jusqu'en 2016. Suivi médian supérieur à 50 ans."
+resultat_resume: "Une prise de poids gestationnelle supérieure aux recommandations de la National Academy of Medicine de 2009 s'accompagne d'une mortalité toutes causes majorée de 9 % chez les femmes de poids normal avant la grossesse, et de 12 % dans les autres catégories d'IMC préconceptionnel. Les auteurs y voient un argument en faveur d'une prise de poids dans les limites recommandées, aux implications dépassant la seule période de grossesse (mortalité cardiovasculaire et liée au diabète). Deux réserves de transposition : la cohorte est américaine et date de 1959-65, contexte obstétrical, nutritionnel et social très différent de celui d'aujourd'hui ; et sur un suivi de cinquante ans, la confusion résiduelle par les facteurs de vie ultérieurs est difficile à exclure. Les recommandations auxquelles la prise de poids est comparée sont par ailleurs postérieures de plus de quarante ans à la cohorte."
+appreciation_critique: null
+niveau_preuve: null
+pertinence_pratique: null
+impact_algorithme:
+  concerne_decision: false
+  noeuds_impactes: []
+  proposition_maj: aucune
+temps_lecture_min: 2
+meta:
+  date_publication: "2023-10-21"
+  auteur: "référent veille"
+  statut: brouillon
+  relecture_referent: true

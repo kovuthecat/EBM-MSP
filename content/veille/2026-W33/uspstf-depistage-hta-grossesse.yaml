@@ -1,0 +1,26 @@
+id: 2026-W33-uspstf-depistage-hta-grossesse
+date_semaine: "2026-W33"
+titre: "L'USPSTF élargit le dépistage des troubles hypertensifs de la grossesse au-delà de la seule prééclampsie"
+source:
+  nom: "US Preventive Services Task Force"
+  lien: https://www.uspreventiveservicestaskforce.org/uspstf/recommendation/hypertensive-disorders-pregnancy-screening
+type_publication: reco
+themes: [sante-femme-perinatalite, prevention-depistage-vaccination, cardiovasculaire-prevention]
+professions_concernees: [MG, sage-femme, IPA]
+route: breve
+niveau_impact: informatif
+population: "Toute personne enceinte sans diagnostic connu de trouble hypertensif de la grossesse ou d'hypertension chronique."
+resultat_resume: "Recommandation finale du 19 septembre 2023, également parue dans le JAMA : mesurer la pression artérielle tout au long de la grossesse, avec un niveau de certitude modéré quant au bénéfice net (grade B). L'évolution par rapport à la version précédente porte sur le périmètre — le dépistage ne vise plus la seule prééclampsie mais aussi l'hypertension gestationnelle, l'éclampsie et l'hypertension chronique. Recommandation étatsunienne : elle ne se substitue pas au suivi prévu en France, où la mesure tensionnelle à chaque consultation prénatale est déjà la règle."
+appreciation_critique: null
+niveau_preuve: null
+pertinence_pratique: null
+impact_algorithme:
+  concerne_decision: false
+  noeuds_impactes: []
+  proposition_maj: aucune
+temps_lecture_min: 2
+meta:
+  date_publication: "2023-09-19"
+  auteur: "référent veille"
+  statut: brouillon
+  relecture_referent: true

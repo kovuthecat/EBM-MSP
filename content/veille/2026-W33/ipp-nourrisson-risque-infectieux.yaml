@@ -1,0 +1,40 @@
+id: 2026-W33-ipp-nourrisson-risque-infectieux
+date_semaine: "2026-W33"
+titre: "Inhibiteurs de la pompe à protons chez le nourrisson : un tiers d'hospitalisations pour infection en plus pendant le traitement, sur-risque qui régresse largement à l'arrêt"
+source:
+  nom: JAMA Pediatrics
+  lien: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10425862/
+  doi: 10.1001/jamapediatrics.2023.2900
+type_publication: cohorte
+themes: [pediatrie, soins-premiers]
+professions_concernees: [MG, IPA, sage-femme]
+route: analyse
+niveau_impact: pratique
+population: "Enfants nés en France entre 2010 et 2018 et recevant un premier traitement anti-reflux, suivis dans le SNDS. 1 262 424 enfants : 606 645 sous IPP, 655 779 sous anti-H2 ou antiacides/alginate. Âge médian à l'inclusion 88 jours (IPP) et 82 jours (comparateur), suivi médian 3,8 ans, 152 055 hospitalisations pour infection."
+resultat_resume: "Cohorte EPI-PHARE (GIS ANSM-CNAM) comparant, chez des nourrissons tous traités pour reflux, l'exposition aux IPP à celle des autres anti-sécrétoires. Le critère est la première hospitalisation avec une infection en diagnostic principal. Risque global majoré de 34 % (aHR 1,34 ; IC95 % 1,32-1,36). Par site : digestif 1,52 (1,48-1,55), ORL 1,47 (1,41-1,52), neurologique 1,31 (1,11-1,54), respiratoire basse 1,22 (1,19-1,25), rénal et urinaire 1,20 (1,15-1,25). Bactérien 1,56 (1,50-1,63), viral 1,30 (1,28-1,33). Deux résultats absents des relais : le site cutané n'est pas associé (1,08 ; 0,97-1,21) et, chez les enfants ayant arrêté l'IPP, le sur-risque retombe à 1,07 (1,06-1,09)."
+appreciation_critique: |
+  Effet absolu, absent de l'article et recalculé pour cette entrée. Les auteurs ne publient ni différence de risque absolu, ni NNH, ni fraction attribuable : tout est communiqué en risque relatif. En appliquant l'aHR au taux observé chez les exposés (9,27 pour 100 années-personnes), le taux contrefactuel est de 6,92, soit un excès de 2,35 pour 100 années-personnes ; rapporté à une durée moyenne d'exposition de 0,45 an, cela donne environ un événement supplémentaire pour 95 enfants traités cinq mois. Ordre de grandeur, pas valeur d'article : le rapport de risques instantanés n'est pas exactement un rapport de taux, la durée moyenne est approximée, et le calcul suppose l'absence de confusion résiduelle. L'objection réflexe — grand risque relatif sur petit risque de base, donc NNH négligeable — ne fonctionne pas ici, l'incidence de base des hospitalisations infectieuses du nourrisson étant élevée.
+
+  Attention à un piège de lecture du tableau. Les taux bruts affichés côte à côte, 9,27 contre 2,64 pour 100 années-personnes, invitent à conclure à un facteur 3,5. C'est faux : l'échelle de temps du modèle est l'âge en jours, et le temps-personne exposé se concentre dans la première année de vie, là où bronchiolites et gastro-entérites hospitalisées culminent. Le modèle corrige correctement — le rapport brut vaut 1,42, l'ajusté 1,34.
+
+  Trois éléments soutiennent l'hypothèse causale, et aucun n'est repris dans les relais. La réversibilité à l'arrêt d'abord : les anciens exposés partagent le profil de sévérité sous-jacente des exposés, et pourtant ils retombent à 1,07. La topographie ensuite : le signal est maximal sur le digestif et l'ORL, plus faible sur le respiratoire bas et l'urinaire, nul sur la peau — exactement ce que prédit un mécanisme d'hypochlorhydrie, alors qu'une fragilité générique élèverait tout, peau comprise. Le contrôle négatif enfin : les traumatismes hors fractures ne sont pas associés (0,96 ; 0,90-1,02), ce qui désamorce l'objection du biais de surveillance. S'y ajoute le choix d'un comparateur actif — des enfants traités pour la même famille d'indications, non des enfants non traités — et un critère qu'on ne déclenche pas par simple inquiétude parentale, puisqu'il faut une hospitalisation en diagnostic principal.
+
+  Ce qui empêche de conclure à la causalité. Le SNDS ne contient pas l'indication : on ne sait pas pourquoi un enfant a reçu un IPP plutôt qu'un alginate, et l'IPP est en pratique l'escalade. Ne sont captés ni la sévérité du reflux, ni l'allergie aux protéines de lait de vache, ni les troubles de l'oralité, ni la cassure pondérale, ni l'allaitement, ni le mode de garde. L'E-value de 2,01 est franchissable par la sévérité de la maladie sous-jacente ou par un handicap neurologique pas encore codé — moins par la crèche, confondant fort de l'infection mais faible de la prescription. Le sur-risque résiduel de 7 % après arrêt chiffre en quelque sorte le plancher du biais. Il n'existe par ailleurs aucune relation durée-effet : 1,34 à six mois, 1,33 à un an, 1,38 au-delà. Cette absence de gradient biologique affaiblit l'argument causal, et ni l'article ni les relais ne la relèvent.
+
+  Discordance à connaître. Sur le seul terrain où l'on a randomisé — une méta-analyse d'essais contrôlés de 2025 portant sur Clostridioides difficile chez l'adulte, 8 essais et 29 880 participants — le signal ne se retrouve pas : RR 1,19 (0,75-1,89), non significatif. Population et germe différents, mais c'est la principale raison de ne pas écrire que les IPP causent des infections chez le nourrisson. Aucun essai randomisé pédiatrique n'existe et n'existera vraisemblablement : on ne randomisera pas des nourrissons sur un traitement prescrit hors indication. La cohorte de registre est ici le meilleur niveau de preuve atteignable, et c'est une contrainte du domaine plus qu'un défaut de l'étude.
+
+  Multiplicité non corrigée : sans conséquence sur l'estimation principale, décisive en revanche pour l'ostéo-articulaire (1,17 ; 1,01-1,37) et le neurologique (1,31 ; 1,11-1,54), qui ne doivent pas être cités isolément. Aucun protocole pré-enregistré retrouvé. Aucun conflit d'intérêt commercial, aucun financement industriel.
+
+  Ce que ça change. Rien pour un reflux compliqué documenté. Pour la régurgitation simple du nourrisson bien portant — l'immense majorité des prescriptions — c'est un argument de plus pour ne pas commencer, et un argument pour arrêter, d'autant que le sur-risque régresse à l'arrêt.
+niveau_preuve: modere
+pertinence_pratique: forte
+impact_algorithme:
+  concerne_decision: false
+  noeuds_impactes: []
+  proposition_maj: aucune
+temps_lecture_min: 7
+meta:
+  date_publication: "2023-10-01"
+  auteur: "référent veille"
+  statut: brouillon
+  relecture_referent: true

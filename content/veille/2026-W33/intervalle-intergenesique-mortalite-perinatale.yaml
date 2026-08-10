@@ -1,0 +1,27 @@
+id: 2026-W33-intervalle-intergenesique-mortalite-perinatale
+date_semaine: "2026-W33"
+titre: "Intervalle court entre deux grossesses et mortalité périnatale : 692 402 grossesses dans 46 pays — mais l'étude ne dit pas que 18 mois serait l'écart optimal"
+source:
+  nom: "The Lancet Global Health"
+  lien: https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(23)00359-5/fulltext
+  doi: 10.1016/S2214-109X(23)00359-5
+type_publication: autre
+themes: [sante-femme-perinatalite]
+professions_concernees: [MG, sage-femme]
+route: breve
+niveau_impact: informatif
+population: "692 402 grossesses issues de 113 enquêtes démographiques et de santé (Demographic and Health Surveys) menées dans 46 pays, en majorité à revenu faible ou intermédiaire. Analyse de l'OMS et de la Harvard T. H. Chan School of Public Health."
+resultat_resume: "Analyse de population évaluant l'association entre l'intervalle entre deux grossesses et la mortalité périnatale (mort fœtale in utero et décès néonatal précoce), par catégories : moins de 6 mois, 6-11, 12-17, 18-23 et 24-59 mois, stratifiée selon l'issue de la grossesse précédente (naissance vivante, mort fœtale, avortement). Un intervalle inférieur à 6 mois s'accompagne d'un risque de mortalité périnatale nettement majoré par rapport à la catégorie de référence 18-23 mois. Attention à la formulation qui circule : l'étude compare des intervalles courts à une catégorie de référence, elle ne teste pas 18 mois contre d'autres seuils et ne désigne aucun intervalle comme optimal — l'OMS recommande par ailleurs d'attendre au moins 24 mois après une naissance vivante, et au moins 6 mois après une perte de grossesse. La population étudiée, majoritairement issue de pays à revenu faible ou intermédiaire, limite la transposition directe à une patientèle de soins premiers en France."
+appreciation_critique: null
+niveau_preuve: null
+pertinence_pratique: null
+impact_algorithme:
+  concerne_decision: false
+  noeuds_impactes: []
+  proposition_maj: aucune
+temps_lecture_min: 2
+meta:
+  date_publication: "2023-09-21"
+  auteur: "référent veille"
+  statut: brouillon
+  relecture_referent: true

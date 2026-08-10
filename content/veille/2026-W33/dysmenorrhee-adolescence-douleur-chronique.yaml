@@ -1,0 +1,27 @@
+id: 2026-W33-dysmenorrhee-adolescence-douleur-chronique
+date_semaine: "2026-W33"
+titre: "Règles douloureuses à l'adolescence et douleur chronique à 26 ans : une association longitudinale dans la cohorte britannique ALSPAC"
+source:
+  nom: "The Lancet Child & Adolescent Health"
+  lien: https://www.thelancet.com/journals/lanchi/article/PIIS2352-4642(25)00213-5/fulltext
+  doi: 10.1016/S2352-4642(25)00213-5
+type_publication: cohorte
+themes: [sante-femme-perinatalite, douleur-soins-palliatifs]
+professions_concernees: [MG, sage-femme, IPA]
+route: breve
+niveau_impact: informatif
+population: "1 157 participantes de la cohorte de naissance britannique ALSPAC (accouchements attendus entre avril 1991 et décembre 1992), interrogées chaque année sur la dysménorrhée de 8 à 17 ans, puis sur la douleur chronique à 26 ans. À 15 ans, l'intensité était qualifiée de légère, modérée ou sévère."
+resultat_resume: "Première étude de grande ampleur sur le lien entre dysménorrhée adolescente et douleur à l'âge adulte. Une douleur sévère à 15 ans s'accompagne d'un risque de douleur chronique à 26 ans majoré de 76 % par rapport à l'absence de douleur ; pour une douleur modérée, de 65 %. Les auteurs avancent une hypothèse de neuroplasticité — l'adolescence étant une période où le système nerveux serait plus sensible à des signaux douloureux répétés. Association longitudinale observationnelle : aucun essai d'intervention ne vient établir qu'une prise en charge précoce de la dysménorrhée modifierait ce risque."
+appreciation_critique: null
+niveau_preuve: null
+pertinence_pratique: null
+impact_algorithme:
+  concerne_decision: false
+  noeuds_impactes: []
+  proposition_maj: aucune
+temps_lecture_min: 2
+meta:
+  date_publication: "2025-09-02"
+  auteur: "référent veille"
+  statut: brouillon
+  relecture_referent: true

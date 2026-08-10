@@ -1,0 +1,42 @@
+id: 2026-W33-rosuvastatine-atorvastatine-coronarien
+date_semaine: "2026-W33"
+titre: "Rosuvastatine ou atorvastatine chez le coronarien : aucune différence d'efficacité démontrée à 3 ans, et des signaux de sécurité trop fragiles pour changer une prescription"
+source:
+  nom: The BMJ
+  lien: https://www.bmj.com/content/383/bmj-2023-075837
+  doi: 10.1136/bmj-2023-075837
+type_publication: ECR
+themes: [cardiovasculaire-prevention]
+professions_concernees: [MG, IPA]
+route: analyse
+niveau_impact: informatif
+population: "4 400 adultes coronariens sud-coréens (2 204 rosuvastatine / 2 196 atorvastatine), 12 centres, inclusions 2016-2019, suivi médian 3 ans, 98,7 % de suivi complet. Analyse secondaire de l'essai LODESTAR, dont la publication princeps portait sur une autre question (stratégie « traiter selon la cible » contre intensité élevée fixe, Hong SJ et al., JAMA 2023;329:1078-87)."
+resultat_resume: "Essai randomisé ouvert à plan factoriel 2×2, comparant deux statines chez le coronarien. Sur le critère composite à 3 ans — décès toutes causes, infarctus, AVC, revascularisation — 8,7 % contre 8,2 %, HR 1,06 (IC95 % 0,86-1,30), p = 0,58, soit une différence absolue de +0,5 point (−1,2 à +2,1). Deux critères secondaires de sécurité ressortent en défaveur de la rosuvastatine : initiation d'un antidiabétique 7,2 % contre 5,3 % (HR 1,39 ; 1,03-1,87) et chirurgie de la cataracte 2,5 % contre 1,5 % (HR 1,66 ; 1,07-2,58). Le LDL moyen sous traitement est de 1,8 contre 1,9 mmol/L."
+appreciation_critique: |
+  L'essai est bien conduit et ce n'est pas le sujet. Randomisation centralisée par blocs permutés et stratifiée, groupes équilibrés, analyse en intention de traiter, 98,7 % de suivi complet à trois ans, adjudication de tous les événements par un comité en aveugle, pas d'arrêt précoce. Le plan factoriel est propre et la comparaison entre les deux molécules est correctement isolée, sans interaction (p = 0,77). Ce qui pose problème, c'est le cadrage de ce qui en est retenu.
+
+  Le chiffre du diabète qui circule est le plus favorable des trois publiés. Le tableau 2 comporte trois lignes « diabète ». Celle qui est relayée — 7,2 % contre 5,3 %, HR 1,39, p = 0,03 — porte sur l'initiation d'un antidiabétique. La ligne construite sur la définition principale du critère et sur le bon dénominateur, c'est-à-dire les seuls patients non diabétiques à l'inclusion, donne 10,4 % contre 8,4 %, HR 1,26 (0,99-1,60), p = 0,06 : non significative. Une troisième ligne rapporte l'ensemble de la cohorte, dont 1 468 patients déjà diabétiques et donc non à risque de l'événement. C'est le point où bascule l'ensemble du dossier, et il n'apparaît nulle part dans les relais.
+
+  Aucun ajustement pour la multiplicité — les auteurs l'écrivent noir sur blanc — sur au moins onze critères secondaires. Avec des bornes basses d'intervalle à 1,03 et 1,07, c'est-à-dire à un cheveu de 1, ces deux signaux ne résisteraient vraisemblablement pas à une correction. La comparaison entre les deux molécules n'a de surcroît fait l'objet d'aucun calcul d'effectif ni d'aucune marge de non-infériorité, ce que les auteurs reconnaissent également.
+
+  L'hypothèse d'un simple effet de dose ne tient pas, et il faut le dire plutôt que de la recycler. Les doses moyennes, 17,1 mg de rosuvastatine contre 36,0 mg d'atorvastatine, correspondent au rapport de puissance admis entre les deux molécules : elles sont quasi équipotentes. L'écart de LDL obtenu est de 0,1 mmol/L, soit environ 4 mg/dL — bien trop faible pour porter un HR de 1,39. Le bras atorvastatine était par ailleurs davantage exposé à la haute intensité et à l'ézétimibe, ce qui ferait jouer le biais en sens inverse.
+
+  Les deux signaux ne se valent pas. Pour le diabète, la direction est cohérente avec un effet de classe dose-dépendant bien établi, et l'analyse fondée sur l'HbA1c — indépendante de la décision du prescripteur — reste concordante : direction plausible, amplitude non fiable. Pour la cataracte, le critère est un acte chirurgical décidé en connaissance du bras dans un essai ouvert, sans surveillance ophtalmologique protocolisée, et le résultat est contredit par la méta-analyse d'essais randomisés disponible (RR 0,89 ; 0,72-1,10). Signal isolé, à ne pas relayer comme un résultat.
+
+  Effets absolus, plus parlants que les rapports de risques. Composite : +0,5 point à trois ans (−1,2 à +2,1), aucun NNT ni NNH interprétable. Initiation d'antidiabétique : +2,0 points (0,3 à 3,7), soit un NNH d'environ 50 sur trois ans, avec un intervalle très large (de 27 à 333). Cataracte : +1,0 point, NNH d'environ 100, avec une borne basse d'intervalle absolu au ras de zéro. À signaler pour l'intégrité de la lecture : le tableau 2 imprime pour cette dernière différence « 1,0 (1,4 à 1,8) », où l'estimation ponctuelle se trouve hors de son propre intervalle — vraisemblablement une coquille pour 0,1 à 1,8.
+
+  Le composite mérite aussi une réserve : la revascularisation en porte 226 des 367 événements, soit 61,6 %. C'est le composant le plus mou et le plus sensible à l'ouverture de l'essai, puisqu'il dépend d'une décision clinique prise en connaissance du bras. La conclusion d'absence de différence sur des critères durs est donc moins établie qu'elle n'en a l'air. Population entièrement est-asiatique. Financement par deux laboratoires coréens. Transparence des auteurs supérieure à la moyenne : non-ajustement déclaré, absence de calcul d'effectif déclarée, trois estimations du diabète publiées ensemble, langage causal explicitement refusé en discussion.
+
+  Ce que ça change : rien. Le choix entre rosuvastatine et atorvastatine chez le coronarien reste guidé par l'intensité requise, les interactions médicamenteuses et le coût. La formule « préférer l'atorvastatine chez le coronarien » est une erreur d'interprétation de cet essai. Ce qu'on peut en retenir de solide est négatif et utile : sur 4 400 coronariens suivis trois ans, un LDL marginalement plus bas ne s'est traduit par aucun bénéfice clinique — étant entendu qu'il s'agit d'une absence de différence démontrée, non d'une équivalence prouvée. La surveillance glycémique sous statine de forte intensité relève par ailleurs de la bonne pratique, indépendamment de cet essai.
+niveau_preuve: faible
+pertinence_pratique: moderee
+impact_algorithme:
+  concerne_decision: false
+  noeuds_impactes: []
+  proposition_maj: aucune
+temps_lecture_min: 7
+meta:
+  date_publication: "2023-10-18"
+  auteur: "référent veille"
+  statut: brouillon
+  relecture_referent: true
