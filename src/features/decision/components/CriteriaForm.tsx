@@ -640,20 +640,34 @@ export function CriteriaForm({
    * `null` si ni décisif-non-confirmé, ni déjà déclaré (rien à montrer), ou si l'appelant n'a pas fourni
    * `onDeclarerIndisponible` (rétro-compatible, comme `onConfirmerChamps`).
    */
+  // RENDU EN ICÔNE (2026-08-10, demande utilisateur) — remplace l'ancien bouton texte « Indisponible » :
+  // un pictogramme d'interdiction (`interdit`, déjà au catalogue, cf. `paths.ts`) se reconnaît d'un coup
+  // d'œil au milieu d'une rangée de libellés/badges, alors que « Indisponible » s'y lisait comme un mot
+  // de plus. MÊME COMPORTEMENT (toggle, même `onDeclarerIndisponible`) et MÊME INFORMATION qu'avant : le
+  // texte survit dans `title`/`aria-label`, la seule chose qui change est la représentation visuelle.
+  // L'état DÉCLARÉ se distingue par `data-declare` (CSS : icône pleine, teinte ambre) plutôt que par un
+  // second libellé — cohérent avec le registre déjà en place pour les segments/pastilles du formulaire.
   const renderIndisponible = (critere: CritereEntree) => {
     if (!onDeclarerIndisponible) return null
     const declare = indisponibles?.has(critere.nom) === true
     if (!declare && !estAConfirmer(critere)) return null
+    // Deux textes distincts, à dessein : `title` reste la phrase EXPLICATIVE (infobulle au survol),
+    // `aria-label` reste le NOM ACCESSIBLE court du bouton (ce que lit un lecteur d'écran en le
+    // rencontrant) — « Indisponible » au repos, « Marqué indisponible » une fois déclaré, cohérent avec
+    // l'ancien libellé texte du bouton que cette icône remplace.
+    const label = declare ? 'Marqué indisponible' : 'Indisponible'
+    const texte = declare ? 'Redemander ce critère' : 'Ce critère restera inconnu : cesser de le réclamer'
     return (
       <button
         type="button"
-        className={
-          declare ? 'criteria-form__field-indisponible-tag' : 'criteria-form__field-indisponible-bouton'
-        }
+        className="criteria-form__field-indisponible-icone"
+        data-declare={declare || undefined}
         onClick={() => onDeclarerIndisponible(critere.nom)}
-        title={declare ? 'Redemander ce critère' : 'Ce critère restera inconnu : cesser de le réclamer'}
+        title={texte}
+        aria-label={label}
+        aria-pressed={declare}
       >
-        {declare ? '· indisponible' : 'Indisponible'}
+        <Icon nom="interdit" taille={14} />
       </button>
     )
   }

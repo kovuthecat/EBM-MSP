@@ -223,6 +223,10 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
     // virgule/à l'échelle plutôt que `<input type="number">` natif), ne porte ni ne déclenche aucune
     // expression DSL.
     unite_flexible: 'inerte',
+    // `cache` (2026-08-10) : même famille que `libelle_masque`/`unite_flexible` — drapeau de PRÉSENTATION
+    // pure qui masque INCONDITIONNELLEMENT le champ dans le formulaire (`lib/formLayout.ts`
+    // `champEstVisible`), ne porte ni ne déclenche aucune expression DSL.
+    cache: 'inerte',
   },
   // `prioritaire_si` (arbitrage référent A3, 2026-08-01) = expression d'AFFICHAGE, au même titre que
   // `visible_si` : elle hisse une famille en tête de l'écran quand elle est vraie pour ce patient, et
@@ -271,6 +275,7 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
     masque_si_indetermine: 'inerte',
     preremplissage: 'inerte',
     presomption_non: 'inerte',
+    cache: 'inerte',
   },
   // T-189 (P14/S16) — `critereHorsPerimetre` (une entrée de `Noeud.criteres_hors_perimetre` juste
   // au-dessus). `nom` cite un fait par son NOM (comme `option.publie.critere`), `motif` est de la prose

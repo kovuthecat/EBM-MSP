@@ -277,6 +277,26 @@ export interface CritereEntree {
    * `true`. Absent ou `false` → rendu historique inchangé.
    */
   libelle_masque?: boolean
+  /**
+   * CHAMP JAMAIS RENDU DANS LE FORMULAIRE (2026-08-10, demande utilisateur sur `HbA1c_cible`), à ne pas
+   * confondre avec `visible_si` : celui-ci masque CONDITIONNELLEMENT (et `reinitialiserChampsMasques`
+   * remet alors le critère à sa valeur par défaut dès qu'il devient masqué — sûreté nécessaire puisque le
+   * praticien pourrait avoir saisi une valeur avant que le champ ne se masque). `cache: true` masque
+   * INCONDITIONNELLEMENT, et à dessein N'EST PAS TRAITÉ PAR `reinitialiserChampsMasques` (cf. sa
+   * docstring) : un critère `cache` n'est jamais saisi à l'écran, sa valeur ne peut donc venir que d'une
+   * REPRISE (`partage`) ou d'une PUBLICATION (D50) — la réinitialiser au premier rendu détruirait
+   * exactement la valeur que ce mécanisme est censé transporter.
+   *
+   * CAS D'USAGE : `HbA1c_cible` sur `prescription`/`insuline` — la cible n'est plus SAISIE sur ces
+   * nœuds, elle est PUBLIÉE par « Déterminer la cible » (D50) et ne sert plus qu'à alimenter le
+   * `preremplissage` de `position_vs_cible` (« rapport à l'objectif »), qui reste lui un champ normal,
+   * visible et modifiable par le praticien (R1 : l'état reste déclaré, jamais imposé). Le nombre
+   * chiffré n'a donc plus de raison d'occuper une case du formulaire.
+   *
+   * GÉNÉRIQUE (invariant CLAUDE.md 5) : aucun nom de critère connu du socle. Absent ou `false` → rendu
+   * historique inchangé (le champ suit `visible_si` comme avant).
+   */
+  cache?: boolean
 }
 
 /**
@@ -310,6 +330,8 @@ export interface CritereEntreeRef {
   preremplissage?: ReglePreremplissage[]
   /** LOCAL, délibérément — voir la docstring de l'interface. */
   presomption_non?: boolean
+  /** MISE EN SCÈNE locale au nœud — voir `CritereEntree.cache`. */
+  cache?: boolean
 }
 
 /**

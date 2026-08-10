@@ -228,12 +228,18 @@ criteres_entree:
   # SEUL LECTEUR : le `preremplissage` de `position_vs_cible` ci-dessous — condition du garde-fou D50 (un
   # critère PUBLIÉ ne peut avoir aucun lecteur hors `preremplissage`, invariant dédié du banc). `partage:
   # true`, bornes IDENTIQUES au nœud « Insulinothérapie » (I19) : min 6, max 9.5.
+  # `cache: true` (2026-08-10, demande utilisateur) : ce nombre chiffré n'est plus rendu dans le
+  # formulaire — il ne sert plus qu'en coulisse à alimenter le `preremplissage` de `position_vs_cible`
+  # ci-dessous, qui reste seul visible et modifiable (R1 intact). `cache` n'est PAS traité par
+  # `reinitialiserChampsMasques` (`lib/formLayout.ts`) : la valeur publiée par « Déterminer la cible »
+  # survit donc au cycle de rendu au lieu d'être effacée comme un champ `visible_si` masqué le serait.
   - nom: HbA1c_cible
     type: nombre
     min: 6
     max: 9.5
     groupe: Équilibre
     partage: true
+    cache: true
   # `HbA1c_actuelle` reste, elle, lue directement par plusieurs règles (seuil `>= 10` de l'insuline
   # d'initiation, dérivé `hba1c_sous_cible`) — inchangé.
   - nom: position_vs_cible

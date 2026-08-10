@@ -2,6 +2,9 @@
   background: var(--c-surface);
   border: 1px solid var(--c-border);
   border-radius: var(--radius-lg);
+  /* Ombre douce plutôt qu'une bordure sèche (2026-08-10, harmonisation avec les cartes de résultat/veille) :
+     le formulaire, qui occupe le plus clair de l'écran, gagne en présence sans alourdir le contraste. */
+  box-shadow: 0 1px 2px oklch(24% 0.02 245 / 4%), 0 4px 14px oklch(24% 0.02 245 / 5%);
   padding: 24px;
   margin-bottom: 24px;
 }
@@ -93,6 +96,31 @@
   margin-bottom: 6px;
 }
 
+/* SURBRILLANCE DU CHAMP CIBLÉ (2026-08-10, recommandation ergonomie) — jusqu'ici, un clic sur un nom du
+   bandeau « Commencez par… » (`champCible`, `CriteriaForm.tsx`) ouvrait la section et posait le focus
+   clavier sur le champ, mais rien ne le distinguait visuellement des autres une fois arrivé : le seul
+   repère était l'anneau de focus natif du navigateur, facile à manquer en survolant vite l'écran.
+   `:focus-within` se déclenche dès qu'un descendant (input/bouton/case) du champ reçoit le focus — donc à
+   CHAQUE arrivée par ce mécanisme, PAS seulement au premier clic — et l'animation se REJOUE à chaque
+   nouvelle prise de focus (une `animation` CSS redémarre quand l'élément qui la porte regagne le focus).
+   `fill-mode` par défaut (`none`) : l'anneau natif du navigateur reste seul visible une fois l'animation
+   terminée, aucun état résiduel ajouté. */
+@keyframes criteria-form-cible-flash {
+  0% {
+    box-shadow: 0 0 0 4px var(--c-accent-decision-soft);
+    border-radius: var(--radius-md);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+    border-radius: var(--radius-md);
+  }
+}
+
+.criteria-form__field:focus-within,
+.criteria-form__field--flag:focus-within {
+  animation: criteria-form-cible-flash 1.4s ease-out;
+}
+
 /* T-108 — pastille `PastilleInfo` (description des valeurs au clic), nichée dans le libellé de champ.
    Le bouton porte par défaut un gabarit de 32×32 px (cible tactile, pensé pour une carte de recomman-
    dation) — beaucoup trop grand pour un libellé de 12px de haut : ramené à la taille du texte
@@ -167,6 +195,20 @@
   color: var(--c-text);
 }
 
+/* SUPPRIME LES FLÈCHES DE PALIER natives (2026-08-10) — inutiles sur des grandeurs cliniques (DFG, poids,
+   HbA1c…) : personne n'incrémente un DFG à la flèche, et leur présence réduit la zone de saisie cliquable
+   sans rien apporter. Les deux préfixes couvrent Chrome/Safari (`-webkit-*`) et Firefox
+   (`-moz-appearance`) ; la saisie au clavier n'est en rien affectée. */
+.criteria-form__input[type='number']::-webkit-outer-spin-button,
+.criteria-form__input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.criteria-form__input[type='number'] {
+  -moz-appearance: textfield;
+}
+
 .criteria-form__hint {
   font-size: 11px;
   font-style: italic;
@@ -212,12 +254,22 @@
   border: 1px solid var(--c-border);
   border-radius: var(--radius-md);
   background: var(--c-surface);
-  color: var(--c-text-faible);
+  /* 2026-08-10 (recommandation ergonomie) : `--c-text-faible` au repos se lisait comme un bouton
+     désactivé plutôt qu'une invite à cliquer — remonté à `--c-text-secondary`, même contraste que le
+     texte courant du formulaire, pour que les 4 options d'un champ segmenté se lisent comme des choix
+     actifs avant même la sélection. */
+  color: var(--c-text-secondary);
   font: inherit;
   font-size: 13px;
   cursor: pointer;
   white-space: normal;
   overflow-wrap: break-word;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.criteria-form__segment:hover {
+  border-color: var(--c-accent-decision);
+  color: var(--c-text);
 }
 
 .criteria-form__segment-icon {
@@ -618,46 +670,39 @@
 }
 
 /* T-134 (P12/S9) — affordance « Indisponible » sur un champ décisif non confirmé : le praticien déclare
-   qu'il ne le renseignera jamais. Discrète, NEUTRE (pas d'ambre — cf. `--c-attention-*` du marqueur « à
-   confirmer » juste au-dessus) : ce n'est pas une donnée qui manque à corriger, c'est un geste qui
-   RÉSOUT le manque, il n'a pas à porter le même signal visuel que ce qu'il éteint. Style de lien discret,
-   même gabarit que les autres suffixes de champ (« · repris de votre saisie »…). */
-.criteria-form__field-indisponible-bouton {
-  font: inherit;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--c-text-faible);
-  background: none;
-  border: none;
-  padding: 0;
+   qu'il ne le renseignera jamais. RENDU EN ICÔNE depuis le 2026-08-10 (remplace le bouton texte
+   « Indisponible », qui se lisait comme un mot de plus au milieu des libellés/badges d'un champ) — le
+   pictogramme d'interdiction (`interdit`, `Icon.tsx`) se reconnaît d'un coup d'œil, avec `title`/
+   `aria-label` portant le texte complet pour qui ne voit pas l'icône. NEUTRE au repos (pas d'ambre — ce
+   n'est pas une donnée qui manque, c'est un geste qui RÉSOUT le manque), teinte ambre UNIQUEMENT une
+   fois déclaré (`[data-declare]`) pour rester lisible parmi les autres pastilles ambre de la section. */
+.criteria-form__field-indisponible-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex: none;
   margin-left: 6px;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.criteria-form__field-indisponible-bouton:hover {
-  color: var(--c-text);
-}
-
-/* Une fois déclaré : mention discrète, MÊME registre que « · calculé » / « · repris de votre saisie »
-   (`.criteria-form__field-repris`) — un fait à savoir, pas une action à faire. Reste cliquable (bouton,
-   pas un `<span>`) pour annuler la déclaration d'un second clic. */
-.criteria-form__field-indisponible-tag {
-  font: inherit;
-  font-size: 12px;
-  font-weight: 400;
-  font-style: italic;
-  color: var(--c-text-faible);
-  background: none;
-  border: none;
   padding: 0;
-  margin-left: 4px;
-  text-decoration: underline dotted;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--c-text-faible);
   cursor: pointer;
 }
 
-.criteria-form__field-indisponible-tag:hover {
+.criteria-form__field-indisponible-icone:hover {
+  border-color: var(--c-border);
   color: var(--c-text);
+}
+
+.criteria-form__field-indisponible-icone[data-declare] {
+  color: var(--c-attention);
+}
+
+.criteria-form__field-indisponible-icone[data-declare]:hover {
+  border-color: var(--c-attention-border);
 }
 
 /* K6 — champ PRÉ-REMPLI depuis la session : une valeur que le praticien a saisie sur un autre nœud de la

@@ -1324,13 +1324,26 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
             )}
           </div>
           )}
+          {/* REPENSÉ EN BADGE (2026-08-10, recommandation ergonomie) — MÊME INFORMATION qu'avant (le
+              nombre de critères décisifs non confirmés, jamais un total inventé : `decisifsManquants` est
+              la seule donnée que le moteur connaît ici, son dénominateur bouge avec chaque réponse — cf.
+              `lib/formLayout.ts` `decisifsAConfirmer`), mais scindée en deux : un badge court, scannable
+              d'un coup d'œil (même registre visuel que le compteur « N à confirmer » d'une section de
+              formulaire, `CriteriaForm.css` `criteria-form__group-compte`), et la phrase procédurale
+              (« les mesures chiffrées… ») reléguée en dessous, plus petite — elle explique COMMENT
+              résoudre le manque, elle n'a pas à se relire aussi fort que LE FAIT qu'il en manque. */}
           {!decisionEnAttenteSeule && decisifsManquants.length > 0 && (
-            <p className="decision-node__provisional">
-              <strong>Reco provisoire</strong> — {decisifsManquants.length} critère
-              {decisifsManquants.length > 1 ? 's décisifs non confirmés' : ' décisif non confirmé'} dans le
-              formulaire ci-dessus : les mesures chiffrées y sont marquées « à confirmer », les drapeaux se
-              confirment d'un clic par « Rien à signaler ». La recommandation peut encore changer.
-            </p>
+            <div className="decision-node__provisional">
+              <span className="decision-node__provisional-badge">
+                Reco provisoire · {decisifsManquants.length} critère
+                {decisifsManquants.length > 1 ? 's à confirmer' : ' à confirmer'}
+              </span>
+              <p className="decision-node__provisional-detail">
+                Les mesures chiffrées sont marquées « à confirmer » dans le formulaire ci-dessus, les
+                drapeaux se confirment d'un clic par « Rien à signaler ». La recommandation peut encore
+                changer.
+              </p>
+            </div>
           )}
           {/* T-134 (P12/S9) — LOYAUTÉ : la reco a été rendue SANS les critères déclarés indisponibles.
               Registre NEUTRE (comme `CadrageList` — ni fond d'alerte, ni couleur de vigilance) : contrairement
@@ -1566,17 +1579,26 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                 // avant, le détail d'un clic) : c'est son exhaustivité qui manquait. Le compte du `summary`
                 // reste `vue.enAttente.length` (le brut, T-134) ; la liste rendue reste `enAttenteAffichable`
                 // (le filtré des indisponibles).
+                // RENDU EN LIGNES (2026-08-10, recommandation ergonomie) — remplace la liste de
+                // paragraphes à plat (« Option — à renseigner : X, Y », un mur de texte peu scannable) par
+                // de courtes lignes nom/manquants, chacune un peu plus lisible d'un coup d'œil. MÊME
+                // INFORMATION, RIEN N'EST RETIRÉ : seule la mise en forme change (Option en tête, manquants
+                // en dessous, plus de séparation visuelle qu'un simple retour à la ligne).
                 const detailOptionParOption = (
                   <details className="decision-node__en-attente-detail">
                     <summary>Voir le détail, option par option ({vue.enAttente.length})</summary>
-                    {enAttenteAffichable.map((enAttente, index) => (
-                      <p key={`${index}-${enAttente.option.intitule}`} className="decision-node__en-attente-item">
-                        {enAttente.option.intitule} —{' '}
-                        {enAttente.manquants.length > 0
-                          ? `à renseigner : ${enAttente.manquants.map(labelForCritere).join(', ')}`
-                          : 'en attente sans les critères déclarés indisponibles ci-dessus'}
-                      </p>
-                    ))}
+                    <ul className="decision-node__en-attente-liste">
+                      {enAttenteAffichable.map((enAttente, index) => (
+                        <li key={`${index}-${enAttente.option.intitule}`} className="decision-node__en-attente-ligne">
+                          <span className="decision-node__en-attente-option">{enAttente.option.intitule}</span>
+                          <span className="decision-node__en-attente-manquants">
+                            {enAttente.manquants.length > 0
+                              ? `À renseigner : ${enAttente.manquants.map(labelForCritere).join(', ')}`
+                              : 'En attente sans les critères déclarés indisponibles ci-dessus'}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
                   </details>
                 )
                 if (priorites.length === 0) {

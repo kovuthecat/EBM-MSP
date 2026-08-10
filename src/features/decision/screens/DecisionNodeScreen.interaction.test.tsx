@@ -809,9 +809,11 @@ describe('DecisionNodeScreen — B2 : sur formulaire vierge, le panneau « en at
     expect(amorce?.textContent).toMatch(/Commencez par\s*:\s*Bloquant/i)
 
     // Le détail par option existe TOUJOURS, mais derrière un dépli : rien n'a été retiré.
+    // 2026-08-10 : rendu en lignes (`.decision-node__en-attente-ligne`, une par option) plutôt qu'en
+    // paragraphes à plat — même information, classe renommée en conséquence.
     const detail = panneau?.querySelector('.decision-node__en-attente-detail')
     expect(detail).toBeTruthy()
-    expect(detail?.querySelectorAll('.decision-node__en-attente-item')).toHaveLength(3)
+    expect(detail?.querySelectorAll('.decision-node__en-attente-ligne')).toHaveLength(3)
 
     // ... et il n'est PLUS déversé au premier niveau du panneau : c'est tout l'objet du correctif.
     const auPremierNiveau = [...(panneau?.children ?? [])].filter((el) =>
@@ -905,7 +907,7 @@ describe('DecisionNodeScreen — T-134 : déclarer un critère indisponible', ()
     expect(titresOptionsProposees(container)).toEqual(['Socle protecteur'])
     const banniere = container.querySelector('.decision-node__provisional')
     expect(banniere?.textContent).toMatch(/Reco provisoire/)
-    expect(banniere?.textContent).toMatch(/1 critère décisif non confirmé/)
+    expect(banniere?.textContent).toMatch(/1 critère à confirmer/)
     // Aucune mention de loyauté tant que rien n'est déclaré — elle n'a pas d'objet.
     expect(container.querySelector('.decision-node__indisponible-mention')).toBeNull()
     expect(screen.getByRole('button', { name: 'Indisponible' })).toBeTruthy()
@@ -932,16 +934,18 @@ describe('DecisionNodeScreen — T-134 : déclarer un critère indisponible', ()
     expect(mention?.textContent).toMatch(/c'est au praticien de le faire/)
 
     // Le bouton d'action a cédé la place à la mention déclarée (elle-même cliquable, pour annuler).
+    // 2026-08-10 : icône seule (`Icon nom="interdit"`), le nom accessible porte désormais l'information
+    // à la place du texte visible (`renderIndisponible`, `CriteriaForm.tsx`).
     expect(screen.queryByRole('button', { name: 'Indisponible' })).toBeNull()
-    expect(screen.getByRole('button', { name: '· indisponible' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Marqué indisponible' })).toBeTruthy()
   })
 
   it('un second clic ANNULE la déclaration (toggle) : le critère redevient réclamé normalement', () => {
     const { container } = render(<DecisionNodeScreen nodeId={NODE_INDISPONIBLE.id} go={() => {}} />)
     fireEvent.click(screen.getByRole('button', { name: 'Indisponible' }))
-    fireEvent.click(screen.getByRole('button', { name: '· indisponible' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Marqué indisponible' }))
 
-    expect(container.querySelector('.decision-node__provisional')?.textContent).toMatch(/1 critère décisif non confirmé/)
+    expect(container.querySelector('.decision-node__provisional')?.textContent).toMatch(/1 critère à confirmer/)
     expect(container.querySelector('.decision-node__indisponible-mention')).toBeNull()
     expect(screen.getByRole('button', { name: 'Indisponible' })).toBeTruthy()
   })
@@ -960,9 +964,10 @@ describe('DecisionNodeScreen — T-134 : déclarer un critère indisponible', ()
     expect(avant?.textContent).toMatch(/Nb facteurs risque/i)
 
     // Le bouton « Indisponible » DU CHAMP NOMBRE, distingué des deux autres (un par critère décisif) par
-    // sa proximité DOM avec l'unique `<input type="number">` du nœud.
+    // sa proximité DOM avec l'unique `<input type="number">` du nœud. Icône depuis le 2026-08-10 (classe
+    // renommée en conséquence, `CriteriaForm.css`).
     const champNombre = nombreInput().closest('.criteria-form__field')
-    const boutonNombre = champNombre?.querySelector('.criteria-form__field-indisponible-bouton')
+    const boutonNombre = champNombre?.querySelector('.criteria-form__field-indisponible-icone')
     expect(boutonNombre).toBeTruthy()
     fireEvent.click(boutonNombre as Element)
 

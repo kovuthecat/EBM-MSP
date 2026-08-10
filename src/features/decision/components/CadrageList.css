@@ -3,11 +3,13 @@
    est le point : sans cela, on reproduirait à l'écran le défaut que D24 corrige dans le contenu (un
    avertissement affiché à tout le monde, qui dévalue les alertes conditionnelles voisines). Le seul
    marqueur est un filet latéral, qui rattache le bloc au nœud sans crier. */
+/* Marge réduite 20px → 14px (2026-08-10, recommandation ergonomie « alléger le préambule ») : ce bloc est
+   déjà replié par défaut (un seul `<summary>` visible), seule la respiration verticale change. */
 .cadrage-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin: 0 0 20px;
+  margin: 0 0 14px;
   padding: 2px 0 2px 14px;
   border-left: 3px solid var(--c-border);
 }

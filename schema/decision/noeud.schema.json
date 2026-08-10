@@ -399,6 +399,10 @@
         "unite_flexible": {
           "type": "boolean",
           "description": "OPTIONNEL, criteres `nombre` UNIQUEMENT (2026-08-04, demande utilisateur sur `taille`) — le champ devient un input texte tolerant : virgule ACCEPTEE comme separateur decimal (un `<input type=\"number\">` natif la refuse), et une valeur saisie hors de [min, max] mais qui y rentre une fois divisee par 10 ou 100 est corrigee automatiquement AU BLUR, jamais pendant la frappe (« 170 » -> 1,70 si min/max bornent des metres). REQUIERT min ET max declares, sinon aucune correction d'echelle n'est tentee (la virgule reste acceptee). Pure presentation (`CriteriaForm.tsx`) : la valeur ECRITE dans `criteria` reste toujours un nombre dans l'unite declaree, le moteur ne voit jamais la chaine brute ni la confusion d'echelle. GENERIQUE, pas reserve a `taille` : tout critere `nombre` dont l'unite se prete a une confusion d'echelle par 10 peut le declarer. Absent ou `false` = `<input type=\"number\">` natif, comportement historique inchange."
+        },
+        "cache": {
+          "type": "boolean",
+          "description": "OPTIONNEL — champ JAMAIS RENDU dans le formulaire (2026-08-10, demande utilisateur sur `HbA1c_cible`), a la difference de `visible_si` (masquage CONDITIONNEL, avec remise a la valeur par defaut via `reinitialiserChampsMasques` des que le champ se masque). `cache: true` masque INCONDITIONNELLEMENT et N'EST PAS traite par `reinitialiserChampsMasques` : un critere `cache` n'est jamais saisi a l'ecran, sa valeur ne peut venir que d'une reprise (`partage`) ou d'une publication (D50) — la reinitialiser au premier rendu detruirait cette valeur. CAS D'USAGE : `HbA1c_cible` sur `prescription`/`insuline`, publiee par « Determiner la cible », qui n'alimente plus que le `preremplissage` de `position_vs_cible` (le rapport a l'objectif reste, lui, un champ normal, visible et modifiable par le praticien, R1). Generique (invariant CLAUDE.md 5). Absent ou false = rendu historique inchange."
         }
       }
     },
@@ -451,6 +455,10 @@
         "presomption_non": {
           "type": "boolean",
           "description": "LOCAL au nœud, délibérément (D30) — voir `critereEntree.presomption_non`. L'éligibilité de ce drapeau dépend de l'usage du critère DANS CE NŒUD (participe-t-il ici à une condition d'option `role: securite` ou à une `exclusions` ?), jamais de la définition du fait : deux nœuds qui référencent le même `ref` peuvent légitimement poser ce champ différemment (cf. l'asymétrie voulue de `traitements_en_cours`, invariant S2/T-165)."
+        },
+        "cache": {
+          "type": "boolean",
+          "description": "MISE EN SCÈNE locale au nœud — voir `critereEntree.cache`."
         }
       }
     },

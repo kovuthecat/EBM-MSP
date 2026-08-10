@@ -88,6 +88,11 @@ criteres_entree:
     min: 6
     max: 9.5
     partage: true
+    # `cache: true` (2026-08-10, demande utilisateur, unifié avec `prescription`) : ce nombre chiffré
+    # n'est plus rendu dans le formulaire — il n'alimente plus que le `preremplissage` de
+    # `position_vs_cible` en coulisse, qui reste seul visible/modifiable (R1 intact). Non traité par
+    # `reinitialiserChampsMasques` : la valeur publiée par « Déterminer la cible » survit au rendu.
+    cache: true
     # SEUL LECTEUR depuis le 2026-08-06 (P14/S11, T-180/T-181, D50) : le `preremplissage` de
     # `position_vs_cible` ci-dessous. `cible_atteinte`/`ecart_sous_objectif_cible` NE LE LISENT PLUS
     # (unifiés sur `position_vs_cible`, cf. leurs `derive` plus bas) — condition du garde-fou D50 : un

@@ -85,6 +85,12 @@ export function champEstVisible(
   criteriaDerives: Criteria,
   renseignes?: ReadonlySet<string>,
 ): boolean {
+  // `cache` masque INCONDITIONNELLEMENT (2026-08-10) : à distinguer de `visible_si` ci-dessous, dont le
+  // masquage est repris par `reinitialiserChampsMasques` (remise à la valeur par défaut). Un champ
+  // `cache` n'entre PAS dans ce mécanisme (cf. la boucle dédiée dans `reinitialiserChampsMasques`) —
+  // c'est cette fonction-ci qui reste néanmoins la seule source de vérité pour le RENDU du formulaire
+  // (`grouperChamps`), d'où le court-circuit ici plutôt qu'une seconde fonction de visibilité.
+  if (critere.cache === true) return false
   if (critere.visible_si == null) return true
   const verdict = evaluateCondition(critere.visible_si, criteriaDerives, renseignes)
   // OPT-IN FAIL-CLOSED (`masque_si_indetermine`, 2026-07-29) : le repli « fail open » ci-dessus reste LA
@@ -335,9 +341,15 @@ export function reinitialiserChampsMasques(
     const effectifs = determinesEffectifs(criteresEntree, derives, renseignes)
 
     // TOUS les champs saisissables actuellement MASQUÉS (cf. correctif de sûreté ci-dessus) — signalés
-    // une seule fois (`dejaSignales`), qu'ils appellent ou non une mutation de `courant`.
+    // une seule fois (`dejaSignales`), qu'ils appellent ou non une mutation de `courant`. `cache: true`
+    // EXCLU DÉLIBÉRÉMENT (2026-08-10) : ce mécanisme protège contre une saisie qui continuerait de
+    // piloter le moteur alors que le praticien ne peut plus la voir ni la corriger (`visible_si` devenu
+    // faux) — un champ `cache`, lui, n'est JAMAIS saisi à l'écran (cf. sa docstring, `node.types.ts`) :
+    // sa valeur ne peut venir que d'une reprise/publication de session, et la remettre à son défaut au
+    // premier rendu détruirait précisément cette valeur, rendant le mécanisme de publication (D50)
+    // inopérant sur tout champ `cache`.
     const masques = criteresEntree.filter(
-      (critere) => critere.derive == null && !champEstVisible(critere, derives, effectifs),
+      (critere) => critere.derive == null && critere.cache !== true && !champEstVisible(critere, derives, effectifs),
     )
     for (const critere of masques) {
       if (dejaSignales.has(critere.nom)) continue

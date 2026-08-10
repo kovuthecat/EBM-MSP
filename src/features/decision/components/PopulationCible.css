@@ -1,5 +1,8 @@
+/* Marge réduite 28px → 16px (2026-08-10, recommandation ergonomie « alléger le préambule ») : le texte
+   lui-même est déjà tronqué à la première phrase par défaut (`PopulationCible.tsx`), seule la respiration
+   verticale change — le formulaire se rapproche du haut d'écran sans rien retirer du contenu. */
 .population-cible {
-  margin: 0 0 28px;
+  margin: 0 0 16px;
 }
 
 .population-cible__premiere,

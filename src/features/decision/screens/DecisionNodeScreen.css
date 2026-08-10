@@ -219,15 +219,31 @@
 }
 
 /* Reco affichée en direct mais pas encore stabilisée : des critères décisifs restent non confirmés
-   (P3 · S7-ui Lot 3). Signale sans bloquer — l'ancien gate dur contredisait l'estompage. */
+   (P3 · S7-ui Lot 3). Signale sans bloquer — l'ancien gate dur contredisait l'estompage.
+   REPENSÉ EN BADGE + DÉTAIL (2026-08-10, recommandation ergonomie) : l'ancien texte tenait en une seule
+   phrase dense, relue en entier à chaque étape ; le compte scannable (badge) porte maintenant LE FAIT,
+   la phrase procédurale (comment lever le manque) devient une note secondaire en dessous. */
 .decision-node__provisional {
   margin: 0 0 12px;
   padding: 10px 14px;
   border: 1px solid var(--c-attention-border);
   background: var(--c-attention-soft);
   border-radius: var(--radius-md);
+}
+
+.decision-node__provisional-badge {
+  display: inline-flex;
+  align-items: center;
   font-size: 13px;
-  color: var(--c-text);
+  font-weight: 700;
+  color: var(--c-attention);
+}
+
+.decision-node__provisional-detail {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--c-text-muted);
 }
 
 /* T-134 (P12/S9) — reco rendue SANS un critère déclaré indisponible : NEUTRE, délibérément, MÊME REGISTRE
@@ -517,8 +533,38 @@
   color: var(--c-text);
 }
 
-.decision-node__en-attente-detail .decision-node__en-attente-item {
-  margin-top: 6px;
+/* LISTE « OPTION PAR OPTION » EN LIGNES (2026-08-10, recommandation ergonomie) — remplace la pile de
+   paragraphes à plat par de courtes lignes nom/manquants, chacune séparée par un filet discret (pas de
+   fond ni de couleur ajoutée : ce reste un détail consulté à la demande, pas un signal). */
+.decision-node__en-attente-liste {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+
+.decision-node__en-attente-ligne {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 0;
+  border-top: 1px solid var(--c-attention-border);
+}
+
+.decision-node__en-attente-ligne:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.decision-node__en-attente-option {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+.decision-node__en-attente-manquants {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--c-text-muted);
 }
 
 /* R4 (`docs/decision/GRAMMAIRE-NOEUD.md`) — ÉCARTÉES : information de SÉCURITÉ, toujours affichée mais
