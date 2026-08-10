@@ -1,6 +1,6 @@
 id: 2026-W33-sentinelles-bulletin-s31
 date_semaine: "2026-W33"
-titre: "Réseau Sentinelles : situation épidémiologique en médecine générale, semaine du 27 juillet au 2 août 2026"
+titre: "Réseau Sentinelles S31 : activité épidémiologique basse et stable, typique de l'été"
 source:
   nom: "Réseau Sentinelles (Inserm / Sorbonne Université)"
   lien: https://www.sentiweb.fr/
@@ -9,8 +9,8 @@ themes: [infectiologie-antibiotherapie, prevention-depistage-vaccination]
 professions_concernees: [MG, IPA]
 route: breve
 niveau_impact: informatif
-population: "France métropolitaine, surveillance en soins primaires."
-resultat_resume: "Bulletin hebdomadaire de surveillance produit par des médecins généralistes : incidences des syndromes grippaux, diarrhées aiguës, varicelle et autres indicateurs suivis en ville. Outil de contexte épidémiologique, à consulter chaque semaine."
+population: "France métropolitaine, surveillance en soins primaires, semaine 31 (27 juillet au 2 août 2026)."
+resultat_resume: "Infections respiratoires aiguës : incidence 39 pour 100 000 habitants (IC95 % 34-44), stable, activité basse typique de la saison ; Bretagne, Bourgogne-Franche-Comté et PACA au-dessus de la moyenne nationale. Part du COVID-19 dans les IRA : 1 pour 100 000 (0-3), stable et basse. Diarrhée aiguë : 54 pour 100 000 (48-59), stable, en dessous du niveau saisonnier habituel ; Grand Est, Corse et PACA les plus touchées. Varicelle : 5 pour 100 000 (3-7), en baisse, en dessous du niveau saisonnier ; Corse, Normandie et Bourgogne-Franche-Comté les plus touchées. Aucun indicateur ne signale d'alerte cette semaine."
 appreciation_critique: null
 niveau_preuve: null
 pertinence_pratique: null

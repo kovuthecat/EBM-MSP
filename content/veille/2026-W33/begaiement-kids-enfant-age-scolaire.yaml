@@ -1,0 +1,44 @@
+id: 2026-W33-begaiement-kids-enfant-age-scolaire
+date_semaine: "2026-W33"
+titre: "Modification du bégaiement (méthode KIDS) chez l'enfant d'âge scolaire : seul le vécu subjectif de l'enfant s'améliore à 3 mois, aucune mesure objective ne diffère"
+source:
+  nom: "Journal of Speech, Language, and Hearing Research"
+  lien: https://pubs.asha.org/doi/10.1044/2023_JSLHR-23-00224
+  doi: 10.1044/2023_JSLHR-23-00224
+type_publication: ECR
+themes: [orthophonie, pediatrie]
+professions_concernees: [orthophoniste, MG]
+route: analyse
+niveau_impact: informatif
+population: "73 enfants de 7 à 11 ans qui bégaient, recrutés dans 34 centres allemands de rééducation orthophonique, randomisés entre traitement immédiat (n=37) et traitement différé de 3 mois avec liste d'attente comme contrôle (n=36). Essai enregistré prospectivement (DRKS00015851, le 7 novembre 2018, avant la première inclusion en décembre 2018), ouvert (non aveugle sur l'attribution), premier essai randomisé mené sur cette tranche d'âge."
+resultat_resume: "Essai testant la méthode KIDS (Kinder Dürfen Stottern), traitement individuel de modification du bégaiement dispensé par 26 orthophonistes formés à un manuel commun. Sur la seule comparaison réellement contrôlée — à 3 mois, traitement immédiat contre liste d'attente, 62 enfants analysés — le critère principal (impact du bégaiement vécu par l'enfant, auto-rapporté, échelle OASES-S) diffère significativement entre les deux groupes (p corrigé = 0,026). Mais aucune des mesures objectives de sévérité du bégaiement, évaluées en aveugle sur enregistrement (fréquence, durée, manifestations physiques), ni les évaluations parentales, ne diffère à ce même stade. Après 3 mois, le groupe témoin ayant lui aussi commencé le traitement, l'analyse à 6 et 12 mois porte sur l'ensemble des enfants poolés, sans plus aucun comparateur non traité."
+appreciation_critique: |
+  Un point doit être dit d'emblée, avant tout le reste. La première auteure de cet essai est co-autrice du manuel du traitement évalué (Schneider & Kohmäscher, 2022, cité deux fois dans l'article), co-autrice de la traduction et de la validation allemandes de l'OASES-S — l'instrument qui porte le critère principal — et autrice de l'enquête nationale qui justifie le choix d'un comparateur passif plutôt qu'un essai de supériorité. Aucune section financement ou déclaration de liens d'intérêt ne figure dans le texte de l'article. Il s'agit d'un conflit intellectuel, pas financier — rien ne permet de suggérer un intérêt commercial — mais une autrice qui a coécrit le traitement, traduit l'instrument de mesure et produit la donnée qui cadre le design, sans qu'aucune déclaration ne l'explicite, doit être connue du lecteur avant qu'il n'évalue le reste.
+
+  La seule comparaison contrôlée de l'essai porte sur 3 mois, et à ce stade, toutes les mesures objectives sont nulles. Évaluées en aveugle sur enregistrement, avec un accord inter-évaluateurs excellent (α de Krippendorff de 0,876 à 0,969), la fréquence du bégaiement, sa durée et ses manifestations physiques ne diffèrent pas entre le groupe traité et la liste d'attente (tailles d'effet de 0,08 à 0,10, l'une de signe défavorable). Les évaluations parentales sont également non significatives. Seul le score que l'enfant remplit lui-même sur son propre vécu bouge — dans un essai où l'enfant sait parfaitement s'il est traité tout de suite ou dans trois mois. Il faut le dire avec honnêteté envers les auteurs : cette négativité des mesures objectives à 3 mois n'est pas un résultat caché ou du bricolage a posteriori. L'hypothèse principale de l'essai, écrite dans le protocole enregistré avant la première inclusion, prédisait explicitement que seul le critère subjectif serait amélioré à ce stade. C'est exactement ce qui est observé. Ce qui est discutable n'est pas la conduite de l'étude, c'est l'interprétation qu'en tire l'abstract, qui présente les améliorations objectives comme accompagnant le résultat principal sans préciser qu'elles proviennent d'une analyse conduite bien plus tard, sans aucun témoin.
+
+  Le résultat principal repose par ailleurs sur des tests unilatéraux, explicitement assumés par les auteurs sur une hypothèse directionnelle pré-enregistrée — un choix défendable, pas un gonflement a posteriori. Mais en bilatéral, le score total du critère principal atteint p ≈ 0,052, soit juste au-dessus du seuil conventionnel de signification à 0,05. Les deux sous-échelles qui portent le résultat resteraient, elles, significatives. Un résultat principal qui bascule selon la latéralité du test ne peut soutenir aucune affirmation forte, dans un sens comme dans l'autre.
+
+  Après 3 mois, le design change de nature. Le groupe différé ayant lui aussi commencé le traitement, il n'existe plus aucun enfant non traité : les analyses à 6 et 12 mois — qui rapportent des améliorations plus marquées sur les mesures objectives — sont des comparaisons avant-après sur la cohorte entière poolée, sans comparateur. Les auteurs l'annoncent dans leur méthode, mais ne le signalent nulle part comme une limite de leurs conclusions. Ces améliorations sont compatibles, sans qu'aucune hiérarchie ne soit possible entre elles, avec un effet du traitement, l'évolution naturelle du bégaiement, la régression vers la moyenne ou l'attention reçue. L'essai fournit d'ailleurs sa propre démonstration interne de cette évolution spontanée : quatre enfants du groupe différé n'ont plus eu besoin de traitement après les trois mois d'attente sans aucune intervention.
+
+  L'attrition est par ailleurs asymétrique entre les deux bras (11 % côté traitement immédiat, 28 % côté liste d'attente), et l'intention de traiter annoncée n'en est pas tout à fait une : les enfants jamais traités sont exclus du dénominateur plutôt qu'imputés, ce que l'affichage du diagramme de flux (« 0 exclu ») ne rend pas visible.
+
+  Ce qui reste au crédit de l'essai est réel et doit être dit. Enregistrement prospectif authentique, deux comités d'éthique, protocole conforme aux standards européens de bonnes pratiques cliniques ; critère principal non modifié en cours de route ; correction de multiplicité correctement appliquée sur son périmètre ; puissance a priori atteinte ; évaluateurs aveugles à la fois au bras et au temps de mesure, avec une fiabilité inter-juges excellente ; premier essai randomisé jamais mené sur cette tranche d'âge, un champ où aucune revue systématique antérieure n'avait identifié d'essai contrôlé.
+
+  Deux limites de compétence, propres à ce thème, ont été délibérément écartées de cette analyse plutôt que tranchées à sa place : la nature exacte de ce que mesure la sous-échelle qui porte le plus grand effet du critère principal (les auteurs suggèrent eux-mêmes qu'elle reflète en partie les connaissances enseignées dès la première phase du traitement, sans que le contenu des items permette de le confirmer ou de l'infirmer) ; et la portée clinique réelle des écarts chiffrés observés, pour lesquels aucun seuil de différence minimale cliniquement importante n'est disponible. Ces deux points relèvent d'un jugement de métier que cette veille, faute de relecture par un orthophoniste, ne peut pas porter.
+
+  Enfin, l'étude a été menée en Allemagne, où 89 % des orthophonistes interrogés déclarent déjà utiliser cette méthode : ce que dit la source ne permet aucune affirmation sur la pratique orthophonique française, qui reste une inconnue.
+
+  Ce que ça change : rien sur l'indication d'adresser un enfant en orthophonie pour bégaiement, que cet essai ne remet pas en cause. Le seul enseignement transposable porte sur ce qu'on peut annoncer aux parents : ne pas promettre une amélioration mesurable et objective du bégaiement à court terme, tout en sachant qu'un mieux-être subjectif de l'enfant face à son trouble est un objectif atteignable et documenté dès les premiers mois.
+niveau_preuve: faible
+pertinence_pratique: moderee
+impact_algorithme:
+  concerne_decision: false
+  noeuds_impactes: []
+  proposition_maj: aucune
+temps_lecture_min: 10
+meta:
+  date_publication: "2023-11-01"
+  auteur: "référent veille"
+  statut: brouillon
+  relecture_referent: false

@@ -95,6 +95,18 @@ article** le 2026-08-10. Rapports dans `docs/veille/verifications-backlog/`.
 > fil de l'eau plutôt qu'en fin de course**, et lancer par paires (A+B d'un même item) plutôt que par
 > vagues, pour qu'une interruption laisse des paires complètes et non des moitiés.
 
+### ORTHO01 — candidat hors backlog boîte mail, trouvé par recherche directe (2026-08-10)
+
+Repéré via les connecteurs de recherche (`recherche-source-primaire`) plutôt que via la boîte mail :
+Kohmäscher A *et al.*, essai KIDS (modification du bégaiement, enfant d'âge scolaire), *JSLHR* 2023,
+PMID 37801699. Circuit §7bis tri-agents complet (thème `orthophonie`). **Réconcilié par l'agent C** :
+`analyse`/`informatif`/preuve `faible`, sous 8 conditions de rédaction opposables (C1-C8) et 7 interdits
+(N1-N7) — dont un **conflit d'intérêt confirmé sur trois casquettes** (autrice du manuel évalué,
+traductrice de l'instrument du critère principal, autrice de l'enquête justifiant le comparateur) et un
+recalcul montrant le critère principal à p≈.052 en bilatéral (non significatif). Détail complet :
+`verifications-backlog/ORTHO01-agent-{A,B,C-reconciliation}.md`. **Publié** :
+`content/veille/2026-W33/begaiement-kids-enfant-age-scolaire.yaml`.
+
 ### Bilan du lot — 7 items vérifiés, 0 publié
 
 | Issue | Items |
