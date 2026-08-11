@@ -59,19 +59,27 @@ tranché l'inverse. À traiter comme une règle de domaine (S1), pas nœud par n
 | [S5](S5.md) | T-199 | Migration du sourçage — `insuline` | Sonnet | high | — | S1, S2, S3 | `content/…/insuline.yaml` | [ ] |
 | [S6](S6.md) | T-200 | Migration du sourçage — `prescription` | Sonnet | high | — | S1, S2, S3, S4 | `content/…/prescription.yaml` | [ ] |
 | [S7](S7.md) | T-201 | Migration du sourçage — `statine` | Sonnet | high | — | S1, S2, S3, S4 | `content/…/statine.yaml` | [ ] |
-| [S8](S8.md) | T-202 | Câblage moteur du `quand` : classification, G2, `signatureVue`, golden master | Sonnet | xhigh | Desktop | S1 | `schema/`, `engine/expressionsNoeud.ts`, `lib/vueDecision.ts`, `engine/banc/__snapshots__/` | [ ] |
+| [S8](S8.md) | T-202 | Câblage moteur du `quand` : classification, G2, `signatureVue`, golden master | Sonnet | xhigh | Desktop | S1, S2 | `schema/`, `engine/expressionsNoeud.ts`, `lib/vueDecision.ts`, `components/OptionCard.tsx`, `screens/DecisionNodeScreen.tsx`, `engine/banc/__snapshots__/` | [ ] |
 | [S9](S9.md) | T-203 | Bras MCG d'`insuline` : red-team des sources OE, puis posologie conditionnelle | Opus | high | Desktop | S5, S8 | `content/…/insuline.yaml`, `docs/decision/validation/` | [ ] |
 | [S10](S10.md) | T-204 | Invariant rédactionnel : plus aucune incise de citation en posologie | Sonnet | medium | — | S5, S6, S7 | `engine/banc/` | [ ] |
 
 ## Ordonnancement
 
 - **Vague 1 — parallélisable** : S1 · S4 (zones disjointes : `schema/`+`src/` contre `docs/`).
-- **Vague 2 — parallélisable, après S1** : S2 · S3 · S8 (zones disjointes : `components/` ·
-  `engine/banc/invariants-contenu.test.ts` · `engine/expressionsNoeud.ts`+`lib/`+snapshots).
+- **Vague 2 — parallélisable, après S1** : S2 · S3 (zones disjointes : `components/` ·
+  `engine/banc/invariants-contenu.test.ts`).
+- **Vague 2b — après S2** : S8, seule. **Correction du 2026-08-11** : S8 touche aussi
+  `components/OptionCard.tsx` (rendu des items filtrés) et `screens/DecisionNodeScreen.tsx` (câblage
+  d'un nouveau champ `OptionVue`, même pattern que `optionVue.contreIndications` →
+  `contreIndications={...}` déjà en place l. 1414) — zone désormais **partagée avec S2**, donc plus
+  parallélisable avec elle. S8 se cale sur les classes CSS que S2 vient de poser plutôt que de les
+  redécouvrir. S3 reste indépendante des deux et peut chevaucher S8 dans le temps si l'exécution le
+  permet, mais ce n'est plus une contrainte du plan.
 - **Gate humaine** entre S4 et la vague 3 : Thibault tranche le sort des 8 citations orphelines
-  (versées en bibliographie ou retirées de l'écran) avant que S6/S7 ne migrent.
-- **Vague 3 — parallélisable** : S5 · S6 · S7 (trois fichiers de contenu distincts). Chacune porte son
-  bump de version, son changelog et sa relecture D5.
+  (versées en bibliographie ou retirées de l'écran) avant que S6/S7 ne migrent. **S5 n'attend pas cette
+  gate** (elle ne dépend pas de S4).
+- **Vague 3 — parallélisable** : S5 · S6 · S7 (trois fichiers de contenu distincts, S6/S7 après la
+  gate). Chacune porte son bump de version, son changelog et sa relecture D5.
 - **Vague 4** : S9 (après S5 et S8).
 - **Vague 5** : S10 — l'invariant « plus aucune incise » **en dernier**, seul moment où il peut passer
   au vert.
