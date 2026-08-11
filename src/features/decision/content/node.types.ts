@@ -633,22 +633,34 @@ export interface Option {
    */
   contre_indications?: (string | ContreIndication)[]
   /**
-   * COURT APERÇU DU CONTENU DE L'OPTION (T-076, P9/S9), affiché dans le titre du `<summary>` REPLIÉ,
-   * avant même de l'ouvrir — ex. les molécules/doses déjà citées dans `contre_indications`, jamais un
-   * texte différent ni un chiffre recalculé.
+   * COURT APERÇU DE LA POSOLOGIE DE L'OPTION (T-076, P9/S9) — ex. les molécules/doses déjà citées
+   * ailleurs dans l'option, jamais un texte différent ni un chiffre recalculé.
    *
-   * MOTIF : le titre du dépli ne portait jusqu'ici qu'un compte de contre-indications (« ⚠ N
-   * contre-indication(s), effet attendu et plus ») ou un libellé générique, jamais un extrait du
-   * contenu utile — un praticien qui cherche une posologie n'avait aucune raison de l'ouvrir sur la
-   * seule promesse de contre-indications (rapport de recette cité par S9).
+   * UNE LIGNE COURTE, PAS UNE PROSE. C'est la contrainte d'origine du champ et elle reste vraie, même si
+   * le support a changé (cf. ci-dessous) : il doit tenir sur une ligne condensée.
    *
-   * UNE LIGNE COURTE, PAS UNE PROSE : ce champ est fait pour tenir sur la même ligne que le compte de
-   * contre-indications (`OptionCard.tsx`, `libelleSummary`).
+   * MOTIF D'ORIGINE, ET CE QUI EN RESTE. T-076 l'avait créé pour le titre du `<summary>` REPLIÉ d'alors,
+   * qui ne portait qu'un compte de contre-indications (« ⚠ N contre-indication(s), effet attendu et
+   * plus ») : un praticien qui cherchait une posologie n'avait aucune raison d'ouvrir le dépli sur la
+   * seule promesse de contre-indications (rapport de recette cité par S9). **CE `<summary>` N'EXISTE
+   * PLUS** — la refonte P11/S6 (2026-08-01, « carte en une ligne ») l'a remplacé par des panneaux
+   * `hidden` ouverts par des pastilles. Ce champ n'est donc plus jamais lu « carte repliée » au sens
+   * d'origine. IL N'A PLUS QU'UN SEUL RENDU RÉEL (`OptionCard.tsx`) : la PREMIÈRE LIGNE DU PANNEAU
+   * `--posologie`, et **seulement en l'absence de `posologie_detail`** (correctif de redondance du
+   * 2026-08-11 — quand les deux champs coexistent, `posologie_detail[0]` dit la même chose en plus précis
+   * et en sourcé). Il alimente bien aussi `texteSurvolPosologie`, mais cette valeur est jetée par
+   * `PastilleInfo`, dont la bulle affiche son `libelle` depuis le 2026-08-04 : ce n'est pas un second
+   * canal d'affichage sur lequel compter.
    *
-   * OPTIONNEL ET GÉNÉRIQUE, appliqué au cas par cas par le contenu — T-076 ne l'a renseigné QUE sur
-   * l'option statine haute intensité de `statine.yaml`, pour valider le principe avant une éventuelle
-   * généralisation (hors périmètre de cette session). Une option qui ne le porte pas garde le rendu
-   * actuel du titre, rigoureusement inchangé.
+   * CE QUI EN DÉCOULE POUR LE CONTENU, ET C'EST CONTRE-INTUITIF : sur une option qui porte déjà
+   * `posologie_detail`, `apercu` n'est plus affiché nulle part — l'y renseigner ne sert à rien tant que ce
+   * champ existe. Sur une option qui n'a que lui (20 des 87 options au 2026-08-11 : 13 sur
+   * `prescription`, 6 sur `rhd-activite-physique`, 1 sur `insuline`), il EST toute la posologie du
+   * panneau : l'y supprimer viderait le panneau.
+   *
+   * OPTIONNEL ET GÉNÉRIQUE, appliqué au cas par cas par le contenu — T-076 ne l'avait renseigné que sur
+   * l'option statine haute intensité de `statine.yaml`, pour valider le principe avant généralisation.
+   * Une option qui ne le porte pas ne rend simplement pas cette ligne.
    */
   apercu?: string
   /**
@@ -657,13 +669,19 @@ export interface Option {
    * titration de la metformine), ce qui le noyait dans l'argumentaire clinique (bénéfice/risque) au lieu
    * du panneau POSOLOGIE où un praticien qui cherche « comment je prescris » le cherche réellement.
    *
-   * DISTINCT d'`apercu` : `apercu` est UNE LIGNE COURTE affichée même carte repliée (titre du dépli),
-   * celui-ci est la PROSE COMPLÈTE affichée seulement le panneau `--posologie` ouvert (mêmes puces que
-   * `avantages`/`inconvenients`, cf. `OptionCard.tsx`). Les deux peuvent coexister : `apercu` reste le
-   * résumé, `posologie_detail` le détail.
+   * DISTINCT d'`apercu`, ET PRIORITAIRE SUR LUI DANS LE PANNEAU (2026-08-11) : `apercu` est UNE LIGNE
+   * COURTE, celui-ci est la PROSE COMPLÈTE. Les deux CHAMPS peuvent coexister dans le contenu (16 options
+   * le font), mais ils ne s'affichent PLUS tous les deux dans le panneau `--posologie` — le détail y
+   * remplace l'aperçu, qui n'y était qu'une redite. `apercu` conserve dans ce cas le survol de la
+   * pastille. Cf. la docstring d'`apercu` ci-dessus et celle de tête d'`OptionCard.tsx` pour la cause
+   * racine (le `<summary>` pour lequel `apercu` avait été écrit n'existe plus depuis P11/S6).
    *
-   * Optionnel : absent → le panneau posologie garde son rendu historique (`apercu` + `calculs` +
-   * `calculsEnAttente` seuls).
+   * LE PREMIER PARAGRAPHE EST LE GESTE, les suivants ses modalités. Ce n'est pas qu'une convention de
+   * rédaction : `OptionCard.tsx` rend `posologie_detail[0]` au premier plan (gabarit de l'intitulé de la
+   * carte) et les suivants en retrait. Rédiger le schéma de dose ailleurs qu'en tête enterrerait donc le
+   * geste — c'est l'ordre du contenu qui porte la hiérarchie de lecture.
+   *
+   * Optionnel : absent → le panneau posologie retombe sur `apercu` + `calculs` + `calculsEnAttente`.
    */
   posologie_detail?: string[]
   /**
