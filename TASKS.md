@@ -18,8 +18,7 @@ plan** (statut dans son `index.md`) : `- T-ID — titre · → plans/…/S<k>.md
   T-198 citations non vérifiables (8 orphelines, 2 douteuses, CYP3A4) → S4 · T-199/T-200/T-201 migration
   `insuline`/`prescription`/`statine` → S5-S7 · T-202 `quand` (moteur, `signatureVue`) → S8 ·
   T-203 bras MCG → S9 · T-204 invariant « plus aucune incise » → S10
-- [ ] **Né de P15** : `prescription`, 13 options à `apercu` seul (sécurité dans le canal posologie) ·
-      2 trouvailles OE (seuil 0,5 U/kg vs P14/S4 ; Peters 2019 → bolus) · Sonnet, medium.
+- [ ] **Né de P15** : `prescription` 13 options `apercu` seul · 2 trouvailles OE (seuil 0,5 U/kg vs P14/S4 ; Peters 2019 → bolus) · source du palier « −10 à −20 % » insuline non trouvée (S4 pt. 6) · Sonnet, medium.
 
 ## Backlog — né de P12 (2026-08-03), non cadré
 
