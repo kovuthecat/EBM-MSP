@@ -1,0 +1,130 @@
+Voici l'analyse des six sous-questions, dans l'ordre demandé. Le cadrage impose une distinction stricte que la littérature confirme : les métriques de mesure continue du glucose (MCG) sont aujourd'hui validées comme seuils d'INTERPRÉTATION, mais aucun algorithme de titration de basale PILOTÉ par ces métriques (avec déclencheur chiffré + pas de dose) n'a été validé de façon comparative en ambulatoire chez le DT2.
+
+**Q1. ECR comparant titration de basale pilotée par MCG vs pilotée par glycémie capillaire à jeun (DT2)**
+
+Aucun ECR ambulatoire trouvé pour Q1 qui compare directement un algorithme de titration piloté par les métriques MCG à un algorithme piloté par la glycémie capillaire à jeun, chez le DT2 sous basale.
+
+Les grands ECR de MCG chez le DT2 sous basale (MOBILE, FreeDM2, Steno2tech) comparent la MODALITÉ DE MONITORAGE (MCG vs autosurveillance capillaire), et non deux algorithmes de titration. Ce ne sont pas des essais de « titration pilotée par capteur ».
+
+Le seul essai identifié comparant réellement des algorithmes de titration MCG vs glycémie ponctuelle est **DIATEC** — mais il s'agit d'une population HOSPITALISÉE (adaptation quotidienne par une équipe diabéto), donc non transposable par défaut à la question ambulatoire.[1] Point crucial : dans DIATEC, les algorithmes étaient IDENTIQUES pour les cibles et les pas de dose dans les deux bras ; seule différait la SOURCE de mesure (MCG vs glycémie capillaire au lit du malade).[1] Ce n'est donc pas un algorithme « piloté par métriques MCG » (TIR/TAR/AGP) mais par une valeur glycémique nocturne obtenue via capteur.
+
+**Q2. Algorithme de titration de basale guidé par MCG, publié et évalué prospectivement (DT2)**
+
+Aucun ECR ambulatoire prospectif trouvé pour Q2 validant un algorithme de basale piloté par des métriques MCG avec déclencheur et pas de dose chiffrés. Les éléments les plus proches, avec leurs limites explicites :
+
+- **Martens et al. 2025 (PMID 40683222)** : analyse RÉTROSPECTIVE (non prospective) de 7354 paires glycémie à jeun/MCG aveugle chez 68 DT2. Elle ne propose pas une titration par TIR/AGP, mais un SUBSTITUT capteur de la glycémie à jeun : le « nadir MCG de la 1 h du matin » (médiane des 3 valeurs les plus basses de l'heure précédant la glycémie à jeun). Ce nadir était essentiellement équivalent à la glycémie à jeun sur trois algorithmes classiques (INSIGHT canadien, Treat2Target, AT.LANTUS), avec erreurs de dose relatives majoritairement entre −10 % et +10 %. Donc : substitut chiffré de la glycémie à jeun, pas un pilotage par métriques MCG, et non évalué prospectivement.[2]
+- **DIATEC (Olsen 2025)** : algorithme prospectif publié, mais HOSPITALIER et fondé sur une valeur glycémique nocturne (basale titrée si glucose nocturne/à jeun hors de la fourchette 5,6–7,8 mmol/L), avec pas de dose définis dans le protocole publié [19 dans la source] — non transposable par défaut à l'ambulatoire, et pas piloté par TIR/AGP.[1]
+
+À défaut, les seuls « pas de dose » chiffrés et actionnables publiés restent ceux fondés sur la glycémie à jeun (voir Q4).
+
+**Q3. Protocole de titration réellement appliqué dans le bras capteur — MOBILE, FreeDM2, méta-analyse Jancev**
+
+- **MOBILE (Martens, PMID 34077499)** : DT2 sous basale sans prandiale, suivi en soins primaires. Protocole verbatim accessible : les visites servaient à revoir les données glycémiques et à l'« auto-titration de l'insuline », et « les changements de traitement étaient faits par le médecin de soins primaires » ; les investigateurs transmettaient les données et des suggestions de gestion. La titration n'était PAS pilotée par un algorithme sur métriques MCG : elle restait à la discrétion du clinicien de soins primaires. De fait, il n'y a eu aucune différence significative de dose totale d'insuline entre bras — le bénéfice (TIR +15 %, IC 95 % 8 à 23 ; HbA1c −0,4 %, IC 95 % −0,8 à −0,1 à 8 mois) provient du comportement et non d'un algorithme posologique piloté par capteur.[3]
+- **FreeDM2 (Wilmot, doi 10.1016/S2213-8587(26)00076-8, PMID 42035781)** : DT2 sous basale + iSGLT2 et/ou AR-GLP-1/GIP. Protocole verbatim : phase 1 (semaines 1–16) « auto-gestion avec auto-titration de la basale » ; phase 2 (semaines 17–32) « soutenue par le clinicien ». Le détail de l'algorithme d'auto-titration (déclencheur/pas de dose) n'est PAS spécifié dans le texte accessible, et les auteurs soulignent explicitement que l'amélioration glycémique en phase 1 est survenue SANS différence de dose d'insuline entre groupes (bénéfice attribué aux changements de mode de vie). Donc pas de pilotage posologique par métriques MCG démontré.[4]
+- **Méta-analyse Jancev (PMID 38363342)** : 12 ECR, 1248 DT2, MCG vs autosurveillance capillaire. Le protocole de titration n'est PAS harmonisé ni rapporté de façon uniforme entre essais ; la méta-analyse compare la modalité de monitorage, pas un algorithme de titration piloté par capteur. Résultats : HbA1c −0,31 % (IC 95 % −0,43 à −0,19), TIR +6,36 % (IC 95 % +2,48 à +10,24), TAR −5,86 %, TBR −0,66 %. Le protocole de titration par essai individuel n'est pas cité verbatim dans les données disponibles ici et doit être signalé comme non accessible.[5]
+
+Synthèse Q3 : dans les trois cas, le bras capteur n'appliquait pas une titration pilotée par les métriques MCG ; la titration était soit à discrétion clinique (MOBILE), soit une auto-titration dont l'algorithme n'est pas détaillé et sans effet mesuré sur la dose (FreeDM2), soit non harmonisée (Jancev).
+
+**Q4. Seuils MCG validés comme DÉCLENCHEUR D'UNE MAJORATION DE DOSE de basale, associés à un pas de dose**
+
+Distinction essentielle demandée :
+
+- Seuils d'INTERPRÉTATION (consensus ATTD/ICTR, PMID 31177185 et dérivés) : TIR 70–180 mg/dL > 70 %, TBR  180 mg/dL  250 mg/dL [6][7][8][9]
+- Seuils d'ACTION POSOLOGIQUE : aucun seuil MCG (p. ex. « TIR  Y % → +N unités ») n'a été validé comme déclencheur chiffré de majoration de basale. Aucun ECR trouvé pour cette partie de Q4.
+
+Les seuls pas de dose chiffrés et validés restent fondés sur la glycémie à jeun (transposables via le substitut capteur « nadir 1 h du matin » de Q1/Q2, mais non prospectivement testés) :[2]
+
+- AACE 2026 : régime fixe +2 unités par palier ; ou auto-titration ajustée sur la glycémie à jeun : +20 % si > 180 mg/dL, +10 % si 140–180 mg/dL, +1 unité si 110–139 mg/dL ; réduction de 10–20 % si glycémie à jeun [10]
+- ADA/Bolli 2025 : ≤ 2 unités de variation par semaine, cible glycémie à jeun 100–120 mg/dL.[11]
+
+Ces algorithmes sont pilotés par la glycémie à jeun, pas par les métriques MCG.
+
+**Q5. Profil nocturne (courbe AGP) comme déclencheur de titration de la basale, et sur-basalisation détectée par la courbe nocturne**
+
+Données limitées et de faible niveau de preuve ; aucun ECR trouvé pour Q5 comparant une titration déclenchée par la lecture de l'AGP nocturne à une titration sur glycémie à jeun.
+
+- Au niveau des avis d'experts/revues : la revue JAMA Internal Medicine 2026 indique que la basale peut être augmentée en réponse à une glycémie qui monte pendant la nuit et à une hyperglycémie à jeun, ou diminuée en cas de baisse nocturne ou d'hypoglycémie nocturne — recommandation qualitative fondée sur des « schémas répétés », sans seuil ni pas de dose. Niveau : opinion/revue narrative, non un algorithme validé.[12]
+- Sur-basalisation : l'ADA 2026 et l'AACE définissent des signaux d'alerte — différentiel coucher-réveil ≥ 50 mg/dL (≥ 2,8 mmol/L), hypoglycémie, forte variabilité glycémique, dose de basale > 0,5 U/kg/j — devant conduire à réévaluer le plan plutôt qu'à majorer la basale. Ces signaux sont interprétatifs, pas des règles posologiques chiffrées. Le différentiel coucher-réveil peut se calculer directement (BeAM value) :[13][10]
+
+Ce calculateur illustre le signal de sur-basalisation (différentiel coucher − réveil) :
+
+À noter, une donnée quantitative sur le PROFIL NOCTURNE — mais qui concerne la décision d'intensifier vers du BOLUS, pas de titrer la basale : Peters et al. 2019 ont montré que la variation glucidique nocturne de base prédit mieux la réponse à l'intensification prandiale que l'HbA1c.[14] Cela suggère qu'un profil nocturne « à jeun correct mais montée post-prandiale » oriente vers le bolus (et le repérage d'une sur-basalisation), et non vers une majoration de basale.
+
+**Q6. Recommandations internationales indexées post-2019 : algorithme de titration de basale sur MCG, ou seulement cibles d'interprétation ?**
+
+Les recommandations post-2019 définissent des cibles d'INTERPRÉTATION MCG et recommandent l'usage de la MCG chez le DT2 sous insuline, mais AUCUNE ne définit d'algorithme de titration de basale piloté par les métriques MCG (déclencheur + pas de dose). Détail par société :
+
+- **ADA Standards of Care 2026** (chapitre 6, grade non attribué à une règle posologique) : paragraphe verbatim — « TBR (180 mg/dL) are useful parameters for insulin dose adjustments, reevaluation of the treatment plan… » et « the goals of therapy displayed in Table 6.2 serve as values to guide changes in therapy ». Ce sont des paramètres/cibles d'interprétation, non un algorithme.[9]
+- **ADA chapitre 9 (2026)** : définit les signaux de sur-basalisation (cf. Q5), sans algorithme MCG de titration.[13]
+- **AACE 2026** : recommande fortement la MCG et l'usage de TIR/TBR/GV pour la titration, mais l'algorithme posologique chiffré fourni (Algorithme 8) reste basé sur la glycémie à jeun (+20 %/+10 %/+1 U). Cibles MCG : TIR > 70 %, TBR [10]
+- **Consensus ADA/EASD** : suggère de considérer la MCG chez le DT2 sous insuline — pas d'algorithme de titration.[15]
+- **ATTD/ICTR (PMID 31177185 et actualisations)** : uniquement des cibles d'interprétation (TIR/TAR/TBR), par définition.[6][7][16][8]
+- **NICE** : recommande la MCG flash chez le DT2 ≥ 18 ans sous insuline ≥ 2 fois/j ou en cas d'hypoglycémies récurrentes/sévères, etc. — critères d'accès au dispositif, pas d'algorithme de titration MCG.[15]
+
+**Conclusion synthétique**
+
+La titration MCG-pilotée de la basale (par TIR/TAR/tendance AGP nocturne, avec déclencheurs et pas de dose) n'est à ce jour ni validée par un ECR ambulatoire (Q1), ni disponible sous forme d'algorithme prospectivement évalué en ambulatoire (Q2). Dans les grands ECR (MOBILE, FreeDM2, Jancev), la titration restait clinicien-dépendante ou fondée sur la glycémie, sans effet démontré sur la dose (Q3). Les seuls seuils MCG « validés » sont interprétatifs (ATTD/ICTR), pas posologiques (Q4). Le profil nocturne sert surtout à détecter la sur-basalisation et à orienter vers le bolus, avec des données faibles (Q5). Aucune recommandation internationale post-2019 ne définit un tel algorithme (Q6). Le pont le plus concret vers un pilotage capteur reste le substitut « nadir MCG de la 1 h du matin » de la glycémie à jeun (PMID 40683222), mais il est rétrospectif.[2]
+
+Souhaitez-vous explorer le protocole détaillé d'auto-titration de la basale de l'essai FreeDM2 ?
+
+Figure 9.4
+Intensifying to injectable therapies in type 2 diabetes.
+American Diabetes Association Professional Practice Committee. 9. Pharmacologic Approaches to Glycemic Treatment: Standards of Care in Diabetes-2025. Diabetes Care. 2025;48(1 Suppl 1):S181-S206. doi:10.2337/dc25-S009.
+
+Figure 3
+Suggested Algorithm for Initiating Insulin in Patients With Type 2 Diabetes
+Wallia A, Molitch ME. Insulin Therapy for Type 2 Diabetes Mellitus. Jama. 2014;311(22):2315-25. doi:10.1001/jama.2014.5951.
+
+Figure 3
+Titration algorithms in randomized controlled trials of basal insulins.
+Khunti K, Giorgino F, Berard L, Mauricio D, Harris SB. The Importance of the Initial Period of Basal Insulin Titration in People With Diabetes. Diabetes, Obesity & Metabolism. 2020;22(5):722-733. doi:10.1111/dom.13946.
+
+Figure 2
+A, Insulin glargine dosage per titration group (safety population), and B, Mean fasting plasma glucose (FPG) levels over the 26‐week study period (mITT population).
+Hramiak I, Gerstein HC, Leiter LA, et al. Comparing a Daily Versus Weekly Titration Algorithm in People With Type 2 Diabetes Switching From Basal Insulin to iGlarLixi in the LixiLan ONE CAN Randomized Trial. Diabetes, Obesity & Metabolism. 2022;24(10):1998-2007. doi:10.1111/dom.14787.
+
+Figure 1
+A, glycated haemoglobin (HbA1c) least squares (LS) means change between baseline and week 24.
+Russell-Jones D, Dauchy A, Delgado E, et al. Take Control: A Randomized Trial Evaluating the Efficacy and Safety of Self- Versus Physician-Managed Titration of Insulin Glargine 300 u/mL in Patients With Uncontrolled Type 2 Diabetes. Diabetes, Obesity & Metabolism. 2019;21(7):1615-1624. doi:10.1111/dom.13697.
+
+Figure 2
+A, Changes from baseline in HbA1c levels at M4 and M13.
+Franc S, Joubert M, Daoudi A, et al. Efficacy of Two Telemonitoring Systems to Improve Glycaemic Control During Basal Insulin Initiation in Patients With Type 2 Diabetes: The TeleDiab-2 Randomized Controlled Trial. Diabetes, Obesity & Metabolism. 2019;21(10):2327-2332. doi:10.1111/dom.13806.
+
+Figure 3
+Changes in Glycated Hemoglobin With Addition of Glucagon-Like Peptide-1 Receptor Agonist (GLP-1 RA), Sodium-Glucose Cotransporter-2 Inhibitor (SGLT-2i), Prandial Insulin, and Basal Insulin
+Hirsch IB, Garg SK, Repetto E, et al. Continuous Glucose Monitoring Frequency and Glycemic Control in People With Type 2 Diabetes. JAMA Network Open. 2025;8(10):e2539278. doi:10.1001/jamanetworkopen.2025.39278.
+
+Figure 2
+Hemoglobin A1c (HbA1c) Values at 8 Months
+Martens T, Beck RW, Bailey R, et al. Effect of Continuous Glucose Monitoring on Glycemic Control in Patients With Type 2 Diabetes Treated With Basal Insulin: A Randomized Clinical Trial. Jama. 2021;325(22):2262-2272. doi:10.1001/jama.2021.7444.
+
+Figure 3
+Reporting of clinically significant time in range and time below range outcomes in clinical trials – recommendations from the International Consensus of Time in Range (ICTR).
+Goshrani A, Lin R, O'Neal D, Ekinci EI. Time in Range-a New Gold Standard in Type 2 Diabetes Research?. Diabetes, Obesity & Metabolism. 2025;27(5):2342-2362. doi:10.1111/dom.16279.
+
+### References
+
+1. In-Hospital Diabetes Management by a Diabetes Team and Insulin Titration Algorithms Based on Continuous Glucose Monitoring or Point-of-Care Glucose Testing in Patients With Type 2 Diabetes (DIATEC): A Randomized Controlled Trial. Olsen MT, Klarskov CK, Jensen SH, et al. Diabetes Care. 2025;48(4):569-578. doi:10.2337/dc24-2222.
+2. Continuous Glucose Monitoring Versus Fasting Blood Glucose Basal Insulin Titration: A Retrospective Analysis. Martens TW, Johnson J, Katz ML, et al. Diabetes & Metabolic Syndrome. 2025;19(6):103266. doi:10.1016/j.dsx.2025.103266.
+3. Effect of Continuous Glucose Monitoring on Glycemic Control in Patients With Type 2 Diabetes Treated With Basal Insulin. Martens T, Beck RW, Bailey R, et al. JAMA. 2021;325(22):2262-2272. doi:10.1001/jama.2021.7444.
+4. Continuous Glucose Monitoring Versus Self-Monitoring of Blood Glucose in Individuals With Type 2 Diabetes: A Randomised, Multicentre, Open-Label, Superiority Trial. Wilmot EG, Moore P, Sathyapalan T, et al. The Lancet. Diabetes & Endocrinology. 2026;14(6):463-474. doi:10.1016/S2213-8587(26)00076-8.
+5. Continuous Glucose Monitoring in Adults With Type 2 Diabetes: A Systematic Review and Meta-Analysis. Jancev M, Vissers TACM, Visseren FLJ, et al. Diabetologia. 2024;67(5):798-810. doi:10.1007/s00125-024-06107-6.
+6. Reconsidering the role of glycaemic control in cardiovascular disease risk in type 2 diabetes: A 21st century assessment. Aroda VR, Eckel RH. Diabetes, Obesity & Metabolism. 2022;24(12):2297-2308. doi:10.1111/dom.14830.
+7. Continuous glucose monitoring and microvascular complications in diabetes: Bridging glycemic metrics with clinical outcomes. Anagnostopoulou L, Liarakos AL, Ntanasis-Stathopoulos I, Briasoulis A, Tentolouris A. Diabetes, Obesity & Metabolism. 2026;28(2):840-849. doi:10.1111/dom.70288.
+8. Time in range—A new gold standard in type 2 diabetes research?. Goshrani A, Lin R, O'Neal D, Ekinci EI. Diabetes, Obesity & Metabolism. 2025;27(5):2342-2362. doi:10.1111/dom.16279.
+9. 6. Glycemic Goals, Hypoglycemia, and Hyperglycemic Crises: Standards of Care in Diabetes-2026. American Diabetes Association Professional Practice Committee for Diabetes*. Diabetes Care. 2026;49(Supplement_1):S132-S149. doi:10.2337/dc26-S006.
+10. American Association of Clinical Endocrinology Consensus Statement: Algorithm for Management of Adults With Type 2 Diabetes - 2026 Update. Samson SL, Vellanki P, Blonde L, et al. Endocrine Practice : Official Journal of the American College of Endocrinology and the American Association of Clinical Endocrinologists. 2026;32(4):473-518. doi:10.1016/j.eprac.2026.01.006.
+11. The Modern Role of Basal Insulin in Advancing Therapy in People With Type 2 Diabetes. Bolli GB, Home PD, Porcellati F, et al. Diabetes Care. 2025;48(5):671-681. doi:10.2337/dci24-0104.
+12. Continuous Glucose Monitoring in Type 2 Diabetes and Beyond. Dower JA, Johansson M, Camp AW, Montori VM, Lipska KJ. JAMA Internal Medicine. 2026;:2851941. doi:10.1001/jamainternmed.2026.2772.
+13. 9. Pharmacologic Approaches to Glycemic Treatment: Standards of Care in Diabetes-2026. American Diabetes Association Professional Practice Committee for Diabetes*. Diabetes Care. 2026;49(Suppl 1):S183-S215. doi:10.2337/dc26-S009.
+14. Baseline nocturnal glucose change: A predictor of the treatment effect of bolus intensification in insulin‐treated type 2 diabetes. Peters AL, Piletič M, Ejstrud J, et al. Diabetes, Obesity & Metabolism. 2019;21(7):1752-1756. doi:10.1111/dom.13729.
+15. Enhancing Type 2 Diabetes Care With CGM Integration: Insights From an Italian Expert Group. Irace C, Avogaro A, Bertuzzi F, et al. Diabetes/Metabolism Research and Reviews. 2025;41(5):e70059. doi:10.1002/dmrr.70059.
+16. Continuous Glucose Monitoring and Metrics for Clinical Trials: An International Consensus Statement. Battelino T, Alexander CM, Amiel SA, et al. The Lancet. Diabetes & Endocrinology. 2023;11(1):42-57. doi:10.1016/S2213-8587(22)00319-9.
+17. 9. Pharmacologic Approaches to Glycemic Treatment: Standards of Care in Diabetes-2025. American Diabetes Association Professional Practice Committee. Diabetes Care. 2025;48(1 Suppl 1):S181-S206. doi:10.2337/dc25-S009.
+18. Insulin Therapy for Type 2 Diabetes Mellitus. Wallia A, Molitch ME. JAMA. 2014;311(22):2315-25. doi:10.1001/jama.2014.5951.
+19. The importance of the initial period of basal insulin titration in people with diabetes. Khunti K, Giorgino F, Berard L, Mauricio D, Harris SB. Diabetes, Obesity & Metabolism. 2020;22(5):722-733. doi:10.1111/dom.13946.
+20. Comparing a daily versus weekly titration algorithm in people with type 2 diabetes switching from basal insulin to iGlarLixi in the LixiLan ONE CAN randomized trial. Hramiak I, Gerstein HC, Leiter LA, et al. Diabetes, Obesity & Metabolism. 2022;24(10):1998-2007. doi:10.1111/dom.14787.
+21. Take Control: A randomized trial evaluating the efficacy and safety of self‐ versus physician‐managed titration of insulin glargine 300 U/mL in patients with uncontrolled type 2 diabetes. Russell-Jones D, Dauchy A, Delgado E, et al. Diabetes, Obesity & Metabolism. 2019;21(7):1615-1624. doi:10.1111/dom.13697.
+22. Efficacy of two telemonitoring systems to improve glycaemic control during basal insulin initiation in patients with type 2 diabetes: The TeleDiab‐2 randomized controlled trial. Franc S, Joubert M, Daoudi A, et al. Diabetes, Obesity & Metabolism. 2019;21(10):2327-2332. doi:10.1111/dom.13806.
+23. Continuous Glucose Monitoring Frequency and Glycemic Control in People With Type 2 Diabetes. Hirsch IB, Garg SK, Repetto E, et al. JAMA Network Open. 2025;8(10):e2539278. doi:10.1001/jamanetworkopen.2025.39278.
