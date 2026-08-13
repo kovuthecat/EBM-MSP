@@ -69,6 +69,15 @@ ECR chez l'humain avec au moins 100 participants »). Une recherche large sans f
 réglage par défaut pour du débroussaillage. Consensus cite ses résultats par numéro ([1], [2]…) —
 reprendre le PMID/DOI de la fiche, pas seulement ce numéro, pour la table maîtresse des preuves.
 
+### Preprint (medRxiv, bioRxiv) — repli si la version publiée est verrouillée
+
+Quand l'article publié est payant et qu'aucune autre voie légitime (PMC, protocole/SAP,
+résumés secondaires concordants) ne débloque l'accès, chercher si une **version preprint** de la
+même étude existe. Ça donne accès au texte intégral, mais avec un statut différent — **non
+peer-reviewed** — à marquer explicitement dans la table de preuve (jamais présenté comme
+équivalent à la version publiée). Si les résultats du preprint et du résumé de la version publiée
+divergent, signaler la divergence plutôt que de trancher silencieusement pour l'un ou l'autre.
+
 ### Elicit — vérifier l'accès API avant de compter dessus
 
 Nécessite un abonnement Pro côté compte pour l'accès API ; sans lui, `search_papers`/`search_trials`
@@ -100,7 +109,11 @@ en supériorité) — invisible sans remonter à la source.
 - Un chiffre trouvé seulement via un résumé secondaire concordant (2-3 sources indépendantes) est
   marqué **`NON VÉRIFIÉ (partiel)`**, pas présenté comme confirmé.
 - Une source réellement inaccessible (paywall confirmé par vérification d'accès, pas par simple
-  échec de fetch) est un motif de **report**, pas de silence ni d'invention.
+  échec de fetch, et sans issue via PMC, protocole/SAP, preprint ou résumés secondaires
+  concordants) est un motif de **report**, pas de silence ni d'invention. Avant d'acter le report,
+  **demander au référent s'il a un accès personnel ou institutionnel à l'article** (bibliothèque
+  universitaire/hospitalière, abonnement) — hors de portée de l'agent, mais souvent le déblocage le
+  plus simple ; ne pas lever le report tant que la réponse n'est pas revenue.
 - Si un article attendu ne correspond pas à la description qu'on en a (piège déjà rencontré :
   confusion entre deux études de la même équipe, ou entre un essai princeps et une analyse
   secondaire) — le dire explicitement et rechercher à nouveau plutôt que de forcer la correspondance.
