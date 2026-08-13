@@ -34,6 +34,11 @@ sur ce projet (SAP de l'essai SELECT, cf. `docs/veille/JOURNAL_BOITE_MAIL.md` §
 qui bloquait (un critère était-il préspécifié ou post-hoc ?) s'est tranchée sur le SAP, pas sur
 l'article.
 
+Pour comparer un critère de jugement entre plusieurs essais proches du même domaine (même
+population, même classe d'intervention), `analyze_endpoints` fait la comparaison systématique en un
+appel plutôt que de rouvrir chaque `get_trial_details` un par un pour extraire manuellement les
+critères — utile en appui d'une appréciation GRADE quand plusieurs essais sont en jeu.
+
 **Piège d'extraction PDF, rencontré sur un SAP téléchargé** : certains PDF encodent les caractères
 espacés (« S e m a gl uti d e »). Une recherche plein texte naïve peut renvoyer zéro occurrence
 d'un terme qui est pourtant présent — faux négatif qui peut passer pour un résultat. **Normaliser
@@ -48,11 +53,27 @@ relais de presse, une citation approximative). Recherche sémantique large, cros
 citer un chiffre depuis leur résumé** — une fois l'article identifié, remonter à la source (PubMed,
 DOI direct) pour toute donnée chiffrée.
 
+Consensus expose des filtres (`study_types` — RCT, non-RCT, essai en laboratoire, simulation, etc.
+—, `domain`/`human`, `sample_size_min`, `year_min`/`year_max`, `sjr_max`) mais **ne pas les
+appliquer par défaut** — seulement quand la question du référent restreint explicitement (ex. « des
+ECR chez l'humain avec au moins 100 participants »). Une recherche large sans filtre reste le
+réglage par défaut pour du débroussaillage. Consensus cite ses résultats par numéro ([1], [2]…) —
+reprendre le PMID/DOI de la fiche, pas seulement ce numéro, pour la table maîtresse des preuves.
+
 ### Elicit — vérifier l'accès API avant de compter dessus
 
 Nécessite un abonnement Pro côté compte pour l'accès API ; sans lui, `search_papers`/`search_trials`
 renvoient `api_access_denied`. Tester une fois en début de session ; ne pas re-tester à chaque appel
 si le refus est déjà tombé une fois.
+
+Coûteux en usage si l'accès est actif : recherche ≈ 200 crédits, limite globale 100 requêtes/minute
+tous plans confondus. Grouper les questions plutôt que relancer une recherche par sous-critère.
+`search_trials` couvre ~545 000 essais en recherche sémantique — complémentaire de
+`search_trials`/`search_by_eligibility` de ClinicalTrials.gov (recherche structurée par champs),
+pas un doublon : utile quand la formulation de la question ne correspond à aucun champ structuré
+évident. `create_systematic_review` (screening à grande échelle) est hors de proportion pour une
+vérification de nœud ponctuelle — réservé à une revue de littérature complète si le référent la
+demande explicitement.
 
 ## Le garde-fou central, hérité de la veille mais valable partout
 
