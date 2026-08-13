@@ -25,6 +25,15 @@ peut être un problème d'outil, pas un problème d'accès réel. Si `is_open_ac
 `pmc_id: null`, l'inaccessibilité est confirmée et peut être actée (→ `reporte` ou repli en brève,
 selon le pipeline).
 
+Le texte intégral (`get_full_text_article`) n'existe que pour les articles présents dans **PubMed
+Central** — sous-ensemble d'environ 8 millions d'articles sur les ~36 millions de notices PubMed
+(abstract seul pour le reste, même quand l'article n'est pas payant ailleurs). Un `pmc_id` absent
+n'est donc pas forcément un paywall — vérifier aussi l'accès direct chez l'éditeur avant de
+conclure. Pour une citation incomplète ou douteuse plutôt qu'une inaccessibilité,
+`lookup_article_by_citation`/`convert_article_ids` retrouvent le PMID exact ; `find_related_articles`
+sert à repérer une réplication ou une étude sœur de la même équipe (utile pour le piège de
+confusion entre essai princeps et analyse secondaire, cf. discipline de citation ci-dessous).
+
 ### ClinicalTrials.gov — le réflexe qui débloque le plus de reports
 
 Avant de reporter un item pour inaccessibilité du texte intégral d'un essai, **chercher le
