@@ -17,7 +17,11 @@ coût — il évite de reconstruire la discipline de citation et les gabarits de
 
 ## Étape 1 — Agent A : collecte et appréciation
 
-Donne-lui la question clinique exacte du référent, telle quelle. Il doit produire une **table
+Donne-lui la question clinique exacte du référent, telle quelle. Réflexe d'outillage : privilégier
+les connecteurs MCP nommés dans `recherche-source-primaire` (PubMed, ClinicalTrials.gov, Consensus,
+Elicit) avant un fetch web générique — accès structuré (PMID, statut open access, SAP d'essai) plus
+fiable qu'un scraping de page. `recherche-source-primaire` reste la référence pour les pièges propres
+à chaque connecteur (accès Elicit à tester une fois, extraction PDF ClinicalTrials, etc.). Il doit produire une **table
 maîtresse des preuves** avec, par ligne : étude (PMID/DOI), population **exacte** (tranche d'âge
 réelle incluse, comorbidités incluses/exclues), intervention, critère (dur ou substitution),
 résultat **chiffré en effet absolu** (pas seulement relatif — NNT/NNH, IC, horizon temporel), niveau
@@ -58,7 +62,8 @@ Le référent exécute ce prompt et sauvegarde le retour dans un fichier sépar�
 ## Étape 2 — Agent B : red-team sur les deux retours combinés
 
 Contexte isolé. Attaque **conjointement** le rapport d'Agent A et le fichier OpenEvidence — pas l'un
-puis l'autre séparément. Rouvre directement les sources primaires (PubMed, revues, PDF officiels)
+puis l'autre séparément. Rouvre directement les sources primaires via les connecteurs MCP (PubMed,
+ClinicalTrials.gov, Consensus, Elicit — cf. `recherche-source-primaire`), revues, PDF officiels,
 partout où l'accès n'est pas payant ; note explicitement les accès obtenus et les accès bloqués en
 tête de son rapport.
 
