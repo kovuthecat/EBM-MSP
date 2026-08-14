@@ -5,14 +5,17 @@
  * (un dépli partagé avec l'argumentaire) puis deux revers le même jour (posologie toujours visible,
  * puis dépli sécurité propre et distinct — cf. l'historique complet dans la docstring de tête
  * d'`OptionCard.tsx`), l'arbitrage référent « carte en une ligne, tout au clic » remplace les DEUX
- * `<details>` par QUATRE panneaux `hidden`, toujours rendus dans le DOM (`--pourquoi`, `--posologie`,
- * `--ci`, `--argumentaire`), ouverts un par un via des `PastilleInfo` (S3) dans la rangée. Les tests
- * ci-dessous vérifient cette structure ; les garanties de fond restent les mêmes : une contre-
- * indication n'est jamais silencieusement omise, et le décompte affiché reste exact.
+ * `<details>` par des panneaux `hidden`, toujours rendus dans le DOM (`--pourquoi`, `--posologie`,
+ * `--ci`, `--argumentaire`), ouverts un par un via des `PastilleInfo` (S3) dans la rangée. QUATRE à
+ * l'écriture de ces tests ; un CINQUIÈME (`--preuves`, état des preuves) s'est ajouté le 2026-08-04 —
+ * corrigé le 2026-08-11 (T-196, P15/S2) : ce commentaire annonçait encore QUATRE panneaux, cf. les tests
+ * ci-dessous qui, eux, continuent délibérément de ne vérifier QUE ces quatre-là (title inchangé, portée
+ * inchangée). Les garanties de fond restent les mêmes : une contre-indication n'est jamais
+ * silencieusement omise, et le décompte affiché reste exact.
  */
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
-import type { Option } from '../content/node.types'
+import type { CitationReco, Option, ReferencePrimaire } from '../content/node.types'
 import type { ContreIndicationEvaluee } from '../engine/evaluateNode'
 import { evaluerContreIndications } from '../engine/evaluateNode'
 import type { CalculAffiche, CalculEnAttente } from '../lib/vueDecision'
@@ -440,6 +443,189 @@ describe('OptionCard — R3 : le geste et ses chiffres au premier plan, les moda
     expect(panneau).toContain('option-card__calcul"')
     // Le geste précède les doses : on lit ce qu'on fait, puis le chiffre pour ce patient.
     expect(panneau.indexOf('option-card__posologie-geste')).toBeLessThan(panneau.indexOf('option-card__calculs'))
+  })
+})
+
+/**
+ * T-195 (P15/S2, 2026-08-11) — LA NOTE DE SOURCE, troisième registre du panneau posologie, SOUS
+ * `.option-card__posologie-modalite`. Un item OBJET de `posologie_detail` (`{ texte, sources? }`, T-194)
+ * peut porter des ids de `sources[]`, résolus contre LES DEUX registres de bibliographie du nœud :
+ * `bibliographie` (→ `references_primaires`) ET `citationsReco` (→ `reco_officielle.references`,
+ * arbitrage du 2026-08-11, `plans/P15/index.md` §Arbitrage) — jamais réinjectés en incise dans le texte.
+ * Un id inconnu des deux registres est ignoré EN SILENCE (même politique que pour `option.references`,
+ * cf. `OptionCard.tsx`) : ce n'est pas le rôle de ce composant de le signaler, c'est celui d'un invariant
+ * de contenu (S3, fichier séparé).
+ */
+describe('OptionCard — T-195 : note de source du panneau posologie (item objet, `sources[]`)', () => {
+  const BIBLIOGRAPHIE: ReferencePrimaire[] = [
+    {
+      id: 'ebmfrance-insuline',
+      titre: 'ebmfrance — Insulinothérapie',
+      annee: 2024,
+      lien: 'https://ebmfrance.example/insuline',
+      type_critere: 'dur',
+    },
+  ]
+  const CITATIONS_RECO: CitationReco[] = [
+    { nom: 'SFD 2025', detail: 'Avis 18', id: 'sfd-2025-avis18' },
+    // Volontairement SANS `id` : par construction jamais résoluble (cf. `CitationReco.id`, optionnel).
+    { nom: 'RCP ANSM (sans id)', lien: 'https://ansm.example/rcp' },
+  ]
+
+  function rendreAvecBibliographie(posologieDetail: Option['posologie_detail']) {
+    return renderToStaticMarkup(
+      <OptionCard
+        option={optionDeBase({ posologie_detail: posologieDetail })}
+        badge={null}
+        reasons={['toujours']}
+        calculs={[]}
+        calculsEnAttente={[]}
+        motifRang={undefined}
+        alertes={[]}
+        bibliographie={BIBLIOGRAPHIE}
+        citationsReco={CITATIONS_RECO}
+      />,
+    )
+  }
+
+  it('item CHAÎNE (forme courte historique) : rendu inchangé, aucune note de source', () => {
+    const TEXTE = 'Augmenter la basale de 2 U si la glycémie à jeun reste haute 3 matins de suite.'
+    const html = rendreAvecBibliographie([TEXTE])
+
+    expect(html).toContain(`<div class="option-card__posologie-geste">${TEXTE}</div>`)
+    expect(html).not.toContain('option-card__posologie-source')
+  })
+
+  it('item OBJET SANS `sources` : rendu du texte inchangé, aucune note de source', () => {
+    const TEXTE = 'Adapter par palier de une à deux semaines selon la tolérance digestive.'
+    const html = rendreAvecBibliographie([{ texte: TEXTE }])
+
+    expect(html).toContain(`<div class="option-card__posologie-geste">${TEXTE}</div>`)
+    expect(html).not.toContain('option-card__posologie-source')
+  })
+
+  it('item OBJET avec une source de `references_primaires` (essai) : note rendue, avec lien', () => {
+    const html = rendreAvecBibliographie([
+      { texte: 'Augmenter de 2 U si la cible n’est pas atteinte.', sources: ['ebmfrance-insuline'] },
+    ])
+    const note = html.slice(html.indexOf('option-card__posologie-source'))
+
+    expect(note).toContain('ebmfrance — Insulinothérapie (2024)')
+    expect(note).toContain('href="https://ebmfrance.example/insuline"')
+    expect(note).toContain('target="_blank"')
+    expect(note).toContain('rel="noreferrer"')
+  })
+
+  it('item OBJET avec une source de `reco_officielle.references` (RCP/reco, second registre) : note rendue', () => {
+    const html = rendreAvecBibliographie([
+      { texte: 'Titration hebdomadaire selon la tolérance.', sources: ['sfd-2025-avis18'] },
+    ])
+    const note = html.slice(html.indexOf('option-card__posologie-source'))
+
+    expect(note).toContain('SFD 2025 — Avis 18')
+  })
+
+  it('item OBJET avec une source INCONNUE des deux registres : AUCUNE note, AUCUNE erreur, le texte reste rendu', () => {
+    const TEXTE = 'Réduire de 10 % si hypoglycémie sévère.'
+    expect(() =>
+      rendreAvecBibliographie([{ texte: TEXTE, sources: ['id-qui-nexiste-nulle-part'] }]),
+    ).not.toThrow()
+    const html = rendreAvecBibliographie([{ texte: TEXTE, sources: ['id-qui-nexiste-nulle-part'] }])
+
+    expect(html).toContain(`<div class="option-card__posologie-geste">${TEXTE}</div>`)
+    expect(html).not.toContain('option-card__posologie-source')
+    expect(html).not.toContain('id-qui-nexiste-nulle-part') // jamais un id brut affiché
+  })
+
+  it('une entrée `reco_officielle.references` SANS `id` (donc jamais résoluble) ne casse rien et reste sans note', () => {
+    const TEXTE = 'Vérifier la fonction rénale avant renouvellement.'
+    const html = rendreAvecBibliographie([{ texte: TEXTE, sources: ['rcp-ansm-sans-id'] }])
+
+    expect(html).toContain(`<div class="option-card__posologie-geste">${TEXTE}</div>`)
+    expect(html).not.toContain('option-card__posologie-source')
+  })
+
+  it('plusieurs sources sur le même item sont TOUTES rendues, séparées par « · »', () => {
+    const html = rendreAvecBibliographie([
+      { texte: 'Suivre le schéma SFD.', sources: ['ebmfrance-insuline', 'sfd-2025-avis18'] },
+    ])
+    const note = html.slice(html.indexOf('option-card__posologie-source'), html.indexOf('option-card__panneau--ci'))
+
+    expect(note).toContain('ebmfrance — Insulinothérapie (2024)')
+    expect(note).toContain('SFD 2025 — Avis 18')
+    expect(note).toContain(' · ')
+  })
+
+  it('sans les props `bibliographie`/`citationsReco` (appelant qui ne les transmet pas) : aucune note, aucune erreur', () => {
+    const TEXTE = 'Adapter la dose au poids.'
+    const html = renderToStaticMarkup(
+      <OptionCard
+        option={optionDeBase({ posologie_detail: [{ texte: TEXTE, sources: ['ebmfrance-insuline'] }] })}
+        badge={null}
+        reasons={['toujours']}
+        calculs={[]}
+        calculsEnAttente={[]}
+        motifRang={undefined}
+        alertes={[]}
+      />,
+    )
+
+    expect(html).toContain(`<div class="option-card__posologie-geste">${TEXTE}</div>`)
+    expect(html).not.toContain('option-card__posologie-source')
+  })
+})
+
+/**
+ * T-202 (P15/S8, 2026-08-11) — nouvelle prop `posologieDetail`, qui REMPLACE `option.posologie_detail`
+ * QUAND FOURNIE, avec repli EXACT sur le comportement actuel (tout affiché, non filtré) pour tout
+ * appelant qui ne la transmet pas — MÊME contrat que `contreIndications` (T-068, cf. sa docstring dans
+ * `OptionCard.tsx`). Le filtrage par `quand` a déjà eu lieu en amont (`lib/vueDecision.ts`
+ * `evaluerPosologieDetail`) : cette carte ne reçoit ici que des listes déjà décidées, elle n'évalue
+ * jamais de `quand` elle-même — NON COUVERT avant cette session (aucun test n'exerçait encore cette prop,
+ * elle n'existait pas).
+ */
+describe('OptionCard — T-202 : prop `posologieDetail` (items déjà filtrés par `quand`)', () => {
+  const DETAIL_REPLI = 'Titrer par paliers de 2 U.'
+  const DETAIL_MCG = 'Selon la courbe nocturne MCG.'
+
+  it('SANS la prop (repli) : la carte affiche `option.posologie_detail` EN ENTIER, non filtré — même rendu qu’avant T-202', () => {
+    const html = rendreCarte(optionDeBase({ posologie_detail: [DETAIL_REPLI, DETAIL_MCG] }))
+    expect(html).toContain(DETAIL_REPLI)
+    expect(html).toContain(DETAIL_MCG)
+  })
+
+  it('AVEC la prop fournie : la carte affiche EXACTEMENT la liste transmise, jamais `option.posologie_detail` directement (un item écarté par le modèle de vue n’apparaît pas)', () => {
+    const html = renderToStaticMarkup(
+      <OptionCard
+        option={optionDeBase({ posologie_detail: [DETAIL_REPLI, DETAIL_MCG] })}
+        badge={null}
+        reasons={['toujours']}
+        calculs={[]}
+        calculsEnAttente={[]}
+        motifRang={undefined}
+        alertes={[]}
+        posologieDetail={[DETAIL_REPLI]} // simule l'item MCG écarté par `evaluerPosologieDetail`
+      />,
+    )
+    expect(html).toContain(DETAIL_REPLI)
+    expect(html).not.toContain(DETAIL_MCG)
+  })
+
+  it('AVEC la prop fournie mais VIDE : aucun paragraphe de posologie rendu, même si `option.posologie_detail` en porte — la prop REMPLACE, ne fusionne jamais', () => {
+    const html = renderToStaticMarkup(
+      <OptionCard
+        option={optionDeBase({ posologie_detail: [DETAIL_REPLI, DETAIL_MCG] })}
+        badge={null}
+        reasons={['toujours']}
+        calculs={[]}
+        calculsEnAttente={[]}
+        motifRang={undefined}
+        alertes={[]}
+        posologieDetail={[]}
+      />,
+    )
+    expect(html).not.toContain(DETAIL_REPLI)
+    expect(html).not.toContain(DETAIL_MCG)
   })
 })
 

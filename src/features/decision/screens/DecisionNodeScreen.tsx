@@ -1412,6 +1412,10 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                       motifRang={optionVue.motifRang}
                       alertes={optionVue.alertes}
                       contreIndications={optionVue.contreIndications}
+                      // T-202 (P15/S8, 2026-08-11) : items de posologie déjà filtrés par `quand` pour ce
+                      // patient (`lib/vueDecision.ts` `OptionVue.posologieDetail`) — même bloc que
+                      // `contreIndications`/`bibliographie`/`citationsReco`, même pattern de câblage.
+                      posologieDetail={optionVue.posologieDetail}
                       carteUnique={carteUnique}
                       badgeMasque={badgeCommun != null}
                       basRangMasque={basRangCommun}

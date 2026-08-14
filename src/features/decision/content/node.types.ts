@@ -487,6 +487,51 @@ export interface ContreIndication {
   condition?: string
 }
 
+/**
+ * FORME LONGUE d'un item de `Option.posologie_detail` (T-194, P15/S1, 2026-08-11) : le texte **et**,
+ * optionnellement, `sources[]` — un second registre de sourçage, séparé de la prose de conduite que le
+ * praticien recopie sur l'ordonnance — **et**, depuis T-202 (P15/S8, 2026-08-11), `quand` — un item
+ * conditionnel au patient. La forme courte (une simple chaîne) reste valide et strictement équivalente à
+ * `{ texte }` sans `sources` ni `quand`.
+ *
+ * MODÈLE CALQUÉ SUR `ContreIndication` ci-dessus — même principe de conception : un objet OUVERT qui
+ * accepte un champ de plus sans casser une seule ligne de YAML existante.
+ */
+export interface ItemPosologie {
+  texte: string
+  /**
+   * OPTIONNEL — ids résolus contre LES DEUX registres de la bibliographie du nœud :
+   * `Source.references_primaires[].id` OU `Source.reco_officielle.references[].id` (arbitrage du
+   * 2026-08-11, `plans/P15/index.md` §Arbitrage — une posologie vient légitimement d'un RCP ou d'une
+   * table de recommandation, pas seulement d'un essai ; la distinction preuve / reco officielle est déjà
+   * la doctrine du projet, D16). Un id absent des deux registres est ignoré EN SILENCE par la carte, par
+   * politique (même régime qu'`Option.contre_indications`/`Option.references`) : le signaler est le
+   * travail d'un invariant de contenu (S3 du même plan), jamais de ce type ni du composant de rendu.
+   */
+  sources?: string[]
+  /**
+   * OPTIONNEL (T-202, P15/S8, 2026-08-11) — expression DSL (même grammaire qu'`exclusions`/`conditions`,
+   * même évaluateur `engine/conditions.ts`) sous laquelle CET ITEM est affiché à ce patient. FAUSSE (au
+   * sens STRICT, jamais `INDETERMINE`, D20) ⇒ l'item n'est PAS RENDU DU TOUT — DISTINCT de
+   * `ContreIndication.condition` ci-dessus, qui ne retire JAMAIS un item (seul son état visuel change,
+   * l'item reste affiché désamorcé) : ici un item écarté sort réellement de la liste retenue
+   * (`engine/evaluateNode.ts` `evaluerPosologieDetail`), parce qu'il ne décrit PAS la conduite pour ce
+   * patient — un item de titration piloté par la MCG chez un patient sans capteur, par exemple, n'a rien
+   * à faire à l'écran, à la différence d'une contre-indication qui reste montrée « levée ».
+   * INDÉTERMINÉE ⇒ également NON rendu (même politique que `evaluateAlertesDeListe`,
+   * `engine/evaluateNode.ts` : « une alerte dont le `quand` est indéterminé ne s'affiche pas »).
+   * ABSENTE ⇒ l'item est toujours affiché, comportement historique inchangé.
+   *
+   * PRÉREQUIS D'ARCHITECTURE (R6, `docs/decision/GRAMMAIRE-NOEUD.md`, encadré « Même prérequis
+   * d'architecture », 5ᵉ occurrence documentée) : un critère qui ne pilote QUE la posologie affichée
+   * (aucune autre dimension de l'écran ne varie) doit rester vu comme AGISSANT par `engine/relevance.ts`
+   * — d'où l'entrée de la liste des items RETENUS dans `lib/vueDecision.ts` `signatureVue`, sans quoi ce
+   * critère serait estompé à tort dans le formulaire de saisie. **CE LOT (S8) LIVRE LE MÉCANISME SEUL** :
+   * aucun contenu ne déclare encore `quand` (premier usage prévu S9, sur `insuline`).
+   */
+  quand?: string
+}
+
 export interface Option {
   intitule: string
   /**
@@ -681,9 +726,15 @@ export interface Option {
    * carte) et les suivants en retrait. Rédiger le schéma de dose ailleurs qu'en tête enterrerait donc le
    * geste — c'est l'ordre du contenu qui porte la hiérarchie de lecture.
    *
+   * DEUX FORMES depuis T-194 (P15/S1, 2026-08-11) : une **chaîne** (forme historique) ou un **objet**
+   * `{ texte, sources? }` (`ItemPosologie` ci-dessus), dont `sources[]` porte un second registre de
+   * sourçage séparé de la prose. Les deux formes cohabitent dans le même tableau ; une chaîne équivaut
+   * exactement à un objet sans `sources`. **Ce lot ne migre aucun contenu** : aucune option n'utilise
+   * encore la forme objet, et `OptionCard.tsx` ne la rend pas encore (S2).
+   *
    * Optionnel : absent → le panneau posologie retombe sur `apercu` + `calculs` + `calculsEnAttente`.
    */
-  posologie_detail?: string[]
+  posologie_detail?: (string | ItemPosologie)[]
   /**
    * Rang de priorité en mode `multi-options` : les options applicables sont triées par rang
    * croissant (tri stable ; absente = rang le plus faible). Soit un **entier** (rang FIXE, D13),
@@ -771,6 +822,14 @@ export interface CitationReco {
   lien?: string
   /** Référence interne au texte — c'est ce qui rend la citation vérifiable, sa raison d'être. */
   detail?: string
+  /**
+   * OPTIONNEL (T-194, P15/S1, 2026-08-11) — identifiant court et stable, unique DANS le nœud, ajouté
+   * pour rendre une citation de recommandation officielle CITABLE depuis `Option.posologie_detail[].
+   * sources` (arbitrage du 2026-08-11, `plans/P15/index.md` §Arbitrage), au même titre qu'un id de
+   * `ReferencePrimaire`. NON REQUIS : ce registre n'en porte aucun aujourd'hui, et le rendre requis
+   * casserait les 6 nœuds existants — il ne devient nécessaire que pour une entrée effectivement citée.
+   */
+  id?: string
 }
 
 /**

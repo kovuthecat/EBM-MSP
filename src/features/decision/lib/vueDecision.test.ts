@@ -913,3 +913,93 @@ describe('signatureVue — TEST VERROU : l’ordre des familles (hissage `priori
     expect(pertinents.has('x')).toBe(true)
   })
 })
+
+/**
+ * T-202 (P15/S8, 2026-08-11) — `posologie_detail[].quand` : un item de posologie peut être CONDITIONNEL
+ * au patient, et la liste des items RETENUS entre dans `signatureVue` au même titre que les autres
+ * dimensions affichées (totalité, docstring de tête).
+ *
+ * POURQUOI CETTE DIMENSION DOIT Y ENTRER — c'est L'ASSERTION LA PLUS IMPORTANTE DE CETTE SESSION (S8.md,
+ * « Décision clé »). Un `quand` qui ne pilote QUE la posologie affichée (aucune autre dimension déjà
+ * sérialisée ne bouge — même option retenue, même badge, mêmes raisons, aucune contre-indication, aucune
+ * alerte) ne change RIEN sur toutes les dimensions déjà sérialisées AVANT ce lot. Sans cette dimension,
+ * le critère qui commande cet item serait donc vu « sans effet sur la reco » par `engine/relevance.ts` et
+ * ESTOMPÉ À TORT dans le formulaire — le praticien ne le renseignerait pas, et la posologie affichée
+ * resterait fausse. C'est le piège documenté comme récurrent, à sa CINQUIÈME occurrence (R6, encadré
+ * « Même prérequis d'architecture », `docs/decision/GRAMMAIRE-NOEUD.md`), déjà payé sur les alertes
+ * d'option, les calculs en attente, les contre-indications conditionnelles et la justification
+ * situationnelle.
+ */
+describe('construireVueDecision / signatureVue — T-202 : items de posologie conditionnels (`quand`)', () => {
+  const optionAvecPosologie = (posologie_detail: Option['posologie_detail']) =>
+    opt('Insuline basale', ['toujours'], { posologie_detail })
+
+  it('`OptionVue.posologieDetail` ne retient QUE les items dont le `quand` est vrai (ou absent)', () => {
+    const option = optionAvecPosologie([
+      'Titrer par paliers de 2 U.', // forme courte : toujours retenue
+      { texte: 'Selon la courbe nocturne MCG.', quand: 'MCG_disponible == true' },
+      { texte: 'Selon la glycémie à jeun (repli sans capteur).', quand: 'MCG_disponible == false' },
+    ])
+    const node = makeNode([option], [{ nom: 'MCG_disponible', type: 'bool' }])
+
+    expect(
+      construireVueDecision(node, { MCG_disponible: true }).familles[0].groupes[0][0].posologieDetail,
+    ).toEqual(['Titrer par paliers de 2 U.', { texte: 'Selon la courbe nocturne MCG.', quand: 'MCG_disponible == true' }])
+    expect(
+      construireVueDecision(node, { MCG_disponible: false }).familles[0].groupes[0][0].posologieDetail,
+    ).toEqual([
+      'Titrer par paliers de 2 U.',
+      { texte: 'Selon la glycémie à jeun (repli sans capteur).', quand: 'MCG_disponible == false' },
+    ])
+  })
+
+  it('D20 : sur un critère NON renseigné, l’item est ÉCARTÉ — DISTINCT d’une contre-indication, jamais montré « indéterminé »', () => {
+    const option = optionAvecPosologie([{ texte: 'Selon la courbe nocturne MCG.', quand: 'MCG_disponible == true' }])
+    const node = makeNode([option], [{ nom: 'MCG_disponible', type: 'bool' }])
+    const vue = construireVueDecision(node, { MCG_disponible: true }, new Set())
+    expect(vue.familles[0].groupes[0][0].posologieDetail).toEqual([])
+  })
+
+  it('LE VERROU : deux vues qui ne diffèrent QUE par un item de posologie retenu/écarté ont des signatures DIFFÉRENTES', () => {
+    const option = optionAvecPosologie([{ texte: 'Selon la courbe nocturne MCG.', quand: 'MCG_disponible == true' }])
+    const node = makeNode([option], [{ nom: 'MCG_disponible', type: 'bool' }])
+    const vueAvecItem = construireVueDecision(node, { MCG_disponible: true })
+    const vueSansItem = construireVueDecision(node, { MCG_disponible: false })
+
+    // Rien d'autre ne bouge : même option, même badge, mêmes raisons, mêmes contre-indications.
+    expect(vueAvecItem.familles[0].groupes[0][0].badge).toBe(vueSansItem.familles[0].groupes[0][0].badge)
+    expect(vueAvecItem.familles[0].groupes[0][0].reasons).toEqual(vueSansItem.familles[0].groupes[0][0].reasons)
+    expect(signatureVue(vueAvecItem)).not.toBe(signatureVue(vueSansItem))
+  })
+
+  it('`criteresPertinents` (engine/relevance.ts) voit `MCG_disponible` comme DÉCISIF alors qu’il ne pilote QUE la posologie — l’assertion centrale de T-202', () => {
+    const option = optionAvecPosologie([
+      { texte: 'Selon la courbe nocturne MCG.', quand: 'MCG_disponible == true' },
+      { texte: 'Selon la glycémie à jeun (repli sans capteur).', quand: 'MCG_disponible == false' },
+    ])
+    const node = makeNode([option], [{ nom: 'MCG_disponible', type: 'bool' }])
+    // Vérifié au préalable : ce critère ne change ni l'option retenue, ni son badge, ni ses raisons —
+    // AUCUNE des dimensions préexistantes à T-202 ne bouge avec `MCG_disponible`.
+    const vueVrai = construireVueDecision(node, { MCG_disponible: true })
+    const vueFaux = construireVueDecision(node, { MCG_disponible: false })
+    expect(vueVrai.familles[0].groupes[0][0].badge).toBe(vueFaux.familles[0].groupes[0][0].badge)
+    expect(vueVrai.familles[0].groupes[0][0].reasons).toEqual(vueFaux.familles[0].groupes[0][0].reasons)
+
+    const pertinents = criteresPertinents(node, { MCG_disponible: true })
+    expect(pertinents.has('MCG_disponible')).toBe(true)
+  })
+
+  it('NON-RÉGRESSION : sur un contenu SANS `quand`, la signature ne porte AUCUN segment de posologie conditionnelle', () => {
+    // Cette propriété n'est pas cosmétique : c'est elle qui garantit que le golden master de
+    // caractérisation (`engine/banc/__snapshots__/`, qui liste des `signatureVue` complètes) reste byte
+    // à byte identique tant qu'aucun nœud n'encode de `quand` sur un item de posologie (T-202 livre le
+    // MÉCANISME seul, cf. `plans/P15/S8.md` § Hors périmètre).
+    const node = makeNode([optionAvecPosologie(['Titrer par paliers de 2 U.', { texte: 'Vérifier la fonction rénale.' }])])
+    expect(signatureVue(construireVueDecision(node, {}))).not.toContain('∴')
+    // ... et la signature est bien celle d'une option SANS aucune dimension de posologie conditionnelle :
+    // la dimension n'existe dans la chaîne que lorsqu'au moins un item est effectivement écarté.
+    expect(signatureVue(construireVueDecision(node, {}))).toBe(
+      signatureVue(construireVueDecision(makeNode([opt('Insuline basale', ['toujours'])]), {})),
+    )
+  })
+})

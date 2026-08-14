@@ -295,6 +295,35 @@
         }
       }
     },
+    "itemPosologie": {
+      "type": "object",
+      "additionalProperties": false,
+      "$comment": "T-194 (P15/S1, 2026-08-11) — FORME LONGUE d'un item de `option.posologie_detail` (la forme courte reste la simple chaine, strictement equivalente a un objet sans `sources` ni `quand`). Modele calque sur `contreIndication` ci-dessus : un objet OUVERT qui accepte un champ de plus sans casser une seule ligne de YAML existante. `quand` (T-202, P15/S8, 2026-08-11) rend un item conditionnel au patient — CE LOT (S8) LIVRE LE MECANISME SEUL : aucun contenu ne pose encore `quand` (premier usage prevu S9, sur `insuline`).",
+      "required": [
+        "texte"
+      ],
+      "properties": {
+        "texte": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Le texte de posologie lui-meme, en prose, tel qu'il s'affiche — exactement ce que portait la forme chaine."
+        },
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          },
+          "description": "OPTIONNEL. Ids resolus contre LES DEUX registres de la bibliographie du noeud : `sources.references_primaires[].id` OU `sources.reco_officielle.references[].id` (arbitrage du 2026-08-11, `plans/P15/index.md` §Arbitrage — une posologie vient legitimement d'un RCP ou d'une table de recommandation, pas seulement d'un essai ; la distinction preuve / reco officielle est deja la doctrine du projet, D16). Un id qui n'existe dans AUCUN des deux registres est ignore en silence par la carte, par politique (meme regime que `contre_indications`/`references`) : le signaler est le travail d'un invariant de contenu (S3), pas de ce schema. Pattern repris tel quel d'`option.references`, pour l'homogeneite des ids."
+        },
+        "quand": {
+          "type": "string",
+          "minLength": 1,
+          "description": "OPTIONNEL (T-202, P15/S8, 2026-08-11). Expression DSL (MEME grammaire qu'`exclusions`/`conditions`, meme evaluateur — `engine/conditions.ts`) sous laquelle cet item est AFFICHE au praticien. FAUSSE (au sens STRICT, jamais INDETERMINE, D20) => l'item n'est PAS RENDU DU TOUT — DISTINCT de `contreIndication.condition`, qui ne retire jamais un item (seul son etat visuel change) : ici un item ecarte sort reellement de la liste, parce qu'il ne decrit pas la conduite pour ce patient (ex. un protocole de titration MCG chez un patient sans capteur). INDETERMINEE => l'item n'est pas non plus rendu (meme politique que `evaluateAlertesDeListe`, `engine/evaluateNode.ts` : une alerte dont le quand est indetermine ne s'affiche pas). ABSENTE => l'item est toujours affiche, comportement historique inchange."
+        }
+      }
+    },
     "critereEntree": {
       "type": "object",
       "additionalProperties": false,
@@ -618,10 +647,17 @@
           "type": "array",
           "minItems": 1,
           "items": {
-            "type": "string",
-            "minLength": 1
+            "oneOf": [
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "$ref": "#/definitions/itemPosologie"
+              }
+            ]
           },
-          "description": "OPTIONNEL (2026-08-04, demande utilisateur) — texte detaille de posologie (schema de titration, adaptation posologique, conseils d'observance), affiche dans le panneau POSOLOGIE (`OptionCard.tsx`), jamais dans l'argumentaire avantages/inconvenients. Distinct d'`apercu` (une ligne courte, titre du depli replie) : ce champ porte la prose complete, visible seulement panneau ouvert. Absent = rendu historique du panneau (apercu + calculs seuls)."
+          "description": "OPTIONNEL (2026-08-04, demande utilisateur) — texte detaille de posologie (schema de titration, adaptation posologique, conseils d'observance), affiche dans le panneau POSOLOGIE (`OptionCard.tsx`), jamais dans l'argumentaire avantages/inconvenients. Distinct d'`apercu` (une ligne courte, titre du depli replie) : ce champ porte la prose complete, visible seulement panneau ouvert. DEUX FORMES depuis T-194 (P15/S1, 2026-08-11) : une CHAINE (forme historique) ou un OBJET `{ texte, sources? }` (cf. `itemPosologie`), dont `sources[]` porte des ids resolus contre les deux registres de bibliographie du noeud. Les deux formes cohabitent dans le meme tableau ; une chaine equivaut exactement a un objet sans `sources`. Absent = rendu historique du panneau (apercu + calculs seuls)."
         },
         "priorite": {
           "description": "Rang en mode multi-options : options triees par rang croissant (tri stable ; absente = rang faible). Entier = rang FIXE (D13) ; liste de regles {quand, rang} = rang CONDITIONNEL (D14, 1re regle dont `quand` — condition DSL ou 'default' — est vraie ; placer 'default' EN DERNIER, sinon les regles suivantes sont mortes). Ignore en ordered-first-match.",
@@ -771,6 +807,11 @@
         "detail": {
           "type": "string",
           "description": "Reference interne au texte : numero d'avis, de recommandation, de tableau, de rubrique de RCP. C'est ce qui rend la citation VERIFIABLE — c'est sa raison d'etre."
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$",
+          "description": "OPTIONNEL (T-194, P15/S1, 2026-08-11) — identifiant court et stable, unique DANS le noeud, ajoute pour rendre une citation de recommandation officielle CITABLE depuis `option.posologie_detail[].sources` (arbitrage du 2026-08-11, `plans/P15/index.md` §Arbitrage), au meme titre qu'un id de `referencePrimaire`. NE PAS rendre requis : ce registre n'en porte aucun aujourd'hui, et le rendre requis casserait les 6 noeuds existants — il ne devient necessaire que pour une entree effectivement citee."
         }
       }
     },

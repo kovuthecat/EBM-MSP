@@ -460,8 +460,36 @@
   margin-bottom: var(--space-2);
 }
 
+/* (2b) NOTE DE SOURCE — TROISIÈME registre, SOUS `.option-card__posologie-modalite` (T-195, P15/S2,
+   2026-08-11). Un item de `posologie_detail` peut porter des `sources[]` (ids résolus contre les deux
+   registres de bibliographie du nœud, `OptionCard.tsx` `resoudreSourcePosologie`) : un essai ou un texte
+   de recommandation officielle qui sourcent CE paragraphe précis — jamais une incise dans la phrase du
+   dessus, c'est l'objet même de ce chantier (sortir les sources de la ligne de lecture).
+   CLASSE DÉDIÉE, JAMAIS `.option-card__posologie-modalite` RÉUTILISÉE (Décision clé, `plans/P15/S2.md`) :
+   la note ne doit pas concurrencer le geste, ni même les modalités — elle doit se lire comme secondaire
+   aux deux. `--text-xs`/`--c-text-faible` (tokens.css) sont déjà le registre le plus discret en service
+   dans l'app (aucune couleur ni taille nouvelle), un cran sous le `--text-sm`/`--c-text-muted` des
+   modalités. Rendu du lien CALQUÉ sur `.option-card__essais` (panneau --preuves, ligne « D'après : »,
+   plus bas dans ce fichier) : `target="_blank" rel="noreferrer"` quand la référence porte un `lien`,
+   texte brut sinon — même registre de citation, même comportement. */
+.option-card__posologie-source {
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  color: var(--c-text-faible);
+  margin-bottom: var(--space-2);
+}
+
+.option-card__posologie-source-label {
+  font-weight: 700;
+}
+
+.option-card__posologie-source a {
+  color: inherit;
+}
+
 .option-card__posologie-geste:last-child,
-.option-card__posologie-modalite:last-child {
+.option-card__posologie-modalite:last-child,
+.option-card__posologie-source:last-child {
   margin-bottom: 0;
 }
 
