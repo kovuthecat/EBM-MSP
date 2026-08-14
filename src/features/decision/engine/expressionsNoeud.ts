@@ -207,6 +207,9 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
     texte: 'inerte',
     sources: 'inerte',
     quand: 'decision',
+    // `accent` (2026-08-14) : pure présentation (registre visuel gras/muet), aucune expression DSL,
+    // aucune entrée dans `signatureVue` — `inerte` comme `texte`/`sources`.
+    accent: 'inerte',
   },
   critereEntree: {
     nom: 'inerte',

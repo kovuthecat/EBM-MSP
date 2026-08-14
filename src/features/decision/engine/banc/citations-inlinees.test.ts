@@ -261,16 +261,10 @@ const EXEMPTIONS_I34 = new Map<string, string>([
       "apercu-only : la forme longue { texte, sources } n'existe que sur posologie_detail, pas sur apercu " +
       '(string au schéma) ; convertir est un déplacement de contenu, hors périmètre de S6.',
   ],
-  [
-    cleViolation({
-      noeud: 'prescription',
-      champ: 'option "Metformine".apercu',
-      texte:
-        'dose maximale ajustée au DFG : ≤ 2 000 mg/j si DFG 45‑59, ≤ 1 000 mg/j si DFG 30‑44 ; initiation ≤ 500 mg (KDIGO 2022 / RCP ANSM).',
-    }),
-    'P15/S6, T-200 — même motif : sourcée RECO (KDIGO 2022, RCP ANSM → rcp-ansm) mais apercu-only, hors ' +
-      'périmètre de S6.',
-  ],
+  // « Metformine » (option réduire) : exemption RÉSORBÉE le 2026-08-14 (retour utilisateur en
+  // consultation) — cette option est désormais migrée vers `posologie_detail` avec `sources:
+  // [kdigo-2022, rcp-ansm]`, et son `apercu` ne porte plus l'incise « initiation ≤ 500 mg (KDIGO 2022 /
+  // RCP ANSM) » (retirée, hors de propos sur une option `action: reduire`). Entrée supprimée.
   [
     cleViolation({
       noeud: 'prescription',

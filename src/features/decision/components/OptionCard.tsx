@@ -674,8 +674,20 @@ export function OptionCard({
             jour… », « Dose d'initiation = poids × 0,1 à 0,2 U/kg/j… », « Molécule : gliclazide à
             libération modifiée… »), les suivants étant titration fine, choix de molécule, observance,
             adaptation au DFG, sources. Si un contenu futur venait à inverser cet ordre, c'est LE CONTENU
-            qu'il faudrait remettre d'aplomb (le geste d'abord), pas cette règle d'affichage. */}
-        {posologieAffichee?.map((paragraphe, index) => {
+            qu'il faudrait remettre d'aplomb (le geste d'abord), pas cette règle d'affichage.
+
+            EXCEPTION EXPLICITE (2026-08-14, `ItemPosologie.accent`) : une option À PLUSIEURS MOLÉCULES
+            ALTERNATIVES (ex. « AR GLP‑1 ») peut vouloir plus d'un paragraphe au registre geste — le rang
+            de déclaration n'y porte alors AUCUNE hiérarchie clinique, contrairement au cas ci-dessus. Si
+            au moins un item du tableau déclare `accent`, c'est LUI seul qui décide (chaque item, y
+            compris les chaînes courtes = jamais accentuées) ; en son absence totale, repli intégral sur
+            la règle historique `index === 0` — aucune des 17 options existantes n'est concernée. */}
+        {(() => {
+          const items = posologieAffichee ?? []
+          const auMoinsUnAccent = items.some(
+            (item) => typeof item !== 'string' && item.accent === true,
+          )
+          return items.map((paragraphe, index) => {
           // T-194 (P15/S1, 2026-08-11) : `posologie_detail` accepte désormais une chaîne OU un objet
           // `{ texte, sources? }` (cf. docstring `Option.posologie_detail`). Normalisation MINIMALE de
           // compatibilité, symétrique de celle déjà en place pour `contre_indications` (l. 367 plus haut) :
@@ -696,9 +708,14 @@ export function OptionCard({
           const sourcesResolues = sources
             .map(resoudreSourcePosologie)
             .filter((source): source is { texte: string; lien?: string } => Boolean(source))
+          // Registre visuel : `accent` explicite s'il existe sur AU MOINS UN item du tableau, sinon
+          // repli sur la règle historique `index === 0` (cf. commentaire de tête ci-dessus).
+          const estGeste = auMoinsUnAccent
+            ? typeof paragraphe !== 'string' && paragraphe.accent === true
+            : index === 0
           return (
             <Fragment key={`${index}-${texte.slice(0, 30)}`}>
-              <div className={index === 0 ? 'option-card__posologie-geste' : 'option-card__posologie-modalite'}>
+              <div className={estGeste ? 'option-card__posologie-geste' : 'option-card__posologie-modalite'}>
                 {texte}
               </div>
               {sourcesResolues.length > 0 && (
@@ -720,7 +737,8 @@ export function OptionCard({
               )}
             </Fragment>
           )
-        })}
+          })
+        })()}
         {calculs.length > 0 && (
           <div className="option-card__calculs">
             <span className="option-card__calculs-label">Doses indicatives : </span>

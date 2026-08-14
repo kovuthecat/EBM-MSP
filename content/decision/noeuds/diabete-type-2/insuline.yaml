@@ -217,18 +217,48 @@ criteres_entree:
     valeurs_visible_si:
       insuline_basale: "situation_insuline != naif"
       insuline_rapide: "situation_insuline != naif"
+    # AJOUTÉ le 2026-08-14 (retour utilisateur en consultation) : `situation_insuline` déclare déjà QUEL
+    # schéma est en place, mais rien ne cochait mécaniquement les cases correspondantes de « Traitement
+    # actuel » — le praticien ressaisissait « insuline basale » (voire « insuline rapide ») que
+    # `situation_insuline` venait pourtant d'affirmer une ligne plus haut. Même mécanisme K6 que le
+    # `preremplissage` de `traitements_en_cours` sur `prescription.yaml` (`intention == initier` ⇒ `[]`) :
+    # PROPOSÉ, jamais imposé — le praticien reste libre de décocher, et toute case déjà TOUCHÉE avant que
+    # `situation_insuline` ne change n'est plus recouverte (cf. `lib/formLayout.ts`
+    # `appliquerPreremplissage`, garde-fou 2 : « un critère déjà renseigné n'est jamais touché »).
+    preremplissage:
+      - quand: "situation_insuline == basale_seule"
+        valeur: [insuline_basale]
+      - quand: "situation_insuline == basale_plus_bolus OR situation_insuline == basal_bolus"
+        valeur: [insuline_basale, insuline_rapide]
   - nom: preference_injection
     type: enum
     groupe: Traitement actuel
-    # ORDRE ALIGNÉ le 2026-07-29 sur celui de `prescription` (`indifferent` en tête). Ce n'était PAS
-    # cosmétique : `valeurParDefaut` renvoie la PREMIÈRE valeur déclarée, donc la même question s'ouvrait
-    # sur « accepte » ici et sur « indifferent » là. `indifferent` est retenu comme défaut parce qu'il est
-    # le seul des trois qui n'oriente pas la réponse. Divergence résorbée -> son entrée est retirée de
-    # `CRITERES_DIVERGENTS_CONNUS` (`engine/banc/coherence-inter-noeuds.test.ts`).
+    # ORDRE ALIGNÉ le 2026-07-29 sur celui de `prescription` (`indifferent` en tête).
     valeurs: [indifferent, accepte, refuse]
-    # `partage` ajouté le 2026-07-29 (recette référent, item F/point 5) : encodage désormais IDENTIQUE
-    # sur tous les nœuds qui le déclarent (type, valeurs, bornes, presomption_non) — condition I19.
-    partage: true
+    # MASQUÉ ET FIGÉ le 2026-08-14 (retour utilisateur en consultation) : « préférence vis-à-vis de
+    # l'injectable » n'a plus de sens ICI — ce nœud entier relève déjà d'un traitement injectable, à la
+    # différence de `prescription.yaml` où ce même nom arbitre entre une classe injectable (AR GLP‑1) et
+    # une alternative orale. `cache: true` (cf. sa docstring, `content/node.types.ts`) masque le champ
+    # inconditionnellement ; le `preremplissage` ci-dessous le fige à `indifferent` dès que
+    # `situation_insuline` est répondue (les 4 valeurs de l'énum sont couvertes : la règle équivaut à
+    # « dès qu'une réponse existe »).
+    #
+    # `partage` RETIRÉ à cette occasion (il était présent depuis le 2026-07-29) : le laisser aurait permis
+    # à une vraie réponse saisie sur `prescription.yaml` de REPRENDRE dans ce champ pourtant masqué+figé
+    # (`lib/sessionCriteres.ts` `valeursReprises` ne regarde pas `cache`), rouvrant exactement l'ambiguïté
+    # que ce correctif ferme. Sans compter que le SENS diverge déjà entre les deux nœuds (ci-dessus) — les
+    # partager n'aurait jamais été correct au sens strict de I19.
+    #
+    # EFFET DE BORD ASSUMÉ (signalé par l'utilisateur, tranché en connaissance de cause) : l'option
+    # « Insuline prémélangée — option dégradée, dernier recours » (condition `preference_injection ==
+    # refuse`) devient MÉCANIQUEMENT INATTEIGNABLE sur ce nœud — sa condition ne peut plus jamais être
+    # vraie. L'option reste en l'état dans le contenu (aucune demande de la retirer) ; à réévaluer si le
+    # besoin qu'elle couvrait (patient refusant un schéma basal-bolus à plusieurs injections/jour)
+    # ressurgit sous une autre formulation.
+    cache: true
+    preremplissage:
+      - quand: "situation_insuline == naif OR situation_insuline == basale_seule OR situation_insuline == basale_plus_bolus OR situation_insuline == basal_bolus"
+        valeur: indifferent
   # T4/(a) (chantier visible_si, capture 7) : ce groupe de 7 champs n'a d'objet que pour un patient DÉJÀ
   # sous insuline (surveillance/titration) — un patient « naïf » n'a ni dose en cours ni MCG à interpréter.
   # Masquer les remet à leur valeur par défaut (P1) ; vérifié sans conséquence pour ces 7 : aucune règle
@@ -887,6 +917,23 @@ options:
       - eng
       - maiorino
       - dual-vii
+    # AJOUTÉ le 2026-08-14 (retour utilisateur en consultation) : cette option recommandait la classe
+    # sans jamais donner de dose — le praticien qui la retenait devait rouvrir `prescription.yaml` pour
+    # savoir comment prescrire. Mêmes trois schémas, mêmes chiffres, même source que `prescription.yaml`
+    # (T-200, P15/S6) — sourcés ici contre la bibliographie PROPRE à ce nœud (`rcp-ansm` ajouté ci-dessus,
+    # `sources.reco_officielle`).
+    posologie_detail:
+      - texte: "Sémaglutide injectable (Ozempic) : 0,25 mg/semaine pendant 4 semaines — dose de tolérance, pas une dose d'entretien —, puis 0,5 mg/semaine, puis 1 mg/semaine après au moins 4 semaines à 0,5 mg."
+        sources:
+          - rcp-ansm
+        accent: true
+      - texte: "Dulaglutide (Trulicity) : 0,75 mg/semaine en monothérapie, ou 1,5 mg/semaine d'emblée en association ; puis 3 mg/semaine après au moins 4 semaines à 1,5 mg, puis 4,5 mg/semaine (dose maximale) après au moins 4 semaines supplémentaires."
+        sources:
+          - rcp-ansm
+        accent: true
+      - texte: "Liraglutide (Victoza) : 0,6 mg/j en initiation — dose de tolérance digestive, pas une dose d'entretien —, puis 1,2 mg/j après au moins 1 semaine, puis 1,8 mg/j (dose maximale) après au moins 1 semaine supplémentaire si le contrôle glycémique doit être renforcé."
+        sources:
+          - rcp-ansm
   - intitule: "Insuline basale"
     role: geste
     action: ajouter
@@ -1199,6 +1246,21 @@ options:
       - dual-vii
       - fullstep
       - sfd-2025-avis18
+    # AJOUTÉ le 2026-08-14 (retour utilisateur en consultation), même défaut et même correctif que sur
+    # « Envisager un GLP‑1 avant ou avec l'insuline » ci-dessus : le geste utile nommé dans `avantages`
+    # (« ajouter un AR GLP-1 ») n'avait aucune dose associée.
+    posologie_detail:
+      - texte: "Sémaglutide injectable (Ozempic) : 0,25 mg/semaine pendant 4 semaines — dose de tolérance, pas une dose d'entretien —, puis 0,5 mg/semaine, puis 1 mg/semaine après au moins 4 semaines à 0,5 mg."
+        sources:
+          - rcp-ansm
+        accent: true
+      - texte: "Dulaglutide (Trulicity) : 0,75 mg/semaine en monothérapie, ou 1,5 mg/semaine d'emblée en association ; puis 3 mg/semaine après au moins 4 semaines à 1,5 mg, puis 4,5 mg/semaine (dose maximale) après au moins 4 semaines supplémentaires."
+        sources:
+          - rcp-ansm
+        accent: true
+      - texte: "Liraglutide (Victoza) : 0,6 mg/j en initiation — dose de tolérance digestive, pas une dose d'entretien —, puis 1,2 mg/j après au moins 1 semaine, puis 1,8 mg/j (dose maximale) après au moins 1 semaine supplémentaire si le contrôle glycémique doit être renforcé."
+        sources:
+          - rcp-ansm
     # AJOUTÉ le 2026-08-06 (P14/S4, T-167, étape 5) : le chiffre reste visible là où il éclaire une
     # décision, sans jamais la sélectionner (R2/R5) — `poids` conserve ainsi un second lecteur sur ce nœud,
     # en plus des `calculs` de dose d'initiation de « Initier une insuline basale » (R5 satisfait).
@@ -1640,6 +1702,21 @@ options:
       - eng
       - maiorino
       - dual-vii
+    # AJOUTÉ le 2026-08-14 (retour utilisateur en consultation), même défaut et même correctif que sur
+    # « Envisager un GLP‑1 avant ou avec l'insuline » plus haut : le geste utile nommé dans `avantages`
+    # (« ajouter un AR GLP-1 ») n'avait aucune dose associée.
+    posologie_detail:
+      - texte: "Sémaglutide injectable (Ozempic) : 0,25 mg/semaine pendant 4 semaines — dose de tolérance, pas une dose d'entretien —, puis 0,5 mg/semaine, puis 1 mg/semaine après au moins 4 semaines à 0,5 mg."
+        sources:
+          - rcp-ansm
+        accent: true
+      - texte: "Dulaglutide (Trulicity) : 0,75 mg/semaine en monothérapie, ou 1,5 mg/semaine d'emblée en association ; puis 3 mg/semaine après au moins 4 semaines à 1,5 mg, puis 4,5 mg/semaine (dose maximale) après au moins 4 semaines supplémentaires."
+        sources:
+          - rcp-ansm
+        accent: true
+      - texte: "Liraglutide (Victoza) : 0,6 mg/j en initiation — dose de tolérance digestive, pas une dose d'entretien —, puis 1,2 mg/j après au moins 1 semaine, puis 1,8 mg/j (dose maximale) après au moins 1 semaine supplémentaire si le contrôle glycémique doit être renforcé."
+        sources:
+          - rcp-ansm
     # I2/F3 (redteam-clinique-silences.md, 2026-07-26, 4ᵉ lot) : AUCUNE exclusion ne portait jusqu'ici sur
     # cette option, contrairement à « Titrer la basale » (4 signaux). 401/401 profils du banc en
     # « basale_plus_bolus » avec un signal d'hypoglycémie documenté (TBR > 4 OU TBR_severe > 1 OU
@@ -2594,8 +2671,17 @@ sources:
     # - nom: "Prescrire"
     # detail: "Résumé sous droit d'auteur ; réf. prescrire-dt2.md P1/P3/P5/P8."
   reco_officielle:
-    source: "SFD 2025 · HAS 2024 · ADA 2026 · ADA/EASD 2022 · AACE 2022-2026"
+    source: "SFD 2025 · HAS 2024 · ADA 2026 · ADA/EASD 2022 · AACE 2022-2026 · RCP ANSM"
     references:
+      # AJOUTÉE le 2026-08-14 (retour utilisateur en consultation) — le nœud recommande d'ajouter un AR
+      # GLP‑1 à trois endroits (« Envisager un GLP‑1 avant ou avec l'insuline », et les deux options
+      # d'intensification en basale seule/basale+bolus) sans jamais poser sa posologie. Mêmes trois RCP
+      # EMA/ANSM lus séparément que sur `prescription.yaml` (rubrique 4.2), mêmes chiffres — id propre à
+      # CE nœud (chaque nœud a sa propre bibliographie, `posologie_detail[].sources` ne résout que contre
+      # celle du nœud qui le porte).
+      - nom: "RCP ANSM"
+        id: rcp-ansm
+        detail: "Liraglutide (Victoza), sémaglutide injectable (Ozempic), dulaglutide (Trulicity) — schémas de titration, paliers de dose et présentations commercialisées en France (rubrique 4.2)."
       - nom: "SFD 2025"
         detail: "Darmon P et al., Méd Mal Métab 2025;19(8):630-662 — recommandation française de référence. Avis 18 bis (analogues de 2ᵉ génération si risque d'hypoglycémie), Avis 19 (AR GLP-1 préféré comme premier injectable et avant le bolus ; seuil de 0,5 U/kg/j), Avis 21 (désintensification du sujet âgé), Avis 23 (mesure continue du glucose)."
       - nom: "HAS 2024"
@@ -2718,8 +2804,34 @@ meta:
   date_revue: "2026-07-31"
   auteur: "référent DT2 (Thibault) + Opus + Claude Code"
   statut: valide
-  version: "0.62"
+  version: "0.63"
   changelog:
+    - date: "2026-08-14"
+      auteur: "Claude Code (retour utilisateur en consultation)"
+      resume: >-
+        QUATRE CORRECTIFS, tous issus d'une relecture en consultation, aucun sur le mécanisme MCG livré
+        par P15/S9 le même jour.
+
+        (1) `traitements_en_cours` reçoit un `preremplissage` : `situation_insuline == basale_seule` coche
+        `insuline_basale`, `basale_plus_bolus`/`basal_bolus` cochent `insuline_basale` ET
+        `insuline_rapide` — le praticien ne ressaisit plus ce que la situation déclarée affirme déjà
+        (proposé, jamais imposé — K6, comme le `preremplissage` existant de `prescription.yaml`).
+
+        (2) `preference_injection` masqué (`cache: true`) et figé à `indifferent` (`preremplissage`
+        tautologique sur les 4 valeurs de `situation_insuline`) : ce nom n'a plus le même sens ici que
+        sur `prescription.yaml` — CE nœud relève déjà d'un traitement injectable par construction, la
+        question « préférence vis-à-vis de l'injectable » n'y a plus d'objet. `partage: true` RETIRÉ en
+        conséquence (un champ masqué+figé ne doit reprendre aucune vraie réponse d'un autre nœud). EFFET
+        DE BORD ASSUMÉ : l'option « Insuline prémélangée — dernier recours » (condition
+        `preference_injection == refuse`) devient inatteignable sur ce nœud.
+
+        (3) Posologie ajoutée à 3 options qui recommandaient un AR GLP‑1 sans jamais poser sa dose
+        (« Envisager un GLP‑1 avant ou avec l'insuline », et les 2 options d'intensification en basale
+        seule/basale+bolus) — mêmes trois schémas (liraglutide/sémaglutide/dulaglutide), mêmes chiffres
+        que `prescription.yaml` (T-200, P15/S6), sourcés contre la bibliographie PROPRE à ce nœud :
+        `RCP ANSM` (`id: rcp-ansm`) ajouté à `sources.reco_officielle.references`, absent jusqu'ici.
+        Sémaglutide/dulaglutide marqués `accent: true` (nouveau champ `ItemPosologie`, cf. changelog du
+        même jour sur `prescription.yaml`).
     - date: "2026-08-14"
       auteur: "Claude Code (P15/S9, T-203)"
       resume: >-

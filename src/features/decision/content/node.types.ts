@@ -530,6 +530,26 @@ export interface ItemPosologie {
    * aucun contenu ne déclare encore `quand` (premier usage prévu S9, sur `insuline`).
    */
   quand?: string
+  /**
+   * OPTIONNEL (2026-08-14, retour utilisateur en consultation sur l'option « AR GLP‑1 ») — marque CET
+   * item pour le registre visuel « geste » (`.option-card__posologie-geste`, gras/13px) plutôt que
+   * « modalité » (muet/12px, cf. la hiérarchie de lecture documentée dans `OptionCard.tsx`).
+   *
+   * PURE PRÉSENTATION, AUCUN EFFET MOTEUR — classée `inerte` (`engine/expressionsNoeud.ts`), comme
+   * `sources`.
+   *
+   * POURQUOI CE CHAMP EXISTE — le défaut trouvé : la règle historique (premier paragraphe = geste,
+   * `index === 0`, vérifiée sur 17 options) tient pour une option à UN SEUL geste titré par paliers. Elle
+   * ne tient plus pour une option À PLUSIEURS MOLÉCULES ALTERNATIVES (ex. « AR GLP‑1 » : liraglutide,
+   * sémaglutide, dulaglutide) : le rang de DÉCLARATION dans le YAML, arbitraire, décidait alors seul
+   * quelle molécule paraissait visuellement première — sur `prescription.yaml`, c'était liraglutide,
+   * la moins prescrite des trois (injection quotidienne contre hebdomadaire).
+   *
+   * RÉTROCOMPATIBLE PAR CONSTRUCTION : `OptionCard.tsx` ne bascule sur `accent` QUE si au moins un item
+   * du tableau le déclare `true` ; en son absence totale, la règle historique (`index === 0`) s'applique
+   * inchangée — aucune des 17 options existantes n'a besoin d'être touchée.
+   */
+  accent?: boolean
 }
 
 export interface Option {

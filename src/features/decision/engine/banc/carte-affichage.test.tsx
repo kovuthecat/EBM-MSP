@@ -477,14 +477,25 @@ describe('I12 (posologie) — l’aperçu ne double jamais le détail, et ne dis
    * LA RÉGRESSION REDOUTÉE, dite en une phrase et vérifiée sur les 87 options : une option qui DÉCLARE
    * une posologie doit toujours en afficher une. C'est le test qui aurait attrapé une suppression
    * inconditionnelle du rendu d'`apercu`.
+   *
+   * NOMBRE ATTENDU DE BLOCS « GESTE », REVU LE 2026-08-14 (`ItemPosologie.accent`) : la règle historique
+   * (`index === 0`, un seul bloc) ne tient QUE pour les options sans item `accent` explicite — le cas de
+   * TOUTES les options avant cette date, encore le cas de la quasi-totalité aujourd'hui. Une option à
+   * PLUSIEURS molécules alternatives peut désormais en déclarer plusieurs (ex. « AR GLP‑1 ») ; l'attendu
+   * suit alors le nombre d'items `accent: true`, pas une constante.
    */
-  it('toute option déclarant une posologie (aperçu ou détail) rend exactement UN bloc « geste » dans son panneau', () => {
+  it('toute option déclarant une posologie (aperçu ou détail) rend le nombre attendu de blocs « geste » dans son panneau', () => {
     const manquements: string[] = []
     for (const [idNoeud, option] of toutesLesOptions) {
       if (!option.apercu && !aDuDetail(option)) continue
+      const items = option.posologie_detail ?? []
+      const accentues = items.filter((item) => typeof item !== 'string' && item.accent === true).length
+      const attendu = accentues > 0 ? accentues : 1
       const gestes = panneauNomme(rendreOptionNue(option), 'posologie').match(/option-card__posologie-geste/g) ?? []
-      if (gestes.length !== 1) {
-        manquements.push(`${gestes.length} bloc(s) « geste » au lieu d’un — ${idNoeud} / « ${option.intitule} »`)
+      if (gestes.length !== attendu) {
+        manquements.push(
+          `${gestes.length} bloc(s) « geste » au lieu de ${attendu} — ${idNoeud} / « ${option.intitule} »`,
+        )
       }
     }
     expect(manquements).toEqual([])

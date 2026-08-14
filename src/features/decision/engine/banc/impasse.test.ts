@@ -161,6 +161,19 @@ const IMPASSES_CONNUES_T018 = new Map<string, string>([
       '`traitements_en_cours`, visible — jamais de dead-end. Se résorbe avec le même correctif de moteur ' +
       '(dérouler un critère masqué vers les primitifs de son `visible_si`).',
   ],
+  [
+    'insuline :: preference_injection',
+    "2026-08-14 (retour utilisateur en consultation) — IMPASSE RÉELLE ET DÉLIBÉRÉE, pas une conséquence " +
+      "d'un `masque_si_indetermine` à dérouler comme les trois entrées ci-dessus. `preference_injection` " +
+      "porte désormais `cache: true` sur ce nœud (le nom n'y a plus le même sens que sur `prescription` : " +
+      "ce nœud relève déjà d'un traitement injectable par construction) et un `preremplissage` " +
+      "tautologique le fige à `indifferent` — mais CE BANC (`genererProfilsPartiels`) ne rejoue pas le " +
+      "`preremplissage` de l'écran, seulement `evaluateNode`, donc le voit `INDETERMINE` comme n'importe " +
+      "quel critère jamais renseigné. « Insuline prémélangée — option dégradée, dernier recours » " +
+      "(condition `preference_injection == refuse`) est de ce fait DEVENUE INATTEIGNABLE en pratique : " +
+      "aucun champ de l'écran ne permet plus jamais de répondre `refuse`. Effet de bord assumé et tracé " +
+      'dans le changelog de ce nœud, pas une dette à résorber.',
+  ],
 ])
 
 describe('I11 — une option en attente ne réclame jamais un champ invisible (moteur × formulaire)', () => {

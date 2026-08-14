@@ -321,6 +321,10 @@
           "type": "string",
           "minLength": 1,
           "description": "OPTIONNEL (T-202, P15/S8, 2026-08-11). Expression DSL (MEME grammaire qu'`exclusions`/`conditions`, meme evaluateur — `engine/conditions.ts`) sous laquelle cet item est AFFICHE au praticien. FAUSSE (au sens STRICT, jamais INDETERMINE, D20) => l'item n'est PAS RENDU DU TOUT — DISTINCT de `contreIndication.condition`, qui ne retire jamais un item (seul son etat visuel change) : ici un item ecarte sort reellement de la liste, parce qu'il ne decrit pas la conduite pour ce patient (ex. un protocole de titration MCG chez un patient sans capteur). INDETERMINEE => l'item n'est pas non plus rendu (meme politique que `evaluateAlertesDeListe`, `engine/evaluateNode.ts` : une alerte dont le quand est indetermine ne s'affiche pas). ABSENTE => l'item est toujours affiche, comportement historique inchange."
+        },
+        "accent": {
+          "type": "boolean",
+          "description": "OPTIONNEL (2026-08-14). Marque cet item pour le registre visuel gras (geste) plutot que le registre muet (modalite). Pure presentation, aucun effet moteur. Retrocompatible : OptionCard.tsx ne bascule sur ce champ QUE si au moins un item du tableau le declare true ; sinon la regle historique (index 0 = geste) s'applique inchangee."
         }
       }
     },
