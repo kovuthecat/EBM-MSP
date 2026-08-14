@@ -10,8 +10,8 @@ Plafond : 80 lignes (appliqué par hook).
 
 **Module Décision, domaine DT2 — déployé et utilisé en consultation** (ebm-msp.vercel.app). `main` fusionné
 et poussé le 2026-08-14 (`2823b02`) — le déployé reflétera ce contenu au prochain build Vercel. Module
-Veille : code présent (`Veille : refonte ergonomie…`, `d9f8c26`), périmètre et robustesse non réévalués
-depuis — à vérifier avant de s'y fier.
+Veille : code présent (`d9f8c26`), périmètre non réévalué. Édition référent (D64, 2026-08-14) codée
+mais **migration SQL non exécutée** (cf. Dette) : crayon visible, l'enregistrement échoue.
 
 **6 nœuds de contenu**, tous `content/decision/noeuds/diabete-type-2/*.yaml`, versions sur `main` :
 
@@ -60,6 +60,9 @@ S2 · **P8 — clos.**
 
 ## Dette technique / recherche bloquante
 
+- **Exécuter le bloc `veille_entree_overrides` de `supabase/schema.sql`** (D64, 2026-08-14) — étape
+  manuelle Supabase Studio, pas d'accès direct à la base. Sans elle, l'édition référent des entrées
+  de veille échoue à l'enregistrement.
 - **Passe B — sécurité à l'effort** (`rhd-activite-physique`, `modèle: Opus, effort: high`).
 - **Validation clinique référent finale** (`prescription`, `statine`, RHD ×2 → `statut: valide`) : à programmer.
 - **Albuminurie non convertie** : `derive` ne sait produire qu'un booléen ou un nombre, jamais un

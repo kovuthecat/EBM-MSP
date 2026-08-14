@@ -2,11 +2,14 @@ import { useEffect, useMemo, useState } from 'react'
 import type { Navigation } from '../../shared/navigation'
 import type { NiveauPreuve } from '../../shared/types'
 import { EvidenceBadge } from '../../shared/badges/EvidenceBadge'
-import { useUtilisateur } from '../../shared/lib/auth'
+import { useEstReferent, useUtilisateur } from '../../shared/lib/auth'
 import type { EntreeVeille, NiveauPreuveVeille } from '../content/entree.types'
-import { entrees, professionsPresentes, themesPresents } from '../content/loadEntrees'
+import { entrees } from '../content/loadEntrees'
 import type { EtatArticle } from '../lib/articleEtats'
 import { chargerEtats, definirEtat, retirerEtat } from '../lib/articleEtats'
+import type { VeilleOverride } from '../lib/overrides'
+import { fusionnerOverride, loadOverrides } from '../lib/overrides'
+import { EditerEntreePanel } from '../components/EditerEntreePanel'
 import './VeilleListScreen.css'
 
 /**
@@ -122,6 +125,45 @@ export function VeilleListScreen({ go }: VeilleListScreenProps) {
     }
   }, [utilisateur])
 
+  // ÉDITION RÉFÉRENT (D64, 2026-08-14) : les overrides se chargent pour TOUT visiteur, connecté ou
+  // non — le correctif d'un référent doit s'afficher à qui lit le flux sans compte, pas seulement
+  // aux comptes provisionnés (RLS `select using (true)`, cf. `supabase/schema.sql`).
+  const estReferent = useEstReferent()
+  const [overrides, setOverrides] = useState<Record<string, VeilleOverride>>({})
+  const [entreeEnEdition, setEntreeEnEdition] = useState<string | null>(null)
+
+  useEffect(() => {
+    let actif = true
+    loadOverrides()
+      .then((valeurs) => {
+        if (actif) setOverrides(valeurs)
+      })
+      .catch(() => {
+        // Best-effort, même politique que `etats` ci-dessus : une erreur de chargement laisse le
+        // flux afficher le YAML brut plutôt que de casser l'écran.
+      })
+    return () => {
+      actif = false
+    }
+  }, [])
+
+  const entreesFusionnees = useMemo(
+    () => entrees.map((e) => fusionnerOverride(e, overrides[e.id])),
+    [overrides],
+  )
+
+  // Recalculés depuis les entrées FUSIONNÉES (pas l'import statique `themesPresents`/
+  // `professionsPresentes`) : un thème ajouté par une édition référent doit apparaître dans le
+  // filtre, pas seulement sur la carte qui le porte.
+  const themesPresentsIci = useMemo(
+    () => [...new Set(entreesFusionnees.flatMap((e) => e.themes))].sort(),
+    [entreesFusionnees],
+  )
+  const professionsPresentesIci = useMemo(
+    () => [...new Set(entreesFusionnees.flatMap((e) => e.professions_concernees))].sort(),
+    [entreesFusionnees],
+  )
+
   const marquer = (articleId: string, etat: EtatArticle) => {
     setEtats((precedent) => ({ ...precedent, [articleId]: etat })) // optimiste
     void definirEtat(articleId, etat).catch(() => {
@@ -164,7 +206,7 @@ export function VeilleListScreen({ go }: VeilleListScreenProps) {
 
   // Flux général : jamais les gardées (elles vivent dans la bibliothèque), jamais les masquées.
   const visibles = useMemo(() => {
-    const filtrees = entrees.filter((e) => {
+    const filtrees = entreesFusionnees.filter((e) => {
       if (etats[e.id] === 'garde' || etats[e.id] === 'masque') return false
       if (theme !== TOUS && !e.themes.includes(theme)) return false
       if (profession !== TOUS && !e.professions_concernees.includes(profession)) return false
@@ -174,19 +216,19 @@ export function VeilleListScreen({ go }: VeilleListScreenProps) {
     })
     return trier(filtrees)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [theme, profession, impact, route, tri, ordreAnciennete, etats])
+  }, [entreesFusionnees, theme, profession, impact, route, tri, ordreAnciennete, etats])
 
   // Ma bibliothèque : les gardées (le contenu principal de l'écran) et les masquées (repliées,
   // uniquement pour pouvoir les re-marquer — sinon une masquée serait perdue sans retour possible).
   const gardees = useMemo(
-    () => trier(entrees.filter((e) => etats[e.id] === 'garde')),
+    () => trier(entreesFusionnees.filter((e) => etats[e.id] === 'garde')),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [etats, tri, ordreAnciennete],
+    [entreesFusionnees, etats, tri, ordreAnciennete],
   )
   const masquees = useMemo(
-    () => trier(entrees.filter((e) => etats[e.id] === 'masque')),
+    () => trier(entreesFusionnees.filter((e) => etats[e.id] === 'masque')),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [etats, tri, ordreAnciennete],
+    [entreesFusionnees, etats, tri, ordreAnciennete],
   )
 
   const listeAffichee = vue === 'flux' ? visibles : gardees
@@ -204,8 +246,14 @@ export function VeilleListScreen({ go }: VeilleListScreenProps) {
       onMarquer={(etat) => marquer(entree.id, etat)}
       onOublier={() => oublier(entree.id)}
       onDemanderConnexion={() => go('auth')}
+      peutEditer={estReferent === true}
+      onEditer={() => setEntreeEnEdition(entree.id)}
     />
   )
+
+  const entreeEnEditionFusionnee = entreeEnEdition
+    ? entreesFusionnees.find((e) => e.id === entreeEnEdition)
+    : undefined
 
   return (
     <div className="veille-list">
@@ -250,7 +298,7 @@ export function VeilleListScreen({ go }: VeilleListScreenProps) {
             label="Thème"
             valeur={theme}
             onChange={setTheme}
-            options={themesPresents}
+            options={themesPresentsIci}
             rendu={labelTheme}
             tousLabel="Tous"
           />
@@ -258,7 +306,7 @@ export function VeilleListScreen({ go }: VeilleListScreenProps) {
             label="Profession"
             valeur={profession}
             onChange={setProfession}
-            options={professionsPresentes}
+            options={professionsPresentesIci}
             tousLabel="Toutes"
           />
           <Select
@@ -328,6 +376,24 @@ export function VeilleListScreen({ go }: VeilleListScreenProps) {
           )}
         </>
       )}
+
+      {entreeEnEditionFusionnee && (
+        <EditerEntreePanel
+          entreeFusionnee={entreeEnEditionFusionnee}
+          aUnOverride={Boolean(overrides[entreeEnEditionFusionnee.id])}
+          professionsConnues={professionsPresentesIci}
+          onFermer={() => setEntreeEnEdition(null)}
+          onEnregistre={(champs) => {
+            setOverrides((precedent) => {
+              const suite = { ...precedent }
+              if (champs) suite[entreeEnEditionFusionnee.id] = champs
+              else delete suite[entreeEnEditionFusionnee.id]
+              return suite
+            })
+            setEntreeEnEdition(null)
+          }}
+        />
+      )}
     </div>
   )
 }
@@ -366,6 +432,8 @@ function Carte({
   onMarquer,
   onOublier,
   onDemanderConnexion,
+  peutEditer,
+  onEditer,
 }: {
   entree: EntreeVeille
   ouvert: boolean
@@ -376,46 +444,65 @@ function Carte({
   onMarquer: (etat: EtatArticle) => void
   onOublier: () => void
   onDemanderConnexion: () => void
+  /** `true` si le compte connecté a le rôle référent (D64) — masqué tant que le rôle n'est pas résolu. */
+  peutEditer: boolean
+  onEditer: () => void
 }) {
   return (
     <li className={`veille-carte veille-carte--${entree.niveau_impact}`}>
       <div className="veille-carte__entete">
         <h2 className="veille-carte__titre">{entree.titre}</h2>
 
-        {/* GARDER/MASQUER (D51, 2026-08-06) : état personnel, jamais partagé entre praticiens. Un
-            visiteur non connecté voit une invite plutôt que des boutons inertes — cliquer dessus ouvre
-            directement l'écran de connexion. Icônes compactes, alignées avec le titre : c'est une
-            action secondaire, elle ne doit plus retarder la lecture du sujet. */}
-        {connecte ? (
-          <div className="veille-carte__etat">
+        <div className="veille-carte__actions-entete">
+          {/* ÉDITION RÉFÉRENT (D64, 2026-08-14) — crayon discret, jamais montré à un compte non
+              référent (garde côté écran ET côté RLS d'écriture, deux couches indépendantes). */}
+          {peutEditer && (
             <button
               type="button"
-              className={
-                etat === 'garde' ? 'veille-carte__etat-bouton veille-carte__etat-bouton--actif' : 'veille-carte__etat-bouton'
-              }
-              title={etat === 'garde' ? 'Retirer de ma bibliothèque' : 'Garder dans ma bibliothèque'}
-              aria-label={etat === 'garde' ? 'Retirer de ma bibliothèque' : 'Garder dans ma bibliothèque'}
-              onClick={() => (etat === 'garde' ? onOublier() : onMarquer('garde'))}
+              className="veille-carte__editer"
+              title="Modifier cette entrée"
+              aria-label="Modifier cette entrée"
+              onClick={onEditer}
             >
-              {etat === 'garde' ? '★' : '☆'}
+              ✎
             </button>
-            <button
-              type="button"
-              className={
-                etat === 'masque' ? 'veille-carte__etat-bouton veille-carte__etat-bouton--actif' : 'veille-carte__etat-bouton'
-              }
-              title={etat === 'masque' ? 'Reprendre dans le flux' : 'Masquer'}
-              aria-label={etat === 'masque' ? 'Reprendre dans le flux' : 'Masquer'}
-              onClick={() => (etat === 'masque' ? onOublier() : onMarquer('masque'))}
-            >
-              {etat === 'masque' ? '🚫' : '✕'}
+          )}
+
+          {/* GARDER/MASQUER (D51, 2026-08-06) : état personnel, jamais partagé entre praticiens. Un
+              visiteur non connecté voit une invite plutôt que des boutons inertes — cliquer dessus ouvre
+              directement l'écran de connexion. Icônes compactes, alignées avec le titre : c'est une
+              action secondaire, elle ne doit plus retarder la lecture du sujet. */}
+          {connecte ? (
+            <div className="veille-carte__etat">
+              <button
+                type="button"
+                className={
+                  etat === 'garde' ? 'veille-carte__etat-bouton veille-carte__etat-bouton--actif' : 'veille-carte__etat-bouton'
+                }
+                title={etat === 'garde' ? 'Retirer de ma bibliothèque' : 'Garder dans ma bibliothèque'}
+                aria-label={etat === 'garde' ? 'Retirer de ma bibliothèque' : 'Garder dans ma bibliothèque'}
+                onClick={() => (etat === 'garde' ? onOublier() : onMarquer('garde'))}
+              >
+                {etat === 'garde' ? '★' : '☆'}
+              </button>
+              <button
+                type="button"
+                className={
+                  etat === 'masque' ? 'veille-carte__etat-bouton veille-carte__etat-bouton--actif' : 'veille-carte__etat-bouton'
+                }
+                title={etat === 'masque' ? 'Reprendre dans le flux' : 'Masquer'}
+                aria-label={etat === 'masque' ? 'Reprendre dans le flux' : 'Masquer'}
+                onClick={() => (etat === 'masque' ? onOublier() : onMarquer('masque'))}
+              >
+                {etat === 'masque' ? '🚫' : '✕'}
+              </button>
+            </div>
+          ) : (
+            <button type="button" className="veille-carte__etat-connexion" onClick={onDemanderConnexion}>
+              Se connecter pour garder/masquer
             </button>
-          </div>
-        ) : (
-          <button type="button" className="veille-carte__etat-connexion" onClick={onDemanderConnexion}>
-            Se connecter pour garder/masquer
-          </button>
-        )}
+          )}
+        </div>
       </div>
 
       <p className="veille-carte__meta">

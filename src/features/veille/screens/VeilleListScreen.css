@@ -215,12 +215,44 @@
   color: var(--c-text-muted);
 }
 
+/* Regroupe le crayon d'édition référent (D64) et garder/masquer (D51) dans un seul bloc, pour que
+   `veille-carte__entete` (space-between) n'ait toujours que DEUX enfants : le titre, ce bloc. */
+.veille-carte__actions-entete {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: none;
+}
+
 /* GARDER/MASQUER (D51, 2026-08-06) : icônes compactes alignées avec le titre — action personnelle
    secondaire, elle ne doit plus retarder la lecture du sujet ni occuper une ligne entière. */
 .veille-carte__etat {
   display: flex;
   gap: var(--space-1);
   flex: none;
+}
+
+/* ÉDITION RÉFÉRENT (D64, 2026-08-14) — même gabarit que `.veille-carte__etat-bouton`, registre
+   distinct (accent neutre plutôt que l'accent veille des deux boutons personnels voisins). */
+.veille-carte__editer {
+  font: inherit;
+  font-size: var(--text-lg);
+  line-height: 1;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm);
+  background: var(--c-bg);
+  color: var(--c-text-faible);
+  cursor: pointer;
+}
+
+.veille-carte__editer:hover {
+  border-color: var(--c-text-secondary);
+  color: var(--c-text);
 }
 
 .veille-carte__etat-bouton {

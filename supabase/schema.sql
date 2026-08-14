@@ -100,3 +100,53 @@ create policy ebm_feedback_update on public.ebm_feedback
 drop policy if exists ebm_feedback_delete on public.ebm_feedback;
 create policy ebm_feedback_delete on public.ebm_feedback
   for delete using (public.is_referent());
+
+-- ---------------------------------------------------------------------------
+-- ÉDITION RÉFÉRENT DES ENTRÉES DE VEILLE (D64, 2026-08-14) — le contenu SOURCE reste le YAML
+-- versionné (`content/veille/**`, CLAUDE.md invariant 3 : « le contenu se publie par pull request »).
+-- Cette table ne le remplace pas : elle porte une SURCOUCHE éditoriale, un sous-ensemble de champs
+-- que le référent peut corriger sans commit (coquille, reformulation, reclassement de thème/impact
+-- constatés après publication) — l'écran fusionne YAML + override à l'affichage
+-- (`src/features/veille/lib/overrides.ts` `fusionnerOverride`), l'override l'emportant champ par
+-- champ quand il est non NULL. Le YAML source n'est jamais modifié par cette table : un référent qui
+-- veut que la correction survive à une réédition du fichier (le prochain lot de rédaction écrasant la
+-- ligne d'origine) doit encore la reporter dans le YAML — cette table est un correctif RAPIDE, pas un
+-- second système de vérité. `article_id` = `EntreeVeille.id`, AUCUNE clé étrangère possible (même
+-- motif que `veille_article_etats` ci-dessus : le contenu ne vit pas en base).
+--
+-- LECTURE PUBLIQUE (pas seulement `is_member()`) : le flux Veille se consulte sans connexion
+-- (`VeilleListScreen.tsx`), et le contenu corrigé doit s'afficher à TOUT visiteur, pas seulement aux
+-- comptes provisionnés — ce n'est pas une donnée personnelle, c'est le contenu public de l'entrée.
+-- ÉCRITURE RÉSERVÉE AU RÉFÉRENT (`public.is_referent()`), même politique que `ebm_feedback` ci-dessus.
+-- ---------------------------------------------------------------------------
+create table if not exists public.veille_entree_overrides (
+  article_id             text primary key,
+  titre                  text,
+  resultat_resume        text,
+  -- '' (chaîne vide) distingue « appréciation critique vidée par le référent » de NULL (« champ non
+  -- édité, le YAML fait foi ») — une brève dont `appreciation_critique` est légitimement NULL au YAML
+  -- ne doit jamais se voir imposer une valeur par cette table tant que le référent n'a rien écrit.
+  appreciation_critique  text,
+  niveau_impact          text check (niveau_impact in ('pratique', 'informatif')),
+  niveau_preuve          text check (niveau_preuve in ('eleve', 'modere', 'faible', 'tres_faible')),
+  themes                 text[],
+  professions_concernees text[],
+  updated_by             uuid references public.members (id) on delete set null,
+  updated_at             timestamptz not null default now()
+);
+
+alter table public.veille_entree_overrides enable row level security;
+
+drop policy if exists veille_entree_overrides_select on public.veille_entree_overrides;
+create policy veille_entree_overrides_select on public.veille_entree_overrides
+  for select using (true);
+
+drop policy if exists veille_entree_overrides_upsert on public.veille_entree_overrides;
+create policy veille_entree_overrides_upsert on public.veille_entree_overrides
+  for insert with check (public.is_referent());
+drop policy if exists veille_entree_overrides_update on public.veille_entree_overrides;
+create policy veille_entree_overrides_update on public.veille_entree_overrides
+  for update using (public.is_referent()) with check (public.is_referent());
+drop policy if exists veille_entree_overrides_delete on public.veille_entree_overrides;
+create policy veille_entree_overrides_delete on public.veille_entree_overrides
+  for delete using (public.is_referent());
