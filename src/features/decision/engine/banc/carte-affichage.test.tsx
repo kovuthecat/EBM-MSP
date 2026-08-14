@@ -32,7 +32,9 @@
  * par un par des `PastilleInfo` (P11/S3) dans la rangée :
  *
  * - `.option-card__panneau--pourquoi` — « Proposé parce que » et « Ce rang tient compte de » ;
- * - `.option-card__panneau--posologie` — `option.apercu`, doses calculées, doses EN ATTENTE (défaut J) ;
+ * - `.option-card__panneau--posologie` — le geste et ses chiffres, ses modalités, les doses calculées,
+ *   les doses EN ATTENTE (défaut J). Depuis le 2026-08-11, `option.apercu` n'y paraît QUE faute de
+ *   `option.posologie_detail` — cf. le lot « I12 (posologie) » en fin de fichier ;
  * - `.option-card__panneau--ci` — contre-indications, TOUS états (actif/indéterminé/levé, T-068) ;
  * - `.option-card__panneau--preuves` — effet chiffré, délai, essais qui les portent (2026-08-04) ;
  * - `.option-card__panneau--argumentaire` — avantages/inconvénients.
@@ -51,6 +53,7 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { noeuds } from '../../content/loadNodes.ts'
+import type { Option } from '../../content/node.types.ts'
 import { OptionCard } from '../../components/OptionCard.tsx'
 import type { OptionVue } from '../../lib/vueDecision.ts'
 import { construireVueDecision } from '../../lib/vueDecision.ts'
@@ -387,5 +390,143 @@ describe('I12 (carte unique) — le panneau --preuves s’ouvre par défaut quan
     // l'attribut `class` — l'`id` du panneau, écrit juste avant, tombe donc à la fin de la zone
     // PRÉCÉDENTE. C'est une propriété du découpage, pas un défaut du rendu.
     expect(html).toContain(`id="${cible}" class="option-card__panneau option-card__panneau--preuves"`)
+  })
+})
+
+/**
+ * I12 (posologie) — **le panneau posologie ne redit jamais deux fois la même chose, et ne se vide
+ * jamais** (R2, 2026-08-11).
+ *
+ * POURQUOI CE LOT EXISTE. `option.apercu` a été créé par T-076 (P9/S9) pour le titre du `<summary>`
+ * REPLIÉ ; P11/S6 a supprimé ce `<summary>` le 2026-08-01. Il n'en restait qu'une première ligne du
+ * panneau ouvert, redondante avec `posologie_detail[0]` dès que ce champ (2026-08-04) est renseigné : sur
+ * le nœud `insuline`, « Titrer la basale » affichait « +2 U si la glycémie à jeun reste haute 3 matins de
+ * suite… » puis, immédiatement dessous, la même consigne en plus précis et sourcée. `OptionCard.tsx` ne
+ * rend donc plus l'aperçu QUE faute de détail.
+ *
+ * ET POURQUOI SUR LE CONTENU RÉEL, comme tout ce fichier. Le correctif est CONDITIONNEL parce que la
+ * répartition du contenu l'impose, et cette répartition est contre-intuitive : au 2026-08-11, 16 options
+ * portent les deux champs, mais **20 portent `apercu` SANS `posologie_detail`** (13 sur `prescription`,
+ * 6 sur `rhd-activite-physique`, 1 sur `insuline`) — l'aperçu y est TOUT le contenu de posologie du
+ * panneau. Un rendu supprimé sans condition les aurait vidées, et aucun test sur une option synthétique
+ * ne l'aurait montré. C'est exactement le registre de défaut que ce fichier existe pour attraper.
+ *
+ * TOUTES LES OPTIONS, PAS UN ÉCHANTILLON PAR PROFILS — à la différence du lot §1 ci-dessus. Ce qui est
+ * vérifié ne dépend d'aucun critère patient (c'est une règle de rendu sur deux champs de contenu), et la
+ * population à couvrir est justement le contenu ENTIER : un tirage par profils laisserait au hasard le
+ * soin de croiser les deux cas. 87 rendus, une fois — négligeable devant les 40 profils × 6 nœuds du §1.
+ */
+describe('I12 (posologie) — l’aperçu ne double jamais le détail, et ne disparaît jamais là où il est seul', () => {
+  const toutesLesOptions = noeuds.flatMap((node) => node.options.map((option) => [node.id, option] as const))
+
+  /**
+   * Rendu MINIMAL — la carte, sans rien du patient. Le panneau `--posologie` ne lit que `option.apercu`,
+   * `option.posologie_detail` et les doses passées en props : `calculs`/`calculsEnAttente` vides isolent
+   * exactement les deux champs de contenu que ce lot vérifie.
+   */
+  function rendreOptionNue(option: Option): string {
+    return renderToStaticMarkup(
+      <OptionCard
+        option={option}
+        badge={null}
+        reasons={['toujours']}
+        calculs={[]}
+        calculsEnAttente={[]}
+        motifRang={undefined}
+        alertes={[]}
+      />,
+    )
+  }
+
+  const aDuDetail = (option: Option) => (option.posologie_detail?.length ?? 0) > 0
+  const avecLesDeux = toutesLesOptions.filter(([, option]) => Boolean(option.apercu) && aDuDetail(option))
+  const apercuSeul = toutesLesOptions.filter(([, option]) => Boolean(option.apercu) && !aDuDetail(option))
+
+  it('le contenu porte bien LES DEUX cas de figure — sans quoi les deux tests suivants seraient verts sans rien prouver', () => {
+    expect(avecLesDeux.length, 'aucune option ne porte apercu + posologie_detail').toBeGreaterThan(0)
+    expect(apercuSeul.length, 'aucune option ne porte apercu seul').toBeGreaterThan(0)
+  })
+
+  it('`apercu` ET `posologie_detail` : l’aperçu n’est PAS rendu dans le panneau — c’est le défaut de redondance visé', () => {
+    const manquements: string[] = []
+    for (const [idNoeud, option] of avecLesDeux) {
+      // `option.apercu` est non vide par construction du filtre ; TypeScript ne le déduit pas d'un
+      // `filter` sans prédicat de type, d'où cette relecture locale plutôt qu'un `!`.
+      const apercu = option.apercu
+      if (!apercu) continue
+      if (panneauNomme(rendreOptionNue(option), 'posologie').includes(echappe(apercu))) {
+        manquements.push(`aperçu dupliqué dans --posologie — ${idNoeud} / « ${option.intitule} »`)
+      }
+    }
+    expect(manquements).toEqual([])
+  })
+
+  it('`apercu` SEUL : il reste rendu dans le panneau --posologie — c’est là tout le contenu de posologie de ces 20 options', () => {
+    const manquements: string[] = []
+    for (const [idNoeud, option] of apercuSeul) {
+      const apercu = option.apercu
+      if (!apercu) continue
+      if (!panneauNomme(rendreOptionNue(option), 'posologie').includes(echappe(apercu))) {
+        manquements.push(`aperçu perdu — ${idNoeud} / « ${option.intitule} »`)
+      }
+    }
+    expect(manquements).toEqual([])
+  })
+
+  /**
+   * LA RÉGRESSION REDOUTÉE, dite en une phrase et vérifiée sur les 87 options : une option qui DÉCLARE
+   * une posologie doit toujours en afficher une. C'est le test qui aurait attrapé une suppression
+   * inconditionnelle du rendu d'`apercu`.
+   *
+   * NOMBRE ATTENDU DE BLOCS « GESTE », REVU LE 2026-08-14 (`ItemPosologie.accent`) : la règle historique
+   * (`index === 0`, un seul bloc) ne tient QUE pour les options sans item `accent` explicite — le cas de
+   * TOUTES les options avant cette date, encore le cas de la quasi-totalité aujourd'hui. Une option à
+   * PLUSIEURS molécules alternatives peut désormais en déclarer plusieurs (ex. « AR GLP‑1 ») ; l'attendu
+   * suit alors le nombre d'items `accent: true`, pas une constante.
+   */
+  it('toute option déclarant une posologie (aperçu ou détail) rend le nombre attendu de blocs « geste » dans son panneau', () => {
+    const manquements: string[] = []
+    for (const [idNoeud, option] of toutesLesOptions) {
+      if (!option.apercu && !aDuDetail(option)) continue
+      const items = option.posologie_detail ?? []
+      const accentues = items.filter((item) => typeof item !== 'string' && item.accent === true).length
+      const attendu = accentues > 0 ? accentues : 1
+      const gestes = panneauNomme(rendreOptionNue(option), 'posologie').match(/option-card__posologie-geste/g) ?? []
+      if (gestes.length !== attendu) {
+        manquements.push(
+          `${gestes.length} bloc(s) « geste » au lieu de ${attendu} — ${idNoeud} / « ${option.intitule} »`,
+        )
+      }
+    }
+    expect(manquements).toEqual([])
+  })
+
+  /**
+   * DÉFAUT PRÉEXISTANT, corrigé le 2026-08-11 — indépendant de R2 mais du même mécanisme. Un panneau
+   * rempli ne sert à rien si rien ne l'ouvre : la garde `aDuContenuPosologie` (`OptionCard.tsx`)
+   * n'interrogeait pas `posologie_detail`, de sorte qu'une option ne portant QUE ce champ n'obtenait
+   * aucune pastille. Vérifié en conditions réelles ci-dessous parce que le corpus contient exactement un
+   * cas de cette forme — « Envisager l'insuline » (`prescription.yaml`) — et qu'aucun test sur option
+   * synthétique n'aurait signalé qu'il existait.
+   *
+   * C'est la contrepartie exacte du reste de ce fichier : le §1 vérifie qu'un texte n'est pas AVALÉ par
+   * un panneau replié, celui-ci qu'un panneau rempli reste OUVRABLE.
+   */
+  it('toute option déclarant une posologie porte une pastille « Posologie » qui commande SON panneau (aria-controls)', () => {
+    const manquements: string[] = []
+    for (const [idNoeud, option] of toutesLesOptions) {
+      if (!option.apercu && !aDuDetail(option)) continue
+      const html = rendreOptionNue(option)
+      const bouton = /<button[^>]*aria-label="Posologie"[^>]*>/.exec(html)?.[0]
+      if (!bouton) {
+        manquements.push(`panneau --posologie rempli mais AUCUNE pastille pour l’ouvrir — ${idNoeud} / « ${option.intitule} »`)
+        continue
+      }
+      const cible = /aria-controls="([^"]+)"/.exec(bouton)?.[1]
+      if (!cible || !html.includes(`id="${cible}" class="option-card__panneau option-card__panneau--posologie"`)) {
+        manquements.push(`la pastille posologie ne pointe pas vers le panneau --posologie — ${idNoeud} / « ${option.intitule} »`)
+      }
+    }
+    expect(manquements).toEqual([])
   })
 })

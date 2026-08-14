@@ -94,7 +94,7 @@ import { getArgumentaireExhaustif } from '../../content/loadArgumentaires.ts'
 import { modules } from '../../content/loadModules.ts'
 import { noeuds } from '../../content/loadNodes.ts'
 import type { ModuleDecision } from '../../content/module.types.ts'
-import type { ContreIndication, Noeud, Option } from '../../content/node.types.ts'
+import type { ContreIndication, ItemPosologie, Noeud, Option } from '../../content/node.types.ts'
 
 /** Un fragment de texte AFFICHÉ, avec un chemin lisible pour un message d'échec exploitable. */
 interface Fragment {
@@ -104,6 +104,14 @@ interface Fragment {
 
 function texteContreIndication(ci: string | ContreIndication): string {
   return typeof ci === 'string' ? ci : ci.texte
+}
+
+// T-194 (P15/S1, 2026-08-11) : `posologie_detail` accepte désormais une CHAÎNE (forme historique) ou un
+// OBJET `{ texte, sources? }` (`ItemPosologie`) — même normalisation que `texteContreIndication`
+// ci-dessus, pour la même raison : c'est le `texte`, jamais `sources` (des ids, pas de la prose), qui
+// doit être contrôlé par I25.
+function texteItemPosologie(item: string | ItemPosologie): string {
+  return typeof item === 'string' ? item : item.texte
 }
 
 /** Tout ce que `OptionCard.tsx`/`ArgumentPanel.tsx` rendent d'UNE option (cf. `node.types.ts` pour le
@@ -122,8 +130,8 @@ function fragmentsOption(option: Option, prefixe: string): Fragment[] {
   // Trouvé en corrigeant l'arbitrage n°13 (harmonisation « nœud »/« cet écran ») : une occurrence de
   // « du nœud « Insulinothérapie » » dans `prescription.yaml` (posologie_detail) n'était visible par
   // AUCUN test avant cet ajout.
-  ;(option.posologie_detail ?? []).forEach((texte, i) =>
-    fragments.push({ chemin: `${prefixe}.posologie_detail[${i}]`, texte }),
+  ;(option.posologie_detail ?? []).forEach((item, i) =>
+    fragments.push({ chemin: `${prefixe}.posologie_detail[${i}]`, texte: texteItemPosologie(item) }),
   )
   for (const [i, ci] of (option.contre_indications ?? []).entries()) {
     fragments.push({ chemin: `${prefixe}.contre_indications[${i}]`, texte: texteContreIndication(ci) })

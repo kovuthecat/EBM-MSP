@@ -136,8 +136,11 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
     // 2026-08-04 — drapeau de PRÉSENTATION pure (étiquette + atténuement visuel de la carte,
     // `OptionCard.tsx`), même nature que `libelle_masque` : ne porte ni ne déclenche aucune expression.
     bas_rang: 'inerte',
-    // 2026-08-04 — prose d'affichage (panneau POSOLOGIE), même nature qu'`apercu`/`contre_indications` :
-    // jamais évaluée, aucune expression.
+    // Conteneur depuis T-194 (P15/S1, 2026-08-11) — même statut que `contre_indications` juste en dessous :
+    // le tableau mêle des CHAÎNES (prose seule, inerte) et des objets `{ texte, sources?, quand? }` — cf.
+    // la définition `itemPosologie`, qui porte les champs du lot (dont `quand`, `decision`, T-202,
+    // P15/S8). Le CONTENEUR lui-même reste `inerte` : c'est `itemPosologie.quand`, pas ce champ, qui est
+    // la feuille porteuse d'expression — même logique que `contre_indications`/`contreIndication.condition`.
     posologie_detail: 'inerte',
     avantages: 'inerte',
     inconvenients: 'inerte',
@@ -192,6 +195,22 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
     // jamais la contre-indication se désamorcer.
     condition: 'decision',
   },
+  // T-194 (P15/S1, 2026-08-11) : `itemPosologie`, la FORME OBJET de `option.posologie_detail` (juste
+  // au-dessus). `sources[]` porte des IDS résolus contre la bibliographie du nœud — jamais une
+  // expression DSL, `inerte` comme `option.references`. `quand` (T-202, P15/S8, 2026-08-11) EST une
+  // expression DSL (même grammaire qu'`exclusions`) qui décide si CET ITEM est affiché à ce patient —
+  // `decision`, et NON `affichage` : contrairement à `visible_si` (dont les littéraux ne déplacent
+  // aucune sortie de `signatureVue`), l'état retenu/écarté d'un item de posologie ENTRE dans
+  // `signatureVue` (`lib/vueDecision.ts` `serialisePosologieDetail`) — un seuil écrit ici EST donc une
+  // frontière clinique, exactement le même raisonnement que `contreIndication.condition` ci-dessus.
+  itemPosologie: {
+    texte: 'inerte',
+    sources: 'inerte',
+    quand: 'decision',
+    // `accent` (2026-08-14) : pure présentation (registre visuel gras/muet), aucune expression DSL,
+    // aucune entrée dans `signatureVue` — `inerte` comme `texte`/`sources`.
+    accent: 'inerte',
+  },
   critereEntree: {
     nom: 'inerte',
     type: 'inerte',
@@ -240,7 +259,10 @@ export const CHAMPS_DU_SCHEMA: Record<string, Record<string, NatureChamp>> = {
   // `citationReco` remplace `referenceCritique` (2026-08-04, retrait des revues secondaires de l'écran)
   // et `divergenceReco` est nouveau : deux définitions de pure bibliographie/rédaction, aucune n'entre
   // dans une expression DSL.
-  citationReco: { nom: 'inerte', lien: 'inerte', detail: 'inerte' },
+  // `id` ajouté le 2026-08-11 (T-194, P15/S1) : identifiant CITÉ par `option.posologie_detail[].sources`
+  // (même rôle que `referencePrimaire.id` pour `option.references`) — un nom cité, jamais une expression
+  // DSL, même nature que les trois autres champs de cette définition.
+  citationReco: { nom: 'inerte', lien: 'inerte', detail: 'inerte', id: 'inerte' },
   divergenceReco: {
     sujet: 'inerte',
     position_officielle: 'inerte',
@@ -336,6 +358,14 @@ export function fragmentsDuNoeud(node: Noeud): FragmentExpression[] {
     ;(option.contre_indications ?? []).forEach((ci, j) => {
       if (typeof ci !== 'string' && ci.condition != null) {
         pousser(ci.condition, 'decision', `${base}.contre_indications[${j}].condition`)
+      }
+    })
+    // T-202 (P15/S8, 2026-08-11) : MÊME traitement que `contre_indications[].condition` juste au-dessus,
+    // appliqué à `posologie_detail[].quand` — seuls les items de la FORME OBJET portant un `quand` sont
+    // récoltés (une chaîne, ou un objet sans `quand`, n'est que de la prose, rien à récolter).
+    ;(option.posologie_detail ?? []).forEach((item, j) => {
+      if (typeof item !== 'string' && item.quand != null) {
+        pousser(item.quand, 'decision', `${base}.posologie_detail[${j}].quand`)
       }
     })
     ;(option.calculs ?? []).forEach((c, j) => pousser(c.expression, 'arithmetique', `${base}.calculs[${j}].expression`))

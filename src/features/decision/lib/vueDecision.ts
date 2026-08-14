@@ -58,8 +58,18 @@
  * ci-dessus (coût par cycle de rendu, `evaluateNode` ne le fait que pour LUI-MÊME). `enAttente` entre
  * dans `signatureVue` comme les autres dimensions (totalité) : un critère qui ne change QUE la liste des
  * options en attente doit rester DÉCISIF pour `engine/relevance.ts`.
+ *
+ * `posologie_detail` CONDITIONNEL (T-202, P15/S8, 2026-08-11) : un item peut désormais porter un `quand`
+ * (même DSL qu'`exclusions`) qui décide s'IL est affiché à ce patient — `OptionVue.posologieDetail`
+ * (`engine/evaluateNode.ts` `evaluerPosologieDetail`) porte la liste déjà FILTRÉE, calculée ICI pour la
+ * même raison que `contreIndications`/`alertes` (coût par cycle de rendu, jamais par perturbation).
+ * MÊME PIÈGE QUE R6 (§ « Même prérequis d'architecture », 5ᵉ occurrence documentée) : un critère qui ne
+ * pilote QUE la posologie affichée (aucune autre dimension de l'écran ne varie — même option retenue,
+ * même badge, mêmes raisons) doit rester DÉCISIF pour `engine/relevance.ts`, sinon il serait estompé à
+ * tort dans le formulaire alors qu'il change réellement ce que le praticien lit. D'où l'entrée de la
+ * liste des items RETENUS dans `signatureVue` (totalité, ci-dessus) — cf. `serialisePosologieDetail`.
  */
-import type { ActionOption, Alerte, CritereEntree, Noeud, Option } from '../content/node.types.ts'
+import type { ActionOption, Alerte, CritereEntree, ItemPosologie, Noeud, Option } from '../content/node.types.ts'
 import type { Criteria } from '../engine/conditions.ts'
 import { evaluateCondition, termesVrais } from '../engine/conditions.ts'
 import { calculerCriteresDerives, determinesEffectifs, evaluerNombre } from '../engine/deriveCritere.ts'
@@ -68,6 +78,7 @@ import {
   evaluateAlertesDeListe,
   evaluateNode,
   evaluerContreIndications,
+  evaluerPosologieDetail,
   groupesParFamille,
 } from '../engine/evaluateNode.ts'
 import { computeBadges, type OptionBadge } from './optionBadges.ts'
@@ -176,6 +187,21 @@ export interface OptionVue {
    * sécurité ne disparaît pas en silence.
    */
   contreIndications: ContreIndicationEvaluee[]
+  /**
+   * Items de `option.posologie_detail` RETENUS pour ce patient (T-202, P15/S8 — `engine/evaluateNode.ts`
+   * `evaluerPosologieDetail`). Remplace, pour l'affichage, la lecture directe de `option.posologie_detail` :
+   * la carte (`OptionCard.tsx`) n'a plus à évaluer aucun `quand`, elle reçoit la liste déjà filtrée —
+   * même frontière que `contreIndications`/`calculs`/`alertes` ci-dessus.
+   *
+   * DISTINCT DE `contreIndications` sur un point : ICI, un item écarté (son `quand` faux ou indéterminé)
+   * SORT de la liste — il n'est pas conservé désamorcé comme une contre-indication levée, cf. la
+   * docstring d'`evaluerPosologieDetail` pour le raisonnement complet.
+   *
+   * Calculée ICI et non dans `evaluateNode`, exactement comme `contreIndications` ci-dessus et pour la
+   * même raison : le filtrage ne change RIEN à l'applicabilité de l'option, il ne concerne que ce qui est
+   * RENDU — une fois par cycle de rendu, jamais par perturbation.
+   */
+  posologieDetail: (string | ItemPosologie)[]
 }
 
 /** Une section de l'écran : une famille clinique (ou le repli à plat, `libelle: undefined`). */
@@ -504,6 +530,9 @@ export function construireVueDecision(node: Noeud, criteria: Criteria, renseigne
             // ci-dessus — une `condition` de contre-indication est une expression du même DSL, lue par
             // le même évaluateur, elle doit donc voir exactement les mêmes valeurs.
             contreIndications: evaluerContreIndications(option.contre_indications, derived, effectifs),
+            // T-202 (P15/S8) : MÊMES critères DÉRIVÉS et MÊME ensemble EFFECTIF que ci-dessus — `quand`
+            // est une expression du même DSL, lue par le même évaluateur.
+            posologieDetail: evaluerPosologieDetail(option.posologie_detail, derived, effectifs),
           }),
         ),
       ),
@@ -565,7 +594,7 @@ function serialiseOption(ov: OptionVue): string {
   const calculsEnAttente = ov.calculsEnAttente.map((c) => `${c.libelle}:${c.criteresManquants.join(',')}`).join('&')
   const alertes = ov.alertes.map((a) => `${a.message}~${a.niveau ?? ''}`).join('|')
   const motifRang = (ov.motifRang ?? []).join('&')
-  return `${ov.option.intitule}@${ov.badge ?? ''}«${reasons}»[${calculs}]{${calculsEnAttente}}¦${motifRang}‖${alertes}${serialiseContreIndications(ov.contreIndications)}`
+  return `${ov.option.intitule}@${ov.badge ?? ''}«${reasons}»[${calculs}]{${calculsEnAttente}}¦${motifRang}‖${alertes}${serialiseContreIndications(ov.contreIndications)}${serialisePosologieDetail(ov.posologieDetail, ov.option.posologie_detail)}`
 }
 
 /**
@@ -589,6 +618,40 @@ function serialiseContreIndications(contreIndications: ContreIndicationEvaluee[]
   const nonActives = contreIndications.filter((ci) => ci.etat !== 'active')
   if (nonActives.length === 0) return ''
   return `‡${nonActives.map((ci) => `${ci.texte}=${ci.etat}`).join('&')}`
+}
+
+/** Texte d'un item de `posologie_detail`, quelle que soit sa forme — même normalisation minimale que
+ * partout ailleurs (`OptionCard.tsx`, `banc/jargon-projet.test.ts`). */
+function texteItemPosologie(item: string | ItemPosologie): string {
+  return typeof item === 'string' ? item : item.texte
+}
+
+/**
+ * Items de `posologie_detail` RETENUS après filtrage par `quand` (T-202, P15/S8), pour `serialiseOption`
+ * ci-dessus — MÊME totalité que les autres dimensions affichées : un critère qui ne change QUE la liste
+ * des items de posologie retenus (un item apparaît ou disparaît selon son `quand`) doit rester DÉCISIF
+ * pour `engine/relevance.ts`, faute de quoi le champ qui le commande serait estompé à tort comme « sans
+ * effet sur la reco » — exactement le défaut récurrent que ce fichier existe pour empêcher (R6, encadré
+ * « Même prérequis d'architecture », `docs/decision/GRAMMAIRE-NOEUD.md`), à sa CINQUIÈME occurrence
+ * documentée (alertes d'option, calculs en attente, contre-indications conditionnelles, justification
+ * situationnelle, et maintenant la posologie).
+ *
+ * SEGMENT OMIS QUAND LA LISTE FILTRÉE EST IDENTIQUE À `option.posologie_detail` NON FILTRÉ (le cas de
+ * 100 % du contenu au jour de T-202 : aucune option ne déclare encore `quand`) — même raisonnement que
+ * `serialiseContreIndications` ci-dessus : ce n'est pas une optimisation, c'est ce qui rend la dimension
+ * additive SANS perturber le golden master de caractérisation (`engine/banc/__snapshots__/`) pour du
+ * contenu qui n'utilise pas encore le champ. `evaluerPosologieDetail` ne fait que `.filter()` (jamais de
+ * clonage ni de réordonnancement) : deux tableaux de MÊME LONGUEUR contiennent donc nécessairement les
+ * MÊMES éléments, dans le même ordre — comparer les longueurs suffit à détecter « rien n'a été filtré ».
+ * Le jour où un `quand` est posé sur un item (S9) et en écarte au moins un pour au moins un profil, le
+ * segment apparaît et le diff de snapshot est alors le signal ATTENDU, pas un dommage collatéral.
+ */
+function serialisePosologieDetail(
+  retenus: (string | ItemPosologie)[],
+  original: (string | ItemPosologie)[] | undefined,
+): string {
+  if (retenus.length === (original?.length ?? 0)) return ''
+  return `∴${retenus.map(texteItemPosologie).join('&')}`
 }
 
 function serialiseFamille(famille: FamilleVue): string {

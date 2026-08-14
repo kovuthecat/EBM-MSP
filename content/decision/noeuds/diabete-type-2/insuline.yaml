@@ -217,18 +217,48 @@ criteres_entree:
     valeurs_visible_si:
       insuline_basale: "situation_insuline != naif"
       insuline_rapide: "situation_insuline != naif"
+    # AJOUTÉ le 2026-08-14 (retour utilisateur en consultation) : `situation_insuline` déclare déjà QUEL
+    # schéma est en place, mais rien ne cochait mécaniquement les cases correspondantes de « Traitement
+    # actuel » — le praticien ressaisissait « insuline basale » (voire « insuline rapide ») que
+    # `situation_insuline` venait pourtant d'affirmer une ligne plus haut. Même mécanisme K6 que le
+    # `preremplissage` de `traitements_en_cours` sur `prescription.yaml` (`intention == initier` ⇒ `[]`) :
+    # PROPOSÉ, jamais imposé — le praticien reste libre de décocher, et toute case déjà TOUCHÉE avant que
+    # `situation_insuline` ne change n'est plus recouverte (cf. `lib/formLayout.ts`
+    # `appliquerPreremplissage`, garde-fou 2 : « un critère déjà renseigné n'est jamais touché »).
+    preremplissage:
+      - quand: "situation_insuline == basale_seule"
+        valeur: [insuline_basale]
+      - quand: "situation_insuline == basale_plus_bolus OR situation_insuline == basal_bolus"
+        valeur: [insuline_basale, insuline_rapide]
   - nom: preference_injection
     type: enum
     groupe: Traitement actuel
-    # ORDRE ALIGNÉ le 2026-07-29 sur celui de `prescription` (`indifferent` en tête). Ce n'était PAS
-    # cosmétique : `valeurParDefaut` renvoie la PREMIÈRE valeur déclarée, donc la même question s'ouvrait
-    # sur « accepte » ici et sur « indifferent » là. `indifferent` est retenu comme défaut parce qu'il est
-    # le seul des trois qui n'oriente pas la réponse. Divergence résorbée -> son entrée est retirée de
-    # `CRITERES_DIVERGENTS_CONNUS` (`engine/banc/coherence-inter-noeuds.test.ts`).
+    # ORDRE ALIGNÉ le 2026-07-29 sur celui de `prescription` (`indifferent` en tête).
     valeurs: [indifferent, accepte, refuse]
-    # `partage` ajouté le 2026-07-29 (recette référent, item F/point 5) : encodage désormais IDENTIQUE
-    # sur tous les nœuds qui le déclarent (type, valeurs, bornes, presomption_non) — condition I19.
-    partage: true
+    # MASQUÉ ET FIGÉ le 2026-08-14 (retour utilisateur en consultation) : « préférence vis-à-vis de
+    # l'injectable » n'a plus de sens ICI — ce nœud entier relève déjà d'un traitement injectable, à la
+    # différence de `prescription.yaml` où ce même nom arbitre entre une classe injectable (AR GLP‑1) et
+    # une alternative orale. `cache: true` (cf. sa docstring, `content/node.types.ts`) masque le champ
+    # inconditionnellement ; le `preremplissage` ci-dessous le fige à `indifferent` dès que
+    # `situation_insuline` est répondue (les 4 valeurs de l'énum sont couvertes : la règle équivaut à
+    # « dès qu'une réponse existe »).
+    #
+    # `partage` RETIRÉ à cette occasion (il était présent depuis le 2026-07-29) : le laisser aurait permis
+    # à une vraie réponse saisie sur `prescription.yaml` de REPRENDRE dans ce champ pourtant masqué+figé
+    # (`lib/sessionCriteres.ts` `valeursReprises` ne regarde pas `cache`), rouvrant exactement l'ambiguïté
+    # que ce correctif ferme. Sans compter que le SENS diverge déjà entre les deux nœuds (ci-dessus) — les
+    # partager n'aurait jamais été correct au sens strict de I19.
+    #
+    # EFFET DE BORD ASSUMÉ (signalé par l'utilisateur, tranché en connaissance de cause) : l'option
+    # « Insuline prémélangée — option dégradée, dernier recours » (condition `preference_injection ==
+    # refuse`) devient MÉCANIQUEMENT INATTEIGNABLE sur ce nœud — sa condition ne peut plus jamais être
+    # vraie. L'option reste en l'état dans le contenu (aucune demande de la retirer) ; à réévaluer si le
+    # besoin qu'elle couvrait (patient refusant un schéma basal-bolus à plusieurs injections/jour)
+    # ressurgit sous une autre formulation.
+    cache: true
+    preremplissage:
+      - quand: "situation_insuline == naif OR situation_insuline == basale_seule OR situation_insuline == basale_plus_bolus OR situation_insuline == basal_bolus"
+        valeur: indifferent
   # T4/(a) (chantier visible_si, capture 7) : ce groupe de 7 champs n'a d'objet que pour un patient DÉJÀ
   # sous insuline (surveillance/titration) — un patient « naïf » n'a ni dose en cours ni MCG à interpréter.
   # Masquer les remet à leur valeur par défaut (P1) ; vérifié sans conséquence pour ces 7 : aucune règle
@@ -887,6 +917,23 @@ options:
       - eng
       - maiorino
       - dual-vii
+    # AJOUTÉ le 2026-08-14 (retour utilisateur en consultation) : cette option recommandait la classe
+    # sans jamais donner de dose — le praticien qui la retenait devait rouvrir `prescription.yaml` pour
+    # savoir comment prescrire. Mêmes trois schémas, mêmes chiffres, même source que `prescription.yaml`
+    # (T-200, P15/S6) — sourcés ici contre la bibliographie PROPRE à ce nœud (`rcp-ansm` ajouté ci-dessus,
+    # `sources.reco_officielle`).
+    posologie_detail:
+      - texte: "Sémaglutide injectable (Ozempic) : 0,25 mg/semaine pendant 4 semaines — dose de tolérance, pas une dose d'entretien —, puis 0,5 mg/semaine, puis 1 mg/semaine après au moins 4 semaines à 0,5 mg."
+        sources:
+          - rcp-ansm
+        accent: true
+      - texte: "Dulaglutide (Trulicity) : 0,75 mg/semaine en monothérapie, ou 1,5 mg/semaine d'emblée en association ; puis 3 mg/semaine après au moins 4 semaines à 1,5 mg, puis 4,5 mg/semaine (dose maximale) après au moins 4 semaines supplémentaires."
+        sources:
+          - rcp-ansm
+        accent: true
+      - texte: "Liraglutide (Victoza) : 0,6 mg/j en initiation — dose de tolérance digestive, pas une dose d'entretien —, puis 1,2 mg/j après au moins 1 semaine, puis 1,8 mg/j (dose maximale) après au moins 1 semaine supplémentaire si le contrôle glycémique doit être renforcé."
+        sources:
+          - rcp-ansm
   - intitule: "Insuline basale"
     role: geste
     action: ajouter
@@ -987,7 +1034,11 @@ options:
     # la preuve ; le panneau posologie est le bon canal (même principe que les deux items ci-dessus).
     posologie_detail:
       - "Dose d'initiation = poids × 0,1 à 0,2 U/kg/j, en une injection le soir. Repli fixe de 10 U le soir si le poids n'est pas disponible — repère pragmatique, non issu d'un essai dédié."
-      - "Titration par auto-ajustement : +2 U si la glycémie à jeun reste au-dessus de la cible 3 matins de suite (ebmfrance), ou +10 % par paliers si la dose dépasse 40 U/j (SFD 2025, Avis 18) ; adapter tous les 3 jours (HAS 2024, R.87). Cible de glycémie avant les repas ~0,70-1,30 g/L, à individualiser."
+      - texte: "Titration par auto-ajustement : +2 U si la glycémie à jeun reste au-dessus de la cible 3 matins de suite, ou +10 % par paliers si la dose dépasse 40 U/j ; adapter tous les 3 jours. Cible de glycémie avant les repas ~0,70-1,30 g/L, à individualiser."
+        sources:
+          - ebmfrance-insuline
+          - sfd-2025-avis18
+          - has-2024-r87
       - "Maintenir la metformine et les traitements à bénéfice cardio-rénal en cours (iSGLT2, AR GLP-1)."
       # ITEM DÉPLACÉ DEPUIS `contre_indications` le 2026-08-06 (contre-relecture rédactionnelle) : une
       # consigne d'arrêt d'un traitement en cours est une modalité de prescription, pas une
@@ -1117,7 +1168,10 @@ options:
       - { libelle: "Basale réduite (−10 %)", expression: "dose_basale_actuelle * 0.9", unite: "U/j" }
     apercu: "−2 U, ou −10 % de la dose au-delà de 40 U/j ; jusqu'à −4 U si l'épisode est symptomatique"
     posologie_detail:
-      - "Réduire la basale de 2 U, ou de 10 % de la dose si elle dépasse 40 U/j (SFD 2025, Avis 18) — jusqu'à 4 U si l'hypoglycémie est symptomatique (ebmfrance). Réévaluer tous les 3 jours (HAS 2024, R.87, qui écrit la règle dans les deux sens : « augmentée ou réduite de 1 ou 2 UI »)."
+      - texte: "Réduire la basale de 2 U, ou de 10 % de la dose si elle dépasse 40 U/j — jusqu'à 4 U si l'hypoglycémie est symptomatique. Réévaluer tous les 3 jours (HAS 2024, R.87, qui écrit la règle dans les deux sens : « augmentée ou réduite de 1 ou 2 UI »)."
+        sources:
+          - sfd-2025-avis18
+          - ebmfrance-insuline
   - intitule: "Ne pas sur-titrer la basale — intensifier autrement"
     role: securite
     famille: "Sécurité — à corriger d'abord"
@@ -1192,6 +1246,21 @@ options:
       - dual-vii
       - fullstep
       - sfd-2025-avis18
+    # AJOUTÉ le 2026-08-14 (retour utilisateur en consultation), même défaut et même correctif que sur
+    # « Envisager un GLP‑1 avant ou avec l'insuline » ci-dessus : le geste utile nommé dans `avantages`
+    # (« ajouter un AR GLP-1 ») n'avait aucune dose associée.
+    posologie_detail:
+      - texte: "Sémaglutide injectable (Ozempic) : 0,25 mg/semaine pendant 4 semaines — dose de tolérance, pas une dose d'entretien —, puis 0,5 mg/semaine, puis 1 mg/semaine après au moins 4 semaines à 0,5 mg."
+        sources:
+          - rcp-ansm
+        accent: true
+      - texte: "Dulaglutide (Trulicity) : 0,75 mg/semaine en monothérapie, ou 1,5 mg/semaine d'emblée en association ; puis 3 mg/semaine après au moins 4 semaines à 1,5 mg, puis 4,5 mg/semaine (dose maximale) après au moins 4 semaines supplémentaires."
+        sources:
+          - rcp-ansm
+        accent: true
+      - texte: "Liraglutide (Victoza) : 0,6 mg/j en initiation — dose de tolérance digestive, pas une dose d'entretien —, puis 1,2 mg/j après au moins 1 semaine, puis 1,8 mg/j (dose maximale) après au moins 1 semaine supplémentaire si le contrôle glycémique doit être renforcé."
+        sources:
+          - rcp-ansm
     # AJOUTÉ le 2026-08-06 (P14/S4, T-167, étape 5) : le chiffre reste visible là où il éclaire une
     # décision, sans jamais la sélectionner (R2/R5) — `poids` conserve ainsi un second lecteur sur ce nœud,
     # en plus des `calculs` de dose d'initiation de « Initier une insuline basale » (R5 satisfait).
@@ -1280,8 +1349,87 @@ options:
     calculs:
       - { libelle: "Basale après +2 U", expression: "dose_basale_actuelle + 2", unite: "U/j" }
     apercu: "+2 U si la glycémie à jeun reste haute 3 matins de suite, ou +10 % au-delà de 40 U/j"
+    # POSOLOGIE SCINDÉE EN DEUX BRAS le 2026-08-14 (T-203) — LE DÉFAUT CORRIGÉ, et il était de fond.
+    #
+    # CE QUI N'ALLAIT PAS. Cette carte est retenue de DEUX façons (cf. le 3ᵉ item de `conditions`
+    # ci-dessus) : sans capteur sur `gaj_haute`, avec capteur sur `profil_nocturne_permet_titration`,
+    # c'est-à-dire EN LISANT LA COURBE NOCTURNE. Or elle n'affichait qu'un seul texte, celui du repli sans
+    # capteur — « +2 U si la glycémie à jeun reste au-dessus de la cible 3 matins de suite ». Le patient
+    # porteur d'un capteur, retenu sur sa courbe, se voyait donc prescrire une surveillance capillaire à
+    # jeun, sans que rien ne le dise. C'est l'inverse exact de la doctrine écrite trois fois plus haut dans
+    # ce fichier (« la glycémie à jeun est le cas de repli quand il n'y a pas de capteur ; quand il y a un
+    # capteur on regarde rarement les mesures de glycémie isolée »). Constaté à l'écran le 2026-08-11 puis
+    # le 2026-08-14 sur le même profil : capteur oui, temps sous la cible 2 %, coefficient de variation
+    # 25 %, courbe nocturne en hausse continue, 70 ans, DFG 55, au-dessus de l'objectif.
+    #
+    # CE QUE LA VÉRIFICATION DE PREUVE A ÉTABLI, ET CE QU'ELLE N'A PAS ÉTABLI. Aucun protocole de titration
+    # de la basale piloté par les métriques du capteur n'est validé pour la consultation : pas de seuil
+    # d'action posologique, pas d'algorithme utilisable, aucune recommandation internationale qui en
+    # définisse un. Le bras capteur DIT donc cette absence (R7) au lieu d'inventer un protocole. ⚠ MAIS la
+    # formulation absolue est INTERDITE : un essai randomisé ambulatoire d'un algorithme piloté par le
+    # capteur existe bel et bien chez le DT2 sous basale seule (2026, 30 patients, 16 semaines, critère de
+    # substitution en non-infériorité, conclusion des auteurs eux-mêmes : à confirmer sur de plus larges
+    # populations). Il n'entre PAS dans le texte affiché — il n'est pas utilisable en consultation — mais
+    # il interdit d'écrire « aucun essai n'a testé ». Le texte ci-dessous dit donc « les essais QUI ONT
+    # ÉTABLI LE BÉNÉFICE de la mesure continue du glucose n'ont pas testé… », qui est exact et le reste.
+    #
+    # TROIS PRÉCAUTIONS DE RÉDACTION, chacune issue d'un écart mesuré entre le débroussaillage et la source
+    # primaire — le débroussaillage DURCISSAIT systématiquement une donnée molle :
+    #  1. « aucune différence de dose N'A ÉTÉ MISE EN ÉVIDENCE », jamais « il n'y a pas de différence » :
+    #     dans MOBILE la comparaison de dose est bien rapportée, mais en analyse EXPLORATOIRE, sur un essai
+    #     dimensionné pour l'HbA1c. Une absence de significativité exploratoire n'établit pas l'équivalence.
+    #  2. FreeDM2 N'EST PAS CITÉ ici, alors qu'il portait la même observation : son texte intégral n'a pas
+    #     pu être lu (accès fermé), et la phrase qui circulait sur le mode de vie durcissait un
+    #     « pourrait avoir été porté par » en attribution d'auteurs. MOBILE seul est vérifié, MOBILE seul
+    #     est cité.
+    #  3. Une revue de synthèse 2026 évoque bien la majoration devant une glycémie qui monte la nuit, mais
+    #     elle le rattache à l'hyperglycémie À JEUN, elle ne donne aucun seuil ni pas de dose, et elle
+    #     paraît dans une série consacrée à RESTREINDRE l'usage du capteur. La citer à l'appui du geste
+    #     serait une mésattribution de plus (le défaut D3 de ce fichier). Elle n'est donc pas versée ;
+    #     l'arbitrage reste ouvert pour la relecture clinique.
+    #
+    # SOURÇAGE — ATTENTION AU PIÈGE D3, DÉJÀ PAYÉ SUR CETTE CARTE. Le pas de 2 U et le rythme de 3 jours ne
+    # viennent PAS de Treat-to-Target (dont l'algorithme est hebdomadaire et gradué par bandes) : le pas
+    # est de la SFD 2025 Avis 18, qui l'ancre sur une cible de glycémie à jeun, et le rythme de la HAS 2024
+    # R.87. C'est précisément ce qui rend vraie la phrase « ce pas et ce rythme ne sont établis que sur la
+    # glycémie à jeun ». Ne jamais rattacher ces deux nombres à l'essai.
+    #
+    # POURQUOI LE BRAS SANS CAPTEUR GARDE UN `quand` PLUTÔT QUE DE RESTER INCONDITIONNEL : les deux items
+    # de geste s'excluent et se couvrent. Le 3ᵉ item de `conditions` rend la carte INDÉTERMINÉE tant que
+    # `mcg_disponible` n'est pas répondu (elle part « en attente », elle ne s'affiche pas) — quand elle
+    # s'affiche, ce critère est donc toujours tranché, et exactement un des deux gestes est retenu. Le
+    # panneau ne peut jamais se vider, ce qui compte : une liste vide ferait retomber l'affichage sur
+    # `apercu` ci-dessus, qui porte encore le texte capillaire.
     posologie_detail:
-      - "Augmenter la basale de 2 U si la glycémie à jeun reste au-dessus de la cible 3 matins de suite (ebmfrance), ou de 10 % par paliers si la dose dépasse 40 U/j (SFD 2025, Avis 18). Réévaluer tous les 3 jours (HAS 2024, R.87 — accord d'experts)."
+      # BRAS SANS CAPTEUR — texte HISTORIQUE, inchangé mot pour mot, sources inchangées. Il ne reçoit qu'un
+      # `quand` : la règle des « 3 matins de suite » sur la glycémie à jeun reste exactement ce qu'elle
+      # était pour le patient qui n'a pas de capteur.
+      - texte: "Augmenter la basale de 2 U si la glycémie à jeun reste au-dessus de la cible 3 matins de suite, ou de 10 % par paliers si la dose dépasse 40 U/j. Réévaluer tous les 3 jours."
+        quand: "mcg_disponible == false"
+        sources:
+          - ebmfrance-insuline
+          - sfd-2025-avis18
+          - has-2024-r87
+      # BRAS CAPTEUR — le geste. MÊMES nombres que ci-dessus (aucun chiffre nouveau n'est introduit par ce
+      # lot), MOINS le déclencheur capillaire « 3 matins de suite » : c'est la courbe qui a retenu la carte,
+      # pas trois glycémies du matin. `ebmfrance-insuline` sort d'autant des sources de cet item — c'est la
+      # source qui porte nommément les « 3 matins de suite ».
+      - texte: "Augmenter la basale de 2 U, ou de 10 % par paliers si la dose dépasse 40 U/j. Réévaluer tous les 3 jours."
+        quand: "mcg_disponible == true"
+        sources:
+          - sfd-2025-avis18
+          - has-2024-r87
+      # BRAS CAPTEUR — dire l'absence (R7), même registre que « aucun rythme ni ampleur chiffrés pour un
+      # allègement programmé » employé ailleurs dans ce fichier.
+      - texte: "Ce pas et ce rythme ne sont établis que sur la glycémie à jeun : aucun seuil du capteur — temps dans la cible, temps au-dessus de la cible, pente de la courbe nocturne — n'est validé comme déclencheur d'une majoration de dose. Les essais qui ont établi le bénéfice de la mesure continue du glucose chez le diabétique de type 2 sous basale n'ont pas testé de titration pilotée par le capteur : dans MOBILE, les modifications de traitement restaient à la main du médecin traitant, et aucune différence de dose d'insuline entre les bras n'y a été mise en évidence — le bénéfice observé ne vient donc pas d'un algorithme posologique. Reporter ce pas et ce rythme sur la lecture de la courbe nocturne relève de l'appréciation du praticien."
+        quand: "mcg_disponible == true"
+        sources:
+          - mobile
+      # BRAS CAPTEUR — le seul pont existant, donné pour ce qu'il vaut et pas davantage.
+      - texte: "Une valeur lue sur le capteur au petit matin peut tenir lieu de glycémie à jeun dans les algorithmes de titration existants, sans en changer ni le pas ni le rythme : montré de façon rétrospective seulement, sur un petit effectif, et jamais évalué de façon prospective."
+        quand: "mcg_disponible == true"
+        sources:
+          - martens-nadir
     # T-033 (P5/S2, 2026-07-28) : même correctif, même motif que « Ne pas sur-titrer... » ci-dessus.
     exclusions:
       - "mcg_disponible == true AND TBR > 4"
@@ -1453,7 +1601,10 @@ options:
       - { libelle: "Basale réduite (−2 U)", expression: "dose_basale_actuelle - 2", unite: "U/j" }
     apercu: "−2 U, ou −10 % de la dose au-delà de 40 U/j, avec réévaluation à 3 jours"
     posologie_detail:
-      - "Réduire la basale de 2 U, ou de 10 % de la dose si elle dépasse 40 U/j (SFD 2025, Avis 18) ; réévaluer tous les 3 jours (HAS 2024, R.87)."
+      - texte: "Réduire la basale de 2 U, ou de 10 % de la dose si elle dépasse 40 U/j ; réévaluer tous les 3 jours."
+        sources:
+          - sfd-2025-avis18
+          - has-2024-r87
   # ═══════════ SITUATION 3 — AJOUT D'UN BOLUS / BASAL-PLUS ═══════════
   # E-04b/E-06 (2026-07-26) : les DEUX options ci-dessous sont désormais aussi applicables en situation
   # « basale seule » (3ᵉ item du 1er `conditions`) — RÉUTILISÉES telles quelles (même intitulé, même
@@ -1551,6 +1702,21 @@ options:
       - eng
       - maiorino
       - dual-vii
+    # AJOUTÉ le 2026-08-14 (retour utilisateur en consultation), même défaut et même correctif que sur
+    # « Envisager un GLP‑1 avant ou avec l'insuline » plus haut : le geste utile nommé dans `avantages`
+    # (« ajouter un AR GLP-1 ») n'avait aucune dose associée.
+    posologie_detail:
+      - texte: "Sémaglutide injectable (Ozempic) : 0,25 mg/semaine pendant 4 semaines — dose de tolérance, pas une dose d'entretien —, puis 0,5 mg/semaine, puis 1 mg/semaine après au moins 4 semaines à 0,5 mg."
+        sources:
+          - rcp-ansm
+        accent: true
+      - texte: "Dulaglutide (Trulicity) : 0,75 mg/semaine en monothérapie, ou 1,5 mg/semaine d'emblée en association ; puis 3 mg/semaine après au moins 4 semaines à 1,5 mg, puis 4,5 mg/semaine (dose maximale) après au moins 4 semaines supplémentaires."
+        sources:
+          - rcp-ansm
+        accent: true
+      - texte: "Liraglutide (Victoza) : 0,6 mg/j en initiation — dose de tolérance digestive, pas une dose d'entretien —, puis 1,2 mg/j après au moins 1 semaine, puis 1,8 mg/j (dose maximale) après au moins 1 semaine supplémentaire si le contrôle glycémique doit être renforcé."
+        sources:
+          - rcp-ansm
     # I2/F3 (redteam-clinique-silences.md, 2026-07-26, 4ᵉ lot) : AUCUNE exclusion ne portait jusqu'ici sur
     # cette option, contrairement à « Titrer la basale » (4 signaux). 401/401 profils du banc en
     # « basale_plus_bolus » avec un signal d'hypoglycémie documenté (TBR > 4 OU TBR_severe > 1 OU
@@ -2362,6 +2528,20 @@ sources:
       annee: 2024
       type_critere: substitution
       lien: "https://pubmed.ncbi.nlm.nih.gov/38363342/"
+    # AJOUTÉE le 2026-08-14 (T-203) — SEULE source nouvelle du lot, et la seule des trois pistes de la
+    # passe de débroussaillage qui ait passé la vérification en source primaire sans réserve de fond.
+    # Ce qu'elle porte, et rien de plus : un SUBSTITUT capteur de la glycémie à jeun, revendiqué comme tel
+    # par les auteurs (« FBG surrogate »), qui laisse le pas et le rythme des algorithmes existants
+    # INCHANGÉS. Ce n'est pas un pilotage par les métriques du capteur, et elle ne doit jamais être citée
+    # comme tel. Réserves tracées, toutes établies en vérification indépendante : analyse RÉTROSPECTIVE
+    # (jamais évaluée de façon prospective) ; effectif réel de 68 patients (les 7 354 sont des PAIRES de
+    # mesures, pas des patients) ; 7 auteurs sur 8 salariés d'un laboratoire ; population détaillée et
+    # limites déclarées NON VÉRIFIÉES (texte intégral inaccessible, résumé structuré seul).
+    - id: martens-nadir
+      titre: "Martens (analyse RÉTROSPECTIVE, 7 354 paires glycémie à jeun / capteur aveugle chez 68 patients DT2, PMID 40683222) — le creux du petit matin lu sur le capteur (médiane des 3 valeurs les plus basses de l'heure précédant la glycémie à jeun) s'est révélé « essentiellement équivalent » à la glycémie à jeun sur trois algorithmes de titration existants (INSIGHT, Treat2Target, AT.LANTUS), écarts de dose majoritairement entre −10 % et +10 %. SUBSTITUT de la glycémie à jeun, revendiqué comme tel par les auteurs, et NON un pilotage par les métriques du capteur ; jamais évalué de façon prospective ; 7 auteurs sur 8 salariés d'un laboratoire"
+      annee: 2025
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/40683222/"
     # ══════════ AJOUTS DE LA PASSE A (2026-07-29) — pilotage SANS capteur ══════════
     # Consignation demandée par le référent : « toute nouvelle donnée utilisée devra être consignée dans la
     # base de données consolidée et ajoutée dans les argumentaires spécifiques et dans l'argumentaire
@@ -2491,8 +2671,17 @@ sources:
     # - nom: "Prescrire"
     # detail: "Résumé sous droit d'auteur ; réf. prescrire-dt2.md P1/P3/P5/P8."
   reco_officielle:
-    source: "SFD 2025 · HAS 2024 · ADA 2026 · ADA/EASD 2022 · AACE 2022-2026"
+    source: "SFD 2025 · HAS 2024 · ADA 2026 · ADA/EASD 2022 · AACE 2022-2026 · RCP ANSM"
     references:
+      # AJOUTÉE le 2026-08-14 (retour utilisateur en consultation) — le nœud recommande d'ajouter un AR
+      # GLP‑1 à trois endroits (« Envisager un GLP‑1 avant ou avec l'insuline », et les deux options
+      # d'intensification en basale seule/basale+bolus) sans jamais poser sa posologie. Mêmes trois RCP
+      # EMA/ANSM lus séparément que sur `prescription.yaml` (rubrique 4.2), mêmes chiffres — id propre à
+      # CE nœud (chaque nœud a sa propre bibliographie, `posologie_detail[].sources` ne résout que contre
+      # celle du nœud qui le porte).
+      - nom: "RCP ANSM"
+        id: rcp-ansm
+        detail: "Liraglutide (Victoza), sémaglutide injectable (Ozempic), dulaglutide (Trulicity) — schémas de titration, paliers de dose et présentations commercialisées en France (rubrique 4.2)."
       - nom: "SFD 2025"
         detail: "Darmon P et al., Méd Mal Métab 2025;19(8):630-662 — recommandation française de référence. Avis 18 bis (analogues de 2ᵉ génération si risque d'hypoglycémie), Avis 19 (AR GLP-1 préféré comme premier injectable et avant le bolus ; seuil de 0,5 U/kg/j), Avis 21 (désintensification du sujet âgé), Avis 23 (mesure continue du glucose)."
       - nom: "HAS 2024"
@@ -2615,8 +2804,137 @@ meta:
   date_revue: "2026-07-31"
   auteur: "référent DT2 (Thibault) + Opus + Claude Code"
   statut: valide
-  version: "0.60"
+  version: "0.63"
   changelog:
+    - date: "2026-08-14"
+      auteur: "Claude Code (retour utilisateur en consultation)"
+      resume: >-
+        QUATRE CORRECTIFS, tous issus d'une relecture en consultation, aucun sur le mécanisme MCG livré
+        par P15/S9 le même jour.
+
+        (1) `traitements_en_cours` reçoit un `preremplissage` : `situation_insuline == basale_seule` coche
+        `insuline_basale`, `basale_plus_bolus`/`basal_bolus` cochent `insuline_basale` ET
+        `insuline_rapide` — le praticien ne ressaisit plus ce que la situation déclarée affirme déjà
+        (proposé, jamais imposé — K6, comme le `preremplissage` existant de `prescription.yaml`).
+
+        (2) `preference_injection` masqué (`cache: true`) et figé à `indifferent` (`preremplissage`
+        tautologique sur les 4 valeurs de `situation_insuline`) : ce nom n'a plus le même sens ici que
+        sur `prescription.yaml` — CE nœud relève déjà d'un traitement injectable par construction, la
+        question « préférence vis-à-vis de l'injectable » n'y a plus d'objet. `partage: true` RETIRÉ en
+        conséquence (un champ masqué+figé ne doit reprendre aucune vraie réponse d'un autre nœud). EFFET
+        DE BORD ASSUMÉ : l'option « Insuline prémélangée — dernier recours » (condition
+        `preference_injection == refuse`) devient inatteignable sur ce nœud.
+
+        (3) Posologie ajoutée à 3 options qui recommandaient un AR GLP‑1 sans jamais poser sa dose
+        (« Envisager un GLP‑1 avant ou avec l'insuline », et les 2 options d'intensification en basale
+        seule/basale+bolus) — mêmes trois schémas (liraglutide/sémaglutide/dulaglutide), mêmes chiffres
+        que `prescription.yaml` (T-200, P15/S6), sourcés contre la bibliographie PROPRE à ce nœud :
+        `RCP ANSM` (`id: rcp-ansm`) ajouté à `sources.reco_officielle.references`, absent jusqu'ici.
+        Sémaglutide/dulaglutide marqués `accent: true` (nouveau champ `ItemPosologie`, cf. changelog du
+        même jour sur `prescription.yaml`).
+    - date: "2026-08-14"
+      auteur: "Claude Code (P15/S9, T-203)"
+      resume: >-
+        LA TITRATION NE PRESCRIT PLUS LA GLYCÉMIE CAPILLAIRE AU PORTEUR D'UN CAPTEUR. « Titrer la basale
+        (augmenter la dose) » est retenue de deux façons — sans capteur sur la glycémie à jeun haute, AVEC
+        capteur sur la courbe nocturne en hausse continue — mais n'affichait qu'un seul texte de posologie,
+        celui du repli sans capteur (« +2 U si la glycémie à jeun reste au-dessus de la cible 3 matins de
+        suite »). Le patient retenu SUR SA COURBE se voyait donc prescrire une surveillance capillaire à
+        jeun, sans que rien ne le signale — l'inverse exact de la doctrine écrite trois fois dans ce
+        fichier. Défaut constaté à l'écran les 2026-08-11 et 2026-08-14 sur le même profil (capteur oui,
+        temps sous la cible 2 %, coefficient de variation 25 %, hausse continue nocturne, 70 ans, DFG 55,
+        au-dessus de l'objectif).
+
+        DEUX BRAS, PREMIER USAGE DU MÉCANISME LIVRÉ PAR T-202. Le texte historique reçoit
+        `quand: "mcg_disponible == false"` et reste INCHANGÉ MOT POUR MOT, sources comprises. Trois items
+        nouveaux sous `quand: "mcg_disponible == true"` : le geste (mêmes 2 U, mêmes 10 % au-delà de 40 U/j,
+        même réévaluation à 3 jours — AUCUN chiffre nouveau, moins le déclencheur capillaire « 3 matins de
+        suite », d'où le retrait d'`ebmfrance-insuline` qui le porte nommément) ; l'énoncé d'absence ; et le
+        seul pont existant vers le capteur. Les deux gestes s'excluent et se couvrent : le 3ᵉ item de
+        `conditions` laisse la carte « en attente » tant que `mcg_disponible` n'est pas répondu, donc le
+        panneau ne peut jamais se vider et retomber sur `apercu`, qui porte encore le texte capillaire.
+        AUCUNE `conditions` ni `exclusions` touchée : la SÉLECTION des cartes était juste, c'est le TEXTE
+        affiché qui ne l'était pas.
+
+        CE QUE LA VÉRIFICATION EN SOURCE PRIMAIRE A ÉTABLI. Aucun protocole de titration de la basale
+        piloté par les métriques du capteur n'est utilisable en consultation : ni seuil d'action
+        posologique, ni algorithme validé, ni recommandation internationale qui en définisse un. Le bras
+        capteur DIT donc cette absence plutôt que d'inventer un protocole. ⚠ Mais la formulation ABSOLUE
+        est interdite : un essai randomisé ambulatoire d'un algorithme piloté par le capteur existe chez le
+        DT2 sous basale seule (30 patients, 16 semaines, critère de substitution en non-infériorité, à
+        confirmer sur de plus larges populations selon ses propres auteurs). Il n'entre pas dans le texte
+        affiché — inutilisable en consultation — mais il interdit d'écrire « aucun essai n'a testé ».
+
+        UNE SEULE SOURCE NOUVELLE — `martens-nadir` (PMID 40683222). Le creux du petit matin lu sur le
+        capteur équivaut à la glycémie à jeun dans trois algorithmes de titration existants, sans en changer
+        le pas ni le rythme. Réserves portées dans le titre même de l'entrée : analyse RÉTROSPECTIVE, jamais
+        évaluée de façon prospective, 68 patients réels (les 7 354 sont des paires de mesures), 7 auteurs
+        sur 8 salariés d'un laboratoire. `mobile` est cité pour la phrase sur les essais ; FreeDM2 ne l'est
+        PAS, son texte intégral n'ayant pas pu être lu.
+
+        TROIS PIÈGES ÉVITÉS, chacun mesuré comme un écart entre le débroussaillage et la source primaire.
+        (1) « aucune différence de dose N'A ÉTÉ MISE EN ÉVIDENCE » et non « il n'y a pas de différence » :
+        dans MOBILE la comparaison est bien rapportée, mais en analyse EXPLORATOIRE sur un essai dimensionné
+        pour l'HbA1c. (2) FreeDM2 écarté du sourçage. (3) Une revue de synthèse 2026 qui évoque la
+        majoration devant une glycémie nocturne montante n'est PAS versée : elle rattache le geste à
+        l'hyperglycémie à jeun, ne donne aucun seuil, et paraît dans une série consacrée à RESTREINDRE
+        l'usage du capteur — la citer à l'appui du geste aurait rejoué le défaut D3 de ce fichier.
+        Arbitrage laissé ouvert pour la relecture clinique.
+
+        SOURÇAGE — LE PIÈGE D3 RESTE OUVERT SUR CETTE CARTE. Le pas de 2 U vient de la SFD 2025 Avis 18,
+        qui l'ancre sur une cible de glycémie à jeun, et le rythme de 3 jours de la HAS 2024 R.87 — jamais
+        de Treat-to-Target, dont l'algorithme est hebdomadaire et gradué par bandes. C'est exactement ce qui
+        rend vraie la phrase « ce pas et ce rythme ne sont établis que sur la glycémie à jeun ».
+    - date: "2026-08-11"
+      auteur: "Claude Code (P15/S5, T-199)"
+      resume: >-
+        SOURCES DE POSOLOGIE SORTIES DE LA LIGNE DE LECTURE — aucun chiffre, aucune conduite clinique ne
+        change ; seule la POSITION des citations se déplace, du texte de conduite vers une note de
+        source affichée sous lui (mécanique posée par P15/S1-S3, appliquée ici pour la première fois à
+        du contenu). Migration ITEM PAR ITEM sur les 6 options du nœud qui portent `apercu`/
+        `posologie_detail`, conformément au mappage citation par citation de
+        `docs/decision/validation/posologie-sourcage-2026-08-11.md` §1.1 (`insuline` y est désigné comme
+        le nœud le mieux préparé : correctif D3 du 2026-07-29, mésattribution à Treat-to-Target, qui
+        avait déjà obligé à rendre chaque élément à sa source exacte).
+
+        10 CITATIONS SUR 14 CONVERTIES en `{ texte, sources }`, l'incise retirée du texte, l'id porté en
+        `sources[]` (vérifié : les trois ids `ebmfrance-insuline`/`sfd-2025-avis18`/`has-2024-r87`
+        existent dans `sources.references_primaires`, exactement comme le signalait le commentaire du
+        2026-08-06 sur « Insuline basale ») — « Insuline basale » `posologie_detail[1]` (ebmfrance, SFD
+        2025 Avis 18, HAS 2024 R.87) ; « Corriger l'hypoglycémie ou la variabilité » `posologie_detail[0]`
+        (SFD 2025 Avis 18, ebmfrance — le HAS R.87 de ce même item reste en incise, cf. ci-dessous) ;
+        « Titrer la basale (augmenter la dose) » `posologie_detail[0]` (ebmfrance, SFD 2025 Avis 18,
+        HAS 2024 R.87 — la mention « accord d'experts » attachée à ce dernier dans l'incise d'origine est
+        retirée du texte : c'est un grade, déjà porté par `effet_attendu` et `niveau_preuve` de cette
+        même option, pas une donnée clinique propre à cet emplacement, et le rapport de sourçage ne
+        range PAS ce cas parmi les trois parenthèses protégées de son §4.1) ; « Basale »
+        (`action: reduire`) `posologie_detail[0]` (SFD 2025 Avis 18, HAS 2024 R.87).
+
+        3 CITATIONS LAISSÉES EN INCISE, DÉLIBÉRÉMENT, PARCE QU'EXTRAIRE DÉTRUIRAIT DE L'INFORMATION
+        (§4.1 du rapport, les trois cas mesurés du corpus sont tous sur ce nœud) : « Corriger
+        l'hypoglycémie ou la variabilité » `posologie_detail[0]` garde « (HAS 2024, R.87, qui écrit la
+        règle dans les deux sens : « augmentée ou réduite de 1 ou 2 UI ») » — la glose EST l'argument qui
+        autorise à appliquer à la descente une règle écrite pour la montée ; « Bolus au repas principal »
+        `posologie_detail[1]` garde « (FullSTEP : bande 4,0-7,2 mmol/L, pas de ± 1 U) » intact — c'est le
+        protocole réel de l'essai, distinct de la cible affichée juste avant dans la même phrase ;
+        « Insuline basale » `posologie_detail[4]` garde « (BRIGHT, CONCLUDE) » — les deux essais sont le
+        SUJET de la phrase (« les deux molécules … ne se départagent pas … en tête-à-tête »), pas une
+        note de bas de page.
+
+        1 CITATION NON MAPPABLE, RESTE EN INCISE, SUIVIE ICI PLUTÔT QUE FORCÉE : « Insuline basale »
+        `posologie_detail[4]`, « (SFD 2025, Avis 18 bis) ». Le libellé correspond à
+        `sources.reco_officielle.references[0].detail` (« Avis 18 bis (analogues de 2ᵉ génération si
+        risque d'hypoglycémie) »), qui ne porte pas d'`id` sur ce nœud à ce jour — `sfd-2025-avis18`
+        (le seul id du registre `references_primaires` portant le mot « SFD ») couvre les Avis 18, 19 et
+        23, PAS l'Avis 18 bis : lui attacher cet id aurait été une fausse traçabilité, pas une migration.
+        Reste donc une incise, à reprendre le jour où ce texte de `reco_officielle` recevra son propre
+        `id`.
+
+        CE QUI N'A PAS BOUGÉ : aucun chiffre (posologie, dose, pas de titration, rythme de réévaluation),
+        aucune conduite clinique, aucun `niveau_preuve`, aucune `conditions`/`exclusions`/`priorite`,
+        aucun `avantages`/`inconvenients`/`effet_attendu`. Les 4 options sans citation à migrer
+        (« Insuline basale » `posologie_detail[0,2,3]`, « Bolus au repas principal »
+        `posologie_detail[0]`) sont inchangées, forme courte conservée.
     - date: "2026-08-09"
       auteur: "Claude Code (demande utilisateur, allègement de l'affichage)"
       resume: >-

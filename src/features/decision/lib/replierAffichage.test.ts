@@ -43,6 +43,10 @@ function opt(intitule: string, forme: Forme = {}): OptionVue {
     // lit pas (il lit `option.contre_indications`, le champ de contenu — cf. `estRepliable`), on reflète
     // donc simplement ici l'état par défaut de toute contre-indication non conditionnelle : ACTIVE.
     contreIndications: (forme.contreIndications ?? []).map((texte) => ({ texte, etat: 'active' as const })),
+    // T-202 (P15/S8) : `OptionVue` porte désormais les items de posologie déjà filtrés par `quand`.
+    // `plafonnerPistes` ne les lit pas (aucune de ses règles ne porte sur la posologie) — vide, comme
+    // `calculs`/`calculsEnAttente` ci-dessus.
+    posologieDetail: [],
   }
 }
 

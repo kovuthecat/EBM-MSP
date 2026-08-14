@@ -4,44 +4,45 @@ Photo à l'instant T. Mis à jour en fin de session. L'historique (comment on es
 `git log`, `DECISIONS.md`/`docs/commun/decisions/` et les changelogs de contenu — pas ici.
 Plafond : 80 lignes (appliqué par hook).
 
-> **Dernière mise à jour :** 2026-08-07
+> **Dernière mise à jour :** 2026-08-14
 
 ## Ce qui existe
 
-**Module Décision, domaine DT2 — déployé et utilisé en consultation** (ebm-msp.vercel.app). Module
-Veille : **non commencé** (aucun code, `DECISIONS.md` D8 garde la place).
+**Module Décision, domaine DT2 — déployé et utilisé en consultation** (ebm-msp.vercel.app), mais la
+branche décrite ci-dessous n'y est **pas encore**. Module Veille : code présent (`Veille : refonte
+ergonomie…`, `d9f8c26`), périmètre et robustesse non réévalués depuis — à vérifier avant de s'y fier.
 
-**6 nœuds de contenu**, tous `content/decision/noeuds/diabete-type-2/*.yaml` :
+**6 nœuds de contenu**, tous `content/decision/noeuds/diabete-type-2/*.yaml` — versions sur la branche
+`decision/panneau-posologie` (non fusionnée, cf. Chantier actif) :
 
-| nœud | statut | dernière version **committée** |
+| nœud | statut | version |
 | --- | --- | --- |
 | `cible-glycemique` | `valide` | v2.19 |
-| `statine` | `brouillon` | v1.29 |
-| `prescription` | `brouillon` | v0.64 — **P14 en attente, non commité (cf. Chantier actif)** |
-| `insuline` | `valide` | v0.49 — **P14 en attente, non commité (cf. Chantier actif)** |
-| `rhd-alimentation` | `brouillon` | v0.15 — **P14 en attente, non commité (cf. Chantier actif)** |
-| `rhd-activite-physique` | `brouillon` | v0.17 — **P14 en attente, non commité (cf. Chantier actif)** |
+| `insuline` | `valide` | v0.62 |
+| `statine` | `brouillon` | v1.31 |
+| `prescription` | `brouillon` | v0.75 |
+| `rhd-alimentation` | `brouillon` | v0.18 |
+| `rhd-activite-physique` | `brouillon` | v0.21 |
 
 Passage à `valide` conditionné à la relecture référent finale (`TASKS.md` §validation clinique).
 
-**Banc de tests** (`src/features/decision/engine/banc/`) : non-régression du contenu en 4 couches
-(vignettes, couverture, invariants, **relation** — paires co-actives + table des conditions, P14) + I25.
+**Banc de tests** (`src/features/decision/engine/banc/`) : non-régression du contenu en 5 couches
+(vignettes, couverture, invariants, relation — paires co-actives + table des conditions, I25/I34).
 
 ## Chantier actif
 
-**Plan P14 — sessions closes le 2026-08-07, consolidation PARTIELLE** (neuf défauts relationnels + le
-chantier P2, `plans/P14/index.md`) : 19 sessions + 2 arbitrages hors plan livrés, N0 vert sur l'arbre de
-travail complet (1275 tests, 0 échec, aucun `it.fails` restant). **Commité** : les 7 invariants de
-relation, le socle des critères communs de domaine (P2), la publication D50, le procédé/grammaire
-amendés, D50/D52-D58, et le seul nœud de contenu propre (`cible-glycemique`). **NON commité** :
-`insuline.yaml`, `prescription.yaml`, `rhd-alimentation.yaml`, `rhd-activite-physique.yaml` et ce qui en
-dépend — découverts entrelacés, dans l'arbre de travail non commité, avec un second chantier hors P14 (la
-contre-relecture des 4 niveaux d'argumentaire, cf. ligne suivante), sans séparation fiable par fichier.
-Détail complet : `plans/P14/index.md` §Bilan de clôture.
+**Plan P15 — panneau posologie, clos et commité le 2026-08-14** (10 sessions + un lot hors plan qui l'a
+précédé, `plans/P15/index.md`) : sort les citations de sources du texte de posologie vers une note
+structurée à deux registres de bibliographie, rend la posologie conditionnelle au patient (`quand`), et
+corrige un défaut réel — un patient porteur d'une mesure continue du glucose recevait une consigne de
+titration pensée pour la glycémie capillaire. **12 commits sur `decision/panneau-posologie`** (`64d1329`
+→ `e32ff2b`), N0 vert sur l'arbre complet (1326 tests, 0 échec). **Branche NI fusionnée NI poussée** —
+décision de Thibault en attente (`TASKS.md`). Un red-team indépendant (S9) a infirmé la conclusion
+« aucun essai » d'une passe de débroussaillage initiale, revérifié via l'API ClinicalTrials.gov avant
+d'accepter le contenu. Deux écarts d'exécution corrigés et tracés dans leurs commits.
 
-**Contre-relecture des 4 niveaux d'argumentaire (hors P14, 2026-08-06/07)** : `statine` et les 5
-`.argumentaire.md` commités (`f271c8c`) ; sa part sur `insuline`/`prescription`/`rhd-alimentation`/
-`rhd-activite-physique` reste, elle aussi, dans l'arbre de travail — même blocage que ci-dessus.
+**Plan P14 — clos 2026-08-07, commité** (`8f3b90e`) — la mention « non commité » ici avant le
+2026-08-14 était périmée.
 
 **Plan P13 — clos 2026-08-05**, **Plan P12 — clos 2026-08-03** : détail dans leurs `index.md`.
 **Plan PV1 — Veille, cadré 2026-07-31, pas démarré.** **Plan P7** (ouvert) : manquent SA2 et S2 · **P8 —
@@ -49,7 +50,7 @@ clos.**
 
 ## Ce qui casse / n'est pas testé
 
-- Onglet **« Veille » rend une page blanche** — mécanique, non cadré (appartient à PV1/S6).
+- Onglet **« Veille »** : périmètre réel non revérifié depuis `d9f8c26` — à confirmer avant usage.
 - CTA flottant mobile : depuis **D47**, visible jusqu'à 1199 px (contre 959) — donc sur des fenêtres de bureau non maximisées. Jugement d'usage en attente, `VALIDATION.md`.
 - **I24 ne scanne que `conditions`/`prerequis`, pas `exclusions`** : 8 motifs négatifs sur `statine.yaml` en attente (P13/S7, T-152), exemptés nommément.
 
@@ -60,15 +61,14 @@ clos.**
 
 ## Dette technique / recherche bloquante
 
-- **Finir la consolidation P14** : séparer (ou committer ensemble, décision référent) le lot P14 et le
-  lot contre-relecture sur les 4 fichiers de contenu ci-dessus, puis committer/pousser. Sans ce commit,
-  les 9 défauts du diagnostic P14 restent non livrés en production malgré un arbre de travail vert.
+- **Fusionner/pousser `decision/panneau-posologie`** vers `main` — cf. Chantier actif.
 - **Passe B — sécurité à l'effort** (`rhd-activite-physique`, `modèle: Opus, effort: high`).
-- **Validation clinique référent finale** (`prescription`, RHD ×2 → `statut: valide`) : à programmer.
+- **Validation clinique référent finale** (`prescription`, `statine`, RHD ×2 → `statut: valide`) : à programmer.
 - **Albuminurie non convertie** : `derive` ne sait produire qu'un booléen ou un nombre, jamais un
   libellé — le praticien saisit toujours une catégorie là où son labo rend un ratio A/C.
-- **Contrainte de schéma à rendre opposable** (D48) : « `divergences` non vide si `divergence: true` »
-  est vraie sur les 6 nœuds, peut être posée.
+- **`ContreIndication`/`Alerte` sans champ `sources`** (trouvaille P15/S7) : le paragraphe CYP3A4 de
+  `statine` y est sourcé en prose libre faute de canal structuré — extension de schéma à cadrer si le
+  besoin se généralise.
 
 ## Comment vérifier l'état réel
 

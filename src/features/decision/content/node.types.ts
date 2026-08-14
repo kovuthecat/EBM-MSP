@@ -487,6 +487,71 @@ export interface ContreIndication {
   condition?: string
 }
 
+/**
+ * FORME LONGUE d'un item de `Option.posologie_detail` (T-194, P15/S1, 2026-08-11) : le texte **et**,
+ * optionnellement, `sources[]` — un second registre de sourçage, séparé de la prose de conduite que le
+ * praticien recopie sur l'ordonnance — **et**, depuis T-202 (P15/S8, 2026-08-11), `quand` — un item
+ * conditionnel au patient. La forme courte (une simple chaîne) reste valide et strictement équivalente à
+ * `{ texte }` sans `sources` ni `quand`.
+ *
+ * MODÈLE CALQUÉ SUR `ContreIndication` ci-dessus — même principe de conception : un objet OUVERT qui
+ * accepte un champ de plus sans casser une seule ligne de YAML existante.
+ */
+export interface ItemPosologie {
+  texte: string
+  /**
+   * OPTIONNEL — ids résolus contre LES DEUX registres de la bibliographie du nœud :
+   * `Source.references_primaires[].id` OU `Source.reco_officielle.references[].id` (arbitrage du
+   * 2026-08-11, `plans/P15/index.md` §Arbitrage — une posologie vient légitimement d'un RCP ou d'une
+   * table de recommandation, pas seulement d'un essai ; la distinction preuve / reco officielle est déjà
+   * la doctrine du projet, D16). Un id absent des deux registres est ignoré EN SILENCE par la carte, par
+   * politique (même régime qu'`Option.contre_indications`/`Option.references`) : le signaler est le
+   * travail d'un invariant de contenu (S3 du même plan), jamais de ce type ni du composant de rendu.
+   */
+  sources?: string[]
+  /**
+   * OPTIONNEL (T-202, P15/S8, 2026-08-11) — expression DSL (même grammaire qu'`exclusions`/`conditions`,
+   * même évaluateur `engine/conditions.ts`) sous laquelle CET ITEM est affiché à ce patient. FAUSSE (au
+   * sens STRICT, jamais `INDETERMINE`, D20) ⇒ l'item n'est PAS RENDU DU TOUT — DISTINCT de
+   * `ContreIndication.condition` ci-dessus, qui ne retire JAMAIS un item (seul son état visuel change,
+   * l'item reste affiché désamorcé) : ici un item écarté sort réellement de la liste retenue
+   * (`engine/evaluateNode.ts` `evaluerPosologieDetail`), parce qu'il ne décrit PAS la conduite pour ce
+   * patient — un item de titration piloté par la MCG chez un patient sans capteur, par exemple, n'a rien
+   * à faire à l'écran, à la différence d'une contre-indication qui reste montrée « levée ».
+   * INDÉTERMINÉE ⇒ également NON rendu (même politique que `evaluateAlertesDeListe`,
+   * `engine/evaluateNode.ts` : « une alerte dont le `quand` est indéterminé ne s'affiche pas »).
+   * ABSENTE ⇒ l'item est toujours affiché, comportement historique inchangé.
+   *
+   * PRÉREQUIS D'ARCHITECTURE (R6, `docs/decision/GRAMMAIRE-NOEUD.md`, encadré « Même prérequis
+   * d'architecture », 5ᵉ occurrence documentée) : un critère qui ne pilote QUE la posologie affichée
+   * (aucune autre dimension de l'écran ne varie) doit rester vu comme AGISSANT par `engine/relevance.ts`
+   * — d'où l'entrée de la liste des items RETENUS dans `lib/vueDecision.ts` `signatureVue`, sans quoi ce
+   * critère serait estompé à tort dans le formulaire de saisie. **CE LOT (S8) LIVRE LE MÉCANISME SEUL** :
+   * aucun contenu ne déclare encore `quand` (premier usage prévu S9, sur `insuline`).
+   */
+  quand?: string
+  /**
+   * OPTIONNEL (2026-08-14, retour utilisateur en consultation sur l'option « AR GLP‑1 ») — marque CET
+   * item pour le registre visuel « geste » (`.option-card__posologie-geste`, gras/13px) plutôt que
+   * « modalité » (muet/12px, cf. la hiérarchie de lecture documentée dans `OptionCard.tsx`).
+   *
+   * PURE PRÉSENTATION, AUCUN EFFET MOTEUR — classée `inerte` (`engine/expressionsNoeud.ts`), comme
+   * `sources`.
+   *
+   * POURQUOI CE CHAMP EXISTE — le défaut trouvé : la règle historique (premier paragraphe = geste,
+   * `index === 0`, vérifiée sur 17 options) tient pour une option à UN SEUL geste titré par paliers. Elle
+   * ne tient plus pour une option À PLUSIEURS MOLÉCULES ALTERNATIVES (ex. « AR GLP‑1 » : liraglutide,
+   * sémaglutide, dulaglutide) : le rang de DÉCLARATION dans le YAML, arbitraire, décidait alors seul
+   * quelle molécule paraissait visuellement première — sur `prescription.yaml`, c'était liraglutide,
+   * la moins prescrite des trois (injection quotidienne contre hebdomadaire).
+   *
+   * RÉTROCOMPATIBLE PAR CONSTRUCTION : `OptionCard.tsx` ne bascule sur `accent` QUE si au moins un item
+   * du tableau le déclare `true` ; en son absence totale, la règle historique (`index === 0`) s'applique
+   * inchangée — aucune des 17 options existantes n'a besoin d'être touchée.
+   */
+  accent?: boolean
+}
+
 export interface Option {
   intitule: string
   /**
@@ -633,22 +698,34 @@ export interface Option {
    */
   contre_indications?: (string | ContreIndication)[]
   /**
-   * COURT APERÇU DU CONTENU DE L'OPTION (T-076, P9/S9), affiché dans le titre du `<summary>` REPLIÉ,
-   * avant même de l'ouvrir — ex. les molécules/doses déjà citées dans `contre_indications`, jamais un
-   * texte différent ni un chiffre recalculé.
+   * COURT APERÇU DE LA POSOLOGIE DE L'OPTION (T-076, P9/S9) — ex. les molécules/doses déjà citées
+   * ailleurs dans l'option, jamais un texte différent ni un chiffre recalculé.
    *
-   * MOTIF : le titre du dépli ne portait jusqu'ici qu'un compte de contre-indications (« ⚠ N
-   * contre-indication(s), effet attendu et plus ») ou un libellé générique, jamais un extrait du
-   * contenu utile — un praticien qui cherche une posologie n'avait aucune raison de l'ouvrir sur la
-   * seule promesse de contre-indications (rapport de recette cité par S9).
+   * UNE LIGNE COURTE, PAS UNE PROSE. C'est la contrainte d'origine du champ et elle reste vraie, même si
+   * le support a changé (cf. ci-dessous) : il doit tenir sur une ligne condensée.
    *
-   * UNE LIGNE COURTE, PAS UNE PROSE : ce champ est fait pour tenir sur la même ligne que le compte de
-   * contre-indications (`OptionCard.tsx`, `libelleSummary`).
+   * MOTIF D'ORIGINE, ET CE QUI EN RESTE. T-076 l'avait créé pour le titre du `<summary>` REPLIÉ d'alors,
+   * qui ne portait qu'un compte de contre-indications (« ⚠ N contre-indication(s), effet attendu et
+   * plus ») : un praticien qui cherchait une posologie n'avait aucune raison d'ouvrir le dépli sur la
+   * seule promesse de contre-indications (rapport de recette cité par S9). **CE `<summary>` N'EXISTE
+   * PLUS** — la refonte P11/S6 (2026-08-01, « carte en une ligne ») l'a remplacé par des panneaux
+   * `hidden` ouverts par des pastilles. Ce champ n'est donc plus jamais lu « carte repliée » au sens
+   * d'origine. IL N'A PLUS QU'UN SEUL RENDU RÉEL (`OptionCard.tsx`) : la PREMIÈRE LIGNE DU PANNEAU
+   * `--posologie`, et **seulement en l'absence de `posologie_detail`** (correctif de redondance du
+   * 2026-08-11 — quand les deux champs coexistent, `posologie_detail[0]` dit la même chose en plus précis
+   * et en sourcé). Il alimente bien aussi `texteSurvolPosologie`, mais cette valeur est jetée par
+   * `PastilleInfo`, dont la bulle affiche son `libelle` depuis le 2026-08-04 : ce n'est pas un second
+   * canal d'affichage sur lequel compter.
    *
-   * OPTIONNEL ET GÉNÉRIQUE, appliqué au cas par cas par le contenu — T-076 ne l'a renseigné QUE sur
-   * l'option statine haute intensité de `statine.yaml`, pour valider le principe avant une éventuelle
-   * généralisation (hors périmètre de cette session). Une option qui ne le porte pas garde le rendu
-   * actuel du titre, rigoureusement inchangé.
+   * CE QUI EN DÉCOULE POUR LE CONTENU, ET C'EST CONTRE-INTUITIF : sur une option qui porte déjà
+   * `posologie_detail`, `apercu` n'est plus affiché nulle part — l'y renseigner ne sert à rien tant que ce
+   * champ existe. Sur une option qui n'a que lui (20 des 87 options au 2026-08-11 : 13 sur
+   * `prescription`, 6 sur `rhd-activite-physique`, 1 sur `insuline`), il EST toute la posologie du
+   * panneau : l'y supprimer viderait le panneau.
+   *
+   * OPTIONNEL ET GÉNÉRIQUE, appliqué au cas par cas par le contenu — T-076 ne l'avait renseigné que sur
+   * l'option statine haute intensité de `statine.yaml`, pour valider le principe avant généralisation.
+   * Une option qui ne le porte pas ne rend simplement pas cette ligne.
    */
   apercu?: string
   /**
@@ -657,15 +734,27 @@ export interface Option {
    * titration de la metformine), ce qui le noyait dans l'argumentaire clinique (bénéfice/risque) au lieu
    * du panneau POSOLOGIE où un praticien qui cherche « comment je prescris » le cherche réellement.
    *
-   * DISTINCT d'`apercu` : `apercu` est UNE LIGNE COURTE affichée même carte repliée (titre du dépli),
-   * celui-ci est la PROSE COMPLÈTE affichée seulement le panneau `--posologie` ouvert (mêmes puces que
-   * `avantages`/`inconvenients`, cf. `OptionCard.tsx`). Les deux peuvent coexister : `apercu` reste le
-   * résumé, `posologie_detail` le détail.
+   * DISTINCT d'`apercu`, ET PRIORITAIRE SUR LUI DANS LE PANNEAU (2026-08-11) : `apercu` est UNE LIGNE
+   * COURTE, celui-ci est la PROSE COMPLÈTE. Les deux CHAMPS peuvent coexister dans le contenu (16 options
+   * le font), mais ils ne s'affichent PLUS tous les deux dans le panneau `--posologie` — le détail y
+   * remplace l'aperçu, qui n'y était qu'une redite. `apercu` conserve dans ce cas le survol de la
+   * pastille. Cf. la docstring d'`apercu` ci-dessus et celle de tête d'`OptionCard.tsx` pour la cause
+   * racine (le `<summary>` pour lequel `apercu` avait été écrit n'existe plus depuis P11/S6).
    *
-   * Optionnel : absent → le panneau posologie garde son rendu historique (`apercu` + `calculs` +
-   * `calculsEnAttente` seuls).
+   * LE PREMIER PARAGRAPHE EST LE GESTE, les suivants ses modalités. Ce n'est pas qu'une convention de
+   * rédaction : `OptionCard.tsx` rend `posologie_detail[0]` au premier plan (gabarit de l'intitulé de la
+   * carte) et les suivants en retrait. Rédiger le schéma de dose ailleurs qu'en tête enterrerait donc le
+   * geste — c'est l'ordre du contenu qui porte la hiérarchie de lecture.
+   *
+   * DEUX FORMES depuis T-194 (P15/S1, 2026-08-11) : une **chaîne** (forme historique) ou un **objet**
+   * `{ texte, sources? }` (`ItemPosologie` ci-dessus), dont `sources[]` porte un second registre de
+   * sourçage séparé de la prose. Les deux formes cohabitent dans le même tableau ; une chaîne équivaut
+   * exactement à un objet sans `sources`. **Ce lot ne migre aucun contenu** : aucune option n'utilise
+   * encore la forme objet, et `OptionCard.tsx` ne la rend pas encore (S2).
+   *
+   * Optionnel : absent → le panneau posologie retombe sur `apercu` + `calculs` + `calculsEnAttente`.
    */
-  posologie_detail?: string[]
+  posologie_detail?: (string | ItemPosologie)[]
   /**
    * Rang de priorité en mode `multi-options` : les options applicables sont triées par rang
    * croissant (tri stable ; absente = rang le plus faible). Soit un **entier** (rang FIXE, D13),
@@ -753,6 +842,14 @@ export interface CitationReco {
   lien?: string
   /** Référence interne au texte — c'est ce qui rend la citation vérifiable, sa raison d'être. */
   detail?: string
+  /**
+   * OPTIONNEL (T-194, P15/S1, 2026-08-11) — identifiant court et stable, unique DANS le nœud, ajouté
+   * pour rendre une citation de recommandation officielle CITABLE depuis `Option.posologie_detail[].
+   * sources` (arbitrage du 2026-08-11, `plans/P15/index.md` §Arbitrage), au même titre qu'un id de
+   * `ReferencePrimaire`. NON REQUIS : ce registre n'en porte aucun aujourd'hui, et le rendre requis
+   * casserait les 6 nœuds existants — il ne devient nécessaire que pour une entrée effectivement citée.
+   */
+  id?: string
 }
 
 /**

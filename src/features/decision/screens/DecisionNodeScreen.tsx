@@ -1412,12 +1412,23 @@ export function DecisionNodeScreen({ nodeId, go }: DecisionNodeScreenProps) {
                       motifRang={optionVue.motifRang}
                       alertes={optionVue.alertes}
                       contreIndications={optionVue.contreIndications}
+                      // T-202 (P15/S8, 2026-08-11) : items de posologie déjà filtrés par `quand` pour ce
+                      // patient (`lib/vueDecision.ts` `OptionVue.posologieDetail`) — même bloc que
+                      // `contreIndications`/`bibliographie`/`citationsReco`, même pattern de câblage.
+                      posologieDetail={optionVue.posologieDetail}
                       carteUnique={carteUnique}
                       badgeMasque={badgeCommun != null}
                       basRangMasque={basRangCommun}
                       // Bibliographie du nœud, pour que la carte résolve `option.references` (ids) en
                       // titres cliquables dans son panneau « État des preuves » (2026-08-04).
                       bibliographie={node.sources.references_primaires}
+                      // Second registre de bibliographie (P15/S1, 2026-08-11) : textes de recommandation
+                      // officielle citables depuis `option.posologie_detail[].sources`, résolus par la
+                      // carte au même titre que `references_primaires` (`OptionCard.tsx`,
+                      // `resoudreSourcePosologie`). Sans ce câblage, un id de `sources[]` pointant vers ce
+                      // registre reste ignoré en silence — la note de source ne rendrait jamais rien pour
+                      // les items migrés vers ce canal (P15/S6, P15/S7).
+                      citationsReco={node.sources.reco_officielle?.references ?? []}
                     />
                   ))
                   if (groupe.length < 2) return cartes

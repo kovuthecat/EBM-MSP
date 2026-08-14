@@ -136,6 +136,9 @@ const MARQUEURS = {
   // `{ texte, condition }`. C'est exactement le cas de figure que G1/G2 existent pour attraper — le champ
   // a été classé (`CHAMPS_DU_SCHEMA.contreIndication`) ET le collecteur le visite, sinon le banc tombe.
   contreIndicationCondition: 'MARQUEUR_contre_indication == 13',
+  // T-202 (P15/S8, 2026-08-11) : MÊME cas de figure, appliqué à `posologie_detail[].quand` — un item de
+  // posologie de la forme objet peut porter une expression conditionnant son affichage.
+  posologieDetailQuand: 'MARQUEUR_posologie_detail_quand == 16',
   // A3 (2026-08-01) : `familles[].prioritaire_si` hisse une famille en tête pour ce patient. Premier
   // emplacement porteur d'expression situé sur une FAMILLE — G2 vérifie que le collecteur y descend,
   // faute de quoi cette expression échapperait à toute vérification de syntaxe et de critères connus.
@@ -188,6 +191,9 @@ function noeudSynthetique(): Noeud {
         // T-068 : les DEUX formes côte à côte — la chaîne (historique, inerte, aucun fragment attendu)
         // et l'objet conditionnel (dont la `condition` DOIT être récoltée).
         contre_indications: ['marqueur en prose, sans condition', { texte: 'marqueur', condition: MARQUEURS.contreIndicationCondition }],
+        // T-202 (P15/S8) : MÊME chose pour `posologie_detail` — chaîne (historique, inerte) et objet
+        // conditionnel (dont le `quand` DOIT être récolté) côte à côte.
+        posologie_detail: ['marqueur en prose, sans quand', { texte: 'marqueur', quand: MARQUEURS.posologieDetailQuand }],
       },
     ],
     alertes: [{ quand: MARQUEURS.alerteNoeud, message: 'marqueur' }],
@@ -241,6 +247,10 @@ describe('G2 — le collecteur visite tous les emplacements porteurs d’express
       // classement dans `CHAMPS_DU_SCHEMA.contreIndication`). Ses seuils doivent donc être tirés par le
       // banc comme des frontières cliniques, à la différence d'un `visible_si`.
       [MARQUEURS.contreIndicationCondition, 'decision'],
+      // T-202 (P15/S8, 2026-08-11) : même raisonnement que `contreIndicationCondition` ci-dessus —
+      // `decision`, parce que l'item retenu/écarté entre dans `signatureVue` (R6, « même prérequis
+      // d'architecture »).
+      [MARQUEURS.posologieDetailQuand, 'decision'],
       // A3 (2026-08-01) : `affichage` et NON `decision` — `prioritaire_si` ne change jamais quelle
       // option est retenue, seulement l'ORDRE des sections. La classer `decision` ferait entrer ses
       // littéraux dans les domaines de tirage du banc comme s'ils étaient des frontières cliniques,
@@ -273,7 +283,7 @@ describe('G2 — le collecteur visite tous les emplacements porteurs d’express
         if (nature !== 'inerte') porteurs.push(`${definition}.${champ}`)
       }
     }
-    // 13 emplacements de schéma pour 14 marqueurs : `alerte.quand` est la MÊME définition de schéma,
+    // 14 emplacements de schéma pour 15 marqueurs : `alerte.quand` est la MÊME définition de schéma,
     // exercée à deux endroits (nœud et option) — c'est précisément la confusion qui a produit le défaut.
     expect(porteurs.sort()).toEqual(
       [
@@ -285,6 +295,8 @@ describe('G2 — le collecteur visite tous les emplacements porteurs d’express
         'critereEntree.visible_si',
         // A3 (2026-08-01) : premier emplacement porteur d'expression situé sur une FAMILLE.
         'famille.prioritaire_si',
+        // T-202 (P15/S8, 2026-08-11) : `itemPosologie.quand`, même famille que `contreIndication.condition`.
+        'itemPosologie.quand',
         'option.action_si',
         'option.calculs',
         'option.conditions',

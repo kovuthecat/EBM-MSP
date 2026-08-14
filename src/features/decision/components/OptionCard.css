@@ -415,34 +415,136 @@
   margin-top: 6px;
 }
 
-/* Doses calculées (`Option.calculs`) : même discrétion que le délai de bénéfice — un repère
-   posologique, pas une injonction. */
-.option-card__calculs {
-  font-size: 12px;
+/* ─── PANNEAU POSOLOGIE : TROIS REGISTRES DE LECTURE (2026-08-11) ───────────────────────────────────
+   DÉFAUT CORRIGÉ. Tout le panneau était du gris 12 px UNIFORME : `.option-card__apercu` (qui servait à
+   la fois à `option.apercu` ET à tous les paragraphes de `posologie_detail`) et `.option-card__calculs`
+   déclaraient l'un comme l'autre `font-size: 12px; color: var(--c-text-muted)`. Les chiffres qui partent
+   sur l'ordonnance (« +2 U », « 40 U/j », « ≈ 24 U/j ») avaient donc le poids visuel EXACT des incises de
+   sourçage — dans le seul bloc de la carte qui se recopie mot à mot, et alors même que le panneau `--ci`
+   juste en dessous est encadré, en 13 px et en `--c-text`. Le registre « ce que je prescris » était le
+   moins lisible des cinq panneaux.
+
+   AUCUN TOKEN NOUVEAU. Les tailles/espacements/interlignages viennent des échelles de `tokens.css`
+   (P11/S1), dont le commentaire d'origine prévoit précisément que « les composants existants […]
+   migreront progressivement vers ces tokens dans leurs sessions respectives » — c'est fait ici pour les
+   règles réécrites, sans migration de masse du reste du fichier. Les deux couleurs de fond introduites
+   sont déjà en service ailleurs dans l'app (cf. justification bloc par bloc ci-dessous).
+
+   RIEN N'EST DEVENU PLUS DISCRET, et rien n'est remonté hors du panneau : seuls le geste et les doses
+   montent (D45 n'est pas rouvert, cf. `OptionCard.tsx`). */
+
+/* (1) LE GESTE ET SES CHIFFRES — première ligne du panneau : `posologie_detail[0]` dès qu'il existe,
+   sinon `option.apercu` (les 20 options qui n'ont que lui). MÊME GABARIT que `.option-card__title`
+   (13 px / 600 / `--c-text`), et c'est le raisonnement : cette ligne est à la posologie ce que l'intitulé
+   est à l'option — la phrase qu'on lit en premier et qu'on recopie. Volontairement PAS plus gros et PAS
+   de couleur d'accent : ce n'est pas un titre de section, et une teinte y porterait un jugement clinique
+   que l'invariant 2 interdit. */
+.option-card__posologie-geste {
+  font-size: var(--text-base);
+  font-weight: 600;
+  line-height: var(--leading-relaxed);
+  color: var(--c-text);
+  margin-bottom: var(--space-3);
+}
+
+/* (2) LES MODALITÉS — paragraphes SUIVANTS de `posologie_detail` : titration fine, choix de molécule,
+   observance, adaptation au DFG, sources. Registre RIGOUREUSEMENT CELUI de l'ex-`.option-card__apercu`
+   (12 px, `--c-text-muted`) : la hiérarchie se crée en montant le geste et les doses, JAMAIS en estompant
+   davantage ce qui était déjà discret — sur un outil clinique, on n'éteint pas du texte sourcé pour faire
+   ressortir le reste. Seule addition : `--leading-relaxed`, qui rend tenables les blocs longs (jusqu'à
+   sept paragraphes sur la metformine). */
+.option-card__posologie-modalite {
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
   color: var(--c-text-muted);
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
+}
+
+/* (2b) NOTE DE SOURCE — TROISIÈME registre, SOUS `.option-card__posologie-modalite` (T-195, P15/S2,
+   2026-08-11). Un item de `posologie_detail` peut porter des `sources[]` (ids résolus contre les deux
+   registres de bibliographie du nœud, `OptionCard.tsx` `resoudreSourcePosologie`) : un essai ou un texte
+   de recommandation officielle qui sourcent CE paragraphe précis — jamais une incise dans la phrase du
+   dessus, c'est l'objet même de ce chantier (sortir les sources de la ligne de lecture).
+   CLASSE DÉDIÉE, JAMAIS `.option-card__posologie-modalite` RÉUTILISÉE (Décision clé, `plans/P15/S2.md`) :
+   la note ne doit pas concurrencer le geste, ni même les modalités — elle doit se lire comme secondaire
+   aux deux. `--text-xs`/`--c-text-faible` (tokens.css) sont déjà le registre le plus discret en service
+   dans l'app (aucune couleur ni taille nouvelle), un cran sous le `--text-sm`/`--c-text-muted` des
+   modalités. Rendu du lien CALQUÉ sur `.option-card__essais` (panneau --preuves, ligne « D'après : »,
+   plus bas dans ce fichier) : `target="_blank" rel="noreferrer"` quand la référence porte un `lien`,
+   texte brut sinon — même registre de citation, même comportement. */
+.option-card__posologie-source {
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  color: var(--c-text-faible);
+  margin-bottom: var(--space-2);
+}
+
+.option-card__posologie-source-label {
+  font-weight: 700;
+}
+
+.option-card__posologie-source a {
+  color: inherit;
+}
+
+.option-card__posologie-geste:last-child,
+.option-card__posologie-modalite:last-child,
+.option-card__posologie-source:last-child {
+  margin-bottom: 0;
+}
+
+/* (3) DOSES CALCULÉES POUR CE PATIENT (`Option.calculs`) — SUR UNE SURFACE PROPRE : ce sont les seuls
+   chiffres du panneau que l'outil a CALCULÉS au lieu de les recopier du contenu, et c'est ce qui justifie
+   un bloc plutôt qu'une ligne de prose de plus. Elles étaient jusqu'ici au même 12 px muted que la prose
+   environnante, indiscernables d'une incise de sourçage.
+   FOND `--c-pill-track` — le gris neutre déjà employé par `.option-card__official-badge` et
+   `.option-card__bas-rang-badge`, et surtout PAS `--c-accent-decision-soft` : un aplat bleu-accent ferait
+   lire la dose comme une dose RECOMMANDÉE par l'outil, quand elle n'est que le résultat d'une formule du
+   contenu appliquée aux critères saisis. Une couleur qui porterait ce jugement serait exactement le score
+   caché qu'interdit l'invariant 2 — même raisonnement que la variante `--en-attente` ci-dessous.
+   Contraste `--c-text` sur `--c-pill-track` = 14,64:1 (AAA large). */
+.option-card__calculs {
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  color: var(--c-text);
+  background: var(--c-pill-track);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-3);
 }
 
 .option-card__calculs:last-child {
   margin-bottom: 0;
 }
 
+/* Les deux libellés de bloc (« Doses indicatives : », « Doses non calculées : ») n'avaient AUCUNE règle
+   dans cette feuille : `OptionCard.tsx` posait la classe depuis P9 sans qu'elle soit jamais définie ici.
+   Même graisse que `.option-card__ci-label` et `.option-card__essais-label`, les deux autres libellés de
+   bloc de la carte. */
+.option-card__calculs-label {
+  font-weight: 700;
+}
+
+/* LA VALEUR elle-même (« Dose d'initiation ≈ 16 U/j ») — c'est ce chiffre-là qui part sur l'ordonnance.
+   Exclu de la variante `--en-attente`, où le même élément ne porte pas un chiffre mais la liste des
+   critères manquants (« Dose initiale — à renseigner : poids ») : la mettre en gras appuierait sur ce qui
+   n'existe pas encore. */
+.option-card__calculs:not(.option-card__calculs--en-attente) .option-card__calcul {
+  font-weight: 700;
+}
+
 /* Défaut J (recette référent, 2026-07-27) — une dose non calculable était omise EN SILENCE, la carte
    s'affichant sans dose ni explication. La variante reprend l'ambre `--c-attention`, réservé dans tout
    l'écran à « ce que l'outil attend de vous » (proposition P de la même recette : une seule couleur pour
    ce registre, jamais une couleur qui porterait un jugement clinique — ce serait le score caché que
-   l'invariant 2 interdit). */
+   l'invariant 2 interdit). Le FOND ambre (2026-08-11) est l'exact pendant du gris neutre du bloc
+   ci-dessus : deux blocs de même forme, distingués par le seul registre de couleur déjà en vigueur —
+   `--c-attention-soft`, la surface « à confirmer » de `tokens.css`, pas une teinte nouvelle. Contraste
+   `--c-attention` sur `--c-attention-soft` = 6,02:1 (AA largement tenu ; 6,49:1 sur le fond de carte
+   d'avant, l'écart est marginal). */
 .option-card__calculs--en-attente {
   color: var(--c-attention);
-}
-
-/* `option.apercu` (T-076/S9), zone POSOLOGIE — même registre discret que `.option-card__calculs`
-   ci-dessus (même taille, même couleur muted), à dessein : les deux disent la même chose (« ce qu'on
-   prescrit ») et se lisent comme UN seul registre visuel, jamais comme le rouge du panneau `--ci`. */
-.option-card__apercu {
-  font-size: 12px;
-  color: var(--c-text-muted);
-  margin-bottom: 8px;
+  background: var(--c-attention-soft);
 }
 
 /* DÉPLI SÉCURITÉ — contre-indications ACTIVES/INDÉTERMINÉES (D20/T-068). Contenu INCHANGÉ depuis

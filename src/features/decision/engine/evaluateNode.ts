@@ -50,7 +50,7 @@
  * INDÉTERMINÉE part dans le nouveau registre `enAttente` — ni `applicable`, ni `excluded`, ni
  * `nonRetenues` (Q1/Q2 du référent, §0 de la spec).
  */
-import type { Alerte, ContreIndication, CritereEntree, Famille, Noeud, Option } from '../content/node.types.ts'
+import type { Alerte, ContreIndication, CritereEntree, Famille, ItemPosologie, Noeud, Option } from '../content/node.types.ts'
 import type { Criteria, Ternaire } from './conditions.ts'
 import { ConditionError, INDETERMINE, atomesIndetermines, evaluateCondition } from './conditions.ts'
 import { determinesEffectifs } from './deriveCritere.ts'
@@ -633,6 +633,50 @@ export function evaluerContreIndications(
     if (valeur === false) return { texte: ci.texte, etat: 'levee' as const }
     if (valeur === INDETERMINE) return { texte: ci.texte, etat: 'indetermine' as const }
     return { texte: ci.texte, etat: 'active' as const }
+  })
+}
+
+/**
+ * Items de `option.posologie_detail` RETENUS pour ce patient (T-202, P15/S8) : filtre les items dont le
+ * `quand` (même DSL qu'`exclusions`) ne s'évalue pas STRICTEMENT vrai (`=== true` — jamais
+ * `INDETERMINE`, D20 : même politique que `evaluateAlertesDeListe`, « une alerte dont le `quand` est
+ * indéterminé ne s'affiche pas » — le moteur ne se prononce jamais sur ce qu'il ignore).
+ *
+ * DISTINCT d'`evaluerContreIndications` ci-dessus, et c'est le point à ne pas manquer en le lisant côte à
+ * côte : une contre-indication n'est JAMAIS retirée (seul son état visuel change, R4 — une information de
+ * sécurité ne disparaît pas en silence) ; un item de posologie écarté par un `quand` faux, lui, SORT
+ * réellement de la liste retenue — il ne décrit tout simplement pas la conduite pour ce patient (ex. un
+ * protocole de titration piloté par la MCG chez un patient sans capteur n'a rien à faire à l'écran,
+ * contrairement à une contre-indication qui reste montrée « levée »).
+ *
+ * RÉTROCOMPATIBILITÉ, par construction : une chaîne, ou un objet sans `quand`, est TOUJOURS retenue —
+ * donc exactement le rendu d'avant ce champ pour tout le contenu existant (aucun nœud ne déclare encore
+ * `quand` au jour de cette livraison, T-202 livre le MÉCANISME seul).
+ *
+ * PAS UN SECOND INTERPRÉTEUR DSL : réutilise `evaluateCondition` tel quel, même politique que
+ * `evaluerContreIndications`/`evaluateAlertesDeListe` (jamais de faux silencieux, brief §7).
+ *
+ * ÉVALUÉE HORS d'`evaluateNode`, exactement comme `evaluerContreIndications`/`evaluateAlertesDeListe` et
+ * pour la même raison : le filtrage des items de posologie ne change RIEN à l'applicabilité de l'option
+ * (ce n'est pas le rôle de ce champ — une option écartée l'est toujours par `exclusions`), il ne concerne
+ * que ce qui est RENDU. `evaluateNode` tourne des centaines de fois par frappe via la boucle de
+ * perturbation (`engine/relevance.ts`) ; le modèle de vue, lui, une fois par cycle de rendu
+ * (`lib/vueDecision.ts`, qui appelle cette fonction).
+ *
+ * `effectifs` : ATTENDU DÉJÀ EFFECTIF (fold bool/liste + dérivés déterminés, `deriveCritere.ts`
+ * `determinesEffectifs`) — même contrat que `evaluerContreIndications`/`evaluateAlertesDeListe`. Absent
+ * ⇒ repli « tout est renseigné » : aucun item ne peut alors être écarté pour indétermination.
+ */
+export function evaluerPosologieDetail(
+  posologieDetail: (string | ItemPosologie)[] | undefined,
+  criteria: Criteria,
+  effectifs?: ReadonlySet<string>,
+): (string | ItemPosologie)[] {
+  if (!posologieDetail || posologieDetail.length === 0) return []
+  return posologieDetail.filter((item) => {
+    if (typeof item === 'string') return true
+    if (item.quand == null) return true
+    return evaluateCondition(item.quand, criteria, effectifs) === true
   })
 }
 

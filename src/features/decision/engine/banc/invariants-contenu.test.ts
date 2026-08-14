@@ -719,6 +719,53 @@ describe('I8 — adossement bibliographique des options (générique, tous nœud
   })
 
   /**
+   * I8b (POSOLOGIE) — extension MÉCANIQUE d'I8b au canal `Option.posologie_detail[].sources`
+   * (T-197, P15/S3, 2026-08-11 — `docs/decision/validation/posologie-sourcage-2026-08-11.md` §3.7,
+   * encadré « L'invariant de sourçage à faire évoluer », extension n°1 : « sans arbitrage »).
+   *
+   * MÊME PROPRIÉTÉ QU'I8b CI-DESSUS, UN SEUL CANAL DE PLUS. I8b garde `option.references` contre
+   * `sources.references_primaires` ; ici, c'est `option.posologie_detail[].sources` contre la
+   * bibliographie du nœud — mais la bibliographie a DEUX registres pour ce canal, pas un seul
+   * (arbitrage du 2026-08-11, `plans/P15/index.md` §Arbitrage) : une posologie cite légitimement soit
+   * un essai (`sources.references_primaires`), soit un texte de recommandation officielle ou un RCP
+   * (`sources.reco_officielle.references`, qui vient de recevoir un champ `id` optionnel — T-194,
+   * P15/S1). Une entrée `reco_officielle.references` SANS `id` reste simplement NON CITABLE : ce n'est
+   * pas une raison d'échouer, c'est l'état par défaut de ce registre (la plupart des nœuds n'en portent
+   * aucun aujourd'hui).
+   *
+   * POURQUOI CET INVARIANT EXISTE, ET POURQUOI IL PASSE AU VERT AVANT TOUT CONTENU. `OptionCard.tsx`
+   * ignore un id inconnu EN SILENCE, par politique assumée (même régime que pour `option.references`) —
+   * sans ce test, une source de posologie pointant vers un id inexistant DISPARAÎTRAIT DE L'ÉCRAN SANS
+   * RIEN CASSER : invisible au praticien, invisible au banc. Écrit AVANT toute migration de contenu
+   * (aucune option n'utilise encore la forme objet de `posologie_detail` au 2026-08-11) — convention
+   * maison, cf. P14 : on ne corrige jamais un défaut puis on le vérifie avec un outil écrit après coup.
+   */
+  it('I8b (posologie) — toute source citée par posologie_detail existe dans la bibliographie du nœud', () => {
+    const violations: string[] = []
+    for (const node of noeuds) {
+      const connus = new Set([
+        ...(node.sources?.references_primaires ?? []).map((r) => r.id).filter(Boolean),
+        ...(node.sources?.reco_officielle?.references ?? []).map((r) => r.id).filter(Boolean),
+      ])
+      for (const option of node.options) {
+        for (const item of option.posologie_detail ?? []) {
+          if (typeof item === 'string') continue // forme courte, sans `sources` — rien à vérifier
+          for (const id of item.sources ?? []) {
+            if (!connus.has(id)) {
+              violations.push(
+                `nœud "${node.id}" :: option "${option.intitule}" cite la source de posologie "${id}", ` +
+                  `absente de sources.references_primaires et de sources.reco_officielle.references ` +
+                  `(ids connus : ${[...connus].join(', ') || 'aucun'})`,
+              )
+            }
+          }
+        }
+      }
+    }
+    expect(violations).toEqual([])
+  })
+
+  /**
    * DETTE ENTIÈREMENT RÉSORBÉE le 2026-07-27, le jour même où elle a été créée — et la façon dont elle
    * s'est résorbée vaut d'être gardée.
    *

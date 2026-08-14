@@ -5,14 +5,17 @@
  * (un dépli partagé avec l'argumentaire) puis deux revers le même jour (posologie toujours visible,
  * puis dépli sécurité propre et distinct — cf. l'historique complet dans la docstring de tête
  * d'`OptionCard.tsx`), l'arbitrage référent « carte en une ligne, tout au clic » remplace les DEUX
- * `<details>` par QUATRE panneaux `hidden`, toujours rendus dans le DOM (`--pourquoi`, `--posologie`,
- * `--ci`, `--argumentaire`), ouverts un par un via des `PastilleInfo` (S3) dans la rangée. Les tests
- * ci-dessous vérifient cette structure ; les garanties de fond restent les mêmes : une contre-
- * indication n'est jamais silencieusement omise, et le décompte affiché reste exact.
+ * `<details>` par des panneaux `hidden`, toujours rendus dans le DOM (`--pourquoi`, `--posologie`,
+ * `--ci`, `--argumentaire`), ouverts un par un via des `PastilleInfo` (S3) dans la rangée. QUATRE à
+ * l'écriture de ces tests ; un CINQUIÈME (`--preuves`, état des preuves) s'est ajouté le 2026-08-04 —
+ * corrigé le 2026-08-11 (T-196, P15/S2) : ce commentaire annonçait encore QUATRE panneaux, cf. les tests
+ * ci-dessous qui, eux, continuent délibérément de ne vérifier QUE ces quatre-là (title inchangé, portée
+ * inchangée). Les garanties de fond restent les mêmes : une contre-indication n'est jamais
+ * silencieusement omise, et le décompte affiché reste exact.
  */
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
-import type { Option } from '../content/node.types'
+import type { CitationReco, Option, ReferencePrimaire } from '../content/node.types'
 import type { ContreIndicationEvaluee } from '../engine/evaluateNode'
 import { evaluerContreIndications } from '../engine/evaluateNode'
 import type { CalculAffiche, CalculEnAttente } from '../lib/vueDecision'
@@ -238,23 +241,32 @@ describe('OptionCard — panneau posologie (P11/S6 amende D34 : la posologie pas
 
     const indexRangee = html.indexOf('option-card__rangee')
     const indexPanneauPosologie = html.indexOf('option-card__panneau--posologie')
-    const indexApercu = html.indexOf('option-card__apercu')
+    // `option-card__apercu` a été remplacée le 2026-08-11 par `option-card__posologie-geste` — la ligne
+    // « le geste et ses chiffres », qui porte `apercu` quand il est seul et `posologie_detail[0]` sinon.
+    // L'intention de CE test est inchangée : ce bloc vit dans le panneau, jamais dans la rangée.
+    const indexGeste = html.indexOf('option-card__posologie-geste')
 
-    expect(indexApercu).toBeGreaterThan(-1)
-    expect(indexApercu).toBeGreaterThan(indexPanneauPosologie) // dans le panneau, pas avant
+    expect(indexGeste).toBeGreaterThan(-1)
+    expect(indexGeste).toBeGreaterThan(indexPanneauPosologie) // dans le panneau, pas avant
     expect(html).toContain('dapagliflozine 10 mg/j (fixe) ; empagliflozine 10→25 mg/j')
-    // La rangée elle-même (avant le premier panneau) ne porte plus jamais le bloc VISIBLE de posologie
-    // (`option-card__apercu`, même registre que le panneau). Le texte réapparaît bien dans la rangée,
-    // mais UNIQUEMENT dans la bulle de survol de `PastilleInfo` (`aria-hidden`, masquée par CSS sauf
-    // survol sur pointeur fin, S3) — ce n'est pas une régression de l'amendement D34 : cette bulle n'a
-    // jamais été le canal accessible/tactile de l'information (cf. docstring `PastilleInfo.tsx`).
+    // ...et le panneau qui le porte est bien fermé : il faut toujours un clic pour le lire (D45).
+    expect(html.slice(indexPanneauPosologie, html.indexOf('>', indexPanneauPosologie))).toContain('hidden')
+    // La rangée elle-même (avant le premier panneau) ne porte plus jamais le bloc VISIBLE de posologie.
+    // MISE À JOUR 2026-08-11 : ce commentaire disait jusqu'ici que le texte « réapparaît bien dans la
+    // rangée, mais UNIQUEMENT dans la bulle de survol de `PastilleInfo` ». Ce n'est PLUS vrai — depuis le
+    // 2026-08-04, cette bulle affiche le LIBELLÉ du bouton (« Posologie ») et `PastilleInfo` neutralise
+    // sa prop `texte` par un `void` explicite. Le panneau est donc l'unique canal de ce texte. On
+    // n'ASSERTE pourtant que l'absence de la classe, pas celle du texte : la bulle de survol reste un
+    // canal légitime si une session future la rebranche, et ce test n'a jamais eu pour objet de
+    // l'interdire (cf. docstring `PastilleInfo.tsx`).
     const rangee = html.slice(indexRangee, html.indexOf('option-card__panneau--pourquoi'))
-    expect(rangee).not.toContain('option-card__apercu')
+    expect(rangee).not.toContain('option-card__posologie-geste')
   })
 
-  it("n'affiche rien quand l'option ne porte pas d'aperçu (rendu inchangé)", () => {
+  it("n'affiche rien quand l'option ne porte ni aperçu ni détail de posologie (rendu inchangé)", () => {
     const html = rendreCarte(optionDeBase())
-    expect(html).not.toContain('option-card__apercu')
+    expect(html).not.toContain('option-card__posologie-geste')
+    expect(html).not.toContain('option-card__posologie-modalite')
   })
 
   // Défaut J (recette référent, 2026-07-27) : préservé par P11/S6 (étape 5) via le TON de la pastille,
@@ -271,6 +283,349 @@ describe('OptionCard — panneau posologie (P11/S6 amende D34 : la posologie pas
   it("la pastille posologie reste au ton neutre (pas d'attention) quand il n'y a AUCUNE dose en attente", () => {
     const html = rendreCarte(optionDeBase({ apercu: 'dose fixe' }))
     expect(html).not.toContain('option-card__pastille-attention')
+  })
+})
+
+/**
+ * R2 (2026-08-11) — `apercu` NE DOUBLE PLUS `posologie_detail` DANS LE PANNEAU.
+ *
+ * CE QUI EST EN JEU. `option.apercu` avait été créé par T-076 (P9/S9) pour le titre du `<summary>`
+ * REPLIÉ ; P11/S6 a supprimé ce `<summary>` le 2026-08-01. Depuis, l'aperçu n'était plus qu'une première
+ * ligne du panneau ouvert — redondante avec `posologie_detail[0]` (champ ajouté le 2026-08-04), qui dit
+ * la même chose en plus précis et en sourcé.
+ *
+ * MAIS LE CORRECTIF NE PEUT PAS ÊTRE INCONDITIONNEL, et c'est tout l'objet de ces tests : 20 des 87
+ * options portent `apercu` SANS `posologie_detail` — l'aperçu y EST tout le contenu de posologie du
+ * panneau. Un rendu supprimé sans condition les viderait. Les deux branches sont donc couvertes ici au
+ * niveau du COMPOSANT (une option synthétique par cas) ; `engine/banc/carte-affichage.test.tsx` tient la
+ * même garantie sur les 87 options RÉELLES.
+ */
+describe('OptionCard — R2 : `apercu` conditionnel à l’absence de `posologie_detail`', () => {
+  const APERCU = '+2 U si la glycémie à jeun reste haute 3 matins de suite, ou +10 % au-delà de 40 U/j'
+  const DETAIL_GESTE =
+    'Augmenter la basale de 2 U si la glycémie à jeun reste au-dessus de la cible 3 matins de suite (ebmfrance), ou de 10 % par paliers si la dose dépasse 40 U/j (SFD 2025, Avis 18).'
+  const DETAIL_MODALITE = 'Réévaluer tous les 3 jours (HAS 2024, R.87).'
+
+  /** Le panneau `--posologie` seul, découpé du panneau suivant (`--ci`). */
+  function panneauPosologie(html: string): string {
+    return html.slice(html.indexOf('option-card__panneau--posologie'), html.indexOf('option-card__panneau--ci'))
+  }
+
+  it('LE DÉFAUT VISÉ : avec les DEUX champs, l’aperçu n’est plus rendu dans le panneau — le praticien ne lit plus deux fois la même phrase', () => {
+    const html = rendreCarte(optionDeBase({ apercu: APERCU, posologie_detail: [DETAIL_GESTE] }))
+
+    expect(panneauPosologie(html)).not.toContain(APERCU)
+    // Et nulle part ailleurs dans la carte : le seul rendu d'`apercu` était celui-là.
+    expect(html).not.toContain(APERCU)
+    // Ce qui reste est le détail, sourcé — l'information n'a pas été perdue, seule la redite l'a été.
+    expect(panneauPosologie(html)).toContain(DETAIL_GESTE)
+  })
+
+  it('PÉRIMÈTRE (le cas qui interdit une suppression sèche) : avec `apercu` SEUL, il est TOUJOURS rendu — c’est là tout le contenu de posologie de 20 options', () => {
+    const html = rendreCarte(optionDeBase({ apercu: APERCU }))
+
+    expect(panneauPosologie(html)).toContain(APERCU)
+    expect(panneauPosologie(html)).toContain('option-card__posologie-geste')
+  })
+
+  it('`posologie_detail: []` (tableau VIDE) compte comme absent : l’aperçu est rendu, le panneau n’est pas vidé par un champ déclaré mais sans contenu', () => {
+    const html = rendreCarte(optionDeBase({ apercu: APERCU, posologie_detail: [] }))
+    expect(panneauPosologie(html)).toContain(APERCU)
+  })
+
+  it('l’accès au panneau n’est jamais perdu : la pastille « Posologie » reste rendue dans les deux cas', () => {
+    for (const option of [
+      optionDeBase({ apercu: APERCU }),
+      optionDeBase({ apercu: APERCU, posologie_detail: [DETAIL_GESTE] }),
+    ]) {
+      expect(rendreCarte(option)).toContain('aria-label="Posologie"')
+    }
+  })
+
+  /**
+   * DÉFAUT PRÉEXISTANT, corrigé le 2026-08-11 — INDÉPENDANT de R2, mais du même mécanisme d'affichage.
+   * La garde qui décide de rendre la pastille posologie (`aDuContenuPosologie`, `OptionCard.tsx`)
+   * n'interrogeait que `apercu`, `calculs` et `calculsEnAttente` : `posologie_detail` y manquait depuis
+   * sa création (2026-08-04). Une option qui ne portait QUE ce champ voyait donc son panneau rendu et
+   * rempli, mais sans aucune commande pour l'ouvrir — posologie inatteignable. Cas réel au jour du
+   * correctif : « Envisager l'insuline » (`prescription.yaml`).
+   */
+  it('DÉFAUT PRÉEXISTANT : `posologie_detail` SEUL (ni aperçu ni calcul) rend bien une pastille « Posologie » — sans elle, le panneau était inatteignable', () => {
+    const html = rendreCarte(optionDeBase({ posologie_detail: [DETAIL_GESTE, DETAIL_MODALITE] }))
+
+    expect(html).toContain('aria-label="Posologie"')
+    // ...et cette pastille commande BIEN le panneau posologie (et pas un autre) : c'est `aria-controls`,
+    // pas le gestionnaire de clic, qui fait qu'une *disclosure* est utilisable au clavier et au lecteur
+    // d'écran — même vérification que pour le badge de niveau de preuve dans le banc I12.
+    const bouton = /<button[^>]*aria-label="Posologie"[^>]*>/.exec(html)?.[0]
+    expect(bouton, 'aucune pastille « Posologie » dans la rangée').toBeTruthy()
+    const cible = /aria-controls="([^"]+)"/.exec(bouton!)?.[1]
+    expect(cible, 'la pastille posologie ne déclare aucun aria-controls').toBeTruthy()
+    expect(html).toContain(`id="${cible}" class="option-card__panneau option-card__panneau--posologie"`)
+    // Le contenu est bien là, derrière cette commande.
+    expect(html).toContain(DETAIL_GESTE)
+  })
+
+  it('aucune pastille « Posologie » quand l’option ne déclare RIEN de posologique (garde inchangée dans ce sens)', () => {
+    expect(rendreCarte(optionDeBase())).not.toContain('aria-label="Posologie"')
+  })
+
+  it('un seul bloc « geste » par carte, quelle que soit la combinaison de champs — jamais deux premières lignes concurrentes', () => {
+    for (const option of [
+      optionDeBase({ apercu: APERCU }),
+      optionDeBase({ posologie_detail: [DETAIL_GESTE, DETAIL_MODALITE] }),
+      optionDeBase({ apercu: APERCU, posologie_detail: [DETAIL_GESTE, DETAIL_MODALITE] }),
+    ]) {
+      const html = rendreCarte(option)
+      expect((html.match(/option-card__posologie-geste/g) ?? []).length).toBe(1)
+    }
+  })
+})
+
+/**
+ * R3 (2026-08-11) — HIÉRARCHIE DE LECTURE DU PANNEAU POSOLOGIE.
+ *
+ * Le panneau était du gris 12 px uniforme : l'aperçu, TOUS les paragraphes de `posologie_detail` et les
+ * doses calculées partageaient le même registre (`.option-card__apercu` / `.option-card__calculs`,
+ * `12px` + `--c-text-muted`). Les chiffres qui partent sur l'ordonnance avaient donc le poids visuel exact
+ * des incises de sourçage. Ces tests fixent la RÉPARTITION EN CLASSES — les valeurs typographiques, elles,
+ * vivent dans `OptionCard.css` et ne se testent pas ici (le rendu statique ne calcule aucun style).
+ */
+describe('OptionCard — R3 : le geste et ses chiffres au premier plan, les modalités en retrait', () => {
+  const GESTE = 'Instauration (patient naïf) : 2 à 3 prises par jour, en milieu ou en fin de repas.'
+  const MODALITE_1 = 'Augmenter par palier de une à deux semaines selon la tolérance digestive.'
+  const MODALITE_2 = 'Adaptation au DFG : 3 g/j si DFG au-dessus de 60, 2 g/j si 45-59, 1 g/j si 30-44.'
+
+  it('`posologie_detail[0]` est LE GESTE ; les paragraphes suivants sont des MODALITÉS, dans l’ordre du contenu', () => {
+    const html = renderToStaticMarkup(
+      <OptionCard
+        option={optionDeBase({ posologie_detail: [GESTE, MODALITE_1, MODALITE_2] })}
+        badge={null}
+        reasons={['toujours']}
+        calculs={[]}
+        calculsEnAttente={[]}
+        motifRang={undefined}
+        alertes={[]}
+      />,
+    )
+
+    expect(html).toContain(`<div class="option-card__posologie-geste">${GESTE}</div>`)
+    expect(html).toContain(`<div class="option-card__posologie-modalite">${MODALITE_1}</div>`)
+    expect(html).toContain(`<div class="option-card__posologie-modalite">${MODALITE_2}</div>`)
+    // L'ordre du contenu est préservé — c'est lui qui porte la hiérarchie (cf. `Option.posologie_detail`).
+    expect(html.indexOf(GESTE)).toBeLessThan(html.indexOf(MODALITE_1))
+    expect(html.indexOf(MODALITE_1)).toBeLessThan(html.indexOf(MODALITE_2))
+  })
+
+  it('un `posologie_detail` à UN SEUL paragraphe ne produit que le geste, aucune modalité', () => {
+    const html = rendreCarte(optionDeBase({ posologie_detail: [GESTE] }))
+    expect(html).toContain('option-card__posologie-geste')
+    expect(html).not.toContain('option-card__posologie-modalite')
+  })
+
+  it('un `apercu` seul est un GESTE, pas une modalité — c’est la conduite à tenir, même quand il est court', () => {
+    const html = rendreCarte(optionDeBase({ apercu: 'dose fixe' }))
+    expect(html).toContain('<div class="option-card__posologie-geste">dose fixe</div>')
+    expect(html).not.toContain('option-card__posologie-modalite')
+  })
+
+  it('les doses CALCULÉES gardent leur bloc propre, distinct de la prose de posologie (et son libellé)', () => {
+    const html = rendreCarte(optionDeBase({ posologie_detail: [GESTE] }), [
+      { libelle: 'Dose initiale', valeur: 16, unite: 'U/j' },
+    ])
+    const panneau = html.slice(
+      html.indexOf('option-card__panneau--posologie'),
+      html.indexOf('option-card__panneau--ci'),
+    )
+    expect(panneau).toContain('option-card__posologie-geste')
+    expect(panneau).toContain('option-card__calculs')
+    expect(panneau).toContain('Doses indicatives : ')
+    expect(panneau).toContain('option-card__calcul"')
+    // Le geste précède les doses : on lit ce qu'on fait, puis le chiffre pour ce patient.
+    expect(panneau.indexOf('option-card__posologie-geste')).toBeLessThan(panneau.indexOf('option-card__calculs'))
+  })
+})
+
+/**
+ * T-195 (P15/S2, 2026-08-11) — LA NOTE DE SOURCE, troisième registre du panneau posologie, SOUS
+ * `.option-card__posologie-modalite`. Un item OBJET de `posologie_detail` (`{ texte, sources? }`, T-194)
+ * peut porter des ids de `sources[]`, résolus contre LES DEUX registres de bibliographie du nœud :
+ * `bibliographie` (→ `references_primaires`) ET `citationsReco` (→ `reco_officielle.references`,
+ * arbitrage du 2026-08-11, `plans/P15/index.md` §Arbitrage) — jamais réinjectés en incise dans le texte.
+ * Un id inconnu des deux registres est ignoré EN SILENCE (même politique que pour `option.references`,
+ * cf. `OptionCard.tsx`) : ce n'est pas le rôle de ce composant de le signaler, c'est celui d'un invariant
+ * de contenu (S3, fichier séparé).
+ */
+describe('OptionCard — T-195 : note de source du panneau posologie (item objet, `sources[]`)', () => {
+  const BIBLIOGRAPHIE: ReferencePrimaire[] = [
+    {
+      id: 'ebmfrance-insuline',
+      titre: 'ebmfrance — Insulinothérapie',
+      annee: 2024,
+      lien: 'https://ebmfrance.example/insuline',
+      type_critere: 'dur',
+    },
+  ]
+  const CITATIONS_RECO: CitationReco[] = [
+    { nom: 'SFD 2025', detail: 'Avis 18', id: 'sfd-2025-avis18' },
+    // Volontairement SANS `id` : par construction jamais résoluble (cf. `CitationReco.id`, optionnel).
+    { nom: 'RCP ANSM (sans id)', lien: 'https://ansm.example/rcp' },
+  ]
+
+  function rendreAvecBibliographie(posologieDetail: Option['posologie_detail']) {
+    return renderToStaticMarkup(
+      <OptionCard
+        option={optionDeBase({ posologie_detail: posologieDetail })}
+        badge={null}
+        reasons={['toujours']}
+        calculs={[]}
+        calculsEnAttente={[]}
+        motifRang={undefined}
+        alertes={[]}
+        bibliographie={BIBLIOGRAPHIE}
+        citationsReco={CITATIONS_RECO}
+      />,
+    )
+  }
+
+  it('item CHAÎNE (forme courte historique) : rendu inchangé, aucune note de source', () => {
+    const TEXTE = 'Augmenter la basale de 2 U si la glycémie à jeun reste haute 3 matins de suite.'
+    const html = rendreAvecBibliographie([TEXTE])
+
+    expect(html).toContain(`<div class="option-card__posologie-geste">${TEXTE}</div>`)
+    expect(html).not.toContain('option-card__posologie-source')
+  })
+
+  it('item OBJET SANS `sources` : rendu du texte inchangé, aucune note de source', () => {
+    const TEXTE = 'Adapter par palier de une à deux semaines selon la tolérance digestive.'
+    const html = rendreAvecBibliographie([{ texte: TEXTE }])
+
+    expect(html).toContain(`<div class="option-card__posologie-geste">${TEXTE}</div>`)
+    expect(html).not.toContain('option-card__posologie-source')
+  })
+
+  it('item OBJET avec une source de `references_primaires` (essai) : note rendue, avec lien', () => {
+    const html = rendreAvecBibliographie([
+      { texte: 'Augmenter de 2 U si la cible n’est pas atteinte.', sources: ['ebmfrance-insuline'] },
+    ])
+    const note = html.slice(html.indexOf('option-card__posologie-source'))
+
+    expect(note).toContain('ebmfrance — Insulinothérapie (2024)')
+    expect(note).toContain('href="https://ebmfrance.example/insuline"')
+    expect(note).toContain('target="_blank"')
+    expect(note).toContain('rel="noreferrer"')
+  })
+
+  it('item OBJET avec une source de `reco_officielle.references` (RCP/reco, second registre) : note rendue', () => {
+    const html = rendreAvecBibliographie([
+      { texte: 'Titration hebdomadaire selon la tolérance.', sources: ['sfd-2025-avis18'] },
+    ])
+    const note = html.slice(html.indexOf('option-card__posologie-source'))
+
+    expect(note).toContain('SFD 2025 — Avis 18')
+  })
+
+  it('item OBJET avec une source INCONNUE des deux registres : AUCUNE note, AUCUNE erreur, le texte reste rendu', () => {
+    const TEXTE = 'Réduire de 10 % si hypoglycémie sévère.'
+    expect(() =>
+      rendreAvecBibliographie([{ texte: TEXTE, sources: ['id-qui-nexiste-nulle-part'] }]),
+    ).not.toThrow()
+    const html = rendreAvecBibliographie([{ texte: TEXTE, sources: ['id-qui-nexiste-nulle-part'] }])
+
+    expect(html).toContain(`<div class="option-card__posologie-geste">${TEXTE}</div>`)
+    expect(html).not.toContain('option-card__posologie-source')
+    expect(html).not.toContain('id-qui-nexiste-nulle-part') // jamais un id brut affiché
+  })
+
+  it('une entrée `reco_officielle.references` SANS `id` (donc jamais résoluble) ne casse rien et reste sans note', () => {
+    const TEXTE = 'Vérifier la fonction rénale avant renouvellement.'
+    const html = rendreAvecBibliographie([{ texte: TEXTE, sources: ['rcp-ansm-sans-id'] }])
+
+    expect(html).toContain(`<div class="option-card__posologie-geste">${TEXTE}</div>`)
+    expect(html).not.toContain('option-card__posologie-source')
+  })
+
+  it('plusieurs sources sur le même item sont TOUTES rendues, séparées par « · »', () => {
+    const html = rendreAvecBibliographie([
+      { texte: 'Suivre le schéma SFD.', sources: ['ebmfrance-insuline', 'sfd-2025-avis18'] },
+    ])
+    const note = html.slice(html.indexOf('option-card__posologie-source'), html.indexOf('option-card__panneau--ci'))
+
+    expect(note).toContain('ebmfrance — Insulinothérapie (2024)')
+    expect(note).toContain('SFD 2025 — Avis 18')
+    expect(note).toContain(' · ')
+  })
+
+  it('sans les props `bibliographie`/`citationsReco` (appelant qui ne les transmet pas) : aucune note, aucune erreur', () => {
+    const TEXTE = 'Adapter la dose au poids.'
+    const html = renderToStaticMarkup(
+      <OptionCard
+        option={optionDeBase({ posologie_detail: [{ texte: TEXTE, sources: ['ebmfrance-insuline'] }] })}
+        badge={null}
+        reasons={['toujours']}
+        calculs={[]}
+        calculsEnAttente={[]}
+        motifRang={undefined}
+        alertes={[]}
+      />,
+    )
+
+    expect(html).toContain(`<div class="option-card__posologie-geste">${TEXTE}</div>`)
+    expect(html).not.toContain('option-card__posologie-source')
+  })
+})
+
+/**
+ * T-202 (P15/S8, 2026-08-11) — nouvelle prop `posologieDetail`, qui REMPLACE `option.posologie_detail`
+ * QUAND FOURNIE, avec repli EXACT sur le comportement actuel (tout affiché, non filtré) pour tout
+ * appelant qui ne la transmet pas — MÊME contrat que `contreIndications` (T-068, cf. sa docstring dans
+ * `OptionCard.tsx`). Le filtrage par `quand` a déjà eu lieu en amont (`lib/vueDecision.ts`
+ * `evaluerPosologieDetail`) : cette carte ne reçoit ici que des listes déjà décidées, elle n'évalue
+ * jamais de `quand` elle-même — NON COUVERT avant cette session (aucun test n'exerçait encore cette prop,
+ * elle n'existait pas).
+ */
+describe('OptionCard — T-202 : prop `posologieDetail` (items déjà filtrés par `quand`)', () => {
+  const DETAIL_REPLI = 'Titrer par paliers de 2 U.'
+  const DETAIL_MCG = 'Selon la courbe nocturne MCG.'
+
+  it('SANS la prop (repli) : la carte affiche `option.posologie_detail` EN ENTIER, non filtré — même rendu qu’avant T-202', () => {
+    const html = rendreCarte(optionDeBase({ posologie_detail: [DETAIL_REPLI, DETAIL_MCG] }))
+    expect(html).toContain(DETAIL_REPLI)
+    expect(html).toContain(DETAIL_MCG)
+  })
+
+  it('AVEC la prop fournie : la carte affiche EXACTEMENT la liste transmise, jamais `option.posologie_detail` directement (un item écarté par le modèle de vue n’apparaît pas)', () => {
+    const html = renderToStaticMarkup(
+      <OptionCard
+        option={optionDeBase({ posologie_detail: [DETAIL_REPLI, DETAIL_MCG] })}
+        badge={null}
+        reasons={['toujours']}
+        calculs={[]}
+        calculsEnAttente={[]}
+        motifRang={undefined}
+        alertes={[]}
+        posologieDetail={[DETAIL_REPLI]} // simule l'item MCG écarté par `evaluerPosologieDetail`
+      />,
+    )
+    expect(html).toContain(DETAIL_REPLI)
+    expect(html).not.toContain(DETAIL_MCG)
+  })
+
+  it('AVEC la prop fournie mais VIDE : aucun paragraphe de posologie rendu, même si `option.posologie_detail` en porte — la prop REMPLACE, ne fusionne jamais', () => {
+    const html = renderToStaticMarkup(
+      <OptionCard
+        option={optionDeBase({ posologie_detail: [DETAIL_REPLI, DETAIL_MCG] })}
+        badge={null}
+        reasons={['toujours']}
+        calculs={[]}
+        calculsEnAttente={[]}
+        motifRang={undefined}
+        alertes={[]}
+        posologieDetail={[]}
+      />,
+    )
+    expect(html).not.toContain(DETAIL_REPLI)
+    expect(html).not.toContain(DETAIL_MCG)
   })
 })
 
