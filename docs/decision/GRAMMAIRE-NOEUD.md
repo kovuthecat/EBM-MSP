@@ -10,6 +10,8 @@
 > **R13, R14 et R15 ajoutées, R1/R5/R8/R10 enrichies** après le plan P14 (2026-08-06/07,
 > `docs/decision/validation/table-conditions-2026-08-06.md` et
 > `criteres-communs-2026-08-06.md`) — livrées, chacune adossée à un invariant de banc vert.
+> **R16 ajoutée, R14 enrichie d'un corollaire**, après le plan P15 (panneau posologie, 2026-08-11/14) et
+> la relecture en consultation du 2026-08-14 — livrées, adossées à I8b/I12/I34.
 > **Portée** : ce document ne parle **d'aucun domaine clinique**. Il énonce les **règles** que doit
 > respecter l'écriture de n'importe quel nœud, DT2 ou futur domaine — il se consulte *pendant*
 > l'écriture. Le **procédé** de construction d'un module (ordre des étapes, portes de sortie,
@@ -717,6 +719,33 @@ définition.
 **Ce que R14 ne dit pas, et c'est la moitié du sujet** : elle compare deux déclarations. Elle ne voit
 donc jamais un nœud qui **ne déclare rien du tout** — cf. **R15**.
 
+> **Corollaire ajouté le 2026-08-14 — quand le CONCEPT diverge, on cesse de le partager ; on ne force
+> jamais la convergence.** R14 suppose que deux nœuds qui déclarent le même nom désignent le même fait,
+> avec au plus une divergence d'**encodage** (type, valeurs, bornes) à corriger. Un troisième cas existe,
+> plus profond qu'un encodage à réparer : le nom désigne **deux concepts voisins mais réellement
+> différents** selon le nœud, et aucun encodage commun ne peut les représenter tous les deux sans en
+> trahir un.
+>
+> **Le cas.** `preference_injection` — sur `prescription`, « refuse » signifie *refuse la voie
+> injectable* (arbitre entre un AR GLP‑1 et une classe orale). Sur `insuline`, où tout traitement du nœud
+> est déjà injectable par construction, cette lecture n'a plus d'objet ; la seule qui reste cohérente avec
+> l'usage réel du nom dans ce nœud est *refuse plusieurs injections par jour* (arbitre entre un
+> basal-bolus et une insuline prémélangée). Le même `type: enum` / mêmes `valeurs` masquait deux
+> questions, et `partage: true` faisait circuler entre elles une réponse qui n'a le même sens nulle part.
+>
+> **La correction n'est pas de réconcilier la définition — c'est de cesser le partage.** Retirer
+> `partage: true` du nœud où le concept a divergé. Si, en plus, la question n'a plus d'objet à poser au
+> praticien sur ce nœud (ici : tout le nœud est déjà injectable), la masquer **inconditionnellement**
+> (`cache: true`, cf. `content/node.types.ts`) plutôt que de la laisser vivante sous un sens qu'elle n'a
+> plus — un `preremplissage` toujours vrai lui donne alors une valeur neutre, jamais lue par aucune règle
+> de sécurité.
+>
+> **Piège à ne pas laisser rouvert : `cache` sans retrait de `partage` ne suffit pas.**
+> `lib/sessionCriteres.ts` `valeursReprises` ne regarde pas `cache` — un champ masqué mais toujours
+> `partage: true` continue de pouvoir **recevoir** une vraie réponse saisie sur l'autre nœud (via
+> « Reprendre les valeurs de ce patient »), rouvrant exactement l'ambiguïté que le masquage visait à
+> fermer. Les deux gestes vont ensemble, jamais l'un sans l'autre.
+
 ---
 
 ## R15 — Un fait de sécurité appartient au DOMAINE, pas au nœud
@@ -771,6 +800,73 @@ le fichier commun) et **P6** (quatrième point de la porte de sortie). Décision
 la mise en scène — et `presomption_non` reste **local au nœud**, malgré les apparences : D30 fait
 dépendre son éligibilité de l'usage du critère **dans ce nœud** (canal de sécurité ou non), jamais de la
 nature du fait. Le rendre global le rendrait impossible à poser.
+
+---
+
+## R16 — La posologie affichée est un fait de sécurité : sourcée item par item, jamais en incise, conditionnable au patient
+
+**Règle.** Le panneau posologie est le seul bloc de la carte qui **se recopie mot à mot sur une
+ordonnance**. Trois conséquences de rédaction, mécanisées :
+
+- chaque affirmation posologique porte sa **source**, résolue contre la bibliographie du nœud (un essai
+  **ou** un texte de recommandation officielle — D16, une posologie vient légitimement d'un RCP ou d'une
+  table de reco, pas seulement d'un essai) — **jamais une citation en incise** dans la phrase (« … dose
+  maximale ajustée au DFG (KDIGO 2022 / RCP ANSM) ») ;
+- une posologie qui dépend d'un **fait du patient** (présence d'un capteur, dose déjà en cours) se déclare
+  **conditionnelle** (`quand`, même grammaire DSL qu'`exclusions`), jamais un seul texte générique qui
+  suppose le cas le plus fréquent et se tait sur les autres ;
+- la migration d'une citation en incise vers `sources` se fait **item par item, jamais par expression
+  régulière** — une parenthèse n'est pas toujours une citation (trois faux positifs mesurés : la glose
+  HAS R.87 « dans les deux sens », le protocole réel de FullSTEP, « BRIGHT, CONCLUDE » sujet de phrase).
+
+**Le cas qui a fait la règle.** `insuline` recommandait une titration pilotée par la **glycémie
+capillaire** (« glycémie à jeun 3 matins de suite ») à un patient porteur d'une **mesure continue du
+glucose** — le texte de posologie contredisait le mode de surveillance que le même patient venait de
+déclarer une section plus haut. Corrigé par le plan P15 (S9) : le texte se scinde selon
+`mcg_disponible`, chaque branche sourcée séparément, l'absence d'algorithme piloté par MCG **dite**
+plutôt qu'un protocole inventé (R7).
+
+**Forme de contenu — `Option.posologie_detail`.** Tableau de **chaînes** (forme historique, prose seule)
+ou d'objets `{ texte, sources?, quand?, accent? }` — les deux formes cohabitent dans le même tableau ; une
+chaîne équivaut exactement à un objet sans les trois champs optionnels.
+
+- **`sources`** — ids résolus contre **les deux registres** de bibliographie du nœud
+  (`sources.references_primaires[].id` et `sources.reco_officielle.references[].id`, ce second registre
+  ayant reçu un champ `id` à cette occasion). Un id absent des deux est ignoré **en silence** par la
+  carte, par politique — le signaler est le travail d'un invariant de contenu (I8b), jamais d'un
+  composant de rendu au milieu d'une consultation.
+- **`quand`** — expression DSL sous laquelle l'item est affiché. FAUSSE au sens strict (jamais
+  `INDETERMINE`, D20) **retire l'item de la liste rendue** — pas seulement son état visuel, à la
+  différence de `contre_indications[].condition`, qui reste montrée « levée ».
+- **`accent`** *(ajouté le 2026-08-14)* — registre visuel gras (« geste ») plutôt que muet (« modalité »).
+  La règle historique (`index === 0` = gras, vérifiée sur 17 options) tient pour une option à **un seul
+  geste** titré par paliers ; elle casse pour une option à **plusieurs molécules alternatives**, où le
+  rang de déclaration — arbitraire — décide seul quelle molécule paraît en avant. Cas réel : `prescription`,
+  option « AR GLP‑1 » — liraglutide en `posologie_detail[0]`, donc seul en gras, alors que c'est la
+  molécule la **moins** prescrite des trois (injection quotidienne contre hebdomadaire pour les deux
+  autres). Sans item `accent`, la règle historique s'applique **inchangée** — rétrocompatible par
+  construction, aucune des options existantes n'a besoin d'être touchée.
+
+> ⚠ **Même prérequis d'architecture que les alertes d'option, l'argumentaire situationnel et les
+> contre-indications conditionnelles** (encadré de R6, sixième occurrence documentée du même défaut). Un
+> critère qui ne pilote **que** la posologie affichée — aucune autre dimension de l'écran ne varie — doit
+> tout de même entrer dans `signatureVue`/`criteresPertinents` : sans quoi il serait estompé à tort dans
+> le formulaire de saisie (« sans effet »), alors qu'il change visiblement la carte.
+
+**Vérification.**
+
+- **I8b** (`engine/banc/invariants-contenu.test.ts`) — tout id cité dans `posologie_detail[].sources`
+  existe dans l'un des deux registres du nœud qui le porte.
+- **I34** (`engine/banc/citations-inlinees.test.ts`) — aucune incise de citation ne survit dans `apercu`
+  ni `posologie_detail[].texte` ; les rares exceptions restantes sont **nommées, avec un motif tiré du
+  changelog du nœud** (jamais une exemption générique) et **auto-expirent** : une exemption dont le texte
+  cité a changé fait échouer le test, forçant à la retirer plutôt qu'à l'oublier.
+- **I12** (`engine/banc/carte-affichage.test.tsx`) — le nombre de blocs « geste » rendus égale le nombre
+  d'items `accent: true` du tableau, ou **1** par repli sur la règle historique en leur absence.
+
+**Décision/plan** : arbitrage de doctrine du 2026-08-11 (`plans/P15/index.md` §Arbitrage — le choix des
+deux registres). Livrée : plan P15 (S1→S10, 2026-08-11/14) puis relecture en consultation (2026-08-14, le
+champ `accent`).
 
 ---
 
@@ -840,9 +936,9 @@ déclarer :
 
 ## Additions au schéma (`schema/noeud.schema.json`)
 
-Cinq champs optionnels au schéma listés ici (liste non exhaustive des additions depuis — `role`, requis,
-D25 ; `presomption_non`, cf. R7 ci-dessus, D30 — vivent ailleurs dans ce document), aucun changement de la
-boucle de résolution du moteur.
+Champs optionnels au schéma listés ici (liste non exhaustive des additions depuis — `role`, requis,
+D25 ; `presomption_non`, cf. R7 ci-dessus, D30 ; `posologie_detail`/`ItemPosologie`, cf. R16 — vivent
+ailleurs dans ce document), aucun changement de la boucle de résolution du moteur.
 
 | champ | emplacement | type | effet moteur |
 |---|---|---|---|
@@ -851,6 +947,10 @@ boucle de résolution du moteur.
 | `alertes` | `options[]` | même forme que `Noeud.alertes` | rendues **seulement si l'option est applicable** |
 | `cadrage` | racine du nœud | `string[]` | **aucun** — positions de lecture rendues en tête, sans condition (D24) |
 | `action` | `options[]` | enum `ajouter`\|`remplacer`\|`arreter`\|`reduire`\|`maintenir` | **aucun** — pilote une bordure colorée sur la carte (badge verbe, D35) ; réservé aux nœuds dont le contenu porte déjà ce vocabulaire (`prescription`, `insuline`), jamais posé de force ailleurs |
+| `posologie_detail[].sources` | `itemPosologie` | `string[]` | **aucun** — résolu par l'écran contre la bibliographie du nœud (R16) |
+| `posologie_detail[].quand` | `itemPosologie` | string (DSL) | retire l'item de la liste rendue si faux/indéterminé (R16) |
+| `posologie_detail[].accent` | `itemPosologie` | bool | **aucun** — registre visuel gras/muet (R16) |
+| `cache` | `criteres_entree[]` | bool | masque le champ **inconditionnellement** ; sa valeur ne peut alors venir que d'une reprise (`partage`), d'une publication (D50) ou d'un `preremplissage` — jamais d'une saisie directe (corollaire R14) |
 
 Les alertes portées par une option répondent à deux besoins d'un coup : la réserve
 délai/horizon de R2, et le défaut constaté en recette où une alerte de nœud s'affichait à propos d'un

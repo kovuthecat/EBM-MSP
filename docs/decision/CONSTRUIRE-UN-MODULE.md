@@ -15,14 +15,14 @@
 >
 > **Portée** : ce document ne parle d'**aucun domaine clinique**. Il dit **dans quel ordre** construire
 > un module et **à quelles conditions** passer à l'étape suivante. Il ne dit pas comment écrire un
-> nœud — c'est `GRAMMAIRE-NOEUD.md` (règles R1→R15), consulté *pendant* l'écriture. Ce document-ci se
+> nœud — c'est `GRAMMAIRE-NOEUD.md` (règles R1→R16), consulté *pendant* l'écriture. Ce document-ci se
 > suit *avant et autour*.
 
 | document | répond à | consulté |
 |---|---|---|
 | `PROJECT_BRIEF.md` · `BRIEF_DECISION.md` | quoi, pour qui | au cadrage |
 | **`CONSTRUIRE-UN-MODULE.md`** *(ce fichier)* | **dans quel ordre, avec quelles portes** | **du début à la fin** |
-| `GRAMMAIRE-NOEUD.md` | comment écrire un nœud correct (R1→R15) | à l'écriture et à la relecture |
+| `GRAMMAIRE-NOEUD.md` | comment écrire un nœud correct (R1→R16) | à l'écriture et à la relecture |
 | `00-global.md` | comment sourcer et red-teamer (méthode, illustrée sur DT2) | à la collecte |
 | `schema/noeud.schema.json` | le contrat exécutable | en permanence, par les tests |
 | `DECISIONS.md` | les arbitrages transverses (D1→D23) | quand une règle surprend |
@@ -289,7 +289,7 @@ primaire, et la passe adversariale est close.
 
 ### P5 — Encodage
 
-Écriture du YAML sous `GRAMMAIRE-NOEUD.md` (R1→R15) et sous les checklists du §2 ci-dessous.
+Écriture du YAML sous `GRAMMAIRE-NOEUD.md` (R1→R16) et sous les checklists du §2 ci-dessous.
 
 **Trois principes de rédaction issus des corrections DT2. Le premier s'applique AVANT qu'aucune ligne de
 YAML n'existe :**
@@ -526,6 +526,15 @@ constats hors audit y ont été trouvés ainsi) :
       `prescription` et `insuline` alors qu'il venait d'être saisi et qu'il pilote les doses calculées
       du second nœud. À l'écriture d'un nœud, passer la liste des critères contre le catalogue et
       déclarer le partage explicitement, dans les deux sens (ce que je fournis, ce que je réutilise).
+- [ ] **Le nom porte le MÊME concept sur tous les nœuds qui le partagent, pas seulement le même
+      encodage.** Si le sens diverge réellement d'un nœud à l'autre (`preference_injection`, 2026-08-14 —
+      cf. corollaire de R14), retirer `partage` du nœud où il diverge plutôt que de forcer une définition
+      commune ; masquer (`cache: true`) si la question n'y a plus d'objet.
+- [ ] **Un `preremplissage` déclaré est testé sur un patient NEUF et après une reprise inter-nœuds sur le
+      MÊME champ.** Une reprise (`partage`) marque tout le champ comme « touché » — un `preremplissage`
+      qui dépend d'un autre critère du même nœud ne se déclenche alors plus, silencieusement (cas réel :
+      `traitements_en_cours` déjà repris avec `metformine` empêchait le préremplissage d'`insuline_basale`
+      sur `situation_insuline`, 2026-08-14). Un seul des deux scénarios de test suffit à masquer le trou.
 
 ### 2.2 Option
 
@@ -553,6 +562,13 @@ constats hors audit y ont été trouvés ainsi) :
       d'une option **meurt avec l'option** : ajouter un prérequis a supprimé l'option qui portait le
       message d'urgence sur la cétonémie, laissant un patient cétonémique sans aucun signal — il a
       fallu créer une alerte de nœud dans la foulée (`41ea008`).
+- [ ] **Sa posologie, si elle en porte une, est sourcée item par item — jamais en incise dans le texte**
+      (R16). Une option qui recommande une classe sans jamais donner sa dose renvoie le praticien à un
+      autre nœud : cas réel, trois options d'`insuline` recommandaient un AR GLP‑1 sans aucun chiffre
+      (2026-08-14).
+- [ ] **Une option à PLUSIEURS molécules alternatives déclare `accent` sur celles à mettre en avant** —
+      R16. Sans lui, la molécule mise en avant visuellement est celle déclarée en premier dans le YAML,
+      sans rapport avec sa place clinique réelle (`prescription`, AR GLP‑1, 2026-08-14).
 
 ### 2.3 Alerte
 
@@ -755,6 +771,9 @@ Table de relecture rapide. Chaque ligne est un défaut **constaté**, pas antici
 | **Références en registre de changelog** | un titre d'essai porte « Le nœud n'avait encodé que la montée » et « affiché par ce nœud » (`insuline`, 2026-08-04) — méta-texte de fabrication dans l'écran praticien | une référence dit ce que dit la source, jamais ce que fait le nœud ; l'auto-critique de l'outil vit en alerte ou en cadrage ; invariant textuel sur « ce nœud », « encodé » |
 | **Conclusion de nœud jamais exportée** | la « Cible ≤ 7 % » rendue par `cible-glycemique` n'existe pas en session : « Par rapport à l'objectif » se re-juge à la main deux clics plus tard (D12, 2026-08-04) | R1 (précision 2026-08-04) : la conclusion s'exporte en valeur suggérée « · calculé, à vérifier », la question directe reste posée |
 | **Comportement changé, texte non repropagé** | l'argumentaire exhaustif d'`insuline` affirme qu'un ratio « déclenche le relais à elle seule », alors qu'un lot du **même jour** venait de le rétrograder en simple repère d'alerte ; celui de `prescription` nie l'existence d'une carte d'arrêt créée la **veille** (T-167/T-168, T-185, 2026-08-06) | tout lot qui change `conditions`, `role`, `famille` ou l'existence d'une option liste, à côté du YAML, son `.argumentaire.md` **et** une recherche de l'ancien intitulé/comportement dans les quatre niveaux de lecture des autres nœuds du domaine |
+| **Ordre de déclaration lu comme hiérarchie clinique** | posologie à 3 molécules alternatives, la molécule déclarée en premier seule mise en avant visuellement — et c'était la moins prescrite des trois (`prescription`, option « AR GLP‑1 », 2026-08-14) | déclarer l'accent explicitement (`ItemPosologie.accent`, R16) plutôt que confier la hiérarchie visuelle au rang du YAML |
+| **Nom de critère au sens qui diverge, forcé au partage** | `preference_injection` : « refuse la voie injectable » sur un nœud, « refuse plusieurs injections/jour » sur l'autre où tout est déjà injectable — le même encodage `partage: true` faisait circuler une réponse qui n'a le même sens nulle part (2026-08-14) | cesser le `partage` sur le nœud où le concept diverge ; masquer (`cache: true`) si la question n'y a plus d'objet — corollaire R14 |
+| **Préremplissage muet derrière une reprise inter-nœuds** | `situation_insuline == basale_seule` devait cocher `insuline_basale` dans `traitements_en_cours`, mais ce même champ liste était déjà « touché » par la reprise de `metformine` venue d'un autre nœud — un `preremplissage` ne s'exécute jamais sur un champ déjà renseigné, reprise comprise (2026-08-14) | vérifier un `preremplissage` sur un patient **neuf** ET après une reprise inter-nœuds sur le même champ — les deux scénarios divergent et un seul suffit à masquer le défaut |
 
 ---
 
