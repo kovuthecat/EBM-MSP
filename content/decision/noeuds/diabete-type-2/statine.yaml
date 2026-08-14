@@ -385,8 +385,12 @@ options:
       (Kraut 2023).
     apercu: "après l'interruption, reprise à atorvastatine 10 ou 20 mg / rosuvastatine 5 ou 10 mg, titrée à 8 semaines"
     posologie_detail:
-      - "Reprise après l'interruption, quand les trois conditions sont réunies : dose basse ou modérée d'une statine de haute intensité — atorvastatine 10 ou 20 mg par jour, ou rosuvastatine 5 ou 10 mg par jour — puis titration à 8 semaines d'intervalle selon la tolérance (parcours NHS England / AAC)."
-      - "Si la prise quotidienne n'est pas tolérée : un jour sur deux, ou deux fois par semaine — les demi-vies de l'atorvastatine et de la rosuvastatine le permettent (parcours NHS England / AAC)."
+      - texte: "Reprise après l'interruption, quand les trois conditions sont réunies : dose basse ou modérée d'une statine de haute intensité — atorvastatine 10 ou 20 mg par jour, ou rosuvastatine 5 ou 10 mg par jour — puis titration à 8 semaines d'intervalle selon la tolérance."
+        sources:
+          - nhs-aac-2022
+      - texte: "Si la prise quotidienne n'est pas tolérée : un jour sur deux, ou deux fois par semaine — les demi-vies de l'atorvastatine et de la rosuvastatine le permettent."
+        sources:
+          - nhs-aac-2022
     niveau_preuve: faible
     references:
       - kraut-2023
@@ -565,7 +569,9 @@ options:
       par 1 mmol/L chez le diabétique).
     apercu: "atorvastatine 10 ou 20 mg / rosuvastatine 5 ou 10 mg, titrée à 8 semaines"
     posologie_detail:
-      - "Dose de départ, reprise du parcours NHS England / AAC : atorvastatine 10 ou 20 mg par jour, ou rosuvastatine 5 ou 10 mg par jour, à titrer à 8 semaines d'intervalle selon la tolérance et le LDL obtenu."
+      - texte: "Dose de départ : atorvastatine 10 ou 20 mg par jour, ou rosuvastatine 5 ou 10 mg par jour, à titrer à 8 semaines d'intervalle selon la tolérance et le LDL obtenu."
+        sources:
+          - nhs-aac-2022
     niveau_preuve: faible
     references:
       - ctt-symptomes-musculaires
@@ -622,7 +628,7 @@ options:
       - tnt
       - prove-it
     contre_indications:
-      - "Interaction par le CYP3A4 avec l'atorvastatine — macrolides, azolés, amiodarone, vérapamil et diltiazem, inhibiteurs de protéase, pamplemousse : préférer la rosuvastatine en cas de co-prescription à risque."
+      - "Interaction par le CYP3A4 avec l'atorvastatine — macrolides, azolés, amiodarone, vérapamil et diltiazem, inhibiteurs de protéase, pamplemousse : préférer la rosuvastatine en cas de co-prescription à risque (ESC/EAS 2019, Table 10)."
       - "Ne pas initier de statine chez un patient déjà en dialyse et qui n'en prend pas : le bénéfice n'y est pas démontré sur les critères durs."
       - "Grossesse : les statines y sont contre-indiquées."
     # T-076 (P9/S9) — aperçu affiché dans le titre du dépli REPLIÉ, reprenant exactement les molécules/
@@ -633,7 +639,9 @@ options:
     # généraliser à d'autres options).
     apercu: "atorvastatine 40-80 mg / rosuvastatine 10-20 mg"
     posologie_detail:
-      - "Molécules de haute intensité, c'est-à-dire abaissant le LDL d'au moins 50 % (recommandation SFE/SFD/NSFA/SFC 2026, Table 4) : atorvastatine 40 à 80 mg par jour, ou rosuvastatine 10 à 20 mg par jour."
+      - texte: "Molécules de haute intensité, c'est-à-dire abaissant le LDL d'au moins 50 % : atorvastatine 40 à 80 mg par jour, ou rosuvastatine 10 à 20 mg par jour."
+        sources:
+          - reco-francaise-2026
     # D21 (2026-07-26, F-statine §9.1) : l'alerte dialyse interdisait ce que rien ne retirait — cette
     # exclusion corrige la contradiction la plus sévère relevée en recette (« ne pas INITIER » affiché à
     # côté de « Statine de haute intensité »). Bornée à l'INITIATION (`statine_deja_en_place == false`) :
@@ -849,8 +857,12 @@ options:
       - ctt-bas-risque
     apercu: "atorvastatine 10-20 mg / simvastatine 20-40 mg / pravastatine 40 mg"
     posologie_detail:
-      - "Intensité modérée en première intention (recommandation SFE/SFD/NSFA/SFC 2026, Table 4) : atorvastatine 10 à 20 mg par jour, ou simvastatine 20 à 40 mg par jour, ou pravastatine 40 mg par jour — dose fixe, calée sur le niveau de risque, sans titration sur une cible de LDL."
-      - "Choix de molécule : pravastatine, rosuvastatine et pitavastatine sont moins sujettes aux interactions par le CYP3A4 que simvastatine et atorvastatine — à préférer en cas de co-prescription à risque (macrolides, azolés, amiodarone, vérapamil et diltiazem, inhibiteurs de protéase, pamplemousse)."
+      - texte: "Intensité modérée en première intention : atorvastatine 10 à 20 mg par jour, ou simvastatine 20 à 40 mg par jour, ou pravastatine 40 mg par jour — dose fixe, calée sur le niveau de risque, sans titration sur une cible de LDL."
+        sources:
+          - reco-francaise-2026
+      - texte: "Choix de molécule : pravastatine, rosuvastatine et pitavastatine sont moins sujettes aux interactions par le CYP3A4 que simvastatine et atorvastatine — à préférer en cas de co-prescription à risque (macrolides, azolés, amiodarone, vérapamil et diltiazem, inhibiteurs de protéase, pamplemousse)."
+        sources:
+          - esc-eas-2019
       - "Escalade vers une statine de haute intensité — atorvastatine 40 à 80 mg par jour, ou rosuvastatine 10 à 20 mg par jour — si le risque est très élevé."
     contre_indications:
       - "En dialyse sans statine en cours, aucun bénéfice n'est démontré sur les critères durs : discuter au cas par cas l'intérêt d'une initiation à ce stade."
@@ -931,8 +943,9 @@ alertes:
       [0,86-1,64] non significatif, mais arrêt OR 1,48 [1,03-2,12] significatif ; Kraut 2023 : environ un
       tiers de ces patients sont réellement intolérants à la statine, et un quart le sont au PLACEBO).
       Avant d'écarter la classe entière : une réintroduction, un changement de molécule (pravastatine,
-      rosuvastatine et pitavastatine ont moins d'interactions CYP3A4 que simvastatine/atorvastatine) ou une
-      dose plus faible titrée progressivement — la reco française 2026 note que « cette titration permet
+      rosuvastatine et pitavastatine ont moins d'interactions CYP3A4 que simvastatine/atorvastatine —
+      ESC/EAS 2019, Table 10) ou une dose plus faible titrée progressivement — la reco française 2026 note
+      que « cette titration permet
       d'identifier le seuil d'apparition des effets musculaires ». Ce n'est qu'une fois l'intolérance
       AVÉRÉE que la statine cesse d'être une option pour ce patient.
   # F-statine §9.5 (2026-07-26, 2ᵉ série) : SCORE2-Diabète n'a d'objet que pour le patient SANS critère de la
@@ -1198,15 +1211,18 @@ sources:
   reco_officielle:
     source: "Reco française 2026 (SFE/SFD/NSFA/SFC) · ESC/EAS 2019-2025 · ADA 2026 · NHS England 2022"
     references:
-      - nom: "Reco française 2026"
-        detail: "SFE/SFD/NSFA/SFC, « Management of dyslipidemia in adults », Diabetes & Metabolism 2026;52:101725 — consensus multi-sociétés. C'est la recommandation française à jour : ni la HAS 2024 sur le DT2 ni la prise de position SFD 2025 sur l'hyperglycémie ne traitent de la statine, et la reco HAS 2017 sur les dyslipidémies est supplantée."
-      - nom: "ESC/EAS 2019"
-        detail: "Mach, Eur Heart J 2020;41:111-188 ; complétée par ESC 2023 (diabète) et par le focused update ESC/EAS 2025, qui place l'acide bempédoïque en classe I niveau B chez le patient qui ne peut pas prendre de statine."
+      - id: reco-francaise-2026
+        nom: "Reco française 2026"
+        detail: "SFE/SFD/NSFA/SFC, « Management of dyslipidemia in adults », Diabetes & Metabolism 2026;52:101725 — consensus multi-sociétés. C'est la recommandation française à jour : ni la HAS 2024 sur le DT2 ni la prise de position SFD 2025 sur l'hyperglycémie ne traitent de la statine, et la reco HAS 2017 sur les dyslipidémies est supplantée. Table 4 : libellés d'intensité (haute = atorvastatine 40-80 mg / rosuvastatine 10-20 mg ; modérée = atorvastatine 10-20 mg / simvastatine 20-40 mg / pravastatine 40 mg)."
+      - id: esc-eas-2019
+        nom: "ESC/EAS 2019"
+        detail: "Mach, Eur Heart J 2020;41:111-188, §8.1.4.6 et Table 10 (médicaments interagissant avec les statines métabolisées par le CYP3A4 : macrolides, azolés, amiodarone, vérapamil/diltiazem, inhibiteurs de protéase, pamplemousse — pravastatine, rosuvastatine et pitavastatine hors de ce métabolisme) ; complétée par ESC 2023 (diabète) et par le focused update ESC/EAS 2025, qui place l'acide bempédoïque en classe I niveau B chez le patient qui ne peut pas prendre de statine."
       - nom: "ADA 2026"
         detail: "Standards of Care, chapitre 10 (prise en charge cardiovasculaire)."
       - nom: "SCORE2-Diabetes"
         detail: "Eur Heart J 2023;44:2544 — modèle d'estimation du risque, validé sur 40-69 ans."
-      - nom: "NHS England / AAC 2022"
+      - id: nhs-aac-2022
+        nom: "NHS England / AAC 2022"
         detail: "« Statin Intolerance Pathway » (janvier 2022, avalisé par NICE en décembre 2021). ⚠ Ce parcours n'est PAS dans NG238 : NICE ne fait que l'héberger. Sa date de révision (janvier 2024) est dépassée."
       - nom: "NICE NG238"
         detail: "Décembre 2023 — §1.5.7 (conduite entre 4 et 5 fois la normale avant initiation), §1.11.4-1.11.5 (conduite sous traitement) et §1.9.2-1.9.4 (protocole de réintroduction propre à NICE, distinct du parcours NHS England)."
@@ -1313,8 +1329,62 @@ meta:
   date_revue: "2026-07-26"
   auteur: "référent DT2 (Thibault) + Claude Code"
   statut: brouillon
-  version: "1.30"
+  version: "1.31"
   changelog:
+    - date: "2026-08-11"
+      auteur: "Claude Code (P15/S7, T-201)"
+      resume: >-
+        SOURCES DE POSOLOGIE SORTIES DE LA LIGNE DE LECTURE — aucun chiffre, aucune conduite clinique ne
+        change ; seule la POSITION des citations se déplace, du texte de conduite vers une note de
+        source affichée sous lui (même mécanique que `insuline`, P15/S5). Migration conforme au
+        mappage citation par citation de `docs/decision/validation/posologie-sourcage-2026-08-11.md`
+        §1.3, rendue possible par l'arbitrage du 2026-08-11 (issue (b) : `sources.reco_officielle.
+        references[]` reçoit un `id` optionnel) — `statine` était le cas extrême du corpus, 0 citation
+        sur 5 mappable AVANT cet arbitrage (ses 32 `references_primaires` portent des résultats d'essais
+        — CARDS, CTT, CLEAR —, jamais des tables de dose). Aucune n'a été forcée vers
+        `references_primaires` : c'est exactement le risque nommé par la session (refabriquer la
+        mésattribution D3 payée sur `insuline` le 2026-07-29).
+
+        3 IDS CRÉÉS dans `sources.reco_officielle.references` (aucune entrée n'était manquante, les
+        trois existaient déjà sans `id`) : `reco-francaise-2026` (SFE/SFD/NSFA/SFC 2026, detail enrichi
+        pour nommer la Table 4 — libellés d'intensité) ; `nhs-aac-2022` (parcours NHS England / AAC,
+        Statin Intolerance Pathway) ; `esc-eas-2019` (Mach et al., detail enrichi pour nommer la Table 10
+        — interactions CYP3A4).
+
+        5 CITATIONS SUR 5 CONVERTIES en `{ texte, sources }`, l'incise retirée du texte (aucune ne
+        portait de nuance clinique propre à la parenthèse, à la différence des trois cas protégés
+        d'`insuline` §4.1 du rapport — vérifié une à une) : « Interrompre la statine 4 à 6 semaines et
+        réévaluer » `posologie_detail[0]` et `[1]` (parcours NHS England / AAC → `nhs-aac-2022`) ;
+        « Débuter la statine à dose plus faible » `posologie_detail[0]` (« reprise du parcours NHS
+        England / AAC » → `nhs-aac-2022`, reformulé en « Dose de départ : » pour la grammaire, aucune
+        conduite changée) ; « Statine de haute intensité — prévention secondaire » `posologie_detail[0]`
+        et « Statine — prévention primaire » `posologie_detail[0]` (recommandation SFE/SFD/NSFA/SFC 2026,
+        Table 4 → `reco-francaise-2026`, le repère « Table 4 » déplacé dans le `detail` de la référence).
+        AUCUNE citation laissée en incise sur ce lot des 5 — à la différence d'`insuline`, l'ouverture du
+        second registre couvrait ici la totalité du besoin.
+
+        PARAGRAPHE CYP3A4 SOURCÉ AUX TROIS ENDROITS OÙ IL VIT (arbitrage tranché
+        `docs/decision/validation/citations-non-verifiables-2026-08-11.md` §3 et §6 point 11 — le texte
+        est JUSTE, correspondance verbatim vérifiée contre ESC/EAS 2019 §8.1.4.6 + Table 10 ; issue (b),
+        aucune reformulation clinique, aucun retrait) : (1) `posologie_detail[1]` de « Statine —
+        prévention primaire » reçoit `sources: [esc-eas-2019]`, texte inchangé au mot près — c'est le
+        seul des trois endroits où le mécanisme structuré s'applique, `ItemPosologie` étant le seul type
+        du nœud à porter un champ `sources`. (2) `contre_indications` de « Statine de haute intensité —
+        prévention secondaire » (l. 625) et (3) l'alerte de nœud `intolerance_statine == rapportee`
+        (l. 934) portent le MÊME contenu CYP3A4 mais leurs types (`ContreIndication`, `Alerte`) ne
+        déclarent PAS de champ `sources` au schéma — l'ajouter est un changement de schéma, explicitement
+        hors périmètre de cette session (« Hors périmètre » de S7.md : aucun code, schéma ni test de
+        banc). Ces deux occurrences reçoivent donc une attribution en PROSE, « (ESC/EAS 2019, Table 10) »
+        / « — ESC/EAS 2019, Table 10 », au même registre que les nombreuses autres citations par le nom
+        déjà présentes dans ce fichier (ex. « (4D, AURORA) », « (NG238 §1.11.4) ») — sourcé au sens de
+        « attribuable et vérifiable dans la bibliographie du nœud », mais pas au sens mécanique
+        (id-lié, invariant I8b) que porte `posologie_detail`. Un futur lot de forme pourra étendre
+        `ContreIndication`/`Alerte` sur le modèle d'`ItemPosologie` si le référent le souhaite ; ce
+        n'était pas le mandat de S7.
+
+        Aucun `apercu` de ce nœud ne porte de citation (vérifié, cohérent avec §1.3 du rapport). Aucun
+        `quand` posé (hors périmètre). `content.test.ts` et l'invariant I8b (posologie) valident les
+        trois nouveaux ids contre `sources.reco_officielle.references`.
     - date: "2026-08-07"
       auteur: "Claude Code — arbitrage référent, en attente de relecture clinique"
       resume: >-
