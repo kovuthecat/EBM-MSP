@@ -12,13 +12,13 @@ plan** (statut dans son `index.md`) : `- T-ID — titre · → plans/…/S<k>.md
 - T-052/T-053 — Validité HbA1c (cadrage) → plans/P7/SA2.md · T-054 — recette locale → S2.md
   **Débloquée** : l'accroche chiffrée des blocs repliés est livrée (P12/S10).
 
-## Plan P15 — panneau posologie, cadré 2026-08-11 (statut/détail : `plans/P15/index.md`)
+## Backlog — né de P15 (2026-08-14, plan clos, cf. `plans/P15/index.md` §Bilan)
 
-- T-194 socle de forme → S1 · T-195/T-196 rendu de la note, code mort → S2 · T-197 I8b étendu → S3 ·
-  T-198 citations non vérifiables (8 orphelines, 2 douteuses, CYP3A4) → S4 · T-199/T-200/T-201 migration
-  `insuline`/`prescription`/`statine` → S5-S7 · T-202 `quand` (moteur, `signatureVue`) → S8 ·
-  T-203 bras MCG → S9 · T-204 invariant « plus aucune incise » → S10
-- [ ] **Né de P15** : `prescription` 13 options `apercu` seul · 2 trouvailles OE (seuil 0,5 U/kg vs P14/S4 ; Peters 2019 → bolus) · source du palier « −10 à −20 % » insuline non trouvée (S4 pt. 6) · Sonnet, medium.
+- [ ] `prescription` 13 options `apercu` seul (déplacement de contenu, hors périmètre R4) · 2 trouvailles
+      OE (seuil 0,5 U/kg vs P14/S4 ; Peters 2019 → bolus) · source du palier « −10 à −20 % » insuline non
+      trouvée (S4 pt. 6, gardé en l'état) · Sonnet, medium.
+- [ ] **Fusion/push** : `decision/panneau-posologie` (12 commits) n'est ni fusionnée ni poussée — décision
+      Thibault en attente.
 
 ## Backlog — né de P12 (2026-08-03), non cadré
 
@@ -56,4 +56,4 @@ plan** (statut dans son `index.md`) : `- T-ID — titre · → plans/…/S<k>.md
 
 ## Archivage
 
-Supprimer la ligne d'une tâche dès que son plan est clos (historique : `git log`/`STATUS.md`). Purgé 2026-07-30 : P7 T-048→T-051, P8 T-055→T-066, P9 T-068→T-077 · 2026-07-31 : items Veille + « Veille page blanche » (→ PV1/S6) · 2026-08-01 : P10 T-078→T-088 · 2026-08-02 : P11 T-102→T-118 · 2026-08-03 : P12 T-067 + T-119→T-136 (T-120 non livrée, remontée en backlog), clôture de P8 · 2026-08-05 : P13 T-137→T-159 (T-149/T-150 non livrées, T-154 STOP, T-152/statine partielle — remontées en backlog) · 2026-08-07 : P14 T-160→T-193 (T-174 abandonnée, arbitrage 2026-08-06) — toutes les sessions livrées, mais la consolidation (commit) de T-167→T-177, T-185, T-190→T-192 reste bloquée, remontée en backlog ci-dessus.
+Supprimer la ligne d'une tâche dès que son plan est clos (historique : `git log`/`STATUS.md`). Purgé 2026-07-30 : P7 T-048→T-051, P8 T-055→T-066, P9 T-068→T-077 · 2026-07-31 : items Veille + « Veille page blanche » (→ PV1/S6) · 2026-08-01 : P10 T-078→T-088 · 2026-08-02 : P11 T-102→T-118 · 2026-08-03 : P12 T-067 + T-119→T-136 (T-120 non livrée, remontée en backlog), clôture de P8 · 2026-08-05 : P13 T-137→T-159 (T-149/T-150 non livrées, T-154 STOP, T-152/statine partielle — remontées en backlog) · 2026-08-07 : P14 T-160→T-193 (T-174 abandonnée, arbitrage 2026-08-06) — toutes les sessions livrées, et **commitées** (8f3b90e, vérifié 2026-08-14 — la mention « non commité » ci-dessus était périmée) · 2026-08-14 : P15 T-194→T-204, 10 sessions livrées et commitées sur `decision/panneau-posologie` (branche non fusionnée, remontée en backlog ci-dessus).

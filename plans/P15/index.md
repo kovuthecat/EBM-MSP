@@ -52,16 +52,35 @@ tranché l'inverse. À traiter comme une règle de domaine (S1), pas nœud par n
 
 | Session | Tâches | Titre | Modèle | Effort | Env. | Dépend de | Zone modifiée | Statut |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [S1](S1.md) | T-194 | Socle de forme : `itemPosologie`, `id` sur `citationReco`, classification, jargon | Sonnet | high | — | — | `schema/decision/noeud.schema.json`, `content/node.types.ts`, `engine/expressionsNoeud.ts`, `engine/banc/jargon-projet.test.ts` | [ ] |
-| [S2](S2.md) | T-195, T-196 | Rendu de la note de source ; nettoyage du code mort d'`apercu` | Sonnet | medium | Desktop | S1 | `components/OptionCard.tsx`, `.css`, `.test.tsx` | [ ] |
-| [S3](S3.md) | T-197 | Étendre I8b au canal `sources[]` de posologie | Sonnet | medium | — | S1 | `engine/banc/invariants-contenu.test.ts` | [ ] |
-| [S4](S4.md) | T-198 | Citations non vérifiables : instruire les 8 orphelines, les 2 douteuses, le CYP3A4 | Opus | high | — | — | `docs/decision/validation/` | [ ] |
-| [S5](S5.md) | T-199 | Migration du sourçage — `insuline` | Sonnet | high | — | S1, S2, S3 | `content/…/insuline.yaml` | [ ] |
-| [S6](S6.md) | T-200 | Migration du sourçage — `prescription` | Sonnet | high | — | S1, S2, S3, S4 | `content/…/prescription.yaml` | [ ] |
-| [S7](S7.md) | T-201 | Migration du sourçage — `statine` | Sonnet | high | — | S1, S2, S3, S4 | `content/…/statine.yaml` | [ ] |
-| [S8](S8.md) | T-202 | Câblage moteur du `quand` : classification, G2, `signatureVue`, golden master | Sonnet | xhigh | Desktop | S1, S2 | `schema/`, `engine/expressionsNoeud.ts`, `lib/vueDecision.ts`, `components/OptionCard.tsx`, `screens/DecisionNodeScreen.tsx`, `engine/banc/__snapshots__/` | [ ] |
-| [S9](S9.md) | T-203 | Bras MCG d'`insuline` : red-team des sources OE, puis posologie conditionnelle | Opus | high | Desktop | S5, S8 | `content/…/insuline.yaml`, `docs/decision/validation/` | [ ] |
-| [S10](S10.md) | T-204 | Invariant rédactionnel : plus aucune incise de citation en posologie | Sonnet | medium | — | S5, S6, S7 | `engine/banc/` | [ ] |
+| [S1](S1.md) | T-194 | Socle de forme : `itemPosologie`, `id` sur `citationReco`, classification, jargon | Sonnet | high | — | — | `schema/decision/noeud.schema.json`, `content/node.types.ts`, `engine/expressionsNoeud.ts`, `engine/banc/jargon-projet.test.ts` | [x] |
+| [S2](S2.md) | T-195, T-196 | Rendu de la note de source ; nettoyage du code mort d'`apercu` | Sonnet | medium | Desktop | S1 | `components/OptionCard.tsx`, `.css`, `.test.tsx` | [x] |
+| [S3](S3.md) | T-197 | Étendre I8b au canal `sources[]` de posologie | Sonnet | medium | — | S1 | `engine/banc/invariants-contenu.test.ts` | [x] |
+| [S4](S4.md) | T-198 | Citations non vérifiables : instruire les 8 orphelines, les 2 douteuses, le CYP3A4 | Opus | high | — | — | `docs/decision/validation/` | [x] |
+| [S5](S5.md) | T-199 | Migration du sourçage — `insuline` | Sonnet | high | — | S1, S2, S3 | `content/…/insuline.yaml` | [x] |
+| [S6](S6.md) | T-200 | Migration du sourçage — `prescription` | Sonnet | high | — | S1, S2, S3, S4 | `content/…/prescription.yaml` | [x] |
+| [S7](S7.md) | T-201 | Migration du sourçage — `statine` | Sonnet | high | — | S1, S2, S3, S4 | `content/…/statine.yaml` | [x] |
+| [S8](S8.md) | T-202 | Câblage moteur du `quand` : classification, G2, `signatureVue`, golden master | Sonnet | xhigh | Desktop | S1, S2 | `schema/`, `engine/expressionsNoeud.ts`, `lib/vueDecision.ts`, `components/OptionCard.tsx`, `screens/DecisionNodeScreen.tsx`, `engine/banc/__snapshots__/` | [x] |
+| [S9](S9.md) | T-203 | Bras MCG d'`insuline` : red-team des sources OE, puis posologie conditionnelle | Opus | high | Desktop | S5, S8 | `content/…/insuline.yaml`, `docs/decision/validation/` | [x] |
+| [S10](S10.md) | T-204 | Invariant rédactionnel : plus aucune incise de citation en posologie | Sonnet | medium | — | S5, S6, S7 | `engine/banc/` | [x] |
+
+## Bilan de clôture (2026-08-14)
+
+**Les 10 sessions sont livrées et commitées** sur `decision/panneau-posologie` (12 commits, `64d1329` →
+`e32ff2b`, dont le lot R2/R3 hors plan qui a précédé le cadrage). N0 vert sur l'arbre complet : 1326
+tests, 0 échec, typecheck et build propres. **Rien n'est fusionné dans `main` ni poussé** — décision à
+prendre par Thibault (cf. `STATUS.md`).
+
+Deux écarts corrigés en cours d'exécution, tracés dans leurs commits respectifs : un conflit de zone
+S2/S8 repéré avant tout lancement d'agent (`9674860`) ; un câblage de prop manquant entre `S2` et
+`DecisionNodeScreen.tsx`, sans quoi le second registre de bibliographie n'aurait jamais rendu quoi que
+ce soit à l'écran (`0cc4063`).
+
+Un red-team indépendant (S9) a infirmé la conclusion « aucun ECR » de la passe OpenEvidence initiale —
+vérifié en plus par l'orchestrateur via l'API ClinicalTrials.gov avant d'accepter le contenu.
+
+Reste au backlog (`TASKS.md`) : la source réelle du palier insuline « −10 à −20 % » (AAFP 2026 ne la
+porte pas), les 13 options `prescription` à `apercu` seul (déplacement de contenu hors périmètre), les
+2 trouvailles incidentes de la passe OE (seuil 0,5 U/kg, Peters 2019 → bolus).
 
 ## Ordonnancement
 
