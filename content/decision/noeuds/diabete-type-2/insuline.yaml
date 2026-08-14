@@ -1287,12 +1287,87 @@ options:
     calculs:
       - { libelle: "Basale après +2 U", expression: "dose_basale_actuelle + 2", unite: "U/j" }
     apercu: "+2 U si la glycémie à jeun reste haute 3 matins de suite, ou +10 % au-delà de 40 U/j"
+    # POSOLOGIE SCINDÉE EN DEUX BRAS le 2026-08-14 (T-203) — LE DÉFAUT CORRIGÉ, et il était de fond.
+    #
+    # CE QUI N'ALLAIT PAS. Cette carte est retenue de DEUX façons (cf. le 3ᵉ item de `conditions`
+    # ci-dessus) : sans capteur sur `gaj_haute`, avec capteur sur `profil_nocturne_permet_titration`,
+    # c'est-à-dire EN LISANT LA COURBE NOCTURNE. Or elle n'affichait qu'un seul texte, celui du repli sans
+    # capteur — « +2 U si la glycémie à jeun reste au-dessus de la cible 3 matins de suite ». Le patient
+    # porteur d'un capteur, retenu sur sa courbe, se voyait donc prescrire une surveillance capillaire à
+    # jeun, sans que rien ne le dise. C'est l'inverse exact de la doctrine écrite trois fois plus haut dans
+    # ce fichier (« la glycémie à jeun est le cas de repli quand il n'y a pas de capteur ; quand il y a un
+    # capteur on regarde rarement les mesures de glycémie isolée »). Constaté à l'écran le 2026-08-11 puis
+    # le 2026-08-14 sur le même profil : capteur oui, temps sous la cible 2 %, coefficient de variation
+    # 25 %, courbe nocturne en hausse continue, 70 ans, DFG 55, au-dessus de l'objectif.
+    #
+    # CE QUE LA VÉRIFICATION DE PREUVE A ÉTABLI, ET CE QU'ELLE N'A PAS ÉTABLI. Aucun protocole de titration
+    # de la basale piloté par les métriques du capteur n'est validé pour la consultation : pas de seuil
+    # d'action posologique, pas d'algorithme utilisable, aucune recommandation internationale qui en
+    # définisse un. Le bras capteur DIT donc cette absence (R7) au lieu d'inventer un protocole. ⚠ MAIS la
+    # formulation absolue est INTERDITE : un essai randomisé ambulatoire d'un algorithme piloté par le
+    # capteur existe bel et bien chez le DT2 sous basale seule (2026, 30 patients, 16 semaines, critère de
+    # substitution en non-infériorité, conclusion des auteurs eux-mêmes : à confirmer sur de plus larges
+    # populations). Il n'entre PAS dans le texte affiché — il n'est pas utilisable en consultation — mais
+    # il interdit d'écrire « aucun essai n'a testé ». Le texte ci-dessous dit donc « les essais QUI ONT
+    # ÉTABLI LE BÉNÉFICE de la mesure continue du glucose n'ont pas testé… », qui est exact et le reste.
+    #
+    # TROIS PRÉCAUTIONS DE RÉDACTION, chacune issue d'un écart mesuré entre le débroussaillage et la source
+    # primaire — le débroussaillage DURCISSAIT systématiquement une donnée molle :
+    #  1. « aucune différence de dose N'A ÉTÉ MISE EN ÉVIDENCE », jamais « il n'y a pas de différence » :
+    #     dans MOBILE la comparaison de dose est bien rapportée, mais en analyse EXPLORATOIRE, sur un essai
+    #     dimensionné pour l'HbA1c. Une absence de significativité exploratoire n'établit pas l'équivalence.
+    #  2. FreeDM2 N'EST PAS CITÉ ici, alors qu'il portait la même observation : son texte intégral n'a pas
+    #     pu être lu (accès fermé), et la phrase qui circulait sur le mode de vie durcissait un
+    #     « pourrait avoir été porté par » en attribution d'auteurs. MOBILE seul est vérifié, MOBILE seul
+    #     est cité.
+    #  3. Une revue de synthèse 2026 évoque bien la majoration devant une glycémie qui monte la nuit, mais
+    #     elle le rattache à l'hyperglycémie À JEUN, elle ne donne aucun seuil ni pas de dose, et elle
+    #     paraît dans une série consacrée à RESTREINDRE l'usage du capteur. La citer à l'appui du geste
+    #     serait une mésattribution de plus (le défaut D3 de ce fichier). Elle n'est donc pas versée ;
+    #     l'arbitrage reste ouvert pour la relecture clinique.
+    #
+    # SOURÇAGE — ATTENTION AU PIÈGE D3, DÉJÀ PAYÉ SUR CETTE CARTE. Le pas de 2 U et le rythme de 3 jours ne
+    # viennent PAS de Treat-to-Target (dont l'algorithme est hebdomadaire et gradué par bandes) : le pas
+    # est de la SFD 2025 Avis 18, qui l'ancre sur une cible de glycémie à jeun, et le rythme de la HAS 2024
+    # R.87. C'est précisément ce qui rend vraie la phrase « ce pas et ce rythme ne sont établis que sur la
+    # glycémie à jeun ». Ne jamais rattacher ces deux nombres à l'essai.
+    #
+    # POURQUOI LE BRAS SANS CAPTEUR GARDE UN `quand` PLUTÔT QUE DE RESTER INCONDITIONNEL : les deux items
+    # de geste s'excluent et se couvrent. Le 3ᵉ item de `conditions` rend la carte INDÉTERMINÉE tant que
+    # `mcg_disponible` n'est pas répondu (elle part « en attente », elle ne s'affiche pas) — quand elle
+    # s'affiche, ce critère est donc toujours tranché, et exactement un des deux gestes est retenu. Le
+    # panneau ne peut jamais se vider, ce qui compte : une liste vide ferait retomber l'affichage sur
+    # `apercu` ci-dessus, qui porte encore le texte capillaire.
     posologie_detail:
+      # BRAS SANS CAPTEUR — texte HISTORIQUE, inchangé mot pour mot, sources inchangées. Il ne reçoit qu'un
+      # `quand` : la règle des « 3 matins de suite » sur la glycémie à jeun reste exactement ce qu'elle
+      # était pour le patient qui n'a pas de capteur.
       - texte: "Augmenter la basale de 2 U si la glycémie à jeun reste au-dessus de la cible 3 matins de suite, ou de 10 % par paliers si la dose dépasse 40 U/j. Réévaluer tous les 3 jours."
+        quand: "mcg_disponible == false"
         sources:
           - ebmfrance-insuline
           - sfd-2025-avis18
           - has-2024-r87
+      # BRAS CAPTEUR — le geste. MÊMES nombres que ci-dessus (aucun chiffre nouveau n'est introduit par ce
+      # lot), MOINS le déclencheur capillaire « 3 matins de suite » : c'est la courbe qui a retenu la carte,
+      # pas trois glycémies du matin. `ebmfrance-insuline` sort d'autant des sources de cet item — c'est la
+      # source qui porte nommément les « 3 matins de suite ».
+      - texte: "Augmenter la basale de 2 U, ou de 10 % par paliers si la dose dépasse 40 U/j. Réévaluer tous les 3 jours."
+        quand: "mcg_disponible == true"
+        sources:
+          - sfd-2025-avis18
+          - has-2024-r87
+      # BRAS CAPTEUR — dire l'absence (R7), même registre que « aucun rythme ni ampleur chiffrés pour un
+      # allègement programmé » employé ailleurs dans ce fichier.
+      - texte: "Ce pas et ce rythme ne sont établis que sur la glycémie à jeun : aucun seuil du capteur — temps dans la cible, temps au-dessus de la cible, pente de la courbe nocturne — n'est validé comme déclencheur d'une majoration de dose. Les essais qui ont établi le bénéfice de la mesure continue du glucose chez le diabétique de type 2 sous basale n'ont pas testé de titration pilotée par le capteur : dans MOBILE, les modifications de traitement restaient à la main du médecin traitant, et aucune différence de dose d'insuline entre les bras n'y a été mise en évidence — le bénéfice observé ne vient donc pas d'un algorithme posologique. Reporter ce pas et ce rythme sur la lecture de la courbe nocturne relève de l'appréciation du praticien."
+        quand: "mcg_disponible == true"
+        sources:
+          - mobile
+      # BRAS CAPTEUR — le seul pont existant, donné pour ce qu'il vaut et pas davantage.
+      - texte: "Une valeur lue sur le capteur au petit matin peut tenir lieu de glycémie à jeun dans les algorithmes de titration existants, sans en changer ni le pas ni le rythme : montré de façon rétrospective seulement, sur un petit effectif, et jamais évalué de façon prospective."
+        quand: "mcg_disponible == true"
+        sources:
+          - martens-nadir
     # T-033 (P5/S2, 2026-07-28) : même correctif, même motif que « Ne pas sur-titrer... » ci-dessus.
     exclusions:
       - "mcg_disponible == true AND TBR > 4"
@@ -2376,6 +2451,20 @@ sources:
       annee: 2024
       type_critere: substitution
       lien: "https://pubmed.ncbi.nlm.nih.gov/38363342/"
+    # AJOUTÉE le 2026-08-14 (T-203) — SEULE source nouvelle du lot, et la seule des trois pistes de la
+    # passe de débroussaillage qui ait passé la vérification en source primaire sans réserve de fond.
+    # Ce qu'elle porte, et rien de plus : un SUBSTITUT capteur de la glycémie à jeun, revendiqué comme tel
+    # par les auteurs (« FBG surrogate »), qui laisse le pas et le rythme des algorithmes existants
+    # INCHANGÉS. Ce n'est pas un pilotage par les métriques du capteur, et elle ne doit jamais être citée
+    # comme tel. Réserves tracées, toutes établies en vérification indépendante : analyse RÉTROSPECTIVE
+    # (jamais évaluée de façon prospective) ; effectif réel de 68 patients (les 7 354 sont des PAIRES de
+    # mesures, pas des patients) ; 7 auteurs sur 8 salariés d'un laboratoire ; population détaillée et
+    # limites déclarées NON VÉRIFIÉES (texte intégral inaccessible, résumé structuré seul).
+    - id: martens-nadir
+      titre: "Martens (analyse RÉTROSPECTIVE, 7 354 paires glycémie à jeun / capteur aveugle chez 68 patients DT2, PMID 40683222) — le creux du petit matin lu sur le capteur (médiane des 3 valeurs les plus basses de l'heure précédant la glycémie à jeun) s'est révélé « essentiellement équivalent » à la glycémie à jeun sur trois algorithmes de titration existants (INSIGHT, Treat2Target, AT.LANTUS), écarts de dose majoritairement entre −10 % et +10 %. SUBSTITUT de la glycémie à jeun, revendiqué comme tel par les auteurs, et NON un pilotage par les métriques du capteur ; jamais évalué de façon prospective ; 7 auteurs sur 8 salariés d'un laboratoire"
+      annee: 2025
+      type_critere: substitution
+      lien: "https://pubmed.ncbi.nlm.nih.gov/40683222/"
     # ══════════ AJOUTS DE LA PASSE A (2026-07-29) — pilotage SANS capteur ══════════
     # Consignation demandée par le référent : « toute nouvelle donnée utilisée devra être consignée dans la
     # base de données consolidée et ajoutée dans les argumentaires spécifiques et dans l'argumentaire
@@ -2629,8 +2718,61 @@ meta:
   date_revue: "2026-07-31"
   auteur: "référent DT2 (Thibault) + Opus + Claude Code"
   statut: valide
-  version: "0.61"
+  version: "0.62"
   changelog:
+    - date: "2026-08-14"
+      auteur: "Claude Code (P15/S9, T-203)"
+      resume: >-
+        LA TITRATION NE PRESCRIT PLUS LA GLYCÉMIE CAPILLAIRE AU PORTEUR D'UN CAPTEUR. « Titrer la basale
+        (augmenter la dose) » est retenue de deux façons — sans capteur sur la glycémie à jeun haute, AVEC
+        capteur sur la courbe nocturne en hausse continue — mais n'affichait qu'un seul texte de posologie,
+        celui du repli sans capteur (« +2 U si la glycémie à jeun reste au-dessus de la cible 3 matins de
+        suite »). Le patient retenu SUR SA COURBE se voyait donc prescrire une surveillance capillaire à
+        jeun, sans que rien ne le signale — l'inverse exact de la doctrine écrite trois fois dans ce
+        fichier. Défaut constaté à l'écran les 2026-08-11 et 2026-08-14 sur le même profil (capteur oui,
+        temps sous la cible 2 %, coefficient de variation 25 %, hausse continue nocturne, 70 ans, DFG 55,
+        au-dessus de l'objectif).
+
+        DEUX BRAS, PREMIER USAGE DU MÉCANISME LIVRÉ PAR T-202. Le texte historique reçoit
+        `quand: "mcg_disponible == false"` et reste INCHANGÉ MOT POUR MOT, sources comprises. Trois items
+        nouveaux sous `quand: "mcg_disponible == true"` : le geste (mêmes 2 U, mêmes 10 % au-delà de 40 U/j,
+        même réévaluation à 3 jours — AUCUN chiffre nouveau, moins le déclencheur capillaire « 3 matins de
+        suite », d'où le retrait d'`ebmfrance-insuline` qui le porte nommément) ; l'énoncé d'absence ; et le
+        seul pont existant vers le capteur. Les deux gestes s'excluent et se couvrent : le 3ᵉ item de
+        `conditions` laisse la carte « en attente » tant que `mcg_disponible` n'est pas répondu, donc le
+        panneau ne peut jamais se vider et retomber sur `apercu`, qui porte encore le texte capillaire.
+        AUCUNE `conditions` ni `exclusions` touchée : la SÉLECTION des cartes était juste, c'est le TEXTE
+        affiché qui ne l'était pas.
+
+        CE QUE LA VÉRIFICATION EN SOURCE PRIMAIRE A ÉTABLI. Aucun protocole de titration de la basale
+        piloté par les métriques du capteur n'est utilisable en consultation : ni seuil d'action
+        posologique, ni algorithme validé, ni recommandation internationale qui en définisse un. Le bras
+        capteur DIT donc cette absence plutôt que d'inventer un protocole. ⚠ Mais la formulation ABSOLUE
+        est interdite : un essai randomisé ambulatoire d'un algorithme piloté par le capteur existe chez le
+        DT2 sous basale seule (30 patients, 16 semaines, critère de substitution en non-infériorité, à
+        confirmer sur de plus larges populations selon ses propres auteurs). Il n'entre pas dans le texte
+        affiché — inutilisable en consultation — mais il interdit d'écrire « aucun essai n'a testé ».
+
+        UNE SEULE SOURCE NOUVELLE — `martens-nadir` (PMID 40683222). Le creux du petit matin lu sur le
+        capteur équivaut à la glycémie à jeun dans trois algorithmes de titration existants, sans en changer
+        le pas ni le rythme. Réserves portées dans le titre même de l'entrée : analyse RÉTROSPECTIVE, jamais
+        évaluée de façon prospective, 68 patients réels (les 7 354 sont des paires de mesures), 7 auteurs
+        sur 8 salariés d'un laboratoire. `mobile` est cité pour la phrase sur les essais ; FreeDM2 ne l'est
+        PAS, son texte intégral n'ayant pas pu être lu.
+
+        TROIS PIÈGES ÉVITÉS, chacun mesuré comme un écart entre le débroussaillage et la source primaire.
+        (1) « aucune différence de dose N'A ÉTÉ MISE EN ÉVIDENCE » et non « il n'y a pas de différence » :
+        dans MOBILE la comparaison est bien rapportée, mais en analyse EXPLORATOIRE sur un essai dimensionné
+        pour l'HbA1c. (2) FreeDM2 écarté du sourçage. (3) Une revue de synthèse 2026 qui évoque la
+        majoration devant une glycémie nocturne montante n'est PAS versée : elle rattache le geste à
+        l'hyperglycémie à jeun, ne donne aucun seuil, et paraît dans une série consacrée à RESTREINDRE
+        l'usage du capteur — la citer à l'appui du geste aurait rejoué le défaut D3 de ce fichier.
+        Arbitrage laissé ouvert pour la relecture clinique.
+
+        SOURÇAGE — LE PIÈGE D3 RESTE OUVERT SUR CETTE CARTE. Le pas de 2 U vient de la SFD 2025 Avis 18,
+        qui l'ancre sur une cible de glycémie à jeun, et le rythme de 3 jours de la HAS 2024 R.87 — jamais
+        de Treat-to-Target, dont l'algorithme est hebdomadaire et gradué par bandes. C'est exactement ce qui
+        rend vraie la phrase « ce pas et ce rythme ne sont établis que sur la glycémie à jeun ».
     - date: "2026-08-11"
       auteur: "Claude Code (P15/S5, T-199)"
       resume: >-
