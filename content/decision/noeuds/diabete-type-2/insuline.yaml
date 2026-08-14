@@ -987,7 +987,11 @@ options:
     # la preuve ; le panneau posologie est le bon canal (même principe que les deux items ci-dessus).
     posologie_detail:
       - "Dose d'initiation = poids × 0,1 à 0,2 U/kg/j, en une injection le soir. Repli fixe de 10 U le soir si le poids n'est pas disponible — repère pragmatique, non issu d'un essai dédié."
-      - "Titration par auto-ajustement : +2 U si la glycémie à jeun reste au-dessus de la cible 3 matins de suite (ebmfrance), ou +10 % par paliers si la dose dépasse 40 U/j (SFD 2025, Avis 18) ; adapter tous les 3 jours (HAS 2024, R.87). Cible de glycémie avant les repas ~0,70-1,30 g/L, à individualiser."
+      - texte: "Titration par auto-ajustement : +2 U si la glycémie à jeun reste au-dessus de la cible 3 matins de suite, ou +10 % par paliers si la dose dépasse 40 U/j ; adapter tous les 3 jours. Cible de glycémie avant les repas ~0,70-1,30 g/L, à individualiser."
+        sources:
+          - ebmfrance-insuline
+          - sfd-2025-avis18
+          - has-2024-r87
       - "Maintenir la metformine et les traitements à bénéfice cardio-rénal en cours (iSGLT2, AR GLP-1)."
       # ITEM DÉPLACÉ DEPUIS `contre_indications` le 2026-08-06 (contre-relecture rédactionnelle) : une
       # consigne d'arrêt d'un traitement en cours est une modalité de prescription, pas une
@@ -1117,7 +1121,10 @@ options:
       - { libelle: "Basale réduite (−10 %)", expression: "dose_basale_actuelle * 0.9", unite: "U/j" }
     apercu: "−2 U, ou −10 % de la dose au-delà de 40 U/j ; jusqu'à −4 U si l'épisode est symptomatique"
     posologie_detail:
-      - "Réduire la basale de 2 U, ou de 10 % de la dose si elle dépasse 40 U/j (SFD 2025, Avis 18) — jusqu'à 4 U si l'hypoglycémie est symptomatique (ebmfrance). Réévaluer tous les 3 jours (HAS 2024, R.87, qui écrit la règle dans les deux sens : « augmentée ou réduite de 1 ou 2 UI »)."
+      - texte: "Réduire la basale de 2 U, ou de 10 % de la dose si elle dépasse 40 U/j — jusqu'à 4 U si l'hypoglycémie est symptomatique. Réévaluer tous les 3 jours (HAS 2024, R.87, qui écrit la règle dans les deux sens : « augmentée ou réduite de 1 ou 2 UI »)."
+        sources:
+          - sfd-2025-avis18
+          - ebmfrance-insuline
   - intitule: "Ne pas sur-titrer la basale — intensifier autrement"
     role: securite
     famille: "Sécurité — à corriger d'abord"
@@ -1281,7 +1288,11 @@ options:
       - { libelle: "Basale après +2 U", expression: "dose_basale_actuelle + 2", unite: "U/j" }
     apercu: "+2 U si la glycémie à jeun reste haute 3 matins de suite, ou +10 % au-delà de 40 U/j"
     posologie_detail:
-      - "Augmenter la basale de 2 U si la glycémie à jeun reste au-dessus de la cible 3 matins de suite (ebmfrance), ou de 10 % par paliers si la dose dépasse 40 U/j (SFD 2025, Avis 18). Réévaluer tous les 3 jours (HAS 2024, R.87 — accord d'experts)."
+      - texte: "Augmenter la basale de 2 U si la glycémie à jeun reste au-dessus de la cible 3 matins de suite, ou de 10 % par paliers si la dose dépasse 40 U/j. Réévaluer tous les 3 jours."
+        sources:
+          - ebmfrance-insuline
+          - sfd-2025-avis18
+          - has-2024-r87
     # T-033 (P5/S2, 2026-07-28) : même correctif, même motif que « Ne pas sur-titrer... » ci-dessus.
     exclusions:
       - "mcg_disponible == true AND TBR > 4"
@@ -1453,7 +1464,10 @@ options:
       - { libelle: "Basale réduite (−2 U)", expression: "dose_basale_actuelle - 2", unite: "U/j" }
     apercu: "−2 U, ou −10 % de la dose au-delà de 40 U/j, avec réévaluation à 3 jours"
     posologie_detail:
-      - "Réduire la basale de 2 U, ou de 10 % de la dose si elle dépasse 40 U/j (SFD 2025, Avis 18) ; réévaluer tous les 3 jours (HAS 2024, R.87)."
+      - texte: "Réduire la basale de 2 U, ou de 10 % de la dose si elle dépasse 40 U/j ; réévaluer tous les 3 jours."
+        sources:
+          - sfd-2025-avis18
+          - has-2024-r87
   # ═══════════ SITUATION 3 — AJOUT D'UN BOLUS / BASAL-PLUS ═══════════
   # E-04b/E-06 (2026-07-26) : les DEUX options ci-dessous sont désormais aussi applicables en situation
   # « basale seule » (3ᵉ item du 1er `conditions`) — RÉUTILISÉES telles quelles (même intitulé, même
@@ -2615,8 +2629,58 @@ meta:
   date_revue: "2026-07-31"
   auteur: "référent DT2 (Thibault) + Opus + Claude Code"
   statut: valide
-  version: "0.60"
+  version: "0.61"
   changelog:
+    - date: "2026-08-11"
+      auteur: "Claude Code (P15/S5, T-199)"
+      resume: >-
+        SOURCES DE POSOLOGIE SORTIES DE LA LIGNE DE LECTURE — aucun chiffre, aucune conduite clinique ne
+        change ; seule la POSITION des citations se déplace, du texte de conduite vers une note de
+        source affichée sous lui (mécanique posée par P15/S1-S3, appliquée ici pour la première fois à
+        du contenu). Migration ITEM PAR ITEM sur les 6 options du nœud qui portent `apercu`/
+        `posologie_detail`, conformément au mappage citation par citation de
+        `docs/decision/validation/posologie-sourcage-2026-08-11.md` §1.1 (`insuline` y est désigné comme
+        le nœud le mieux préparé : correctif D3 du 2026-07-29, mésattribution à Treat-to-Target, qui
+        avait déjà obligé à rendre chaque élément à sa source exacte).
+
+        10 CITATIONS SUR 14 CONVERTIES en `{ texte, sources }`, l'incise retirée du texte, l'id porté en
+        `sources[]` (vérifié : les trois ids `ebmfrance-insuline`/`sfd-2025-avis18`/`has-2024-r87`
+        existent dans `sources.references_primaires`, exactement comme le signalait le commentaire du
+        2026-08-06 sur « Insuline basale ») — « Insuline basale » `posologie_detail[1]` (ebmfrance, SFD
+        2025 Avis 18, HAS 2024 R.87) ; « Corriger l'hypoglycémie ou la variabilité » `posologie_detail[0]`
+        (SFD 2025 Avis 18, ebmfrance — le HAS R.87 de ce même item reste en incise, cf. ci-dessous) ;
+        « Titrer la basale (augmenter la dose) » `posologie_detail[0]` (ebmfrance, SFD 2025 Avis 18,
+        HAS 2024 R.87 — la mention « accord d'experts » attachée à ce dernier dans l'incise d'origine est
+        retirée du texte : c'est un grade, déjà porté par `effet_attendu` et `niveau_preuve` de cette
+        même option, pas une donnée clinique propre à cet emplacement, et le rapport de sourçage ne
+        range PAS ce cas parmi les trois parenthèses protégées de son §4.1) ; « Basale »
+        (`action: reduire`) `posologie_detail[0]` (SFD 2025 Avis 18, HAS 2024 R.87).
+
+        3 CITATIONS LAISSÉES EN INCISE, DÉLIBÉRÉMENT, PARCE QU'EXTRAIRE DÉTRUIRAIT DE L'INFORMATION
+        (§4.1 du rapport, les trois cas mesurés du corpus sont tous sur ce nœud) : « Corriger
+        l'hypoglycémie ou la variabilité » `posologie_detail[0]` garde « (HAS 2024, R.87, qui écrit la
+        règle dans les deux sens : « augmentée ou réduite de 1 ou 2 UI ») » — la glose EST l'argument qui
+        autorise à appliquer à la descente une règle écrite pour la montée ; « Bolus au repas principal »
+        `posologie_detail[1]` garde « (FullSTEP : bande 4,0-7,2 mmol/L, pas de ± 1 U) » intact — c'est le
+        protocole réel de l'essai, distinct de la cible affichée juste avant dans la même phrase ;
+        « Insuline basale » `posologie_detail[4]` garde « (BRIGHT, CONCLUDE) » — les deux essais sont le
+        SUJET de la phrase (« les deux molécules … ne se départagent pas … en tête-à-tête »), pas une
+        note de bas de page.
+
+        1 CITATION NON MAPPABLE, RESTE EN INCISE, SUIVIE ICI PLUTÔT QUE FORCÉE : « Insuline basale »
+        `posologie_detail[4]`, « (SFD 2025, Avis 18 bis) ». Le libellé correspond à
+        `sources.reco_officielle.references[0].detail` (« Avis 18 bis (analogues de 2ᵉ génération si
+        risque d'hypoglycémie) »), qui ne porte pas d'`id` sur ce nœud à ce jour — `sfd-2025-avis18`
+        (le seul id du registre `references_primaires` portant le mot « SFD ») couvre les Avis 18, 19 et
+        23, PAS l'Avis 18 bis : lui attacher cet id aurait été une fausse traçabilité, pas une migration.
+        Reste donc une incise, à reprendre le jour où ce texte de `reco_officielle` recevra son propre
+        `id`.
+
+        CE QUI N'A PAS BOUGÉ : aucun chiffre (posologie, dose, pas de titration, rythme de réévaluation),
+        aucune conduite clinique, aucun `niveau_preuve`, aucune `conditions`/`exclusions`/`priorite`,
+        aucun `avantages`/`inconvenients`/`effet_attendu`. Les 4 options sans citation à migrer
+        (« Insuline basale » `posologie_detail[0,2,3]`, « Bolus au repas principal »
+        `posologie_detail[0]`) sont inchangées, forme courte conservée.
     - date: "2026-08-09"
       auteur: "Claude Code (demande utilisateur, allègement de l'affichage)"
       resume: >-
