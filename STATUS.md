@@ -8,19 +8,19 @@ Plafond : 80 lignes (appliqué par hook).
 
 ## Ce qui existe
 
-**Module Décision, domaine DT2 — déployé et utilisé en consultation** (ebm-msp.vercel.app), mais la
-branche décrite ci-dessous n'y est **pas encore**. Module Veille : code présent (`Veille : refonte
-ergonomie…`, `d9f8c26`), périmètre et robustesse non réévalués depuis — à vérifier avant de s'y fier.
+**Module Décision, domaine DT2 — déployé et utilisé en consultation** (ebm-msp.vercel.app). `main` fusionné
+et poussé le 2026-08-14 (`2823b02`) — le déployé reflétera ce contenu au prochain build Vercel. Module
+Veille : code présent (`Veille : refonte ergonomie…`, `d9f8c26`), périmètre et robustesse non réévalués
+depuis — à vérifier avant de s'y fier.
 
-**6 nœuds de contenu**, tous `content/decision/noeuds/diabete-type-2/*.yaml` — versions sur la branche
-`decision/panneau-posologie` (non fusionnée, cf. Chantier actif) :
+**6 nœuds de contenu**, tous `content/decision/noeuds/diabete-type-2/*.yaml`, versions sur `main` :
 
 | nœud | statut | version |
 | --- | --- | --- |
 | `cible-glycemique` | `valide` | v2.19 |
-| `insuline` | `valide` | v0.62 |
+| `insuline` | `valide` | v0.63 |
 | `statine` | `brouillon` | v1.31 |
-| `prescription` | `brouillon` | v0.75 |
+| `prescription` | `brouillon` | v0.76 |
 | `rhd-alimentation` | `brouillon` | v0.18 |
 | `rhd-activite-physique` | `brouillon` | v0.21 |
 
@@ -31,22 +31,21 @@ Passage à `valide` conditionné à la relecture référent finale (`TASKS.md` �
 
 ## Chantier actif
 
-**Plan P15 — panneau posologie, clos et commité le 2026-08-14** (10 sessions + un lot hors plan qui l'a
-précédé, `plans/P15/index.md`) : sort les citations de sources du texte de posologie vers une note
-structurée à deux registres de bibliographie, rend la posologie conditionnelle au patient (`quand`), et
-corrige un défaut réel — un patient porteur d'une mesure continue du glucose recevait une consigne de
-titration pensée pour la glycémie capillaire. **12 commits sur `decision/panneau-posologie`** (`64d1329`
-→ `e32ff2b`), N0 vert sur l'arbre complet (1326 tests, 0 échec). **Branche NI fusionnée NI poussée** —
-décision de Thibault en attente (`TASKS.md`). Un red-team indépendant (S9) a infirmé la conclusion
-« aucun essai » d'une passe de débroussaillage initiale, revérifié via l'API ClinicalTrials.gov avant
-d'accepter le contenu. Deux écarts d'exécution corrigés et tracés dans leurs commits.
+Aucun plan ouvert sur le module Décision. **Plan P15 — panneau posologie, clos le 2026-08-14, fusionné
+dans `main`** (`2823b02`, `plans/P15/index.md`) : sort les citations de sources du texte de posologie vers
+une note structurée à deux registres de bibliographie, rend la posologie conditionnelle au patient
+(`quand`), et corrige un défaut réel (titration MCG affichant la consigne de glycémie capillaire). Un
+red-team (S9) a infirmé la conclusion « aucun essai » d'une passe de débroussaillage initiale, revérifié
+via l'API ClinicalTrials.gov. **Suivi le même jour d'une relecture en consultation** (6 correctifs :
+metformine sourcée KDIGO/ANSM sans incise d'initiation, AR GLP‑1 réordonné via le nouveau champ
+`ItemPosologie.accent`, préremplissage `insuline_basale`/`rapide` selon la situation, `preference_injection`
+masqué sur `insuline.yaml` — « Insuline prémélangée » y devient inatteignable, effet de bord assumé —
+posologie ajoutée à 3 options d'`insuline.yaml` qui recommandaient un AR GLP‑1 sans dose). 14 commits, N0
+vert (1325 tests), vérifié au navigateur.
 
-**Plan P14 — clos 2026-08-07, commité** (`8f3b90e`) — la mention « non commité » ici avant le
-2026-08-14 était périmée.
-
-**Plan P13 — clos 2026-08-05**, **Plan P12 — clos 2026-08-03** : détail dans leurs `index.md`.
-**Plan PV1 — Veille, cadré 2026-07-31, pas démarré.** **Plan P7** (ouvert) : manquent SA2 et S2 · **P8 —
-clos.**
+**Plan P14 — clos 2026-08-07**, **P13 — clos 2026-08-05**, **P12 — clos 2026-08-03** : détail dans leurs
+`index.md`. **Plan PV1 — Veille, cadré 2026-07-31, pas démarré.** **Plan P7** (ouvert) : manquent SA2 et
+S2 · **P8 — clos.**
 
 ## Ce qui casse / n'est pas testé
 
@@ -61,7 +60,6 @@ clos.**
 
 ## Dette technique / recherche bloquante
 
-- **Fusionner/pousser `decision/panneau-posologie`** vers `main` — cf. Chantier actif.
 - **Passe B — sécurité à l'effort** (`rhd-activite-physique`, `modèle: Opus, effort: high`).
 - **Validation clinique référent finale** (`prescription`, `statine`, RHD ×2 → `statut: valide`) : à programmer.
 - **Albuminurie non convertie** : `derive` ne sait produire qu'un booléen ou un nombre, jamais un
