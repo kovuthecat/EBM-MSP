@@ -17,6 +17,18 @@ des mots-clés précis si non chargés). **Même statut qu'OpenEvidence** (`SOP_
 `docs/decision/00-global.md` §2) : débroussaillage et identification, **jamais une référence en
 soi** — toute affirmation reste vérifiée sur la source primaire avant classement.
 
+### OpenEvidence — interrogeable en ligne de commande, sans changer de statut
+
+Depuis le 2026-08-28, OE se pose **en CLI** par l'application Interface-OE (mode d'emploi, coût,
+codes de sortie, garde-fous : `docs/commun/OUTIL-INTERFACE-OE.md`). Ça n'en fait **pas** un
+connecteur comme les autres :
+- une requête est prélevée sur le compte personnel de Thibault et sur son budget → **demander
+  avant de poser**, jamais une rafale décidée seul ;
+- un défi anti-robot (code de sortie 3) **arrête la session** : aucun réessai, aucune reformulation,
+  la main au référent ;
+- statut inchangé : **débroussaillage, jamais une référence en soi**. OE ne remplace ni PubMed ni la
+  source primaire, et un retour obtenu par CLI n'est pas plus fiable qu'un retour collé à la main.
+
 ### PubMed — vérifier l'accès avant de conclure à un échec de récupération
 
 `get_copyright_status` (ou `get_article_metadata`) donne `is_open_access` et `pmc_id` en un appel.

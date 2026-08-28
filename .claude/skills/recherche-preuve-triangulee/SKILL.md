@@ -41,9 +41,11 @@ Discipline non négociable :
 
 ### Générer le prompt OpenEvidence à la fin du rapport d'Agent A
 
-Prompt **prêt à coller**, à exécuter manuellement par le référent (OpenEvidence n'est pas un agent
-orchestrable — c'est un outil externe, débroussaillage seulement, jamais source primaire). Éléments
-obligatoires du prompt :
+Prompt **prêt à poser**. OpenEvidence est désormais **interrogeable en ligne de commande**, par
+l'application Interface-OE — commande, codes de sortie, coût et garde-fous :
+`docs/commun/OUTIL-INTERFACE-OE.md`. Son statut ne change pas pour autant : outil externe de
+débroussaillage, **jamais une source primaire**, et un retour obtenu par CLI n'est pas plus fiable
+qu'un retour collé à la main. Éléments obligatoires du prompt :
 - Pour chaque essai cité : population exacte, intervention, critère dur/substitution, effet
   **absolu** chiffré avec IC et horizon, PMID/DOI exact.
 - **Consigne impérative** : si aucun essai randomisé ne répond précisément à la question, l'écrire
@@ -56,8 +58,20 @@ obligatoires du prompt :
 - Les sous-questions précises que le référent veut trancher, nommées une par une (pas une question
   générale) — c'est ce qui permet au red-team de vérifier point par point.
 
-Le référent exécute ce prompt et sauvegarde le retour dans un fichier séparé
-(`OE-<sujet>.md`, même dossier que la note de preuve).
+**Poser la question** — après accord explicite du référent, une requête OE étant prélevée sur son
+compte et son budget (`docs/commun/OUTIL-INTERFACE-OE.md` § Le coût) :
+
+```bash
+node "C:/Users/kovu/SynologyDrive/Thibault/Projets/Interface-OE/out/cli/index.js" demander "<prompt>" --output docs/decision/validation/<chantier>/OE-<sujet>.md --json
+```
+
+Une seule question à la fois, jamais deux appels en parallèle ; un appel peut attendre plusieurs
+minutes (file d'attente + rythme humain), ne pas le couper. **Code de sortie 3 = défi anti-robot :
+arrêt immédiat, aucun réessai, la main au référent.** Code 1 : la réponse est incomplète et le dit
+en tête — ne pas la passer à Agent B comme si elle était entière.
+
+Si le CLI est indisponible (application injoignable, routage inactif, code 3), repli inchangé : le
+référent exécute le prompt à la main et sauvegarde le retour au même chemin.
 
 ## Étape 2 — Agent B : red-team sur les deux retours combinés
 
