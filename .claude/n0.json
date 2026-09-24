@@ -1,0 +1,1 @@
+{"commandes":[{"nom":"typecheck","cmd":"npm run typecheck"},{"nom":"build","cmd":"npm run build"},{"nom":"tests","cmd":"npm test"}],"testCible":"npx vitest run {fichier}"}
