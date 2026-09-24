@@ -32,8 +32,8 @@ Passage à `valide` conditionné à la relecture référent finale (`TASKS.md` �
 
 ## Chantier actif
 
-**Refonte des skills de recherche — décidée le 2026-09-24 (D65), plan P16 lancé** : S1 complétée
-(configuration `.claude/n0.json`). Entrée : `docs/commun/2026-09-16-propositions-skills-recherche.md` §14.
+**Refonte des skills de recherche — décidée le 2026-09-24 (D65), plan P16 en cours** : S1 à S8 complétées (socle, scripts, agents dédiés `*-preuve`, deux circuits réécrits) ; reste S9-S12.
+Entrée : `docs/commun/2026-09-16-propositions-skills-recherche.md` §14.
 
 Aucun plan ouvert sur le module Décision. **Plan P15 — panneau posologie, clos et fusionné le 2026-08-14**
 (`2823b02`, détail `plans/P15/index.md`), suivi de 6 correctifs de consultation (`254780e`, détail dans
