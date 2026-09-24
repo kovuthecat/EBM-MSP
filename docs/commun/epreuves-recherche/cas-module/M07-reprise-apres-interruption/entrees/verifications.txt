@@ -1,0 +1,15 @@
+FICTIF — sorties de commandes fabriquées pour l'épreuve M07 (aucune n'a été produite par le dépôt).
+
+$ git log --diff-filter=A --format="%h %cs %s" -- docs/decision/noeuds/delta-initier.md content/decision/noeuds/delta/delta-initier.yaml
+9a8b7c6 2026-11-05 docs(decision): table prévue de delta-initier
+1f2e3d4 2026-11-02 feat(content): delta-initier, premier jet du YAML
+
+$ git log --format="%h %cs %s" -- docs/decision/validation/chantier-2026-10-01-delta/vignettes.md
+d4e5f6a 2026-10-14 docs(decision): vignettes V1-V18 du domaine delta
+
+$ git log --format="%h %cs %s" -1 -- docs/decision/validation/chantier-2026-10-01-delta/n1-consolidation.md
+f6a7b8c 2026-10-27 docs(decision): consolidation de la preuve de delta-initier
+
+$ node .claude/skills/recherche-source-primaire/scripts/verifier-registre.mjs docs/decision/validation/chantier-2026-10-01-delta/n1-registre.md
+OK — 23 lignes, aucune anomalie
+(code de sortie : 0)

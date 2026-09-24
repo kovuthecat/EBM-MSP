@@ -54,7 +54,8 @@ docs/
     noeuds/                 # dossier de preuve PAR NŒUD (autorité du contenu clinique)
     validation/              # chantiers de recherche/red-team/vérification, PAR CHANTIER DATÉ
     GRAMMAIRE-NOEUD.md        # règles R1→R9, transverse aux domaines cliniques (pas aux modules), tous domaines
-    CONSTRUIRE-UN-MODULE.md   # procédé P0→P7 de construction d'un domaine/module — idem
+    CONSTRUIRE-UN-MODULE.md   # procédé P0→P7 de construction d'un domaine/module — idem ; arbitré en partie (D66)
+    ARBITRAGE-construire-un-module.md # mémo coché par le référent : ce que le procédé prescrit (2026-09-24)
   veille/                    # (cible) SOP, grille d'appréciation — module non démarré
 design/maquettes/           # exports Claude Design (un fichier par écran)
 plans/                      # P1, P2, P3-fusion — historique du COMMENT, un dossier par plan clos
@@ -120,11 +121,16 @@ jamais de texte intégral) ; marqueur « impacte un algorithme » → nœud.
   `scripts/verifier-registre.mjs`, références `references/*.md`) · `.claude/skills/recherche-preuve-triangulee/`
   (module Décision) · `.claude/skills/verif-source-veille/` (module Veille) ·
   `.claude/skills/tri-boite-mail/`.
+- Skill d'orchestration du procédé de module : `.claude/skills/construire-module-decision/`
+  (`SKILL.md` + `references/` : état de chantier, cadrage, vignettes, prérequis, clôture) — ouvre un
+  domaine ou un module de décision (P0→P7), appelle `recherche-preuve-triangulee` en P4 ; ne prescrit
+  que ce que le référent a arbitré (`docs/decision/ARBITRAGE-construire-un-module.md`, D66).
 - Agents dédiés (lancés uniquement par les deux circuits ci-dessus) : `.claude/agents/extracteur-preuve.md`
   (Agent A) · `.claude/agents/contradicteur-preuve.md` (Agent B) ·
   `.claude/agents/reconciliateur-preuve.md` (Agent C).
 - Corpus d'épreuve (mesure avant/après refonte des circuits) : `docs/commun/epreuves-recherche/`
-  (`README.md`, `cas/`, `harnais/`, `mesures/`).
+  (`README.md`, `cas/`, `harnais/`, `mesures/`) · épreuves de la skill de module :
+  `docs/commun/epreuves-recherche/cas-module/` (`README.md` et sa liste blanche, cas `M01`-`M08`).
 
 ---
 

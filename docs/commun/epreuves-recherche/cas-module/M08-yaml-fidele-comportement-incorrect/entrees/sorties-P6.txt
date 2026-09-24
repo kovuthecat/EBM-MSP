@@ -1,0 +1,20 @@
+FICTIF — rapports et sorties fabriqués pour l'épreuve M08 (aucun n'a été produit par le dépôt).
+
+=== Piste A — vérification bi-agents de fidélité (extrait du rapport, 2026-11-19) ===
+Nœud delta-intensifier : 0 finding HAUTE, 1 MOYENNE (libellé), 2 BASSE.
+Conclusion : le YAML représente fidèlement le dossier de preuve n3-synthese.md.
+
+=== Piste B — banc ===
+$ node .claude/workflow/bin/n0.mjs
+typecheck → PASS
+build → PASS
+tests → FAIL
+  ✗ vignettes delta · V4 — intensifier, à la cible, sous classe L
+    attendu : aucune option « Ajouter la classe K » ; conclusion « rien à intensifier »
+    obtenu  : option « Ajouter la classe K » (badge recommandée), déclenchée par la seule intention « intensifier »
+
+$ npx vitest run src/features/decision/engine/banc/vierge.test.ts src/features/decision/engine/banc/securite-atteignable.test.ts
+ ✓ (I21, I22, I23 verts)
+
+$ npx vitest run src/features/decision/engine/banc/tableConditions.test.ts
+ table régénérée : table-conditions.delta-intensifier.txt — identique au brouillon de P5 (aucune divergence)

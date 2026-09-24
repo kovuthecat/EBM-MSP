@@ -1,0 +1,10 @@
+# FICTIF — fichier commun du domaine fictif « Δ » (copie fabriquée pour l'épreuve M06)
+# Règle de cliquet : tout fait qui peut contre-indiquer, retirer ou alerter s'écrit ici, avec son
+# `concerne` (les classes ou gestes qu'il rend pertinents) — jamais dans un nœud. Les nœuds le
+# référencent ({ ref: <nom> }) et n'en surchargent que la mise en scène.
+domaine: delta
+criteres:
+  - id: critere_P
+    libelle: "Critère P (marque-place)"
+    type: bool
+    concerne: [classe_L]

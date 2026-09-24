@@ -1,0 +1,22 @@
+FICTIF — sorties de commandes fabriquées pour l'épreuve M02 (aucune n'a été produite par le dépôt).
+Les nœuds « noeud-fictif-1 » et « noeud-fictif-2 » sont les nœuds existants d'un domaine fictif déjà publié.
+
+$ npx vitest run src/features/decision/engine/banc/vierge.test.ts
+ ✓ banc — formulaire vierge (12 tests)
+ Test Files  1 passed (1)
+
+$ npx vitest run src/features/decision/engine/banc/invariants.test.ts src/features/decision/engine/banc/invariants-contenu.test.ts
+ ✓ banc — invariants génériques · nœud noeud-fictif-1 (9 tests)
+ ✗ banc — invariants génériques · nœud noeud-fictif-2 (9 tests | 1 failed)
+   ✗ I4 — un concept clinique, un encodage
+     → le concept « risque de chute » est encodé deux fois dans noeud-fictif-2 :
+       `chute_recente` (bool, alerte) et `risque_chute` (dérivé, exclusion), définitions différentes
+ Test Files  1 failed | 1 passed (2)
+
+$ npx vitest run src/features/decision/engine/banc/couverture.test.ts
+ ✓ banc — couverture (bornes min/max présentes sur tout critère nombre) (31 tests)
+ Test Files  1 passed (1)
+
+$ ls content/decision/criteres-communs/
+diabete-type-2.yaml
+(aucun catalogue de critères canonique inter-domaines ; la tâche T-019 est ouverte, non planifiée)
