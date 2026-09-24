@@ -87,3 +87,122 @@ de ~40, jamais recalculé ni sourcé comme publié).
 `A2` illustre le recalcul : `1 / |0,083 − 0,057| = 1 / 0,026 ≈ 38,46`, arrondi supérieur = `39` —
 ce qui est bien le NNT écrit. `A4` illustre une ligne `non vérifiée` : `Accès` porte un état fermé,
 donc `Vérification` ne peut pas être `vérifiée` tant que la source n'a pas été ouverte.
+
+---
+
+## Marche à suivre
+
+Ce qui suit dit **quand** et **comment** tenir le registre au fil d'un chantier. Le format reste
+défini par la section Format ci-dessus, et par elle seule. Le vocabulaire de la colonne `Accès` est
+défini dans `acces-identite.md` § 2.
+
+### Quand et comment remplir le registre
+
+- **Dès la première affirmation extraite**, pas en fin de chantier : chaque agent qui lit une source
+  y ajoute ses lignes au moment où il lit. Un registre reconstitué après coup recopie le dossier au
+  lieu de le vérifier.
+- **Une ligne par affirmation, pas par étude** : si une étude porte trois affirmations, trois lignes ;
+  si une affirmation s'appuie sur deux études, une ligne par couple affirmation-étude.
+- `Affirmation` reprend la phrase **telle qu'elle figurera dans le dossier**. Si la phrase change en
+  cours de rédaction, la ligne change avec elle — sinon la porte vérifie une phrase qui n'existe plus.
+- `Étude` porte l'identifiant sorti d'`identite.mjs` (`acces-identite.md` § 6), jamais un identifiant
+  recopié d'un résumé généré.
+- `Accès` porte l'état **de la voie par laquelle le passage a été lu** ; `Localisation`, la page, le
+  tableau ou le paragraphe.
+- `Vérification` : `vérifiée` seulement après lecture du passage ; `non vérifiée` tant que la
+  lecture manque ; `non vérifiable` quand toutes les voies de `acces-identite.md` § 7 ont été
+  essayées sans succès, ou qu'aucune source ne peut porter la phrase ; `contredite` quand une source
+  lue dit autre chose. Un chiffre qui n'a été trouvé que dans des résumés secondaires concordants
+  reste `non vérifiée`.
+- `Contradiction` reçoit aussi un avis de rétractation ou de correction relevé par `identite.mjs`.
+- Une affirmation essentielle qui reste `non vérifiée` ou `non vérifiable` ne disparaît pas du
+  registre : elle bloque, ou elle est retirée ou reformulée **avec validation humaine** (renvoi :
+  `docs/decision/00-global.md` § Garde-fous de vérification, règle du `[À VÉRIFIER]`).
+
+### La porte : `verifier-registre.mjs`
+
+```bash
+node .claude/skills/recherche-source-primaire/scripts/verifier-registre.mjs <dossier>/<registre>.md [--json]
+```
+
+- Code `0` : registre conforme. Code `1` : au moins une erreur, une par ligne (`L<n> — message`, avec
+  le numéro de ligne du fichier). Code `2` : fichier absent ou illisible.
+- **À lancer avant de déclarer un dossier consolidé** (`references/consolidation.md`), et avant de
+  transmettre un dossier au référent. Un dossier dont le registre sort en code `1` n'est pas
+  consolidé : on corrige les lignes, on ne contourne pas la porte en affaiblissant une valeur
+  (passer une ligne de `vérifiée` à `non vérifiée` est légitime seulement si le passage n'a
+  effectivement pas été lu).
+- La porte contrôle la **forme** : localisation présente, état d'accès compatible, statut de calcul
+  de tout NNT. Elle ne dit pas que le passage soutient la phrase — c'est l'objet de la contradiction
+  (`references/contradiction.md`).
+
+### Familles d'essai
+
+- Un essai enregistré produit souvent plusieurs publications : princeps, analyses secondaires ou de
+  sous-groupes, suivi prolongé, préprint. `identite.mjs` les rattache par le numéro d'enregistrement
+  (PubMed, champ `[si]`) ; la section « Famille d'essai » de son rapport en donne la liste.
+- **Une famille n'est pas N confirmations.** Deux publications du même essai qui disent la même chose
+  comptent pour une source, pas deux. Le registre l'écrit dans `Étude` (« princeps », « sous-groupe
+  de … », « suivi à N ans de … ») pour que la parenté se voie.
+- Une analyse secondaire ne s'écrit jamais comme l'essai princeps : critère, population et caractère
+  préspécifié peuvent différer. En cas de doute, c'est un problème d'identité (`acces-identite.md`
+  § 4).
+- Un préprint et sa version publiée sont une seule étude ; si leurs chiffres divergent, la ligne cite
+  la version publiée et signale la divergence dans `Contradiction`.
+
+### Chiffres dérivés
+
+- Tout chiffre du dossier est l'un de trois : **publié** (lu tel quel dans la source), **recalculé**
+  (calculé par nous, données d'entrée, horizon et méthode écrits), **non calculable** (motif écrit).
+  La syntaxe exacte pour un NNT est dans la section Format (§ Syntaxe du Calcul) ; la même
+  distinction vaut pour tout autre chiffre dérivé (réduction absolue du risque, différence de
+  moyennes, pourcentage recalculé).
+- **Un chiffre recalculé ne se présente jamais comme extrait de l'article.**
+- **HR, RR et OR ne sont pas interchangeables** : conserver le type d'estimation de la source, tel
+  qu'elle le nomme. Distinguer risque cumulé et taux d'événements. Une conversion d'une mesure à
+  l'autre ne s'improvise pas : sans risques absolus publiés, le NNT est `non calculable`, et c'est
+  une sortie valide.
+- Conserver aussi le cadre du test tel que la source le déclare (unilatéral ou bilatéral, seuil,
+  préspécifié ou exploratoire) : le reformuler, c'est changer le chiffre.
+- Pour un recalcul, l'horizon temporel est obligatoire (renvoi : `docs/decision/00-global.md`
+  § Règles de sourcing, effet absolu et horizon).
+
+### Journal de recherche
+
+Chaque dossier tient, à côté du registre, un journal qui permet à un autre lecteur de **rejouer** la
+recherche — y compris celles qui n'ont rien donné. Une ligne par requête :
+
+```markdown
+| Date | Base / interface | Requête exacte | Filtres | Résultats affichés | Examinés | Retenus | Exclus (motif) |
+|---|---|---|---|---|---|---|---|
+```
+
+- `Requête exacte` : la chaîne telle que tapée, termes contrôlés et opérateurs compris.
+- `Résultats affichés` : le total que l'outil annonce ; s'il n'en donne pas, écrire
+  `non disponible` — jamais une estimation.
+- `Examinés` : ce qu'on a réellement ouvert ou lu (titres, résumés, textes), distinct du total.
+- `Retenus` / `Exclus` : les références, et pour chaque exclusion son motif.
+- `Filtres` : seulement ceux que la question impose, et pourquoi ; une recherche de repérage part
+  sans filtre.
+- Deux interfaces qui interrogent le même corpus ne valent pas deux recherches indépendantes : le
+  noter plutôt que de compter deux bases.
+- Prévoir synonymes, termes contrôlés, études citées et citantes (`acces-identite.md` § 5) ; vérifier
+  qu'une étude repère connue ressort de la requête — sinon la requête est trop étroite.
+- Les questions posées à un outil d'IA figurent aussi au journal (outil, modèle, date, prompt ;
+  `references/openevidence.md` § Fiche de retour).
+
+### Réutiliser un dossier
+
+Ne pas refaire un travail déjà vérifié — mais ne pas figer une preuve périmée. Un dossier réutilisé
+porte en tête :
+
+- **la date de la dernière recherche** et **le périmètre couvert** (question, PICO, bases, période) ;
+- ce qui est **repris** tel quel (extractions déjà vérifiées et toujours pertinentes), ce qui a été
+  **actualisé**, et ce qui reste **hors périmètre**.
+
+Une mise à jour s'impose — par une recherche de nouveautés datée, pas par une relecture complète du
+corpus — quand survient l'un de ces événements : nouvelle publication sur la question, résultats
+d'un essai attendu, correction ou rétractation d'une étude du dossier, changement de recommandation,
+extension du PICO. Les recommandations françaises restent à vérifier pour l'applicabilité locale,
+même si elles sont hors du périmètre d'OpenEvidence (renvoi : `docs/decision/00-global.md`
+§ Règles de sourcing).
