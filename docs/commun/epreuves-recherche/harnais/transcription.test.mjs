@@ -131,4 +131,43 @@ describe('analyserTranscription — invalidation', () => {
     expect(r.invalidee).toBe(false);
     expect(r.motifInvalidation).toBeNull();
   });
+
+  it("ne s'invalide pas sur une simple mention en texte libre (régression T6, 2026-09-24 : "
+    + "OUTIL-INTERFACE-OE.md, whitelisté, nomme « Interface-OE » et son chemin en toutes lettres — "
+    + "le lire n'est pas une tentative d'y accéder)", () => {
+    const evenements = [
+      {
+        type: 'assistant',
+        message: {
+          content: [
+            { type: 'tool_use', name: 'Read', input: { file_path: 'docs/commun/OUTIL-INTERFACE-OE.md' } },
+          ],
+        },
+      },
+      {
+        type: 'user',
+        message: {
+          content: [
+            {
+              type: 'tool_result',
+              tool_use_id: 't3',
+              is_error: false,
+              content:
+                '# OUTIL-INTERFACE-OE.md\n> Interface-OE est une application Electron séparée '
+                + '(C:\\Users\\kovu\\SynologyDrive\\Thibault\\Projets\\Interface-OE) qui tient une session\n'
+                + 'node "C:/Users/kovu/SynologyDrive/Thibault/Projets/Interface-OE/out/cli/index.js" demander',
+            },
+          ],
+        },
+      },
+      {
+        type: 'assistant',
+        message: { content: [{ type: 'thinking', thinking: 'Je note que le dépôt ebm-msp utilise Interface-OE pour OE.' }] },
+      },
+      { type: 'result', total_cost_usd: 0.2, duration_ms: 5000, permission_denials: [] },
+    ];
+    const r = analyserTranscription(evenements);
+    expect(r.invalidee).toBe(false);
+    expect(r.motifInvalidation).toBeNull();
+  });
 });
