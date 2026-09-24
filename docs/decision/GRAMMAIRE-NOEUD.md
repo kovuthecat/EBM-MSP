@@ -2,9 +2,11 @@
 
 > **Statut** : R1→R6 issues de la recette du nœud `prescription` (2026-07-25), livrées. **R7 et R8**
 > ajoutées après la recette élargie du 2026-07-26 (nœuds `insuline`, `statine`, `rhd`) — R7 livrée
-> (D20), R8 livrée (D21). **R9 est une proposition non arbitrée.** **R7 amendée et R10 ajoutée** après
+> (D20), R8 livrée (D21). **R9 arbitrée le 2026-09-24** (point A3 de
+> `docs/decision/ARBITRAGE-construire-un-module.md`). **R7 amendée et R10 ajoutée** après
 > la recette navigateur du 2026-07-28 (D30, D32 ; `docs/decision/validation/recette-navigateur-2026-07-28.md`).
-> **R6 amendée (volet rendu), R11 et R12 ajoutées (propositions non arbitrées)** après la revue de
+> **R6 amendée (volet rendu), R11 et R12 ajoutées** (propositions rendues opposables le 2026-09-24,
+> point A11 du même mémo) après la revue de
 > conception du 2026-08-04 (`docs/decision/validation/revue-conception-fable-2026-08-04.md`), qui a
 > confronté l'audit du même jour au comportement réel des cinq nœuds.
 > **R13, R14 et R15 ajoutées, R1/R5/R8/R10 enrichies** après le plan P14 (2026-08-06/07,
@@ -489,7 +491,7 @@ cours, et son patient est retiré d'une option à laquelle il a droit. La redond
 
 ---
 
-## R9 *(proposition, non arbitrée)* — Un nœud qui recommande un geste doit savoir si le geste est déjà fait
+## R9 *(arbitrée le 2026-09-24 — A3, `ARBITRAGE-construire-un-module.md`)* — Un nœud qui recommande un geste doit savoir si le geste est déjà fait
 
 **Règle proposée.** Toute option qui prescrit une action (introduire, initier, ajouter, majorer) doit
 disposer d'un critère lui disant si cette action est **déjà en place**, ou bien le nœud doit déclarer
@@ -575,7 +577,7 @@ invariants ne sont pas verts.
 
 ---
 
-## R11 *(proposition, non arbitrée — 2026-08-04)* — La visibilité d'un critère ne gouverne jamais sa décisivité
+## R11 *(proposition du 2026-08-04, opposable depuis le 2026-09-24 — A11, `ARBITRAGE-construire-un-module.md`)* — La visibilité d'un critère ne gouverne jamais sa décisivité
 
 **Règle proposée.** Pour toute valeur du primer (intention, situation), tout critère **décisif** sous
 cette valeur doit être **soit saisissable** (sa section est affichée), **soit dérivé** de cette valeur
@@ -607,7 +609,7 @@ dérivés sous cette valeur}. Vérifiable mécaniquement, aucune relecture clini
 
 ---
 
-## R12 *(proposition, non arbitrée — 2026-08-04)* — Une bascule de primer ne détruit jamais une saisie
+## R12 *(proposition du 2026-08-04, opposable depuis le 2026-09-24 — A11, `ARBITRAGE-construire-un-module.md`)* — Une bascule de primer ne détruit jamais une saisie
 
 **Règle proposée.** Changer la valeur du primer (intention, situation) change ce qui est **visible** et
 ce qui **alimente le moteur** — jamais ce qui est **mémorisé**. Les valeurs des sections masquées sont
@@ -888,7 +890,7 @@ valide une fois et couvre tout l'espace.
 
 | couche | contenu | validation |
 | --- | --- | --- |
-| **Vignettes** | patients réels, sortie exacte attendue | **clinique**, une par vignette — donc peu nombreuses, choisies pour ce qu'elles seules peuvent dire |
+| **Vignettes** | situations synthétiques, non identifiantes (arbitrage du 2026-09-24, A4), sortie exacte attendue | **clinique**, une par vignette — donc peu nombreuses, choisies pour ce qu'elles seules peuvent dire |
 | **Couverture** | chaque option se déclenche ≥ 1 fois et est exclue ≥ 1 fois ; chaque exclusion est déclenchée ≥ 1 fois ; chaque règle de `priorite` conditionnelle matche ≥ 1 fois ; chaque critère est décisif ≥ 1 fois (R5) | **aucune** — purement mécanique |
 | **Invariants** | propriétés vraies pour *tout* profil, vérifiées sur un échantillon déterministe (produit cartésien quand il reste petit, sinon tirage stratifié à graine fixe ; ~800 à 2000 profils par nœud, aucun appel externe) | **clinique, une fois par invariant** |
 
