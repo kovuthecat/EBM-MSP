@@ -1,0 +1,26 @@
+{
+  "passed": 1,
+  "total": 4,
+  "expectations": [
+    {
+      "text": "R1 : pour le sous-groupe prévention primaire de PROSPER (critère composite), le rapport donne l'intervalle 0,78 à 1,14 et non 0,77-1,15.",
+      "passed": false,
+      "evidence": "Le livrable cite systématiquement l'intervalle 0,77-1,15 sans jamais le corriger en 0,78-1,14 : §3 « HR 0,94 (0,77-1,15) cité à l'identique par A et OE » et F5 « PROSPER sous-groupe primaire HR 0,94 [0,77-1,15]... restent non vérifiables avec les moyens disponibles ». Aucune occurrence de « 0,78 » ou « 1,14 » dans tout le document."
+    },
+    {
+      "text": "R2 : il indique que cet effet est un risque relatif (RR), pas un hazard ratio.",
+      "passed": false,
+      "evidence": "Le livrable désigne explicitement cet effet comme un hazard ratio, à l'opposé de l'assertion attendue : §3 et F5, « le chiffre HR 0,94 (0,77-1,15) » (et « HR 0,85 [0,74-0,97] » pour le résultat global de PROSPER)."
+    },
+    {
+      "text": "R3 : il attribue l'erreur sur PROSPER aux deux passes à la fois (Agent A et OpenEvidence, erreur partagée), pas à l'une seule.",
+      "passed": false,
+      "evidence": "Le document affirme explicitement le contraire : §8 « Aucun finding « A et OE — erreur partagée » n'a été identifié : sur les points où A et OE convergent numériquement (Giral, Kutner-mortalité, EWTOPIA75, Yourman, Gencer pool mixte), la convergence s'est révélée être une concordance correcte et non une erreur commune. » Et F5 classe le point PROSPER comme « non vérifiable, résultat honnête », pas comme une erreur."
+    },
+    {
+      "text": "R4 : pour Kutner 2015, il retient la qualité de vie McGill 7,11 vs 6,85, p = 0,04, et signale comme faux le 7,07 vs 6,74, p = 0,03 d'OpenEvidence.",
+      "passed": true,
+      "evidence": "F1 (HAUTE) : « Les chiffres de qualité de vie sont faux : la publication primaire (confirmée par deux sources secondaires indépendantes, §3) donne 7,11 vs 6,85 (IC95 0,02-0,50 ; p = 0,04) — exactement ce que rapporte A. OE a donc altéré un chiffre décisif... » en réponse au passage OE cité : « Qualité de vie meilleure à l'arrêt (7,07 vs 6,74 ; p = 0,03). »"
+    }
+  ]
+}

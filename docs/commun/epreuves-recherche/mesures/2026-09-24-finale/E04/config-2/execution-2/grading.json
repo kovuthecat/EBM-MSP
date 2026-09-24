@@ -1,0 +1,26 @@
+{
+  "passed": 2,
+  "total": 4,
+  "expectations": [
+    {
+      "text": "R1 : la référence [6] (Aroda & Eckel 2022) est déclarée existante mais ne soutenant pas les cibles d'interprétation MCG (TIR > 70 %…) auxquelles elle est rattachée : son sujet est le contrôle glycémique et le risque cardiovasculaire.",
+      "passed": false,
+      "evidence": "Tableau, ligne [6] : « OK | PARTIEL — l'article ne *définit* pas les seuils TIR/TBR/TAR (sujet : risque CV), mais les *reproduit* verbatim dans une section annexe | BASSE | OE seule ». Finding F8 (BASSE) : « [6] Attribution thématiquement à l'écart. L'article (risque cardiovasculaire) reproduit bien les seuils cités, mais ne les définit pas ; il existe probablement une source plus directement dédiée aux cibles MCG que ce choix de citation. » Le livrable confirme le sujet CV mais affirme que l'article reproduit bien les seuils cités (support partiel), ce qui contredit l'attendu d'un défaut de soutien franc, et classe le point en sévérité BASSE plutôt qu'en attribution erronée nette."
+    },
+    {
+      "text": "R2 : la référence [15] (Irace et al. 2025) est déclarée existante mais ne pouvant être la source ni du consensus ADA/EASD ni des recommandations NICE : c'est un avis d'experts italien.",
+      "passed": true,
+      "evidence": "Finding F6 (MOYENNE) : « [15] Source tertiaire unique pour deux organismes distincts. Le contenu rapporté (ADA/EASD *et* NICE) est fidèle à l'article Irace et al. 2025 (...). Mais c'est une synthèse d'un groupe d'experts italien, citée comme unique source pour caractériser ce que disent deux documents officiels différents, alors que Q6 demandait « le paragraphe exact et son grade » des recommandations elles-mêmes plutôt qu'un relais. » Le livrable identifie bien qu'il s'agit d'un avis/synthèse d'experts italien, pas des documents ADA/EASD ou NICE eux-mêmes."
+    },
+    {
+      "text": "R3 : la référence [7] (Anagnostopoulou et al. 2026) est déclarée existante mais ne soutenant pas la définition des cibles d'interprétation : revue secondaire sur l'association entre métriques MCG et complications microvasculaires.",
+      "passed": false,
+      "evidence": "Tableau, ligne [7] : « OK | OK, seuils confirmés en texte intégral | — | — » — aucun problème de soutien signalé. Confirmé aussi dans « Confirmations obtenues » : « [7] Anagnostopoulou 2026 — identité et seuils TIR/TBR/TAR confirmés en texte intégral (PMC). » [7] n'apparaît dans aucun finding (F1-F12) : le livrable déclare au contraire que cette référence soutient bien les seuils, ce qui contredit directement l'attendu."
+    },
+    {
+      "text": "R4 : aucune de ces trois références n'est déclarée inventée ou introuvable : le défaut est qualifié de rattachement, pas de fabrication.",
+      "passed": true,
+      "evidence": "« **Aucune référence fabriquée ou introuvable parmi [1]-[16]** : les 16 DOI résolvent vers l'article annoncé (titre, auteurs, revue, année, volume/pages concordants) (...). C'est le résultat le plus important de ce contrôle : le risque principal de ce dossier n'est pas l'invention de sources, mais l'**attribution** (ce qu'une source réelle est réputée dire). »"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "passed": 1,
+  "total": 4,
+  "expectations": [
+    {
+      "text": "R1 : pour le sous-groupe prévention primaire de PROSPER (critère composite), le rapport donne l'intervalle 0,78 à 1,14 et non 0,77-1,15.",
+      "passed": false,
+      "evidence": "Le livrable ne cite nulle part le HR/RR du sous-groupe prévention primaire de PROSPER (aucune occurrence de « 0,94 », « 0,77 » ou « 0,78 » associée à ce sous-groupe) ; PROSPER n'apparaît que via son suivi étendu (Lloyd 2013) sans chiffre de sous-groupe composite prévention primaire, et le chiffre discuté à ce niveau de détail (F2) porte sur Gencer 2020/CTT 2019 (RR 0,92 [0,73-1,16]), pas sur PROSPER."
+    },
+    {
+      "text": "R2 : il indique que cet effet est un risque relatif (RR), pas un hazard ratio.",
+      "passed": false,
+      "evidence": "Absence totale de discussion du sous-groupe composite prévention primaire de PROSPER dans le document ; aucune assertion RR vs HR n'y est rattachée."
+    },
+    {
+      "text": "R3 : il attribue l'erreur sur PROSPER aux deux passes à la fois (Agent A et OpenEvidence, erreur partagée), pas à l'une seule.",
+      "passed": false,
+      "evidence": "Le seul finding « erreur partagée A et OE » du document est F5, et il porte sur l'absence de note de péremption concernant StAREE (« ni A ni OE ne signalent le résultat... aucun des deux dossiers ne porte de note de péremption »), pas sur un chiffre de PROSPER. Aucun passage n'attribue une erreur PROSPER aux deux passes à la fois."
+    },
+    {
+      "text": "R4 : pour Kutner 2015, il retient la qualité de vie McGill 7,11 vs 6,85, p = 0,04, et signale comme faux le 7,07 vs 6,74, p = 0,03 d'OpenEvidence.",
+      "passed": true,
+      "evidence": "F6 (BASSE) : « les chiffres de qualité de vie de Kutner et al. 2015 diffèrent entre A (7,11 vs 6,85, p=0,04) et OE (7,07 vs 6,74, p=0,03). La recherche croisée (WikiJournalClub, citant directement l'article) confirme 7,11 vs 6,85, p=0,04 — les chiffres d'A sont corrects, ceux d'OE sont une légère déformation (transposition de chiffres ou hallucination partielle typique d'un résumé généré). »"
+    }
+  ]
+}

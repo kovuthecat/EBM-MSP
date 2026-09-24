@@ -1,0 +1,26 @@
+{
+  "passed": 4,
+  "total": 4,
+  "expectations": [
+    {
+      "text": "R1 : la référence [6] (Aroda & Eckel 2022) est déclarée existante mais ne soutenant pas les cibles d'interprétation MCG (TIR > 70 %…) auxquelles elle est rattachée : son sujet est le contrôle glycémique et le risque cardiovasculaire.",
+      "passed": true,
+      "evidence": "Tableau, ligne [6] : « **Confirmée** — article réel. » / « **NON** — l'article porte sur le rôle du contrôle glycémique dans le risque cardiovasculaire au DT2 ; aucun rapport avec les seuils d'interprétation MCG (TIR/TBR/TAR) auxquels il est rattaché. » (Identité ✅ / Soutien ✗ — attribution erronée). Repris en finding MOYENNE n°4 : « [6] — hors sujet (origine : OE seule). Aroda & Eckel (risque cardiovasculaire/contrôle glycémique) rattaché à tort aux seuils d'interprétation MCG (Q4, Q6). »"
+    },
+    {
+      "text": "R2 : la référence [15] (Irace et al. 2025) est déclarée existante mais ne pouvant être la source ni du consensus ADA/EASD ni des recommandations NICE : c'est un avis d'experts italien.",
+      "passed": true,
+      "evidence": "Tableau, ligne [15] : « **Confirmée** — l'article existe tel que cité dans la liste. » / « **NON, dans les deux emplois** — c'est un avis d'un groupe d'experts **italien** sur l'intégration de la MCG au DT2 ; ce n'est ni un consensus ADA/EASD, ni une recommandation NICE. Aucune des deux phrases auxquelles [15] est rattaché n'est étayée par cette référence. » Finding HAUTE n°1 : « [15] — attribution erronée doublée (origine : OE seule). »"
+    },
+    {
+      "text": "R3 : la référence [7] (Anagnostopoulou et al. 2026) est déclarée existante mais ne soutenant pas la définition des cibles d'interprétation : revue secondaire sur l'association entre métriques MCG et complications microvasculaires.",
+      "passed": true,
+      "evidence": "Tableau, ligne [7] : « **Confirmée**. » / « **Partielle** — relie bien des métriques MCG (TIR, variabilité, TITR) aux complications microvasculaires, donc emploie les mêmes métriques ; mais ce n'est pas la source qui définit les seuils eux-mêmes (définis par le consensus ATTD/Battelino, déjà cité séparément en [16]). » Repris en finding MOYENNE n°8 : « [7] et [8] — rattachement indirect aux seuils d'interprétation (...) sans être la source qui définit les seuils eux-mêmes ; imprécis plus que faux. »"
+    },
+    {
+      "text": "R4 : aucune de ces trois références n'est déclarée inventée ou introuvable : le défaut est qualifié de rattachement, pas de fabrication.",
+      "passed": true,
+      "evidence": "« **Constat transversal favorable** : sur les 16 appels vérifiés, **aucune référence fantôme ni DOI inventé** n'a été détecté — les 16 renvoient tous à des publications réelles, correctement titrées et datées. Le problème du document n'est pas l'invention de sources, mais l'**attribution** (rattacher une source réelle à la mauvaise affirmation) et l'**habillage d'autorité** (...). »"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "partiel": true,
+  "motifArret": "arbitrage utilisateur de coût, reçu en cours de session (P16/S10/T19)",
+  "commit": "ece2d5eba67300f36e8435e7a66b813ba8fb6064",
+  "date": "2026-09-24",
+  "sousEnsemble": "circuit Décision (recherche-preuve-triangulee) uniquement — E02, E03, E04, E08, E09, E12 ; Veille exclu sur arbitrage utilisateur",
+  "verdicts": {
+    "E02": { "config1": "reussi", "config2": "reussi", "config3": "reussi" },
+    "E03": { "config1": "echoue", "config2": "echoue", "config3": "echoue" },
+    "E04": { "config1": "echoue", "config2": "attente-3e (non jouee)", "config3": "attente-3e (non jouee)" },
+    "E08": { "config1": "reussi", "config2": "mesure-non-corrige", "config3": "mesure-non-corrige" },
+    "E09": { "config1": "echoue", "config2": "mesure-non-corrige", "config3": "mesure-non-corrige" },
+    "E12": { "config1": "echoue", "config2": "mesure-non-corrige", "config3": "mesure-non-corrige" }
+  },
+  "regressions": {
+    "constatees": [],
+    "indeterminees": ["E08 (reussi en config1, config3 non corrige)"]
+  },
+  "cout": {
+    "config2Usd": 27.72,
+    "config3Usd": 23.85,
+    "totalUsd": 56.62,
+    "estimationUsd": 35.64,
+    "plafondUsd": 71.27,
+    "nExecutionsRetenues": 24,
+    "nExecutionsErreurTechnique429": 7,
+    "moyenneParExecutionUsd": 2.36
+  },
+  "dureeMsTotal": 6275264,
+  "nInvalidees": 0,
+  "resteAMesurer": [
+    "correction E08/E09/E12 (config2, config3)",
+    "3e execution E04 (config2, config3)",
+    "corpus Veille (E01,E05,E06,E07,E10,E11) si l'exclusion est levee"
+  ]
+}
