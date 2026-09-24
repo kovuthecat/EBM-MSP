@@ -55,8 +55,8 @@ Arbitrages du 2026-09-24 :
 | Session | Tâches | Titre | Modèle | Effort | Env. | Dépend de | Zone modifiée | Statut | Message de commit |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | [S1](S1.md) | T1 | Rendre N0 exécutable | Haiku | low | — | — | `.claude/n0.json` | [x] | `chore(n0): déclarer les commandes N0 du projet` |
-| [S2](S2.md) | T2-T3 | Corpus d'épreuve tiré des incidents | Opus | high | — | S1 | `docs/commun/epreuves-recherche/README.md`, `docs/commun/epreuves-recherche/cas/` | [ ] | voir Ordonnancement |
-| [S3](S3.md) | T4 | Mémo d'arbitrage du statut de `CONSTRUIRE-UN-MODULE.md` | Opus | high | — | S1 | `docs/decision/ARBITRAGE-construire-un-module.md` | [ ] | voir Ordonnancement |
+| [S2](S2.md) | T2-T3 | Corpus d'épreuve tiré des incidents | Opus | high | — | S1 | `docs/commun/epreuves-recherche/README.md`, `docs/commun/epreuves-recherche/cas/` | [x] | voir Ordonnancement |
+| [S3](S3.md) | T4 | Mémo d'arbitrage du statut de `CONSTRUIRE-UN-MODULE.md` | Opus | high | — | S1 | `docs/decision/ARBITRAGE-construire-un-module.md` | [x] | voir Ordonnancement |
 | [S4](S4.md) | T5-T6 | Harnais d'épreuve isolé et mesure de référence | Sonnet | high | — | S2 | `docs/commun/epreuves-recherche/harnais/`, `docs/commun/epreuves-recherche/mesures/` | [ ] | voir Ordonnancement |
 | [S5](S5.md) | T7-T8 | Scripts `identite.mjs` et `verifier-registre.mjs` | Sonnet | high | — | S1 | `.claude/skills/recherche-source-primaire/scripts/`, `.claude/skills/recherche-source-primaire/references/registre-affirmations.md` | [ ] | voir Ordonnancement |
 | [S6](S6.md) | T9-T11 | Socle : accès, registre, OpenEvidence, leçons, SKILL.md | Opus | high | — | S4, S5 | `.claude/skills/recherche-source-primaire/SKILL.md`, `.claude/skills/recherche-source-primaire/references/{acces-identite,registre-affirmations,openevidence,lecons}.md`, `DECISIONS.md`, `docs/commun/2026-09-16-propositions-skills-recherche.md` | [ ] | voir Ordonnancement |
