@@ -1,10 +1,25 @@
 # Construire un module de décision — spécification de construction, **tous domaines**
 
-> **Statut** : proposition issue du bilan du premier domaine (DT2), écrite le 2026-07-26. **Non
-> arbitrée** — les étapes et les portes de sortie sont à valider par le référent avant d'engager le
-> deuxième domaine. **Complétée le 2026-08-04** (revue de conception
+> **Statut** : **arbitré en partie le 2026-09-24** par le référent — mémo
+> [`ARBITRAGE-construire-un-module.md`](ARBITRAGE-construire-un-module.md) (question de statut, points
+> A1 à A12), `DECISIONS.md` D66. Ce que ce document **prescrit** :
+> - les passages couverts par une décision du registre ou un texte qui fait autorité (classe « déjà
+>   acté » du §1 du mémo) ;
+> - les points **validés** : A3, A4, A6, A7, A8, A9, A10 ;
+> - les points **validés en amendant** : A1, A2, A5, A11, A12 — l'amendement du référent est recopié
+>   mot pour mot à l'endroit qu'il vise.
+>
+> Ce qui reste **aide-mémoire**, sans obligation : ce que les amendements A11 et A12 y renvoient.
+> Aucun point n'est rejeté. Les passages **historiques** (§0, constats DT2 cités en exemple, table des
+> pièges du §4, formes de consignation du §5, §7) expliquent une règle et ne prescrivent rien.
+> Repères dans le texte : *(arbitré le 2026-09-24 — Ax)*, *(arbitré le 2026-09-24 — Ax, amendé)*,
+> *(aide-mémoire — Ax)*. Un passage prescriptif sans repère repose sur une décision du registre
+> (tableau du §1 du mémo).
+>
+> **Historique du statut.** Proposition issue du bilan du premier domaine (DT2), écrite le 2026-07-26,
+> non arbitrée jusqu'au 2026-09-24. **Complétée le 2026-08-04** (revue de conception
 > `validation/revue-conception-fable-2026-08-04.md`) : items de checklist 2.1/2.4/2.5, nouvelles lignes
-> de la table des pièges (§4), invariants de rendu en porte P6 — même statut de proposition.
+> de la table des pièges (§4), invariants de rendu en porte P6.
 >
 > **Amendé le 2026-08-06/07** (plan P14, `validation/table-conditions-2026-08-06.md` et
 > `criteres-communs-2026-08-06.md`) : **P1** ouvre le vocabulaire de sécurité du **domaine** ; **P5**
@@ -25,7 +40,8 @@
 | `GRAMMAIRE-NOEUD.md` | comment écrire un nœud correct (R1→R16) | à l'écriture et à la relecture |
 | `00-global.md` | comment sourcer et red-teamer (méthode, illustrée sur DT2) | à la collecte |
 | `schema/noeud.schema.json` | le contrat exécutable | en permanence, par les tests |
-| `DECISIONS.md` | les arbitrages transverses (D1→D23) | quand une règle surprend |
+| `DECISIONS.md` | les arbitrages transverses (D1→D66 au 2026-09-24) | quand une règle surprend |
+| `ARBITRAGE-construire-un-module.md` | ce que le référent a arbitré dans ce document, point par point | quand un repère *(Ax)* renvoie au mémo |
 
 ---
 
@@ -75,6 +91,9 @@ une interaction se teste.
 > données très tôt et du modèle très tard. Le modèle détermine quelles preuves sont nécessaires ; il
 > vient donc d'abord. L'ordre collecte → encodage n'était pas fautif : c'est l'absence d'une piste
 > « comportement » menée en parallèle qui l'était.
+>
+> *(Ordre P0→P7 arbitré le 2026-09-24 — statut « arbitré en partie » ; chaque porte porte son propre
+> repère ci-dessous.)*
 
 ### P0 — Prérequis génériques, avant toute ligne de contenu
 
@@ -85,7 +104,7 @@ Un nouveau domaine hériterait sinon des défauts du premier dès sa ligne 1.
 | **R7 en vigueur** (valeur indéterminée, D20) | sans elle, un formulaire vierge affirme |
 | **Invariants de banc I3→I7** verts sur tous les nœuds existants | ils ne servent à rien s'ils ne sont pas déjà tenus |
 | **Bornes de domaine** (`min`/`max`) sur tout critère `nombre` | double motif, voir encadré |
-| **Catalogue de critères canonique** (T-019) | `age`, `DFG`, `fragilite`, `esperance_vie` seront partagés entre domaines |
+| **Catalogue de critères canonique** (T-019) — *ne bloque pas (A1, amendé)* | `age`, `DFG`, `fragilite`, `esperance_vie` seront partagés entre domaines |
 
 > **Les bornes de domaine servent deux fois, et le second usage est invisible.**
 > 1. À la saisie : sans borne, `autres_FDRCV` accepte **−1**, ce qui bascule la recommandation
@@ -106,14 +125,22 @@ choix de l'insuline et la désintensification), de sorte qu'un patient de 80 ans
 pour relâcher une cible et « sans risque » pour recevoir l'insuline la plus sûre (capture 12.6, corrigé
 en `b101ae4`).
 
-**Porte de sortie P0** : les quatre lignes du tableau sont vertes. *Tant que P0 n'est pas franchi, tout
-contenu produit est de la dette.*
+**Porte de sortie P0** *(arbitré le 2026-09-24 — A1, amendé)* : « porte bloquante, sauf la ligne
+« catalogue inter-domaines » (T-019), qui ne bloque pas et reste à cadrer avec D22 et D36 ». Les trois
+premières lignes du tableau sont donc vertes avant toute ligne de contenu ; la ligne « catalogue » se
+consigne (état, écart) sans arrêter P1. *Tant que P0 n'est pas franchi, tout contenu produit est de la
+dette.*
 
 ---
 
 ### P1 — Cadrer par la consultation, pas par la littérature
 
-Deux livrables courts, écrits **par le référent, sans agent et sans source**.
+Deux livrables courts, écrits **par le référent, sans source** ; un agent n'en écrit aucune ligne.
+
+*(Arbitré le 2026-09-24 — A2, amendé ; remplace « sans agent »)* : « la skill interroge le référent
+(situations, décisions, cas limites) pour faire émerger ses intentions, sans jamais en proposer ; elle
+présente le gabarit, relit et nomme les manques ». *(Livrables, trois questions et inventaire de l'existant : arbitré le
+2026-09-24 — A3.)*
 
 1. **Les intentions du praticien** — l'équivalent domaine de `initier / intensifier / optimiser /
    déprescrire`. Elles **ne se transposent pas** : un domaine peut en avoir une que le DT2 n'a pas
@@ -164,7 +191,7 @@ d'une checklist : une checklist se relit quand on y pense, un cliquet mord tout 
 Premier domaine à l'avoir : `content/decision/criteres-communs/diabete-type-2.yaml` (DT2, ouvert
 rétroactivement en P14/S15 — pour un nouveau domaine, il s'ouvre ici, avant la première vignette).
 
-**Porte de sortie P1** : le référent a écrit les intentions et l'inventaire de l'existant, les trois
+**Porte de sortie P1** *(arbitré le 2026-09-24 — A3 ; fichier commun : D54)* : le référent a écrit les intentions et l'inventaire de l'existant, les trois
 questions sont tranchées par écrit, **et le fichier de critères communs du domaine existe** (même vide),
 avec la règle de cliquet écrite en tête.
 
@@ -172,26 +199,34 @@ avec la règle de cliquet écrite en tête.
 
 ### P2 — Les vignettes d'acceptation, **avant** le contenu
 
-15-25 profils de patients réels, écrits de mémoire de consultation, avec la **sortie attendue en langage
-clinique** — pas en YAML, pas en conditions. Y compris les cas tordus : patient déjà traité qu'on
-n'équilibre pas, sujet âgé en sur-traitement, contre-indication, refus, donnée manquante.
+**15-25 situations synthétiques, non identifiantes** — elles peuvent s'inspirer de situations
+habituelles, aucune ne reproduit un patient *(arbitré le 2026-09-24 — A4 ; correction imposée par
+l'invariant « zéro donnée patient », D4)* —, avec la **sortie attendue en langage clinique** — pas en
+YAML, pas en conditions. Une vignette qui décrirait un patient reconnaissable (date, lieu, histoire
+singulière) est écartée. Y compris les cas tordus, dont la liste reste obligatoire : patient déjà
+traité qu'on n'équilibre pas, sujet âgé en sur-traitement, contre-indication, refus, donnée manquante.
+
+*(Arbitré le 2026-09-24 — A5, amendé)* : « la skill propose des vignettes (situation synthétique et
+sortie attendue) ; le référent les valide, les corrige et en ajoute d'autres ; elles sont gelées après
+sa validation et deviennent le contrat ».
 
 Ce document est **gelé** et devient le contrat : *le contenu est correct s'il produit ces sorties, pas
 s'il représente fidèlement un dossier de preuve.* C'est le renversement du critère d'acceptation, et
 c'est le point qui aurait le plus changé le DT2 — les vignettes y figuraient au plan (T-014) et sont
 arrivées en dernier.
 
-**Quatre règles d'écriture, apprises à la dure** *(commit `9deda1f`)* :
+**Quatre règles d'écriture, apprises à la dure** *(commit `9deda1f` ; arbitré le 2026-09-24 — A5)* :
 
 | règle | pourquoi |
 |---|---|
-| **La sortie attendue vient du référent, jamais du moteur** | figer le comportement actuel ne protège rien et **bloque les corrections** |
+| **La sortie attendue vient du référent, jamais du moteur** — une sortie proposée par la skill ne vaut qu'après sa validation (A5) | figer le comportement actuel ne protège rien et **bloque les corrections** |
 | **Les assertions portent sur un CONTENU** — option, badge, alerte — **jamais sur un compte** | une vignette qui vérifie « exactement une option » passe avec un moteur qui renvoie systématiquement la mauvaise |
 | **Les rouges sont le livrable** | chaque `it.fails` nomme la décision référent, sa date, ce qui manque et le chantier qui le lèvera : les attentes validées mais non implémentées **deviennent la spécification du travail restant** |
 | **Épingler les comportements corrects qui ressemblent à des oublis** | ex. l'absence d'alerte « > 75 ans » chez un patient avec ASCVD est **volontaire** ; la vignette le dit et interdit de la « réparer » |
 
-**Porte de sortie P2** : les vignettes sont écrites, relues et **gelées** par le référent. Les rouges
-attendus sont nommés.
+**Porte de sortie P2** *(arbitré le 2026-09-24 — A5, amendé)* : les vignettes sont validées,
+corrigées et complétées par le référent, puis **gelées** après sa validation. Les rouges attendus sont
+nommés. Ni collecte (P4) ni encodage (P5) ne s'ouvrent avant ce gel.
 
 ---
 
@@ -210,7 +245,7 @@ tous coûté une vague en DT2 :
   alors que l'une implique l'autre ;
 - un jeton du DSL rendu brut au clinicien (`ne_contient_pas`).
 
-**Porte de sortie P3** : le référent a vu trois écrans et validé le **registre de formulation** (ce que
+**Porte de sortie P3** *(arbitré le 2026-09-24 — A6)* : le référent a vu trois écrans et validé le **registre de formulation** (ce que
 l'outil dit, sur quel ton, dans quel ordre) — indépendamment du contenu clinique, encore faux.
 
 ---
@@ -219,20 +254,26 @@ l'outil dit, sur quel ton, dans quel ordre) — indépendamment du contenu clini
 
 > **Skill `recherche-preuve-triangulee`** (`.claude/skills/`) encode le circuit multi-agents décrit
 > ci-dessous. L'invoquer plutôt que de le redériver.
+>
+> **Enchaînement de P4** *(arbitré le 2026-09-24 — A7)* : la skill `construire-module-decision` dérive
+> les sous-questions des vignettes gelées, lance `recherche-preuve-triangulee`, puis la consolidation
+> (`.claude/skills/recherche-source-primaire/references/consolidation.md`). Le dossier consolidé arrive
+> devant le référent pour validation clinique avant l'encodage.
 
 **La méthode DT2 est conservée telle quelle** (`00-global.md`) : multi-agents, red-team des essais *et*
 des recommandations, vérification en source primaire, passe OpenEvidence. Elle a tenu — zéro erreur de
 données en recette, et 4 findings HAUTE trouvés sur des collectes pourtant issues de sources locales
 page à page vérifiables.
 
-**Une seule chose change** : le périmètre est déterminé par les **décisions que les vignettes exigent**,
+**Une seule chose change** *(arbitré le 2026-09-24 — A8, comme toute la discipline de collecte et de
+mesure de P4, du §4 bis et du §6 items 2 et 7)* : le périmètre est déterminé par les **décisions que les vignettes exigent**,
 pas par l'exhaustivité de la question. En DT2, des dossiers entiers n'ont alimenté que de la prose. Cela
 allège aussi le budget, qui est une contrainte réelle du projet.
 
 **Deux disciplines à reprendre telles quelles** *(`ETAT-DES-LIEUX.md`, « Discipline pour la suite »)* :
 
 - **toute collecte de contenu clinique a sa passe adversariale** — la règle a payé ;
-- **pas de nouvelle collecte** tant que les findings de la précédente ne sont pas intégrés.
+- **pas de nouvelle collecte** tant que les findings de la précédente ne sont pas intégrés *(A8)*.
 
 **Une collecte qui trouve un défaut chez nous est aussi suspecte qu'une collecte qui n'en trouve aucun.**
 Le 2026-07-27, quatre collectes ont été red-teamées le même jour. **Trois des quatre sur-accusaient le
@@ -245,7 +286,7 @@ contenu existant** — et le red-team a rétabli le nœud à chaque fois :
 | « Le seuil de sur-basalisation majore l'hypoglycémie : affirmation démontrablement fausse » | Lecture sélective : la source porte une analyse intra-patient qui va dans l'autre sens. La phrase du nœud devait être **gardée**. |
 
 Le mécanisme est structurel, pas accidentel : un agent de collecte est missionné pour *trouver* quelque
-chose, et le contenu existant est la cible la plus commode. D'où la règle : **aucune correction issue
+chose, et le contenu existant est la cible la plus commode. D'où la règle *(A8)* : **aucune correction issue
 d'une collecte n'entre dans `content/**` avant sa passe adversariale**, y compris — surtout — quand elle
 prend la forme flatteuse d'« un défaut trouvé chez vous ». Et quand une collecte accuse le nœud, la passe
 adversariale doit recevoir cette accusation comme sa cible prioritaire.
@@ -273,7 +314,7 @@ Le chiffre de 432 comptait les familles **vides**, sans contrôler la cause : la
 des raisons étrangères à la fragilité. Compter l'**état** au lieu de mesurer l'**effet** gonflait le
 constat d'un facteur ~40.
 
-> **RÈGLE.** Toute affirmation de la forme « N profils perdent X » doit être produite par une
+> **RÈGLE** *(arbitré le 2026-09-24 — A8)*. Toute affirmation de la forme « N profils perdent X » doit être produite par une
 > **comparaison appariée**, jamais par un comptage d'état. Le dépôt fournit l'instrument
 > (`engine/banc/profils.ts` `genererPairesBooleennes`, écrit exactement pour ça). Ne pas l'employer
 > **invalide** le constat — ne l'affaiblit pas : le rend inutilisable.
@@ -282,7 +323,7 @@ Le motif est le même dans les quatre cas, et il vaut d'être nommé : **un agen
 mesurer facilement, pas ce que la question demande.** Un comptage brut est à portée de main ; un
 contrefactuel demande de savoir que l'outil existe et pourquoi il existe.
 
-**Porte de sortie P4** : chaque décision exigée par une vignette est adossée à une source vérifiée en
+**Porte de sortie P4** *(arbitré le 2026-09-24 — A8)* : chaque décision exigée par une vignette est adossée à une source vérifiée en
 primaire, et la passe adversariale est close.
 
 ---
@@ -331,8 +372,8 @@ fichier de contenu, et aucun critère participant à une condition, une `exclusi
 d'une option `role: securite` (D25) n'en porte, **jamais**. La liste des critères éligibles s'établit
 mécaniquement (parcours des expressions du nœud), pas à la main — cf. `GRAMMAIRE-NOEUD.md` R7.
 
-**— et**, ajouté le 2026-08-06 (P14) : **le brouillon de la table des conditions existe, et il date
-d'avant le premier commit du YAML du nœud.** Vérifiable, et à vérifier :
+**— et**, ajouté le 2026-08-06 (P14), porte *(arbitré le 2026-09-24 — A9)* : **le brouillon de la
+table des conditions existe, et il date d'avant le premier commit du YAML du nœud.** Vérifiable, et à vérifier :
 `git log --diff-filter=A -- docs/decision/noeuds/<fichier>.md content/decision/noeuds/<domaine>/<nœud>.yaml`.
 Ce n'est pas une formalité de datation : un brouillon rédigé *après* le YAML n'est plus un brouillon,
 c'est une transcription — il dira exactement ce que dit le YAML, y compris ses erreurs, et le **diff** de
@@ -373,7 +414,7 @@ un « 0 finding HAUTE ».
 | **A — fidélité** | le YAML dit-il ce que dit le dossier de preuve ? | vérification bi-agents, étape 8 de `00-global.md` |
 | **B — comportement** | le banc passe-t-il ? les invariants tiennent-ils ? les profils limites donnent-ils une sortie défendable ? | banc à trois couches (§3) |
 
-**Un invariant signale des candidats, il ne dicte pas le correctif.** Sur les quatre alertes signalées
+**Un invariant signale des candidats, il ne dicte pas le correctif** *(aide-mémoire — A12)*. Sur les quatre alertes signalées
 par I7, **aucune n'a été convertie** après analyse une à une : convertir la non-association
 gliptine + GLP-1 en exclusion aurait recréé le bug R3/D19, l'option disparaissant alors qu'elle sert de
 destination au switch. C'étaient des faux positifs de l'heuristique (`41ea008`). Un invariant rouge
@@ -388,7 +429,7 @@ graves de la recette navigateur du 2026-07-28 (formulaire vierge qui recommande,
 inatteignable, écran muet).
 
 **Troisième porte, ajoutée le 2026-08-06 (P14) — régénérer la table des conditions, et la DIFFÉRER
-contre le brouillon de P5.**
+contre le brouillon de P5** *(arbitré le 2026-09-24 — A9)*.
 
 ```bash
 npx vitest run src/features/decision/engine/banc/tableConditions.test.ts
@@ -452,7 +493,7 @@ c'est la parade mécanique à la famille « correctif non propagé au nœud vois
 Inchangée. Mais elle ne devrait plus révéler que du **réglage clinique**. Si elle révèle encore des
 défauts de modèle, c'est que P2 ou P3 ont été abrégés.
 
-**Passage obligé ajouté le 2026-07-28 : la recette navigateur.** Avant qu'un nœud repasse `valide`, une
+**Passage obligé ajouté le 2026-07-28 : la recette navigateur** *(arbitré le 2026-09-24 — A10)*. Avant qu'un nœud repasse `valide`, une
 passe navigateur (protocole `docs/decision/validation/PROMPT-recette-navigateur.md`) est **obligatoire**,
 en plus de la recette référent sur maquette. Le fait qui la porte : les passes navigateur des 25 et 28
 juillet 2026 ont, à elles seules, trouvé plus de défauts graves que cinq rapports d'audit et 769 tests
@@ -460,7 +501,7 @@ unitaires cumulés — une classe de défaut entière (l'écran qui affirme sur 
 ou dont une carte contredit l'alerte qu'elle contient) n'était atteignable par **aucun** des deux
 instruments existants, qui n'interrogent jamais la page telle qu'un praticien la lit réellement.
 
-**Deux gestes à ajouter au protocole de recette navigateur** (revue du 2026-08-04 — les deux plus gros
+**Deux gestes à ajouter au protocole de recette navigateur** *(arbitré le 2026-09-24 — A10)* (revue du 2026-08-04 — les deux plus gros
 constats hors audit y ont été trouvés ainsi) :
 
 - **jouer les allers-retours, pas seulement les parcours** : changer l'intention ou la situation *sur un
@@ -471,7 +512,7 @@ constats hors audit y ont été trouvés ainsi) :
   seul contrôle dont dispose le praticien sur ce qu'il a déclaré, et le seul endroit où la portée
   instantanée du geste se voit.
 
-**Porte de sortie P7** : recette référent **et** recette navigateur closes, sans défaut grave ouvert.
+**Porte de sortie P7** *(arbitré le 2026-09-24 — A10)* : recette référent **et** recette navigateur closes, sans défaut grave ouvert.
 
 ---
 
@@ -479,23 +520,31 @@ constats hors audit y ont été trouvés ainsi) :
 
 À passer avant de déclarer un nœud `valide`. Chaque ligne renvoie au cas réel qui l'a produite.
 
+**Ce qui est opposable** *(arbitré le 2026-09-24 — A11, amendé : « R11 et R12 deviennent opposables ;
+les items nés d'un cas unique restent un aide-mémoire »)* : tout item sans repère (il repose sur une
+décision du registre), les items marqués A3, A9 ou R11/R12. Les items marqués *(aide-mémoire — A11)*
+se relisent, ils ne bloquent pas.
+
 ### 2.1 Critère d'entrée
 
 - [ ] **`nature` déclarée** (`etat` / `intention` / `terrain` / `preference`) — R1 ; rend testable
       qu'aucun `etat` ne dérive d'une `intention`.
 - [ ] **Bornes `min`/`max`** si `nombre` — P0 ci-dessus ; double motif saisie + banc.
 - [ ] **`presomption_non`** posé UNIQUEMENT si ce `bool`/`liste` peut être présumé « non » sans risque
-      quand il n'est pas renseigné — établi mécaniquement (aucune condition `role: securite`,
-      `exclusions` ni `prerequis` ne le lit) ; jamais sur un critère de sécurité — R7/D30.
-- [ ] **Testé dans les deux sens.** Un critère qui ne sait qu'**interdire** est à moitié câblé :
+      quand il n'est pas renseigné — établi mécaniquement : aucune condition, `exclusions` ni
+      `prerequis` d'une option `role: securite` ne le lit (D30), ni aucune exclusion qui retire un geste
+      dangereux ; jamais sur un critère de sécurité — R7/D30. Seule exposition admise, indirecte (via un
+      dérivé) : l'exclusion d'une carte `role: geste` qui choisit entre deux gestes d'une même famille
+      (D55). *(Formulation alignée sur D30 et D55 le 2026-09-24 — contradiction n° 2 du mémo.)*
+- [ ] **Testé dans les deux sens.** *(aide-mémoire — A11)* Un critère qui ne sait qu'**interdire** est à moitié câblé :
       `antecedent_cv` bloquait la cible stricte sans qu'aucune option ne le teste en position
       positive — un patient de 68 ans, 15 ans de diabète et un antécédent CV recevait la cible la plus
       stricte (`47e3527`).
-- [ ] **Il appartient au nœud qui peut en tirer une action.** « Le risque hypoglycémique est une
+- [ ] **Il appartient au nœud qui peut en tirer une action.** *(aide-mémoire — A11)* « Le risque hypoglycémique est une
       propriété du **schéma thérapeutique**, pas du patient » : dans un nœud qui ne collecte pas les
       traitements, il produisait un relâchement de cible là où il fallait changer de traitement — donc
       retiré du nœud (`47e3527`).
-- [ ] **Masqué (`visible_si`) quand il est sans objet.** On ne réclame pas une dose de basale actuelle
+- [ ] **Masqué (`visible_si`) quand il est sans objet.** *(aide-mémoire — A11)* On ne réclame pas une dose de basale actuelle
       à un patient déclaré naïf : huit `visible_si` ont dû être ajoutés après coup (`b101ae4`).
 - [ ] **Une valeur suggérée n'est jamais citée comme un fait du patient** — statut `suggere` (D20). La
       suggestion automatique d'espérance de vie ressortait en « Proposé parce que : Espérance de
@@ -506,7 +555,7 @@ constats hors audit y ont été trouvés ainsi) :
       (option, rang, exclusion) ou seulement un *commentaire* (alerte, texte) ? `age` dans `statine`
       satisfaisait R5 en n'allumant qu'une alerte, pendant que 30 ans et 90 ans recevaient la carte
       identique.
-- [ ] **Coût de recueil déclaré**, ajouté le 2026-07-28 (recette navigateur, axe A-3). Pour ce critère,
+- [ ] **Coût de recueil déclaré** *(aide-mémoire — A11)*, ajouté le 2026-07-28 (recette navigateur, axe A-3). Pour ce critère,
       le praticien cible l'a-t-il *sous les yeux* (dossier ouvert, biologie récente), doit-il *aller le
       chercher* (rappeler le labo, un autre logiciel, repeser), ou ne l'a-t-il *pas du tout* (suppose un
       équipement absent, ex. un capteur) ? Un critère de la troisième catégorie exige une **voie
@@ -517,7 +566,7 @@ constats hors audit y ont été trouvés ainsi) :
       la glycémie à jeun ») mais est rendu **sous** la ligne qui les réclame : un praticien sans capteur
       découvre l'impasse avant l'explication, pas après.
 - [ ] **S'il est masqué (`visible_si`) sous une valeur du primer, il n'est pas décisif sous cette
-      valeur — ou il est dérivé de cette valeur** (R11, 2026-08-04). Le cas N25 : *Initier* masque la
+      valeur — ou il est dérivé de cette valeur** (R11, 2026-08-04 ; opposable, arbitré le 2026-09-24 — A11). Le cas N25 : *Initier* masque la
       section TRAITEMENT, le moteur continue de réclamer « Traitements en cours », et l'option de
       sécurité qui en dépend (insuline d'initiation) devient inatteignable. La forme correcte est une
       dérivation déclarée (*Initier* ⇒ traitements = ∅, statut `suggere`), pas un trou.
@@ -531,7 +580,7 @@ constats hors audit y ont été trouvés ainsi) :
       cf. corollaire de R14), retirer `partage` du nœud où il diverge plutôt que de forcer une définition
       commune ; masquer (`cache: true`) si la question n'y a plus d'objet.
 - [ ] **Un `preremplissage` déclaré est testé sur un patient NEUF et après une reprise inter-nœuds sur le
-      MÊME champ.** Une reprise (`partage`) marque tout le champ comme « touché » — un `preremplissage`
+      MÊME champ.** *(aide-mémoire — A11)* Une reprise (`partage`) marque tout le champ comme « touché » — un `preremplissage`
       qui dépend d'un autre critère du même nœud ne se déclenche alors plus, silencieusement (cas réel :
       `traitements_en_cours` déjà repris avec `metformine` empêchait le préremplissage d'`insuline_basale`
       sur `situation_insuline`, 2026-08-14). Un seul des deux scénarios de test suffit à masquer le trou.
@@ -540,7 +589,7 @@ constats hors audit y ont été trouvés ainsi) :
 
 - [ ] **`delai_benefice`** si `niveau_preuve` `modere`/`eleve` sur critère dur — R2 ; jamais un vide
       silencieux.
-- [ ] **`prerequis` « ne prend pas déjà cette classe »** — R9. « Envisager l'insuline » était proposée
+- [ ] **`prerequis` « ne prend pas déjà cette classe »** — R9 *(arbitré le 2026-09-24 — A3)*. « Envisager l'insuline » était proposée
       à un patient déjà sous insuline ; même lacune sur « insuline d'initiation », « initier une
       basale », « ajouter un bolus » (`41ea008`, `b101ae4`).
 - [ ] **Les contre-indications sont des `exclusions`, jamais des `priorite`** — R8/D21 : rétrograder
@@ -548,13 +597,13 @@ constats hors audit y ont été trouvés ainsi) :
 - [ ] **Verdict sur une ligne existante ≠ choix du remplaçant** — R3, deux options distinctes.
 - [ ] **Clause de repli en prose** si aucune destination n'est applicable — R3 ; sinon le verdict
       produit une injonction sans issue.
-- [ ] **Son intitulé ne nomme qu'UNE classe ou molécule.** Une option qui en nomme deux (« réduire le
+- [ ] **Son intitulé ne nomme qu'UNE classe ou molécule.** *(aide-mémoire — A11)* Une option qui en nomme deux (« réduire le
       sulfamide **/ le glinide** ») est un piège différé : le premier garde-fou qu'on lui pose vaut pour
       les deux, y compris si leur profil de sécurité est opposé. C'est arrivé exactement ainsi — une
       exclusion `DFG < 30` justifiée pour le sulfamide (contre-indication RCP) a retiré au répaglinide,
       d'élimination hépatobiliaire et sans contre-indication rénale, le geste que son propre RCP
       recommande. Le regroupement paraissait économique à l'écriture ; il a coûté un défaut de sécurité.
-- [ ] **Elle n'est pas déclenchée par la seule valeur du primer.** Sinon elle **préempte le repli** et
+- [ ] **Elle n'est pas déclenchée par la seule valeur du primer.** *(aide-mémoire — A11)* Sinon elle **préempte le repli** et
       le nœud ne peut plus conclure « rien à faire » : c'était le cas dans **trois situations sur
       quatre** de `insuline`, où un patient à l'objectif sous basal-bolus recevait quand même
       « optimiser la répartition » (`b101ae4`).
@@ -585,16 +634,16 @@ constats hors audit y ont été trouvés ainsi) :
 - [ ] **Si elle parle d'un geste, c'est une alerte d'option.** Une alerte de nœud ne voit que les
       critères, jamais ce que le moteur a retenu : elle ne peut pas savoir qu'elle contredit la carte
       affichée juste en dessous.
-- [ ] **Sa nuance est actionnable.** « Si une statine est déjà en place, sa poursuite est raisonnable »
+- [ ] **Sa nuance est actionnable** *(arbitré le 2026-09-24 — A3)*. « Si une statine est déjà en place, sa poursuite est raisonnable »
       était juste et **inapplicable**, le nœud ne posant jamais la question (R9).
 
 ### 2.4 Nœud
 
-- [ ] **Il peut conclure « rien à faire »** pour **chaque** valeur du primer — vérifié par couverture.
-- [ ] **`population_cible` déclare ce qui est hors périmètre.** Tout concept nommé comme réserve dans
+- [ ] **Il peut conclure « rien à faire »** pour **chaque** valeur du primer — vérifié par couverture. *(aide-mémoire — A11)*
+- [ ] **`population_cible` déclare ce qui est hors périmètre** *(arbitré le 2026-09-24 — A3)*. Tout concept nommé comme réserve dans
       la prose (« si déjà en place », « CARDS 40-75 ans », « en cas d'intolérance ») est **soit** un
       critère d'entrée, **soit** déclaré hors périmètre. Pas de troisième statut (R9).
-- [ ] **Le mode de sélection est choisi en connaissance de cause.** En `multi-options`, une valeur par
+- [ ] **Le mode de sélection est choisi en connaissance de cause.** *(aide-mémoire — A11)* En `multi-options`, une valeur par
       défaut erronée ajoute ou retire une carte parmi d'autres ; en **`ordered-first-match` elle
       désigne un tier unique et masque tout le reste** — sur `statine`, les trois valeurs par défaut
       convergeaient vers le même tier, de sorte que le formulaire vierge produisait une recommandation
@@ -604,18 +653,18 @@ constats hors audit y ont été trouvés ainsi) :
       la Fragilité répondue sur `cible-glycemique` n'arrive pas sur `prescription` alors qu'elle
       circule entre les deux nœuds RHD (2026-08-04) — deux encodages du même fait cassent le partage
       sans qu'aucun écran ne le dise.
-- [ ] **La bascule du primer conserve les saisies** (R12, 2026-08-04) : pour toute saisie et toute
+- [ ] **La bascule du primer conserve les saisies** (R12, 2026-08-04 ; opposable, arbitré le 2026-09-24 — A11) : pour toute saisie et toute
       bascule A→B→A, l'état final égale l'état initial — et la persistance est **uniforme** entre
       sections (sur `insuline`, la bascule perdait la surveillance mais gardait le profil nocturne :
       l'état restauré déclarait un profil AGP sans capteur).
-- [ ] **Si le primer et un critère encodent le même fait, ils sont synchronisés ou surveillés.**
+- [ ] **Si le primer et un critère encodent le même fait, ils sont synchronisés ou surveillés.** *(aide-mémoire — A11)*
       Constaté : `Situation = Basale seule` coexistait, sur le même écran, avec « Insuline basale »
       non cochée dans les traitements — aucune dérivation, aucune alerte d'incohérence. Déclarer la
       dérivation (dans les deux sens, statut `suggere`) ou, à défaut, une alerte de cohérence.
-- [ ] **Les limites connues sont écrites dans `incertitudes`**, pas laissées tacites (`6561c53` :
+- [ ] **Les limites connues sont écrites dans `incertitudes`** *(aide-mémoire — A11)*, pas laissées tacites (`6561c53` :
       trois limites documentées au moment même de la correction).
 - [ ] **La table des conditions régénérée a été diffée contre le brouillon de P5, et toute divergence
-      est justifiée par écrit** (P5/P6, 2026-08-06). Régénération :
+      est justifiée par écrit** (P5/P6, 2026-08-06 ; arbitré le 2026-09-24 — A9). Régénération :
       `npx vitest run …/banc/tableConditions.test.ts`. Un rôle changé, une famille reclassée, une
       condition apparue ou disparue en cours d'encodage se justifie — soit en rouvrant P2 (le brouillon
       sous-estimait un cas réel), soit en corrigeant le YAML (l'encodage a dérivé). Le brouillon doit
@@ -638,7 +687,7 @@ constats hors audit y ont été trouvés ainsi) :
       il oriente, il ne verrouille pas.** Deux gros boutons de choix se lisent spontanément comme un
       aiguillage exclusif — sans une phrase qui l'infirme, le praticien croit devoir choisir et n'ouvre
       jamais le second axe.
-- [ ] **Chaque orientation porte des indices situationnels, pas des catégories.** Le pattern vérifié
+- [ ] **Chaque orientation porte des indices situationnels, pas des catégories.** *(aide-mémoire — A11)* Le pattern vérifié
       sur l'écran RHD (2026-08-04) : sous chaque axe, deux ou trois phrases de reconnaissance
       (« *Le patient décrit spontanément ce qu'il mange* », « *Une expérience passée négative bloque
       la reprise* ») — le praticien reconnaît sa consultation au lieu d'interpréter un intitulé. C'est
@@ -655,9 +704,9 @@ constats hors audit y ont été trouvés ainsi) :
       relecture.
 - [ ] **Un module regroupe au moins deux nœuds.** À un seul, il n'ajoute qu'un écran d'interstice et un
       clic, sans rien mutualiser.
-- [ ] Charge de saisie mesurée : au-delà d'une douzaine d'items par nœud, arbitrer avant d'encoder.
+- [ ] Charge de saisie mesurée : au-delà d'une douzaine d'items par nœud, arbitrer avant d'encoder. *(aide-mémoire — A11)*
 
-> **Un champ de contenu que personne ne lit ne se signale jamais.** `module: RHD` a vécu dans le schéma
+> **Un champ de contenu que personne ne lit ne se signale jamais** *(aide-mémoire — A12)*. `module: RHD` a vécu dans le schéma
 > *et* dans les deux nœuds sans qu'aucune ligne de code ne le consomme — ni l'écran, ni les tests, ni
 > même le type TS `Noeud`, où il manquait purement et simplement. Tout était vert : le YAML validait, la
 > suite passait. Un champ ajouté au schéma doit être, dans le même lot, **soit consommé, soit déclaré
@@ -680,18 +729,18 @@ Trois couches (détail et coût dans `GRAMMAIRE-NOEUD.md` § « Le banc d'un nœ
 soutenabilité : valider la sortie exacte de 200 profils demande 200 relectures ; une *propriété* se
 valide une fois et couvre tout l'espace.
 
-**Invariants génériques à reprendre dans tout domaine** : I3 (aucune prononciation sur un critère
+**Invariants génériques à reprendre dans tout domaine** *(exigés en P0 : arbitré le 2026-09-24 — A1)* : I3 (aucune prononciation sur un critère
 indéterminé) · I4 (un concept, un encodage) · I7 (alerte prohibitive ⇒ exclusion) · « jamais une option
 affichée dont une exclusion est vraie » · « jamais de sortie vide lorsque tous les critères pertinents
 sont renseignés » (I2′).
 
-> **Un invariant trop large est pire qu'absent** — il force à encoder une règle fausse pour le faire
+> **Un invariant trop large est pire qu'absent** *(aide-mémoire — A12)* — il force à encoder une règle fausse pour le faire
 > passer. Quand un invariant échoue, la première question n'est pas « quel contenu corriger » mais
 > « l'invariant dit-il vraiment ce que je voulais dire ». L'invariant n° 7 du DT2 a dû être resserré
 > **deux fois**, pour le même motif : les garde-fous d'urgence sont orthogonaux à la position vs
 > objectif.
 
-**Trois questions devant un invariant rouge, dans cet ordre** — la troisième a été découverte tard :
+**Trois questions devant un invariant rouge, dans cet ordre** *(aide-mémoire — A12)* — la troisième a été découverte tard :
 
 1. le **contenu** a-t-il tort ?
 2. l'invariant est-il **trop large** (faux positif) ?
@@ -711,7 +760,7 @@ sont renseignés » (I2′).
 > inchangés) mais d'ajouter le canal qui manquait (`cadrage`, D24). **Quand une règle juste ne peut être
 > satisfaite par aucune formulation, ce n'est pas le contenu qu'il faut plier.**
 
-**Une exception de dette se nomme au plus fin.** Dispenser un *nœud entier* d'un invariant rend invisible
+**Une exception de dette se nomme au plus fin** *(déjà acté pour I33 — D54 ; pour tout autre invariant : aide-mémoire — A12)*. Dispenser un *nœud entier* d'un invariant rend invisible
 toute **nouvelle** violation sur ce nœud : la dette ne protège plus un cas diagnostiqué, elle aveugle un
 fichier. Les exemptions se portent sur l'objet exact (ici : l'alerte, identifiée par son `quand` — la
 partie stable, qu'une reformulation éditoriale ne fera pas expirer en silence), accompagnées de leur
@@ -738,7 +787,9 @@ auparavant `Infinity`).
 
 ## 4. Les pièges, en un tableau
 
-Table de relecture rapide. Chaque ligne est un défaut **constaté**, pas anticipé.
+Table de relecture rapide. Chaque ligne est un défaut **constaté**, pas anticipé. *(Historique : la
+table ne prescrit rien par elle-même ; une parade n'oblige que par la décision ou le point arbitré qui
+la porte ailleurs dans ce document.)*
 
 | piège | forme observée | parade |
 |---|---|---|
@@ -788,22 +839,22 @@ de la dernière journée venaient de nos propres correctifs du matin**, pas du c
 - une exclusion `DFG < 30` justifiée pour le sulfamide a retiré au glinide un geste que son RCP
   recommande, parce qu'une seule option portait les deux classes.
 
-**Un correctif est un changement de comportement comme un autre.** Il passe donc par la même porte que
+**Un correctif est un changement de comportement comme un autre** *(aide-mémoire — A12)*. Il passe donc par la même porte que
 du contenu neuf — piste B du §P6 — et pas seulement par la relecture de son propre diff.
 
-**La mesure qui répond à la bonne question** n'est pas « combien de lignes ont changé » mais **combien de
+**La mesure qui répond à la bonne question** *(arbitré le 2026-09-24 — A8)* n'est pas « combien de lignes ont changé » mais **combien de
 profils ont gagné ou perdu une option, et lesquels**. Sur la scission sulfamide/glinide, la formulation
 utile tenait en trois nombres : *28 profils à DFG < 30 récupèrent le geste · 0 profil sulfamide ne
 repasse sous le garde-fou · 0 option perdue.* Le premier dit que le correctif fait ce qu'on attend, le
 deuxième que le garde-fou d'origine tient toujours, le troisième qu'on n'a rien cassé ailleurs.
 
-**Valider l'instrument de mesure avant de conclure.** Mesurer un instantané structuré à coups de `grep`
+**Valider l'instrument de mesure avant de conclure** *(arbitré le 2026-09-24 — A8)*. Mesurer un instantané structuré à coups de `grep`
 et de troncatures s'est trompé **quatre fois** dans la même journée : fins de ligne CRLF, champ retiré
 des deux côtés du diff, décalage de numéros de ligne, et enfin une troncature au *premier* séparateur
 d'un format qui en compte cinq — qui a produit un rassurant « zéro changement » entièrement faux. Avant
 d'annoncer un chiffre tiré d'un diff : vérifier le format sur **un cas dont on connaît déjà la réponse**.
 
-**Un lot purement éditorial doit prouver qu'il l'est.** La bonne preuve n'est pas « j'ai relu » mais le
+**Un lot purement éditorial doit prouver qu'il l'est** *(aide-mémoire — A12)*. La bonne preuve n'est pas « j'ai relu » mais le
 golden master **inchangé au bit près**, accompagné de l'argument structurel qui dit *pourquoi* c'était
 attendu (les champs modifiés — `avantages`, `inconvenients`, `effet_attendu` — ne sont pas rendus dans la
 signature, ils sont donc hors de portée de l'instantané par construction).
@@ -813,7 +864,7 @@ demandé « glinide sous 30 de DFG, quelle est la question ? Il faut vérifier l
 était d'expliquer le correctif. La RCP a donné tort au correctif. Un garde-fou de sécurité mis en doute
 par le clinicien se re-source, il ne se défend pas.
 
-**Un garde-fou qu'aucun profil ne franchit est un garde-fou non testé** — et le golden master ne le dira
+**Un garde-fou qu'aucun profil ne franchit est un garde-fou non testé** *(aide-mémoire — A12)* — et le golden master ne le dira
 pas, puisque rien n'y change. L'exclusion « sulfamide chez le sujet fragile » n'a modifié la sortie
 d'AUCUN des 180 profils du banc : les seuls profils fragiles qui atteignaient l'option en étaient déjà
 retirés par le seuil rénal. Le lot semblait donc sans effet alors qu'il ajoutait une vraie
@@ -829,14 +880,14 @@ relue. **Quand un ordre porte une garantie de sécurité — et non plus seuleme
 il faut l'écrire à l'endroit qu'un futur remaniement casserait**, c'est-à-dire dans l'option qu'on croit
 protégée, pas seulement dans celle qui protège.
 
-**`visible_si` est de l'ergonomie, pas de la correction.** Il n'est lu que par la couche formulaire ; le
+**`visible_si` est de l'ergonomie, pas de la correction** *(c'est R11 : opposable, arbitré le 2026-09-24 — A11)*. Il n'est lu que par la couche formulaire ; le
 moteur ne le connaît pas. Un critère dont la portée clinique est conditionnelle (« CK avant initiation »)
 doit porter cette condition **dans chaque expression qui le lit**, pas seulement dans son `visible_si` —
 sans quoi une valeur saisie puis rendue invisible continue d'agir. La redondance entre les deux est
 voulue : l'une sert la saisie, l'autre le raisonnement.
 
 **Un lot qui change le comportement d'une carte doit repasser les quatre niveaux de lecture qui la
-citent, pas seulement ses champs moteur.** Le YAML et l'argumentaire exhaustif (`.argumentaire.md`)
+citent, pas seulement ses champs moteur** *(aide-mémoire — A12)*. Le YAML et l'argumentaire exhaustif (`.argumentaire.md`)
 sont deux fichiers distincts, édités à des rythmes différents — c'est la même désynchronisation que
 « deux chemins d'affichage » (§4), mais entre deux **fichiers** au lieu de deux composants de rendu.
 Trois lots de comportement livrés le même jour (2026-08-06 : T-167/T-168 sur `insuline`, T-185 sur
@@ -882,6 +933,10 @@ donné et marqué à confirmer (`47e3527`).
 
 ### Classer chaque `incertitudes` par NATURE, à l'écriture
 
+*(Opposable pour les nouveaux domaines — arbitré le 2026-09-24, A12, amendé : « aide-mémoire, sauf
+deux règles opposables pour les nouveaux domaines : le préfixe de nature de chaque entrée `incertitudes`
+et un seul document d'état par chantier ». Les 55 entrées DT2 ne sont pas reprises.)*
+
 Le DT2 en compte **55**. Question posée par le référent en fin de domaine : *« une collecte de données
 en réglerait-elle une partie ? »* — question évidente, et **impossible à trancher sans relire les 55**,
 parce que rien ne distingue une lacune de la preuve d'un arbitrage en attente ou d'une dette technique
@@ -909,14 +964,16 @@ Deux conséquences pratiques, l'une pour le prochain domaine, l'autre pour celui
 
 ## 6. Discipline de session
 
-Reprise de `ETAT-DES-LIEUX.md` du chantier 2026-07-26, applicable telle quelle à tout module :
+Reprise de `ETAT-DES-LIEUX.md` du chantier 2026-07-26, applicable telle quelle à tout module. Statut
+de chaque item au 2026-09-24 : 1 opposable (A12, amendé) ; 2 et 7 arbitrés (A8) ; 4 arbitré (A1) ;
+3, 5 et 6 déjà actés (D6, en-tête de `DECISIONS.md`, `WORKFLOW.md` §4b) ; 8 aide-mémoire (A12).
 
-1. **Un seul document d'état** par chantier. Toute décision s'y consigne, puis migre vers
+1. **Un seul document d'état** par chantier *(opposable pour les nouveaux domaines — A12)*. Toute décision s'y consigne, puis migre vers
    `DECISIONS.md` (transverse) ou `docs/decision/noeuds/` (clinique). *L'état ne vit pas dans les
    échanges.*
-2. **Pas de nouvelle collecte** tant que les findings de la précédente ne sont pas intégrés.
+2. **Pas de nouvelle collecte** tant que les findings de la précédente ne sont pas intégrés *(A8)*.
 3. **Toute collecte de contenu clinique a sa passe adversariale.**
-4. **Les corrections systémiques passent avant le contenu** : un module encodé sur un moteur non
+4. **Les corrections systémiques passent avant le contenu** *(A1)* : un module encodé sur un moteur non
    corrigé est de la dette.
 5. **Une décision node-specific se consigne dans `docs/decision/noeuds/<nœud>.md`**, jamais seulement
    dans le document de chantier — sinon elle disparaît à la clôture.
@@ -924,10 +981,10 @@ Reprise de `ETAT-DES-LIEUX.md` du chantier 2026-07-26, applicable telle quelle �
    lots qui se recouvrent se sérialisent. Un lot éditorial et un correctif de sécurité ont visé le même
    YAML le même soir ; le second a dû attendre. C'est le bon comportement, mais il se décide **avant**
    de lancer, pas en voyant le `git status`.
-7. **Un agent mesure, il n'estime pas.** « Beaucoup de changements cosmétiques » annoncé sur un lot
+7. **Un agent mesure, il n'estime pas** *(A8)*. « Beaucoup de changements cosmétiques » annoncé sur un lot
    `insuline` recouvrait **79 profils dont la liste d'options avait réellement changé**. La consigne
    d'un lot doit exiger le chiffre et la méthode qui le produit, pas une appréciation.
-8. **Le statut du contenu est visible là où le contenu est lu.** Cinq nœuds sont `brouillon` et
+8. **Le statut du contenu est visible là où le contenu est lu** *(aide-mémoire — A12)*. Cinq nœuds sont `brouillon` et
    l'application déployée n'en dit rien — un praticien ne peut pas savoir qu'il lit un contenu non
    validé. Le cycle de vie éditorial n'a de valeur que s'il atteint l'écran.
 
