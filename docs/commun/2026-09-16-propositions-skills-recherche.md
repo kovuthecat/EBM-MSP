@@ -664,6 +664,11 @@ OUTILS DÉTERMINISTES             scripts/identite.mjs · scripts/verifier-regis
 
 ### 14.3 Garde-fou OE : une confirmation à chaque question
 
+> **Arbitrage du 2026-09-24 : hook refusé.** Le garde-fou est une règle écrite, à un seul endroit :
+> `.claude/skills/recherche-source-primaire/references/openevidence.md` § 1 — aucune question OE
+> sans accord du référent dans la conversation ; seul l'orchestrateur appelle le CLI, jamais un
+> agent. La proposition ci-dessous est conservée pour mémoire (`DECISIONS.md` D65).
+
 Proposition : un hook `PreToolUse` sur les outils Bash **et** PowerShell, qui demande ta
 confirmation dès qu’une commande appelle le CLI d’Interface-OE (`demander`).
 
