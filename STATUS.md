@@ -35,17 +35,10 @@ Passage à `valide` conditionné à la relecture référent finale (`TASKS.md` �
 **Refonte des skills de recherche — décidée le 2026-09-24 (D65), plan à ouvrir** (`/nouveau-plan`),
 entrée : `docs/commun/2026-09-16-propositions-skills-recherche.md` §14.
 
-Aucun plan ouvert sur le module Décision. **Plan P15 — panneau posologie, clos le 2026-08-14, fusionné
-dans `main`** (`2823b02`, `plans/P15/index.md`) : sort les citations de sources du texte de posologie vers
-une note structurée à deux registres de bibliographie, rend la posologie conditionnelle au patient
-(`quand`), et corrige un défaut réel (titration MCG affichant la consigne de glycémie capillaire). Un
-red-team (S9) a infirmé la conclusion « aucun essai » d'une passe de débroussaillage initiale, revérifié
-via l'API ClinicalTrials.gov. **Suivi le même jour d'une relecture en consultation** (6 correctifs :
-metformine sourcée KDIGO/ANSM sans incise d'initiation, AR GLP‑1 réordonné via le nouveau champ
-`ItemPosologie.accent`, préremplissage `insuline_basale`/`rapide` selon la situation, `preference_injection`
-masqué sur `insuline.yaml` — « Insuline prémélangée » y devient inatteignable, effet de bord assumé —
-posologie ajoutée à 3 options d'`insuline.yaml` qui recommandaient un AR GLP‑1 sans dose). 14 commits, N0
-vert (1325 tests), vérifié au navigateur.
+Aucun plan ouvert sur le module Décision. **Plan P15 — panneau posologie, clos et fusionné le 2026-08-14**
+(`2823b02`, détail `plans/P15/index.md`), suivi de 6 correctifs de consultation (`254780e`, détail dans
+le message de commit). Effet de bord assumé : l'option « Insuline prémélangée » d'`insuline.yaml` est
+inatteignable (`preference_injection` masqué).
 
 **Plan P14 — clos 2026-08-07**, **P13 — clos 2026-08-05**, **P12 — clos 2026-08-03** : détail dans leurs
 `index.md`. **Plan PV1 — Veille, cadré 2026-07-31, pas démarré.** **Plan P7** (ouvert) : manquent SA2 et
