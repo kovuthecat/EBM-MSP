@@ -27,6 +27,14 @@
   Reprise demandée par l'utilisateur (« Reprends »). S4 a ensuite rendu `PASS` avec N0 vert.
 - Rien d'annulé : les commits de S4 portent les messages et repères de l'index.
 
+## Récidive en vague 7 (S10 · S11)
+- S10 coupée à son tour par la limite d'usage (429, levée annoncée 19:50), reprise par `SendMessage`
+  à la demande de l'utilisateur (« Réessayer »), repartie après la levée.
+- S10 a commité T18 sous verrou (`0e8a130`, 18:45) ; S11 a respecté le verrou. Troisième session
+  (S2, S4, S10) à commiter sous `wave.lock` : le refus de `pretooluse-git.mjs` ne tient pas.
+- Deux arbitrages utilisateur transmis en cours de session par `SendMessage` (exclusion du circuit
+  Veille, puis arrêt de la mesure pour coût) : T19 livrée partielle, consignée dans le bilan S10.
+
 ## À trancher côté workflow
 - `prochaine-action.mjs` ne distingue pas une coupure d'API d'un échec, et ne connaît pas le verrou
   quand il rend `pousser` : il devrait rendre `reprendre` (ou `question`) tant que `wave.lock` existe.
