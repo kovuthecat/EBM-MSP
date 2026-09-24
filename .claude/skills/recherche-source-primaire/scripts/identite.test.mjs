@@ -15,6 +15,7 @@ import {
   appelEfetch,
   appelEuropePmc,
 } from './identite.mjs';
+import { lireTousLesCas } from '../../../../docs/commun/epreuves-recherche/harnais/cas.mjs';
 
 const ICI = dirname(fileURLToPath(import.meta.url));
 const FIXTURES = join(ICI, 'fixtures');
@@ -269,11 +270,12 @@ describe("signatures du corpus d'épreuve — aucun identifiant de fixture ne do
       '10.1101/2020.06.22.20137273', 'PPR179288',
       '10.1056/NEJMoa2021436', '32678530',
     ];
-    const signaturesCorpus = [
-      'PMC11060609', 'PMC8865788', 'PMC11739333', 'PMC11635056', 'PMC4838666',
-      '35929480', '40497316', '41208627', '37433947', '38968535',
-      '41651803', 'NCT06111508', '41485838', 'PMC10435622',
-    ];
+    // Signatures lues dans le corpus lui-même (jamais recopiées ici : ce fichier est dans la liste
+    // blanche de l'export, et signatures.test.mjs refuserait toute signature écrite en clair).
+    const signaturesCorpus = lireTousLesCas(join(ICI, '..', '..', '..', '..'))
+      .flatMap((c) => c.signatures.map((s) => s.valeur))
+      .filter(Boolean);
+    expect(signaturesCorpus.length).toBeGreaterThan(0);
     for (const id of identifiantsUtilises) {
       expect(signaturesCorpus).not.toContain(id);
     }
