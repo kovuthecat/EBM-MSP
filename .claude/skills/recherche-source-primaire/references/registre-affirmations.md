@@ -1,7 +1,7 @@
 # Registre des affirmations
 
-Complète la **table maîtresse des preuves** (une ligne par étude, `recherche-preuve-triangulee`
-SKILL.md l.84-98) — elle ne la remplace pas. Le registre, lui, tient une ligne par **affirmation**
+Complète la **table maîtresse des preuves** (une ligne par étude, livrable de l'Agent A en
+Décision, étape 2 de `recherche-preuve-triangulee`) — elle ne la remplace pas. Le registre, lui, tient une ligne par **affirmation**
 du dossier : un même article peut soutenir plusieurs affirmations, avec des statuts différents.
 Motif (§14.2) : l'erreur la plus fréquente n'est pas la référence inventée mais la référence réelle
 qui ne soutient pas la phrase — relier chaque affirmation au passage lu (P1) n'est tenu que si une
