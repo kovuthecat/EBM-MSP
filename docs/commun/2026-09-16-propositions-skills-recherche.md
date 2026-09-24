@@ -1,6 +1,8 @@
 # Améliorer les skills de recherche d’EBM MSP
 
 Rapport du **16 septembre 2026** — propositions à discuter, sans modification des skills ni du code.
+Complété le **24 septembre 2026** : faits nouveaux, sources externes, inventaire des incidents du
+dépôt et propositions N1–N8 (§13).
 
 ## 1. Recommandation
 
@@ -168,6 +170,11 @@ Une demande de contexte de Sackett est un état intermédiaire : rester sur une 
 
 Le parseur local `Interface-OE/src/cli/index.ts` expose la question, `--output`, `--conversation`, `--no-launch` et `--json`. Il rejette les options inconnues : **aucune option de sélection de modèle n’existe dans ce fichier**. La documentation EBM MSP ne décrit pas davantage cette sélection. Aucune session réelle n’a été ouverte pour vérifier le comportement de l’interface.
 
+> **Mise à jour du 24 septembre — dépassé.** Interface-OE accepte `--modele osler|sackett|snow`
+> depuis le 17 septembre et écrit le modèle constaté en tête de la réponse ; les conséquences 1 et 2
+> ci-dessous sont en grande partie traitées côté Interface-OE, pas encore dans la doc d’EBM MSP.
+> Détail : §13.1 et N1.
+
 Conséquences proposées :
 
 1. À court terme, si un modèle particulier est nécessaire, le sélectionner et le constater dans l’interface avec le référent ; sinon conserver « modèle inconnu ». Ne pas ajouter une commande fictive au skill.
@@ -214,6 +221,8 @@ Mesurer : erreurs majeures restantes, affirmations décisionnelles avec passage 
 Pour OE, proposer ensuite un **pilote séparé soumis au budget du référent**, par exemple trois questions figées comparées entre modèles accessibles, en nouvelles conversations et séquentiellement. Un lecteur vérifie les sorties sans connaître le modèle quand c’est possible. Mesurer surtout les sources pertinentes supplémentaires et les erreurs après contrôle. Ce pilote n’a pas été exécuté.
 
 ## 9. Ordre d’adoption conseillé
+
+> Révisé le 24 septembre : §13.6.
 
 | Lot | Contenu | Effort relatif | Condition de réussite |
 |---|---|---|---|
@@ -358,3 +367,332 @@ Le fichier principal porterait déclencheurs, états, portes et règles de repri
 3. **Conserver l’actualisation comme une capacité des dossiers**, avant d’en faire éventuellement une troisième skill. Éviter plusieurs points d’entrée ayant la même responsabilité.
 
 Ces deux skills sont proposées, **pas créées**. Ce complément reste documentaire et n’engage ni construction d’un module ni recherche clinique.
+
+## 13. Compléments du 24 septembre 2026
+
+**Ce qui change pour toi.** Le rapport tient ; trois choses bougent.
+
+1. **Une partie de §6 est dépassée** : Interface-OE choisit et constate le modèle OE depuis le
+   17 septembre. Mais la doc d’EBM MSP l’ignore, et la commande qu’elle donne pointe vers un dossier
+   absent de ce poste : lancée telle quelle, elle échoue avec le code que le skill lit comme
+   « réponse OE incomplète ».
+2. **Le corpus d’épreuve de §8 existe déjà** dans le dépôt : une trentaine d’incidents documentés,
+   chacun avec le rapport qui l’a corrigé. L’évaluation peut rejouer les retours OE archivés sans
+   consommer une seule requête.
+3. **Les publications 2025-2026 confortent P1** (relier chaque affirmation au passage lu) : l’erreur
+   la plus fréquente des outils d’IA n’est pas la référence inventée, c’est la référence réelle qui
+   ne soutient pas la phrase — le dépôt en a trois cas confirmés.
+
+S’y ajoutent huit propositions (N1–N8, §13.4) et une décision qui t’appartient (D1, §13.5 : la
+future commande `article` d’Interface-OE face à l’invariant 7).
+
+**Méthode.** Relecture des quatre skills, de `docs/decision/00-global.md` et du mode d’emploi OE ;
+inventaire en lecture seule de `docs/decision/validation/`, `docs/veille/verifications-backlog/`, du
+journal de boîte mail et de l’historique git des skills (par un agent ; cinq de ses constats
+recontrôlés à la main) ; lecture du dépôt Interface-OE ; pages primaires consultées le 24 septembre
+(liens ci-dessous). Aucune requête OE, aucun skill ni code modifié.
+
+### 13.1 Faits nouveaux depuis le 16 septembre
+
+| Fait constaté | Preuve | Conséquence |
+|---|---|---|
+| Le CLI accepte `--modele osler\|sackett\|snow`. Il lit le modèle affiché avant et après le choix, et écrit `- Modèle : <nom>` — ou `inconnu` — en tête du markdown. Modèle demandé mais introuvable sur la page : code 1, sans question consommée | Interface-OE, commit `a477c2b` (17/09) ; `src/cli/index.ts:42` ; `src/core/extraction/markdown.ts:57-58` ; `docs/utiliser-le-cli.md:43` | L’« écart technique » de §6 et ses conséquences 1-2 sont en grande partie traités. Restent à mettre à jour `OUTIL-INTERFACE-OE.md` et `recherche-preuve-triangulee`, qui ignorent l’option |
+| Le chemin du CLI écrit dans le skill et le mode d’emploi (`C:/Users/kovu/SynologyDrive/Thibault/Projets/Interface-OE/…`) n’existe pas sur ce poste ; le dépôt à jour, CLI construit, est `C:\Users\Kovu\Projets\Interface-OE` | Contrôle d’existence du 24/09 | `node` sur un chemin absent sort en **code 1** — celui que le skill traduit par « réponse incomplète ». Un chemin mort se déguise en réponse OE tronquée |
+| Le guide OE décrit Sackett en « quelques secondes à une minute » (le communiqué annonçait ~30 s) et comme plus enclin à **demander une précision** ; Snow en « cinq minutes ou plus », successeur de Deep Consult ; Darwin sur candidature ; choix par un sélecteur | [Guide OE — modèles](https://www.openevidence.com/user-guide/models), lu le 24/09 | Les latences ont déjà bougé : ne pas les figer dans un skill. La demande de précision confirme l’état « clarification requise » de §6 |
+| Interface-OE prépare `interface-oe article <DOI>` : accès ouvert (Unpaywall, puis Europe PMC), **puis Sci-Hub en repli**, pour « les trois projets consommateurs ». Le plan en est à sa première session (noyau non écrit) | Interface-OE, `docs/decisions/2026-09-21-recuperer-un-article-par-doi.md:8-9,21-24` ; `plans/P12/index.md:30,69` | La branche Sci-Hub est incompatible avec l’invariant 7 et la règle d’ouverture de `recherche-source-primaire` (« jamais de contournement de paywall »). À trancher avant qu’elle n’existe : D1 |
+
+### 13.2 Ce que les sources externes ajoutent
+
+**Trois niveaux d’erreur de citation, qu’aucune vérification unique ne couvre.**
+
+| Niveau | Question | Ce qu’on sait |
+|---|---|---|
+| Identité | L’identifiant écrit est-il le bon ? | Mesure locale : 6 PMID sur 7 tapés par OE faux, ses DOI justes (`00-global.md:103-111`) |
+| Existence | La référence existe-t-elle ? | Lotan et al., *npj Health Systems* 2026 ([PMC13538487](https://pmc.ncbi.nlm.nih.gov/articles/PMC13538487/)) : 4 979 citations OE, aucune inventée, 3 erreurs d’attribution. Les auteurs précisent qu’ils **n’ont pas vérifié** que les références soutenaient les affirmations |
+| Soutien | La référence porte-t-elle la phrase ? | SourceCheckup, Wu et al., *Nat Commun* 2025;16:3615 ([article](https://www.nature.com/articles/s41467-025-58551-6)) : selon le modèle, 50 à 90 % des réponses de LLM ne sont pas entièrement soutenues par les sources qu’elles citent. Dans le dépôt : trois mésattributions OE confirmées, références exactes mais rattachement faux (`validation/chantier-2026-08-11/redteam-titration-mcg-2026-08-11.md:310-313`) |
+
+Conséquence : un outil « sans référence inventée » peut rester mal soutenu. Le troisième niveau est
+le plus fréquent, et P1 (registre par affirmation) est la seule proposition qui l’attaque
+directement : un argument pour ne pas le laisser attendre derrière le lot 1.
+
+**OE sur questions complexes : une performance modeste, à mesurer avant d’en faire un réflexe.**
+Jagarapu et al., préprint medRxiv, décembre 2025, **non relu par les pairs**
+([lien](https://www.medrxiv.org/content/10.64898/2025.11.29.25341091v1)) : 100 scénarios de
+surspécialité, 34 % de réponses exactes en recherche rapide, 41 % en Deep Consult. Petit
+échantillon, anciens modèles ; il n’établit rien sur Snow, mais corrobore le statut de débroussaillage
+et justifie le pilote de §8.
+
+**Revues rapides Cochrane : on vérifie l’extraction, et l’omission se chiffre.** Nussbaumer-Streit
+et al., *BMJ EBM* 2023 ([PMC10715469](https://pmc.ncbi.nlm.nih.gov/articles/PMC10715469/)) : une
+personne extrait, **une seconde vérifie exactitude et complétude** ; même règle pour le risque de
+biais ; un tri par une seule personne **manque environ 13 % des études pertinentes**, d’où un double
+tri d’environ 20 % des références pour se calibrer. Le couple A/B couvre la vérification ; il ne
+couvre pas l’omission : B attaque ce qu’A a trouvé, pas ce qu’A n’a pas trouvé. Les essais manqués du
+dépôt (`redteam-preuve-statine-sujet-tres-age.md:90-104`, `CONCILIATION-passeA.md:108`) ont été
+rattrapés par OE — par chance, pas par construction.
+
+**IA et synthèses de preuve : les positions 2025 de Cochrane, Campbell, JBI et CEE.** Déclaration
+commune (Flemyng et al. 2025, [PMC12603384](https://pmc.ncbi.nlm.nih.gov/articles/PMC12603384/)) et
+position du groupe Revues rapides de Cochrane (Gartlehner et al. 2025,
+[PMC12644243](https://pmc.ncbi.nlm.nih.gov/articles/PMC12644243/)) : les auteurs restent
+responsables ; **aucune étape entièrement automatisée** ; déclarer l’outil, sa version, la date,
+l’usage et, pour un LLM, les prompts ; justifier que l’outil convient à cet usage. Le projet en
+respecte l’esprit — validation par le référent — mais ses rapports d’agents ne disent ni quel modèle
+Claude les a produits, ni avec quels outils (N5).
+
+Ces textes visent des revues, pas une veille ; ils éclairent pourtant le §7bis, seule étape des
+circuits où un agent décide sans relecture humaine (D61 : compétence « non levée, seulement
+contenue », bandeau visible). Rien à trancher aujourd’hui : inclure un cas §7bis dans l’évaluation
+(lot 3) et rouvrir la question si une erreur passe.
+
+**Contrôles d’accès et d’intégrité : des voies ouvertes, sans connecteur.** Aucun des connecteurs
+nommés par `recherche-source-primaire` (PubMed, ClinicalTrials.gov, Consensus, SciSpace, Elicit)
+n’est exposé dans une session Claude Code comme celle de ce complément (recherche d’outils du
+24/09) : ses consignes y sont inapplicables. Des API publiques couvrent l’essentiel par simple
+lecture web :
+
+| Besoin | Voie ouverte | À savoir |
+|---|---|---|
+| Copie légale en accès ouvert d’un DOI | [Unpaywall](https://unpaywall.org/products/api) | Exige une adresse de contact en paramètre : celle du projet plutôt que la personnelle. Statuts `gold`, `green`, `hybrid`, `bronze`, `closed` — de quoi alimenter les états d’accès de P0 |
+| Rétractation, correction | [API Crossref](https://www.crossref.org/blog/retraction-watch-retractions-now-in-the-crossref-api/), qui intègre la base Retraction Watch | Gratuite, sans clé |
+| Toutes les publications d’un essai | PubMed, champ `[si]` avec le numéro NCT ([NLM](https://www.nlm.nih.gov/pubs/techbull/mj05/mj05_ct.html)) | Rattache princeps, sous-groupes et suivis à une même famille d’étude (P1) |
+| Préprint ↔ version publiée | [Europe PMC](https://europepmc.org/) | Lien annoncé, non éprouvé ici |
+| Études citées et citantes | [OpenAlex](https://developers.openalex.org/api-reference/introduction) | Gratuit ; sert la passe d’omission (N6) |
+
+**Écrire les skills : la doc officielle d’Anthropic plutôt que Superpowers.**
+[Skill authoring best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) :
+écrire les évaluations **avant** d’étoffer les consignes (trois scénarios, mesure de référence sans le
+skill, essai sur chaque modèle utilisé) ; nommer un outil MCP avec son serveur (`Serveur:outil`) ;
+ranger ce qui est daté dans une section « anciens usages ». Les quatre skills sont courts (72 à
+131 lignes, limite recommandée 500) ; leurs défauts sont ailleurs : `recherche-source-primaire:95-102`
+nomme `search_trials` pour Elicit **et** pour ClinicalTrials.gov, ambiguïté que le nom qualifié
+lève ; le même skill fige sans date des volumes et tarifs (8 M/36 M articles, 200 crédits,
+545 000 essais).
+
+### 13.3 Ce que le dépôt ajoute
+
+**Trois règles de sourcing que les skills ne portent pas.** `00-global.md` les a tirées
+d’incidents ; les skills, censés dispenser de relire la procédure, les ignorent :
+
+- ne jamais recopier un PMID rendu par OE (`00-global.md:103-111`) — or le gabarit de prompt du
+  skill triangulé demande à OE un « PMID/DOI exact » (`recherche-preuve-triangulee/SKILL.md:49-50`) ;
+- un verdict d’absence exige d’avoir ouvert le corpus local `docs/decision/sources/` et essayé deux
+  méthodes d’extraction (`00-global.md:112-122`) ;
+- la liste des sources exclues du prompt OE contient Exercer (`00-global.md:124-125`), pas celle du
+  skill (`recherche-preuve-triangulee/SKILL.md:54-56`).
+
+**Un second renvoi P5 résiduel** : `docs/commun/OUTIL-INTERFACE-OE.md:84` (« P4/P5 »), en plus de
+`recherche-source-primaire:8`. Le commit de création des skills (`a4da28b`) annonçait déjà la
+correction.
+
+**L’exemple de référence du skill triangulé a perdu son entrée OE** : `OE-statine-sujet-tres-age.md`
+a été supprimé par `790adaa` (28/07, purge de chantier), alors que le skill présente ce dossier comme
+« exemple complet et vérifié ».
+
+**Aucune trace de modèle ni de lien OE** : les deux retours OE du dépôt ont été collés à la main. Le
+suivi des modèles part de zéro — le CLI le fournit désormais sans effort (N1).
+
+**Le corpus d’épreuve de §8 est déjà là.** Huit items de veille vérifiés, dont trois reportés — tous
+pour un problème d’accès, aucun pour un désaccord de fond — et quatre chantiers Décision
+(26/07 → 11/08). Correspondance avec les cas de §8 :
+
+| Cas d’épreuve | Incident à rejouer |
+|---|---|
+| Accès mal qualifié | 6 des 10 articles déclarés inaccessibles étaient ouverts dans PMC (`validation/chantier-2026-07-27/redteam-sur-basalisation.md:220-236`) ; A04 reporté alors que le SAP était public (`JOURNAL_BOITE_MAIL.md:85`) |
+| Faux verdict d’absence | Seuil SFD déclaré introuvable, présent mot pour mot dans le corpus local (`validation/chantier-2026-07-29/CONCILIATION-passeA.md:113-133`) |
+| Même erreur chez A et OE | IC de PROSPER identiquement faux (`redteam-preuve-statine-sujet-tres-age.md:42-57`) ; quatre erreurs partagées (`redteam-titration-mcg-2026-08-11.md:376-391`) |
+| Référence exacte, affirmation non soutenue | Trois mésattributions OE (`redteam-titration-mcg-2026-08-11.md:310-355`) |
+| Mauvaise identité d’étude | A12 rétrospective présentée comme prospective (`JOURNAL_BOITE_MAIL.md:43,90`) ; fichier local « NICE 2023 » = NG238, pas NG28 (`CONCILIATION-passeA.md:118-119`) |
+| Chiffre dérivé | NNT d’ACE 33, corrigé à ~40 (`validation/chantier-2026-07-29/redteam-B2-chiffres.md:444`) ; p unilatéral présenté comme bilatéral (`verifications-backlog/ORTHO01-agent-C-reconciliation.md:163-183`) |
+| Spin du relais | Équivalence présentée en supériorité (A12), une proposition présentée en trois recommandations (A06) (`JOURNAL_BOITE_MAIL.md:122-129`) |
+| Faux « aucun ECR » d’OE | ECR publié six mois avant la requête (`redteam-titration-mcg-2026-08-11.md:369-374`) |
+| Capture qui change le sens | Signe `<` avalé à la copie : seuils de réduction de dose disparus (`validation/chantier-2026-07-29/OE-passeA-lecture-et-integrite.md:17-30`), récidive le 11/08 |
+
+Chaque incident a son rapport correcteur, donc son résultat attendu : le corpus se constitue par
+sélection, pas par invention. Les retours OE archivés se rejouent tels quels.
+
+### 13.4 Propositions nouvelles
+
+**N1 — Remettre à jour le mode d’emploi OE (lot 1).** Documenter `--modele` et la ligne `Modèle` ;
+n’écrire le chemin du CLI qu’à un seul endroit (`OUTIL-INTERFACE-OE.md`), le skill y renvoie ; avant
+l’appel, vérifier que le fichier existe. *À quoi tu le verras :* chaque `OE-*.md` indique son
+modèle ; un chemin faux échoue avec un message explicite au lieu d’un faux « incomplet ». *Revers :*
+le chemin reste propre à un poste ; sur un autre ordinateur, il se change à un seul endroit.
+
+**N2 — Rattacher les skills aux règles de sourcing de `00-global.md` (lot 1).** Par renvoi, pas par
+copie : le prompt OE demande DOI et citation complète, plus jamais le PMID ; tout verdict d’absence
+passe par le corpus local et deux méthodes d’extraction ; la liste d’exclusion renvoie à
+`00-global.md`. *À quoi tu le verras :* plus de PMID d’origine OE dans les dossiers ; chaque
+« introuvable » cite la pièce locale ouverte. *Revers :* négligeable.
+
+**N3 — Outils nommés sans ambiguïté, repli quand ils manquent (lot 1, complète P0).** Qualifier
+chaque outil par son serveur ; en tête de circuit, constater les outils exposés et, à défaut, passer
+par les voies ouvertes de §13.2 ; déplacer tarifs et volumes dans une section datée. *À quoi tu le
+verras :* chaque rapport d’agent commence par « outils disponibles : … ». *Revers :* les voies
+ouvertes font des requêtes web au moment de la recherche (jamais dans l’application) ; Unpaywall
+veut une adresse de contact, à choisir par toi.
+
+**N4 — Contrôle d’intégrité daté des études décisives (lot 2).** Pour chaque étude qui porte une
+conclusion : rétractation ou correction (Crossref), famille d’essai (`[si]` PubMed), préprint devenu
+publication (Europe PMC) ; une ligne datée dans la table maîtresse. Opérationnalise P1 et la SOP
+§10. *À quoi tu le verras :* une colonne « intégrité vérifiée le … ». *Revers :* trois requêtes par
+étude décisive ; s’en tenir à celles-là.
+
+**N5 — En-tête de provenance des rapports d’agents (lot 2).** Modèle Claude, date, outils réellement
+disponibles, accès obtenus ou bloqués, consignes utilisées : les champs que §6 demande pour OE,
+appliqués aux agents, comme l’exigent les positions Cochrane/Campbell/JBI/CEE. Rempli par
+l’orchestrateur, qui sait quel modèle il a lancé, et non par l’agent sur lui-même. *À quoi tu le
+verras :* cinq lignes en tête de chaque rapport A/B/C. *Revers :* un peu de discipline à chaque
+lancement.
+
+**N6 — Passe d’omission sur les sous-questions décisives (lot 2, conditionnée au lot 3).** Une
+recherche courte, sans lire A : études citantes des essais clés, registres, résultat de sens
+contraire. Elle peut fusionner avec la « première lecture » de B proposée en P1 (indépendance).
+*À quoi tu le verras :* une rubrique « cherché, non trouvé par A » dans le rapport B. *Revers :*
+un coût de plus ; ne l’adopter que si le lot 3 montre des omissions sur le corpus.
+
+**N7 — Évaluer avec l’outillage existant (lot 3).** La skill `skill-creator`, disponible dans cet
+environnement, compare un comportement avec et sans skill sur des scénarios fixés. Nourrie des cas
+de §13.3 et des retours OE archivés, elle rend l’évaluation de §8 exécutable **sans requête OE**.
+*Revers :* chaque passage consomme des tokens Claude ; le résultat attendu reste à relire par le
+référent.
+
+**N8 — Éprouver la capture du signe `<` (lot 4, dépôt Interface-OE).** Aucun test d’extraction
+d’Interface-OE ne porte un `<` suivi d’une valeur (recherche du 24/09). Le défaut a frappé deux
+captures manuelles ; vérifier que la capture par CLI le préserve avant de lui confier des seuils.
+*Revers :* un chantier dans l’autre dépôt.
+
+### 13.5 Décision qui t’appartient — D1 : la commande `article` et l’invariant 7
+
+> **Sans objet pour l’instant (24 septembre).** Le référent confirme que l’accès Sci-Hub de P12 ne
+> fonctionne pas ; P12 s’est arrêté après S1 (H1 réfutée, S2–S6 non commencées). La partie accès
+> ouvert n’arrivera donc pas non plus par Interface-OE : les skills doivent joindre Unpaywall et
+> Europe PMC elles-mêmes. La question ne revient que si P12 reprend.
+
+L’invariant 7 et `recherche-source-primaire` interdisent le contournement de paywall ; la future
+commande d’Interface-OE en fait un repli automatique.
+
+- **(a) Option « accès ouvert seulement » demandée à Interface-OE**, seule forme appelée depuis
+  EBM MSP · coût : une option dans P12, dont le noyau n’est pas écrit · ne ferme rien.
+- **(b) Commande telle quelle, résultat « trouvé (Sci-Hub) » écarté côté EBM MSP** · coût nul en
+  code · perd la garantie : le PDF est déjà téléchargé et archivé quand on l’écarte.
+- **(c) Pas de branchement : Unpaywall et Europe PMC appelés directement** · coût : refaire ce
+  qu’Interface-OE fera · perd le passage par le tunnel.
+
+**Recommandation : (a)**, seule option où le téléchargement contraire à l’invariant n’a jamais lieu,
+et moins chère maintenant qu’après la session S2 de P12. Si tu estimes que l’invariant 7 — rédigé
+pour la veille — ne vise que ce qui est publié, et non la lecture de travail, alors (b) suffit ; mais
+c’est une révision d’invariant, à écrire dans `DECISIONS.md`, pas à laisser implicite.
+
+### 13.6 Ordre d’adoption révisé
+
+| Lot | Ajouts du 24 septembre | Effet |
+|---|---|---|
+| 1 — Corriger | N1, N2, N3 | Reste documentaire et peu coûteux ; corrige un défaut actif (chemin OE mort, code 1 mal lu) |
+| 2 — Tracer | N4, N5 ; N6 sous condition | P1 gagne en priorité : c’est lui qui vise l’erreur la plus fréquente (§13.2) |
+| 3 — Éprouver | Corpus de §13.3, outil N7 | Aucune requête OE ; seul le pilote des modèles (§8) en consomme |
+| 4 — Adapter OE | Réduit à N8, à la doc (N1) et au pilote des modèles | Sélection et trace du modèle déjà faites côté Interface-OE |
+| Avant tout branchement de `article` | D1 | — |
+
+Ce complément, comme le rapport, ne modifie aucun skill ni aucun code et ne consomme aucune requête OE.
+
+## 14. Refonte retenue (arbitrage du 24 septembre 2026)
+
+**Arbitrage du référent :** refonte complète, **option C** — trois couches, agents dédiés et skill
+`construire-module-decision` dans le même chantier. Adresse de contact Unpaywall :
+`ebmmsp@gmail.com`. Garde-fou OE (§14.3) : recommandé, en attente d’accord. Ce chapitre est
+l’entrée de `/nouveau-plan` ; il remplace, pour l’architecture, les §7 et §12.
+
+### 14.1 Pourquoi refondre
+
+Les défauts relevés ont trois causes que du texte en plus ne corrige pas :
+
+1. **Des questions déterministes tranchées au jugement** — accès, identité d’un PMID, rétractation,
+   famille d’essai : un appel d’API y répond ; aujourd’hui un agent en décide (6 accès sur 10 et
+   6 PMID sur 7 faux, §13.3). `choisir-mecanisme` place le script avant la skill.
+2. **Des règles à deux domiciles qui divergent** — quatre écarts skills/`00-global.md`, plus le
+   chemin du CLI (§13.3).
+3. **Des circuits qui réinventent les étapes communes** — extraction, contradiction, réconciliation
+   n’ont pas les mêmes statuts en veille et en Décision ; la consolidation n’a pas de domicile (§10).
+
+### 14.2 Architecture cible
+
+Les noms des skills existantes sont conservés (onze fichiers les citent) : on refond le contenu.
+
+```text
+CIRCUITS (points d’entrée)       recherche-preuve-triangulee   Décision : une question clinique
+                                 verif-source-veille           Veille : un article
+                                 tri-boite-mail                quasi inchangé (+ DOI/NCT relevés)
+                                 construire-module-decision    nouveau : orchestre P0→P7
+      │ lancent
+AGENTS DÉDIÉS (.claude/agents/)  extracteur-preuve (A) · contradicteur-preuve (B)
+                                 reconciliateur-preuve (C veille §7bis, consolidation)
+      │ chargent
+SOCLE (une skill, références     recherche-source-primaire/references/
+chargées à la demande)             acces-identite.md · registre-affirmations.md
+                                   contradiction.md · consolidation.md (remplace la skill
+                                   consolider-preuves de §10) · openevidence.md · lecons.md
+      │ appellent
+OUTILS DÉTERMINISTES             scripts/identite.mjs · scripts/verifier-registre.mjs
+```
+
+- **`identite.mjs`** — pour un DOI ou un PMID : identifiants recoupés (PMID, PMCID, DOI), accès
+  ouvert et lien légal (Unpaywall), rétractation ou correction (Crossref), publications du même
+  essai (`[si]` PubMed), préprint lié (Europe PMC). `fetch` natif de Node, aucune dépendance ;
+  outillage de recherche, jamais dans l’application (invariant 1 intact). Doit échouer bruyamment si
+  une API change.
+- **`verifier-registre.mjs`** — contrôle du registre des affirmations : toute ligne « vérifiée » a sa
+  localisation et son mode d’accès ; tout NNT est publié, recalculé (données d’entrée fournies) ou non
+  calculable. Fait de P1 une porte, pas une intention. Format imposé aux nouveaux dossiers seulement.
+- **Agents dédiés** — consignes stables au lieu d’un prompt recomposé à chaque fois ; modèle fixé en
+  en-tête, donc provenance (N5) automatique ; B reçoit d’abord la question et les pièces, pas les
+  conclusions de A. Point à vérifier : cohabitation avec les agents vendorés du workflow dans
+  `.claude/agents/` lors d’un `/maj-workflow`.
+- **Socle** — une règle, un domicile : le principe et sa raison restent dans `00-global.md` ou la
+  SOP ; le socle porte la marche à suivre et renvoie à la section. `lecons.md` relie chaque incident
+  à sa règle, à son domicile et à son cas d’épreuve : garde-fou contre la dérive et index du corpus.
+- **OpenEvidence (`openevidence.md`)** — modèle annoncé avec la demande d’accord (« k questions,
+  modèle X, parce que ») ; hypothèses de départ à éprouver : Sackett pour des sous-questions P4
+  groupées, Snow pour une question large ou une lacune ciblée, Osler presque jamais (l’identification
+  passe par `identite.mjs`) ; aucune montée automatique ; ligne `Modèle :` comparée à la demande ;
+  **demande de précision détectée par la skill**, Interface-OE ne la repérant pas (code 0) → statut
+  `clarification requise`, relance par `--conversation` seulement avec accord ; PMID d’OE jamais
+  recopiés.
+- **`construire-module-decision`** — contrat de §11. **Préalable :** clarifier le statut de
+  `CONSTRUIRE-UN-MODULE.md`, encore « non arbitrée » (§11.2) ; sans cela, la skill rendrait
+  prescriptif un procédé que le référent n’a pas validé.
+
+### 14.3 Garde-fou OE : une confirmation à chaque question
+
+Proposition : un hook `PreToolUse` sur les outils Bash **et** PowerShell, qui demande ta
+confirmation dès qu’une commande appelle le CLI d’Interface-OE (`demander`).
+
+- **Pour :** le risque est asymétrique — une requête non voulue engage le compte personnel (défi
+  anti-robot déjà déclenché une fois, CGU), un clic coûte quelques secondes ; l’option C multiplie
+  les exécutions autonomes (agents dédiés, sessions orchestrées), là où « demander avant de poser »,
+  écrit en prose, est le plus fragile ; enfin, c’est ce hook, et non la liste d’outils des agents, qui
+  empêche un agent muni de Bash d’appeler OE.
+- **Pourquoi un hook plutôt qu’une règle de permission :** une règle de permission filtre un motif
+  de commande, contournable par une autre graphie du chemin ou par l’autre shell ; un hook inspecte
+  le texte de la commande quel que soit l’outil.
+- **Revers :** une vague orchestrée s’arrête à chaque question OE jusqu’à ton clic — c’est l’effet
+  voulu, à condition de regrouper les questions OE dans une étape dédiée du circuit.
+- **À vérifier avant de s’y fier :** le comportement en mode auto et dans un agent d’arrière-plan.
+  L’effet attendu est l’échec fermé (refus), jamais l’exécution silencieuse.
+
+### 14.4 Séquence proposée pour le plan
+
+| Ordre | Contenu | Porte |
+|---|---|---|
+| 0 | Déclarer `.claude/n0.json` (absent : le contrôle N0 ne tourne pas) | N0 exécutable |
+| 1 | Corpus d’épreuve (§13.3) et mesure des skills actuelles (`skill-creator`), sans requête OE | Mesure de référence écrite |
+| 2 | `identite.mjs`, `verifier-registre.mjs` et leurs tests | N0 vert |
+| 3 | Socle, `lecons.md`, `openevidence.md`, hook OE (si accord) | Aucune règle recopiée hors de son domicile |
+| 4 | Agents dédiés, réécriture des deux circuits, renvois des onze fichiers et du mode d’emploi OE | Circuits déroulables de bout en bout |
+| 5 | Mesure sur le corpus : skills actuelles / nouvelles avec agents génériques / nouvelles avec agents dédiés | Aucune régression ; gain attribué à chaque couche |
+| 6 | Statut de `CONSTRUIRE-UN-MODULE.md` arbitré par le référent (indépendant, peut avancer en parallèle) | Document arbitré |
+| 7 | `construire-module-decision` et ses épreuves (§11.5) | Épreuves passées |
+| — | Pilote des modèles OE (§8), séparé, sur ton budget | Accord explicite |
+
+La mesure à trois configurations de l’étape 5 répond au principal revers de C (tout changer d’un
+coup rend un gain ou une régression inattribuable) sans renoncer à l’option.

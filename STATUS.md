@@ -4,7 +4,8 @@ Photo à l'instant T. Mis à jour en fin de session. L'historique (comment on es
 `git log`, `DECISIONS.md`/`docs/commun/decisions/` et les changelogs de contenu — pas ici.
 Plafond : 80 lignes (appliqué par hook).
 
-> **Dernière mise à jour :** 2026-08-14
+> **Dernière mise à jour :** 2026-08-14 · ajout ponctuel le 2026-09-24 (refonte des skills de
+> recherche, ci-dessous) — le reste de la photo n'a **pas** été revérifié depuis le 14/08.
 
 ## Ce qui existe
 
@@ -30,6 +31,9 @@ Passage à `valide` conditionné à la relecture référent finale (`TASKS.md` �
 (vignettes, couverture, invariants, relation — paires co-actives + table des conditions, I25/I34).
 
 ## Chantier actif
+
+**Refonte des skills de recherche — décidée le 2026-09-24 (D65), plan à ouvrir** (`/nouveau-plan`),
+entrée : `docs/commun/2026-09-16-propositions-skills-recherche.md` §14.
 
 Aucun plan ouvert sur le module Décision. **Plan P15 — panneau posologie, clos le 2026-08-14, fusionné
 dans `main`** (`2823b02`, `plans/P15/index.md`) : sort les citations de sources du texte de posologie vers
