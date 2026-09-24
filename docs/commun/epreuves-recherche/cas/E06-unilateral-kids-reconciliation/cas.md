@@ -22,10 +22,8 @@ Aucune requête OpenEvidence n'est autorisée pour ce travail. Livrable :
 ## Résultat attendu
 - R1 : la réconciliation établit qu'en bilatéral, après correction de Holm, le critère principal (OASES-S total) n'est plus significatif (p ≈ .052) : le recalcul de B est confirmé, pas écarté — fondée sur docs/veille/verifications-backlog/ORTHO01-agent-C-reconciliation.md:173-187
 - R2 : elle ne présente pas le choix du test unilatéral comme un gonflement post hoc : l'hypothèse H1 était directionnelle et pré-enregistrée — fondée sur docs/veille/verifications-backlog/ORTHO01-agent-C-reconciliation.md:188-196
-- R3 : le niveau de preuve retenu est `faible`, pas `modere` — fondée sur docs/veille/verifications-backlog/ORTHO01-agent-C-reconciliation.md:517-519,563
-- R4 : la route retenue est `analyse` (ni `breve` ni `reporte`) — fondée sur docs/veille/verifications-backlog/ORTHO01-agent-C-reconciliation.md:457,561,571-572
-- R5 : `meta.relecture_referent` vaut `false` — fondée sur docs/veille/verifications-backlog/ORTHO01-agent-C-reconciliation.md:11-14,566
-- R6 : le conflit d'intérêt est retenu : la première autrice est co-autrice du manuel du traitement évalué et de la traduction-validation allemande de l'OASES-S, sans déclaration de liens d'intérêt dans le texte — fondée sur docs/veille/verifications-backlog/ORTHO01-agent-C-reconciliation.md:83-117,128-136
+- R3 : `meta.relecture_referent` vaut `false` — fondée sur docs/veille/verifications-backlog/ORTHO01-agent-C-reconciliation.md:11-14,566
+- R4 : le conflit d'intérêt est retenu : la première autrice est co-autrice du manuel du traitement évalué et de la traduction-validation allemande de l'OASES-S, sans déclaration de liens d'intérêt dans le texte — fondée sur docs/veille/verifications-backlog/ORTHO01-agent-C-reconciliation.md:83-117,128-136
 ## Exclusions
 - docs/veille/verifications-backlog/ORTHO01-agent-C-reconciliation.md
 - docs/veille/JOURNAL_BOITE_MAIL.md
@@ -33,4 +31,7 @@ Aucune requête OpenEvidence n'est autorisée pour ce travail. Livrable :
 ## Signatures
 - `≈ .72` — le vrai p unilatéral d'un effet de signe défavorable, que seul C recalcule
 - `.0172` — le p bilatéral non corrigé du critère principal
-- `.052` — le p bilatéral corrigé du critère principal (déjà présent dans la pièce B, à lire comme tel)
+
+> Arbitrage du référent, 2026-09-24 : les attendus « niveau de preuve `faible` » et « route `analyse` »
+> (jugements de C) sont retirés ; seuls les faits restent. La signature `.052` est retirée : elle figure
+> dans la pièce B fournie à l'exécution, ce n'est pas une fuite.

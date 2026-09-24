@@ -191,7 +191,7 @@ Les numéros de ligne sont ceux de `CONSTRUIRE-UN-MODULE.md` au 2026-09-24 (942 
   de chaînage). Le valider demande de dire comment il s'articule avec elles. Amendement possible : valider
   la porte sans la ligne « catalogue ».
 
-`[ ] valider · [ ] valider en amendant : ____ · [ ] rejeter`
+`[ ] valider · [x] valider en amendant : porte bloquante, sauf la ligne « catalogue inter-domaines » (T-019), qui ne bloque pas et reste à cadrer avec D22 et D36 · [ ] rejeter`
 
 ### P1
 
@@ -208,7 +208,7 @@ Les numéros de ligne sont ceux de `CONSTRUIRE-UN-MODULE.md` au 2026-09-24 (942 
   agent et acceptée d'un clic devient la vôtre sans que vous l'ayez pensée : c'est ce que « sans agent »
   voulait empêcher.
 
-`[ ] valider · [ ] valider en amendant : ____ · [ ] rejeter`
+`[ ] valider · [x] valider en amendant : la skill interroge le référent (situations, décisions, cas limites) pour faire émerger ses intentions, sans jamais en proposer ; elle présente le gabarit, relit et nomme les manques · [ ] rejeter`
 
 #### A3 — Les livrables de P1, dont l'inventaire de l'existant (règle R9), deviennent-ils obligatoires ?
 
@@ -222,7 +222,7 @@ Les numéros de ligne sont ceux de `CONSTRUIRE-UN-MODULE.md` au 2026-09-24 (942 
 - **Revers.** Un livrable écrit de plus avant tout contenu. Et `GRAMMAIRE-NOEUD.md` continuera d'écrire
   « R9 non arbitrée » : ce fichier n'est pas dans la zone de S11, il faudra le reprendre ailleurs.
 
-`[ ] valider · [ ] valider en amendant : ____ · [ ] rejeter`
+`[x] valider · [ ] valider en amendant : ____ · [ ] rejeter`
 
 ### P2
 
@@ -240,7 +240,7 @@ Les numéros de ligne sont ceux de `CONSTRUIRE-UN-MODULE.md` au 2026-09-24 (942 
   refus, donnée manquante) : la liste des cas tordus reste obligatoire. La même formulation « patients
   réels » figure aussi dans `GRAMMAIRE-NOEUD.md` l.891, hors de la zone de S11.
 
-`[ ] valider · [ ] valider en amendant : ____ · [ ] rejeter`
+`[x] valider · [ ] valider en amendant : ____ · [ ] rejeter`
 
 #### A5 — Les vignettes sont-elles écrites et gelées avant tout contenu, et deviennent-elles le contrat ?
 
@@ -254,7 +254,7 @@ Les numéros de ligne sont ceux de `CONSTRUIRE-UN-MODULE.md` au 2026-09-24 (942 
   vignette gelée tôt peut être contredite par la preuve ; il faut alors la rouvrir, et c'est vous qui la
   rouvrez.
 
-`[ ] valider · [ ] valider en amendant : ____ · [ ] rejeter`
+`[ ] valider · [x] valider en amendant : la skill propose des vignettes (situation synthétique et sortie attendue) ; le référent les valide, les corrige et en ajoute d'autres ; elles sont gelées après sa validation et deviennent le contrat · [ ] rejeter`
 
 ### P3
 
@@ -269,7 +269,7 @@ Les numéros de ligne sont ceux de `CONSTRUIRE-UN-MODULE.md` au 2026-09-24 (942 
 - **Revers.** Un arrêt de plus pour vous avant tout contenu clinique. Et une capture d'écran de contenu faux
   qui circule peut tromper : la maquette doit être marquée « contenu fictif » partout.
 
-`[ ] valider · [ ] valider en amendant : ____ · [ ] rejeter`
+`[x] valider · [ ] valider en amendant : ____ · [ ] rejeter`
 
 ### P4
 
@@ -285,7 +285,7 @@ Les numéros de ligne sont ceux de `CONSTRUIRE-UN-MODULE.md` au 2026-09-24 (942 
   régression, P4 en hérite. Chaque passage peut demander des questions OpenEvidence, avec votre accord, sur
   votre compte.
 
-`[ ] valider · [ ] valider en amendant : ____ · [ ] rejeter`
+`[x] valider · [ ] valider en amendant : ____ · [ ] rejeter`
 
 #### A8 — Discipline de collecte et de mesure (P4, §4 bis, §6)
 
@@ -299,7 +299,7 @@ Les numéros de ligne sont ceux de `CONSTRUIRE-UN-MODULE.md` au 2026-09-24 (942 
 - **Revers.** Moins de collecte, donc des zones restées en prose. La comparaison appariée suppose un banc
   déjà en place pour le domaine, ce qui lie ce point à A1.
 
-`[ ] valider · [ ] valider en amendant : ____ · [ ] rejeter`
+`[x] valider · [ ] valider en amendant : ____ · [ ] rejeter`
 
 ### P5-P6
 
@@ -315,7 +315,7 @@ Les numéros de ligne sont ceux de `CONSTRUIRE-UN-MODULE.md` au 2026-09-24 (942 
   Toute découverte légitime pendant l'encodage oblige à rouvrir la vignette concernée (P2), donc à vous
   solliciter.
 
-`[ ] valider · [ ] valider en amendant : ____ · [ ] rejeter`
+`[x] valider · [ ] valider en amendant : ____ · [ ] rejeter`
 
 ### P7
 
@@ -330,7 +330,7 @@ Les numéros de ligne sont ceux de `CONSTRUIRE-UN-MODULE.md` au 2026-09-24 (942 
 - **Revers.** Du temps par nœud, et une passe qui ne s'automatise pas : le workflow interdit toute
   automatisation de navigateur hors du navigateur intégré à Claude Code Desktop.
 
-`[ ] valider · [ ] valider en amendant : ____ · [ ] rejeter`
+`[x] valider · [ ] valider en amendant : ____ · [ ] rejeter`
 
 ### Checklists
 
@@ -349,7 +349,7 @@ Les numéros de ligne sont ceux de `CONSTRUIRE-UN-MODULE.md` au 2026-09-24 (942 
 - **Revers.** Une quinzaine de cases de plus par nœud. Un item tiré d'un seul cas peut être trop large :
   l'invariant I7 a dû être resserré deux fois pour cette raison. L'amendement vous laisse rayer des items.
 
-`[ ] valider · [ ] valider en amendant : ____ · [ ] rejeter`
+`[ ] valider · [x] valider en amendant : R11 et R12 deviennent opposables ; les items nés d'un cas unique restent un aide-mémoire · [ ] rejeter`
 
 ### Banc, pièges, consignation
 
@@ -370,7 +370,7 @@ Les numéros de ligne sont ceux de `CONSTRUIRE-UN-MODULE.md` au 2026-09-24 (942 
   écrit pas. « Statut visible à l'écran » est un chantier de code, planifié nulle part. Rejeter garde ces
   sections comme aide-mémoire, sans obligation.
 
-`[ ] valider · [ ] valider en amendant : ____ · [ ] rejeter`
+`[ ] valider · [x] valider en amendant : aide-mémoire, sauf deux règles opposables pour les nouveaux domaines : le préfixe de nature de chaque entrée `incertitudes` et un seul document d'état par chantier · [ ] rejeter`
 
 ---
 
@@ -378,7 +378,9 @@ Les numéros de ligne sont ceux de `CONSTRUIRE-UN-MODULE.md` au 2026-09-24 (942 
 
 Quel statut donner à `CONSTRUIRE-UN-MODULE.md` ?
 
-`[ ] procédé arbitré (la skill le rend prescriptif) · [ ] arbitré en partie (la skill ne prescrit que les points validés) · [ ] reste une proposition (la skill oriente sans prescrire)`
+`[ ] procédé arbitré (la skill le rend prescriptif) · [x] arbitré en partie (la skill ne prescrit que les points validés) · [ ] reste une proposition (la skill oriente sans prescrire)`
+
+**Arbitré par le référent le 2026-09-24** (séance de validation de la vague 2 de P16).
 
 ---
 

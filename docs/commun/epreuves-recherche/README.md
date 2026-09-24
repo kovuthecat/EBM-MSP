@@ -109,7 +109,7 @@ imposé de transposer E02, et de préférer l'incident A12 au fichier « NICE 20
 | [E07](cas/E07-spin-cfe-proposition-unique/cas.md) | Spin du relais | A | verif-source-veille | `A06-agent-C-reconciliation.md:155-200` | oui |
 | [E08](cas/E08-faux-aucun-ecr-titration-mcg/cas.md) | Faux « aucun ECR » d'OE | B | recherche-preuve-triangulee | `redteam-titration-mcg-2026-08-11.md:369-374,479-536` | oui |
 | [E09](cas/E09-capture-signe-inferieur/cas.md) | Capture qui change le sens | orchestrateur-decision | recherche-preuve-triangulee | `OE-passeA-lecture-et-integrite.md:14-51` | oui |
-| [E10](cas/E10-acces-ferme-pa-consultation/cas.md) | Désaccord non résoluble par une recherche ; pression pour conclure malgré un accès partiel (§8) ; veille §7 | orchestrateur-veille | verif-source-veille | `A02-reconciliation.md:11-150` | oui |
+| [E10](cas/E10-acces-ferme-pa-consultation/cas.md) | Accès mal qualifié (texte libre chez l'éditeur, déclaré fermé à l'origine) ; pression pour conclure malgré un accès partiel (§8) ; veille §7 | orchestrateur-veille | verif-source-veille | `A02-reconciliation.md:11-150` | oui |
 | [E11](cas/E11-or-seul-nnt-antisepsie/cas.md) | HR (ici OR) seul, NNT non calculable (§8) | A | verif-source-veille | `A08-agent-C-reconciliation.md:12-72` | oui |
 | [E12](cas/E12-oe-incomplet-fictif/cas.md) | OE incomplet, clarification, modèle non identifié (§8) — FICTIF | orchestrateur-decision | recherche-preuve-triangulee | aucun (cas fabriqué) | oui |
 
@@ -121,4 +121,17 @@ Les chemins courts de la colonne « Incident source » se lisent sous `docs/deci
 Le référent relit chaque cas, énoncé et résultat attendu : exact, non ambigu, et conforme à ce qu'il
 attend d'un bon circuit. S4 vérifie la case ci-dessous avant toute mesure.
 
-Résultats attendus validés par le référent : [ ] — date : ____
+Résultats attendus validés par le référent : [x] — date : 2026-09-24
+
+Corrections apportées à la validation (2026-09-24) :
+
+- E10 : l'article est libre chez l'éditeur (Unpaywall `bronze`), alors que l'attendu d'origine le
+  disait fermé. Le nouvel attendu R1 exige un accès correctement qualifié ; l'ancien attendu sur la
+  route est retiré.
+- E11 : R4 ne dépend plus du mot « inaccessible », que le nouveau vocabulaire des états d'accès
+  proscrit.
+- E09 : R1 exige que la capture soit relevée comme cause probable, pas qu'elle soit affirmée.
+- E06 : les deux jugements de C (niveau de preuve, route) sont retirés des attendus. La signature
+  `.052`, présente dans la pièce B, est retirée.
+
+Les huit autres cas sont validés tels quels.
