@@ -221,8 +221,9 @@ Le seuil dit ce qui **mérite** une analyse. Il ne dit pas ce que la semaine **p
 ## 7. Vérification bi-agents
 
 > **Skill `verif-source-veille`** (`.claude/skills/`) encode ce circuit et le §7bis ci-dessous —
-> choix du circuit selon le thème, gabarits de prompt A/B/C, conventions de fichiers. **L'invoquer
-> plutôt que de redériver la procédure depuis ce texte.**
+> choix du circuit selon le thème, agents dédiés (extracteur-preuve, contradicteur-preuve, et
+> reconciliateur-preuve en §7bis), conventions de fichiers. **L'invoquer plutôt que de redériver la
+> procédure depuis ce texte.**
 
 Pour **tout item en route `analyse`** (§5bis) — donc pour tout item susceptible d'être classé à impact pratique : **Claude Code (Opus) orchestre deux agents indépendants puis réconcilie** (détail : brief décision §13bis). Les brèves en sont dispensées : elles ne portent aucune appréciation critique à vérifier.
 - **Agent A (Analyste/Extracteur)** vs **Agent B (Contradicteur/Red-team)** ; contextes séparés ; hétérogénéité de modèle si possible.

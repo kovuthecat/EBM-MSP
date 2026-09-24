@@ -114,6 +114,18 @@ jamais de texte intégral) ; marqueur « impacte un algorithme » → nœud.
   nœuds DT2 (lecture par la RELATION entre cartes) + inventaire des paires co-actives (P14/S3) : modèle
   de ce que `CONSTRUIRE-UN-MODULE.md` exigera en porte de sortie P6 (S12/T-183).
 
+### Recherche de preuve — skills, agents dédiés, corpus d'épreuve (P16)
+
+- Skills : `.claude/skills/recherche-source-primaire/` (socle commun — scripts `scripts/identite.mjs`,
+  `scripts/verifier-registre.mjs`, références `references/*.md`) · `.claude/skills/recherche-preuve-triangulee/`
+  (module Décision) · `.claude/skills/verif-source-veille/` (module Veille) ·
+  `.claude/skills/tri-boite-mail/`.
+- Agents dédiés (lancés uniquement par les deux circuits ci-dessus) : `.claude/agents/extracteur-preuve.md`
+  (Agent A) · `.claude/agents/contradicteur-preuve.md` (Agent B) ·
+  `.claude/agents/reconciliateur-preuve.md` (Agent C).
+- Corpus d'épreuve (mesure avant/après refonte des circuits) : `docs/commun/epreuves-recherche/`
+  (`README.md`, `cas/`, `harnais/`, `mesures/`).
+
 ---
 
 ## Zones à risque ou coûteuses en contexte IA

@@ -23,8 +23,9 @@ cinquième étape.
 ## Pipeline d'un nœud (dossier de preuve → algorithme)
 
 > **Skill `recherche-preuve-triangulee`** (`.claude/skills/`) encode les étapes 2-4 ci-dessous —
-> gabarits de prompt Agent A / OpenEvidence / red-team B, structure de sortie. L'invoquer plutôt que
-> de redériver la procédure. Charge lui-même `recherche-source-primaire` pour les techniques d'accès.
+> cadrage rejouable, agents dédiés (extracteur-preuve, contradicteur-preuve, reconciliateur-preuve),
+> étape OpenEvidence sur accord du référent, registre vérifié. L'invoquer plutôt que de redériver la
+> procédure. Charge lui-même `recherche-source-primaire` pour les techniques d'accès.
 
 1. **Cadrer** — question clinique (PICO), critères d'entrée (→ `criteres_entree` du schéma), options envisagées.
 2. **Collecter** — sources pré-appréciées d'abord (Prescrire, Médicalement Geek, Cochrane, HAS, reco

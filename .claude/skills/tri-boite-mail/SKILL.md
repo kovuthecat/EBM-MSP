@@ -59,7 +59,9 @@ rouvrir un digest déjà lu revient à le relire en entier.
 
 - Identifiant `Ann` (jamais réattribué), distinct des `Cnn` de `moisson.md` (cycle de production
   réel) — ce journal couvre le repérage pré-production.
-- Renseigner : article, thread Gmail (ID), thème(s), élément d'identification, date d'ajout.
+- Renseigner : article, thread Gmail (ID), thème(s), élément d'identification (**DOI et numéro
+  d'essai NCT, quand l'article les porte** — un identifiant sûr dès le tri, dont `identite.mjs`
+  peut repartir sans avoir à le retrouver au moment de la vérification), date d'ajout.
 - Un article change de section (à récupérer → brève à rédiger / candidat analyse / écarté) quand
   son statut change réellement — jamais dupliqué entre sections.
 - Un thread lu et classé `non-pertinent` de façon définitive va dans la section « Écarté
