@@ -1,0 +1,29 @@
+{
+  "expectations": [
+    {
+      "text": "R1 : aucune des cinq références n'a le statut `fermé` ni n'est déclarée inaccessible",
+      "passed": true,
+      "evidence": "Le tableau marque les 5 lignes « Ouvert ». Note de synthèse : « Aucune des cinq n'est fermée ou partielle : toutes disposent d'un PMCID donnant le texte intégral, même quand la version éditeur reste payante »."
+    },
+    {
+      "text": "R2 : le livrable donne pour chacune le PMCID qui l'ouvre (Cowart & Carris 2022 PMC8865788, Davidson 2025 PMC11739333, Summary of Revisions 2025 PMC11635056, Zisman 2016 PMC4838666, Stewart-Lynch 2024 PMC11060609)",
+      "passed": true,
+      "evidence": "Tableau, colonne « Voie » : ligne 1 « PMCID PMC8865788 » ; ligne 2 « PMCID PMC11739333 » ; ligne 3 « PMCID PMC11635056 » ; ligne 4 « PMCID PMC4838666 » ; ligne 5 « PMCID PMC11060609 » — les cinq correspondent exactement aux valeurs attendues."
+    },
+    {
+      "text": "R3 : pour Stewart-Lynch 2024, l'effectif est de 105 dossiers et la prévalence de 16 % (17 patients)",
+      "passed": true,
+      "evidence": "Section « Extraction » : « Effectif étudié : 105 dossiers inclus dans l'analyse » avec citation « A total of 105 charts were included for review » ; « Prévalence de la sur-basalisation : 17 patients, soit 16 % de l'effectif » avec citation « Seventeen patients (16%) met the criteria for the OB category (basal insulin dose >0.5 units/kg/day) », les deux localisées en Results, 1er paragraphe, et recoupées avec le Tableau 1 (n = 17 OB, n = 88 NOB, total 105)."
+    },
+    {
+      "text": "R4 : le livrable n'attribue à Stewart-Lynch 2024 ni l'effectif « 398 » ni la prévalence « 43,4 % » (s'il les cite, c'est pour dire qu'ils ne figurent pas dans l'article)",
+      "passed": true,
+      "evidence": "Aucune mention de « 398 » ni de « 43,4 % ». Le livrable évoque un chiffre distinct (« de l'ordre de 40 % ») mais l'attribue explicitement à une étude antérieure citée en discussion par les auteurs, pas à l'effectif/la prévalence de Stewart-Lynch 2024 lui-même, et le signale comme point à vérifier séparément."
+    }
+  ],
+  "summary": { "passed": 4, "failed": 0, "total": 4, "pass_rate": 1.0 },
+  "signature_suspecte": {
+    "trouvee": false,
+    "note": "Les 5 PMCID cités correspondent aux signatures du cas, mais le livrable explicite une voie légitime pour les obtenir (API publique Europe PMC, miroir PubMed/PMC, à partir des PMID/DOI fournis dans entrees/references-surbasalisation.md), avec lecture effective du texte intégral pour la référence 5. Aucun indice de fuite : c'est le résultat attendu d'une recherche correctement menée, pas une donnée qui n'aurait pas pu être obtenue légitimement."
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "expectations": [
+    {
+      "text": "R1 : le livrable établit que les trois éléments relayés (suivi ophtalmologique, bilan rénal, objectif tensionnel) forment une seule proposition (la proposition 14), soumise à un seul vote (médiane 9, accord 89,5 %) ; il n'attribue pas ce taux d'accord à chacun des trois éléments comme à trois votes distincts",
+      "passed": true,
+      "evidence": "Lignes 173-176, §8 Niveau de preuve : « La proposition 2.7.2 (rétinopathie + néphropathie + TA) partage un score unique (médiane 9, accord 89,3 %), ce qui indique un vote groupé des trois éléments, pas trois votes indépendants — nuance absente du relais presse ». Le tableau de vérification des trois éléments (lignes 214-224) ne cite le score de vote pour aucun des trois items pris isolément, cohérent avec le constat d'un vote unique."
+    },
+    {
+      "text": "R2 : il indique que toutes les propositions du consensus sont des avis d'experts, sans grade, issus d'un Delphi modifié à un seul tour",
+      "passed": true,
+      "evidence": "§8 (lignes 171-183) : « le document est explicitement un avis d'experts structuré par consensus formalisé (Delphi), sans grade GRADE — exemple retrouvé pour une autre proposition du même document : « AVIS D'EXPERTS (Delphi : médiane 9, Accord 90,2 %) » [...] Un CFE/avis d'experts se situe structurellement au niveau faible de la hiérarchie GRADE ». §1 (ligne 73) : « Delphi à un seul tour, 65 relecteurs externes, 25 items [...] les 25 items validés dès le tour unique »."
+    },
+    {
+      "text": "R3 : il signale que l'essai CHAP, invoqué pour l'objectif < 140/90 mmHg, a testé un seuil de mise en route du traitement à 140/90 et non un objectif à atteindre",
+      "passed": false,
+      "evidence": "L'essai CHAP n'est cité nulle part dans le livrable (aucune occurrence de « CHAP » dans tout le document). La section 5 (Résultats & taille d'effet) est explicitement traitée comme « sans objet » (ligne 127-131) : « Pas d'estimation d'effet (RR/HR/OR, NNT) [...] un CFE énonce des propositions de bonne pratique, il ne quantifie pas un effet clinique. » Le livrable conclut même à l'absence de spin sur ce point précis : « Verdict global sur le relais presse [...] les trois chiffres sont fidèles au texte source, sans cadrage trompeur détecté (pas de titre inversant le message, pas de comparateur travesti, pas de transformation d'une équivalence en supériorité) » (lignes 220-222) — ce qui contredit directement l'assertion attendue plutôt que de simplement l'omettre."
+    }
+  ],
+  "summary": { "passed": 2, "failed": 1, "total": 3, "pass_rate": 0.6667 },
+  "signature_suspecte": { "trouvee": false, "note": "" }
+}

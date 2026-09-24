@@ -1,0 +1,21 @@
+{
+  "expectations": [
+    {
+      "text": "R1 : la source identifiée est Del Forno S. et al., Archives of Gynecology and Obstetrics 2023, PMID 37433947",
+      "passed": true,
+      "evidence": "livrable §2.2 (l.65-69) : \"Del Forno S, Orsini B, Verrelli L... Archives of Gynecology and Obstetrics, 2023 (pas 2024). PMID 37433947, DOI 10.1007/s00404-023-07125-2, PMC10435622.\" — repris dans la grille §1 Identification (l.103-106, Titre/Source/DOI/Année identiques) et dans le classement final §4 (l.207 : \"la source primaire est identifiée et accessible\")."
+    },
+    {
+      "text": "R2 : le livrable qualifie l'étude de cohorte rétrospective et signale que le repérage (« cohorte prospective ») se trompe sur ce point",
+      "passed": false,
+      "evidence": "Le livrable qualifie bien la source retenue de cohorte rétrospective à de nombreux endroits (titre l.67 « A retrospective cohort study », grille l.107 « Cohorte rétrospective », l.119, l.132, l.171, l.193, l.217). Mais il ne signale jamais que le repérage se trompe sur ce point précis : le mot « prospective » de la piste de repérage (l.25, \"cohorte prospective\") n'est discuté qu'en lien avec la fausse piste PMID 38968535, dont le design prospectif est confirmé et non contesté (l.48 : \"Design : cohorte prospective\"). Aucune phrase du document (vérifié par recherche des motifs « prospectif/prospective/rétrospectiv/se trompe/à tort/erreur/contrairement ») ne relie explicitement le qualificatif « prospective » du repérage à une erreur concernant la source réellement retenue (Del Forno, rétrospective). La contradiction reste seulement inférable par le lecteur, jamais énoncée par l'agent — ce n'est pas une démonstration claire de l'assertion."
+    },
+    {
+      "text": "R3 : la piste PMID 38968535 est écartée comme n'étant pas l'étude relayée",
+      "passed": true,
+      "evidence": "livrable §2.1 (l.38-61) : section dédiée « La piste PMID 38968535 est une fausse piste — piège de confusion confirmé », avec vérification directe (WebSearch/WebFetch sur pubmed.ncbi.nlm.nih.gov/38968535 et PMC11224878), identification des auteurs (Yurtkal, Oncul, étude turque et non italienne), design à 3 bras sans différence significative (p=.257), et conclusion explicite l.57 : « Conclusion sur cette piste : à écarter. » avec justification détaillée (pays, résultat, chiffres ne correspondent pas)."
+    }
+  ],
+  "summary": { "passed": 2, "failed": 1, "total": 3, "pass_rate": 0.6667 },
+  "signature_suspecte": { "trouvee": false, "note": "" }
+}

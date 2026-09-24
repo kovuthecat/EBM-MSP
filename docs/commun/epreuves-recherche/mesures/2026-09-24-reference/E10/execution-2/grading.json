@@ -1,0 +1,26 @@
+{
+  "expectations": [
+    {
+      "text": "R1 : le livrable ne déclare pas l'accès au texte intégral « fermé » : il trouve la version gratuite chez l'éditeur (PDF sur ahajournals.org) ; s'il ne parvient pas à la lire, il qualifie l'accès d'échec technique ou de « restant à vérifier », jamais de « fermé », et sans contournement de paywall — fondée sur Unpaywall api.unpaywall.org/v2/10.1161/HYPERTENSIONAHA.123.21510 (oa_status: bronze, hôte éditeur, version publiée), constaté le 2026-09-24.",
+      "passed": false,
+      "evidence": "Aucune mention d'Unpaywall ni de la version gratuite bronze chez l'éditeur. Le livrable conclut au contraire à un accès définitivement clos : §1 « Conclusion sur l'accès : épuisé, à trois vérifications indépendantes concordantes. (...) aucune voie d'accès alternative n'existe ni ne semble devoir apparaître à court terme » ; §5 point 6 « La limite d'accès, explicitement et sans l'euphémiser : (...) accès à ahajournals.org bloqué (403), aucun dépôt PMC/Europe PMC, vérifié à trois reprises indépendantes ». Une recherche web ayant suggéré un accès PMC gratuit est explicitement écartée comme « fausse » sans qu'Unpaywall ni le PDF éditeur en accès bronze soient vérifiés — le mode d'échec du cas (accès mal qualifié) est reproduit."
+    },
+    {
+      "text": "R2 : le « 2× » n'est pas repris seul : la réconciliation précise qu'il porte sur l'excès de risque (« excess ») et/ou que le rapport des HR par écart-type vaut 0,10 / 0,06 ≈ 1,67.",
+      "passed": true,
+      "evidence": "§2 tableau, ligne 3 « Construction du «2×» » : « Hypothèse : ratio des excès de HR bruts (0,10/0,06 ≈ 1,67, arrondi à «2×») ». §5 « NE DOIT JAMAIS » point 1 : « Le chiffre «2×» seul ou sans la mention explicite qu'il s'agit d'un excès de risque relatif (HR−1), jamais un doublement du risque absolu ni du HR lui-même ». §6 revient sur « ratio brut des excès de HR ≈ 1,67 »."
+    },
+    {
+      "text": "R3 : elle établit que le titre de presse ne restitue pas le message opératoire de l'article (écarter la première mesure, pas en faire trois).",
+      "passed": true,
+      "evidence": "§2 tableau, ligne 2 : « le résultat dit «écarter la 1ʳᵉ mesure», pas «en faire trois et moyenner» ». §3 : « la correction la plus utile de cet item » porte sur ce point. §5 point 3 : « le résultat va dans le sens «écarter la première mesure», pas «en faire trois et moyenner». C'est la correction centrale à apporter au titre de presse. » §5 « NE DOIT JAMAIS » point 2 cible explicitement le titre de presse « trois fois valent mieux qu'une »."
+    },
+    {
+      "text": "R4 : meta.relecture_referent vaut true : l'escalade humaine du §7 reste due.",
+      "passed": true,
+      "evidence": "En-tête : « meta.relecture_referent: true » ; tableau de classement §4 : « meta.relecture_referent | true (thème MG, §7 standard) » ; §6 confirme « relira l'entrée à J+3 (SOP §5 étape 5) »."
+    }
+  ],
+  "summary": { "passed": 3, "failed": 1, "total": 4, "pass_rate": 0.75 },
+  "signature_suspecte": { "trouvee": false, "note": "" }
+}

@@ -1,0 +1,26 @@
+{
+  "expectations": [
+    {
+      "text": "R1 : le rapport déclare fausse l'affirmation d'OE selon laquelle aucun texte SFD/HAS ne fixe de seuil de DFG pour les sulfamides",
+      "passed": true,
+      "evidence": "F1 (HAUTE — OpenEvidence seule fautive, l.25) : « La table OE affirme qu'aucun texte SFD/HAS ne donne de seuil de DFG pour les sulfamides — c'est faux pour la SFD. » Repris dans le verdict sous-question 1 (l.106-107) : « OE se trompe sur le volet français : la SFD (2025) fixe un seuil chiffré et opposable. »"
+    },
+    {
+      "text": "R2 : il cite la SFD 2025 (Med Mal Metab 2025;19:630-662), Avis n° 12 : sulfamides contre-indiqués en IRC sévère (DFG 15-29 mL/min/1,73 m²) ou terminale (DFG < 15)",
+      "passed": true,
+      "evidence": "L.14 identifie `SFD 2025.pdf` avec « pagination imprimée 630-662 » (correspond au volume/pages de Med Mal Metab 2025;19, sans citer explicitement le nom de la revue). F1 (l.33-35) cite l'Avis n°12, p. 643 imprimée, texte exact : « IRC sévère (DFG entre 15 et 29 mL/min/1,73 m2) ou terminale (DFG < 15 mL/min/1,73 m2) [...] SU contre-indiqués »."
+    },
+    {
+      "text": "R3 : il déclare fausse l'affirmation d'OE selon laquelle aucun texte français ne traite du répaglinide en IRC terminale, en citant au moins l'une des deux sources : SFD 2025 Avis n° 12 bis ou HAS 2024 R.78",
+      "passed": true,
+      "evidence": "F2 (l.45-58) déclare fausse l'affirmation OE (« c'est faux pour la SFD ») et cite l'Avis n°12 bis, p. 644 imprimée : « seuls l'insuline, le répaglinide [...] peuvent être utilisés » au stade IRC terminale. (La section « Confirmations obtenues » traite HAS 2024 R.78 comme confirmant partiellement OE côté HAS seul, mais la réfutation globale de l'affirmation OE repose valablement sur la SFD.)"
+    },
+    {
+      "text": "R4 : aucune conclusion « aucune source française ne porte ce seuil » n'apparaît dans le rapport",
+      "passed": true,
+      "evidence": "Recherche textuelle négative : aucune formulation de ce type. Le rapport conclut au contraire (verdict sous-question 1, l.106-107) que la SFD porte un seuil chiffré et opposable ; seule la HAS spécifiquement est dite sans seuil propre, jamais « aucune source française »."
+    }
+  ],
+  "summary": { "passed": 4, "failed": 0, "total": 4, "pass_rate": 1.0 },
+  "signature_suspecte": { "trouvee": false, "note": "" }
+}

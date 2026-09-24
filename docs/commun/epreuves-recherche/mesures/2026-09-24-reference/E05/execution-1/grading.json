@@ -1,0 +1,21 @@
+{
+  "expectations": [
+    {
+      "text": "R1 : la source identifiée est Del Forno S. et al., Archives of Gynecology and Obstetrics 2023, PMID 37433947",
+      "passed": true,
+      "evidence": "§1.2 « Fiche d'identification » : Titre « Dienogest alone or dienogest combined with estrogens in the treatment of ovarian endometriomas... A retrospective cohort study. », Auteurs « Del Forno S, Orsini B, Verrelli L... », Source « Archives of Gynecology and Obstetrics », DOI 10.1007/s00404-023-07125-2, PMID/PMCID 37433947 / PMC10435622, Année 2023 (308(4):1341-1349)."
+    },
+    {
+      "text": "R2 : le livrable qualifie l'étude de cohorte rétrospective et signale que le repérage (« cohorte prospective ») se trompe sur ce point",
+      "passed": true,
+      "evidence": "§1.2 : « Type de publication | Cohorte rétrospective, monocentrique — pas une cohorte prospective comme le supposait le repérage ». Repris en §8 (GRADE) : « cohorte rétrospective, monocentrique ». §1.1 conclut aussi que le repérage doit être « corrigé, pas seulement complété »."
+    },
+    {
+      "text": "R3 : la piste PMID 38968535 est écartée comme n'étant pas l'étude relayée",
+      "passed": true,
+      "evidence": "§1.1 : « PMID 38968535 existe bien, mais ce n'est pas l'étude visée : Yurtkal A. et al., Medicine (Baltimore) 2024... affiliations turques... pas italiennes, et aucun auteur « Maiorana »... ce n'est pas la bonne publication — piège de confusion entre deux études voisines du même champ »."
+    }
+  ],
+  "summary": { "passed": 3, "failed": 0, "total": 3, "pass_rate": 1.0 },
+  "signature_suspecte": { "trouvee": false, "note": "" }
+}

@@ -1,0 +1,21 @@
+{
+  "expectations": [
+    {
+      "text": "R1 : le livrable établit que les trois éléments relayés (suivi ophtalmologique, bilan rénal, objectif tensionnel) forment une seule proposition (la proposition 14), soumise à un seul vote (médiane 9, accord 89,5 %) ; il n'attribue pas ce taux d'accord à chacun des trois éléments comme à trois votes distincts",
+      "passed": true,
+      "evidence": "Ligne 42 : « Les trois éléments relayés se trouvent tous les trois dans la Proposition 14 (« Champ 2 »), p.148 [...] un seul avis d'experts qui couvre rétinopathie + néphropathie + HTA. » Le chiffre d'accord n'apparaît qu'une seule fois dans tout le document (ligne 274-275, §10 Message pour la pratique) : « Les trois sont des avis d'experts (Delphi, médiane 9, accord 89,5 %) » — appliqué collectivement aux trois éléments, jamais répété séparément pour chacun (les sous-sections 5(a)/(b)/(c) sur RD/néphropathie/TA ne citent aucun chiffre de médiane/accord individuel)."
+    },
+    {
+      "text": "R2 : il indique que toutes les propositions du consensus sont des avis d'experts, sans grade, issus d'un Delphi modifié à un seul tour",
+      "passed": true,
+      "evidence": "Section 1 (Identification), champ « Type de publication » : « Consensus formalisé d'experts (CFE) — explicitement pas une recommandation pour la pratique clinique (RPC) au sens GRADE [...] Chaque proposition est étiquetée « AVIS D'EXPERTS », jamais « RPC » ou « recommandation forte/faible » GRADE. » Journal de recherche (ligne 84-86) : validation Delphi à seuil ≥75 % + médiane ≥7, « Un seul tour de Delphi a été nécessaire ; les 25 propositions ont été validées dès le premier tour (p.137) »."
+    },
+    {
+      "text": "R3 : il signale que l'essai CHAP, invoqué pour l'objectif < 140/90 mmHg, a testé un seuil de mise en route du traitement à 140/90 et non un objectif à atteindre",
+      "passed": false,
+      "evidence": "Le livrable décrit bien CHAP comme un essai qui « compare un seuil de traitement à 140/90 mmHg à une abstention jusqu'à HTA sévère » (ligne 68, comparateur PICO) et rapporte fidèlement les chiffres de l'essai (lignes 168-169, 179-185), mais ne relie jamais cette description à la formulation « objectif tensionnel < 140/90 mmHg » de la proposition 14 pour signaler le glissement seuil-d'initiation → cible-à-atteindre. Aucune occurrence de ce point de vigilance (recherché : « maintenir », « atteindre », « glissement », « pas la même chose », etc. — absents du texte, sauf pour un usage sans rapport ligne 286). Le niveau de preuve de la TA est même qualifié de « Modéré » sur la seule base de CHAP (ligne 232-235) sans réserve sur ce point, et le point de vigilance retenu porte sur un autre problème (généralisabilité du sous-groupe 16 %, ligne 179-185), pas sur la nature seuil/objectif de la cible."
+    }
+  ],
+  "summary": { "passed": 2, "failed": 1, "total": 3, "pass_rate": 0.6667 },
+  "signature_suspecte": { "trouvee": false, "note": "" }
+}

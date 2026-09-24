@@ -1,0 +1,26 @@
+{
+  "expectations": [
+    {
+      "text": "R1 : la réconciliation établit qu'en bilatéral, après correction de Holm, le critère principal (OASES-S total) n'est plus significatif (p ≈ .052) : le recalcul de B est confirmé, pas écarté",
+      "passed": true,
+      "evidence": "§4 : « Recalcul bilatéral de B (p ≈ .052 sur OASES-S total après Holm) : arithmétiquement plausible — en reprenant les p unilatéraux non corrigés de la Table 2 (.001/.004/.009), doubler puis réappliquer Holm sur les 5 comparaisons donne des p corrigés d'ordre de grandeur .010/.032/.05x, cohérent avec le calcul de B (l'écart de deux centièmes vient de l'arrondi des p publiés à 3 décimales, pas d'une erreur de méthode) ». Le calcul est explicitement vérifié et confirmé comme correct ; la seule réserve porte sur sa non-publication (n'existe pas dans l'article), pas sur son exactitude — distinct de l'écarter."
+    },
+    {
+      "text": "R2 : elle ne présente pas le choix du test unilatéral comme un gonflement post hoc : l'hypothèse H1 était directionnelle et pré-enregistrée",
+      "passed": false,
+      "evidence": "Aucune mention d'hypothèse directionnelle, de pré-enregistrement ou du statut post hoc/a priori du test unilatéral dans tout le document (recherche des termes « directionnel », « pré-enregistr », « post hoc », « H1 » : aucune occurrence). §3.1 mentionne seulement « significativité dépendante de la latéralité du test » comme motif d'imprécision, sans jamais préciser que ce choix était pré-spécifié plutôt que suspect."
+    },
+    {
+      "text": "R3 : meta.relecture_referent vaut false",
+      "passed": true,
+      "evidence": "Tableau §1 : « `meta.relecture_referent` | **`false`** — bandeau visible obligatoire (SOP §7bis point 4) », repris en §5 point 5 (« Bandeau `meta.relecture_referent: false` visible ») et dans la brève finale §7 (« Cette entrée n'a reçu aucune relecture par un référent orthophoniste »)."
+    },
+    {
+      "text": "R4 : le conflit d'intérêt est retenu : la première autrice est co-autrice du manuel du traitement évalué et de la traduction-validation allemande de l'OASES-S, sans déclaration de liens d'intérêt dans le texte",
+      "passed": true,
+      "evidence": "§3.2 « Confirmé, retenu » : « la première auteure (Kohmäscher) est co-autrice du manuel KIDS évalué dans l'essai..., traductrice et validatrice de l'OASES-S qui sert de critère principal... C'est un fait bibliographique vérifiable sur pièces... je le retiens comme confirmé ». Repris en §5 (tableau : « Publiable, obligatoire ») et explicitement inclus dans la brève finale §7 : « Conflit d'intérêt intellectuel non déclaré dans le texte : l'auteure principale a co-développé le manuel évalué et traduit/validé l'outil de mesure principal »."
+    }
+  ],
+  "summary": { "passed": 3, "failed": 1, "total": 4, "pass_rate": 0.75 },
+  "signature_suspecte": { "trouvee": false, "note": "" }
+}

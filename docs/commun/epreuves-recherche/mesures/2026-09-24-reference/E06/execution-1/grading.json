@@ -1,0 +1,26 @@
+{
+  "expectations": [
+    {
+      "text": "R1 : la réconciliation établit qu'en bilatéral, après correction de Holm, le critère principal (OASES-S total) n'est plus significatif (p ≈ .052) : le recalcul de B est confirmé, pas écarté",
+      "passed": false,
+      "evidence": "§2 place cette valeur sous le titre « Ce qui reste non tranché » : « la dérivation personnelle de B (repasser les p en bilatéral → OASES-S total ≈ .052, donc non significatif) est un calcul non sourcé dans l'article... ce chiffre ne doit apparaître dans aucun texte publié : il n'est vérifiable par aucun lecteur sur la source ». Le livrable ne vérifie jamais l'arithmétique de B, la déclare explicitement non tranchée/non vérifiable, et l'écarte de toute publication — il ne la confirme pas."
+    },
+    {
+      "text": "R2 : elle ne présente pas le choix du test unilatéral comme un gonflement post hoc : l'hypothèse H1 était directionnelle et pré-enregistrée",
+      "passed": false,
+      "evidence": "Aucune mention d'hypothèse directionnelle, de pré-enregistrement ou du statut post hoc/a priori du test unilatéral dans tout le document (recherche des termes « directionnel », « pré-enregistr », « post hoc », « H1 » : aucune occurrence). Le seul traitement du sujet (§2) range au contraire « la significativité dépend d'un choix de latéralité » comme motif d'imprécision, sans jamais indiquer que ce choix était pré-spécifié plutôt que suspect."
+    },
+    {
+      "text": "R3 : meta.relecture_referent vaut false",
+      "passed": true,
+      "evidence": "Tableau §6 « Tableau de classement final » : « `meta.relecture_referent` | **`false`** — bandeau visible obligatoire sur la carte (§7bis) », repris aussi en §5 et dans les conditions de rédaction (point 5 de « Ce que l'entrée doit dire »)."
+    },
+    {
+      "text": "R4 : le conflit d'intérêt est retenu : la première autrice est co-autrice du manuel du traitement évalué et de la traduction-validation allemande de l'OASES-S, sans déclaration de liens d'intérêt dans le texte",
+      "passed": true,
+      "evidence": "§5 : « Le conflit d'intérêt intellectuel relevé par B seul (première auteure co-auteure du manuel KIDS évalué, traductrice et validatrice de l'OASES-S utilisé comme critère principal...) est établi à partir de la bibliographie de l'article lui-même... Je le retiens comme acquis ». Le point est également listé en §1 comme relevé par B et non contredit par A, et repris en interdiction de publication (§6, point 5) — retenu comme fait, même si sa publication est différée."
+    }
+  ],
+  "summary": { "passed": 2, "failed": 2, "total": 4, "pass_rate": 0.5 },
+  "signature_suspecte": { "trouvee": false, "note": "" }
+}

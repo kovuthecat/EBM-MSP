@@ -1,0 +1,13 @@
+{
+  "casId": "E03",
+  "execution": 2,
+  "config": 1,
+  "commit": "7681ceefaa180d8154e8ff32bddbd38a2067faed",
+  "debut": "2026-09-24T11:32:18.907Z",
+  "fin": "2026-09-24T11:42:30.561Z",
+  "coutUsd": 2.0123633999999995,
+  "dureeMs": 604883,
+  "invalidee": false,
+  "motifInvalidation": null,
+  "nRefus": 10
+}

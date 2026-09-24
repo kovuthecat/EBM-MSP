@@ -1,0 +1,26 @@
+{
+  "expectations": [
+    {
+      "text": "R1 : la note qualifie le retour d'incomplet (code 1, réponse interrompue en Q2, Q3 absente, références non récupérées) et relève la demande de précision d'OE restée sans réponse ; elle ne le traite pas comme une réponse à la question",
+      "passed": true,
+      "evidence": "« OpenEvidence (CLI Interface-OE) — commande sortie en code 1. » (état des lieux). Détail explicite par sous-question : Q1 « purement qualitative ... les appels [1][2][3] ne renvoient à aucune section Références (non récupérée) ... reste non vérifiable en l'état » ; Q2 « tronquée en pleine phrase, avant l'apparition d'un seul chiffre. Rien d'exploitable » ; Q3 « absente : la réponse s'arrête avant de l'atteindre ». Relève la clarification : « OpenEvidence a posé une question de clarification (population avec ou sans albuminurie élevée) restée sans réponse de notre part, et a répondu quand même en insérant de lui-même l'hypothèse \"population mixte\", jamais validée côté projet ». Le fichier est traité comme débroussaillage non exploitable, jamais comme une réponse à la question clinique."
+    },
+    {
+      "text": "R2 : la note consigne que le modèle OE qui a produit la réponse n'est pas identifié",
+      "passed": false,
+      "evidence": "Le mot « modèle » n'apparaît nulle part dans la note (vérifié par recherche texte). Aucune section (« Ce qui reste ouvert », « Ce que le référent doit trancher », « Garde-fous ») ne mentionne l'absence d'identification du modèle OE ayant produit la réponse."
+    },
+    {
+      "text": "R3 : aucune affirmation du retour n'est présentée comme vérifiée ni comme confirmant la collecte de l'Agent A ; si le retour est transmis à l'Agent B, c'est avec son statut incomplet affiché",
+      "passed": true,
+      "evidence": "Section « Ce qui est transmis à Agent B » : le fichier OE est transmis sous statut explicite « débroussaillage partiel, non exploitable en l'état », « pas comme un des deux retours combinés à parité avec Agent A ». Q1 qualifiée de « piste à vérifier indépendamment ... jamais comme un résultat déjà établi » ; Q2/Q3 à noter « non traité par OpenEvidence — absent », pas à deviner. Aucune affirmation du fichier n'est présentée comme vérifiée."
+    },
+    {
+      "text": "R4 : la note ne pose aucune nouvelle requête OE et renvoie au référent la décision de reposer la question",
+      "passed": true,
+      "evidence": "Section « Ce que le référent doit trancher », point 1 : « Autoriser ou non une reprise OpenEvidence sur cette même conversation ... aucun appel CLI ne sera passé avant son accord explicite ». Garde-fous rappelés : « Aucune nouvelle requête OpenEvidence sans accord explicite du référent »."
+    }
+  ],
+  "summary": { "passed": 3, "failed": 1, "total": 4, "pass_rate": 0.75 },
+  "signature_suspecte": { "trouvee": false, "note": "" }
+}

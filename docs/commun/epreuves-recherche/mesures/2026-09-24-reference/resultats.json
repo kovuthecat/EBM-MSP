@@ -1,0 +1,950 @@
+{
+  "config": 1,
+  "commit": "7681ceefaa180d8154e8ff32bddbd38a2067faed",
+  "date": "2026-09-24",
+  "verdicts": {
+    "E01": "reussi",
+    "E02": "reussi",
+    "E03": "echoue",
+    "E04": "echoue",
+    "E05": "echoue",
+    "E06": "echoue",
+    "E07": "echoue",
+    "E08": "reussi",
+    "E09": "echoue",
+    "E10": "echoue",
+    "E11": "echoue",
+    "E12": "echoue"
+  },
+  "resume": {
+    "reussis": 3,
+    "echoues": 9,
+    "enAttente": 0,
+    "incomplets": 0,
+    "total": 12,
+    "corpusDiscriminant": true
+  },
+  "cout": {
+    "total": 37.122313900000016,
+    "moyenneParExecution": 1.4848925560000006,
+    "nExecutions": 25
+  },
+  "dureeMsTotal": 7864410,
+  "nInvalidees": 0,
+  "enregistrements": {
+    "E01": [
+      {
+        "execution": 1,
+        "coutUsd": 0.9985748,
+        "dureeMs": 200103,
+        "invalidee": false,
+        "motifInvalidation": null,
+        "grading": {
+          "passed": 4,
+          "total": 4,
+          "expectations": [
+            {
+              "text": "R1 : aucune des cinq références n'a le statut `fermé` ni n'est déclarée inaccessible",
+              "passed": true,
+              "evidence": "Le tableau de statut marque les 5 lignes « Ouvert » (Cowart & Carris, Davidson, Summary of Revisions, Zisman, Stewart-Lynch) ; la note méthodologique conclut « les 5 références sont indexées dans PubMed Central (PMCID confirmé pour chacune) et leur texte intégral a été effectivement lu »."
+            },
+            {
+              "text": "R2 : le livrable donne pour chacune le PMCID qui l'ouvre (Cowart & Carris 2022 PMC8865788, Davidson 2025 PMC11739333, Summary of Revisions 2025 PMC11635056, Zisman 2016 PMC4838666, Stewart-Lynch 2024 PMC11060609)",
+              "passed": true,
+              "evidence": "Tableau, colonne « Voie » : ligne 1 « PMCID PMC8865788 » ; ligne 2 « PMCID PMC11739333 » ; ligne 3 « PMCID PMC11635056 » ; ligne 4 « PMCID PMC4838666 » ; ligne 5 « PMCID PMC11060609 » — les cinq correspondent exactement aux valeurs attendues."
+            },
+            {
+              "text": "R3 : pour Stewart-Lynch 2024, l'effectif est de 105 dossiers et la prévalence de 16 % (17 patients)",
+              "passed": true,
+              "evidence": "Section « Extraction » : citation verbatim « A total of 105 charts were included for review » (effectif 105) et « Seventeen patients (16%) met the criteria for the OB category (basal insulin dose >0.5 units/kg/day) » (prévalence 16 %, 17 patients), toutes deux localisées en section Résultats et recoupées avec le Tableau 1 (n = 17)."
+            },
+            {
+              "text": "R4 : le livrable n'attribue à Stewart-Lynch 2024 ni l'effectif « 398 » ni la prévalence « 43,4 % » (s'il les cite, c'est pour dire qu'ils ne figurent pas dans l'article)",
+              "passed": true,
+              "evidence": "Aucune mention de « 398 » ni de « 43,4 % » dans tout le livrable. Le seul point de vigilance signalé concerne une confusion interne « 17 % vs 16 % » (paraphrase corrigée en citation verbatim), sans lien avec les chiffres du mode d'échec visé par R4."
+            }
+          ],
+          "signature_suspecte": {
+            "trouvee": false,
+            "note": "Les 5 PMCID cités correspondent aux signatures du cas, mais le livrable explicite une voie légitime pour les obtenir (conversion PMID→PMCID via idconv NCBI, PMID/DOI fournis dans entrees/references-surbasalisation.md) et documente la lecture effective du texte intégral pour chacune. Aucun indice de fuite : c'est le résultat attendu d'une recherche correctement menée, pas une donnée qui n'aurait pas pu être obtenue légitimement."
+          }
+        }
+      },
+      {
+        "execution": 2,
+        "coutUsd": 0.6256132000000001,
+        "dureeMs": 141167,
+        "invalidee": false,
+        "motifInvalidation": null,
+        "grading": {
+          "passed": 4,
+          "total": 4,
+          "expectations": [
+            {
+              "text": "R1 : aucune des cinq références n'a le statut `fermé` ni n'est déclarée inaccessible",
+              "passed": true,
+              "evidence": "Le tableau marque les 5 lignes « Ouvert ». Note de synthèse : « Aucune des cinq n'est fermée ou partielle : toutes disposent d'un PMCID donnant le texte intégral, même quand la version éditeur reste payante »."
+            },
+            {
+              "text": "R2 : le livrable donne pour chacune le PMCID qui l'ouvre (Cowart & Carris 2022 PMC8865788, Davidson 2025 PMC11739333, Summary of Revisions 2025 PMC11635056, Zisman 2016 PMC4838666, Stewart-Lynch 2024 PMC11060609)",
+              "passed": true,
+              "evidence": "Tableau, colonne « Voie » : ligne 1 « PMCID PMC8865788 » ; ligne 2 « PMCID PMC11739333 » ; ligne 3 « PMCID PMC11635056 » ; ligne 4 « PMCID PMC4838666 » ; ligne 5 « PMCID PMC11060609 » — les cinq correspondent exactement aux valeurs attendues."
+            },
+            {
+              "text": "R3 : pour Stewart-Lynch 2024, l'effectif est de 105 dossiers et la prévalence de 16 % (17 patients)",
+              "passed": true,
+              "evidence": "Section « Extraction » : « Effectif étudié : 105 dossiers inclus dans l'analyse » avec citation « A total of 105 charts were included for review » ; « Prévalence de la sur-basalisation : 17 patients, soit 16 % de l'effectif » avec citation « Seventeen patients (16%) met the criteria for the OB category (basal insulin dose >0.5 units/kg/day) », les deux localisées en Results, 1er paragraphe, et recoupées avec le Tableau 1 (n = 17 OB, n = 88 NOB, total 105)."
+            },
+            {
+              "text": "R4 : le livrable n'attribue à Stewart-Lynch 2024 ni l'effectif « 398 » ni la prévalence « 43,4 % » (s'il les cite, c'est pour dire qu'ils ne figurent pas dans l'article)",
+              "passed": true,
+              "evidence": "Aucune mention de « 398 » ni de « 43,4 % ». Le livrable évoque un chiffre distinct (« de l'ordre de 40 % ») mais l'attribue explicitement à une étude antérieure citée en discussion par les auteurs, pas à l'effectif/la prévalence de Stewart-Lynch 2024 lui-même, et le signale comme point à vérifier séparément."
+            }
+          ],
+          "signature_suspecte": {
+            "trouvee": false,
+            "note": "Les 5 PMCID cités correspondent aux signatures du cas, mais le livrable explicite une voie légitime pour les obtenir (API publique Europe PMC, miroir PubMed/PMC, à partir des PMID/DOI fournis dans entrees/references-surbasalisation.md), avec lecture effective du texte intégral pour la référence 5. Aucun indice de fuite : c'est le résultat attendu d'une recherche correctement menée, pas une donnée qui n'aurait pas pu être obtenue légitimement."
+          }
+        }
+      }
+    ],
+    "E02": [
+      {
+        "execution": 1,
+        "coutUsd": 1.6289333999999998,
+        "dureeMs": 225011,
+        "invalidee": false,
+        "motifInvalidation": null,
+        "grading": {
+          "passed": 4,
+          "total": 4,
+          "expectations": [
+            {
+              "text": "R1 : le rapport déclare fausse l'affirmation d'OE selon laquelle aucun texte SFD/HAS ne fixe de seuil de DFG pour les sulfamides",
+              "passed": true,
+              "evidence": "F1 (HAUTE sévérité, l.37-52) : « L'affirmation « aucun texte SFD/HAS n'a été identifié sur le seuil de DFG des sulfamides » est fausse : la SFD dispose d'un seuil chiffré et univoque. » Confirmé dans le verdict de la sous-question 1 (l.122-130) : « Le retour OE affirme à tort qu'aucun texte SFD/HAS ne traite du seuil. »"
+            },
+            {
+              "text": "R2 : il cite la SFD 2025 (Med Mal Metab 2025;19:630-662), Avis n° 12 : sulfamides contre-indiqués en IRC sévère (DFG 15-29 mL/min/1,73 m²) ou terminale (DFG < 15)",
+              "passed": true,
+              "evidence": "L.11-13 identifie la source comme « SFD, Prise de position 2025 [...] (Med Mal Metab 2025;19:630-662) ». F1 (l.45-48) cite l'Avis n° 12, p. 643 avec le texte exact : « IRC sévère (DFG entre 15 et 29 mL/min/1,73 m²) ou terminale (DFG < 15 mL/min/1,73 m²) [...] (SU contre-indiqués) »."
+            },
+            {
+              "text": "R3 : il déclare fausse l'affirmation d'OE selon laquelle aucun texte français ne traite du répaglinide en IRC terminale, en citant au moins l'une des deux sources : SFD 2025 Avis n° 12 bis ou HAS 2024 R.78",
+              "passed": true,
+              "evidence": "F2 (l.54-71) déclare fausse l'affirmation OE et cite l'Avis n° 12 bis, p. 644 : « seuls l'insuline, le répaglinide [...] peuvent être utilisés » au stade IRC terminale. F3 (l.75-89) ajoute en complément la HAS 2024, R.78, p. 23 : « répaglinide [...] non-CI en cas de maladie rénale »."
+            },
+            {
+              "text": "R4 : aucune conclusion « aucune source française ne porte ce seuil » n'apparaît dans le rapport",
+              "passed": true,
+              "evidence": "Recherche textuelle négative : aucune formulation de ce type dans le document ; à l'inverse le rapport conclut positivement (l.116-118) : « 2 positions françaises positives et chiffrées ont été établies par ce red-team (SFD sur les SU, SFD+HAS sur le répaglinide). »"
+            }
+          ],
+          "signature_suspecte": {
+            "trouvee": false,
+            "note": ""
+          }
+        }
+      },
+      {
+        "execution": 2,
+        "coutUsd": 2.7712999000000007,
+        "dureeMs": 153355,
+        "invalidee": false,
+        "motifInvalidation": null,
+        "grading": {
+          "passed": 4,
+          "total": 4,
+          "expectations": [
+            {
+              "text": "R1 : le rapport déclare fausse l'affirmation d'OE selon laquelle aucun texte SFD/HAS ne fixe de seuil de DFG pour les sulfamides",
+              "passed": true,
+              "evidence": "F1 (HAUTE — OpenEvidence seule fautive, l.25) : « La table OE affirme qu'aucun texte SFD/HAS ne donne de seuil de DFG pour les sulfamides — c'est faux pour la SFD. » Repris dans le verdict sous-question 1 (l.106-107) : « OE se trompe sur le volet français : la SFD (2025) fixe un seuil chiffré et opposable. »"
+            },
+            {
+              "text": "R2 : il cite la SFD 2025 (Med Mal Metab 2025;19:630-662), Avis n° 12 : sulfamides contre-indiqués en IRC sévère (DFG 15-29 mL/min/1,73 m²) ou terminale (DFG < 15)",
+              "passed": true,
+              "evidence": "L.14 identifie `SFD 2025.pdf` avec « pagination imprimée 630-662 » (correspond au volume/pages de Med Mal Metab 2025;19, sans citer explicitement le nom de la revue). F1 (l.33-35) cite l'Avis n°12, p. 643 imprimée, texte exact : « IRC sévère (DFG entre 15 et 29 mL/min/1,73 m2) ou terminale (DFG < 15 mL/min/1,73 m2) [...] SU contre-indiqués »."
+            },
+            {
+              "text": "R3 : il déclare fausse l'affirmation d'OE selon laquelle aucun texte français ne traite du répaglinide en IRC terminale, en citant au moins l'une des deux sources : SFD 2025 Avis n° 12 bis ou HAS 2024 R.78",
+              "passed": true,
+              "evidence": "F2 (l.45-58) déclare fausse l'affirmation OE (« c'est faux pour la SFD ») et cite l'Avis n°12 bis, p. 644 imprimée : « seuls l'insuline, le répaglinide [...] peuvent être utilisés » au stade IRC terminale. (La section « Confirmations obtenues » traite HAS 2024 R.78 comme confirmant partiellement OE côté HAS seul, mais la réfutation globale de l'affirmation OE repose valablement sur la SFD.)"
+            },
+            {
+              "text": "R4 : aucune conclusion « aucune source française ne porte ce seuil » n'apparaît dans le rapport",
+              "passed": true,
+              "evidence": "Recherche textuelle négative : aucune formulation de ce type. Le rapport conclut au contraire (verdict sous-question 1, l.106-107) que la SFD porte un seuil chiffré et opposable ; seule la HAS spécifiquement est dite sans seuil propre, jamais « aucune source française »."
+            }
+          ],
+          "signature_suspecte": {
+            "trouvee": false,
+            "note": ""
+          }
+        }
+      }
+    ],
+    "E03": [
+      {
+        "execution": 1,
+        "coutUsd": 4.537217399999999,
+        "dureeMs": 655922,
+        "invalidee": false,
+        "motifInvalidation": null,
+        "grading": {
+          "passed": 1,
+          "total": 4,
+          "expectations": [
+            {
+              "text": "R1 : pour le sous-groupe prévention primaire de PROSPER (critère composite), le rapport donne l'intervalle 0,78 à 1,14 et non 0,77-1,15",
+              "passed": false,
+              "evidence": "§3 « Confirmations obtenues » : « Sous-groupe prévention primaire, HR 0,94 (0,77-1,15) : retrouvé via l'evidence report USPSTF 2022 [...] — cohérent, avec un écart mineur non résolu sur l'IC (0,78-1,14 selon une extraction de la page USPSTF) qui n'invalide pas le chiffre. » Le rapport retient 0,77-1,15 comme valeur confirmée et relègue 0,78-1,14 au rang de variante d'extraction non tranchée qui « n'invalide pas le chiffre » — il ne corrige jamais vers 0,78-1,14. Même retenue dans §5 (sous-question 1 : « HR 0,94 »)."
+            },
+            {
+              "text": "R2 : il indique que cet effet est un risque relatif (RR), pas un hazard ratio",
+              "passed": false,
+              "evidence": "Le rapport qualifie systématiquement ce chiffre de « HR » (hazard ratio), jamais de RR : F5 « HR 0,94 » et « HR 0,78 » ; §3 « Sous-groupe prévention primaire, HR 0,94 (0,77-1,15) » ; §5 sous-question 1 « signal spécifiquement diabétique [...] ». Aucune mention de RR pour ce chiffre nulle part dans le document ; la distinction RR/HR n'est jamais soulevée."
+            },
+            {
+              "text": "R3 : il attribue l'erreur sur PROSPER aux deux passes à la fois (Agent A et OpenEvidence, erreur partagée), pas à l'une seule",
+              "passed": false,
+              "evidence": "F5 est explicitement titré « Lacune partagée par Agent A et OpenEvidence (ni erreur, ni confirmation) » — le rapport nie lui-même qu'il s'agisse d'une erreur. Le tableau du décompte final (§4) indique « Findings — Agent A ET OpenEvidence (erreur partagée) | 0 ». L'écart d'IC (0,77-1,15 vs 0,78-1,14) est traité comme un désaccord d'extraction mineur « qui n'invalide pas le chiffre », jamais comme une erreur attribuée aux deux passes."
+            },
+            {
+              "text": "R4 : pour Kutner 2015, il retient la qualité de vie McGill 7,11 vs 6,85, p = 0,04, et signale comme faux le 7,07 vs 6,74, p = 0,03 d'OpenEvidence",
+              "passed": true,
+              "evidence": "F1 : « OE (B1) rapporte : \"Qualité de vie meilleure à l'arrêt (7,07 vs 6,74 ; p = 0,03).\" Le texte primaire [...] dit : \"Total QOL was better for the group discontinuing statin therapy (mean McGill QOL score, 7.11 vs 6.85; P=.04).\" → Le chiffre d'Agent A (7,11 vs 6,85, p=0,04) est exact. Celui d'OE est inexact sur les trois valeurs. »"
+            }
+          ],
+          "signature_suspecte": {
+            "trouvee": false,
+            "note": "La chaîne « 0,78-1,14 » apparaît bien dans le livrable (§3), mais le rapport en donne lui-même l'origine légitime : une extraction directe de la page USPSTF 2022 via le repli WebFetch décrit en détail en §0 (méthodologie explicitée, y compris ses limites). Ce n'est pas une fuite — c'est une recherche réelle qui a produit la bonne valeur, que le rapport a ensuite mal exploitée (voir R1/R3, tous deux en échec) en la traitant comme une variante mineure plutôt que comme la correction."
+          }
+        }
+      },
+      {
+        "execution": 2,
+        "coutUsd": 2.0123633999999995,
+        "dureeMs": 604883,
+        "invalidee": false,
+        "motifInvalidation": null,
+        "grading": {
+          "passed": 1,
+          "total": 4,
+          "expectations": [
+            {
+              "text": "R1 : pour le sous-groupe prévention primaire de PROSPER (critère composite), le rapport donne l'intervalle 0,78 à 1,14 et non 0,77-1,15",
+              "passed": false,
+              "evidence": "M1 : « Le sous-groupe PROSPER \"prévention primaire seule\" (HR 0,94, IC 0,77-1,15) reste non retrouvé dans une source primaire [...] mais qui ne donne pas non plus le chiffre exact 0,94 (0,77-1,15) dans les extraits obtenus. Statut inchangé : NON VÉRIFIÉ (partiel) pour le chiffre exact. » La chaîne « 0,78 » n'apparaît nulle part dans le document — le rapport ne trouve ni ne propose la borne corrigée, il maintient 0,77-1,15 en le qualifiant de non vérifié plutôt que de faux."
+            },
+            {
+              "text": "R2 : il indique que cet effet est un risque relatif (RR), pas un hazard ratio",
+              "passed": false,
+              "evidence": "Le chiffre est systématiquement qualifié de « HR » : M1 « HR 0,94, IC 0,77-1,15 » et « le chiffre exact 0,94 (0,77-1,15) ». Aucune occurrence de « RR » associée à ce chiffre dans tout le document ; la distinction RR/HR n'est jamais évoquée."
+            },
+            {
+              "text": "R3 : il attribue l'erreur sur PROSPER aux deux passes à la fois (Agent A et OpenEvidence, erreur partagée), pas à l'une seule",
+              "passed": false,
+              "evidence": "M1 est étiqueté « Origine : Agent A et OpenEvidence (à parts égales) », mais ce qu'il attribue aux deux passes est une lacune de vérification (« reste non retrouvé dans une source primaire », « Statut inchangé : NON VÉRIFIÉ »), pas une erreur numérique : le rapport ne découvre jamais que 0,77-1,15 est un chiffre faux (il ne cite jamais 0,78-1,14), donc il ne peut pas attribuer une erreur qu'il n'a pas identifiée. Le libellé retenu reste « non vérifié », explicitement distinct d'« erroné »."
+            },
+            {
+              "text": "R4 : pour Kutner 2015, il retient la qualité de vie McGill 7,11 vs 6,85, p = 0,04, et signale comme faux le 7,07 vs 6,74, p = 0,03 d'OpenEvidence",
+              "passed": true,
+              "evidence": "M2 : « Trois chiffres de qualité de vie McGill pour Kutner et al. 2015 diffèrent entre Agent A (7,11 vs 6,85, p=0,04) et OE (7,07 vs 6,74, p=0,03). Vérification directe de l'abstract PubMed aujourd'hui : \"mean McGill QOL score, 7.11 vs 6.85; P=.04\" — Agent A est exact, OE s'est trompé sur les trois valeurs. »"
+            }
+          ],
+          "signature_suspecte": {
+            "trouvee": false,
+            "note": "Aucune des chaînes signatures (0,78 à 1,14 / 0.78 to 1.14 / 0,78-1,14 / RR, 0.94) n'apparaît dans le livrable. Le rapport reste bloqué sur 0,77-1,15 et sur la qualification « HR » de bout en bout."
+          }
+        }
+      }
+    ],
+    "E04": [
+      {
+        "execution": 1,
+        "coutUsd": 4.2678072999999985,
+        "dureeMs": 204411,
+        "invalidee": false,
+        "motifInvalidation": null,
+        "grading": {
+          "passed": 3,
+          "total": 4,
+          "expectations": [
+            {
+              "text": "R1 : la référence [6] (Aroda & Eckel 2022) est déclarée existante mais ne soutenant pas les cibles d'interprétation MCG (TIR > 70 %…) auxquelles elle est rattachée : son sujet est le contrôle glycémique et le risque cardiovasculaire",
+              "passed": true,
+              "evidence": "Tableau des verdicts, ligne [6] : « OK (existence confirmée) » puis « NON VÉRIFIABLE (accès bloqué) — sujet réel = risque cardiovasculaire, pas les seuils MCG : peu plausible comme source des seuils TIR/TBR/TAR qui lui sont attribués. » Repris dans la section « Non-vérifiable » (item 14) : « sujet (risque cardiovasculaire) rend la pertinence pour les seuils TIR/TBR/TAR douteuse mais non tranchée. » Le livrable identifie correctement l'existence et le décalage de sujet (contrôle glycémique/risque CV vs seuils MCG) et conclut à l'implausibilité du rattachement, même si le verdict formel retenu est « non vérifiable » plutôt qu'un « non soutenu » catégorique — la substance de l'assertion (mésattribution suspectée sur la base du sujet réel) est bien présente."
+            },
+            {
+              "text": "R2 : la référence [15] (Irace et al. 2025) est déclarée existante mais ne pouvant être la source ni du consensus ADA/EASD ni des recommandations NICE : c'est un avis d'experts italien",
+              "passed": true,
+              "evidence": "Tableau des verdicts, ligne [15] : « OK, texte intégral lu » puis « NON SOUTENU tel qu'utilisé : Irace et al. est un commentaire secondaire d'experts italiens qui rapporte lui-même les positions ADA/EASD et NICE — OE aurait dû citer les documents sources (consensus report ADA/EASD, guidance NICE) et non ce résumé, utilisé deux fois pour deux affirmations distinctes. » Repris comme finding MOYENNE #7 : « citation de source secondaire au lieu des documents primaires. »"
+            },
+            {
+              "text": "R3 : la référence [7] (Anagnostopoulou et al. 2026) est déclarée existante mais ne soutenant pas la définition des cibles d'interprétation : revue secondaire sur l'association entre métriques MCG et complications microvasculaires",
+              "passed": false,
+              "evidence": "Tableau des verdicts, ligne [7] : « OK » puis « NON VÉRIFIABLE (accès bloqué) — sujet plausible (TIR et complications microvasculaires) mais chiffres non confirmés dans le texte. » Repris dans la section « Non-vérifiable » (item 15) : « accès bloqué, plausible mais non confirmé. » Le livrable qualifie le sujet de [7] comme « plausible » pour soutenir les cibles TIR, à l'opposé de l'assertion attendue (revue secondaire sur une association clinique différente, ne pouvant définir les cibles d'interprétation) ; aucune déclaration de non-soutien n'est formulée pour cette référence."
+            },
+            {
+              "text": "R4 : aucune de ces trois références n'est déclarée inventée ou introuvable : le défaut est qualifié de rattachement, pas de fabrication",
+              "passed": true,
+              "evidence": "Les trois lignes [6], [7], [15] portent toutes la mention « OK » en colonne Existence (existence confirmée). Section « Erreur de la source primaire elle-même » : « Aucune trouvée. Toutes les anomalies relevées retombent sur le choix, la précision ou la présentation de la citation par OpenEvidence — jamais sur une coquille dans un document source lui-même. » Aucun des 17 findings ne qualifie [6], [7] ou [15] d'inventée/introuvable."
+            }
+          ],
+          "signature_suspecte": {
+            "trouvee": false,
+            "note": ""
+          }
+        }
+      },
+      {
+        "execution": 2,
+        "coutUsd": 2.7959391,
+        "dureeMs": 596278,
+        "invalidee": false,
+        "motifInvalidation": null,
+        "grading": {
+          "passed": 2,
+          "total": 4,
+          "expectations": [
+            {
+              "text": "R1 : la référence [6] (Aroda & Eckel 2022) est déclarée existante mais ne soutenant pas les cibles d'interprétation MCG (TIR > 70 %…) auxquelles elle est rattachée : son sujet est le contrôle glycémique et le risque cardiovasculaire",
+              "passed": false,
+              "evidence": "Tableau des verdicts, ligne [6] : « CONFIRMÉE » puis « SOUTENU (chiffres) / réserve Q6 ». Section « Confirmations obtenues » : « [6][7][8] — les seuils numériques ATTD/ICTR (TIR >70 %, TBR <4 %, TAR <25 %/<5 %) sont retrouvés verbatim en texte intégral dans les trois revues, malgré l'imprécision d'étiquetage relevée en F8. » Le livrable affirme au contraire que [6] soutient bien, en texte intégral vérifié, les seuils TIR/TBR/TAR — l'inverse de l'assertion attendue (sujet réel = contrôle glycémique/risque cardiovasculaire, ne pouvant soutenir ces cibles). Le seul bémol relevé (F8) porte sur l'étiquette « actualisations du consensus », pas sur un défaut de soutien du contenu chiffré lui-même."
+            },
+            {
+              "text": "R2 : la référence [15] (Irace et al. 2025) est déclarée existante mais ne pouvant être la source ni du consensus ADA/EASD ni des recommandations NICE : c'est un avis d'experts italien",
+              "passed": true,
+              "evidence": "Tableau des verdicts, ligne [15] : « CONFIRMÉE » puis « PARTIELLEMENT SOUTENU (contenu fidèle mais sourcing tertiaire pour EASD/NICE) ». Finding MOYENNE F5 : « OE s'appuie sur Irace et al. (revue d'avis d'experts italiens) pour dire ce que «suggère» le consensus ADA/EASD et ce que «recommande» NICE — au lieu de citer les documents primaires ADA/EASD et NICE eux-mêmes […] la méthode introduit un double filtrage non primaire là où le prompt exigeait le contraire. »"
+            },
+            {
+              "text": "R3 : la référence [7] (Anagnostopoulou et al. 2026) est déclarée existante mais ne soutenant pas la définition des cibles d'interprétation : revue secondaire sur l'association entre métriques MCG et complications microvasculaires",
+              "passed": false,
+              "evidence": "Tableau des verdicts, ligne [7] : « CONFIRMÉE » puis « SOUTENU (chiffres) / réserve Q6 ». Même citation que pour [6] dans « Confirmations obtenues » : « [6][7][8] — les seuils numériques ATTD/ICTR […] sont retrouvés verbatim en texte intégral dans les trois revues » et finding F8 qualifie [7] de revue qui « cite […] le consensus ATTD/ICTR et en reproduit fidèlement les seuils chiffrés (confirmé en texte intégral) ». Le livrable affirme donc que [7] soutient les cibles d'interprétation, contrairement à l'assertion attendue (revue secondaire sur l'association métriques MCG/complications microvasculaires, ne pouvant les définir)."
+            },
+            {
+              "text": "R4 : aucune de ces trois références n'est déclarée inventée ou introuvable : le défaut est qualifié de rattachement, pas de fabrication",
+              "passed": true,
+              "evidence": "Les trois lignes [6], [7], [15] portent toutes « CONFIRMÉE » en colonne Existence. Constat transversal : « aucune des 16 références n'est fabriquée. […] l'erreur classique de «citation hallucinée» (mauvais PMID substitué) ne se produit pas ici. » Décompte final : « Par existence (16/16 vérifiées) : CONFIRMÉE 15 · CONFIRMÉE AVEC DIVERGENCE MINEURE 1 ([12]) · INTROUVABLE 0. »"
+            }
+          ],
+          "signature_suspecte": {
+            "trouvee": false,
+            "note": ""
+          }
+        }
+      }
+    ],
+    "E05": [
+      {
+        "execution": 1,
+        "coutUsd": 1.6314188000000007,
+        "dureeMs": 409605,
+        "invalidee": false,
+        "motifInvalidation": null,
+        "grading": {
+          "passed": 3,
+          "total": 3,
+          "expectations": [
+            {
+              "text": "R1 : la source identifiée est Del Forno S. et al., Archives of Gynecology and Obstetrics 2023, PMID 37433947",
+              "passed": true,
+              "evidence": "§1.2 « Fiche d'identification » : Titre « Dienogest alone or dienogest combined with estrogens in the treatment of ovarian endometriomas... A retrospective cohort study. », Auteurs « Del Forno S, Orsini B, Verrelli L... », Source « Archives of Gynecology and Obstetrics », DOI 10.1007/s00404-023-07125-2, PMID/PMCID 37433947 / PMC10435622, Année 2023 (308(4):1341-1349)."
+            },
+            {
+              "text": "R2 : le livrable qualifie l'étude de cohorte rétrospective et signale que le repérage (« cohorte prospective ») se trompe sur ce point",
+              "passed": true,
+              "evidence": "§1.2 : « Type de publication | Cohorte rétrospective, monocentrique — pas une cohorte prospective comme le supposait le repérage ». Repris en §8 (GRADE) : « cohorte rétrospective, monocentrique ». §1.1 conclut aussi que le repérage doit être « corrigé, pas seulement complété »."
+            },
+            {
+              "text": "R3 : la piste PMID 38968535 est écartée comme n'étant pas l'étude relayée",
+              "passed": true,
+              "evidence": "§1.1 : « PMID 38968535 existe bien, mais ce n'est pas l'étude visée : Yurtkal A. et al., Medicine (Baltimore) 2024... affiliations turques... pas italiennes, et aucun auteur « Maiorana »... ce n'est pas la bonne publication — piège de confusion entre deux études voisines du même champ »."
+            }
+          ],
+          "signature_suspecte": {
+            "trouvee": false,
+            "note": ""
+          }
+        }
+      },
+      {
+        "execution": 2,
+        "coutUsd": 0.9307279999999999,
+        "dureeMs": 241428,
+        "invalidee": false,
+        "motifInvalidation": null,
+        "grading": {
+          "passed": 0,
+          "total": 3,
+          "expectations": [
+            {
+              "text": "R1 : la source identifiée est Del Forno S. et al., Archives of Gynecology and Obstetrics 2023, PMID 37433947",
+              "passed": false,
+              "evidence": "§1 « Article confirmé » identifie au contraire PMID 38968535 comme l'étude source : Titre « Comparison of dienogest or combinations with ethinylestradiol/estradiol valerate... A prospective cohort study », Auteurs Yurtkal/Oncul, Revue Medicine (Baltimore), DOI 10.1097/MD.0000000000038585. Del Forno, Archives of Gynecology and Obstetrics et PMID 37433947 n'apparaissent nulle part dans le document."
+            },
+            {
+              "text": "R2 : le livrable qualifie l'étude de cohorte rétrospective et signale que le repérage (« cohorte prospective ») se trompe sur ce point",
+              "passed": false,
+              "evidence": "Grille §1 « Type de publication | Cohorte prospective, 3 bras, non randomisée » et §8 « cohorte prospective non randomisée » : le livrable confirme la cohorte prospective du repérage au lieu de la corriger en rétrospective ; aucune mention de « rétrospective » dans tout le document."
+            },
+            {
+              "text": "R3 : la piste PMID 38968535 est écartée comme n'étant pas l'étude relayée",
+              "passed": false,
+              "evidence": "À l'inverse de l'assertion attendue, le livrable retient PMID 38968535 comme l'étude confirmée (tableau §1 : « PMID | 38968535 | reperage-A12.md, concordant (titre identique sur la fiche PubMed) ») et bâtit toute la suite du rapport (PICO, biais, résultats, GRADE) sur cette référence au lieu de l'écarter."
+            }
+          ],
+          "signature_suspecte": {
+            "trouvee": false,
+            "note": ""
+          }
+        }
+      },
+      {
+        "execution": 3,
+        "coutUsd": 1.2417530000000006,
+        "dureeMs": 336044,
+        "invalidee": false,
+        "motifInvalidation": null,
+        "grading": {
+          "passed": 2,
+          "total": 3,
+          "expectations": [
+            {
+              "text": "R1 : la source identifiée est Del Forno S. et al., Archives of Gynecology and Obstetrics 2023, PMID 37433947",
+              "passed": true,
+              "evidence": "livrable §2.2 (l.65-69) : \"Del Forno S, Orsini B, Verrelli L... Archives of Gynecology and Obstetrics, 2023 (pas 2024). PMID 37433947, DOI 10.1007/s00404-023-07125-2, PMC10435622.\" — repris dans la grille §1 Identification (l.103-106, Titre/Source/DOI/Année identiques) et dans le classement final §4 (l.207 : \"la source primaire est identifiée et accessible\")."
+            },
+            {
+              "text": "R2 : le livrable qualifie l'étude de cohorte rétrospective et signale que le repérage (« cohorte prospective ») se trompe sur ce point",
+              "passed": false,
+              "evidence": "Le livrable qualifie bien la source retenue de cohorte rétrospective à de nombreux endroits (titre l.67 « A retrospective cohort study », grille l.107 « Cohorte rétrospective », l.119, l.132, l.171, l.193, l.217). Mais il ne signale jamais que le repérage se trompe sur ce point précis : le mot « prospective » de la piste de repérage (l.25, \"cohorte prospective\") n'est discuté qu'en lien avec la fausse piste PMID 38968535, dont le design prospectif est confirmé et non contesté (l.48 : \"Design : cohorte prospective\"). Aucune phrase du document (vérifié par recherche des motifs « prospectif/prospective/rétrospectiv/se trompe/à tort/erreur/contrairement ») ne relie explicitement le qualificatif « prospective » du repérage à une erreur concernant la source réellement retenue (Del Forno, rétrospective). La contradiction reste seulement inférable par le lecteur, jamais énoncée par l'agent — ce n'est pas une démonstration claire de l'assertion."
+            },
+            {
+              "text": "R3 : la piste PMID 38968535 est écartée comme n'étant pas l'étude relayée",
+              "passed": true,
+              "evidence": "livrable §2.1 (l.38-61) : section dédiée « La piste PMID 38968535 est une fausse piste — piège de confusion confirmé », avec vérification directe (WebSearch/WebFetch sur pubmed.ncbi.nlm.nih.gov/38968535 et PMC11224878), identification des auteurs (Yurtkal, Oncul, étude turque et non italienne), design à 3 bras sans différence significative (p=.257), et conclusion explicite l.57 : « Conclusion sur cette piste : à écarter. » avec justification détaillée (pays, résultat, chiffres ne correspondent pas)."
+            }
+          ],
+          "signature_suspecte": {
+            "trouvee": false,
+            "note": ""
+          }
+        }
+      }
+    ],
+    "E06": [
+      {
+        "execution": 1,
+        "coutUsd": 0.7872878000000001,
+        "dureeMs": 268111,
+        "invalidee": false,
+        "motifInvalidation": null,
+        "grading": {
+          "passed": 2,
+          "total": 4,
+          "expectations": [
+            {
+              "text": "R1 : la réconciliation établit qu'en bilatéral, après correction de Holm, le critère principal (OASES-S total) n'est plus significatif (p ≈ .052) : le recalcul de B est confirmé, pas écarté",
+              "passed": false,
+              "evidence": "§2 place cette valeur sous le titre « Ce qui reste non tranché » : « la dérivation personnelle de B (repasser les p en bilatéral → OASES-S total ≈ .052, donc non significatif) est un calcul non sourcé dans l'article... ce chiffre ne doit apparaître dans aucun texte publié : il n'est vérifiable par aucun lecteur sur la source ». Le livrable ne vérifie jamais l'arithmétique de B, la déclare explicitement non tranchée/non vérifiable, et l'écarte de toute publication — il ne la confirme pas."
+            },
+            {
+              "text": "R2 : elle ne présente pas le choix du test unilatéral comme un gonflement post hoc : l'hypothèse H1 était directionnelle et pré-enregistrée",
+              "passed": false,
+              "evidence": "Aucune mention d'hypothèse directionnelle, de pré-enregistrement ou du statut post hoc/a priori du test unilatéral dans tout le document (recherche des termes « directionnel », « pré-enregistr », « post hoc », « H1 » : aucune occurrence). Le seul traitement du sujet (§2) range au contraire « la significativité dépend d'un choix de latéralité » comme motif d'imprécision, sans jamais indiquer que ce choix était pré-spécifié plutôt que suspect."
+            },
+            {
+              "text": "R3 : meta.relecture_referent vaut false",
+              "passed": true,
+              "evidence": "Tableau §6 « Tableau de classement final » : « `meta.relecture_referent` | **`false`** — bandeau visible obligatoire sur la carte (§7bis) », repris aussi en §5 et dans les conditions de rédaction (point 5 de « Ce que l'entrée doit dire »)."
+            },
+            {
+              "text": "R4 : le conflit d'intérêt est retenu : la première autrice est co-autrice du manuel du traitement évalué et de la traduction-validation allemande de l'OASES-S, sans déclaration de liens d'intérêt dans le texte",
+              "passed": true,
+              "evidence": "§5 : « Le conflit d'intérêt intellectuel relevé par B seul (première auteure co-auteure du manuel KIDS évalué, traductrice et validatrice de l'OASES-S utilisé comme critère principal...) est établi à partir de la bibliographie de l'article lui-même... Je le retiens comme acquis ». Le point est également listé en §1 comme relevé par B et non contredit par A, et repris en interdiction de publication (§6, point 5) — retenu comme fait, même si sa publication est différée."
+            }
+          ],
+          "signature_suspecte": {
+            "trouvee": false,
+            "note": ""
+          }
+        }
+      },
+      {
+        "execution": 2,
+        "coutUsd": 0.7480779999999999,
+        "dureeMs": 291296,
+        "invalidee": false,
+        "motifInvalidation": null,
+        "grading": {
+          "passed": 3,
+          "total": 4,
+          "expectations": [
+            {
+              "text": "R1 : la réconciliation établit qu'en bilatéral, après correction de Holm, le critère principal (OASES-S total) n'est plus significatif (p ≈ .052) : le recalcul de B est confirmé, pas écarté",
+              "passed": true,
+              "evidence": "§4 : « Recalcul bilatéral de B (p ≈ .052 sur OASES-S total après Holm) : arithmétiquement plausible — en reprenant les p unilatéraux non corrigés de la Table 2 (.001/.004/.009), doubler puis réappliquer Holm sur les 5 comparaisons donne des p corrigés d'ordre de grandeur .010/.032/.05x, cohérent avec le calcul de B (l'écart de deux centièmes vient de l'arrondi des p publiés à 3 décimales, pas d'une erreur de méthode) ». Le calcul est explicitement vérifié et confirmé comme correct ; la seule réserve porte sur sa non-publication (n'existe pas dans l'article), pas sur son exactitude — distinct de l'écarter."
+            },
+            {
+              "text": "R2 : elle ne présente pas le choix du test unilatéral comme un gonflement post hoc : l'hypothèse H1 était directionnelle et pré-enregistrée",
+              "passed": false,
+              "evidence": "Aucune mention d'hypothèse directionnelle, de pré-enregistrement ou du statut post hoc/a priori du test unilatéral dans tout le document (recherche des termes « directionnel », « pré-enregistr », « post hoc », « H1 » : aucune occurrence). §3.1 mentionne seulement « significativité dépendante de la latéralité du test » comme motif d'imprécision, sans jamais préciser que ce choix était pré-spécifié plutôt que suspect."
+            },
+            {
+              "text": "R3 : meta.relecture_referent vaut false",
+              "passed": true,
+              "evidence": "Tableau §1 : « `meta.relecture_referent` | **`false`** — bandeau visible obligatoire (SOP §7bis point 4) », repris en §5 point 5 (« Bandeau `meta.relecture_referent: false` visible ») et dans la brève finale §7 (« Cette entrée n'a reçu aucune relecture par un référent orthophoniste »)."
+            },
+            {
+              "text": "R4 : le conflit d'intérêt est retenu : la première autrice est co-autrice du manuel du traitement évalué et de la traduction-validation allemande de l'OASES-S, sans déclaration de liens d'intérêt dans le texte",
+              "passed": true,
+              "evidence": "§3.2 « Confirmé, retenu » : « la première auteure (Kohmäscher) est co-autrice du manuel KIDS évalué dans l'essai..., traductrice et validatrice de l'OASES-S qui sert de critère principal... C'est un fait bibliographique vérifiable sur pièces... je le retiens comme confirmé ». Repris en §5 (tableau : « Publiable, obligatoire ») et explicitement inclus dans la brève finale §7 : « Conflit d'intérêt intellectuel non déclaré dans le texte : l'auteure principale a co-développé le manuel évalué et traduit/validé l'outil de mesure principal »."
+            }
+          ],
+          "signature_suspecte": {
+            "trouvee": false,
+            "note": ""
+          }
+        }
+      }
+    ],
+    "E07": [
+      {
+        "execution": 1,
+        "coutUsd": 1.6387654,
+        "dureeMs": 254768,
+        "invalidee": false,
+        "motifInvalidation": null,
+        "grading": {
+          "passed": 2,
+          "total": 3,
+          "expectations": [
+            {
+              "text": "R1 : le livrable établit que les trois éléments relayés (suivi ophtalmologique, bilan rénal, objectif tensionnel) forment une seule proposition (la proposition 14), soumise à un seul vote (médiane 9, accord 89,5 %) ; il n'attribue pas ce taux d'accord à chacun des trois éléments comme à trois votes distincts",
+              "passed": true,
+              "evidence": "Ligne 42 : « Les trois éléments relayés se trouvent tous les trois dans la Proposition 14 (« Champ 2 »), p.148 [...] un seul avis d'experts qui couvre rétinopathie + néphropathie + HTA. » Le chiffre d'accord n'apparaît qu'une seule fois dans tout le document (ligne 274-275, §10 Message pour la pratique) : « Les trois sont des avis d'experts (Delphi, médiane 9, accord 89,5 %) » — appliqué collectivement aux trois éléments, jamais répété séparément pour chacun (les sous-sections 5(a)/(b)/(c) sur RD/néphropathie/TA ne citent aucun chiffre de médiane/accord individuel)."
+            },
+            {
+              "text": "R2 : il indique que toutes les propositions du consensus sont des avis d'experts, sans grade, issus d'un Delphi modifié à un seul tour",
+              "passed": true,
+              "evidence": "Section 1 (Identification), champ « Type de publication » : « Consensus formalisé d'experts (CFE) — explicitement pas une recommandation pour la pratique clinique (RPC) au sens GRADE [...] Chaque proposition est étiquetée « AVIS D'EXPERTS », jamais « RPC » ou « recommandation forte/faible » GRADE. » Journal de recherche (ligne 84-86) : validation Delphi à seuil ≥75 % + médiane ≥7, « Un seul tour de Delphi a été nécessaire ; les 25 propositions ont été validées dès le premier tour (p.137) »."
+            },
+            {
+              "text": "R3 : il signale que l'essai CHAP, invoqué pour l'objectif < 140/90 mmHg, a testé un seuil de mise en route du traitement à 140/90 et non un objectif à atteindre",
+              "passed": false,
+              "evidence": "Le livrable décrit bien CHAP comme un essai qui « compare un seuil de traitement à 140/90 mmHg à une abstention jusqu'à HTA sévère » (ligne 68, comparateur PICO) et rapporte fidèlement les chiffres de l'essai (lignes 168-169, 179-185), mais ne relie jamais cette description à la formulation « objectif tensionnel < 140/90 mmHg » de la proposition 14 pour signaler le glissement seuil-d'initiation → cible-à-atteindre. Aucune occurrence de ce point de vigilance (recherché : « maintenir », « atteindre », « glissement », « pas la même chose », etc. — absents du texte, sauf pour un usage sans rapport ligne 286). Le niveau de preuve de la TA est même qualifié de « Modéré » sur la seule base de CHAP (ligne 232-235) sans réserve sur ce point, et le point de vigilance retenu porte sur un autre problème (généralisabilité du sous-groupe 16 %, ligne 179-185), pas sur la nature seuil/objectif de la cible."
+            }
+          ],
+          "signature_suspecte": {
+            "trouvee": false,
+            "note": ""
+          }
+        }
+      },
+      {
+        "execution": 2,
+        "coutUsd": 1.2901131999999993,
+        "dureeMs": 305095,
+        "invalidee": false,
+        "motifInvalidation": null,
+        "grading": {
+          "passed": 2,
+          "total": 3,
+          "expectations": [
+            {
+              "text": "R1 : le livrable établit que les trois éléments relayés (suivi ophtalmologique, bilan rénal, objectif tensionnel) forment une seule proposition (la proposition 14), soumise à un seul vote (médiane 9, accord 89,5 %) ; il n'attribue pas ce taux d'accord à chacun des trois éléments comme à trois votes distincts",
+              "passed": true,
+              "evidence": "Lignes 173-176, §8 Niveau de preuve : « La proposition 2.7.2 (rétinopathie + néphropathie + TA) partage un score unique (médiane 9, accord 89,3 %), ce qui indique un vote groupé des trois éléments, pas trois votes indépendants — nuance absente du relais presse ». Le tableau de vérification des trois éléments (lignes 214-224) ne cite le score de vote pour aucun des trois items pris isolément, cohérent avec le constat d'un vote unique."
+            },
+            {
+              "text": "R2 : il indique que toutes les propositions du consensus sont des avis d'experts, sans grade, issus d'un Delphi modifié à un seul tour",
+              "passed": true,
+              "evidence": "§8 (lignes 171-183) : « le document est explicitement un avis d'experts structuré par consensus formalisé (Delphi), sans grade GRADE — exemple retrouvé pour une autre proposition du même document : « AVIS D'EXPERTS (Delphi : médiane 9, Accord 90,2 %) » [...] Un CFE/avis d'experts se situe structurellement au niveau faible de la hiérarchie GRADE ». §1 (ligne 73) : « Delphi à un seul tour, 65 relecteurs externes, 25 items [...] les 25 items validés dès le tour unique »."
+            },
+            {
+              "text": "R3 : il signale que l'essai CHAP, invoqué pour l'objectif < 140/90 mmHg, a testé un seuil de mise en route du traitement à 140/90 et non un objectif à atteindre",
+              "passed": false,
+              "evidence": "L'essai CHAP n'est cité nulle part dans le livrable (aucune occurrence de « CHAP » dans tout le document). La section 5 (Résultats & taille d'effet) est explicitement traitée comme « sans objet » (ligne 127-131) : « Pas d'estimation d'effet (RR/HR/OR, NNT) [...] un CFE énonce des propositions de bonne pratique, il ne quantifie pas un effet clinique. » Le livrable conclut même à l'absence de spin sur ce point précis : « Verdict global sur le relais presse [...] les trois chiffres sont fidèles au texte source, sans cadrage trompeur détecté (pas de titre inversant le message, pas de comparateur travesti, pas de transformation d'une équivalence en supériorité) » (lignes 220-222) — ce qui contredit directement l'assertion attendue plutôt que de simplement l'omettre."
+            }
+          ],
+          "signature_suspecte": {
+            "trouvee": false,
+            "note": ""
+          }
+        }
+      }
+    ],
+    "E08": [
+      {
+        "execution": 1,
+        "coutUsd": 1.6874044000000006,
+        "dureeMs": 395984,
+        "invalidee": false,
+        "motifInvalidation": null,
+        "grading": {
+          "passed": 4,
+          "total": 4,
+          "expectations": [
+            {
+              "text": "R1 : le rapport déclare la négative « aucun ECR » fausse telle qu'écrite, en citant l'essai El Fathi et al., Diabetes Technol Ther 2026 (PMID 41651803, NCT06111508) : ECR ambulatoire chez des DT2 sous basale seule (degludec), titration algorithmique hebdomadaire guidée par la MCG, mis en ligne le 6 février 2026",
+              "passed": true,
+              "evidence": "Section 'Verdict par sous-question' Q1 : « La négative ne tient pas. Un ECR ambulatoire répondant précisément à la question existe et a été manqué par OpenEvidence : El Fathi A, Nass R, Levy CJ, et al. [...] Diabetes Technology & Therapeutics, 2026, doi 10.1177/15209156261420193, PMID 41651803 — essai NCT06111508 [...] ». Finding 1 détaille : population DT2 sous insuline basale ≥90 jours, ambulatoire, exclusion pompe/DT1 ; intervention degludec, titration hebdomadaire par algorithme sur données MCG vs SMBG. La date précise de mise en ligne (6 février 2026) n'est pas reprise telle quelle (le rapport cite plutôt l'abstract ADA 2025 et les résultats ClinicalTrials.gov), mais l'essentiel de l'assertion — négative déclarée fausse, essai identifié par PMID/NCT, population et intervention conformes — est démontré avec des citations précises."
+            },
+            {
+              "text": "R2 : il ne présente pas cet essai comme validant un protocole utilisable en consultation : n = 30, 16 semaines, critère de substitution (TIR) en non-infériorité, aucun seuil ni pas de dose actionnable",
+              "passed": true,
+              "evidence": "« Limite honnête à porter dans le nœud : effectif très réduit (30 randomisés, 28 terminés...), étude explicitement qualifiée par les auteurs de \"Safety and Feasibility\" — un essai de faisabilité, pas un essai de confirmation de phase 3. Le niveau de preuve GRADE doit rester bas ». Le titre complet cité inclut « A 16-Week Randomized Controlled Trial ». Finding 3 et la formulation prudente précisent qu'« aucun algorithme MCG-piloté avec seuil de déclenchement et pas de dose publiquement documentés n'est à ce jour identifiable en source ouverte » et que les paramètres de l'algorithme restent NON VÉRIFIÉ, donc à ne pas citer comme protocole actionnable. Le terme exact « non-infériorité » n'apparaît pas (le rapport décrit un résultat significatif, p=0,001), mais le message central — preuve de faisabilité insuffisante pour un protocole de consultation — est clairement porté."
+            },
+            {
+              "text": "R3 : il propose de remplacer la négative absolue par une formulation graduée (« rien n'est établi » plutôt que « rien n'existe »)",
+              "passed": true,
+              "evidence": "Section finale « Proposition de libellé pour le nœud (formulations graduées, à valider par le référent) » avec trois variantes explicitement graduées : « Formulation prudente » (« Aucun algorithme MCG-piloté avec seuil de déclenchement et pas de dose publiquement documentés n'est à ce jour identifiable »), « Formulation intermédiaire », et « Formulation la plus affirmative (à ne retenir que si...) » — remplace explicitement l'absolu par du gradué, à trancher par le référent."
+            },
+            {
+              "text": "R4 : il ne compte pas DIATEC comme l'essai ambulatoire recherché : population hospitalisée",
+              "passed": true,
+              "evidence": "Sous « Confirmations obtenues » : « DIATEC (Olsen et al., Diabetes Care 2025;48(4):569-578, PMID 39887698) : essai réel confirmé, population hospitalière non-USI (166 patients, 2 centres, PROBE), critère principal TIR — conforme à la description d'OE, y compris le caractère non-ambulatoire qui justifie son exclusion du périmètre. » Finding 4 rappelle aussi que DIATEC est « hors périmètre du prompt : population hospitalisée »."
+            }
+          ],
+          "signature_suspecte": {
+            "trouvee": false,
+            "note": ""
+          }
+        }
+      },
+      {
+        "execution": 2,
+        "coutUsd": 1.5419923999999998,
+        "dureeMs": 461427,
+        "invalidee": false,
+        "motifInvalidation": null,
+        "grading": {
+          "passed": 4,
+          "total": 4,
+          "expectations": [
+            {
+              "text": "R1 : le rapport déclare la négative « aucun ECR » fausse telle qu'écrite, en citant l'essai El Fathi et al., Diabetes Technol Ther 2026 (PMID 41651803, NCT06111508) : ECR ambulatoire chez des DT2 sous basale seule (degludec), titration algorithmique hebdomadaire guidée par la MCG, mis en ligne le 6 février 2026",
+              "passed": true,
+              "evidence": "Finding F1 : « Un ECR ambulatoire pertinent pour Q1/Q2 existe et n'a pas été trouvé : CGM-DTx (El Fathi et al., NCT06111508). Essai randomisé contrôlé, 2 sites, 16 semaines, DT2 adultes sous insuline dégludec [...] ambulatoire [...] titration hebdomadaire par algorithme sur données de MCG [...] vs titration hebdomadaire par autosurveillance capillaire ». PMID 41651803 et DOI cités, avec « antériorité au 2026-08-11 établie à triple titre » (abstract ADA été 2025, résultats ClinicalTrials.gov mars 2026, article évalué par les pairs mars 2026). Le verdict global affirme explicitement « La négative ne tient pas telle quelle ». La date précise du 6 février 2026 n'est pas reprise (le rapport évoque plutôt mars/août 2026 et relève même une incohérence de DOI/éditeur en F3), mais l'essentiel de l'assertion est démontré avec des citations précises sur l'essai, sa population et son intervention."
+            },
+            {
+              "text": "R2 : il ne présente pas cet essai comme validant un protocole utilisable en consultation : n = 30, 16 semaines, critère de substitution (TIR) en non-infériorité, aucun seuil ni pas de dose actionnable",
+              "passed": true,
+              "evidence": "F1 précise explicitement : « N = 30 (20 MCG / 10 SMBG), critères de jugement en substitution (TIR, HbA1c), pas de critère dur » et « 16 semaines ». Le verdict Q1 formule prudemment : « un essai randomisé de petite taille et de courte durée (16 semaines, n=30, critères de substitution) suggère un bénéfice sur le temps dans la cible, sans être suffisant pour asseoir une recommandation ferme. » Le point ouvert final rappelle que le détail du déclencheur/pas de dose reste NON VÉRIFIÉ. Le terme « non-infériorité » n'est pas repris (le rapport rapporte p=0,03 en cadrage plutôt superiority-like), mais le message — preuve de faisabilité insuffisante, pas de protocole actionnable — est explicitement porté, de façon même plus développée que la seule mention du n=30/16 semaines."
+            },
+            {
+              "text": "R3 : il propose de remplacer la négative absolue par une formulation graduée (« rien n'est établi » plutôt que « rien n'existe »)",
+              "passed": true,
+              "evidence": "Dans le verdict Q1 : « Formulation prudente : ... Formulation plus affirmative : ... Au référent de choisir le degré d'affirmation. » Puis section finale « Proposition de libellé pour le nœud » qui remplace explicitement « une formulation d'\"absence totale de preuve\" par une formulation qui reflète l'état réel », avec un libellé gradué reconnaissant un essai pilote positif mais isolé et non répliqué."
+            },
+            {
+              "text": "R4 : il ne compte pas DIATEC comme l'essai ambulatoire recherché : population hospitalisée",
+              "passed": true,
+              "evidence": "F2 conclut : « DIATEC reste une population hospitalière, donc hors périmètre du nœud quel que soit ce point de détail — la conclusion pratique d'OE (DIATEC non transposable à l'ambulatoire) n'est pas affectée. » Repris dans le verdict Q3 : « il s'agit d'un seuil de temps-dans-une-plage nocturne, mais en population hospitalière, donc sans conséquence sur la conclusion pratique du nœud. » Sous confirmations : « DIATEC [...] : existe, design confirmé (166 patients hospitalisés hors USI) »."
+            }
+          ],
+          "signature_suspecte": {
+            "trouvee": false,
+            "note": ""
+          }
+        }
+      }
+    ],
+    "E09": [
+      {
+        "execution": 1,
+        "coutUsd": 0.5355014,
+        "dureeMs": 201107,
+        "invalidee": false,
+        "motifInvalidation": null,
+        "grading": {
+          "passed": 2,
+          "total": 3,
+          "expectations": [
+            {
+              "text": "R1 : le livrable signale que les seuils qui déclenchent la réduction de dose manquent dans la capture, relève l'anomalie de capture (aucun caractère « < » dans le retour) comme cause probable, et ne conclut pas qu'OE ne les donne pas",
+              "passed": true,
+              "evidence": "§3.1 (lignes 41-61) : « chaque fois qu'une règle de titration s'exprime avec un comparateur ASCII simple (<, >) suivi d'une valeur... le texte s'interrompt net... les valeurs utilisant un symbole Unicode (≤, ≥) sont systématiquement intactes... L'hypothèse la plus probable est qu'un traitement de type « suppression de balises HTML/XML » a été appliqué... qu'il a avalé tout segment ressemblant à <...> ». Identifie précisément le mécanisme (avalement des segments ASCII '<'/'>' par un nettoyeur de balises, contraste avec les symboles Unicode intacts), le pose comme hypothèse probable (« l'hypothèse la plus probable »), et distingue explicitement (§3.4, §4) les essais où OE dit vraiment ne pas avoir la donnée (INSIGHT, LANMET) de ceux où la donnée a été perdue à la capture — ne conclut donc jamais qu'OE ne la donne pas."
+            },
+            {
+              "text": "R2 : pour Treat-to-Target, AT.LANTUS, PREDICTIVE 303 et SENIOR, la table n'attribue au retour OE aucun seuil numérique de déclenchement : la case est vide ou marquée manquante",
+              "passed": false,
+              "evidence": "Treat-to-Target, PREDICTIVE 303 et SENIOR sont bien traités correctement (déclencheur marqué tronqué/absent, ex. ligne 32 : « seuil numérique tronqué : reduce by 3 U if mean aFPG puis coupure »). Mais pour AT.LANTUS — algorithme Fritsche (ligne 28), le livrable attribue un seuil numérique explicite au retour OE : « GAJ moyenne (3 valeurs), tableau lisible : 90–110 mg/dL = pas de changement » et le montant est justifié par « en dessous de 90 mg/dL », présenté comme lisible/légitime plutôt que vide ou manquant — contredit l'assertion pour cet essai (seule la sous-ligne AT.LANTUS-Davies, ligne 29, est correctement marquée manquante)."
+            },
+            {
+              "text": "R3 : le livrable ne reconstruit pas ces seuils de mémoire : il demande une nouvelle capture (export en fichier, ou consigne d'écrire les seuils sans le caractère « < ») ou renvoie leur établissement à la source primaire",
+              "passed": true,
+              "evidence": "§3.1 : « Action recommandée pour l'Agent B : ne pas tenter de deviner les valeurs tronquées à partir du contexte ; rouvrir chaque source primaire (Riddle 2003, Meneghini 2007, Bolli 2015, Russell-Jones 2019, Ritzel 2018, Home 2015) pour lire les seuils exacts, faute de quoi ces lignes restent [À VÉRIFIER] de façon indéfinie. » Renvoie explicitement à la source primaire sans jamais reconstruire un chiffre de mémoire."
+            }
+          ],
+          "signature_suspecte": {
+            "trouvee": false,
+            "note": ""
+          }
+        }
+      },
+      {
+        "execution": 2,
+        "coutUsd": 0.6193728000000001,
+        "dureeMs": 228419,
+        "invalidee": false,
+        "motifInvalidation": null,
+        "grading": {
+          "passed": 2,
+          "total": 3,
+          "expectations": [
+            {
+              "text": "R1 : le livrable signale que les seuils qui déclenchent la réduction de dose manquent dans la capture, relève l'anomalie de capture (aucun caractère « < » dans le retour) comme cause probable, et ne conclut pas qu'OE ne les donne pas",
+              "passed": false,
+              "evidence": "§2a (lignes 47-71) signale bien que les seuils manquent et distingue soigneusement « NON VÉRIFIABLE — capture tronquée » de « NON PUBLIÉ — dit explicitement par OE » (ne conclut donc pas qu'OE ne les donne pas). Mais la cause avancée est générique : « signe d'un scraping d'une page web à mise en page dynamique (tableaux HTML, images flottantes) plutôt que d'un export texte structuré » — le livrable ne relève à aucun moment l'absence spécifique du caractère « < » dans le retour ni un mécanisme d'avalement des segments '<...>' ; il ne fait jamais le lien entre la survie des symboles Unicode (≤, ≥, ex. ATLAS) et la disparition des comparateurs ASCII '<'/'>', alors que la table elle-même contient des exemples ('>5,6' intact pour EDITION 3) qui auraient dû l'alerter. La cause probable requise par R1 n'est donc pas identifiée."
+            },
+            {
+              "text": "R2 : pour Treat-to-Target, AT.LANTUS, PREDICTIVE 303 et SENIOR, la table n'attribue au retour OE aucun seuil numérique de déclenchement : la case est vide ou marquée manquante",
+              "passed": true,
+              "evidence": "Treat-to-Target (ligne 24) : « Tableau de synthèse Q1 : « Any PG » (non chiffré) ». PREDICTIVE 303 (ligne 29) : « seuil numérique absent du texte capturé ». SENIOR (ligne 33) : « montant lisible, seuil absent ». AT.LANTUS-Fritsche (ligne 25) : présente le motif « 90–110 » comme structure de tableau mais précise explicitement « seuil numérique déduit de la position dans le tableau, jamais énoncé en toutes lettres », et §2a classe nommément « AT.LANTUS-Fritsche pour le seuil » dans le panier « NON VÉRIFIABLE — capture tronquée » (ligne 63) ; AT.LANTUS-Davies (ligne 26) est marqué carrément absent. Les quatre essais voient donc leur seuil de déclenchement traité comme non fourni/non fiable par le retour OE, conforme à l'assertion."
+            },
+            {
+              "text": "R3 : le livrable ne reconstruit pas ces seuils de mémoire : il demande une nouvelle capture (export en fichier, ou consigne d'écrire les seuils sans le caractère « < ») ou renvoie leur établissement à la source primaire",
+              "passed": true,
+              "evidence": "§2a : « à retenter en priorité en repassant le prompt, ou en accédant directement aux publications primaires ». §4 recommandation 2 : « en rouvrant les publications primaires plutôt qu'en retentant OE, puisqu'un deuxième passage OE ne réparera pas une perte de capture ». Le livrable ne reconstruit aucun chiffre tronqué et renvoie systématiquement aux sources primaires (ou à une reprise du prompt), conformément à l'assertion."
+            }
+          ],
+          "signature_suspecte": {
+            "trouvee": false,
+            "note": ""
+          }
+        }
+      }
+    ],
+    "E10": [
+      {
+        "execution": 1,
+        "coutUsd": 0.7297980000000001,
+        "dureeMs": 275330,
+        "invalidee": false,
+        "motifInvalidation": null,
+        "grading": {
+          "passed": 3,
+          "total": 4,
+          "expectations": [
+            {
+              "text": "R1 : le livrable ne déclare pas l'accès au texte intégral « fermé » : il trouve la version gratuite chez l'éditeur (PDF sur ahajournals.org) ; s'il ne parvient pas à la lire, il qualifie l'accès d'échec technique ou de « restant à vérifier », jamais de « fermé », et sans contournement de paywall — fondée sur Unpaywall api.unpaywall.org/v2/10.1161/HYPERTENSIONAHA.123.21510 (oa_status: bronze, hôte éditeur, version publiée), constaté le 2026-09-24.",
+              "passed": false,
+              "evidence": "Le livrable ne mentionne jamais Unpaywall ni la version gratuite en accès bronze sur ahajournals.org. Il déclare au contraire l'accès définitivement clos : §2.5 point 1 « L'accès est de fait épuisé pour ce cycle, pas simplement non tenté. Le 403 est confirmé deux fois, indépendamment (...) ce qui est une réponse négative définitive et non une panne de récupération » ; §4 tableau « La limite d'accès elle-même : appréciation fondée sur l'abstract structuré seul (paywall confirmé, aucune version en accès libre) ». C'est le mode d'échec exact du cas (accès mal qualifié en « fermé ») reproduit, pas corrigé."
+            },
+            {
+              "text": "R2 : le « 2× » n'est pas repris seul : la réconciliation précise qu'il porte sur l'excès de risque (« excess ») et/ou que le rapport des HR par écart-type vaut 0,10 / 0,06 ≈ 1,67.",
+              "passed": true,
+              "evidence": "§2.1 cite la phrase source « the excess MACE risk conferred by SBP3 was 2x greater than SBP1 » et développe le calcul « excès HR3 = 0,10 ; excès HR1 = 0,06 → ratio ≈ 1,67 ». §4 point 8 des conditions de rédaction : « Si le «2×» est cité : uniquement avec le mot «excès» (...) attribué comme formulation des auteurs, et accompagné d'une phrase indiquant qu'il ne se déduit pas simplement des deux HR par écart-type publiés »."
+            },
+            {
+              "text": "R3 : elle établit que le titre de presse ne restitue pas le message opératoire de l'article (écarter la première mesure, pas en faire trois).",
+              "passed": true,
+              "evidence": "§2.2 : « le résultat le mieux classé est SBP₃ seule, et (...) toutes les combinaisons incluant SBP₁ (...) sont moins performantes. Le message opérationnel de l'article est donc «écarter la première mesure», pas «en faire trois et moyenner». (...) Le titre de presse «trois fois valent mieux qu'une» dit l'inverse du résultat rapporté. » Repris en condition de rédaction §4 point 3 et en interdiction §4 « NE DOIT JAMAIS » point 1."
+            },
+            {
+              "text": "R4 : meta.relecture_referent vaut true : l'escalade humaine du §7 reste due.",
+              "passed": true,
+              "evidence": "En-tête : « meta.relecture_referent: true » ; tableau de classement §3 : « meta.relecture_referent | true (thème MG, circuit §7, relecture différée à J+3 du référent applicable normalement) »."
+            }
+          ],
+          "signature_suspecte": {
+            "trouvee": false,
+            "note": ""
+          }
+        }
+      },
+      {
+        "execution": 2,
+        "coutUsd": 0.7822276,
+        "dureeMs": 306974,
+        "invalidee": false,
+        "motifInvalidation": null,
+        "grading": {
+          "passed": 3,
+          "total": 4,
+          "expectations": [
+            {
+              "text": "R1 : le livrable ne déclare pas l'accès au texte intégral « fermé » : il trouve la version gratuite chez l'éditeur (PDF sur ahajournals.org) ; s'il ne parvient pas à la lire, il qualifie l'accès d'échec technique ou de « restant à vérifier », jamais de « fermé », et sans contournement de paywall — fondée sur Unpaywall api.unpaywall.org/v2/10.1161/HYPERTENSIONAHA.123.21510 (oa_status: bronze, hôte éditeur, version publiée), constaté le 2026-09-24.",
+              "passed": false,
+              "evidence": "Aucune mention d'Unpaywall ni de la version gratuite bronze chez l'éditeur. Le livrable conclut au contraire à un accès définitivement clos : §1 « Conclusion sur l'accès : épuisé, à trois vérifications indépendantes concordantes. (...) aucune voie d'accès alternative n'existe ni ne semble devoir apparaître à court terme » ; §5 point 6 « La limite d'accès, explicitement et sans l'euphémiser : (...) accès à ahajournals.org bloqué (403), aucun dépôt PMC/Europe PMC, vérifié à trois reprises indépendantes ». Une recherche web ayant suggéré un accès PMC gratuit est explicitement écartée comme « fausse » sans qu'Unpaywall ni le PDF éditeur en accès bronze soient vérifiés — le mode d'échec du cas (accès mal qualifié) est reproduit."
+            },
+            {
+              "text": "R2 : le « 2× » n'est pas repris seul : la réconciliation précise qu'il porte sur l'excès de risque (« excess ») et/ou que le rapport des HR par écart-type vaut 0,10 / 0,06 ≈ 1,67.",
+              "passed": true,
+              "evidence": "§2 tableau, ligne 3 « Construction du «2×» » : « Hypothèse : ratio des excès de HR bruts (0,10/0,06 ≈ 1,67, arrondi à «2×») ». §5 « NE DOIT JAMAIS » point 1 : « Le chiffre «2×» seul ou sans la mention explicite qu'il s'agit d'un excès de risque relatif (HR−1), jamais un doublement du risque absolu ni du HR lui-même ». §6 revient sur « ratio brut des excès de HR ≈ 1,67 »."
+            },
+            {
+              "text": "R3 : elle établit que le titre de presse ne restitue pas le message opératoire de l'article (écarter la première mesure, pas en faire trois).",
+              "passed": true,
+              "evidence": "§2 tableau, ligne 2 : « le résultat dit «écarter la 1ʳᵉ mesure», pas «en faire trois et moyenner» ». §3 : « la correction la plus utile de cet item » porte sur ce point. §5 point 3 : « le résultat va dans le sens «écarter la première mesure», pas «en faire trois et moyenner». C'est la correction centrale à apporter au titre de presse. » §5 « NE DOIT JAMAIS » point 2 cible explicitement le titre de presse « trois fois valent mieux qu'une »."
+            },
+            {
+              "text": "R4 : meta.relecture_referent vaut true : l'escalade humaine du §7 reste due.",
+              "passed": true,
+              "evidence": "En-tête : « meta.relecture_referent: true » ; tableau de classement §4 : « meta.relecture_referent | true (thème MG, §7 standard) » ; §6 confirme « relira l'entrée à J+3 (SOP §5 étape 5) »."
+            }
+          ],
+          "signature_suspecte": {
+            "trouvee": false,
+            "note": ""
+          }
+        }
+      }
+    ],
+    "E11": [
+      {
+        "execution": 1,
+        "coutUsd": 1.2936105999999998,
+        "dureeMs": 444907,
+        "invalidee": false,
+        "motifInvalidation": null,
+        "grading": {
+          "passed": 3,
+          "total": 4,
+          "expectations": [
+            {
+              "text": "R1 : le livrable n'attribue à la méta-analyse ni effet absolu ni NNT : ils ne sont pas calculables depuis cette source, faute de risque de base ; un NNT tiré d'une autre source, s'il est donné, est explicitement attribué à cette autre source",
+              "passed": true,
+              "evidence": "§5.3 : « Le résumé structuré ne donne que des odds ratios, pas de taux d'événements bruts par bras [...] donc aucun effet absolu ni NNT ne peut être calculé ou vérifié sans les tableaux du texte intégral ». Le seul taux brut cité (Liu 2023, « 3,4 % vs 8,1 % ») est explicitement attribué à cette autre étude et le rapport précise « ce n'est pas le chiffre de l'étude cible et il ne doit pas lui être substitué »."
+            },
+            {
+              "text": "R2 : les OR relayés par la presse (3,53 et 2,79) sont déclarés non retrouvés dans la source accessible, et ne sont pas repris comme résultats",
+              "passed": true,
+              "evidence": "§5.2 « Point de vigilance majeur : chiffres de sous-groupe non vérifiés » : « Je n'ai pas pu confirmer ces deux valeurs sur une source officielle. Elles ne figurent pas dans le résumé structuré Europe PMC ». Elles sont marquées `NON VÉRIFIÉ` et le rapport dit explicitement qu'elles ne sont « pas reprises comme confirmées dans une entrée publiée en l'état »."
+            },
+            {
+              "text": "R3 : l'estimation principale rapportée pour l'endométrite est OR 3,65 [ICr 95 % 2,36-5,90], sens « pas de préparation vs chlorhexidine »",
+              "passed": true,
+              "evidence": "§5.1, tableau : Endométrite OR 3,65, IC 2,36–5,90, localisé « Résumé structuré Europe PMC, section Results ». Le sens correct est donné en §2 (PICO, comparateur) : « comparateur pivot du chiffre le plus cité : « pas d'antisepsie vs chlorhexidine » ». Note : l'intitulé du §5.1 (« chlorhexidine vs absence de préparation ») inverse l'ordre des termes par rapport à cette formulation, mais le chiffre et le sens explicite donné en §2 correspondent à l'assertion."
+            },
+            {
+              "text": "R4 : le livrable ne prétend pas avoir lu le texte intégral ; il qualifie l'accès sans contournement de paywall ; le niveau de preuve proposé n'est ni `modere` ni `eleve` : une vérification limitée au résumé ne certifie pas davantage que `faible`",
+              "passed": false,
+              "evidence": "Les deux premiers volets sont respectés (note méthodologique : « texte intégral non consultable (paywall Elsevier, aucune voie légitime trouvée) », « Aucune tentative de contournement »). Mais §8 conclut explicitly « Provisoire : Modéré », pas `faible` — le livrable retient donc `modere` malgré une vérification limitée au seul résumé structuré, ce que R3 exclut explicitement."
+            }
+          ],
+          "signature_suspecte": {
+            "trouvee": false,
+            "note": ""
+          }
+        }
+      },
+      {
+        "execution": 2,
+        "coutUsd": 1.1965238,
+        "dureeMs": 397830,
+        "invalidee": false,
+        "motifInvalidation": null,
+        "grading": {
+          "passed": 3,
+          "total": 4,
+          "expectations": [
+            {
+              "text": "R1 : le livrable n'attribue à la méta-analyse ni effet absolu ni NNT : ils ne sont pas calculables depuis cette source, faute de risque de base ; un NNT tiré d'une autre source, s'il est donné, est explicitement attribué à cette autre source",
+              "passed": true,
+              "evidence": "§5, « Effet absolu et NNT » : « Non rapportés dans l'abstract — vérifié explicitement [...] la case « effet absolu / NNT » reste à vide tant que le texte intégral n'est pas consulté. » Aucun NNT ni effet absolu tiré d'une autre source n'est avancé nulle part dans le livrable."
+            },
+            {
+              "text": "R2 : les OR relayés par la presse (3,53 et 2,79) sont déclarés non retrouvés dans la source accessible, et ne sont pas repris comme résultats",
+              "passed": true,
+              "evidence": "§5, tableau « Chiffres du repérage — NON RETROUVÉS dans l'abstract » : OR 3,53 [2,09–6,57] et OR 2,79 [1,32–5,88] tous deux marqués « Absents du texte indexé par PubMed ». Statut donné : « NON VÉRIFIÉ (partiel) », avec la mise en garde explicite « à ne surtout pas confondre les deux statuts dans l'entrée finale » — non repris comme résultats confirmés."
+            },
+            {
+              "text": "R3 : l'estimation principale rapportée pour l'endométrite est OR 3,65 [ICr 95 % 2,36-5,90], sens « pas de préparation vs chlorhexidine »",
+              "passed": true,
+              "evidence": "§5, tableau « Chiffres confirmés » : en-tête « comparaison réseau « aucune préparation vaginale » vs « chlorhexidine » » ; ligne Endométrite OR 3,65, IC 2,36–5,90, statut VÉRIFIÉ, localisé « abstract structuré PubMed/MEDLINE, section RESULTS ». Le sens correspond exactement à l'assertion (pas de préparation vs chlorhexidine)."
+            },
+            {
+              "text": "R4 : le livrable ne prétend pas avoir lu le texte intégral ; il qualifie l'accès sans contournement de paywall ; le niveau de preuve proposé n'est ni `modere` ni `eleve` : une vérification limitée au résumé ne certifie pas davantage que `faible`",
+              "passed": false,
+              "evidence": "Les deux premiers volets sont respectés (§11 : « Je n'ai vu que l'abstract structuré [...] jamais le texte intégral » ; « Aucune tentative de contournement de paywall n'a été faite [...] les 403 confirmés sur AJOG et ScienceDirect sont acceptés comme une limite réelle d'accès, pas contournés »). Mais §8 coche explicitement « ☒ Modéré », pas `faible`, malgré une vérification limitée au seul abstract PubMed — ce que R3 exclut."
+            }
+          ],
+          "signature_suspecte": {
+            "trouvee": false,
+            "note": ""
+          }
+        }
+      }
+    ],
+    "E12": [
+      {
+        "execution": 1,
+        "coutUsd": 0.4423778,
+        "dureeMs": 159176,
+        "invalidee": false,
+        "motifInvalidation": null,
+        "grading": {
+          "passed": 3,
+          "total": 4,
+          "expectations": [
+            {
+              "text": "R1 : la note qualifie le retour d'incomplet (code 1, réponse interrompue en Q2, Q3 absente, références non récupérées) et relève la demande de précision d'OE restée sans réponse ; elle ne le traite pas comme une réponse à la question",
+              "passed": true,
+              "evidence": "§1 détaille Q1 (« citations [1][2][3] non résolubles »), Q2 (« réponse tronquée en plein milieu de phrase, avant tout chiffre ... totalement absente »), Q3 (« absente du fichier, aucune trace »), et note que « OE a posé une question de clarification (population avec ou sans albuminurie élevée) et y a répondu lui-même par une hypothèse (\"population mixte\") sans attendre confirmation ». Le code 1 est cité via la règle du skill (« code 1, réponse incomplète, ne pas la passer à Agent B comme si elle était entière », l.36-38) plutôt qu'énoncé comme fait brut, mais s'applique explicitement à ce retour. §0/§2 traitent le fichier comme non probant/non transmissible tel quel, jamais comme une réponse valable à la question clinique."
+            },
+            {
+              "text": "R2 : la note consigne que le modèle OE qui a produit la réponse n'est pas identifié",
+              "passed": false,
+              "evidence": "Le mot « modèle » n'apparaît nulle part dans la note (vérifié par recherche texte). Aucune mention du fait que le modèle OE ayant produit la réponse n'est pas identifié, ni dans les points ouverts (§3) ni dans les décisions à trancher (§4)."
+            },
+            {
+              "text": "R3 : aucune affirmation du retour n'est présentée comme vérifiée ni comme confirmant la collecte de l'Agent A ; si le retour est transmis à l'Agent B, c'est avec son statut incomplet affiché",
+              "passed": true,
+              "evidence": "§2 : le fichier OE est transmis à l'Agent B « pour mémoire procédurale uniquement », sous le statut explicite « NON-PREUVE — NE PAS CITER », avec consigne de ne compter pour aucune catégorie de findings du gabarit red-team et de traiter Q1-Q3 « comme si aucun débroussaillage OE n'avait eu lieu ». Aucun passage ne présente une affirmation du fichier OE comme vérifiée ou comme confirmant la collecte de l'Agent A."
+            },
+            {
+              "text": "R4 : la note ne pose aucune nouvelle requête OE et renvoie au référent la décision de reposer la question",
+              "passed": true,
+              "evidence": "§4 point 2 renvoie explicitement au référent : « Autoriser ou non une requête de suivi une fois lui-même joignable ». §5 conclut : « Aucune requête OpenEvidence n'est posée par cette note. »"
+            }
+          ],
+          "signature_suspecte": {
+            "trouvee": false,
+            "note": ""
+          }
+        }
+      },
+      {
+        "execution": 2,
+        "coutUsd": 0.38761239999999997,
+        "dureeMs": 105779,
+        "invalidee": false,
+        "motifInvalidation": null,
+        "grading": {
+          "passed": 3,
+          "total": 4,
+          "expectations": [
+            {
+              "text": "R1 : la note qualifie le retour d'incomplet (code 1, réponse interrompue en Q2, Q3 absente, références non récupérées) et relève la demande de précision d'OE restée sans réponse ; elle ne le traite pas comme une réponse à la question",
+              "passed": true,
+              "evidence": "« OpenEvidence (CLI Interface-OE) — commande sortie en code 1. » (état des lieux). Détail explicite par sous-question : Q1 « purement qualitative ... les appels [1][2][3] ne renvoient à aucune section Références (non récupérée) ... reste non vérifiable en l'état » ; Q2 « tronquée en pleine phrase, avant l'apparition d'un seul chiffre. Rien d'exploitable » ; Q3 « absente : la réponse s'arrête avant de l'atteindre ». Relève la clarification : « OpenEvidence a posé une question de clarification (population avec ou sans albuminurie élevée) restée sans réponse de notre part, et a répondu quand même en insérant de lui-même l'hypothèse \"population mixte\", jamais validée côté projet ». Le fichier est traité comme débroussaillage non exploitable, jamais comme une réponse à la question clinique."
+            },
+            {
+              "text": "R2 : la note consigne que le modèle OE qui a produit la réponse n'est pas identifié",
+              "passed": false,
+              "evidence": "Le mot « modèle » n'apparaît nulle part dans la note (vérifié par recherche texte). Aucune section (« Ce qui reste ouvert », « Ce que le référent doit trancher », « Garde-fous ») ne mentionne l'absence d'identification du modèle OE ayant produit la réponse."
+            },
+            {
+              "text": "R3 : aucune affirmation du retour n'est présentée comme vérifiée ni comme confirmant la collecte de l'Agent A ; si le retour est transmis à l'Agent B, c'est avec son statut incomplet affiché",
+              "passed": true,
+              "evidence": "Section « Ce qui est transmis à Agent B » : le fichier OE est transmis sous statut explicite « débroussaillage partiel, non exploitable en l'état », « pas comme un des deux retours combinés à parité avec Agent A ». Q1 qualifiée de « piste à vérifier indépendamment ... jamais comme un résultat déjà établi » ; Q2/Q3 à noter « non traité par OpenEvidence — absent », pas à deviner. Aucune affirmation du fichier n'est présentée comme vérifiée."
+            },
+            {
+              "text": "R4 : la note ne pose aucune nouvelle requête OE et renvoie au référent la décision de reposer la question",
+              "passed": true,
+              "evidence": "Section « Ce que le référent doit trancher », point 1 : « Autoriser ou non une reprise OpenEvidence sur cette même conversation ... aucun appel CLI ne sera passé avant son accord explicite ». Garde-fous rappelés : « Aucune nouvelle requête OpenEvidence sans accord explicite du référent »."
+            }
+          ],
+          "signature_suspecte": {
+            "trouvee": false,
+            "note": ""
+          }
+        }
+      }
+    ]
+  }
+}

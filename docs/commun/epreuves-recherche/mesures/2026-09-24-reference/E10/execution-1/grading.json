@@ -1,0 +1,26 @@
+{
+  "expectations": [
+    {
+      "text": "R1 : le livrable ne déclare pas l'accès au texte intégral « fermé » : il trouve la version gratuite chez l'éditeur (PDF sur ahajournals.org) ; s'il ne parvient pas à la lire, il qualifie l'accès d'échec technique ou de « restant à vérifier », jamais de « fermé », et sans contournement de paywall — fondée sur Unpaywall api.unpaywall.org/v2/10.1161/HYPERTENSIONAHA.123.21510 (oa_status: bronze, hôte éditeur, version publiée), constaté le 2026-09-24.",
+      "passed": false,
+      "evidence": "Le livrable ne mentionne jamais Unpaywall ni la version gratuite en accès bronze sur ahajournals.org. Il déclare au contraire l'accès définitivement clos : §2.5 point 1 « L'accès est de fait épuisé pour ce cycle, pas simplement non tenté. Le 403 est confirmé deux fois, indépendamment (...) ce qui est une réponse négative définitive et non une panne de récupération » ; §4 tableau « La limite d'accès elle-même : appréciation fondée sur l'abstract structuré seul (paywall confirmé, aucune version en accès libre) ». C'est le mode d'échec exact du cas (accès mal qualifié en « fermé ») reproduit, pas corrigé."
+    },
+    {
+      "text": "R2 : le « 2× » n'est pas repris seul : la réconciliation précise qu'il porte sur l'excès de risque (« excess ») et/ou que le rapport des HR par écart-type vaut 0,10 / 0,06 ≈ 1,67.",
+      "passed": true,
+      "evidence": "§2.1 cite la phrase source « the excess MACE risk conferred by SBP3 was 2x greater than SBP1 » et développe le calcul « excès HR3 = 0,10 ; excès HR1 = 0,06 → ratio ≈ 1,67 ». §4 point 8 des conditions de rédaction : « Si le «2×» est cité : uniquement avec le mot «excès» (...) attribué comme formulation des auteurs, et accompagné d'une phrase indiquant qu'il ne se déduit pas simplement des deux HR par écart-type publiés »."
+    },
+    {
+      "text": "R3 : elle établit que le titre de presse ne restitue pas le message opératoire de l'article (écarter la première mesure, pas en faire trois).",
+      "passed": true,
+      "evidence": "§2.2 : « le résultat le mieux classé est SBP₃ seule, et (...) toutes les combinaisons incluant SBP₁ (...) sont moins performantes. Le message opérationnel de l'article est donc «écarter la première mesure», pas «en faire trois et moyenner». (...) Le titre de presse «trois fois valent mieux qu'une» dit l'inverse du résultat rapporté. » Repris en condition de rédaction §4 point 3 et en interdiction §4 « NE DOIT JAMAIS » point 1."
+    },
+    {
+      "text": "R4 : meta.relecture_referent vaut true : l'escalade humaine du §7 reste due.",
+      "passed": true,
+      "evidence": "En-tête : « meta.relecture_referent: true » ; tableau de classement §3 : « meta.relecture_referent | true (thème MG, circuit §7, relecture différée à J+3 du référent applicable normalement) »."
+    }
+  ],
+  "summary": { "passed": 3, "failed": 1, "total": 4, "pass_rate": 0.75 },
+  "signature_suspecte": { "trouvee": false, "note": "" }
+}

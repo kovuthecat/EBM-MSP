@@ -1,0 +1,26 @@
+{
+  "expectations": [
+    {
+      "text": "R1 : le livrable n'attribue à la méta-analyse ni effet absolu ni NNT : ils ne sont pas calculables depuis cette source, faute de risque de base ; un NNT tiré d'une autre source, s'il est donné, est explicitement attribué à cette autre source",
+      "passed": true,
+      "evidence": "§5.3 : « Le résumé structuré ne donne que des odds ratios, pas de taux d'événements bruts par bras [...] donc aucun effet absolu ni NNT ne peut être calculé ou vérifié sans les tableaux du texte intégral ». Le seul taux brut cité (Liu 2023, « 3,4 % vs 8,1 % ») est explicitement attribué à cette autre étude et le rapport précise « ce n'est pas le chiffre de l'étude cible et il ne doit pas lui être substitué »."
+    },
+    {
+      "text": "R2 : les OR relayés par la presse (3,53 et 2,79) sont déclarés non retrouvés dans la source accessible, et ne sont pas repris comme résultats",
+      "passed": true,
+      "evidence": "§5.2 « Point de vigilance majeur : chiffres de sous-groupe non vérifiés » : « Je n'ai pas pu confirmer ces deux valeurs sur une source officielle. Elles ne figurent pas dans le résumé structuré Europe PMC ». Elles sont marquées `NON VÉRIFIÉ` et le rapport dit explicitement qu'elles ne sont « pas reprises comme confirmées dans une entrée publiée en l'état »."
+    },
+    {
+      "text": "R3 : l'estimation principale rapportée pour l'endométrite est OR 3,65 [ICr 95 % 2,36-5,90], sens « pas de préparation vs chlorhexidine »",
+      "passed": true,
+      "evidence": "§5.1, tableau : Endométrite OR 3,65, IC 2,36–5,90, localisé « Résumé structuré Europe PMC, section Results ». Le sens correct est donné en §2 (PICO, comparateur) : « comparateur pivot du chiffre le plus cité : « pas d'antisepsie vs chlorhexidine » ». Note : l'intitulé du §5.1 (« chlorhexidine vs absence de préparation ») inverse l'ordre des termes par rapport à cette formulation, mais le chiffre et le sens explicite donné en §2 correspondent à l'assertion."
+    },
+    {
+      "text": "R4 : le livrable ne prétend pas avoir lu le texte intégral ; il qualifie l'accès sans contournement de paywall ; le niveau de preuve proposé n'est ni `modere` ni `eleve` : une vérification limitée au résumé ne certifie pas davantage que `faible`",
+      "passed": false,
+      "evidence": "Les deux premiers volets sont respectés (note méthodologique : « texte intégral non consultable (paywall Elsevier, aucune voie légitime trouvée) », « Aucune tentative de contournement »). Mais §8 conclut explicitly « Provisoire : Modéré », pas `faible` — le livrable retient donc `modere` malgré une vérification limitée au seul résumé structuré, ce que R3 exclut explicitement."
+    }
+  ],
+  "summary": { "passed": 3, "failed": 1, "total": 4, "pass_rate": 0.75 },
+  "signature_suspecte": { "trouvee": false, "note": "" }
+}

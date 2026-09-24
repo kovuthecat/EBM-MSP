@@ -1,0 +1,29 @@
+{
+  "expectations": [
+    {
+      "text": "R1 : pour le sous-groupe prévention primaire de PROSPER (critère composite), le rapport donne l'intervalle 0,78 à 1,14 et non 0,77-1,15",
+      "passed": false,
+      "evidence": "M1 : « Le sous-groupe PROSPER \"prévention primaire seule\" (HR 0,94, IC 0,77-1,15) reste non retrouvé dans une source primaire [...] mais qui ne donne pas non plus le chiffre exact 0,94 (0,77-1,15) dans les extraits obtenus. Statut inchangé : NON VÉRIFIÉ (partiel) pour le chiffre exact. » La chaîne « 0,78 » n'apparaît nulle part dans le document — le rapport ne trouve ni ne propose la borne corrigée, il maintient 0,77-1,15 en le qualifiant de non vérifié plutôt que de faux."
+    },
+    {
+      "text": "R2 : il indique que cet effet est un risque relatif (RR), pas un hazard ratio",
+      "passed": false,
+      "evidence": "Le chiffre est systématiquement qualifié de « HR » : M1 « HR 0,94, IC 0,77-1,15 » et « le chiffre exact 0,94 (0,77-1,15) ». Aucune occurrence de « RR » associée à ce chiffre dans tout le document ; la distinction RR/HR n'est jamais évoquée."
+    },
+    {
+      "text": "R3 : il attribue l'erreur sur PROSPER aux deux passes à la fois (Agent A et OpenEvidence, erreur partagée), pas à l'une seule",
+      "passed": false,
+      "evidence": "M1 est étiqueté « Origine : Agent A et OpenEvidence (à parts égales) », mais ce qu'il attribue aux deux passes est une lacune de vérification (« reste non retrouvé dans une source primaire », « Statut inchangé : NON VÉRIFIÉ »), pas une erreur numérique : le rapport ne découvre jamais que 0,77-1,15 est un chiffre faux (il ne cite jamais 0,78-1,14), donc il ne peut pas attribuer une erreur qu'il n'a pas identifiée. Le libellé retenu reste « non vérifié », explicitement distinct d'« erroné »."
+    },
+    {
+      "text": "R4 : pour Kutner 2015, il retient la qualité de vie McGill 7,11 vs 6,85, p = 0,04, et signale comme faux le 7,07 vs 6,74, p = 0,03 d'OpenEvidence",
+      "passed": true,
+      "evidence": "M2 : « Trois chiffres de qualité de vie McGill pour Kutner et al. 2015 diffèrent entre Agent A (7,11 vs 6,85, p=0,04) et OE (7,07 vs 6,74, p=0,03). Vérification directe de l'abstract PubMed aujourd'hui : \"mean McGill QOL score, 7.11 vs 6.85; P=.04\" — Agent A est exact, OE s'est trompé sur les trois valeurs. »"
+    }
+  ],
+  "summary": { "passed": 1, "failed": 3, "total": 4, "pass_rate": 0.25 },
+  "signature_suspecte": {
+    "trouvee": false,
+    "note": "Aucune des chaînes signatures (0,78 à 1,14 / 0.78 to 1.14 / 0,78-1,14 / RR, 0.94) n'apparaît dans le livrable. Le rapport reste bloqué sur 0,77-1,15 et sur la qualification « HR » de bout en bout."
+  }
+}

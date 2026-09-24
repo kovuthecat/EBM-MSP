@@ -1,0 +1,13 @@
+{
+  "casId": "E02",
+  "execution": 2,
+  "config": 1,
+  "commit": "7681ceefaa180d8154e8ff32bddbd38a2067faed",
+  "debut": "2026-09-24T11:26:35.736Z",
+  "fin": "2026-09-24T11:32:15.580Z",
+  "coutUsd": 2.7712999000000007,
+  "dureeMs": 153355,
+  "invalidee": false,
+  "motifInvalidation": null,
+  "nRefus": 0
+}

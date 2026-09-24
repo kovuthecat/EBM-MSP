@@ -1,0 +1,26 @@
+{
+  "expectations": [
+    {
+      "text": "R1 : le rapport déclare la négative « aucun ECR » fausse telle qu'écrite, en citant l'essai El Fathi et al., Diabetes Technol Ther 2026 (PMID 41651803, NCT06111508) : ECR ambulatoire chez des DT2 sous basale seule (degludec), titration algorithmique hebdomadaire guidée par la MCG, mis en ligne le 6 février 2026",
+      "passed": true,
+      "evidence": "Section 'Verdict par sous-question' Q1 : « La négative ne tient pas. Un ECR ambulatoire répondant précisément à la question existe et a été manqué par OpenEvidence : El Fathi A, Nass R, Levy CJ, et al. [...] Diabetes Technology & Therapeutics, 2026, doi 10.1177/15209156261420193, PMID 41651803 — essai NCT06111508 [...] ». Finding 1 détaille : population DT2 sous insuline basale ≥90 jours, ambulatoire, exclusion pompe/DT1 ; intervention degludec, titration hebdomadaire par algorithme sur données MCG vs SMBG. La date précise de mise en ligne (6 février 2026) n'est pas reprise telle quelle (le rapport cite plutôt l'abstract ADA 2025 et les résultats ClinicalTrials.gov), mais l'essentiel de l'assertion — négative déclarée fausse, essai identifié par PMID/NCT, population et intervention conformes — est démontré avec des citations précises."
+    },
+    {
+      "text": "R2 : il ne présente pas cet essai comme validant un protocole utilisable en consultation : n = 30, 16 semaines, critère de substitution (TIR) en non-infériorité, aucun seuil ni pas de dose actionnable",
+      "passed": true,
+      "evidence": "« Limite honnête à porter dans le nœud : effectif très réduit (30 randomisés, 28 terminés...), étude explicitement qualifiée par les auteurs de \"Safety and Feasibility\" — un essai de faisabilité, pas un essai de confirmation de phase 3. Le niveau de preuve GRADE doit rester bas ». Le titre complet cité inclut « A 16-Week Randomized Controlled Trial ». Finding 3 et la formulation prudente précisent qu'« aucun algorithme MCG-piloté avec seuil de déclenchement et pas de dose publiquement documentés n'est à ce jour identifiable en source ouverte » et que les paramètres de l'algorithme restent NON VÉRIFIÉ, donc à ne pas citer comme protocole actionnable. Le terme exact « non-infériorité » n'apparaît pas (le rapport décrit un résultat significatif, p=0,001), mais le message central — preuve de faisabilité insuffisante pour un protocole de consultation — est clairement porté."
+    },
+    {
+      "text": "R3 : il propose de remplacer la négative absolue par une formulation graduée (« rien n'est établi » plutôt que « rien n'existe »)",
+      "passed": true,
+      "evidence": "Section finale « Proposition de libellé pour le nœud (formulations graduées, à valider par le référent) » avec trois variantes explicitement graduées : « Formulation prudente » (« Aucun algorithme MCG-piloté avec seuil de déclenchement et pas de dose publiquement documentés n'est à ce jour identifiable »), « Formulation intermédiaire », et « Formulation la plus affirmative (à ne retenir que si...) » — remplace explicitement l'absolu par du gradué, à trancher par le référent."
+    },
+    {
+      "text": "R4 : il ne compte pas DIATEC comme l'essai ambulatoire recherché : population hospitalisée",
+      "passed": true,
+      "evidence": "Sous « Confirmations obtenues » : « DIATEC (Olsen et al., Diabetes Care 2025;48(4):569-578, PMID 39887698) : essai réel confirmé, population hospitalière non-USI (166 patients, 2 centres, PROBE), critère principal TIR — conforme à la description d'OE, y compris le caractère non-ambulatoire qui justifie son exclusion du périmètre. » Finding 4 rappelle aussi que DIATEC est « hors périmètre du prompt : population hospitalisée »."
+    }
+  ],
+  "summary": { "passed": 4, "failed": 0, "total": 4, "pass_rate": 1.0 },
+  "signature_suspecte": { "trouvee": false, "note": "" }
+}

@@ -1,0 +1,21 @@
+{
+  "expectations": [
+    {
+      "text": "R1 : le livrable signale que les seuils qui déclenchent la réduction de dose manquent dans la capture, relève l'anomalie de capture (aucun caractère « < » dans le retour) comme cause probable, et ne conclut pas qu'OE ne les donne pas",
+      "passed": true,
+      "evidence": "§3.1 (lignes 41-61) : « chaque fois qu'une règle de titration s'exprime avec un comparateur ASCII simple (<, >) suivi d'une valeur... le texte s'interrompt net... les valeurs utilisant un symbole Unicode (≤, ≥) sont systématiquement intactes... L'hypothèse la plus probable est qu'un traitement de type « suppression de balises HTML/XML » a été appliqué... qu'il a avalé tout segment ressemblant à <...> ». Identifie précisément le mécanisme (avalement des segments ASCII '<'/'>' par un nettoyeur de balises, contraste avec les symboles Unicode intacts), le pose comme hypothèse probable (« l'hypothèse la plus probable »), et distingue explicitement (§3.4, §4) les essais où OE dit vraiment ne pas avoir la donnée (INSIGHT, LANMET) de ceux où la donnée a été perdue à la capture — ne conclut donc jamais qu'OE ne la donne pas."
+    },
+    {
+      "text": "R2 : pour Treat-to-Target, AT.LANTUS, PREDICTIVE 303 et SENIOR, la table n'attribue au retour OE aucun seuil numérique de déclenchement : la case est vide ou marquée manquante",
+      "passed": false,
+      "evidence": "Treat-to-Target, PREDICTIVE 303 et SENIOR sont bien traités correctement (déclencheur marqué tronqué/absent, ex. ligne 32 : « seuil numérique tronqué : reduce by 3 U if mean aFPG puis coupure »). Mais pour AT.LANTUS — algorithme Fritsche (ligne 28), le livrable attribue un seuil numérique explicite au retour OE : « GAJ moyenne (3 valeurs), tableau lisible : 90–110 mg/dL = pas de changement » et le montant est justifié par « en dessous de 90 mg/dL », présenté comme lisible/légitime plutôt que vide ou manquant — contredit l'assertion pour cet essai (seule la sous-ligne AT.LANTUS-Davies, ligne 29, est correctement marquée manquante)."
+    },
+    {
+      "text": "R3 : le livrable ne reconstruit pas ces seuils de mémoire : il demande une nouvelle capture (export en fichier, ou consigne d'écrire les seuils sans le caractère « < ») ou renvoie leur établissement à la source primaire",
+      "passed": true,
+      "evidence": "§3.1 : « Action recommandée pour l'Agent B : ne pas tenter de deviner les valeurs tronquées à partir du contexte ; rouvrir chaque source primaire (Riddle 2003, Meneghini 2007, Bolli 2015, Russell-Jones 2019, Ritzel 2018, Home 2015) pour lire les seuils exacts, faute de quoi ces lignes restent [À VÉRIFIER] de façon indéfinie. » Renvoie explicitement à la source primaire sans jamais reconstruire un chiffre de mémoire."
+    }
+  ],
+  "summary": { "passed": 2, "failed": 1, "total": 3, "pass_rate": 0.6667 },
+  "signature_suspecte": { "trouvee": false, "note": "" }
+}

@@ -1,0 +1,26 @@
+{
+  "expectations": [
+    {
+      "text": "R1 : la note qualifie le retour d'incomplet (code 1, réponse interrompue en Q2, Q3 absente, références non récupérées) et relève la demande de précision d'OE restée sans réponse ; elle ne le traite pas comme une réponse à la question",
+      "passed": true,
+      "evidence": "§1 détaille Q1 (« citations [1][2][3] non résolubles »), Q2 (« réponse tronquée en plein milieu de phrase, avant tout chiffre ... totalement absente »), Q3 (« absente du fichier, aucune trace »), et note que « OE a posé une question de clarification (population avec ou sans albuminurie élevée) et y a répondu lui-même par une hypothèse (\"population mixte\") sans attendre confirmation ». Le code 1 est cité via la règle du skill (« code 1, réponse incomplète, ne pas la passer à Agent B comme si elle était entière », l.36-38) plutôt qu'énoncé comme fait brut, mais s'applique explicitement à ce retour. §0/§2 traitent le fichier comme non probant/non transmissible tel quel, jamais comme une réponse valable à la question clinique."
+    },
+    {
+      "text": "R2 : la note consigne que le modèle OE qui a produit la réponse n'est pas identifié",
+      "passed": false,
+      "evidence": "Le mot « modèle » n'apparaît nulle part dans la note (vérifié par recherche texte). Aucune mention du fait que le modèle OE ayant produit la réponse n'est pas identifié, ni dans les points ouverts (§3) ni dans les décisions à trancher (§4)."
+    },
+    {
+      "text": "R3 : aucune affirmation du retour n'est présentée comme vérifiée ni comme confirmant la collecte de l'Agent A ; si le retour est transmis à l'Agent B, c'est avec son statut incomplet affiché",
+      "passed": true,
+      "evidence": "§2 : le fichier OE est transmis à l'Agent B « pour mémoire procédurale uniquement », sous le statut explicite « NON-PREUVE — NE PAS CITER », avec consigne de ne compter pour aucune catégorie de findings du gabarit red-team et de traiter Q1-Q3 « comme si aucun débroussaillage OE n'avait eu lieu ». Aucun passage ne présente une affirmation du fichier OE comme vérifiée ou comme confirmant la collecte de l'Agent A."
+    },
+    {
+      "text": "R4 : la note ne pose aucune nouvelle requête OE et renvoie au référent la décision de reposer la question",
+      "passed": true,
+      "evidence": "§4 point 2 renvoie explicitement au référent : « Autoriser ou non une requête de suivi une fois lui-même joignable ». §5 conclut : « Aucune requête OpenEvidence n'est posée par cette note. »"
+    }
+  ],
+  "summary": { "passed": 3, "failed": 1, "total": 4, "pass_rate": 0.75 },
+  "signature_suspecte": { "trouvee": false, "note": "" }
+}

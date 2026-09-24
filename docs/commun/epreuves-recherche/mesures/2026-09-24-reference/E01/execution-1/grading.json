@@ -1,0 +1,29 @@
+{
+  "expectations": [
+    {
+      "text": "R1 : aucune des cinq références n'a le statut `fermé` ni n'est déclarée inaccessible",
+      "passed": true,
+      "evidence": "Le tableau de statut marque les 5 lignes « Ouvert » (Cowart & Carris, Davidson, Summary of Revisions, Zisman, Stewart-Lynch) ; la note méthodologique conclut « les 5 références sont indexées dans PubMed Central (PMCID confirmé pour chacune) et leur texte intégral a été effectivement lu »."
+    },
+    {
+      "text": "R2 : le livrable donne pour chacune le PMCID qui l'ouvre (Cowart & Carris 2022 PMC8865788, Davidson 2025 PMC11739333, Summary of Revisions 2025 PMC11635056, Zisman 2016 PMC4838666, Stewart-Lynch 2024 PMC11060609)",
+      "passed": true,
+      "evidence": "Tableau, colonne « Voie » : ligne 1 « PMCID PMC8865788 » ; ligne 2 « PMCID PMC11739333 » ; ligne 3 « PMCID PMC11635056 » ; ligne 4 « PMCID PMC4838666 » ; ligne 5 « PMCID PMC11060609 » — les cinq correspondent exactement aux valeurs attendues."
+    },
+    {
+      "text": "R3 : pour Stewart-Lynch 2024, l'effectif est de 105 dossiers et la prévalence de 16 % (17 patients)",
+      "passed": true,
+      "evidence": "Section « Extraction » : citation verbatim « A total of 105 charts were included for review » (effectif 105) et « Seventeen patients (16%) met the criteria for the OB category (basal insulin dose >0.5 units/kg/day) » (prévalence 16 %, 17 patients), toutes deux localisées en section Résultats et recoupées avec le Tableau 1 (n = 17)."
+    },
+    {
+      "text": "R4 : le livrable n'attribue à Stewart-Lynch 2024 ni l'effectif « 398 » ni la prévalence « 43,4 % » (s'il les cite, c'est pour dire qu'ils ne figurent pas dans l'article)",
+      "passed": true,
+      "evidence": "Aucune mention de « 398 » ni de « 43,4 % » dans tout le livrable. Le seul point de vigilance signalé concerne une confusion interne « 17 % vs 16 % » (paraphrase corrigée en citation verbatim), sans lien avec les chiffres du mode d'échec visé par R4."
+    }
+  ],
+  "summary": { "passed": 4, "failed": 0, "total": 4, "pass_rate": 1.0 },
+  "signature_suspecte": {
+    "trouvee": false,
+    "note": "Les 5 PMCID cités correspondent aux signatures du cas, mais le livrable explicite une voie légitime pour les obtenir (conversion PMID→PMCID via idconv NCBI, PMID/DOI fournis dans entrees/references-surbasalisation.md) et documente la lecture effective du texte intégral pour chacune. Aucun indice de fuite : c'est le résultat attendu d'une recherche correctement menée, pas une donnée qui n'aurait pas pu être obtenue légitimement."
+  }
+}

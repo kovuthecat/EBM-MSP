@@ -1,0 +1,29 @@
+{
+  "expectations": [
+    {
+      "text": "R1 : pour le sous-groupe prévention primaire de PROSPER (critère composite), le rapport donne l'intervalle 0,78 à 1,14 et non 0,77-1,15",
+      "passed": false,
+      "evidence": "§3 « Confirmations obtenues » : « Sous-groupe prévention primaire, HR 0,94 (0,77-1,15) : retrouvé via l'evidence report USPSTF 2022 [...] — cohérent, avec un écart mineur non résolu sur l'IC (0,78-1,14 selon une extraction de la page USPSTF) qui n'invalide pas le chiffre. » Le rapport retient 0,77-1,15 comme valeur confirmée et relègue 0,78-1,14 au rang de variante d'extraction non tranchée qui « n'invalide pas le chiffre » — il ne corrige jamais vers 0,78-1,14. Même retenue dans §5 (sous-question 1 : « HR 0,94 »)."
+    },
+    {
+      "text": "R2 : il indique que cet effet est un risque relatif (RR), pas un hazard ratio",
+      "passed": false,
+      "evidence": "Le rapport qualifie systématiquement ce chiffre de « HR » (hazard ratio), jamais de RR : F5 « HR 0,94 » et « HR 0,78 » ; §3 « Sous-groupe prévention primaire, HR 0,94 (0,77-1,15) » ; §5 sous-question 1 « signal spécifiquement diabétique [...] ». Aucune mention de RR pour ce chiffre nulle part dans le document ; la distinction RR/HR n'est jamais soulevée."
+    },
+    {
+      "text": "R3 : il attribue l'erreur sur PROSPER aux deux passes à la fois (Agent A et OpenEvidence, erreur partagée), pas à l'une seule",
+      "passed": false,
+      "evidence": "F5 est explicitement titré « Lacune partagée par Agent A et OpenEvidence (ni erreur, ni confirmation) » — le rapport nie lui-même qu'il s'agisse d'une erreur. Le tableau du décompte final (§4) indique « Findings — Agent A ET OpenEvidence (erreur partagée) | 0 ». L'écart d'IC (0,77-1,15 vs 0,78-1,14) est traité comme un désaccord d'extraction mineur « qui n'invalide pas le chiffre », jamais comme une erreur attribuée aux deux passes."
+    },
+    {
+      "text": "R4 : pour Kutner 2015, il retient la qualité de vie McGill 7,11 vs 6,85, p = 0,04, et signale comme faux le 7,07 vs 6,74, p = 0,03 d'OpenEvidence",
+      "passed": true,
+      "evidence": "F1 : « OE (B1) rapporte : \"Qualité de vie meilleure à l'arrêt (7,07 vs 6,74 ; p = 0,03).\" Le texte primaire [...] dit : \"Total QOL was better for the group discontinuing statin therapy (mean McGill QOL score, 7.11 vs 6.85; P=.04).\" → Le chiffre d'Agent A (7,11 vs 6,85, p=0,04) est exact. Celui d'OE est inexact sur les trois valeurs. »"
+    }
+  ],
+  "summary": { "passed": 1, "failed": 3, "total": 4, "pass_rate": 0.25 },
+  "signature_suspecte": {
+    "trouvee": false,
+    "note": "La chaîne « 0,78-1,14 » apparaît bien dans le livrable (§3), mais le rapport en donne lui-même l'origine légitime : une extraction directe de la page USPSTF 2022 via le repli WebFetch décrit en détail en §0 (méthodologie explicitée, y compris ses limites). Ce n'est pas une fuite — c'est une recherche réelle qui a produit la bonne valeur, que le rapport a ensuite mal exploitée (voir R1/R3, tous deux en échec) en la traitant comme une variante mineure plutôt que comme la correction."
+  }
+}

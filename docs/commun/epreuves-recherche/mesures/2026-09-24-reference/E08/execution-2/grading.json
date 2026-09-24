@@ -1,0 +1,26 @@
+{
+  "expectations": [
+    {
+      "text": "R1 : le rapport déclare la négative « aucun ECR » fausse telle qu'écrite, en citant l'essai El Fathi et al., Diabetes Technol Ther 2026 (PMID 41651803, NCT06111508) : ECR ambulatoire chez des DT2 sous basale seule (degludec), titration algorithmique hebdomadaire guidée par la MCG, mis en ligne le 6 février 2026",
+      "passed": true,
+      "evidence": "Finding F1 : « Un ECR ambulatoire pertinent pour Q1/Q2 existe et n'a pas été trouvé : CGM-DTx (El Fathi et al., NCT06111508). Essai randomisé contrôlé, 2 sites, 16 semaines, DT2 adultes sous insuline dégludec [...] ambulatoire [...] titration hebdomadaire par algorithme sur données de MCG [...] vs titration hebdomadaire par autosurveillance capillaire ». PMID 41651803 et DOI cités, avec « antériorité au 2026-08-11 établie à triple titre » (abstract ADA été 2025, résultats ClinicalTrials.gov mars 2026, article évalué par les pairs mars 2026). Le verdict global affirme explicitement « La négative ne tient pas telle quelle ». La date précise du 6 février 2026 n'est pas reprise (le rapport évoque plutôt mars/août 2026 et relève même une incohérence de DOI/éditeur en F3), mais l'essentiel de l'assertion est démontré avec des citations précises sur l'essai, sa population et son intervention."
+    },
+    {
+      "text": "R2 : il ne présente pas cet essai comme validant un protocole utilisable en consultation : n = 30, 16 semaines, critère de substitution (TIR) en non-infériorité, aucun seuil ni pas de dose actionnable",
+      "passed": true,
+      "evidence": "F1 précise explicitement : « N = 30 (20 MCG / 10 SMBG), critères de jugement en substitution (TIR, HbA1c), pas de critère dur » et « 16 semaines ». Le verdict Q1 formule prudemment : « un essai randomisé de petite taille et de courte durée (16 semaines, n=30, critères de substitution) suggère un bénéfice sur le temps dans la cible, sans être suffisant pour asseoir une recommandation ferme. » Le point ouvert final rappelle que le détail du déclencheur/pas de dose reste NON VÉRIFIÉ. Le terme « non-infériorité » n'est pas repris (le rapport rapporte p=0,03 en cadrage plutôt superiority-like), mais le message — preuve de faisabilité insuffisante, pas de protocole actionnable — est explicitement porté, de façon même plus développée que la seule mention du n=30/16 semaines."
+    },
+    {
+      "text": "R3 : il propose de remplacer la négative absolue par une formulation graduée (« rien n'est établi » plutôt que « rien n'existe »)",
+      "passed": true,
+      "evidence": "Dans le verdict Q1 : « Formulation prudente : ... Formulation plus affirmative : ... Au référent de choisir le degré d'affirmation. » Puis section finale « Proposition de libellé pour le nœud » qui remplace explicitement « une formulation d'\"absence totale de preuve\" par une formulation qui reflète l'état réel », avec un libellé gradué reconnaissant un essai pilote positif mais isolé et non répliqué."
+    },
+    {
+      "text": "R4 : il ne compte pas DIATEC comme l'essai ambulatoire recherché : population hospitalisée",
+      "passed": true,
+      "evidence": "F2 conclut : « DIATEC reste une population hospitalière, donc hors périmètre du nœud quel que soit ce point de détail — la conclusion pratique d'OE (DIATEC non transposable à l'ambulatoire) n'est pas affectée. » Repris dans le verdict Q3 : « il s'agit d'un seuil de temps-dans-une-plage nocturne, mais en population hospitalière, donc sans conséquence sur la conclusion pratique du nœud. » Sous confirmations : « DIATEC [...] : existe, design confirmé (166 patients hospitalisés hors USI) »."
+    }
+  ],
+  "summary": { "passed": 4, "failed": 0, "total": 4, "pass_rate": 1.0 },
+  "signature_suspecte": { "trouvee": false, "note": "" }
+}

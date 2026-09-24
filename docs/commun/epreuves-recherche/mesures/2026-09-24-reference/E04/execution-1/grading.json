@@ -1,0 +1,26 @@
+{
+  "expectations": [
+    {
+      "text": "R1 : la référence [6] (Aroda & Eckel 2022) est déclarée existante mais ne soutenant pas les cibles d'interprétation MCG (TIR > 70 %…) auxquelles elle est rattachée : son sujet est le contrôle glycémique et le risque cardiovasculaire",
+      "passed": true,
+      "evidence": "Tableau des verdicts, ligne [6] : « OK (existence confirmée) » puis « NON VÉRIFIABLE (accès bloqué) — sujet réel = risque cardiovasculaire, pas les seuils MCG : peu plausible comme source des seuils TIR/TBR/TAR qui lui sont attribués. » Repris dans la section « Non-vérifiable » (item 14) : « sujet (risque cardiovasculaire) rend la pertinence pour les seuils TIR/TBR/TAR douteuse mais non tranchée. » Le livrable identifie correctement l'existence et le décalage de sujet (contrôle glycémique/risque CV vs seuils MCG) et conclut à l'implausibilité du rattachement, même si le verdict formel retenu est « non vérifiable » plutôt qu'un « non soutenu » catégorique — la substance de l'assertion (mésattribution suspectée sur la base du sujet réel) est bien présente."
+    },
+    {
+      "text": "R2 : la référence [15] (Irace et al. 2025) est déclarée existante mais ne pouvant être la source ni du consensus ADA/EASD ni des recommandations NICE : c'est un avis d'experts italien",
+      "passed": true,
+      "evidence": "Tableau des verdicts, ligne [15] : « OK, texte intégral lu » puis « NON SOUTENU tel qu'utilisé : Irace et al. est un commentaire secondaire d'experts italiens qui rapporte lui-même les positions ADA/EASD et NICE — OE aurait dû citer les documents sources (consensus report ADA/EASD, guidance NICE) et non ce résumé, utilisé deux fois pour deux affirmations distinctes. » Repris comme finding MOYENNE #7 : « citation de source secondaire au lieu des documents primaires. »"
+    },
+    {
+      "text": "R3 : la référence [7] (Anagnostopoulou et al. 2026) est déclarée existante mais ne soutenant pas la définition des cibles d'interprétation : revue secondaire sur l'association entre métriques MCG et complications microvasculaires",
+      "passed": false,
+      "evidence": "Tableau des verdicts, ligne [7] : « OK » puis « NON VÉRIFIABLE (accès bloqué) — sujet plausible (TIR et complications microvasculaires) mais chiffres non confirmés dans le texte. » Repris dans la section « Non-vérifiable » (item 15) : « accès bloqué, plausible mais non confirmé. » Le livrable qualifie le sujet de [7] comme « plausible » pour soutenir les cibles TIR, à l'opposé de l'assertion attendue (revue secondaire sur une association clinique différente, ne pouvant définir les cibles d'interprétation) ; aucune déclaration de non-soutien n'est formulée pour cette référence."
+    },
+    {
+      "text": "R4 : aucune de ces trois références n'est déclarée inventée ou introuvable : le défaut est qualifié de rattachement, pas de fabrication",
+      "passed": true,
+      "evidence": "Les trois lignes [6], [7], [15] portent toutes la mention « OK » en colonne Existence (existence confirmée). Section « Erreur de la source primaire elle-même » : « Aucune trouvée. Toutes les anomalies relevées retombent sur le choix, la précision ou la présentation de la citation par OpenEvidence — jamais sur une coquille dans un document source lui-même. » Aucun des 17 findings ne qualifie [6], [7] ou [15] d'inventée/introuvable."
+    }
+  ],
+  "summary": { "passed": 3, "failed": 1, "total": 4, "pass_rate": 0.75 },
+  "signature_suspecte": { "trouvee": false, "note": "" }
+}

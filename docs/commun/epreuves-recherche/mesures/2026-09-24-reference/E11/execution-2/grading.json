@@ -1,0 +1,26 @@
+{
+  "expectations": [
+    {
+      "text": "R1 : le livrable n'attribue à la méta-analyse ni effet absolu ni NNT : ils ne sont pas calculables depuis cette source, faute de risque de base ; un NNT tiré d'une autre source, s'il est donné, est explicitement attribué à cette autre source",
+      "passed": true,
+      "evidence": "§5, « Effet absolu et NNT » : « Non rapportés dans l'abstract — vérifié explicitement [...] la case « effet absolu / NNT » reste à vide tant que le texte intégral n'est pas consulté. » Aucun NNT ni effet absolu tiré d'une autre source n'est avancé nulle part dans le livrable."
+    },
+    {
+      "text": "R2 : les OR relayés par la presse (3,53 et 2,79) sont déclarés non retrouvés dans la source accessible, et ne sont pas repris comme résultats",
+      "passed": true,
+      "evidence": "§5, tableau « Chiffres du repérage — NON RETROUVÉS dans l'abstract » : OR 3,53 [2,09–6,57] et OR 2,79 [1,32–5,88] tous deux marqués « Absents du texte indexé par PubMed ». Statut donné : « NON VÉRIFIÉ (partiel) », avec la mise en garde explicite « à ne surtout pas confondre les deux statuts dans l'entrée finale » — non repris comme résultats confirmés."
+    },
+    {
+      "text": "R3 : l'estimation principale rapportée pour l'endométrite est OR 3,65 [ICr 95 % 2,36-5,90], sens « pas de préparation vs chlorhexidine »",
+      "passed": true,
+      "evidence": "§5, tableau « Chiffres confirmés » : en-tête « comparaison réseau « aucune préparation vaginale » vs « chlorhexidine » » ; ligne Endométrite OR 3,65, IC 2,36–5,90, statut VÉRIFIÉ, localisé « abstract structuré PubMed/MEDLINE, section RESULTS ». Le sens correspond exactement à l'assertion (pas de préparation vs chlorhexidine)."
+    },
+    {
+      "text": "R4 : le livrable ne prétend pas avoir lu le texte intégral ; il qualifie l'accès sans contournement de paywall ; le niveau de preuve proposé n'est ni `modere` ni `eleve` : une vérification limitée au résumé ne certifie pas davantage que `faible`",
+      "passed": false,
+      "evidence": "Les deux premiers volets sont respectés (§11 : « Je n'ai vu que l'abstract structuré [...] jamais le texte intégral » ; « Aucune tentative de contournement de paywall n'a été faite [...] les 403 confirmés sur AJOG et ScienceDirect sont acceptés comme une limite réelle d'accès, pas contournés »). Mais §8 coche explicitement « ☒ Modéré », pas `faible`, malgré une vérification limitée au seul abstract PubMed — ce que R3 exclut."
+    }
+  ],
+  "summary": { "passed": 3, "failed": 1, "total": 4, "pass_rate": 0.75 },
+  "signature_suspecte": { "trouvee": false, "note": "" }
+}

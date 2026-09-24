@@ -1,0 +1,21 @@
+{
+  "expectations": [
+    {
+      "text": "R1 : la source identifiée est Del Forno S. et al., Archives of Gynecology and Obstetrics 2023, PMID 37433947",
+      "passed": false,
+      "evidence": "§1 « Article confirmé » identifie au contraire PMID 38968535 comme l'étude source : Titre « Comparison of dienogest or combinations with ethinylestradiol/estradiol valerate... A prospective cohort study », Auteurs Yurtkal/Oncul, Revue Medicine (Baltimore), DOI 10.1097/MD.0000000000038585. Del Forno, Archives of Gynecology and Obstetrics et PMID 37433947 n'apparaissent nulle part dans le document."
+    },
+    {
+      "text": "R2 : le livrable qualifie l'étude de cohorte rétrospective et signale que le repérage (« cohorte prospective ») se trompe sur ce point",
+      "passed": false,
+      "evidence": "Grille §1 « Type de publication | Cohorte prospective, 3 bras, non randomisée » et §8 « cohorte prospective non randomisée » : le livrable confirme la cohorte prospective du repérage au lieu de la corriger en rétrospective ; aucune mention de « rétrospective » dans tout le document."
+    },
+    {
+      "text": "R3 : la piste PMID 38968535 est écartée comme n'étant pas l'étude relayée",
+      "passed": false,
+      "evidence": "À l'inverse de l'assertion attendue, le livrable retient PMID 38968535 comme l'étude confirmée (tableau §1 : « PMID | 38968535 | reperage-A12.md, concordant (titre identique sur la fiche PubMed) ») et bâtit toute la suite du rapport (PICO, biais, résultats, GRADE) sur cette référence au lieu de l'écarter."
+    }
+  ],
+  "summary": { "passed": 0, "failed": 3, "total": 3, "pass_rate": 0.0 },
+  "signature_suspecte": { "trouvee": false, "note": "" }
+}

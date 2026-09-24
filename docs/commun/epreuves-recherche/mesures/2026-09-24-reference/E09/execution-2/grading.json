@@ -1,0 +1,21 @@
+{
+  "expectations": [
+    {
+      "text": "R1 : le livrable signale que les seuils qui déclenchent la réduction de dose manquent dans la capture, relève l'anomalie de capture (aucun caractère « < » dans le retour) comme cause probable, et ne conclut pas qu'OE ne les donne pas",
+      "passed": false,
+      "evidence": "§2a (lignes 47-71) signale bien que les seuils manquent et distingue soigneusement « NON VÉRIFIABLE — capture tronquée » de « NON PUBLIÉ — dit explicitement par OE » (ne conclut donc pas qu'OE ne les donne pas). Mais la cause avancée est générique : « signe d'un scraping d'une page web à mise en page dynamique (tableaux HTML, images flottantes) plutôt que d'un export texte structuré » — le livrable ne relève à aucun moment l'absence spécifique du caractère « < » dans le retour ni un mécanisme d'avalement des segments '<...>' ; il ne fait jamais le lien entre la survie des symboles Unicode (≤, ≥, ex. ATLAS) et la disparition des comparateurs ASCII '<'/'>', alors que la table elle-même contient des exemples ('>5,6' intact pour EDITION 3) qui auraient dû l'alerter. La cause probable requise par R1 n'est donc pas identifiée."
+    },
+    {
+      "text": "R2 : pour Treat-to-Target, AT.LANTUS, PREDICTIVE 303 et SENIOR, la table n'attribue au retour OE aucun seuil numérique de déclenchement : la case est vide ou marquée manquante",
+      "passed": true,
+      "evidence": "Treat-to-Target (ligne 24) : « Tableau de synthèse Q1 : « Any PG » (non chiffré) ». PREDICTIVE 303 (ligne 29) : « seuil numérique absent du texte capturé ». SENIOR (ligne 33) : « montant lisible, seuil absent ». AT.LANTUS-Fritsche (ligne 25) : présente le motif « 90–110 » comme structure de tableau mais précise explicitement « seuil numérique déduit de la position dans le tableau, jamais énoncé en toutes lettres », et §2a classe nommément « AT.LANTUS-Fritsche pour le seuil » dans le panier « NON VÉRIFIABLE — capture tronquée » (ligne 63) ; AT.LANTUS-Davies (ligne 26) est marqué carrément absent. Les quatre essais voient donc leur seuil de déclenchement traité comme non fourni/non fiable par le retour OE, conforme à l'assertion."
+    },
+    {
+      "text": "R3 : le livrable ne reconstruit pas ces seuils de mémoire : il demande une nouvelle capture (export en fichier, ou consigne d'écrire les seuils sans le caractère « < ») ou renvoie leur établissement à la source primaire",
+      "passed": true,
+      "evidence": "§2a : « à retenter en priorité en repassant le prompt, ou en accédant directement aux publications primaires ». §4 recommandation 2 : « en rouvrant les publications primaires plutôt qu'en retentant OE, puisqu'un deuxième passage OE ne réparera pas une perte de capture ». Le livrable ne reconstruit aucun chiffre tronqué et renvoie systématiquement aux sources primaires (ou à une reprise du prompt), conformément à l'assertion."
+    }
+  ],
+  "summary": { "passed": 2, "failed": 1, "total": 3, "pass_rate": 0.6667 },
+  "signature_suspecte": { "trouvee": false, "note": "" }
+}
