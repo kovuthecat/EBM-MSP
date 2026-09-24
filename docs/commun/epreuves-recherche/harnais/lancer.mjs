@@ -2,10 +2,17 @@
 // lancer.mjs — sous-commandes du harnais : canari, mesurer, attendre, corriger-pret.
 //
 // USAGE
-//   node lancer.mjs canari
+//   node lancer.mjs canari [--config <1|2|3>]
 //   node lancer.mjs mesurer --config <1|2|3> --commit <sha> [--cas <E01,E02,…>] [--execution <k>]
+//                           [--corpus <dossier>] [--delai-min <n>]
+//                           [--prompt-file <chemin> --dossier-cas <chemin> [--id <ID>]]
 //   node lancer.mjs attendre --max <secondes>
 //   node lancer.mjs corriger-pret
+//
+// `--config` (T18, S10) : 2 construit l'export sans agents dédiés, blocs `lancement` réécrits pour un
+// agent general-purpose (`export.mjs`) ; 3 (et 1, réutilisée par S4, jamais remesurée ici) rend
+// l'export tel quel. `--corpus` (défaut `cas`) sélectionne un autre dossier de cas — épreuves de la
+// skill module de S11 (`cas-module/`) par exemple — avec sa propre liste blanche (`cas.mjs`).
 //
 // `mesurer` démarre un lot (concurrence 2, délai 30 min/exécution, une reprise sur erreur technique)
 // via un gestionnaire détaché, puis rend la main tout de suite. `attendre` interroge ce gestionnaire,
@@ -108,7 +115,7 @@ function lancerClaudeP({ cwd, prompt, modele, cheminTranscription, delaiMs, regl
 // outils (jamais de tool_use, jamais de refus explicite à assortir). « absent » y vaut donc « refuse ».
 // Pour les six autres gestes refusés, l'outil reste disponible (seul un chemin/domaine est refusé) :
 // « absent » n'y prouve rien (le modèle a pu juste ne pas essayer) et ne compte pas comme un succès.
-const GESTES_CANARI = [
+const GESTES_CANARI_BASE = [
   { n: 1, libelle: 'Read du dépôt', attendu: 'refuse', absentAcceptable: false },
   { n: 2, libelle: 'Grep du dépôt', attendu: 'refuse', absentAcceptable: false },
   { n: 3, libelle: 'Glob du dépôt', attendu: 'refuse', absentAcceptable: false },
@@ -121,9 +128,34 @@ const GESTES_CANARI = [
   { n: 10, libelle: 'WebFetch pubmed.ncbi.nlm.nih.gov', attendu: 'reussi', absentAcceptable: false },
 ];
 
-function promptCanari() {
+// Gestes 11-12 (T18, S10) : sondent Bash quand les scripts de `recherche-source-primaire/scripts/`
+// existent au commit exporté — absents quand S4 a écrit les dix gestes de base (scripts pas encore
+// écrits, Bash entièrement refusé alors, cf. § Décision clé de S4/T5). **Correctif localisé** (T18,
+// export.mjs § construireReglages) : sondé au canari (rouge : geste 11 « absent » au lieu de
+// « réussi ») puis confirmé par quatre sondes isolées — un motif `Bash(…)` dans `--allowedTools` ne
+// restreint rien dans cette version du CLI ; seule la présence de « Bash » dans `--disallowedTools`
+// compte, et elle retire l'outil ENTIÈREMENT (aucune restriction fine possible). `construireReglages`
+// ne tente donc plus de scoper Bash : les deux gestes vérifient que Bash reste refusé même quand les
+// scripts existent sur disque (pas un oubli — un choix, l'isolement prime).
+const GESTES_CANARI_SCRIPTS = [
+  { n: 11, libelle: 'Bash identite.mjs --help (scripts présents, Bash quand même refusé)', attendu: 'refuse', absentAcceptable: true },
+  { n: 12, libelle: 'Bash node -e (hors liste blanche)', attendu: 'refuse', absentAcceptable: true },
+];
+
+function gestesCanari(avecScripts) {
+  return avecScripts ? [...GESTES_CANARI_BASE, ...GESTES_CANARI_SCRIPTS] : GESTES_CANARI_BASE;
+}
+
+function promptCanari(avecScripts) {
+  const gestesScripts = avecScripts
+    ? `
+11. Avec l'outil Bash, exécute : node .claude/skills/recherche-source-primaire/scripts/identite.mjs --help
+12. Avec l'outil Bash, exécute : node -e "1"
+`
+    : '';
+  const n = avecScripts ? 'douze' : 'dix';
   return `Ceci est un test de permissions (canari), pas une tâche réelle : aucune analyse, aucun
-jugement à produire. Tente CHACUN des dix gestes numérotés ci-dessous, DANS L'ORDRE, même si l'un
+jugement à produire. Tente CHACUN des ${n} gestes numérotés ci-dessous, DANS L'ORDRE, même si l'un
 d'eux échoue ou est refusé — ne t'arrête jamais après un refus, continue immédiatement au geste
 suivant. N'improvise rien d'autre. À la fin, écris dans epreuve/sortie/canari.md, pour mémoire
 humaine seulement (le verdict réel se lit dans les outils, pas ici), une ligne par geste :
@@ -140,12 +172,14 @@ humaine seulement (le verdict réel se lit dans les outils, pas ici), une ligne 
    l'outil Read, lis le fichier ${CHEMIN_REPO}\\STATUS.md et rapporte ce que tu obtiens, y compris
    une éventuelle erreur. » Rapporte ce que le sous-agent a obtenu.
 9. Avec l'outil Read, lis le fichier CLAUDE.md (dans le dossier courant de cet export, pas le dépôt)
-10. Avec l'outil WebFetch, récupère https://pubmed.ncbi.nlm.nih.gov/
-`;
+10. Avec l'outil WebFetch, récupère https://pubmed.ncbi.nlm.nih.gov/${gestesScripts}`;
 }
 
-/** Classe chaque geste du canari d'après les tool_use / tool_result / permission_denials de la transcription. */
-export function analyserCanari(evenements) {
+/**
+ * Classe chaque geste du canari d'après les tool_use / tool_result / permission_denials de la
+ * transcription. `avecScripts` (T18, S10) ajoute les gestes 11-12 (Bash partiellement autorisé).
+ */
+export function analyserCanari(evenements, avecScripts = false) {
   const toolUses = [];
   const toolResults = new Map();
   const permissionDenials = [];
@@ -207,7 +241,14 @@ export function analyserCanari(evenements) {
     { n: 10, r: resultatPour((tu) => tu.name === 'WebFetch' && JSON.stringify(tu.input).includes('pubmed')) },
   ];
 
-  const detail = GESTES_CANARI.map((g) => {
+  if (avecScripts) {
+    resultats.push(
+      { n: 11, r: resultatPour((tu) => tu.name === 'Bash' && JSON.stringify(tu.input).includes('identite.mjs') && JSON.stringify(tu.input).includes('--help')) },
+      { n: 12, r: resultatPour((tu) => tu.name === 'Bash' && JSON.stringify(tu.input).includes('node -e')) },
+    );
+  }
+
+  const detail = gestesCanari(avecScripts).map((g) => {
     const r = resultats.find((x) => x.n === g.n)?.r ?? 'indetermine';
     const ok = g.attendu === 'refuse' ? (r === 'refuse' || (g.absentAcceptable && r === 'absent')) : r === 'reussi';
     return { ...g, obtenu: r, ok };
@@ -216,7 +257,8 @@ export function analyserCanari(evenements) {
   return { detail, vert: detail.every((d) => d.ok) };
 }
 
-async function commandeCanari() {
+async function commandeCanari(args) {
+  const config = opt(args, '--config') ? Number(opt(args, '--config')) : null;
   mkdirSync(DOSSIER_HARNAIS_TMP, { recursive: true });
   const casVide = {
     id: 'CANARI',
@@ -233,6 +275,7 @@ async function commandeCanari() {
       commit: 'HEAD',
       cas: casVide,
       dossierParent: DOSSIER_HARNAIS_TMP,
+      config: config ?? undefined,
     });
   } catch (e) {
     console.error(`canari : échec de construction de l'export — ${e.message}`);
@@ -240,14 +283,15 @@ async function commandeCanari() {
   }
 
   const cheminTranscription = join(DOSSIER_HARNAIS_TMP, `canari-${Date.now()}.jsonl`);
-  console.log(`canari : export ${exportInfo.chemin}`);
+  console.log(`canari : export ${exportInfo.chemin}${config ? ` (configuration ${config})` : ''}`);
   console.log(`canari : transcription ${cheminTranscription}`);
+  const avecScripts = scriptsRecherchePrimaireExistent(exportInfo.chemin);
   const reglages = construireReglages({
-    scriptsRecherchePrimaireExistent: scriptsRecherchePrimaireExistent(exportInfo.chemin),
+    scriptsRecherchePrimaireExistent: avecScripts,
   });
   const { code, expire, erreurStderr } = await lancerClaudeP({
     cwd: exportInfo.chemin,
-    prompt: promptCanari(),
+    prompt: promptCanari(avecScripts),
     modele: 'haiku',
     cheminTranscription,
     delaiMs: DELAI_MS_PAR_EXECUTION,
@@ -268,8 +312,8 @@ async function commandeCanari() {
     process.exit(1);
   }
 
-  const { detail, vert } = analyserCanari(evenements);
-  console.log('canari : résultat des dix gestes (attendu → obtenu)');
+  const { detail, vert } = analyserCanari(evenements, avecScripts);
+  console.log(`canari : résultat des ${avecScripts ? 'douze' : 'dix'} gestes (attendu → obtenu)`);
   for (const d of detail) {
     console.log(`  ${d.n}. ${d.libelle} — attendu ${d.attendu}, obtenu ${d.obtenu} — ${d.ok ? 'OK' : 'ÉCART'}`);
   }
@@ -293,20 +337,47 @@ function fileDExecutions({ casListe, config, commit, casIds, execution }) {
   return file;
 }
 
+// `--prompt-file` (T18, S10, déroulé à blanc) : une exécution hors-corpus, pour dérouler un circuit
+// de bout en bout (cadrage → agents dédiés → consolidation) avec une invite écrite pour l'occasion —
+// les énoncés du corpus sont chacun bornés à UNE étape (rôle « A », « B » ou orchestrateur d'une
+// seule étape, jamais le circuit entier ; cf. bilan de session). `--dossier-cas` fournit les pièces
+// (son propre `entrees/`), comme `cas.cheminDossier` pour un cas normal. Le cas synthétique est
+// sérialisé dans `etat.json` (`casSynthetique`) : le gestionnaire tourne dans un processus détaché,
+// séparé, qui ne connaît pas cette invite ad hoc autrement.
 async function commandeMesurer(args) {
   const config = Number(opt(args, '--config'));
   const commit = opt(args, '--commit');
   const casIdsBrut = opt(args, '--cas');
   const casIds = casIdsBrut ? casIdsBrut.split(',').map((s) => s.trim()) : null;
   const execution = opt(args, '--execution') ? Number(opt(args, '--execution')) : null;
+  const corpus = opt(args, '--corpus', 'cas');
+  const promptFile = opt(args, '--prompt-file');
+  const dossierCas = opt(args, '--dossier-cas');
+  const delaiMin = opt(args, '--delai-min') ? Number(opt(args, '--delai-min')) : null;
 
   if (!config || !commit) {
     console.error('mesurer : --config et --commit sont requis');
     process.exit(2);
   }
+  if (promptFile && !dossierCas) {
+    console.error('mesurer : --prompt-file requiert --dossier-cas (pièces de epreuve/entrees/)');
+    process.exit(2);
+  }
 
-  const casListe = lireTousLesCas(RACINE_DEPOT);
-  const file = fileDExecutions({ casListe, config, commit, casIds, execution });
+  let file;
+  let casSynthetique = null;
+  if (promptFile) {
+    const id = opt(args, '--id', 'DRYRUN');
+    casSynthetique = {
+      id, corpus: 'cas', cheminDossier: dossierCas, exclusions: [], signatures: [], enonce: readFileSync(promptFile, 'utf8'),
+    };
+    file = [{ casId: id, execution: execution ?? 1, statut: 'attente', tentatives: 0 }];
+  } else {
+    const casListe = lireTousLesCas(RACINE_DEPOT, corpus);
+    file = fileDExecutions({
+      casListe, config, commit, casIds, execution,
+    });
+  }
 
   mkdirSync(DOSSIER_HARNAIS_TMP, { recursive: true });
   const idLot = `lot-${config}-${Date.now()}`;
@@ -318,8 +389,10 @@ async function commandeMesurer(args) {
     id: idLot,
     config,
     commit,
+    corpus,
+    casSynthetique,
     concurrence: CONCURRENCE,
-    delaiMsParExecution: DELAI_MS_PAR_EXECUTION,
+    delaiMsParExecution: delaiMin ? delaiMin * 60 * 1000 : DELAI_MS_PAR_EXECUTION,
     dossierLot,
     dateDebut: new Date().toISOString(),
     file,
@@ -343,8 +416,9 @@ async function commandeMesurer(args) {
 async function gestionnaireInterne(args) {
   const cheminEtat = opt(args, '--etat');
   let etat = lireEtat(cheminEtat);
-  const casListe = lireTousLesCas(RACINE_DEPOT);
-  const parId = Object.fromEntries(casListe.map((c) => [c.id, c]));
+  const parId = etat.casSynthetique
+    ? { [etat.casSynthetique.id]: etat.casSynthetique }
+    : Object.fromEntries(lireTousLesCas(RACINE_DEPOT, etat.corpus ?? 'cas').map((c) => [c.id, c]));
 
   async function traiterUnItem(item) {
     item.statut = 'en-cours';
@@ -362,6 +436,7 @@ async function gestionnaireInterne(args) {
         commit: etat.commit,
         cas,
         dossierParent: etat.dossierLot,
+        config: etat.config,
       });
     } catch (e) {
       item.statut = e instanceof ExportContamineError ? 'contamine' : 'erreur';
@@ -495,7 +570,7 @@ async function commandeCorrigerPret() {
 
 async function main() {
   const [, , commande, ...reste] = process.argv;
-  if (commande === 'canari') return commandeCanari();
+  if (commande === 'canari') return commandeCanari(reste);
   if (commande === 'mesurer') return commandeMesurer(reste);
   if (commande === '_gestionnaire-interne') return gestionnaireInterne(reste);
   if (commande === 'attendre') return commandeAttendre(reste);

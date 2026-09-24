@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { lireListeBlanche, lireTousLesCas, lireCas, CasIncompletError } from './cas.mjs';
@@ -64,6 +64,62 @@ describe('lireTousLesCas — corpus réel', () => {
 
   it('chaque cas déclare au moins une exclusion', () => {
     for (const c of cas) expect(c.exclusions.length).toBeGreaterThan(0);
+  });
+
+  it('chaque cas porte corpus « cas » (défaut, --corpus non passé)', () => {
+    for (const c of cas) expect(c.corpus).toBe('cas');
+  });
+});
+
+describe('--corpus (T18, S10) : un dossier de corpus distinct a sa propre liste blanche et ses cas', () => {
+  let racineFx;
+
+  beforeAll(() => {
+    racineFx = mkdtempSync(join(tmpdir(), 'epreuve-corpus-fixture-'));
+    const base = join(racineFx, 'docs/commun/epreuves-recherche');
+    mkdirSync(join(base, 'mon-corpus', 'E01-cas-module', 'entrees'), { recursive: true });
+    writeFileSync(
+      join(base, 'mon-corpus', 'README.md'),
+      ['# corpus de test', '```liste-blanche', 'CLAUDE.md', '```', ''].join('\n'),
+    );
+    writeFileSync(
+      join(base, 'mon-corpus', 'E01-cas-module', 'cas.md'),
+      [
+        '# E01 — cas de corpus module',
+        "- Mode d'échec : test",
+        '- Rôle joué : A',
+        '- Circuit : recherche-source-primaire',
+        '- Incident source : test.md:1-2',
+        '## Énoncé',
+        'texte',
+        '## Entrées',
+        '- entrees/x — y',
+        '## Résultat attendu',
+        '- R1 : ok — fondée sur test.md:1',
+        '## Exclusions',
+        '- test.md',
+        '## Signatures',
+        '- (aucune)',
+      ].join('\n'),
+    );
+  });
+
+  afterAll(() => rmSync(racineFx, { recursive: true, force: true }));
+
+  it('lireListeBlanche lit le README du dossier de corpus, pas le README partagé', () => {
+    expect(lireListeBlanche(racineFx, 'mon-corpus')).toEqual(['CLAUDE.md']);
+  });
+
+  it('lireTousLesCas lit les cas sous le dossier de corpus indiqué, avec cas.corpus posé', () => {
+    const cas = lireTousLesCas(racineFx, 'mon-corpus');
+    expect(cas.length).toBe(1);
+    expect(cas[0].id).toBe('E01');
+    expect(cas[0].corpus).toBe('mon-corpus');
+  });
+
+  it('« - (aucune) » en Signatures : zéro signature admise, pas de CasIncompletError', () => {
+    const cas = lireTousLesCas(racineFx, 'mon-corpus');
+    expect(cas[0].signatures).toEqual([]);
   });
 });
 
@@ -167,6 +223,29 @@ describe('lireCas — rejet bruyant d\'un cas incomplet', () => {
     const { chemin, dir } = ecrireCasTemporaire(contenu);
     try {
       expect(() => lireCas(chemin)).toThrow(/zéro signature/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("accepte « - (aucune) » en Signatures sans lever d'erreur (S11, corpus module)", () => {
+    const contenu = [
+      ENTETE_COMPLET,
+      '## Énoncé',
+      'texte',
+      '## Entrées',
+      '- entrees/x — y',
+      '## Résultat attendu',
+      '- R1 : ok — fondée sur test.md:1',
+      '## Exclusions',
+      '- test.md',
+      '## Signatures',
+      '- (aucune)',
+    ].join('\n');
+    const { chemin, dir } = ecrireCasTemporaire(contenu);
+    try {
+      const c = lireCas(chemin);
+      expect(c.signatures).toEqual([]);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

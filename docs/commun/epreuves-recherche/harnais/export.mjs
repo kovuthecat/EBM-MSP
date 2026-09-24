@@ -23,6 +23,64 @@ export const CHEMINS_ARBRE_DE_TRAVAIL = ['docs/decision/sources/'];
 const CHEMIN_OE_CLI = /Interface-OE[\\/]+out[\\/]+cli[\\/]+index\.js/g;
 export const CHEMIN_OE_NEUTRALISE = 'CHEMIN-OE-NEUTRALISE/index.js';
 
+// Configuration 2 (T18, S10) : agents dédiés retirés, blocs <!-- lancement:… --> réécrits pour un
+// agent general-purpose composé à la volée. Configuration 3 (et 1, réutilisée telle quelle par S4) :
+// export du commit tel quel, aucune de ces deux transformations.
+export const AGENTS_DEDIES = [
+  '.claude/agents/extracteur-preuve.md',
+  '.claude/agents/contradicteur-preuve.md',
+  '.claude/agents/reconciliateur-preuve.md',
+];
+
+const RE_BLOC_LANCEMENT = /<!-- lancement:([\w-]+) -->\n([\s\S]*?)<!-- \/lancement -->/g;
+const RE_LIGNE_LANCER = /^\*\*Lancer\*\*.*$/m;
+export const LIGNE_LANCER_GENERIQUE = '**Lancer** un agent `general-purpose` (outil Agent). Dans '
+  + "cette configuration l'agent dédié n'existe pas : compose toi-même son invite à partir du rôle, "
+  + 'des entrées et des références ci-dessous.';
+
+export class ConfigurationDeuxIncohereenteError extends Error {
+  constructor(trouves, transformes) {
+    super(
+      `configuration 2 : ${trouves} bloc(s) « lancement » trouvé(s) dans l'export, ${transformes} `
+        + 'transformé(s) — attendu autant de transformés que de trouvés, et au moins un.',
+    );
+    this.name = 'ConfigurationDeuxIncohereenteError';
+    this.trouves = trouves;
+    this.transformes = transformes;
+  }
+}
+
+/** Retire les fichiers des trois agents dédiés d'un export. Rend les chemins relatifs retirés. */
+export function retirerAgentsDedies(destinationRacine) {
+  const retires = [];
+  for (const relatif of AGENTS_DEDIES) {
+    const chemin = join(destinationRacine, ...relatif.split('/'));
+    if (existsSync(chemin)) {
+      rmSync(chemin, { force: true });
+      retires.push(relatif);
+    }
+  }
+  return retires;
+}
+
+/**
+ * Réécrit, dans un texte, chaque bloc `<!-- lancement:X --> … <!-- /lancement -->` : la ligne
+ * `**Lancer** …` devient l'invite « compose toi-même », le reste du bloc (rôle, transmis, références,
+ * livrable) reste inchangé. Fonction pure, testable sans disque.
+ */
+export function transformerTexteLancements(texte) {
+  let trouves = 0;
+  let transformes = 0;
+  const texteTransforme = texte.replace(RE_BLOC_LANCEMENT, (blocEntier, nomAgent, corps) => {
+    trouves += 1;
+    if (!RE_LIGNE_LANCER.test(corps)) return blocEntier;
+    transformes += 1;
+    const nouveauCorps = corps.replace(RE_LIGNE_LANCER, LIGNE_LANCER_GENERIQUE);
+    return `<!-- lancement:${nomAgent} -->\n${nouveauCorps}<!-- /lancement -->`;
+  });
+  return { texte: texteTransforme, trouves, transformes };
+}
+
 const EXTENSIONS_BINAIRES = new Set(['.pdf', '.png', '.jpg', '.jpeg', '.gif', '.ico', '.woff', '.woff2']);
 
 export class ExportContamineError extends Error {
@@ -108,6 +166,23 @@ function neutraliserExport(destinationRacine) {
   }
 }
 
+/** Applique `transformerTexteLancements` à chaque fichier texte de l'export. Rend les compteurs cumulés. */
+export function transformerLancementsEnAgentsGeneriques(destinationRacine) {
+  let blocsTrouves = 0;
+  let blocsTransformes = 0;
+  for (const chemin of listerFichiersRecursif(destinationRacine)) {
+    const relatif = versPosix(relative(destinationRacine, chemin));
+    if (estBinaire(relatif)) continue;
+    const contenu = readFileSync(chemin, 'utf8');
+    if (!contenu.includes('<!-- lancement:')) continue;
+    const { texte, trouves, transformes } = transformerTexteLancements(contenu);
+    blocsTrouves += trouves;
+    blocsTransformes += transformes;
+    if (texte !== contenu) writeFileSync(chemin, texte);
+  }
+  return { blocsTrouves, blocsTransformes };
+}
+
 /**
  * Rejoue, sur les fichiers déjà copiés dans l'export, le contrôle d'admissibilité du README : aucune
  * signature du cas ne doit figurer dans un fichier texte de la liste blanche (PDF exclus — la
@@ -140,12 +215,28 @@ export function verifierContamination(destinationRacine, fichiersRelatifs, signa
  * confiance : mêmes motifs (`Read(//chemin/**)`, `WebFetch(domain:x)`…), portés par l'invocation
  * plutôt que par un fichier du workspace. `lancer.mjs` les passe donc directement au processus
  * `claude -p`, cet objet ne fait que les calculer.
+ *
+ * **Correctif localisé (T18, S10, 2026-09-24)** : `scriptsRecherchePrimaireExistent` n'ajoute plus
+ * rien à `allow`. Sondé au canari de configuration 3 (rouge sur les gestes 11-12, ajoutés par T18) et
+ * confirmé par quatre sondes isolées, hors de l'export (`--permission-mode` en `dontAsk`, `auto` et
+ * `manual`, `--permission-prompts none` compris) : dans cette version du CLI, un motif `Bash(…)` dans
+ * `--allowedTools` ne restreint RIEN — dès qu'AUCUN motif ne nomme `Bash` dans `--disallowedTools`,
+ * TOUTE commande Bash passe (`whoami`, hors motif, a réussi) ; dès qu'un motif nomme `Bash` dans
+ * `--disallowedTools` (bare `Bash` ou `Bash(*)`), l'outil disparaît ENTIÈREMENT de la boîte à outils,
+ * y compris pour un motif par ailleurs autorisé. Aucune restriction fine n'est donc atteignable :
+ * Bash est binaire (tout ou rien). La prémisse de T5 (§ Décision clé : « Bash seulement pour
+ * `node .../scripts/*` ») ne tient pas pour cette combinaison, jamais exercée avant T18 (S5 n'avait
+ * pas encore écrit les scripts quand S4 a mesuré la configuration 1 : `allow` n'a jamais porté ce
+ * motif en pratique). Choix retenu, invariant d'isolement prioritaire sur la fonctionnalité : Bash
+ * reste refusé dans les trois configurations, y compris quand les scripts existent au commit exporté
+ * — `identite.mjs`/`verifier-registre.mjs` restent hors de portée d'un circuit mesuré ici, dans les
+ * trois configurations également (aucun biais différentiel introduit : configuration 1 les avait déjà
+ * hors de portée, pour une autre raison). Le paramètre reste accepté (appelants existants, et il governs
+ * toujours le nombre de gestes du canari) mais n'influence plus `allow`.
  */
 export function construireReglages({ scriptsRecherchePrimaireExistent }) {
+  void scriptsRecherchePrimaireExistent; // conservé pour la signature ; n'agit plus sur `allow` (ci-dessus)
   const allow = ['Read', 'Grep', 'Glob', 'Write', 'Edit', 'WebFetch(domain:*)', 'WebSearch', 'Skill', 'Agent'];
-  if (scriptsRecherchePrimaireExistent) {
-    allow.push('Bash(node .claude/skills/recherche-source-primaire/scripts/*)');
-  }
   const deny = [
     'Read(//c/Users/Kovu/Projets/ebm-msp/**)',
     'Read(//c/Users/Kovu/Projets/Interface-OE/**)',
@@ -167,10 +258,17 @@ export function scriptsRecherchePrimaireExistent(destinationRacine) {
  * Construit l'export isolé d'un cas, au commit donné. Lève ExportContamineError si une signature du
  * cas figure dans un fichier texte de la liste blanche copiée : dans ce cas, l'export est déjà
  * supprimé du disque avant que l'erreur remonte.
+ *
+ * `config` (T18, S10) : 2 retire les trois agents dédiés et réécrit les blocs `lancement` en
+ * agent general-purpose ; 1 et 3 (et absent) rendent l'export tel quel. `cas.corpus` (défaut `'cas'`)
+ * sélectionne la liste blanche : celle du README partagé pour le corpus par défaut, celle du
+ * README du dossier de corpus sinon (`--corpus`, cas-module de S11 par exemple).
  */
-export function construireExport({ racineDepot, commit, cas, dossierParent }) {
+export function construireExport({
+  racineDepot, commit, cas, dossierParent, config,
+}) {
   if (!commit) throw new Error('construireExport : commit requis');
-  const listeBlanche = lireListeBlanche(racineDepot);
+  const listeBlanche = lireListeBlanche(racineDepot, cas.corpus ?? 'cas');
   const destinationRacine = mkdtempSync(join(dossierParent ?? tmpdir(), 'epreuve-export-'));
 
   let fichiers = [];
@@ -196,6 +294,14 @@ export function construireExport({ racineDepot, commit, cas, dossierParent }) {
   }
   fichiers = fichiers.filter((f) => !exclusionsRetirees.includes(f));
 
+  // Configuration 2 : agents dédiés retirés avant le contrôle de contamination (défense en
+  // profondeur, même motif que les exclusions ci-dessus).
+  let agentsRetires = [];
+  if (config === 2) {
+    agentsRetires = retirerAgentsDedies(destinationRacine);
+    fichiers = fichiers.filter((f) => !agentsRetires.includes(f));
+  }
+
   const contamination = verifierContamination(destinationRacine, fichiers, cas.signatures);
   if (contamination.length > 0) {
     rmSync(destinationRacine, { recursive: true, force: true });
@@ -211,5 +317,17 @@ export function construireExport({ racineDepot, commit, cas, dossierParent }) {
 
   neutraliserExport(destinationRacine);
 
-  return { chemin: destinationRacine, fichiers, exclusionsRetirees };
+  let blocsLancement = null;
+  if (config === 2) {
+    const { blocsTrouves, blocsTransformes } = transformerLancementsEnAgentsGeneriques(destinationRacine);
+    if (blocsTrouves === 0 || blocsTrouves !== blocsTransformes) {
+      rmSync(destinationRacine, { recursive: true, force: true });
+      throw new ConfigurationDeuxIncohereenteError(blocsTrouves, blocsTransformes);
+    }
+    blocsLancement = { trouves: blocsTrouves, transformes: blocsTransformes };
+  }
+
+  return {
+    chemin: destinationRacine, fichiers, exclusionsRetirees, config: config ?? null, agentsRetires, blocsLancement,
+  };
 }

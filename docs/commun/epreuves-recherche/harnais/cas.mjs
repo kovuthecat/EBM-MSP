@@ -20,9 +20,16 @@ export class CasIncompletError extends Error {
   }
 }
 
-/** Lit le bloc ```liste-blanche du README et rend ses chemins (relatifs à la racine du dépôt). */
-export function lireListeBlanche(racineDepot) {
-  const cheminReadme = join(racineDepot, 'docs/commun/epreuves-recherche/README.md');
+/**
+ * Lit le bloc ```liste-blanche du README et rend ses chemins (relatifs à la racine du dépôt).
+ * `corpus` (T18, S10, `--corpus`) : `'cas'` (défaut) lit le README partagé ; tout autre dossier
+ * (`cas-module/` de S11 par exemple) lit son propre `README.md`, sous
+ * `docs/commun/epreuves-recherche/<corpus>/README.md`.
+ */
+export function lireListeBlanche(racineDepot, corpus = 'cas') {
+  const cheminReadme = corpus === 'cas'
+    ? join(racineDepot, 'docs/commun/epreuves-recherche/README.md')
+    : join(racineDepot, 'docs/commun/epreuves-recherche', corpus, 'README.md');
   const texte = readFileSync(cheminReadme, 'utf8');
   const m = texte.match(/```liste-blanche\n([\s\S]*?)\n```/);
   if (!m) throw new Error(`liste blanche introuvable dans ${cheminReadme}`);
@@ -97,6 +104,14 @@ function parseExclusions(bloc) {
     .map((l) => l.trim().replace(/^-\s*/, '').trim());
 }
 
+// `- (aucune)` (T18, S10, corpus module de S11) : marque explicite « zéro signature », distincte
+// d'une rubrique simplement vide ou absente — celle-ci reste rejetée par lireCas ci-dessous.
+const MARQUEUR_AUCUNE_SIGNATURE = /^-\s*\(aucune\)\s*$/m;
+
+function signaturesExplicitementAucune(bloc) {
+  return !!bloc && MARQUEUR_AUCUNE_SIGNATURE.test(bloc);
+}
+
 function parseSignatures(bloc) {
   if (!bloc) return [];
   return bloc
@@ -110,8 +125,13 @@ function parseSignatures(bloc) {
     .filter(Boolean);
 }
 
-/** Lit et valide un cas.md unique. Lève CasIncompletError sur rubrique/assertion/signature absente. */
-export function lireCas(cheminCasMd) {
+/**
+ * Lit et valide un cas.md unique. Lève CasIncompletError sur rubrique/assertion/signature absente.
+ * `corpus` (T18, S10) : mémorisé sur le cas rendu (`cas.corpus`), pour que `export.mjs` retrouve la
+ * bonne liste blanche sans paramètre séparé. La rubrique Signatures peut y valoir `- (aucune)`
+ * (S11, corpus module) : zéro signature devient alors une valeur admise, pas un cas incomplet.
+ */
+export function lireCas(cheminCasMd, corpus = 'cas') {
   const dossier = basename(join(cheminCasMd, '..'));
   const id = dossier.split('-')[0];
   const texte = readFileSync(cheminCasMd, 'utf8');
@@ -140,7 +160,9 @@ export function lireCas(cheminCasMd) {
   const signatures = parseSignatures(sections['Signatures']);
 
   if (resultatAttendu.length === 0) throw new CasIncompletError(id, 'zéro assertion (« Résultat attendu »)');
-  if (signatures.length === 0) throw new CasIncompletError(id, 'zéro signature');
+  if (signatures.length === 0 && !signaturesExplicitementAucune(sections['Signatures'])) {
+    throw new CasIncompletError(id, 'zéro signature');
+  }
 
   return {
     id,
@@ -155,18 +177,23 @@ export function lireCas(cheminCasMd) {
     resultatAttendu,
     exclusions,
     signatures,
+    corpus,
     cheminCasMd,
     cheminDossier: join(cheminCasMd, '..'),
   };
 }
 
-/** Liste et lit tous les cas.md sous docs/commun/epreuves-recherche/cas/E<nn>-.../, triés par id. */
-export function lireTousLesCas(racineDepot) {
-  const racineCas = join(racineDepot, 'docs/commun/epreuves-recherche/cas');
+/**
+ * Liste et lit tous les cas.md sous docs/commun/epreuves-recherche/<corpus>/E<nn>-.../, triés par id.
+ * `corpus` (T18, S10, `--corpus`) : `'cas'` par défaut ; un autre dossier lit ses propres cas et sa
+ * propre liste blanche (README.md de ce dossier — `lireListeBlanche`).
+ */
+export function lireTousLesCas(racineDepot, corpus = 'cas') {
+  const racineCas = join(racineDepot, 'docs/commun/epreuves-recherche', corpus);
   if (!existsSync(racineCas)) throw new Error(`dossier de cas introuvable : ${racineCas}`);
   const dossiers = readdirSync(racineCas, { withFileTypes: true })
     .filter((d) => d.isDirectory() && /^E\d+/.test(d.name))
     .map((d) => d.name)
     .sort();
-  return dossiers.map((d) => lireCas(join(racineCas, d, 'cas.md')));
+  return dossiers.map((d) => lireCas(join(racineCas, d, 'cas.md'), corpus));
 }
