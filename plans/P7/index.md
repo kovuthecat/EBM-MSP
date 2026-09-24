@@ -46,7 +46,8 @@ Source : `TASKS.md` §« Backlog — arbitrages référent tranchés le 2026-07-
 
 - **Vague 1 — parallélisable** : **SA1** (contenu `prescription`) · **SB1** (écran). Zones disjointes.
 - **Vague 2** : **SA2**, après SA1 (même fichier `prescription.yaml`) et après SB1 (elle documente aussi
-  le badge livré par SB1 dans `DECISIONS.md`).
+  le badge livré par SB1 dans `DECISIONS.md`). **Débloquée** : l'accroche chiffrée des blocs repliés
+  est livrée (P12/S10) — note déplacée de `TASKS.md` le 2026-09-24 (le statut vit dans cet index).
 - **Vague 3 — contrôle** : **S2**, recette navigateur **en local** (`npm run dev`), comme P6 — le code
   n'est poussé qu'après validation, pas avant.
 - **Vague 4 — consolidation** : commits tâche par tâche, statuts, `STATUS.md`, `TASKS.md`,

@@ -7,10 +7,10 @@ jugement visuel en attente. **Non planifiée** : `- [ ] T-ID — titre · modèl
 plan** (statut dans son `index.md`) : `- T-ID — titre · → plans/…/S<k>.md`. Modèles/efforts :
 `WORKFLOW.md` §2-3 ; `env: Desktop` si le navigateur in-app est requis (N1).
 
-## Plan P7 — ouvert (statut/détail : `plans/P7/index.md`)
+## Plans ouverts (statut/détail : `plans/P<n>/index.md`)
 
-- T-052/T-053 — Validité HbA1c (cadrage) → plans/P7/SA2.md · T-054 — recette locale → S2.md
-  **Débloquée** : l'accroche chiffrée des blocs repliés est livrée (P12/S10).
+- P7 · T-052/T-053 — Validité HbA1c (cadrage) → plans/P7/SA2.md · T-054 — recette locale → S2.md
+- P16 · T-205→T-226 — Refonte des skills de recherche (D65) : N0, corpus d'épreuve, scripts, socle, agents dédiés, circuits, mesure, skill module · → plans/P16/S1-S12.md
 
 ## Backlog — né de P15 (2026-08-14, plan clos, cf. `plans/P15/index.md` §Bilan)
 
