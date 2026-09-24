@@ -4,8 +4,8 @@ Photo à l'instant T. Mis à jour en fin de session. L'historique (comment on es
 `git log`, `DECISIONS.md`/`docs/commun/decisions/` et les changelogs de contenu — pas ici.
 Plafond : 80 lignes (appliqué par hook).
 
-> **Dernière mise à jour :** 2026-08-14 · ajout ponctuel le 2026-09-24 (refonte des skills de
-> recherche, ci-dessous) — le reste de la photo n'a **pas** été revérifié depuis le 14/08.
+> **Dernière mise à jour :** 2026-09-24 (clôture du plan P16, section « Chantier actif » ci-dessous)
+> — le reste de la photo (module Décision, nœuds, dette) n'a **pas** été revérifié depuis le 14/08.
 
 ## Ce qui existe
 
@@ -32,14 +32,17 @@ Passage à `valide` conditionné à la relecture référent finale (`TASKS.md` �
 
 ## Chantier actif
 
-**Refonte des skills de recherche — décidée le 2026-09-24 (D65), plan P16 en cours** : S1 à S9 complétées (socle, scripts, agents dédiés `*-preuve`, deux circuits réécrits, mode d'emploi OE à jour, renvois alignés) ; reste S10-S12.
-Entrée : `docs/commun/2026-09-16-propositions-skills-recherche.md` §14.
+**Aucun plan ouvert.** **Plan P16 — refonte des skills de recherche (D65), clos le 2026-09-24**
+(`plans/P16/index.md`) : socle `recherche-source-primaire` (scripts `identite.mjs`/
+`verifier-registre.mjs`), trois agents dédiés `*-preuve` qui remplacent les agents génériques dans
+les deux circuits réécrits, nouvelle skill **`construire-module-decision`** (orchestration P0→P7),
+harnais d'épreuve isolé et deux mesures (référence, finale — partielle, coût arrêté, Veille non
+mesuré, cf. `VALIDATION.md`). Reliquats au backlog (`TASKS.md` §né de P16) : épreuves M01-M08 de la
+skill module (S12, reportée), correctifs de mesure, incidents workflow.
 
-Aucun plan ouvert sur le module Décision. **Plan P15 — panneau posologie, clos et fusionné le 2026-08-14**
-(`2823b02`, détail `plans/P15/index.md`), suivi de 6 correctifs de consultation (`254780e`, détail dans
-le message de commit). Effet de bord assumé : l'option « Insuline prémélangée » d'`insuline.yaml` est
-inatteignable (`preference_injection` masqué).
-
+**Plan P15 — panneau posologie, clos et fusionné le 2026-08-14** (`2823b02`, détail `plans/P15/index.md`),
+suivi de 6 correctifs de consultation (`254780e`). Effet de bord assumé : l'option « Insuline
+prémélangée » d'`insuline.yaml` est inatteignable (`preference_injection` masqué).
 **Plan P14 — clos 2026-08-07**, **P13 — clos 2026-08-05**, **P12 — clos 2026-08-03** : détail dans leurs
 `index.md`. **Plan PV1 — Veille, cadré 2026-07-31, pas démarré.** **Plan P7** (ouvert) : manquent SA2 et
 S2 · **P8 — clos.**

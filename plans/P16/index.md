@@ -65,7 +65,6 @@ Arbitrages du 2026-09-24 :
 | [S9](S9.md) | T16-T17 | Mode d'emploi OE, renvois, tri-boite-mail | Sonnet | medium | — | S8 | `docs/commun/OUTIL-INTERFACE-OE.md`, `.claude/skills/tri-boite-mail/SKILL.md`, `CLAUDE.md`, `docs/decision/00-global.md`, `docs/decision/CONSTRUIRE-UN-MODULE.md` (l.218-222), `docs/veille/SOP_veille.md`, `docs/veille/TRI_BOITE_MAIL.md`, `PROJECT_MAP.md` | [x] 2026-09-24 | `docs(commun): mode d'emploi OE — chemin unique, --modele, contrôle d'existence` / `docs: renvois alignés sur les circuits refondus, relevé DOI/NCT au tri` |
 | [S10](S10.md) | T18-T19 | Mesure finale à trois configurations | Sonnet | high | — | S4, S9 | `docs/commun/epreuves-recherche/harnais/`, `docs/commun/epreuves-recherche/mesures/` | [x] | voir Ordonnancement |
 | [S11](S11.md) | T20-T21 | Arbitrage appliqué et skill `construire-module-decision` | Opus | high | — | S3, S9 | `docs/decision/CONSTRUIRE-UN-MODULE.md` (statut et sections arbitrées), `DECISIONS.md`, `.claude/skills/construire-module-decision/`, `docs/commun/epreuves-recherche/cas-module/`, `CLAUDE.md`, `PROJECT_MAP.md` | [x] | voir Ordonnancement |
-| [S12](S12.md) | T22 | Épreuves de la skill module | Sonnet | high | — | S10, S11 | `docs/commun/epreuves-recherche/mesures/` | [ ] | — |
 
 <!-- Statut : [ ] à faire · [x] fait, revue sans bloquant · [x]! fait, revue à bloquant non trié -->
 <!-- Vocabulaire complet : WORKFLOW.md §4a — ne pas inventer d'autre marque ici. -->
@@ -160,13 +159,12 @@ Arbitrages du 2026-09-24 :
     - S11/T20 `docs(decision): statut de CONSTRUIRE-UN-MODULE arbitré` + `Plan: P16/S11/T20`
     - S11/T21 `feat(skills): construire-module-decision et ses épreuves` + `Plan: P16/S11/T21`
 
-- **Vague 8** : S12.
-  *Pourquoi maintenant* : les épreuves portent sur la skill écrite en S11 et réutilisent le
-  harnais complété en S10.
-  - **S12** — Les huit épreuves de §11.5 sont jouées sur la skill module. Exemples : demande
-    ambiguë, référent absent, tentation de lancer OE trop tôt, reprise après interruption. Tu le
-    verras dans un rapport d'épreuves.
+- **S12 sortie du plan** (arbitrage utilisateur du 2026-09-24, coût) : les huit épreuves M01-M08
+  de la skill module sont écrites (`docs/commun/epreuves-recherche/cas-module/`) mais non jouées.
+  `S12.md` est conservé tel quel et reporté au backlog (`TASKS.md`), à rejouer sur le harnais en
+  place — après correction du filtre `/^E\d+/` de `lireTousLesCas` (bilan S11), qui ne lit aucun cas
+  de `cas-module/`.
 
-- **Vague 9 — clôture** : contexte (`STATUS.md`, `TASKS.md`, `VALIDATION.md` — dont les items N2
+- **Vague 8 — clôture** : contexte (`STATUS.md`, `TASKS.md`, `VALIDATION.md` — dont les items N2
   restés dans les bilans des vagues verrouillées : S2, S3, S10, S11) et push. Pas de commits de code
   à rattraper : chaque session a commité les siens, ou l'orchestrateur en fin de vague verrouillée.

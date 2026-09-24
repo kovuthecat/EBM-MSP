@@ -10,7 +10,12 @@ plan** (statut dans son `index.md`) : `- T-ID — titre · → plans/…/S<k>.md
 ## Plans ouverts (statut/détail : `plans/P<n>/index.md`)
 
 - P7 · T-052/T-053 — Validité HbA1c (cadrage) → plans/P7/SA2.md · T-054 — recette locale → S2.md
-- P16 · T-205→T-226 — Refonte des skills de recherche (D65) : N0, corpus d'épreuve, scripts, socle, agents dédiés, circuits, mesure, skill module · → plans/P16/S1-S12.md
+
+## Backlog — né de P16 (2026-09-24, plan clos, cf. `plans/P16/index.md`)
+
+- [ ] S12 reportée — jouer les épreuves M01-M08 de `construire-module-decision` → plans/P16/S12.md, prérequis : corriger le filtre `/^E\d+/` de `lireTousLesCas`.
+- [ ] Mesure finale T19 partielle — corriger E08/E09/E12, compléter E04, circuit Veille non mesuré (rapport `docs/commun/epreuves-recherche/mesures/2026-09-24-finale/rapport.md`).
+- [ ] Incidents workflow du 2026-09-24 (commits sous `wave.lock` par S2/S4/S10, reprise après coupure API) — remontés via `docs/workflow/incidents/`.
 
 ## Backlog — né de P15 (2026-08-14, plan clos, cf. `plans/P15/index.md` §Bilan)
 
@@ -28,13 +33,9 @@ plan** (statut dans son `index.md`) : `- T-ID — titre · → plans/…/S<k>.md
 - [ ] Face visible de la carte iSGLT2 : `Preuve élevée` sans dire qu'elle est cardio-rénale (effet croisé S2×S5) · 3 pistes dans `VALIDATION.md` · Sonnet, low — arbitrage d'abord.
 - [ ] Titre court par entrée de `cadrage` (schéma + 6 nœuds) : l'accroche compterait les contenus, pas les contenants · Sonnet, medium.
 
-## Plan PV1 — Veille, cadré 2026-07-31, pas démarré (statut/détail : `plans/PV1/index.md`)
+## Plan PV1 — Veille, cadré 2026-07-31, pas démarré
 
-- T-101 — Réorganiser l'arborescence : commun / décision / veille · → plans/PV1/S0.md
-- T-089→T-093 — Doctrine (seuil, SOP v1.1, gabarits, D37-D43) + sources · → plans/PV1/S1-S2.md
-- T-094/T-095 — Éditions `2026-W30` et `2026-W31` à la main + bilan de cadrage · → plans/PV1/S3-S4.md
-- T-096→T-098 — Gel du modèle, écrans V1/V2, pont veille ↔ nœud · → plans/PV1/S5-S7.md
-- T-099/T-100 — Page Méthode réalignée sur la SOP, consolidation · → plans/PV1/S8-S9.md
+- T-089→T-101 — Doctrine, deux éditions live à la main, gel du modèle, écrans V1/V2, page Méthode · détail des 10 sessions (S0-S9) → plans/PV1/index.md
 
 ## Backlog — mécanique, recherche clinique, validation finale, phases suivantes
 
@@ -51,8 +52,7 @@ plan** (statut dans son `index.md`) : `- T-ID — titre · → plans/…/S<k>.md
 - [ ] **Clinique.** 13 arbitrages de la passe de rédaction du 2026-08-05 — 2 points de fond (garde-fou d'hypoglycémie sans capteur sur `insuline` ; CK très élevées avant initiation sur `statine`), 5 données manquantes qui bloquent un affichage, 6 choix de rédaction à confirmer · `docs/decision/validation/passe-redaction-2026-08-05.md`.
 - [ ] **Validation finale (D5, passage à `statut: valide`).** `prescription`, `insuline`, `rhd-alimentation`, `rhd-activite-physique` : relecture référent de bout en bout sur le déployé. Session dédiée demandée, pas encore calée.
 - [ ] **Phase suivante.** Annuaire d'outils tiers (idée Thibault, 2026-08-06) — recenser les outils d'aide à la décision existants (famille « -clic », annuaires ressourcesmg.fr/KitMédical/SFMG/DMG) en cartes de renvoi. **Éthique tranchée** : identifiants communs OK (accès restreint aux PS de la MSP). **2 points durs restants** : (1) où vivent les identifiants côté app statique (relais serveur, Supabase existe déjà, ou renoncer à l'auto-login — recenser d'abord qui exige un compte) ; (2) statut éditorial d'un renvoi vs caution EBM · Opus, high.
-- [ ] **Phase suivante.** Veille V3 (profil) / V4 (« pour mémoire ») en `localStorage`, puis comptes Supabase + RGPD (D37).
-- [ ] **Phase suivante.** Première édition **live** `2026-W32` (lundi 03/08), après PV1 — cadence fixée par la SOP.
+- [ ] **Phase suivante.** Veille V3 (profil) / V4 (« pour mémoire ») en `localStorage`, puis comptes Supabase + RGPD (D37) · première édition **live** `2026-W32` (lundi 03/08), après PV1 — cadence fixée par la SOP.
 - [ ] **Phase suivante.** T-019 (reliquat P3) — catalogue formel des critères `partage` (en grande partie livré par D28).
 
 ## Archivage

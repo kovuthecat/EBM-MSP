@@ -32,3 +32,16 @@
 - [ ] **Plan P14 — 3 points** : règles R13/R14/R15 (T-182), amendements P1/P5/P6 du procédé (T-183),
       décisions D52 → D58 (T-184, **point le plus important** : la formulation écrite dit-elle ce qui a
       été tranché oralement ?).
+
+## Plan P16 — refonte des skills de recherche, clos 2026-09-24 — 2 points
+
+> Les items N2 de S2 (résultats attendus du corpus) et S3 (mémo `ARBITRAGE-construire-un-module.md`)
+> sont déjà validés par le référent, commit `0a0f23f` — non repris ici.
+
+- [ ] **S10/T19 — rapport de mesure finale (partiel)** : `docs/commun/epreuves-recherche/mesures/2026-09-24-finale/rapport.md`.
+      Le référent juge si l'arrêt de coût (56,62 $, plafond atteint) et l'exclusion du circuit Veille
+      (non mesuré) appellent une reprise immédiate ou une décision différée. Non bloquant.
+- [ ] **S11/T21 — skill `construire-module-decision`** : le référent l'essaie sur une vraie demande de
+      nouveau thème ; attendu qu'elle aiguille juste, sans produire de contenu clinique à sa place.
+      Facultatif : relire les attendus des huit épreuves M01-M08 (case en bas de
+      `docs/commun/epreuves-recherche/cas-module/README.md`).
