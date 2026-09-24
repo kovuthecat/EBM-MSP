@@ -54,7 +54,7 @@ Arbitrages du 2026-09-24 :
 ## Sessions
 | Session | Tâches | Titre | Modèle | Effort | Env. | Dépend de | Zone modifiée | Statut | Message de commit |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [S1](S1.md) | T1 | Rendre N0 exécutable | Haiku | low | — | — | `.claude/n0.json` | [ ] | — |
+| [S1](S1.md) | T1 | Rendre N0 exécutable | Haiku | low | — | — | `.claude/n0.json` | [x] | `chore(n0): déclarer les commandes N0 du projet` |
 | [S2](S2.md) | T2-T3 | Corpus d'épreuve tiré des incidents | Opus | high | — | S1 | `docs/commun/epreuves-recherche/README.md`, `docs/commun/epreuves-recherche/cas/` | [ ] | voir Ordonnancement |
 | [S3](S3.md) | T4 | Mémo d'arbitrage du statut de `CONSTRUIRE-UN-MODULE.md` | Opus | high | — | S1 | `docs/decision/ARBITRAGE-construire-un-module.md` | [ ] | voir Ordonnancement |
 | [S4](S4.md) | T5-T6 | Harnais d'épreuve isolé et mesure de référence | Sonnet | high | — | S2 | `docs/commun/epreuves-recherche/harnais/`, `docs/commun/epreuves-recherche/mesures/` | [ ] | voir Ordonnancement |
