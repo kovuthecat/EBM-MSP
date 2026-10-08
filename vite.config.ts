@@ -8,6 +8,8 @@ export default defineConfig({
   // yaml() : contenu Décision versionné en YAML (/content), importé en objets JS au build
   // (DECISIONS.md D3/D9). Le moteur/l'UI ne lisent jamais de YAML brut au runtime.
   plugins: [react(), yaml()],
+  // Port propre au projet (voir Outils/dev-launcher) : strictPort évite le basculement silencieux sur un autre port.
+  server: { port: 5183, strictPort: true },
   test: {
     // Exclut les worktrees temporaires des agents Claude Code (isolation:"worktree",
     // .claude/worktrees/<id>/) : ce sont des clones complets du dépôt, non exclus par les
