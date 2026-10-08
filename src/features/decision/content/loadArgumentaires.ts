@@ -2,7 +2,7 @@
  * Charge les argumentaires exhaustifs (niveau 3 de lecture, DECISIONS.md D11) : un fichier Markdown
  * brut par nœud (`content/decision/noeuds/<domaine>/<id>.argumentaire.md`), importé tel quel au build via le
  * suffixe `?raw` de Vite (aucun rendu Markdown interprété ici — cf. `components/MiniMarkdown.tsx`,
- * qui l'affiche sans dépendance runtime ajoutée, CLAUDE.md invariant 8). Import eager, cohérent avec
+ * qui l'affiche sans dépendance runtime ajoutée, règle commune Dépendances). Import eager, cohérent avec
  * `loadNodes.ts` (contenu 100 % statique, aucun réseau au runtime).
  */
 const modules = import.meta.glob<string>('../../../../content/decision/noeuds/**/*.argumentaire.md', {

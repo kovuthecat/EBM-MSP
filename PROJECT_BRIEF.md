@@ -81,9 +81,9 @@ premier domaine** (celui qui amorce et valide le socle), pas le seul.
   pour le runtime.
 - Authentification : Supabase Auth par e-mail + mot de passe, comptes communs à `annuaire-msp`,
   connexion par choix du prénom (D51).
-- Hébergement : statique (Vercel) + Supabase UE ; versioning git, publication par pull request.
-- Autres services : dépendances runtime `@supabase/supabase-js` et `html2canvas` (retours), seules
-  exceptions à la pile figée (D51) ; aucun ML, aucune analyse côté serveur du contenu.
+- Hébergement : statique (Vercel) + Supabase UE ; versioning git.
+- Autres services : dépendances runtime `@supabase/supabase-js` et `html2canvas` (retours, module
+  Veille, D51) ; aucun ML, aucune analyse côté serveur du contenu.
 
 ## Contraintes et priorités
 
@@ -94,9 +94,9 @@ premier domaine** (celui qui amorce et valide le socle), pas le seul.
   d'algorithme automatique et silencieuse.
 - **Droit d'auteur** (veille) : résumé critique + lien, jamais de reproduction intégrale (Prescrire,
   journaux) ; pas de contournement de paywall.
-- **Vérification bi-agents** + relecture différée à J+3 par le référent (D39), tri-agents sur
-  orthophonie/santé-femme faute de référent de profession (D61) = process de *production de contenu*,
-  pas une feature runtime de l'app — documenté dans `docs/veille/`.
+- **Toute analyse de veille est vérifiée avant publication** — process de *production de contenu*, pas
+  une feature runtime ; le procédé en vigueur fait foi dans `docs/veille/SOP_veille.md` (§5 étape 5, §7,
+  §7bis).
 
 ## Risques connus
 
@@ -146,12 +146,6 @@ prévention…) servie par un moteur générique unique et une veille commune �
 - [ ] Veille : production `soins-infirmiers` (IDEL) et `ETP`
 - [x] Mise en ligne (Vercel) du module Décision
 - [ ] Pilote praticiens + itération, cadence de maintenance
-
-### Critères avant ajout de feature
-
-- complexité et coût de maintenance proportionnés ;
-- découpage en tâches ciblées sans refactor global ;
-- documentation claire dans `PROJECT_MAP.md`.
 
 ### À éviter pour l'instant
 

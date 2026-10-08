@@ -178,7 +178,7 @@ D2a/D2b ; les deux restent nommés « D2 » dans ce document quand la distinctio
 
 ## Découpage technique
 
-> Sans effet sur la maquette — fixe la structure du code (feature-first, cf. `CONVENTIONS.md`).
+> Sans effet sur la maquette — fixe la structure du code (feature-first, cf. `.claude/workflow/CONVENTIONS.md`).
 
 - **Features** :
   - `decision` : moteur de règles déterministe (module TS pur, testé Vitest), UI de saisie/résultats
@@ -241,9 +241,10 @@ Design, dessiné pour le seul nœud `prescription`), **généralisé aux 6 nœud
 moteur produisait déjà `familles`/`groupes` de façon identique pour les 6 — une seule disposition
 générique, pas une redisposition par nœud).
 
-- **Deux colonnes ≥ 960px** : formulaire à gauche (défilant), résultats à droite (**sticky**, toujours
-  visibles pendant la saisie). Une seule colonne empilée en dessous de 960px, avec un bouton flottant
-  « Voir les recommandations (N) » qui scrolle jusqu'au début de la colonne résultats (P6/SB1, T-036).
+- **Deux colonnes ≥ 1200px** (D47 — réglage mesuré, pas un invariant) : formulaire à gauche
+  (défilant), résultats à droite (**sticky**, toujours visibles pendant la saisie). Une seule colonne
+  empilée en dessous de 1200px, avec un bouton flottant « Voir les recommandations (N) » qui scrolle
+  jusqu'au début de la colonne résultats (P6/SB1, T-036).
 - **Formulaire en accordéon**, piloté par le `groupe` du contenu (aucun nom de section en dur, invariant
   5) : une section ouverte à la fois, barre de chips de navigation avec badge de compteur « à confirmer »,
   résumé générique `Libellé : valeur` (pas une phrase rédigée par nœud) quand une section est repliée. Un

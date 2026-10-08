@@ -45,7 +45,7 @@
  * utilisés plus bas naviguent la structure du DOM pour ISOLER le bon champ (plusieurs sections partagent
  * le même libellé de bouton) ; ils ne vérifient jamais un style.
  *
- * OUTILLAGE — le plus léger possible pour ce périmètre (CLAUDE.md invariant 8, devDependencies
+ * OUTILLAGE — le plus léger possible pour ce périmètre (règle commune Dépendances, devDependencies
  * uniquement) : `@testing-library/react` + `jsdom` (environnement local à CE fichier via le commentaire
  * `@vitest-environment` en tête — les ~450 autres tests continuent de tourner dans l'environnement `node`
  * par défaut, plus rapide, sans jsdom). Volontairement PAS `@testing-library/jest-dom` (les quatre

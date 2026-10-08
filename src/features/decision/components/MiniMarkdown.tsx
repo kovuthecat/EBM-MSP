@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import './MiniMarkdown.css'
 
 /**
- * Rendu Markdown minimal, sans dépendance (CLAUDE.md invariant 8 : pas de nouvelle dépendance
+ * Rendu Markdown minimal, sans dépendance (règle commune Dépendances : pas de nouvelle dépendance
  * runtime sans décision explicite). Ce n'est pas un parseur CommonMark complet : seulement le
  * sous-ensemble réellement utilisé par les argumentaires exhaustifs (niveau 3, DECISIONS.md D11) —
  * titres `#`/`##`/`###`, listes à puces/numérotées, citation `>`, tableau `|...|`, règle horizontale
